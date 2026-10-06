@@ -28,12 +28,17 @@ def tiles(indices,bpp):
     return b''.join(data),tilemap.tobytes()
 
 
-def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False):
+def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False,
+                high_base=0,priority_mask=None,obj_chr=None,oam=None):
     if report['bg_mode']!=4 or report['low_bpp']!=2 or report['high_palette_start']!=4 or report['high_opaque_capacity']!=236:
         raise ValueError('MODE4_COMPONENT_FIXTURE_CONTRACT')
     high=np.frombuffer((assets/'indices.bin').read_bytes(),dtype=np.uint8).reshape(224,256)+3
     low=np.frombuffer((assets/'low_indices.bin').read_bytes(),dtype=np.uint8).reshape(224,256)
     highchr,highmap=tiles(high,8);lowchr,lowmap=tiles(low,2);lowbase=report['low_chr_vram_base']
+    if priority_mask is not None:
+        if priority_mask.shape!=(28,32):raise ValueError('MODE4_PRIORITY_MASK_DOMAIN')
+        words=np.frombuffer(highmap,dtype='<u2').copy().reshape(32,32)
+        words[:28]|=priority_mask.astype(np.uint16)*0x2000;highmap=words.tobytes()
     if cache_assets is not None:
         highchr=(cache_assets/'high.chr').read_bytes();lowchr=(cache_assets/'low.chr').read_bytes()
         highmap=(cache_assets/'0-high.map').read_bytes();lowmap=(cache_assets/'0-low.map').read_bytes()
@@ -42,7 +47,9 @@ def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False):
         if layout.exists():
             lowbase=json.loads(layout.read_text())['low_chr_vram_base']
             if lowbase%8192 or any(highchr[lowbase:lowbase+len(lowchr)]):raise ValueError('MODE4_CACHE_CHR_OVERLAP')
-    gaps=[(len(highchr),lowbase),(lowbase+len(lowchr),0xf000)]
+    if high_base%8192 or high_base+len(highchr)>lowbase:raise ValueError('MODE4_HIGH_CHR_BASE_LIMIT')
+    if obj_chr is not None and (len(obj_chr)>high_base or oam is None or len(oam)!=544):raise ValueError('MODE4_OBJ_CHR_OVERLAP')
+    gaps=[(high_base+len(highchr),lowbase),(lowbase+len(lowchr),0xf000)]
     offsetmap=next((((first+2047)//2048)*2048 for first,last in gaps
                     if ((first+2047)//2048)*2048+2048<=last),None)
     if offset_alias:
@@ -78,18 +85,22 @@ def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False):
         for address,value in [(0x4370,mode),(0x4371,dest),(0x4372,source&255),(0x4373,source>>8),
                               (0x4374,bank),(0x4375,n&255),(0x4376,n>>8),(0x420b,128)]:store(address,value)
     for address,value in [(0x4200,0),(0x420c,0),(0x2100,128),(0x2115,128)]:store(address,value)
-    dma(0x8000,2,0x18,min(len(highchr),32768),1,0)
+    dma(0x8000,2,0x18,min(len(highchr),32768),1,high_base//2)
     if len(highchr)>32768:dma(0x8000,3,0x18,len(highchr)-32768,1)
     dma(0x8000,4,0x18,len(lowchr),1,lowbase//2)
     dma(0x8000,5,0x18,2048,1,0x7800);dma(0x8800,5,0x18,2048,1,0x7c00)
     if not offset_alias:dma(0x9800,5,0x18,2048,1,offsetmap//2)
+    if obj_chr is not None:
+        if obj_chr:dma(0x8000,7,0x18,len(obj_chr),1,0)
+        store(0x2102,0);store(0x2103,0);dma(0xa000,7,0x04,544,0)
+        store(0x2101,0xc0)
     store(0x2121,0);dma(0x9000,5,0x22,512,0)
     for address,value in [(0x2105,4),(0x2107,0x78),(0x2108,0x7c),(0x2109,offsetmap>>9),
-                          (0x210b,(lowbase//8192)<<4),
+                          (0x210b,((lowbase//8192)<<4)|(high_base//8192)),
                           (0x210d,0),(0x210d,0),(0x210e,255),(0x210e,255),
                           (0x210f,0),(0x210f,0),(0x2110,255),(0x2110,255),
                           (0x2111,0),(0x2111,0),(0x2112,0),(0x2112,0),
-                          (0x212c,1),(0x212d,2),(0x2130,2),(0x2131,1),(0x2132,0xe0),(0x2133,0)]:store(address,value)
+                          (0x212c,0x11 if obj_chr is not None else 1),(0x212d,2),(0x2130,2),(0x2131,1),(0x2132,0xe0),(0x2133,0)]:store(address,value)
     cursor=0xa000;audio=bytes([0x81,0,0,0,57])*224+bytes([0])
     for address,value in [(0x4300,4),(0x4301,0x40),(0x4302,cursor&255),(0x4303,cursor>>8),(0x4304,5)]:store(address,value)
     rom[0x28000+cursor-0x8000:0x28000+cursor-0x8000+len(audio)]=audio;cursor+=len(audio)
@@ -123,14 +134,18 @@ def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False):
     rom[0x10000:0x18000]=highchr[:32768].ljust(32768,b'\0');rom[0x18000:0x18000+len(highchr[32768:])]=highchr[32768:]
     rom[0x20000:0x20000+len(lowchr)]=lowchr;rom[0x28000:0x28800]=highmap;rom[0x28800:0x29000]=lowmap
     rom[0x29000:0x29200]=palette.tobytes();rom[0x29800:0x2a000]=bytes(2048)
+    if obj_chr is not None:
+        rom[0x38000:0x38000+len(obj_chr)]=obj_chr;rom[0x3a000:0x3a000+544]=oam
     rom[0x7fc0:0x7fd5]=b'M4 BG COMPONENTS'.ljust(21);rom[0x7fd5:0x7fdc]=bytes([0x20,0,8,0,1,0,0])
     rom[0x7ffc:0x7ffe]=struct.pack('<H',0x8000)
     if len(rom)!=262144:raise AssertionError('COMPONENT_ROM_SIZE_DRIFT')
-    return bytes(rom),expected_trace,dict(bg_mode=4,high_chr_bytes=len(highchr),low_chr_bytes=len(lowchr),
+    return bytes(rom),expected_trace,dict(bg_mode=4,high_chr_bytes=len(highchr),high_chr_base=high_base,low_chr_bytes=len(lowchr),
         low_chr_base=lowbase,offset_tilemap_base=offsetmap,offset_map_aliases_bg1=offset_alias,hdma_channels=[0] if burst else list(range(8)),irq_enabled=bool(burst),
         timer_dots=timer if burst else None,irq_entry_prg_offset=0x8400 if irq else None,
         irq_exit_prg_offset=0x8400+len(irq)-1 if irq else None,
-        code_bank=1,oam_entries=0,per_field_palette_restore_bytes=472,peak_palette_updates=report['peak_hblank_colors_written'],
+        code_bank=1,oam_entries=report.get('native_obj_entries',0) if obj_chr is not None else 0,
+        obj_chr_bytes=len(obj_chr) if obj_chr is not None else 0,
+        per_field_palette_restore_bytes=472,peak_palette_updates=report['peak_hblank_colors_written'],
         source_color_bits_preserved=15,spc_protocol_proven=False,
         low_palette_sha256=hashlib.sha256(palette[:4].tobytes()).hexdigest(),
         hud_palette_sha256=hashlib.sha256(palette[240:256].tobytes()).hexdigest())

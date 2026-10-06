@@ -1,0 +1,488 @@
+{
+  "resources": {
+    "bg_mode": 4,
+    "high_chr_bytes": 39360,
+    "high_chr_base": 8192,
+    "low_chr_bytes": 9184,
+    "low_chr_base": 49152,
+    "offset_tilemap_base": 59392,
+    "offset_map_aliases_bg1": false,
+    "hdma_channels": [
+      0
+    ],
+    "irq_enabled": true,
+    "timer_dots": 160,
+    "irq_entry_prg_offset": 33792,
+    "irq_exit_prg_offset": 33827,
+    "code_bank": 1,
+    "oam_entries": 22,
+    "obj_chr_bytes": 6144,
+    "per_field_palette_restore_bytes": 472,
+    "peak_palette_updates": 15,
+    "source_color_bits_preserved": 15,
+    "spc_protocol_proven": false,
+    "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+    "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd"
+  },
+  "rom_sha256": "c52338418a20c51f2afb271295d7635c11f1fc00244f7ff8c4f7fe886d06c1e6",
+  "schedule_sha256": "e5a36c34cf734d202e3ce5e2858d846c4f39296fafe26d0b2894e844a4483034",
+  "advancement": [
+    {
+      "requested": 1,
+      "startFrame": 0,
+      "endFrame": 1,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 1,
+      "endFrame": 2,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 2,
+      "endFrame": 3,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 3,
+      "endFrame": 3,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 3,
+      "endFrame": 4,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 4,
+      "endFrame": 5,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    }
+  ],
+  "completed_fields": 5,
+  "pixel_identity_verified": true,
+  "pixel_mismatches": 0,
+  "cgram_observer_verified": true,
+  "observed_register_writes": 6944,
+  "expected_register_writes": 6944,
+  "timing_samples": 448,
+  "active_window_samples": 0,
+  "irq_service_samples": 224,
+  "peak_irq_service_master_clocks": 676,
+  "visible_field_irq_service_master_clocks": 150596,
+  "low_palette_unchanged": true,
+  "hud_palette_unchanged": true,
+  "no_color_reduction": true,
+  "scope": "Native explicit hybrid pose, source-sized graphics, exact SCREEN already compiled; no live world, moving underlay generation, audio or Demo certification",
+  "pass": true,
+  "schema": "BYOR_HYBRID_SOURCE_POSE_NATIVE_V1",
+  "oam_observer_verified": true,
+  "oam_sha256": "c896407773a352f3e1ca14924a66bcba8cc96d59d34f57cc2a271360a9e77527",
+  "obj_chr_sha256": "39c7265f0558956ff225c29619f4eafd099a5429d6ca39616cabe6044c696c8b",
+  "ppu_obj_status": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "obj_overflow_samples": 0,
+  "obj_palette_banks": [
+    4,
+    5,
+    6
+  ],
+  "bg_exact_obj_palette_aliases": [
+    {
+      "color": 0,
+      "slot": 193
+    },
+    {
+      "color": 71,
+      "slot": 225
+    },
+    {
+      "color": 206,
+      "slot": 227
+    },
+    {
+      "color": 275,
+      "slot": 228
+    },
+    {
+      "color": 2189,
+      "slot": 212
+    },
+    {
+      "color": 2271,
+      "slot": 232
+    },
+    {
+      "color": 2391,
+      "slot": 213
+    },
+    {
+      "color": 10847,
+      "slot": 218
+    },
+    {
+      "color": 14732,
+      "slot": 198
+    },
+    {
+      "color": 15068,
+      "slot": 237
+    },
+    {
+      "color": 20942,
+      "slot": 201
+    },
+    {
+      "color": 23122,
+      "slot": 203
+    },
+    {
+      "color": 27416,
+      "slot": 205
+    },
+    {
+      "color": 29596,
+      "slot": 223
+    },
+    {
+      "color": 31709,
+      "slot": 239
+    }
+  ],
+  "promoted_tiles": 137,
+  "fully_bg_occluded_obj_entries": 11,
+  "source_rgb555_sha256": "3bdbe16fdd7c8330dcae28c9da1f68dfa7d0caa7dc80aafa9970140243e7874d",
+  "source_scene": {
+    "viewport": [
+      256,
+      224
+    ],
+    "piece_size": [
+      16,
+      32
+    ],
+    "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+    "actors": [
+      {
+        "model": "HBreath",
+        "animation": "idle",
+        "frame": 11,
+        "position": [
+          98,
+          220,
+          93
+        ],
+        "order": 2
+      },
+      {
+        "model": "He_ManB",
+        "animation": "freespecial4",
+        "frame": 6,
+        "position": [
+          80,
+          220,
+          0
+        ],
+        "order": 0
+      },
+      {
+        "model": "Knightbot",
+        "animation": "idle",
+        "frame": 0,
+        "position": [
+          200,
+          220,
+          0
+        ],
+        "order": 1
+      }
+    ]
+  },
+  "source_layers": [
+    {
+      "kind": "background",
+      "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+      "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+      "source_dimensions": [
+        800,
+        400
+      ],
+      "position": [
+        0,
+        0
+      ],
+      "alpha": 0,
+      "visible_source_pixels": 57344,
+      "source_flip": false
+    },
+    {
+      "kind": "panel",
+      "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+      "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+      "source_dimensions": [
+        2544,
+        245
+      ],
+      "position": [
+        0,
+        0
+      ],
+      "alpha": 0,
+      "visible_source_pixels": 44246,
+      "source_flip": false
+    },
+    {
+      "kind": "actor:He_ManB",
+      "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+      "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+      "source_dimensions": [
+        200,
+        200
+      ],
+      "position": [
+        -16,
+        44
+      ],
+      "alpha": 0,
+      "visible_source_pixels": 3327,
+      "source_flip": false
+    },
+    {
+      "kind": "actor:KnightBot",
+      "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+      "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+      "source_dimensions": [
+        50,
+        50
+      ],
+      "position": [
+        173,
+        172
+      ],
+      "alpha": 0,
+      "visible_source_pixels": 1078,
+      "source_flip": false
+    },
+    {
+      "kind": "actor:HBreath",
+      "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+      "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+      "source_dimensions": [
+        110,
+        90
+      ],
+      "position": [
+        84,
+        92
+      ],
+      "alpha": 1,
+      "visible_source_pixels": 2751,
+      "source_flip": false
+    },
+    {
+      "kind": "frontpanel",
+      "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+      "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+      "source_dimensions": [
+        350,
+        245
+      ],
+      "position": [
+        0,
+        0
+      ],
+      "alpha": 0,
+      "visible_source_pixels": 2749,
+      "source_flip": false
+    },
+    {
+      "kind": "frontpanel",
+      "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+      "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+      "source_dimensions": [
+        350,
+        245
+      ],
+      "position": [
+        350,
+        0
+      ],
+      "alpha": 0,
+      "visible_source_pixels": 0,
+      "source_flip": false
+    },
+    {
+      "kind": "frontpanel",
+      "path": "DATA\\BGS\\JUNGLE\\FG-02.GIF",
+      "sha256": "9a953cabb4b4d16862486ddad300082ff575cec029431e8cd104a93a945132e8",
+      "source_dimensions": [
+        700,
+        245
+      ],
+      "position": [
+        1400,
+        0
+      ],
+      "alpha": 0,
+      "visible_source_pixels": 0,
+      "source_flip": false
+    },
+    {
+      "kind": "frontpanel",
+      "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+      "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+      "source_dimensions": [
+        350,
+        245
+      ],
+      "position": [
+        1050,
+        0
+      ],
+      "alpha": 0,
+      "visible_source_pixels": 0,
+      "source_flip": false
+    },
+    {
+      "kind": "frontpanel",
+      "path": "DATA\\BGS\\JUNGLE\\FG-02.GIF",
+      "sha256": "9a953cabb4b4d16862486ddad300082ff575cec029431e8cd104a93a945132e8",
+      "source_dimensions": [
+        700,
+        245
+      ],
+      "position": [
+        2800,
+        0
+      ],
+      "alpha": 0,
+      "visible_source_pixels": 0,
+      "source_flip": false
+    }
+  ],
+  "source_frame_hashes": [
+    {
+      "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+      "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+      "dimensions": [
+        110,
+        90
+      ],
+      "alpha": 1
+    }
+  ],
+  "compiled_schedule_sha256": "0b4e971127c7d60b9c105b770c535afdb89e4a8120c67d9166b88d8ad8149fe7",
+  "source_obj_geometry_bound": {
+    "oam_entries": 33,
+    "peak_sprites": 9,
+    "peak_slivers": 18
+  },
+  "bg_exclusive_high_entries": 191,
+  "obj_opaque_entries_reserved": [
+    193,
+    194,
+    195,
+    196,
+    197,
+    198,
+    199,
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    209,
+    210,
+    211,
+    212,
+    213,
+    214,
+    215,
+    216,
+    217,
+    218,
+    219,
+    220,
+    221,
+    222,
+    223,
+    225,
+    226,
+    227,
+    228,
+    229,
+    230,
+    231,
+    232,
+    233,
+    234,
+    235,
+    236,
+    237,
+    238,
+    239
+  ],
+  "bg_owned_obj_transparent_entries": [
+    192,
+    208,
+    224
+  ],
+  "vram_allocation": {
+    "OBJ_capacity": [
+      0,
+      8192
+    ],
+    "BG1_high_capacity": [
+      8192,
+      49152
+    ],
+    "BG2_low_capacity": [
+      49152,
+      59392
+    ],
+    "Mode4_offset_zero_map": [
+      59392,
+      61440
+    ],
+    "BG1_map": [
+      61440,
+      63488
+    ],
+    "BG2_map": [
+      63488,
+      65536
+    ]
+  },
+  "default_fixture_byte_identity": {
+    "rom_sha256": "6c8340d799291f670f5a73c94d7a62ef4d497ccc872a3d522dc7e1234b62491d",
+    "unchanged": true
+  },
+  "tests": "2 focused tests including independent OAM/4bpp decoding, palette ownership and full source pixel reconstruction",
+  "production_runtime_modified": false,
+  "motu_gameplay_proven": false,
+  "color_reduction_applied": false
+}
