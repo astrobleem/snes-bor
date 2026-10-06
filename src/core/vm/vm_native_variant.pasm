@@ -82,8 +82,14 @@ Vm_NativeVariantDispatch__input:
 .a16
 .i16
     cmp #$020D                     ; playerkeys(), owned source-tick snapshot
-    bne Vm_NativeVariantDispatch__unbound
+    bne Vm_NativeVariantDispatch__environment
     jmp Vm_SourcePlayerKeys
+Vm_NativeVariantDispatch__environment:
+.a16
+.i16
+    cmp #$0204                     ; checkwall(), checked empty-wall level
+    bne Vm_NativeVariantDispatch__unbound
+    jmp Vm_SourceCheckWall
 Vm_NativeVariantDispatch__unbound:
 .a16
 .i16

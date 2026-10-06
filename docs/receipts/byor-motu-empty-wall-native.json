@@ -1,0 +1,21 @@
+{
+  "schema": "BYOR_M4_EMPTY_WALL_RECEIPT_V1",
+  "status": "PASS",
+  "native_cases": 8,
+  "native_rom_sha256": "a5d11b76aa1982068bc3665c96b36525c6616a41519c9eaaced97d0ae0f4a7f0",
+  "native_report": "out/byor-motu-environment-native/report.json",
+  "source_report": "out/byor-motu-environment-4086.json",
+  "source_stage_wall_counts": [
+    {
+      "source_path": "DATA\\LEVELS\\GUILE2.TXT",
+      "wall_count": 0
+    },
+    {
+      "source_path": "DATA\\LEVELS\\HOLES.TXT",
+      "wall_count": 0
+    }
+  ],
+  "scope": "Compiler-verified immutable empty-wall query under an injected stage lease; production level owner unfinished.",
+  "bank0_growth": 0,
+  "no_color_reduction": true
+}

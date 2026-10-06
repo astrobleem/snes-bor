@@ -103,6 +103,13 @@ and clamps. Coordinates and motion use the explicit Q16.16 adaptation. Native
 birth/motion and ordinary read-view regression tests pass; physics integration
 and the production world lease remain unfinished.
 
+Both authored Demo stages have compiler-derived empty wall lists. The native
+two-argument script `checkwall` query can return typed decimal zero under a
+checked empty-wall stage lease. Nonempty geometry, missing stage ownership and
+missing script context fault; this backend does not discard wall declarations.
+Eight native cases cover the result type, invalid numeric inputs and lease
+rejection. The production level owner must still install and retire this lease.
+
 From the repository root, with Python 3.10 and the existing build dependencies:
 
 ```powershell
