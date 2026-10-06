@@ -13627,4 +13627,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_model_transition.pasm"
 .include "core/vm/vm_source_weapon.pasm"
 .include "core/vm/vm_source_frame_effect_plan.pasm"
+.include "core/vm/vm_source_idle.pasm"
 

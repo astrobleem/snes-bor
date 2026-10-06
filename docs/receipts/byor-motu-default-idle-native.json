@@ -1,0 +1,137 @@
+{
+  "schema": "BYOR_M4_DEFAULT_IDLE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "path": "out/byor-motu-idle-authority/report.json",
+      "sha256": "0a54c9ee3fb4551271047e96146e759ee275dba5b7655da34710e847e9a23a40",
+      "cases": 27648
+    },
+    {
+      "path": "out/byor-motu-idle-native/report.json",
+      "sha256": "c535c84926b0a432d9721af8f97a308bb1e678f18215151efeeea1ecc1b7933d",
+      "cases": 85
+    }
+  ],
+  "capability": {
+    "schema": "BYOR_4086_IDLE_CAPABILITY_V1",
+    "models": [
+      {
+        "identity": "Shock",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "Slash",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "Spark",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "He_Man",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 1,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "He_ManB",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "HBreath",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "HWWind",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "ShWave",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "Skeletor",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 2,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "GeyserN",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "SkFBall",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "SkGeyser",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "SkGeyserT",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "SkTorn",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "Knightbot",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 2,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "ShockBall",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      }
+    ],
+    "native_animation_initializer_required": true,
+    "dynamic_idlemode_domain": [
+      0,
+      1
+    ],
+    "motu_gameplay_proven": false
+  },
+  "production_rom_sha256": "35c30cd5584e586c3f56015575800edb9cb735f9f3ab52650532fd3b62e74331",
+  "proof": "Pinned set_idle/common_idle_anim/common_anim_series policy matches 27648 C cases including source-self restoration, forced modes and target search order. Complete 16-model registry admits DEFAULT_IDLE_ONLY. Native leaf passes 72 C-derived cases plus 13 lease/domain guards across slots 0,1,127. Flags are int32; cached model type controls velocity stopping even when retained entity type differs. Animation initializer parameters resolved before mutations; actual initializer/nested frame-zero remains a required caller service.",
+  "entity_flag_lease": "43EB00..43FAFF",
+  "native_idle_flags_bound": true,
+  "native_nested_idle_animation_execution_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
