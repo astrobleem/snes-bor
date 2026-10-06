@@ -1,0 +1,44 @@
+{
+  "schema": "BYOR_M4_CURRENT_SPEED_ZERO_IDENTITY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": {
+    "lifecycle": {
+      "path": "out/byor-motu-speed-identity-lifecycle-native/report.json",
+      "sha256": "c3e7f9aad56e59de0517bdb7bfdd31fd3100fa0a2e57295f70d80b896ad0e359",
+      "cases": 160
+    },
+    "model_copy": {
+      "path": "out/byor-motu-model-speed-zero-identity-native/report.json",
+      "sha256": "e1b2f742a1beb35f28201e5c3928e856a9bde8a4d462a36471f4f71dacdc6577",
+      "cases": 482
+    },
+    "typed_speed_setter": {
+      "path": "out/byor-motu-speed-identity-world-native/report.json",
+      "sha256": "0a11475b97b1bb33b217b75a510fff92c38ec169d21896f973e23be2eaf914f1",
+      "cases": 35
+    },
+    "helper_guards": {
+      "path": "out/byor-motu-speed-identity-helper-native/report.json",
+      "sha256": "586c49207b8397c2f12871e7e1d46b050841f02eeb2ea5d9a09be38078de18d6",
+      "cases": 48
+    }
+  },
+  "current_entity_metadata": {
+    "nonzero_int32_offset": 68,
+    "identity_marker_offset": 76,
+    "identity_marker": "B508"
+  },
+  "binary32_source_truth": "Magnitude bits nonzero, including tiny normals/subnormals whose Q16 projection is zero; both signed zeroes are false",
+  "model_copy_rebinds_identity": true,
+  "lifecycle_model_replacement_invalidates_identity": true,
+  "script_speed_setter_rebinds_identity": true,
+  "script_numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "velocity_setter_does_not_modify_speed_identity": true,
+  "projection_remains_lossy_numeric_compatibility": true,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17,
+  "full_default_init_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "rom_audit": "out/byor-motu-speed-identity-audit.log: ALL CHECKS PASS"
+}

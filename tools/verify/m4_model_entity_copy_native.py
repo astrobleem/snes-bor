@@ -47,6 +47,11 @@ def main():
                 oldtype=c['oldtype'],fault=0,bad='',boundary=c['boundary'],speed_q16=project_q16(struct.unpack_from('<I',cache,160)[0])))
     lifetable=pack_lifecycle(dict(models=unpack_lifecycle(a.lifecycle.read_bytes())[:2])) if a.lifecycle else b''
     base=rows[0]
+    # Binary32 truth is separate from the projected Q16 value: both signed
+    # zeroes are false, but subnormals and tiny normals remain nonzero.
+    for bits in (0,0x80000000,1,0x80000001,0x007fffff,0x807fffff,0x00800000,0x80800000,0x37000000,0xb7000000):
+        cache=bytearray(base['cache']);struct.pack_into('<I',cache,160,bits)
+        rows.append(dict(base,cache=list(cache),speed_q16=project_q16(bits),speed_bits=bits))
     for bad in ('ready','world_ready','world_base','world_side','entities','slot','models','model','health_tag','max_tag','health_reserved','max_reserved'):
         rows.append(dict(base,fault=1,bad=bad,after=base['before'],want=base['view']))
     for bits in (0x7f800000,0xff800000,0x7fc00000,0x47000000,0xc7000000):
@@ -211,6 +216,9 @@ emu.addMemoryCallback(function()
   if c.fault==0 then
    for i=0,19 do expected[c.slot*80+48+i]=lifetable[24+32+4+i+1]end
    expected[c.slot*80+72]=1;expected[c.slot*80+73]=0
+   local bits=c.cache[161]|(c.cache[162]<<8)|(c.cache[163]<<16)|(c.cache[164]<<24)
+   expected[c.slot*80+68]=(bits&0x7fffffff)~=0 and 1 or 0;expected[c.slot*80+69]=0;expected[c.slot*80+70]=0;expected[c.slot*80+71]=0
+   expected[c.slot*80+76]=8;expected[c.slot*80+77]=0xb5
   end
   for i=0,10239 do if emu.read(0x439000+i,mt)~=expected[i]then mismatch=mismatch+1 end end
  end

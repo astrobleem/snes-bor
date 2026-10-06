@@ -71,6 +71,7 @@ emu.addMemoryCallback(function()
   for i=0,19 do before[0x439030+c.slot*80+i]=tablebytes[24+c.model*32+4+i+1]end
   local function expect(a,v)before[a]=v&255;before[a+1]=(v>>8)&255 end
   expect(0x439048+c.slot*80,c.model);expect(0x43904a+c.slot*80,0xb4fb)
+  expect(0x439044+c.slot*80,0);expect(0x439046+c.slot*80,0);expect(0x43904c+c.slot*80,0)
  end
  local mismatch=0;for a,n in pairs(before)do if emu.read(a,mt)~=n then mismatch=mismatch+1 end end
  emu.log('LIFERESULT|'..word(INDEX)..'|'..mismatch..'|'..ctx..'|'..word(sy.SourceLifecycle4086_Status))

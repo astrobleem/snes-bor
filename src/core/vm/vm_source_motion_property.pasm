@@ -74,6 +74,15 @@ Vm_SourceMotionProperty_Component:
 Vm_SourceMotionProperty_Write:
 .a16
 .i16
+    lda.l VmSourceMutation_Name
+    cmp #112
+    beq Vm_SourceMotionProperty_PhysicalWrite
+    jsl SourceSpeedIdentity4086_PreflightProperty
+    bcs Vm_SourceMotionProperty_Bad
+    jsl SourceSpeedIdentity4086_ApplyProperty
+Vm_SourceMotionProperty_PhysicalWrite:
+.a16
+.i16
     lda.l SourceMotionProperty_Side
     clc
     adc.l VmSourceMutation_Offset

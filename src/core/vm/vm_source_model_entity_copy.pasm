@@ -409,6 +409,37 @@ SourceModelEntityCopy4086_InstallSpeed:
     sta.l $41003C,x
     lda.l SourceModelEntityCopy4086_Hi
     sta.l $41003E,x
+    lda.l SourceLifecycle4086_Ready
+    beq SourceModelEntityCopy4086_SpeedIdentityDone
+    lda.l SourceModelEntityCopy4086_Cache
+    tax
+    lda.l $400002,x
+    and #$7FFF
+    ora.l $400000,x
+    beq SourceModelEntityCopy4086_SpeedZero
+    lda #1
+    bra SourceModelEntityCopy4086_SpeedIdentity
+SourceModelEntityCopy4086_SpeedZero:
+.a16
+.i16
+    lda #0
+SourceModelEntityCopy4086_SpeedIdentity:
+.a16
+.i16
+    sta.l SourceModelEntityCopy4086_Index
+    lda.l SourceModelEntityCopy4086_View
+    sec
+    sbc #$4000
+    tax
+    lda.l SourceModelEntityCopy4086_Index
+    sta.l $439044,x
+    lda #0
+    sta.l $439046,x
+    lda #$B508
+    sta.l $43904C,x
+SourceModelEntityCopy4086_SpeedIdentityDone:
+.a16
+.i16
     lda #1
     sta.l SourceModelEntityCopy4086_Status
     ply

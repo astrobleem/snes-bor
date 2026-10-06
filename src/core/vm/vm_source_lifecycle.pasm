@@ -1,6 +1,9 @@
 ; B4FB synchronous current-model scalar install. Isolated BW-RAM lease.
 ; 128 x 80 bytes at $439000..$43B7FF. Callback identities are not executable pointers.
 ; +44 is current entity walkmode int32: birth calloc zero, model copies retain.
+; +68 is model-speed nonzero int32, +76 B508 means its zero identity is bound.
+; Model scalar replacement invalidates this identity; checked model copy or
+; an admitted speed property write rebinds it. Q16 zero alone is insufficient.
 ; Reset=1 clears the full entity lifecycle row; Reset=0 preserves lifecycle fields.
 SourceLifecycle4086_Ready = $7FFE9C
 SourceLifecycle4086_Slot = $7FFE9E
@@ -410,6 +413,10 @@ SourceLifecycle4086_CopyLoop:
  sta.l $439048,x
  lda #$B4FB
  sta.l $43904A,x
+ lda #0
+ sta.l $439044,x
+ sta.l $439046,x
+ sta.l $43904C,x
  lda #2
  sta.l SourceLifecycle4086_Status
  ply
@@ -471,3 +478,109 @@ SourceLifecycle4086_IdleBad:
  plp
  sec
  rtl
+
+; Speed property metadata over the same current entity. The numeric argument
+; has already passed the explicit Q16 ScriptVariant compatibility conversion.
+; Preflight performs no entity writes; Apply is called before side +60 writes.
+SourceSpeedIdentity4086_PreflightProperty:
+.a16
+.i16
+ php
+ rep #$38
+ pha
+ phx
+ phy
+ lda.l SourceLifecycle4086_Ready
+ beq SourceSpeedIdentity4086_Good
+ cmp #$B4FB
+ bne SourceSpeedIdentity4086_Bad
+ lda.l SourceLifecycle4086_Status
+ cmp #3
+ beq SourceSpeedIdentity4086_Bad
+ lda.l SourceModelEntityCopy4086_Ready
+ cmp #$B4EB
+ bne SourceSpeedIdentity4086_Bad
+ lda.l SourceModelEntityCopy4086_Entities
+ cmp.l VmSourceWorld_Count
+ bne SourceSpeedIdentity4086_Bad
+ lda.l VmSourceEntity_Index
+ asl a
+ asl a
+ asl a
+ asl a
+ tax
+ asl a
+ asl a
+ clc
+ adc #$6800
+ tay
+ txa
+ clc
+ adc.l SourceMotionProperty_Side
+ tax
+ lda.l $43904A,x
+ cmp #$B4FB
+ bne SourceSpeedIdentity4086_Bad
+ ; SourceMotionProperty_Side is the checked physical slot*64.
+ lda.l $439048,x
+ sta.l SourceLifecycle4086_Value
+ tya
+ tax
+ lda.l $410000,x
+ cmp.l SourceLifecycle4086_Value
+ bne SourceSpeedIdentity4086_Bad
+SourceSpeedIdentity4086_Good:
+.a16
+.i16
+ ply
+ plx
+ pla
+ plp
+ clc
+ rtl
+SourceSpeedIdentity4086_Bad:
+.a16
+.i16
+ ply
+ plx
+ pla
+ plp
+ sec
+ rtl
+
+SourceSpeedIdentity4086_ApplyProperty:
+.a16
+.i16
+ php
+ rep #$38
+ pha
+ phx
+ phy
+ lda.l SourceLifecycle4086_Ready
+ beq SourceSpeedIdentity4086_Good
+ lda.l VmSourceEntity_Index
+ asl a
+ asl a
+ asl a
+ asl a
+ clc
+ adc.l SourceMotionProperty_Side
+ tax
+ lda.l VmSourceMutation_Lo
+ ora.l VmSourceMutation_Hi
+ beq SourceSpeedIdentity4086_Zero
+ lda #1
+ bra SourceSpeedIdentity4086_Store
+SourceSpeedIdentity4086_Zero:
+.a16
+.i16
+ lda #0
+SourceSpeedIdentity4086_Store:
+.a16
+.i16
+ sta.l $439044,x
+ lda #0
+ sta.l $439046,x
+ lda #$B508
+ sta.l $43904C,x
+ jmp SourceSpeedIdentity4086_Good

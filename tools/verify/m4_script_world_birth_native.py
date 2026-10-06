@@ -67,6 +67,8 @@ def main():
         'velocity_one':('changeentityproperty(born,"velocity",-2);',{36:-131072}),
         'velocity_skip':('changeentityproperty(born,"velocity","invalid",2,NULL());',{40:131072}),
         'speed_skip':('changeentityproperty(born,"speed","invalid");',{}),
+        'speed_zero':('changeentityproperty(born,"speed",0);',{60:0}),
+        'speed_negative':('changeentityproperty(born,"speed",-0.5);',{60:-32768}),
     }
     toss_cases={
         'toss_full':('tossentity(born,0.25,1.5,-0.75);',{36:98304,40:-49152,44:16384},32768,49),
@@ -238,7 +240,10 @@ end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
             if lifetable:
                 expected_life=bytearray(initial_life)
                 if outcome in ('PTR','PTR_FAULT','PTR_KILLED'):
-                    row=bytearray(80);struct.pack_into('<I',row,16,1);row[48:68]=lifetable[24+model_id*32+4:24+model_id*32+24];struct.pack_into('<HH',row,72,model_id,0xb4fb);expected_life[born_slot*80:(born_slot+1)*80]=row
+                    row=bytearray(80);struct.pack_into('<I',row,16,1);row[48:68]=lifetable[24+model_id*32+4:24+model_id*32+24];struct.pack_into('<HH',row,72,model_id,0xb4fb)
+                    if name in motion_cases and 60 in motion_cases[name][1]:
+                        struct.pack_into('<I',row,68,int(motion_cases[name][1][60]!=0));struct.pack_into('<H',row,76,0xb508)
+                    expected_life[born_slot*80:(born_slot+1)*80]=row
                 reporter.check(name+' current lifecycle row published before alive, or preserved on rejection',read_block(m,0x439000,160)==bytes(expected_life))
             if name=='reordered_allocated':
                 reporter.check('birth extends the source traversal prefix',startup.u16(m,syms['SourceWorldTick4086_Maximum'])==1)
