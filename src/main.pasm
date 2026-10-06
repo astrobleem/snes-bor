@@ -13641,3 +13641,5 @@ SourceVM_InstructionReservation:
 
 
 .include "core/vm/vm_source_birth_core.pasm"
+
+.include "core/vm/vm_source_default_choice.pasm"

@@ -1,0 +1,20 @@
+{
+  "schema": "BYOR_M4_DEFAULT_INIT_FIRST_CHOICE_RECEIPT_V1",
+  "status": "PASS",
+  "report_path": "out/byor-motu-default-choice-native/report.json",
+  "report_sha256": "ad6f67c451b9cb4fe7251f1830626f5f5fe46323af5c48fa9b15c31b51d3888c",
+  "authority_function_sha256": "815cbee5badceb49d15caf1bde03bc2b73d0bcf1a9841a39ca65796ce791049b",
+  "cases": 710,
+  "distinct_source_cases": 230,
+  "peak_master_clocks": 46856,
+  "proof": "First ent_default_init animation decision through the actual mutable animation cache and checked native B4AI/B4FE resolver; physical rows and CPU context preserved.",
+  "scope": "Preparation only. Does not execute ent_set_anim or remaining type/environment initialization.",
+  "type_policy": "current entity modeldata.type == TYPE_PLAYER, full 32-bit equality; not cached model type or a bit test",
+  "code_bank": 62,
+  "bank0_unchanged": true,
+  "rom_audit": "out/byor-motu-default-choice-audit.log: ALL CHECKS PASS",
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_files_unchanged": 17
+}
