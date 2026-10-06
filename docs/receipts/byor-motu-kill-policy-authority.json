@@ -1,0 +1,16 @@
+{
+  "schema": "BYOR_M4_KILL_POLICY_AUTHORITY_RECEIPT_V1",
+  "status": "PASS",
+  "report_path": "out/byor-motu-kill-authority/report.json",
+  "report_sha256": "fc7d4d8fb80025fc374a66c64f31e002ff1b09960c819e9c9185ef1d4777f904",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "functions_sha256": "345abfd89895ce4f6b89a32692aadd00857f1245e1f2adafc9b22f081e2fefa0",
+  "cases": 72,
+  "proof": "Verbatim pinned kill and ent_unlink match the generic resumable retirement reference across summonkill 0/1/2, damage/recursive kill, completed-level fallback, dead-before-call and onkill-removal, duplicate player roles, shot owner cantfire, link cleanup, parent/owner/opponent/binding/platform/hithead/lasthit repair, textbox selection and global self restoration. Source checks each scan row exists once; repairs continue after that row is killed. Source invokes onkill before the exists check; early return does not perform the normal terminal self restore. Callback/script-clear/damage bodies are instrumented.",
+  "native_retirement_bound": false,
+  "script_clear_body_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "unrelated_protected_files_unchanged": 17
+}
