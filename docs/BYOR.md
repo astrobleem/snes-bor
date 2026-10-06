@@ -119,6 +119,13 @@ extremes, stale metadata and malformed order rejection. This is an injected
 current-tick snapshot proof; the live owner must publish these fields and run
 source list compaction. Animated range queries and live AI remain unfinished.
 
+A host probe compiles five pinned interpreter control functions verbatim. With
+MOTU's default `nonestedscript=0` and `nocmdcompatible=0`, a nested call on the
+same model interpreter terminates the remaining outer script instructions.
+The compiler records that policy separately from frame dispatch. The probe
+uses mocked instruction dispatch and external services; it does not certify
+the complete parser or a native nested-callback owner, which remains unfinished.
+
 From the repository root, with Python 3.10 and the existing build dependencies:
 
 ```powershell

@@ -1,0 +1,92 @@
+{
+  "schema": "BYOR_PINNED_NESTED_CONTROL_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_files": [
+    {
+      "path": "engine/openborscript.c",
+      "sha256": "4be42b223e003565531d785e6182127d75307e4e0625028b7e03e2ab124ffa45"
+    },
+    {
+      "path": "engine/source/scriptlib/Interpreter.c",
+      "sha256": "9cc76b5b2d888c92ba3a3d75f0f5e08872a6dc14a748dd1e94f1c121efd8c1c2"
+    }
+  ],
+  "verbatim_functions": [
+    {
+      "name": "Script_Execute",
+      "source_path": "engine/openborscript.c",
+      "sha256": "0363e9ee8de6db4078b4ddd5ad1a81374b11df1a94f3c1046cc2843fb0b5e361"
+    },
+    {
+      "name": "Interpreter_Reset",
+      "source_path": "engine/source/scriptlib/Interpreter.c",
+      "sha256": "bb3236faa7325a0d2a51a9726a2c112f4a9149cd768fced859b0c389e604bf9a"
+    },
+    {
+      "name": "Interpreter_Call",
+      "source_path": "engine/source/scriptlib/Interpreter.c",
+      "sha256": "fafa778fe5eb9a656f77f3df85f06918e252ebe2687a2d1e7e96cfa2bca00f66"
+    },
+    {
+      "name": "Interpreter_EvaluateCall",
+      "source_path": "engine/source/scriptlib/Interpreter.c",
+      "sha256": "e93e8e043cbf38a8e4fbbefed032736d08344ea8c47f4938f773149632914f48"
+    },
+    {
+      "name": "Interpreter_EvaluateImmediate",
+      "source_path": "engine/source/scriptlib/Interpreter.c",
+      "sha256": "633488af13e6046d3cf0e505dcca775231150bf4ddd162f6d0924c664a6478bc"
+    }
+  ],
+  "observations": [
+    [
+      0,
+      1,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      1,
+      0
+    ],
+    [
+      2,
+      1,
+      1,
+      1,
+      0
+    ]
+  ],
+  "expected": [
+    [
+      0,
+      1,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      1,
+      1,
+      0
+    ],
+    [
+      2,
+      1,
+      1,
+      1,
+      0
+    ]
+  ],
+  "scope": "Pinned control functions with mocked instruction dispatch and external services; same-interpreter nested callback. No full parser, variants, entity or native SNES proof.",
+  "default_nested_call_resumes_outer_tail": false,
+  "native_bound": false,
+  "evidence": "out/byor-motu-nested-authority/report.json"
+}

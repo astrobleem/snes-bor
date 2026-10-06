@@ -17,6 +17,9 @@ def compile_source(source):
     compatibility=[r for r in registry if r['directive']=='nocmdcompatible']
     if compatibility and int(compatibility[-1]['values'][0])!=0:
         raise ValueError('SCRIPT_NOCMDCOMPATIBLE_POLICY_UNSUPPORTED')
+    nested=[r for r in registry if r['directive']=='nonestedscript']
+    if nested and len(nested[-1]['values'])!=1:raise ValueError('SCRIPT_NONESTEDSCRIPT_ARITY')
+    no_nested_script=bool(int(nested[-1]['values'][0])) if nested else False
     frontend=inspect(source)
     if frontend['diagnostics']:raise ValueError('SCRIPT_SOURCE_BINDING_FAILURE')
     handles=[];programs=[]
@@ -55,11 +58,15 @@ def compile_source(source):
         programs.append(dict(model=model['declaration'],source_path=model['source_path'],
             wrapper=wrapper,program=compiled,entry_function='main',native_bound=False))
     return dict(schema='BYOR_4086_ANIMATION_SCRIPT_PROGRAM_V1',engine_authority=ENGINE_COMMIT,
-        programs=programs,animation_handles=handles,no_cmd_compatible=0,
+        programs=programs,animation_handles=handles,no_cmd_compatible=0,no_nested_script=no_nested_script,
+        same_interpreter_nested_policy='SKIP_ACTIVE' if no_nested_script else 'RESET_AND_TERMINATE_OUTER_TAIL',
+        nested_policy_native_bound=False,
         wrapper_semantics='main reads frame/animhandle; animation guard encloses source-order commands and inline bodies',
         execution_requirements=['update_frame executes script after setting animpos and nextanim',
             'self/animnum/frame/animhandle installed as local variants',
             'current model script followed by distinct default model script',
+            'model interpreters are shared; instance variable stores remain distinct',
+            'same-interpreter nested execution follows source nonestedscript/nocmdcompatible policy',
             'original local frame snapshot persists if a command changes animation/frame',
             'update_frame aborts subsequent frame side effects after animation/frame interruption'],
         native_vm_bound=False,entity_api_bound=False,source_numeric_native_equivalence=False)
