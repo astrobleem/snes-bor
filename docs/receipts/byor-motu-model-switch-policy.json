@@ -1,0 +1,74 @@
+{
+  "schema": "BYOR_M4_MODEL_SWITCH_POLICY_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "reports": [
+    {
+      "path": "out/byor-motu-model-switch-authority/report.json",
+      "sha256": "b3b02458a25f6c6bd16517f486640374d8cde3451e6ac0b79cfc766e9c3f41b5"
+    },
+    {
+      "path": "out/byor-motu-model-switch-authority/source-requirements.json",
+      "sha256": "7b3b79a612369899fec687c34cfd291da63382d09fdeea992a463b73ed46ae03"
+    }
+  ],
+  "functions": [
+    "ent_set_colourmap",
+    "ent_copy_uninit",
+    "ent_set_model",
+    "set_model_ex",
+    "set_weapon"
+  ],
+  "functions_sha256": "b986f6344bb027ff9bbc61f30375b49503941b5088906fd09aa7dc564b3d0c35",
+  "verbatim_c_cases": 576,
+  "model_identities": 16,
+  "source_animation_slots": 168,
+  "cached_animation_map_bytes": 5376,
+  "policy": "Mutable shared cached inheritance is distinct from per-entity modeldata fallback. Weapon model initialization runs before the previous entity type is restored.",
+  "authored_dependencies": [
+    {
+      "identity": "He_Man",
+      "weapon_ids": [
+        4,
+        3
+      ],
+      "declared_type": "player",
+      "weapon_frame_events": [
+        {
+          "frame_handle": 13,
+          "frame": 8,
+          "weapon_number": 1,
+          "keep": 0
+        }
+      ]
+    },
+    {
+      "identity": "He_ManB",
+      "weapon_ids": [
+        4,
+        3
+      ],
+      "declared_type": "none",
+      "weapon_frame_events": [
+        {
+          "frame_handle": 33,
+          "frame": 7,
+          "weapon_number": 2,
+          "keep": 0
+        }
+      ]
+    }
+  ],
+  "undefined_policy": "Negative selected cached weapon indices and growing repeated weapon declarations reject explicitly; no implicit default or negative-index alias.",
+  "current_runtime_bwram_header_bytes": 262144,
+  "animation_initialization_instrumented": true,
+  "script_copy_instrumented": true,
+  "model_copy_callback_instrumented": true,
+  "native_model_switch_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "unrelated_protected_files_unchanged": 17,
+  "remaining_work": "Bind generic native cached model/entity metadata, model/weapon switching, source animation initialization and any required nested callback continuations."
+}
