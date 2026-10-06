@@ -1,0 +1,36 @@
+{
+  "schema": "BYOR_M4_SOURCE_RANDOM_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "native_rom_sha256": "3814272adc6587f0f7ea69fe840d493ca3a7f5faafb06d67bb8cbe2536ac290d",
+  "native_report": "out\\byor-motu-random-native\\report.json",
+  "native_report_sha256": "794709d020a7eb6e3f267e6ab820b1388aa17aef8ee0e33ebc5c681c9fd16be2",
+  "authority_report": "out\\byor-motu-random-authority\\report.json",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_sha256": {
+    "engine/source/randlib/rand32.c": "bd6206bc7c71c0d4ce6dfa6003d1bd751124f3a7a716511f396a8989bcb6d88c",
+    "engine/source/randlib/rand32.h": "e8002fb31b92354c5cc2a98d919ba122b86a3a878a2592ccb6debc6d4fd8f599",
+    "engine/openborscript.c": "4be42b223e003565531d785e6182127d75307e4e0625028b7e03e2ab124ffa45"
+  },
+  "system_rand_sha256": "3bdd6da587732c6d4c5e59607ff32b6b6348b3c22bb4f793380b18924a6937e3",
+  "c_authority_comparisons": 224,
+  "native_cases": 11,
+  "native_returned_integer_variants": 197,
+  "reject_cases": 4,
+  "seed_width_bits": 32,
+  "returned_product_bits": [
+    16,
+    47
+  ],
+  "global_stream": true,
+  "stack_local_multiply_scratch_bytes": 26,
+  "world_seed_installation_bound": false,
+  "world_call_order_bound": false,
+  "motu_gameplay_proven": false,
+  "bank0_growth_bytes": 0,
+  "new_width_violations": 0,
+  "rom_audit_all_pass": true,
+  "focused_static_visual_tests": "41 passed, 6 subtests; source palette, retained transport, publication and extended visual admission plus raster first-use and transfer planning",
+  "static_transport_test_correction": "Reviewed Normal compiler 7622611 owns VRAM bytes 0x8000..0xBFFF. The 9216-byte retained example fits capacity but has an explicit STATIC_LAYOUT_CONFLICT; a transfer at 0x9F00 is valid, 0xBF00+512 is rejected. No code admission was loosened.",
+  "no_color_reduction": true,
+  "scope": "Typed VM rand() after original BOR cold boot/selector/first-stage entry, checked 4086 stream lease. No source-world AI/script ordering, live MOTU entities or Demo certification."
+}

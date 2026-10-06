@@ -19,11 +19,11 @@ class InstanceTransportTests(unittest.TestCase):
         cls.plan=compile_frames(cls.source,cls.manifest,group_future=True)
 
     def test_every_source_pixel_survives_static_placement(self):
-        image=bytearray(8192)
+        image=bytearray(self.plan['vram_byte_range'][1]-self.plan['vram_byte_range'][0])
         for f in self.plan['frames']:
             for w in f['writes']:
                 at=w['destination']-0x8000
-                self.assertGreaterEqual(at,0);self.assertLessEqual(at+len(w['payload']),8192)
+                self.assertGreaterEqual(at,0);self.assertLessEqual(at+len(w['payload']),len(image))
                 image[at:at+len(w['payload'])]=w['payload']
             source=Image.open(io.BytesIO(self.source.read(f['source']['source_path'])))
             canvas=bytearray(source.width*source.height);ox,oy=f['source']['offset']
@@ -47,15 +47,17 @@ class InstanceTransportTests(unittest.TestCase):
             self.assertEqual(one['status'],'FITS_STATIC_LAYOUT')
             self.assertFalse(one['hardware_ready'])
 
-    def test_staggered_retained_three_frame_limit_is_explicit(self):
+    def test_staggered_retained_three_frame_layout_conflict_is_explicit(self):
         result=retained_working_set(self.plan,[3,4],[4,5])
-        self.assertEqual((result['bytes'],result['available_bytes']),(9216,8192))
-        self.assertEqual(result['status'],'VRAM_WORKING_SET_BLOCKED')
+        self.assertEqual((result['bytes'],result['available_bytes']),(9216,16384))
+        self.assertEqual(result['status'],'STATIC_LAYOUT_CONFLICT')
+        self.assertTrue(result['layout_conflicts'])
 
     def test_disappearance_does_not_retire_unconsumed_partner_packet(self):
         retained=retained_working_set(self.plan,[3,4],[5])
         self.assertEqual(retained['bytes'],9216)
-        self.assertEqual(retained['status'],'VRAM_WORKING_SET_BLOCKED')
+        self.assertEqual(retained['status'],'STATIC_LAYOUT_CONFLICT')
+        self.assertTrue(retained['layout_conflicts'])
         retired=retained_working_set(self.plan,[],[5])
         self.assertEqual(retired['status'],'FITS_STATIC_LAYOUT')
 
@@ -89,7 +91,10 @@ class InstanceTransportTests(unittest.TestCase):
         job=dict(frame=2,lease=1,target=0x8000,source=0x8000,size=512)
         with self.assertRaisesRegex(ValueError,'STATE_CAPACITY'):emit_jobs([job]*97)
         with self.assertRaisesRegex(ValueError,'FENCE_IDENTITY'):emit_jobs([job,job])
-        for change in (dict(target=0x9F00),dict(source=0xFF00),dict(size=2272),dict(lease=3)):
+        # The reviewed Normal transport now owns $8000..$BFFF. The old
+        # $9F00 boundary is a valid second-page transfer, not an ABI fault.
+        emit_jobs([dict(job,target=0x9F00)])
+        for change in (dict(target=0xBF00),dict(source=0xFF00),dict(size=2272),dict(lease=3)):
             with self.assertRaisesRegex(ValueError,'RESOURCE_ABI'):emit_jobs([dict(job,**change)])
 
 

@@ -33,6 +33,8 @@ Vm_FetchSourceInit:
     sta.l SourceEnvironment4086_Ready
     sta.l SourceTarget4086_Ready
     sta.l SourceTarget4086_OrderReady
+    sta.l SourceRandom4086_Ready
+    sta.l SourceRandom4086_Busy
     ; Dynamic pool headers need an actual cold-boot owner. Older string
     ; fixtures cleared them through debug writes; random WRAM is not free.
     ldx #0

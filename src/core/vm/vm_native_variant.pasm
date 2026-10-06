@@ -94,8 +94,14 @@ Vm_NativeVariantDispatch__target:
 .a16
 .i16
     cmp #$0207                     ; findtarget(self), no animation range
-    bne Vm_NativeVariantDispatch__unbound
+    bne Vm_NativeVariantDispatch__random
     jmp Vm_SourceFindTarget
+Vm_NativeVariantDispatch__random:
+.a16
+.i16
+    cmp #$020F                     ; rand(), shared checked 4086 world stream
+    bne Vm_NativeVariantDispatch__unbound
+    jmp Vm_SourceRand
 Vm_NativeVariantDispatch__unbound:
 .a16
 .i16
