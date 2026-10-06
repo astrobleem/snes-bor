@@ -1,8 +1,20 @@
 import unittest
-from source_animation_ids import configure,role_id,animation_constant
+from source_animation_ids import configure,role_id,animation_constant,initial_sync,loader_sync
 
 
 class AnimationIdentities(unittest.TestCase):
+    def test_implicit_walk_sync_and_explicit_override(self):
+        c=configure([dict(directive='maxwalks',values=['3'])])
+        for role in ('walk','walk2','up','down','backwalk'):
+            self.assertEqual(initial_sync(c,role),1)
+        for role in ('idle','attack1','walkoff','grabturn'):
+            self.assertEqual(initial_sync(c,role),-1)
+        rows=[dict(directive='anim',values=['walk2']),dict(directive='sync',values=['none']),
+              dict(directive='anim',values=['idle']),dict(directive='sync',values=['waiting'])]
+        self.assertEqual([a['sync'] for a in loader_sync(c,rows)],[-1,59])
+        with self.assertRaisesRegex(ValueError,'SYNC_WITHOUT_ANIMATION'):
+            loader_sync(c,[dict(directive='sync',values=['walk'])])
+
     def test_source_loader_and_constant_names_are_distinct(self):
         c=configure([])
         self.assertEqual(role_id(c,'waiting'),59)

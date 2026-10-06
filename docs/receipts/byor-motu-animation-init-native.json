@@ -1,0 +1,44 @@
+{
+  "schema": "BYOR_M4_NATIVE_ANIMATION_INIT_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "report": {
+    "path": "out/byor-motu-animation-init-native/report.json",
+    "sha256": "6f140b8e6d6de625539eb4d09eea00a01dfdc4f88c1c309380b7ffec135fac04"
+  },
+  "authority_report": {
+    "path": "out/byor-motu-animation-init-authority/report.json",
+    "sha256": "758bd15ab8136567959814e735807093888dec9a4efedaa0fd76e838c7bee57d"
+  },
+  "initialization_function_sha256": "30132883eeb233e8caef25a4bafce45128b35778e5c93edcbe74bc7e02127828",
+  "loader_function_sha256": "33679b744a00d392b4faf040995c079a839bcc7633247f6d21d5b93fcdf9d2c0",
+  "authority_cases": 1728,
+  "loader_roles": 109,
+  "native_cases": 1746,
+  "native_rom_sha256": "a78cc40a91d7c9c564ca3ba9de24258c9c6c5c5b7a299fa0f8b275c21d2d97d2",
+  "authored_animations": 80,
+  "authored_table_sha256": "a36829b750484058fe558c21eab1477774ee9326dc65b30c0fb3bca842b50db2",
+  "authored_table_bytes": 656,
+  "implicit_sync_handles": [
+    7,
+    26,
+    53,
+    75
+  ],
+  "peak_begin_master_clocks": 36540,
+  "average_begin_master_clocks": 10824.908361970218,
+  "source_policy": "Source no-op cases; reset bit 2 or matching nonnegative sync preserves current frame (out-of-range -> zero), leaves clock and effects unchanged. Initialization clears shared animhits, copies grabbing to lasthit, resets altbase/animating and requires fresh frame-zero completion.",
+  "proof": "All bytes in entity view/side/core/frame auxiliary/cache/animhits ranges and CPU context at source service boundary. Reject malformed leases, table/capacity/handle/tag inputs, duplicate Begin and stale Ack.",
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "bwram_range": "43E000..43E1FF shared animhits; entity core +80 grabbing/+84 lasthit",
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "frame_zero_effects_bound": false,
+  "nested_owner_bound": false,
+  "full_model_switch_bound": false,
+  "live_presentation_contention_proven": false,
+  "motu_gameplay_proven": false
+}

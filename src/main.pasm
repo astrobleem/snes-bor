@@ -13620,4 +13620,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_frame_motion.pasm"
 .include "core/vm/vm_source_model_animation_copy.pasm"
 .include "core/vm/vm_source_model_entity_copy.pasm"
+.include "core/vm/vm_source_animation_init.pasm"
 

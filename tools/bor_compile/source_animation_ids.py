@@ -69,6 +69,36 @@ def animation_constant(configuration,name):
     return values[index]
 
 
+def initial_sync(configuration, role):
+    """translate_ani_id's implicit sync groups, including numbered walks."""
+    role=role.lower()
+    if re.fullmatch(r'(walk|up|down|backwalk)([1-9][0-9]*)?',role):
+        return configuration['authority']['enum']['ANI_WALK']
+    if role in ('grabwalk','grabwalkup','grabwalkdown','grabbackwalk'):
+        return configuration['authority']['enum']['ANI_GRABWALK']
+    if role in ('grabbedwalk','grabbedwalkup','grabbedwalkdown','grabbedbackwalk'):
+        return configuration['authority']['enum']['ANI_GRABBEDWALK']
+    return -1
+
+
+def loader_sync(configuration, rows):
+    animations=[];current=None
+    for row in rows:
+        if row['directive']=='anim':
+            role=' '.join(row['values'])
+            current=dict(role=role,engine_animation_id=role_id(configuration,role),
+                         sync=initial_sync(configuration,role))
+            animations.append(current)
+        elif row['directive']=='sync':
+            if current is None:raise ValueError('ANIMATION_SYNC_WITHOUT_ANIMATION')
+            if len(row['values'])!=1:raise ValueError('ANIMATION_SYNC_ARITY')
+            value=row['values'][0].lower()
+            # translate_ani_id returns -1 for NONE, and invalid names. Reject
+            # unknown names explicitly instead of guessing their semantics.
+            current['sync']=-1 if value=='none' else role_id(configuration,value)
+    return animations
+
+
 def derive(source):
     docs={k:document(source,n) for k,(n,_) in source.index.items() if k.endswith('.txt')}
     structure=discover(source,docs);configuration=configure(docs[key(structure['models_path'])]['directives'])
@@ -80,6 +110,8 @@ def derive(source):
             if number in seen:
                 raise ValueError('ANIMATION_SOURCE_ALIAS_REPLACEMENT_REQUIRED:'+model['declaration']+':'+role+':'+seen[number])
             seen[number]=role;animations.append(dict(role=role,engine_animation_id=number))
+        sync={a['role']:a['sync'] for a in loader_sync(configuration,docs[key(model['source_path'])]['directives'])}
+        for animation in animations:animation['sync']=sync[animation['role']]
         models.append(dict(identity=model['declaration'],source_path=model['source_path'],animations=animations))
     return dict(schema='BYOR_4086_ANIMATION_IDENTITIES_V1',engine_authority=configuration['authority']['engine_commit'],
                 authority_snapshot_sha256=hashlib.sha256(AUTHORITY.read_bytes()).hexdigest(),
