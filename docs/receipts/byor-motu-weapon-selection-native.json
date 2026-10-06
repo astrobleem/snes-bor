@@ -1,0 +1,31 @@
+{
+  "schema": "BYOR_M4_WEAPON_SELECTION_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": {
+    "path": "out/byor-motu-weapon-selection-native/report.json",
+    "sha256": "f81ed4938cb3e228c2591d7ca8979e5c4676d4f4133568becfd2ec6e36eee379"
+  },
+  "native_rom_sha256": "a24469410ddf6a97266d496aeddac2b5a7e20415ca401e65b7cee3e2050dd0ff",
+  "cases": 2537,
+  "authority_report": {
+    "path": "out/byor-motu-weapon-selection-authority/report.json",
+    "sha256": "120cea96e3e9d7d451760bc169ecf9f13ccce0d402eec1eca58effe171cdad63"
+  },
+  "authority_cases": 2520,
+  "function_sha256": "f3aa6e1c2fb5b0ec566b70df86ed487502be6905af07cfff3e4656803052d295",
+  "source_undefined_rejections": 72,
+  "peak_call_master_clocks": 28570,
+  "proof": "Pinned set_weapon preserves signed 32-bit weapon numbers, type bit eligibility, four player bookkeeping slots, zero entry/default-model fallback, nonzero anim_flag truth, and explicit negative cached-index rejection. All unrelated entity/metadata/player bytes and CPU context checked.",
+  "entity_metadata_range": "43E200..43E9FF",
+  "player_weapon_range": "43EA00..43EA0F",
+  "code_bank": 61,
+  "bank0_free_before_nmi": 2,
+  "rom_audit": "ALL CHECKS PASS",
+  "unrelated_protected_files_unchanged": 17,
+  "entity_weapon_metadata_install_bound": false,
+  "model_transition_bound": false,
+  "motu_gameplay_proven": false,
+  "live_presentation_contention_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

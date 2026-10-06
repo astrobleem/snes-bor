@@ -13625,4 +13625,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_model_cached_copy.pasm"
 .include "core/vm/vm_source_model_animation.pasm"
 .include "core/vm/vm_source_model_transition.pasm"
+.include "core/vm/vm_source_weapon.pasm"
 
