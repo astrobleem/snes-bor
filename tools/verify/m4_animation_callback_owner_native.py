@@ -35,11 +35,15 @@ REQUEST,INDEX,ERROR=0x7ffb80,0x7ffb82,0x7ffb84
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',type=Path,required=True)
     p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--effects-runner',action='store_true',help='Use real paired B4EP/motion/quake/self retirement; sound service instrumented.')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     owners,code,metadata,dispatch=derive(source);callbacks=pack(owners)
     registry=model_registry(source);models=pack_registry(registry);births=pack_birth(birth_templates(source))
     validate_pair(callbacks,models,code,metadata,dispatch)
     effects=frame_effects(source);frames=pack_effects(effects)
+    if a.effects_runner:
+        from source_frame_effect_plan import derive as derive_plan,pack as pack_plan,unpack as unpack_plan
+        plan=pack_plan(derive_plan(effects));unpack_plan(plan,frames)
     actor=next(m['id'] for m in registry['models'] if m['identity']=='He_ManB')
     default=next(m['id'] for m in registry['models'] if m['identity']=='He_Man')
     breath=next(m['id'] for m in registry['models'] if m['identity']=='HBreath')
@@ -58,6 +62,9 @@ def main():
         locations[name]=base+cursor;raw[at+cursor:at+cursor+len(data)]=data;cursor+=len(data)
     if cursor>32768:raise ValueError('CALLBACK_NATIVE_IMMUTABLE_BANK_CAPACITY')
     raw[60*32768:60*32768+len(frames)]=frames
+    if a.effects_runner:
+        if raw[59*32768:60*32768]!=bytes(32768):raise ValueError('CALLBACK_PLAN_PRIVATE_BANK')
+        raw[59*32768:59*32768+len(plan)]=plan
     asm='''.snes
 .bank 39
 .org $8000
@@ -156,12 +163,39 @@ CallbackFixture_Return:
  phy
  jml RESUME
 '''
+    if a.effects_runner:
+        begin=asm.index(' ; Subsequent audio/effect service');end=asm.index(' jmp CallbackFixture_Result',begin)
+        asm=asm[:begin]+'''CallbackFixture_Effects:
+.a16
+.i16
+ jsl EFFECTRUN
+ bcs CallbackFixture_Bad
+ cmp #0
+ beq CallbackFixture_EffectsDone
+ cmp #9
+ bne CallbackFixture_Bad
+CallbackFixture_AudioService:
+.a16
+.i16
+ nop
+ lda #9
+ sta.l EFFECTACKWORD
+ jsl EFFECTACK
+ bcs CallbackFixture_Bad
+ jmp CallbackFixture_Effects
+CallbackFixture_EffectsDone:
+.a16
+.i16
+ jsl CLOCKCOMMIT
+ bcs CallbackFixture_Bad
+'''+asm[end:]
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,FRAMEBEGIN=sy['SourceUpdateFrame4086_Begin'],
         FRAMEACK=sy['SourceUpdateFrame4086_Ack'],CALLBACKBEGIN=sy['SourceAnimationCallback4086_Begin'],
         CALLBACKRUN=sy['SourceAnimationCallback4086_Run'],CALLBACKREADY=sy['SourceAnimationCallback4086_Ready'],
         FRAMEREADY=sy['SourceUpdateFrame4086_Ready'],WORLDREADY=sy['VmSourceWorld_Ready'],
         CONTEXTVALID=sy['VmNativeVariant_ContextValid'],RESUME=entry+5,CASES=len(rows))
     values.update(EXPECTFAULT=0x7ffb86,CHECKIDLE=sy['SourceUpdateFrame4086_CheckIdle'],CLOCKCOMMIT=sy['SourceClock4086_Commit'])
+    if a.effects_runner:values.update(EFFECTRUN=sy['SourceFrameEffects4086_Run'],EFFECTACK=sy['SourceFrameEffectPlan4086_Ack'],EFFECTACKWORD=sy['SourceFrameEffectPlan4086_Acknowledged'])
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -228,6 +262,9 @@ emu.addMemoryCallback(function()
  set('VmPriv_InstrOff',0);set('VmCall_CallsitesOff',CALLSITES);set('VmCall_ArgSlotsOff',ARGS);set('VmStr_StringsOff',STRINGS)
  set('VmState_InstrCount',INSTRUCTIONS);set('VmState_SlotCount',SLOTS);set('VmState_FrameTop',0);set('VmState_Error',0);set('VmState_Status',0,1)
  set('VmNativeVariant_ContextValid',0);set('SourceWorldTick4086_Ready',0);set('SourceClock4086_Ready',0)
+ set('SourceFrameEffectPlan4086_Ready',0);set('SourceSelf4086_Ready',0);set('SourceFrameMotion4086_Ready',0)
+ set('SourceAnimationInit4086_Ready',0);set('SourceModelAnimation4086_Ready',0);set('SourceModelTransition4086_Ready',0);set('SourceFrameStack4086_Ready',0)
+ INSTALL_EFFECT_RUNNER
  put(0x414004,1,2)
  for n,tag in ipairs({2,1,1,1,1,2,2,1})do put(0x414000+8*n,tag,4)end
  put(0x414014,ANIMATIONID,4);put(0x41401c,c.direction,4);put(0x414024,150,4)
@@ -284,6 +321,17 @@ end,emu.callbackType.exec,BAD,BAD,emu.cpuType.snes,mt)
         SLOTS=struct.unpack_from('<H',metadata,10)[0],ANIMATIONID=animation['engine_animation_id'],ACTORID=actor,HANDLE=animation['handle'],
         INIT=fs['CallbackFixture_Init'],RUNENTRY=sy['SourceAnimationCallback4086_Run'],RUNRETURN=fs['CallbackFixture_Run']+4,
         RESULT=fs['CallbackFixture_Result'],BAD=fs['CallbackFixture_Bad'],BEFOREOWNER=fs['CallbackFixture_BeforeOwner'])
+    install=''
+    if a.effects_runner:
+        h=struct.unpack_from('<4s6H4I',plan)
+        install="\n".join(" set('"+name+"',"+str(value)+")" for name,value in dict(SourceFrameMotion4086_Ready=0xb4e8,SourceFrameMotion4086_Status=0,SourceFrameEffectLeaf4086_Ready=0xb4f4,SourceSelf4086_Ready=0xb4f6,SourceSelf4086_GlobalLow=0,SourceSelf4086_GlobalHigh=0,SourceSelf4086_Active=0,SourceSelf4086_Fault=0,SourceFrameEffectPlan4086_Ready=0xb4f2,SourceFrameEffectPlan4086_State=0,SourceFrameEffectPlan4086_Service=0,SourceFrameEffectPlan4086_Base=0x8000,SourceFrameEffectPlan4086_Bank=59,SourceFrameEffectPlan4086_Bytes=len(plan),SourceFrameEffectPlan4086_Animations=80,SourceFrameEffectPlan4086_PairedCrcLo=h[-2]&65535,SourceFrameEffectPlan4086_PairedCrcHi=h[-2]>>16,SourceFrameEffectPlan4086_BodyCrcLo=h[-1]&65535,SourceFrameEffectPlan4086_BodyCrcHi=h[-1]>>16,SourceClock4086_Ready=0xb4c5,SourceClock4086_Due=1,SourceClock4086_TimeLo=48,SourceClock4086_TimeHi=0,SourceClock4086_Fault=0).items())
+        install+='\n for j=0,511 do emu.write(0x43fb00+j,0,mt)end\n'
+        lua+=r'''
+emu.addMemoryCallback(function()
+ emu.log('CALLBACKFRAME|'..word(INDEX)..'|'..word(sy.SourceUpdateFrame4086_State)..'|'..word(sy.SourceFrameEffectPlan4086_State)..'|'..word(sy.SourceSelf4086_Active)..'|'..word(sy.SourceSelf4086_GlobalLow)..'|'..word(sy.SourceSelf4086_GlobalHigh)..'|'..word(sy.SourceClock4086_Due)..'|'..dw(sy.SourceClock4086_TimeLo)..'|'..word(sy.SourceClock4086_Fault))
+end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
+'''
+    lua=lua.replace('INSTALL_EFFECT_RUNNER',install)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
                   'SourceAnimationCallback4086_Prepare','SourceAnimationCallback4086_Prepare__copy',
@@ -313,9 +361,9 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             run_frames_exact(m,60)
             if startup.u16(m,INDEX)==len(rows) or startup.u16(m,ERROR):break
         reporter.check('native authored callback batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,ERROR)==0)
-    results=[];faults=[];costs=[];initializers=[]
+    results=[];faults=[];costs=[];initializers=[];frame_results=[]
     for line in (folder/'mesen.log').read_text().splitlines():
-        for marker,target in [('CALLBACKOWNER|',results),('CALLBACKBAD|',faults),('CALLBACKCOST|',costs),('CALLBACKINIT|',initializers)]:
+        for marker,target in [('CALLBACKOWNER|',results),('CALLBACKBAD|',faults),('CALLBACKCOST|',costs),('CALLBACKINIT|',initializers),('CALLBACKFRAME|',frame_results)]:
             if marker in line:target.append(list(map(int,line.split(marker,1)[1].split('|'))))
     expected=[]
     for i,c in enumerate(rows):
@@ -328,13 +376,16 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     reporter.check('foreground callback entry preserves CPU context',bool(results) and all(r[10]>=1 and r[11]==0 for r in results))
     reporter.check('nonempty initializer copy is exact and metadata stays immutable',len(initializers)==len(rows) and
         all(r[1]==0 for r in initializers) and sum(r[2] for r in initializers)>=4)
+    if a.effects_runner:
+        expected_frame=[[i,1,0,1,0x4000,0x41,1,48,1] if c['fault'] else [i,2,2,0,0,0,0,49,0] for i,c in enumerate(rows)]
+        reporter.check('actual callback birth followed by native captured effect retirement and clock',frame_results==expected_frame)
     r=dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(raw).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
         owner_table_sha256=hashlib.sha256(callbacks).hexdigest(),cases=rows,results=results,expected=expected,faults=faults,
         source_frame_handle=animation['handle'],script_programs=owners['program_count'],
         callback_cpu_costs=costs,cost_scope='Before native callback Begin through callback completion/fault and instrumented frame-service acknowledgement; includes intervening NMI/runtime, excludes debugger initialization',
         initializer_copy_checks=initializers,
-        remaining_effect_service_instrumented=True,player_initialization_bound=False,source_effect_presentation_proven=False,
+        remaining_effect_service_instrumented=not a.effects_runner,native_effect_runner=a.effects_runner,sound_service_instrumented=a.effects_runner,frame_results=frame_results,player_initialization_bound=False,source_effect_presentation_proven=False,
         combat_proven=False,motu_gameplay_proven=False,no_pcm_copies=True,no_color_reduction=True)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
