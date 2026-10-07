@@ -16,7 +16,9 @@ def main():
  p.add_argument('--offset-only',action='store_true')
  p.add_argument('--normal-selector',action='store_true')
  p.add_argument('--normal-run',action='store_true')
+ p.add_argument('--normal-timer-authority',type=Path)
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+ if a.normal_timer_authority:a.normal_selector=True
  ir=derive(Source(a.source));table=pack(ir)
  ids={m['identity']:m['index']for m in json.loads(Path('out/byor-motu-model-attack-policy/report.json').read_text())['models']};frames={}
  for an in ir['animations']:
@@ -59,6 +61,12 @@ def main():
  if a.normal_run:
   rows=[dict(c,time=50,fault=int(bool(c['expected'])),advance=1)for c in rows if not c['bad']]
   rows.extend(dict(base,time=50,name=b,bad=b,fault=1,expected=55,advance=int(b=='entry_ready'))for b in ('run_ready','run_busy','grab_ready','entry_ready'))
+ if a.normal_timer_authority:
+  au=json.loads(a.normal_timer_authority.read_text());assert au['status']=='PASS';timed=[]
+  for index in sorted(set(range(0,len(au['inputs']),17))|{0,1,2,3,len(au['inputs'])-1}):
+   t=au['inputs'][index];entities=[dict(e)for e in base['entities'][:2]];entities[0]['hostile']=1 if t['found']else 0;entities[1]['x']=65536
+   timed.append(dict(base,name='source_timer_'+str(index),count=2,time=t['time'],entities=entities,order=[0,1],timing=t,bad='',fault=t['requires_body'],expected=0x414050 if t['found']else 0))
+  rows=timed
  lua=LUA.replace('TABLESIZE',str(len(table))).replace('put(v+28,1,4)','put(v+28,e.direction,4)').replace('put(v+52,65536*e.slot,4)','put(v+52,e.x,4)').replace('put(v+60,220*65536,4)','put(v+60,e.z,4)')
  setup=r'''
  set('SourceAITarget4086_Ready',c.bad=='query_ready'and 0 or 0xb5f3);set('SourceAITarget4086_Status',c.bad=='query_busy'and 1 or 0);set('SourceAITarget4086_Result',55);put(sy.SourceAITarget4086_Result+2,0);set('SourceAITarget4086_Selected',55)
@@ -92,9 +100,17 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
  for j=0,11 do emu.write(sy.SourceRandom4086_Ready+j,0xa5,mt)end
  for j=0,17 do emu.write(sy.SourceCRandom4086_Ready+j,0x5a,mt)end
 '''
+  if a.normal_timer_authority:
+   setup+=r'''
+ set('SourceRecheckNextAttack4086_Ready',0xb5f6);set('SourceRecheckNextAttack4086_Status',0)
+ put(0x40c05c,c.timing.timer,4);put(0x40c058+96,c.timing.attacking,4);put(0x43eb0c+32,c.timing.blocking,4);put(0x43eb08+32,c.timing.jumping,4)
+'''
   lua=lua.replace(' before={};',setup+' before={};').replace("end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)"," for j=0,11 do before[sy.SourceRandom4086_Ready+j]=0xa5 end\n for j=0,17 do before[sy.SourceCRandom4086_Ready+j]=0x5a end\nend,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)",1)
   lua=lua.replace("word(sy.SourceAITarget4086_Status)","word(sy.SourceTryNormalAttack4086_Status)").replace("..word(sy.SourceAITarget4086_Selected)","..(word(sy.SourceNormalAttack4086_Response)|(word(sy.SourceNormalAttack4086_Response+2)<<16))")
   apply='SourceTryNormalAttack4086_Execute';ready='SourceTryNormalAttack4086_Ready';magic=0xb5f4
+  if a.normal_timer_authority:
+   lua=lua.replace('local n=0;for a,v in pairs(before)',r'''local c=rows[word(INDEX)+1];for j=0,3 do before[0x40c05c+j]=(c.timing.after>>(8*j))&255 end
+ local n=0;for a,v in pairs(before)''')
  if a.normal_run:
   lua='local normaltrace={}\n'+lua.replace(' local c=rows[word(INDEX)+1];put(EXPECTFAULT,c.fault)',' local c=rows[word(INDEX)+1];normaltrace={};put(EXPECTFAULT,c.fault)')
   setup=r'''

@@ -1,0 +1,27 @@
+{
+  "schema": "BYOR_MOTU_NORMAL_ATTACK_DELAY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-normal-timer-entry-authority/report.json",
+      "sha256": "c3266ea9b47fb55ceab8a9570b321cf83aafb54d2d21f3c3dcec97116dfb8ff8",
+      "cases": 2304
+    },
+    {
+      "path": "out/byor-motu-normal-timer-entry-native/report.json",
+      "sha256": "f322dd1795338f8fa195fc3b6d33952ddd22c001928a7b344eee88143e0daa22",
+      "cases": 140
+    }
+  ],
+  "actual_target_query_and_two_timer_rechecks_executed": true,
+  "unsigned_delay_gate_source_exact": true,
+  "missing_target_skips_timer_mutations": true,
+  "CPU_typed_VM_and_RNG_streams_retained": true,
+  "only_actual_self_timer_changed": true,
+  "later_combo_range_mutation_body_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}

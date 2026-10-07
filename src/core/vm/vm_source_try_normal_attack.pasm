@@ -1,6 +1,7 @@
 ; common_try_normalattack(NULL): execute the real unbounded target query.
 ; No target returns literal false before recheck_nextattack/random/mutations.
-; Present-target combo/range/timer/mutation body remains explicitly unbound.
+; Present targets execute both literal timer rechecks. Combo/range/mutation
+; branches beyond the proven delay gate remain explicitly unbound.
 SourceTryNormalAttack4086_Ready = $43BDCC
 SourceTryNormalAttack4086_Status = $43BDCE
 SourceTryNormalAttack4086_End = $43BDD0
@@ -45,7 +46,42 @@ SourceTryNormalAttack4086_Target:
 .i16
  lda.l SourceAITarget4086_Result
  ora.l SourceAITarget4086_Result+2
- bne SourceTryNormalAttack4086_Bad
+ bne SourceTryNormalAttack4086_Recheck
+ jmp SourceTryNormalAttack4086_False
+SourceTryNormalAttack4086_Recheck:
+.a16
+.i16
+ lda.l SourceAITarget4086_Selected
+ jsl SourceRecheckNextAttack4086_Execute
+ bcc SourceTryNormalAttack4086_RecheckAgain
+ jmp SourceTryNormalAttack4086_Bad
+SourceTryNormalAttack4086_RecheckAgain:
+.a16
+.i16
+ ; The first call is not redundant: both mutate the actual source timer.
+ lda.l SourceAITarget4086_Selected
+ jsl SourceRecheckNextAttack4086_Execute
+ bcc SourceTryNormalAttack4086_Delay
+ jmp SourceTryNormalAttack4086_Bad
+SourceTryNormalAttack4086_Delay:
+.a16
+.i16
+ lda.l SourceRecheckNextAttack4086_Result+2
+ cmp.l VmSourceWorld_Time+2
+ bcc SourceTryNormalAttack4086_BodyUnbound
+ bne SourceTryNormalAttack4086_False
+ lda.l SourceRecheckNextAttack4086_Result
+ cmp.l VmSourceWorld_Time
+ bcc SourceTryNormalAttack4086_BodyUnbound
+ beq SourceTryNormalAttack4086_BodyUnbound
+ bra SourceTryNormalAttack4086_False
+SourceTryNormalAttack4086_BodyUnbound:
+.a16
+.i16
+ jmp SourceTryNormalAttack4086_Bad
+SourceTryNormalAttack4086_False:
+.a16
+.i16
  lda #0
  sta.l SourceNormalAttack4086_Response
  sta.l SourceNormalAttack4086_Response+2
