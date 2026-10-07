@@ -1,0 +1,48 @@
+{
+  "schema": "BYOR_MOTU_ATTACK_BODY_FIELDS_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-body-fields-native/report.json",
+      "sha256": "6202fc0058a533a4b928682e66d17709fbb2712f7a1d82644872760b55ca3fa5",
+      "cases": 276
+    },
+    {
+      "path": "out/byor-motu-attack-body-profile-authority/report.json",
+      "sha256": "7fec1fbfbca2af691d39563d6923f8ebe834f6ecace4f57438420212cc6679e9",
+      "cases": 29
+    },
+    {
+      "path": "out/byor-motu-normal-prepare-authority/report.json",
+      "sha256": "89a04eeeb9421bfee436e084bb0a1adb04d9033fe59ba15eaf1c809e6f597019",
+      "cases": 1152
+    }
+  ],
+  "source_turn_chain_integers_lossless": true,
+  "entity_rows": {
+    "stride": 11,
+    "bytes": 1408,
+    "low": {
+      "first_slot": 0,
+      "count": 96,
+      "base": "435980",
+      "end_exclusive": "435DA0"
+    },
+    "high": {
+      "first_slot": 96,
+      "count": 32,
+      "base": "40BDCC",
+      "end_exclusive": "40BF2C"
+    },
+    "marker": "B605"
+  },
+  "runtime_profile_bytes": 160,
+  "source_default_chain_entries_all_one": true,
+  "source_normal_prepare_weights_distinct_from_testonly_picker": true,
+  "actual_constructor_or_model_copy_bound": false,
+  "normal_prepare_native_bound": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
