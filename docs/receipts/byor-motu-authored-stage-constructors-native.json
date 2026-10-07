@@ -1,0 +1,171 @@
+{
+  "schema": "BYOR_4086_AUTHORED_STAGE_CONSTRUCTORS_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "source_spawn_records": 22,
+  "native_cases": 44,
+  "evidence": {
+    "0": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-first-ctor-native/report.json",
+      "sha256": "fd3486172393ffff074e20d1548e6845612e10dedad0930b7974d599b7b437d2",
+      "native_cases": 2
+    },
+    "1": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-1-ctor-native/report.json",
+      "sha256": "2a4c4156d10d271ee10bda6457d029120f90deb04a768fb1b21aae347fb4a6d1",
+      "native_cases": 2
+    },
+    "3": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-3-ctor-native/report.json",
+      "sha256": "95b01015b30d3bb796cf5dfdec27e359b7ca00455444ff069102418efb2ba409",
+      "native_cases": 2
+    },
+    "4": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-4-ctor-native/report.json",
+      "sha256": "2c1d46abb229f7ad77378c4b73b1a4fa82652d1b9bb1ee159e31b0e940ff049a",
+      "native_cases": 2
+    },
+    "7": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-7-ctor-native/report.json",
+      "sha256": "e9155941a08ba7abf4192553ee6e58b94f95612d456ff4faefd3bd5443841766",
+      "native_cases": 2
+    },
+    "8": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-8-ctor-native/report.json",
+      "sha256": "4bfb8740dab08f7160edcc1502c7af67bbe7a6ca8b9f6e3d36429cdeb798fdd6",
+      "native_cases": 2
+    },
+    "11": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-11-ctor-native/report.json",
+      "sha256": "3cf2f2d862b13e87ff8e4d90e037adcc62c793b70c078b2d7421bc9e23583e35",
+      "native_cases": 2
+    },
+    "12": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-12-ctor-native/report.json",
+      "sha256": "c967771ab7f2e479855b95bdb9ffdb365f8ba26017caac09117cb104fe415fda",
+      "native_cases": 2
+    },
+    "15": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-15-ctor-native/report.json",
+      "sha256": "e445725b7164d4f00a2e91a7fdc5842f0e2dadb0a02eb631ead4eb869f2c6c27",
+      "native_cases": 2
+    },
+    "16": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-16-ctor-native/report.json",
+      "sha256": "0add8015dc6a59704392f89f1647b9f11fb99052b3733f044322f8da5fcb4ac4",
+      "native_cases": 2
+    },
+    "17": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-17-ctor-native/report.json",
+      "sha256": "1a4ff57e5d751d9d84479da1d7580708cf1b92d8c8f7c7c91b39c0b4545968c0",
+      "native_cases": 2
+    },
+    "19": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-19-ctor-native/report.json",
+      "sha256": "7f5bf75035aacb193d0b4961632e83a1c3883b0ded3216b288dddb0602e867cd",
+      "native_cases": 2
+    },
+    "22": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-22-ctor-native/report.json",
+      "sha256": "11da3190f665a47c1cbcd77c2776602851cae07a96b2d025104a1b8e000536f5",
+      "native_cases": 2
+    },
+    "23": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-23-ctor-native/report.json",
+      "sha256": "e6ed1c1dd0f4acc021234f222bb626ba32ab3c1873c2dab74d1f8026b9f3cddf",
+      "native_cases": 2
+    },
+    "24": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-24-ctor-native/report.json",
+      "sha256": "0c19ff6d433597c471d2ead29a5780c68b73b883c2e1d7b2aa6c255b5547ba07",
+      "native_cases": 2
+    },
+    "26": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-26-ctor-native/report.json",
+      "sha256": "20b289e20549e39b0c55ce53f7cc6a1818193280ec98987c285b0131a6cee74f",
+      "native_cases": 2
+    },
+    "27": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-27-ctor-native/report.json",
+      "sha256": "196736525070b6f51a0b293c4805945f51fb2789ea476b41afb8523046d8ab00",
+      "native_cases": 2
+    },
+    "28": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-28-ctor-native/report.json",
+      "sha256": "3e3ada0d7a6153973072888c0407b00f8d8152c0d7b32376effaa0b46463824d",
+      "native_cases": 2
+    },
+    "29": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-29-ctor-native/report.json",
+      "sha256": "320bb7afcd0ec652836b1ed9663a5c2c74515a03f247e0292f0fa5e5e1415b6b",
+      "native_cases": 2
+    },
+    "31": {
+      "stage_id": 1,
+      "model_id": 14,
+      "report": "out/byor-motu-stage-record-31-ctor-native/report.json",
+      "sha256": "ce567f7bf10cb0525304288e6f4d38b0f2d1abca8de73953c163f82276c9c742",
+      "native_cases": 2
+    },
+    "33": {
+      "stage_id": 1,
+      "model_id": 8,
+      "report": "out/byor-motu-stage-record-33-ctor-native/report.json",
+      "sha256": "89db765f0bb0dae512eeb3ddefa0edc0b8b45c9cfcf8937bd8f5ab740466e50b",
+      "native_cases": 2
+    },
+    "34": {
+      "stage_id": 2,
+      "model_id": 8,
+      "report": "out/byor-motu-stage-record-34-ctor-native/report.json",
+      "sha256": "b6f7ae615c686e2fb838098f5d5c36c0d402e45b90610c703a3f51bf713ba197",
+      "native_cases": 2
+    }
+  },
+  "source_queue_sha256": "ac98f3b346f2a8f8864dccb6711ce9d7341b730434519bb2bc2918bb3c3a8958",
+  "policy": "Read each actual compiled source spawn row, use its source model/direction/coordinates and scrolling advance, execute real slot choice, cleanup/factors/body/model/scripts/default-init/frame-zero/callback/effect continuation, then publish the stable source pointer. Source drop RNG occurs only inside strict camera/source-width bounds at zero altitude. Both stage descriptors are bound; no actor-name behavior dispatch is introduced.",
+  "fixture_scope": "Independent exclusive-world constructor runs after ordinary Easy bootstrap, not live MOTU stage traversal. Source alias/health/map/boss overrides intentionally remain separate after constructor return.",
+  "post_constructor_overrides_bound": false,
+  "live_queue_dispatch_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
