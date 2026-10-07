@@ -1,0 +1,27 @@
+{
+  "schema": "BYOR_MOTU_TRY_BLOCK_NULL_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-try-block-authority/report.json",
+      "sha256": "a1d7cf87d50d47848d6ec2196a21637af958f1d3edaf681d2d384646c51a58d2",
+      "cases": 3584
+    },
+    {
+      "path": "out/byor-motu-try-block-native/report.json",
+      "sha256": "a8ccbd47d97a4a0d59aae1d8a8f9fcf7358aaba0cd9e072bd4d1dce256b60f88",
+      "cases": 486
+    }
+  ],
+  "engine_rand32_executed": true,
+  "crt_rand_stream_shared": false,
+  "typed_VM_return_scratch_preserved": true,
+  "entity_policy_independent_of_current_model_cache": true,
+  "target_services_bound": false,
+  "grounded_attack_integrated": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}
