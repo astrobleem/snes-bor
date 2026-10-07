@@ -1,0 +1,48 @@
+{
+  "schema": "BYOR_MOTU_ATTACK_FINISH_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-finish-authority/report.json",
+      "sha256": "13af08079523df732d654ce3435def78cb8cf1ac69b128b839bc902b24b9342c",
+      "cases": 224
+    },
+    {
+      "path": "out/byor-motu-attack-finish-order-native/report.json",
+      "sha256": "1cdda4c1926a80d7709078af455ae0b5ab961ff45d439a2e5b04621bb384cd3f",
+      "cases": 256
+    },
+    {
+      "path": "out/byor-motu-attack-finish-order-yield-native/report.json",
+      "sha256": "6f6520ada10ed7fbc8e5015cf6714148961bcaa6e0451480447bf13d0748ec3f",
+      "cases": 56
+    },
+    {
+      "path": "out/byor-motu-attack-finish-order-early-native/report.json",
+      "sha256": "5196826860e29df5d60d06d2fa994402e86e3e7013855bc289de24b4756e2dba",
+      "cases": 56
+    },
+    {
+      "path": "out/byor-motu-attack-finish-order-framezero-native/report.json",
+      "sha256": "2ed3b712ecd946aa6d1bb01f9809fe4f976669fc6a45d5dc0856341d0a38f59c",
+      "cases": 56
+    }
+  ],
+  "cached_model_type_not_retained_entity_type": true,
+  "real_opponent_relation": true,
+  "player_timer_preserved": true,
+  "npc_actual_aggression_read_after_idle": true,
+  "signed_aggression_and_uint32_timer_wrap": true,
+  "real_idle_frame_zero_and_acknowledgement": true,
+  "early_resume_explicit_failure": true,
+  "callee_order_and_unchanged_siblings_vm_rng_cpu": true,
+  "unsupported_npc_nonnull_opponent_explicit": true,
+  "common_attack_proc_finished_branch_bound": false,
+  "bank_zero_growth_bytes": 0,
+  "bank_zero_bytes_unchanged": true,
+  "protected_dirty_tracked_files": 17,
+  "static_presentation_modified": false,
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
