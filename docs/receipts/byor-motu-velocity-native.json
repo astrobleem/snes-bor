@@ -1,0 +1,49 @@
+{
+  "schema": "BYOR_MOTU_VELOCITY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-velocity-authority/report.json",
+      "sha256": "823cc211c01785edc34acbf2c596b49b1796b3466cbdaf87990473d33a785aff",
+      "cases": 1339
+    },
+    {
+      "path": "out/byor-motu-velocity-native/report.json",
+      "sha256": "357de411fc1ab563efacc82417e3e62cee7f2685584fd1e7ee3ee2b4c3fb97dc",
+      "cases": 338
+    },
+    {
+      "path": "out/byor-motu-world-velocity-native/report.json",
+      "sha256": "89a10c7ee46809e624022ba1a20e7a7279e1f29f633518129bd1c7b4b3d5d1d6",
+      "cases": 410
+    }
+  ],
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "native_service": 10,
+  "native_calls": 742,
+  "native_world_events": 8507,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16: signed full 64-bit product divided by 2^17 toward zero, checked signed accumulator addition",
+  "maximum_measured_compat_error": 1.52587890625e-05,
+  "bank0_growth": 0,
+  "scratch_start": "43BC52",
+  "scratch_end_exclusive": "43BC7E",
+  "checks": [
+    "Literal pinned movement statements under measured OpenWatcom x87 authority",
+    "Signed full 64-bit product and truncation by 2^17",
+    "Both axes preflight before publication; overflow fails explicitly",
+    "Physical edge slots; full-range products and cancellation",
+    "CPU context and unrelated side/aux/tick state retained",
+    "Owner resets result only on a new velocity request",
+    "Enabled owner refuses early acknowledgement until actual native execution",
+    "410 pinned traversal cases, 742 actual velocity calls, 8507 owner requests",
+    "17 unrelated dirty tracked files retain original byte fingerprints",
+    "ROM audit ALL CHECKS PASS"
+  ],
+  "nonclaims": [
+    "AI, health and other world services remain instrumented in traversal proof",
+    "No collision or position integration",
+    "No moving lossless renderer or actual MOTU candidate",
+    "No full MOTU combat or Demo completion"
+  ],
+  "no_color_reduction": true
+}

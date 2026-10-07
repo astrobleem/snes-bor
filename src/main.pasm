@@ -13665,6 +13665,7 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_camera_bounds.pasm"
 .include "core/vm/vm_source_camera_motion.pasm"
 .include "core/vm/vm_source_scroller_owner.pasm"
+.include "core/vm/vm_source_velocity.pasm"
 .include "core/vm/vm_source_random_float.pasm"
 .include "core/vm/vm_source_air.pasm"
 

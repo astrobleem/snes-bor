@@ -35,6 +35,7 @@ def main():
     p.add_argument('--script-expression',default='dasher(1.5,0.25,-0.75);'*9)
     p.add_argument('--expected-velocity',nargs=3,type=float,default=[-1.5,-0.75,0.25],metavar=('X','Z','Y'))
     p.add_argument('--script-toss-count',type=int,default=0)
+    p.add_argument('--velocity-backend',action='store_true',help='execute actual native service 10; other gameplay handlers remain instrumented')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     authority=json.loads((a.authority/'report.json').read_text());rows=cases()
     if authority['status']!='PASS' or [r['case'] for r in authority['results']]!=rows:
@@ -252,6 +253,32 @@ WorldTickFixture_End:
 .a16
 .i16
 '''
+    if a.velocity_backend:
+        asm=asm.replace('WorldTickFixture_Ack:\n.a16\n.i16\n    pla', '''WorldTickFixture_Ack:
+.a16
+.i16
+    lda.l PHASE
+    cmp #10
+    bne WorldTickFixture_VelocityDone
+    lda #10
+    jsl ACK
+    bcs WorldTickFixture_VelocityEarlyAckRejected
+    jmp WorldTickFixture_PendingFault
+WorldTickFixture_VelocityEarlyAckRejected:
+.a16
+.i16
+    lda #0
+    sta.l OWNERFAULT
+    jsl VELOCITY
+    bcs WorldTickFixture_PendingFault
+WorldTickFixture_VelocityObserved:
+.a16
+.i16
+    nop
+WorldTickFixture_VelocityDone:
+.a16
+.i16
+    pla''')
     replacements=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,CASES=len(rows),RESUME=entry+5,
         BEGIN=sy['SourceWorldTick4086_Begin'],POLL=sy['SourceWorldTick4086_Poll'],
         ACK=sy['SourceWorldTick4086_Ack'],COMMIT=sy['SourceWorldTick4086_Commit'],
@@ -260,6 +287,9 @@ WorldTickFixture_End:
     replacements.update(CLOCKCOMMIT=sy['SourceClock4086_Commit'],CLOCKFAULT=sy['SourceClock4086_Fault'],
                         FAULTINDEX=FAULT_INDEX,VMSTATUS=sy['VmState_Status'],SCRIPTENABLED=int(callback is not None),
                         SCRIPTCALL=sy['SourceVMRun4086_Call'],SCRIPTREADY=sy['SourceVMRun4086_Ready'])
+    if a.velocity_backend:
+        replacements['VELOCITY']=sy['SourceVelocity4086_Apply']
+        replacements['OWNERFAULT']=sy['SourceWorldTick4086_Fault']
     asm=asm.replace('    ldx.l FAULTINDEX','    lda.l FAULTINDEX\n    tax\n    lda #1')
     for name,value in replacements.items():
         asm=re.sub(r'\b'+name+r'\b',('$%06X'%value) if name!='CASES' else str(value),asm)
@@ -355,7 +385,7 @@ emu.addMemoryCallback(function()
  local i=word(FAULTINDEX)
  emu.log('WORLDTICKFAULT|'..i..'|'..word(sy.SourceWorldTick4086_Fault)..'|'..dw(sy.SourceClock4086_TimeLo)..'|'..word(sy.SourceClock4086_Due))
 end,emu.callbackType.exec,FAULTOBSERVE,FAULTOBSERVE,emu.cpuType.snes,mt)
-'''.replace('FIXTURES',fixture).replace('SYMBOLS','{'+','.join(k+'='+str(v) for k,v in sy.items() if k.startswith(('SourceWorldTick4086_','SourceClock4086_','VmSourceWorld_','VmState_')))+'}')
+'''.replace('FIXTURES',fixture).replace('SYMBOLS','{'+','.join(k+'='+str(v) for k,v in sy.items() if k.startswith(('SourceWorldTick4086_','SourceClock4086_','VmSourceWorld_','VmState_','SourceVelocity4086_')))+'}')
     script_definitions=script_init=script_prepare=''
     if callback:
         count,slots=struct.unpack_from('<2H',callback_blob,8);offsets=struct.unpack_from('<6I',callback_blob,24)
@@ -410,10 +440,21 @@ end,emu.callbackType.exec,SCRIPTCOMPLETE,SCRIPTCOMPLETE,emu.cpuType.snes,mt)
         for key,value in dict(CALLENTRY=sy['SourceVMRun4086_Call'],SCRIPTRETURN=fs['WorldTickFixture_ScriptReturn'],
             SCRIPTCOMPLETE=fs['WorldTickFixture_ScriptComplete'],STATUSADDRESS=sy['SourceVMRun4086_Status']).items():
             lua=re.sub(r'\b'+key+r'\b',str(value),lua)
-    lua=lua.replace('SCRIPTDEFINITIONS',script_definitions).replace('SCRIPTINIT',script_init).replace('SCRIPTPREPARE',script_prepare)
+    # Scope this independently of retained battery-backed fixture controls.
+    velocity_init=f'put({sy["SourceStageProducer4086_Ready"]},0,2)\nput({sy["SourceUpdateFrame4086_State"]},0,2)\nput({sy["SourceUpdateFrame4086_Pending"]},0,2)\nput({sy["SourceVelocity4086_Ready"]},{0xb5de if a.velocity_backend else 0},2)\n'
+    if a.velocity_backend:
+        velocity_init+=f'put({sy["SourceUpdateFrame4086_Ready"]},0xb4e3,2)\n'
+        velocity_init+='for s=0,c.n-1 do put(0x41f500+s*20,0,4);put(0x41f504+s*20,0,4);put(0x416820+s*64,65536,4);put(0x416824+s*64,(s+1)*65536,4);put(0x416828+s*64,-(s+1)*65536,4) end\n'
+        lua+=f'''emu.addMemoryCallback(function()
+ local s=word(sy.SourceWorldTick4086_Slot)
+ emu.log('WORLDTICKVELOCITY|'..word(INDEX)..'|'..s..'|'..dw(0x41f500+s*20)..'|'..dw(0x41f504+s*20)..'|'..word({sy['SourceVelocity4086_Status']}))
+end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTickFixture_VelocityObserved']},emu.cpuType.snes,mt)
+'''
+    lua=lua.replace('SCRIPTDEFINITIONS',script_definitions).replace('SCRIPTINIT',velocity_init+script_init).replace('SCRIPTPREPARE',script_prepare)
     for key,value in dict(INDEX=INDEX,INIT=fs['WorldTickFixture_Init'],OBSERVE=fs['WorldTickFixture_Observe'],RESULT=fs['WorldTickFixture_Result'],
         FAULTINDEX=FAULT_INDEX,FAULTINIT=fs['WorldTickFixture_FaultInit'],FAULTOBSERVE=fs['WorldTickFixture_FaultObserved']).items():
         lua=re.sub(r'\b'+key+r'\b',str(value),lua)
+    lua+=f"emu.addMemoryCallback(function()emu.log('WORLDTICKOWNERFAULT|'..word(INDEX)..'|'..word(sy.SourceWorldTick4086_Phase)..'|'..word(sy.SourceWorldTick4086_Fault)..'|'..word(sy.SourceClock4086_Fault))end,emu.callbackType.exec,{fs['WorldTickFixture_Fault']},{fs['WorldTickFixture_Fault']},emu.cpuType.snes,mt)\n"
     script=folder/'world_tick.lua';script.write_text(lua)
     class Observed(McpSession):
         def __enter__(self):
@@ -433,8 +474,10 @@ end,emu.callbackType.exec,SCRIPTCOMPLETE,SCRIPTCOMPLETE,emu.cpuType.snes,mt)
             run_frames_exact(m,60)
             if (startup.u16(m,INDEX)==len(rows) and startup.u16(m,FAULT_INDEX)==10) or startup.u16(m,ERROR):break
         reporter.check('native traversal batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,FAULT_INDEX)==10 and startup.u16(m,ERROR)==0)
-    actual=[dict(events=[]) for _ in rows];clock_checks=[];faults=[];script_results=[]
+    actual=[dict(events=[]) for _ in rows];clock_checks=[];faults=[];script_results=[];velocity_results=[]
     for line in (folder/'mesen.log').read_text().splitlines():
+        if 'WORLDTICKVELOCITY|' in line:
+            velocity_results.append(list(map(int,line.split('WORLDTICKVELOCITY|',1)[1].split('|'))))
         if 'WORLDTICKSCRIPT|' in line:
             script_results.append(list(map(int,line.split('WORLDTICKSCRIPT|',1)[1].split('|'))))
         if 'WORLDTICKFAULT|' in line:
@@ -454,6 +497,9 @@ end,emu.callbackType.exec,SCRIPTCOMPLETE,SCRIPTCOMPLETE,emu.cpuType.snes,mt)
     reporter.check('time commits only after the completed traversal',bool(clock_checks) and all(clock_checks))
     reporter.check('invalid ownership and incomplete services reject without clock mutation',
                    faults==[[i,1,49 if i==5 else 48,1] for i in range(10)])
+    if a.velocity_backend:
+        expected_velocity=[[i,s,((s+1)*32768)&0xffffffff,(-(s+1)*32768)&0xffffffff,2] for i,r in enumerate(actual) for phase,s in r['events'] if phase==10]
+        reporter.check('actual service 10 rejects early acknowledgement and publishes exactly once before the owner acknowledgement',velocity_results==expected_velocity and bool(velocity_results))
     if callback:
         invocations=sum(sum(e[0]==5 for e in r['events']) for r in actual)
         velocity=[int(v*65536)&0xffffffff for v in a.expected_velocity]
@@ -467,7 +513,7 @@ end,emu.callbackType.exec,SCRIPTCOMPLETE,SCRIPTCOMPLETE,emu.cpuType.snes,mt)
         rom_sha256=hashlib.sha256(rom).hexdigest(),authority_functions_sha256=authority['functions_sha256'],
         cases=len(rows),events=sum(len(r['events']) for r in actual),comparisons=comparisons,
         rejections=faults,early_direct_clock_commit_rejections=len(rows),
-        callback=callback,script_results=script_results,
+        callback=callback,script_results=script_results,velocity_backend=a.velocity_backend,velocity_results=velocity_results,
         bank0_growth=0,live_gameplay_handlers_bound=False,motu_gameplay_proven=False)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 

@@ -402,6 +402,14 @@ SourceWorldTick4086_Poll__not_frozen:
 SourceWorldTick4086_Poll__velocity:
 .a16
 .i16
+    lda.l SourceVelocity4086_Ready
+    cmp #$B5DE
+    bne SourceWorldTick4086_VelocityUnbound
+    lda #0
+    sta.l SourceVelocity4086_Status
+SourceWorldTick4086_VelocityUnbound:
+.a16
+.i16
     lda #10
     jmp SourceWorldTick4086_Issue
 SourceWorldTick4086_Poll__entity_next:
@@ -600,6 +608,24 @@ SourceWorldTick4086_Branch_58:
     bcc SourceWorldTick4086_Ack__frame_idle
     jmp SourceWorldTick4086_Bad
 SourceWorldTick4086_Ack__frame_idle:
+.a16
+.i16
+    lda.l SourceWorldTick4086_Phase
+    cmp #10
+    bne SourceWorldTick4086_AckVelocityDone
+    lda.l SourceVelocity4086_Ready
+    beq SourceWorldTick4086_AckVelocityDone
+    cmp #$B5DE
+    beq SourceWorldTick4086_AckVelocityLease
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_AckVelocityLease:
+.a16
+.i16
+    lda.l SourceVelocity4086_Status
+    cmp #2
+    beq SourceWorldTick4086_AckVelocityDone
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_AckVelocityDone:
 .a16
 .i16
     lda.l VmState_Status
