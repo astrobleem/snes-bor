@@ -1,0 +1,27 @@
+{
+  "schema": "BYOR_MOTU_SHARED_STAGE_ROW_VALIDATION_NATIVE_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-stage-queue-shared-validation-native/report.json",
+      "sha256": "e8b66804f0438bc3bf3c0944a8cb4957aa8f1e8e236d5260c70e48e81b9bd635",
+      "cases": 137,
+      "validate_only": false,
+      "rom_sha256": "86afcc7f14f460d35dc6942a1de60e2d02e8b26ce8eb0d1ca8ff4d9ea86e483c"
+    },
+    {
+      "path": "out/byor-motu-stage-row-validation-native/report.json",
+      "sha256": "d046ed8de1a2244ef59b18464b03301b598a7caf8e1fa3c0446db094cc36a7f8",
+      "cases": 137,
+      "validate_only": true,
+      "rom_sha256": "b183080db8646b6edeb1a98fae7153b2c29157dbd21939ef04782c2b1014aff3"
+    }
+  ],
+  "scope": "One readonly header/span/stage/kind/model validation shared by spawn preparation and wait/group/empty admission",
+  "crc_policy": "Immutable CRC/model/stage pairing checked by caller before B5D2 lease; does not claim a live loader",
+  "audit": "ALL CHECKS PASS",
+  "audit_sha256": "3aea0390be12e75e9d426f8799cee48b07bc9e58f4405b68aeb7e318ce4e85f2",
+  "native_queue_dispatch_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

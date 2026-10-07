@@ -62,7 +62,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--validate-only',action='store_true');p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
     source=Source(a.source);model_count=len(registry(source)['models']);report=derive(source);table=pack(report);records=unpack(table,model_count);rows=[]
     def case(index,axis=0,advance=0,time=0,**extra):
         r=records[index];x,z,height=r['coords_q16'];advancex=advance if axis==0 else 0;advancey=advance if axis==1 else 0
@@ -82,18 +82,22 @@ def main():
         c=case(first,axis,0x7fffffff);c['fault']=1;rows.append(c)
     last_negative=next(i for i,r in enumerate(records)if r['kind']=='spawn'and r['coords'][0]<0)
     c=case(last_negative,0,-2147483648);c['fault']=1;rows.append(c)
+    if a.validate_only:
+        for c in rows:
+            if c['bad']==''and c['status']==0:c['fault']=0
     tables=[(59,0,table)]
     # Corrupt distinct immutable headers/body identities in reserved private ROM.
     for i,(at,value)in enumerate(((0,0),(4,2),(6,64),(8,len(records)-1),(14,1),(20,1),(24+first*128+4,model_count))):
         data=bytearray(table);struct.pack_into('<H',data,at,value);start=i*len(table);tables.append((60,start,bytes(data)))
         c=case(first);c.update(base=0x8000+start,bank=60,fault=1);rows.append(c)
-    sy=symbols(Path('src/main.sym'));lua=LUA
+    sy=symbols(Path('src/main.sym'));lua=LUA.replace('if c.fault==0 then','if false then')if a.validate_only else LUA
     for k,v in dict(MODELS=model_count,TABLEBYTES=len(table),RECORDS=len(records),STAGES=len(report['stages'])).items():lua=lua.replace(k,str(v))
-    entry=sy['SourceStageQueue4086_PrepareSpawn'];lua+=f"emu.addMemoryCallback(function()local s=emu.getState();cpu={{}};for _,k in ipairs({{'x','y','d','dbr','sp','ps'}})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,{entry},{entry},emu.cpuType.snes,mt)\n"
-    r=Reporter('M4-STAGE-QUEUE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'SourceStageQueue4086_PrepareSpawn','SourceStageQueue4086_Ready',0xb5d2,tables,lua,r,batch_size=2)
+    apply='SourceStageQueue4086_ValidateCurrentRow'if a.validate_only else'SourceStageQueue4086_PrepareSpawn'
+    entry=sy[apply];lua+=f"emu.addMemoryCallback(function()local s=emu.getState();cpu={{}};for _,k in ipairs({{'x','y','d','dbr','sp','ps'}})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,{entry},{entry},emu.cpuType.snes,mt)\n"
+    r=Reporter('M4-STAGE-QUEUE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,apply,'SourceStageQueue4086_Ready',0xb5d2,tables,lua,r,batch_size=2)
     results=[list(map(int,line.split('STAGEQUEUE|',1)[1].split('|')))for line in log.splitlines()if 'STAGEQUEUE|'in line]
     r.check('all source spawns, paired stages/time/coordinates, signed advances/overflow, immutable headers and admission guards preserve entities and CPU context',len(results)==len(rows)and all(v[:4]==[i,0,0,3 if c['fault']else 2]for i,(v,c)in enumerate(zip(results,rows))))
-    d=dict(schema='BYOR_4086_STAGE_QUEUE_PREPARE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),table_sha256=hashlib.sha256(table).hexdigest(),cases=len(rows),inputs=rows,results=results,source_spawn_records=sum(r['kind']=='spawn'for r in records),constructor_execution_bound=False,live_queue_dispatch_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+    d=dict(schema='BYOR_4086_STAGE_QUEUE_PREPARE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),table_sha256=hashlib.sha256(table).hexdigest(),cases=len(rows),validate_only=a.validate_only,inputs=rows,results=results,source_spawn_records=sum(r['kind']=='spawn'for r in records),constructor_execution_bound=False,live_queue_dispatch_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (a.output/'report.json').write_text(json.dumps(d,indent=2)+'\n');r.finish()
 
 if __name__=='__main__':main()
