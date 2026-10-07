@@ -1,0 +1,67 @@
+{
+  "schema": "BYOR_MOTU_NORMAL_ATTACK_PREPARATION_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-normal-success-source-idle-native/report.json",
+      "sha256": "451f987f7a3be07fa83d87502ab71686c69088cd34929053fd63b519e725199c",
+      "cases": 51
+    },
+    {
+      "path": "out/byor-motu-normal-success-idle-yield-native/report.json",
+      "sha256": "dc40eb1bccdc9715b84bd31c59f8ea1b7536dfcf88921606199e13cddaadbba3",
+      "cases": 51
+    },
+    {
+      "path": "out/byor-motu-normal-success-premature-resume-native/report.json",
+      "sha256": "65546884e108af9faf370eec0f1ab7710921df1e47d45194c0221f0a5a06d43e",
+      "cases": 51
+    },
+    {
+      "path": "out/byor-motu-normal-success-common-yield-native/report.json",
+      "sha256": "eb532cb593ee5f28b03343d1ac10480e08fa5714e43fc55de2458cb5a04a3dc1",
+      "cases": 51
+    },
+    {
+      "path": "out/byor-motu-normal-success-ai-yield-native/report.json",
+      "sha256": "fcef1f042fa4e51ac5937bd415b53b8883517bb4b47ffd6161e0565730144df7",
+      "cases": 51
+    },
+    {
+      "path": "out/byor-motu-normal-success-framezero-common-native/report.json",
+      "sha256": "b480a0ccc3f5ceb70bfdb987ab907e8d46cdcca0de2d8d04cd880a83bdfc8f0d",
+      "cases": 24
+    },
+    {
+      "path": "out/byor-motu-normal-success-framezero-ai-final-native/report.json",
+      "sha256": "8d976033c06d30b4af5ebfc149f0fa2c43ba4eecc36544b89e5fff366f08ce48",
+      "cases": 24
+    },
+    {
+      "path": "out/byor-motu-normal-success-common-regression-native/report.json",
+      "sha256": "e154ad5968059a2bcfcb3d0c175b5cf46f4d61bb937819e2cad6b0811f39087c",
+      "cases": 119
+    }
+  ],
+  "source_order_authority": "out/byor-motu-normal-attack-body-authority/report.json",
+  "source_order_authority_sha256": "2d997b458005339b22521116a2163c5f7bd28ba77dccae7afe9c3f838b0eb6a2",
+  "actual_combo_stall_and_chance_delay_bound": true,
+  "actual_action_and_velocity_installation_before_idle": true,
+  "actual_idle_frame_zero_before_final_flags": true,
+  "actual_outer_ai_continuation_and_child_lease_closure": true,
+  "premature_resume_rejected_before_final_flags": true,
+  "domains": [
+    "Normal-role-only mutable animation cache with actual range/picker/chance services",
+    "Compiled source frame-zero data, callback metadata, movement, quake and self restore",
+    "Full frame-zero closure uses source models with no animation script; other script owners remain separate proofs"
+  ],
+  "present_normal_prepare_attack_selection_bound": false,
+  "full_common_attack_proc_bound": false,
+  "full_enemy_combat_bound": false,
+  "static_presentation_modified": false,
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "no_color_reduction": true
+}

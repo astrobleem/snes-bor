@@ -139,6 +139,12 @@ SourceAIRun4086_Far12:
 SourceAIRun4086_Far13:
 .a16
 .i16
+ cmp #2
+ bne SourceAIRun4086_NotCommonPending
+ jmp SourceAIRun4086_CommonContinue
+SourceAIRun4086_NotCommonPending:
+.a16
+.i16
  cmp #4
  beq SourceAIRun4086_Far14
  jmp SourceAIRun4086_Bad
@@ -305,6 +311,27 @@ SourceAIRun4086_Far31:
  bcc SourceAIRun4086_CommonThinkDone
  jmp SourceAIRun4086_Bad
 SourceAIRun4086_CommonThinkDone:
+.a16
+.i16
+ lda.l SourceCommonRun4086_State
+ cmp #1
+ bne SourceAIRun4086_CommonCompleted
+ lda #2
+ jmp SourceAIRun4086_Pending
+SourceAIRun4086_CommonContinue:
+.a16
+.i16
+ lda.l SourceAI4086_State
+ cmp #2
+ beq SourceAIRun4086_CommonPendingOwner
+ jmp SourceAIRun4086_Bad
+SourceAIRun4086_CommonPendingOwner:
+.a16
+.i16
+ jsl SourceCommonRun4086_Continue
+ bcc SourceAIRun4086_CommonThinkDone
+ jmp SourceAIRun4086_Bad
+SourceAIRun4086_CommonCompleted:
 .a16
 .i16
  lda #2

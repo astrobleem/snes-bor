@@ -18,9 +18,13 @@ def main():
  p.add_argument('--normal-run',action='store_true')
  p.add_argument('--normal-timer-authority',type=Path)
  p.add_argument('--normal-picker',action='store_true')
- p.add_argument('--normal-chance',action='store_true')
+ p.add_argument('--normal-chance',action='store_true');p.add_argument('--normal-prepare-success',action='store_true');p.add_argument('--normal-prepare-pending',action='store_true');p.add_argument('--premature-continue',action='store_true');p.add_argument('--complete-idle',action='store_true');p.add_argument('--prepare-owner',choices=('selector','normal','readonly','common','ai'),default='selector')
  p.add_argument('--action-query',action='store_true')
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+ if a.complete_idle:a.normal_prepare_pending=True
+ if a.premature_continue:a.normal_prepare_pending=True
+ if a.normal_prepare_pending:a.normal_prepare_success=True
+ if a.normal_prepare_success:a.normal_chance=True
  if a.normal_chance:a.normal_picker=True
  if a.normal_timer_authority or a.normal_picker:a.normal_selector=True
  ir=derive(Source(a.source));table=pack(ir)
@@ -103,6 +107,22 @@ def main():
         after,value=random32_step(after);delay=struct.unpack_from('<H',dt,delaystart+2*(value%10000))[0];c.update(calls=3,seed_after=after,fault=0,nextattack_after=c['time']+delay)
      expanded.append(c)
    rows=expanded
+   if a.normal_prepare_success:
+    from source_animation_init_4086 import derive as init_profile,pack as pack_init
+    from source_frame_effects_4086 import derive as effect_profile,pack as pack_effect
+    effects=pack_effect(effect_profile(Source(a.source)));init_report=init_profile(Source(a.source));init=pack_init(init_report);rows=[c for c in rows if c['calls'] and c['fault']];delaystart=struct.unpack_from('<H',dt,12)[0]
+    for c in rows:
+     c.update(fault=int(a.premature_continue),prepared=True,idle_handle=next(an['handle']for an in init_report['animations']if an['sync']==-1 and an['handle']!=c['entities'][0]['handle'])if a.normal_prepare_pending else c['entities'][0]['handle'])
+     if a.complete_idle:c['idle_handle']=1
+     if c['combo_step']:c['stall_after']=(c['time']+1)&0xffffffff
+     else:
+      after,value=random32_step(c['seed_after']);delay=struct.unpack_from('<H',dt,delaystart+2*(value%10000))[0];c.update(calls=c['calls']+1,seed_after=after,stall_after=(c['time']+delay)&0xffffffff)
+
+ if a.complete_idle:
+  from script_callback_owner import derive as callback_profile,pack as pack_callback
+  from source_script_clone import derive as clone_profile,pack as pack_clone
+  from source_frame_effect_plan import derive as plan_profile,pack as pack_plan
+  cb,*_=callback_profile(Source(a.source));callbacks=pack_callback(cb);clone=pack_clone(clone_profile(Source(a.source)));plan=pack_plan(plan_profile(effect_profile(Source(a.source))));rows=[c for c in rows if cb['models'][c['entities'][0]['model']]['program']==65535]
  lua=LUA.replace('TABLESIZE',str(len(table))).replace('put(v+28,1,4)','put(v+28,e.direction,4)').replace('put(v+52,65536*e.slot,4)','put(v+52,e.x,4)').replace('put(v+60,220*65536,4)','put(v+60,e.z,4)')
  setup=r'''
  set('SourceAITarget4086_Ready',c.bad=='query_ready'and 0 or 0xb5f3);set('SourceAITarget4086_Status',c.bad=='query_busy'and 1 or 0);set('SourceAITarget4086_Result',55);put(sy.SourceAITarget4086_Result+2,0);set('SourceAITarget4086_Selected',55)
@@ -217,12 +237,53 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
  tables=[(59,0,table)];append='';bindings=None
  if a.normal_picker:
-  tables.append((60,0,rt+pt+(ct+dt if a.normal_chance else b'')))
+  tables.append((60,0,rt+pt+(ct+dt if a.normal_chance else b'')+(init if a.normal_prepare_success else b'')))
+  if a.normal_prepare_success:tables.append((58,0,effects+(callbacks+clone if a.complete_idle else b'')))
+  if a.complete_idle:tables[0]=(59,0,table+plan)
   if a.normal_chance:
    from m4_animation_init_native import luav
    lua='local timingbytes='+luav(list(tb))+'\n'+lua
    for token,value in dict(CHANCEBASE=0x8000+len(rt)+len(pt),CHANCEBYTES=len(ct),DELAYBASE=0x8000+len(rt)+len(pt)+len(ct),DELAYBYTES=len(dt)).items():lua=lua.replace(token,str(value))
    lua=lua.replace('{{0x437e00,2560}', '{{0x438800,1792},{0x40bdc0,12},{0x437e00,2560}')
+   if a.normal_prepare_success:
+    setup=r"""
+ set('SourceAnimationInit4086_Ready',0xb4ec);set('SourceAnimationInit4086_State',0);set('SourceAnimationInit4086_Base',INITBASE);set('SourceAnimationInit4086_Bank',60);set('SourceAnimationInit4086_Bytes',INITBYTES)
+ set('SourceUpdateFrame4086_Ready',0xb4e3);set('SourceUpdateFrame4086_Animations',80);set('SourceUpdateFrame4086_Base',0x8000);set('SourceUpdateFrame4086_Bank',58);set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
+ put(0x414010+self*80,1,4);put(0x414014+self*80,0,4)
+ local side=0x416800+self*64;local flags=0x43eb00+self*32;put(0x43c000+model*336,c.idle_handle)
+ put(flags,55,4);put(flags+20,0,4);put(0x40c058+self*96,66,4);put(side+36,3*65536,4);put(side+40,4*65536,4);put(0x42e008+self*40,111,4)
+"""
+    setup=setup.replace('INITBASE',str(0x8000+len(rt)+len(pt)+len(ct)+len(dt))).replace('INITBYTES',str(len(init)))
+    lua=lua.replace(' before={};',setup+' before={};')
+    lua=lua.replace('local n=0;for a,v in pairs(before)',r"""local function expect(a,v,n)for j=0,n-1 do before[a+j]=(v>>(8*j))&255 end end
+ expect(0x43900c+c.self*80,16,4);expect(0x40c058+c.self*96,0xffffffff,4)
+ expect(0x43eb00+c.self*32,0,16);expect(0x416824+c.self*64,0,8);expect(0x42e008+c.self*40,c.stall_after,4)
+ local n=0;for a,v in pairs(before)""")
+    if a.normal_prepare_pending:
+     lua=lua.replace('expect(0x40c058+c.self*96,0xffffffff,4)','expect(0x40c058+c.self*96,0,4)')
+     lua=lua.replace('expect(0x43eb00+c.self*32,0,16)','expect(0x43eb00+c.self*32,0,16);expect(0x43eb00+c.self*32,3,4);expect(0x416804+c.self*64,c.idle_handle,2);expect(0x41f510+c.self*20,1,2)')
+    lua=lua.replace('{{0x438800,1792}', '{{0x41f500,2560},{0x42e000,5120},{0x416800,8192},{0x438800,1792}')
+    if a.prepare_owner!='selector':
+     assert not a.premature_continue
+     setup=r"""
+ set('SourceNormalAttack4086_State',0);set('SourceNormalAttackRun4086_Ready',0xb5f5);set('SourceNormalAttackRun4086_Status',0)
+ set('SourceTryGrab4086_Ready',0xb5ec);set('SourceTryGrab4086_Status',0);set('SourceAttackEntry4086_Ready',0xb5ed);set('SourceAttackEntry4086_Status',0);set('SourceTryBlock4086_Ready',0xb5f1);set('SourceTryBlock4086_Status',0)
+ set('SourceCRandom4086_Ready',0xb5ea);set('SourceCRandom4086_Busy',0);set('SourceCRandom4086_Profile',1);put(sy.SourceCRandom4086_SeedLo,1,4);put(sy.SourceCRandom4086_CallsLo,0xffffffff,4);put(sy.SourceCRandom4086_Result,55,4)
+ set('SourceAIReadonly4086_Ready',0xb5e8);set('SourceAIReadonly4086_Status',0);set('SourceRetirement4086_Ready',0xb4f8);put(sy.SourceCommonThink4086_Response,55,4)
+ put(0x414008+self*80,2,4);put(0x41400c+self*80,0,4);put(0x416830+self*64,0,4);put(0x439000+self*80,6,4);put(sy.SourceAI4086_Callback,6,4)
+ for j=0,63 do emu.write(0x409000+self*64+j,0,mt)end
+ set('SourceCommonRun4086_Ready',0xb5e9);set('SourceCommonRun4086_State',0)
+"""
+     if a.prepare_owner=='ai':
+      assert a.normal_prepare_pending
+      setup+="set('SourceAIRun4086_Ready',0xb5e6);set('SourceAIRun4086_State',0);set('SourceAI4086_State',0);put(sy.SourceAI4086_Endgame,0,4);put(0x416814+self*64,c.time,4);put(0x42e024+self*40,0,4)\n"
+     lua=lua.replace(' before={};',setup+' before={};')
+     lua=lua.replace('for j=0,17 do before[sy.SourceCRandom4086_Ready+j]=0x5a end','for j=0,17 do before[sy.SourceCRandom4086_Ready+j]=emu.read(sy.SourceCRandom4086_Ready+j,mt)end')
+     lua=lua.replace('local n=0;for a,v in pairs(before)',r"""expect(sy.SourceCRandom4086_SeedLo,2745024,4);expect(sy.SourceCRandom4086_CallsLo,0,4);expect(sy.SourceCRandom4086_Result,41,4)
+ local n=0;for a,v in pairs(before)""")
+     if a.prepare_owner=='ai':lua=lua.replace('local n=0;for a,v in pairs(before)','expect(0x416814+c.self*64,c.time+2,4);expect(0x42e024+c.self*40,2,4)\n local n=0;for a,v in pairs(before)')
+
+
    lua=lua.replace('local n=0;for a,v in pairs(before)',r'''for j=0,3 do before[0x40c05c+c.self*96+j]=(c.nextattack_after>>(8*j))&255 end
  local n=0;for a,v in pairs(before)''')
   lua=lua.replace('for j=0,11 do before[sy.SourceRandom4086_Ready+j]=0xa5 end','for j=0,11 do before[sy.SourceRandom4086_Ready+j]=emu.read(sy.SourceRandom4086_Ready+j,mt)end')
@@ -243,6 +304,55 @@ NormalPickerProbe_Execute:
  rtl
 '''
   apply='NormalPickerProbe';bindings=dict(PROFILELOAD='SourceAttackChoiceProfile4086_Load',NORMALCALL='SourceTryNormalAttack4086_Execute')
+  if a.complete_idle:
+   from m4_animation_init_native import luav
+   setup=r"""
+ put(0x416802+self*64,model);put(0x41f500+self*20,0,4);put(0x41f504+self*20,0,4);put(0x41f50c+self*20,0,4);put(0x43fb00,0,4);put(sy.VmSourceWorld_Level,1)
+ set('VmSourceFrame_Ready',0xb4fd);set('VmSourceFrame_Programs',PROGRAMS);set('VmSourceInstr_Ready',0xb48e);set('SourceVMRun4086_Ready',0xb4d7);set('SourceVMRun4086_Busy',0);set('VmSourceModels_Count',16);set('VmSourceCallback_Active',0)
+ set('SourceAnimationCallback4086_Ready',0xb4e6);set('SourceAnimationCallback4086_State',0);set('SourceAnimationCallback4086_Base',CALLBACKBASE);set('SourceAnimationCallback4086_Bank',58);set('SourceAnimationCallback4086_Bytes',CALLBACKBYTES)
+ set('SourceUpdateFrame4086_Bytes',EFFECTBYTES);set('SourceFrameMotion4086_Ready',0xb4e8);set('SourceFrameMotion4086_Status',0);set('SourceFrameEffectLeaf4086_Ready',0xb4f4)
+ set('SourceFrameEffectPlan4086_Ready',0xb4f2);set('SourceFrameEffectPlan4086_State',0);set('SourceFrameEffectPlan4086_Base',PLANBASE);set('SourceFrameEffectPlan4086_Bank',59);set('SourceFrameEffectPlan4086_Bytes',PLANBYTES);set('SourceFrameEffectPlan4086_Animations',80)
+ put(sy.SourceFrameEffectPlan4086_PairedCrcLo,PAIREDCRC,4);put(sy.SourceFrameEffectPlan4086_BodyCrcLo,BODYCRC,4)
+ set('VmSourceWorld_TemplateCount',16);set('VmSourceVars_Ready',0xb4a4);set('VmSourceVars_Base',0x8800);set('VmSourceVars_Bank',0x41);set('VmSourceVars_Count',384)
+ put(0x410000+self*64,0x414000+self*80,4);put(0x40902c+self*64,0,4)
+ set('SourceScriptClone4086_Ready',0xb5c1);set('SourceScriptClone4086_Status',0);set('SourceScriptClone4086_Base',CLONEBASE);set('SourceScriptClone4086_Bank',58);set('SourceScriptClone4086_Bytes',CLONEBYTES);set('SourceScriptClone4086_Models',16)
+"""
+   for token,value in dict(PROGRAMS=cb['program_count'],CALLBACKBASE=0x8000+len(effects),CALLBACKBYTES=len(callbacks),EFFECTBYTES=len(effects),PLANBASE=0x8000+len(table),PLANBYTES=len(plan),PAIREDCRC=struct.unpack_from('<I',plan,24)[0],BODYCRC=struct.unpack_from('<I',plan,28)[0],CLONEBASE=0x8000+len(effects)+len(callbacks),CLONEBYTES=len(clone)).items():setup=setup.replace(token,str(value))
+   lua=lua.replace(' before={};',setup+' before={};')
+   lua=lua.replace('expect(0x40c058+c.self*96,0,4)','expect(0x40c058+c.self*96,0xffffffff,4)').replace('expect(0x43eb00+c.self*32,3,4)','expect(0x43eb00+c.self*32,0,4)')
+   lua=lua.replace('local n=0;for a,v in pairs(before)','expect(0x416806+c.self*64,0,2);expect(0x416808+c.self*64,c.time+8,4)\n local n=0;for a,v in pairs(before)')
+   if a.prepare_owner!='selector':lua=lua.replace('..(word(sy.SourceNormalAttack4086_Response)|(word(sy.SourceNormalAttack4086_Response+2)<<16))','..(word(sy.SourceCommonThink4086_Response)|(word(sy.SourceCommonThink4086_Response+2)<<16))')
+   append=append.replace(' jsl NORMALCALL\n rtl',""" jsl NORMALCALL
+ bcs NormalPickerProbe_Fail
+ lda.l PENDINGSTATUS
+ cmp #1
+ bne NormalPickerProbe_Fail
+ jsl STARTFRAME
+ bcs NormalPickerProbe_Fail
+ jsl CALLBACKBEGIN
+ bcs NormalPickerProbe_Fail
+ jsl CALLBACKRUN
+ bcs NormalPickerProbe_Fail
+ cmp #4
+ bne NormalPickerProbe_Fail
+ lda #1
+ jsl FRAMEACK
+ bcs NormalPickerProbe_Fail
+ jsl EFFECTRUN
+ bcs NormalPickerProbe_Fail
+ cmp #0
+ bne NormalPickerProbe_Fail
+ jsl PREPARECONTINUE
+ rtl
+NormalPickerProbe_Fail:
+.a16
+.i16
+ sec
+ rtl""")
+   bindings.update(STARTFRAME='SourceAnimationInit4086_StartFrame',CALLBACKBEGIN='SourceAnimationCallback4086_Begin',CALLBACKRUN='SourceAnimationCallback4086_Run',FRAMEACK='SourceUpdateFrame4086_Ack',EFFECTRUN='SourceFrameEffects4086_Run',PENDINGSTATUS={'selector':'SourceTryNormalAttack4086_Status','normal':'SourceNormalAttackRun4086_Status','readonly':'SourceAIReadonly4086_Status','common':'SourceCommonRun4086_State','ai':'SourceAIRun4086_State'}[a.prepare_owner],PREPARECONTINUE={'selector':'SourceTryNormalAttack4086_Continue','normal':'SourceNormalAttackRun4086_Continue','readonly':'SourceAIReadonly4086_Continue','common':'SourceCommonRun4086_Continue','ai':'SourceAIRun4086_Continue'}[a.prepare_owner])
+  if a.prepare_owner!='selector':bindings['NORMALCALL']={'normal':'SourceNormalAttackRun4086_Execute','readonly':'SourceAIReadonly4086_Execute','common':'SourceCommonRun4086_Begin','ai':'SourceAIRun4086_Begin'}[a.prepare_owner]
+  if a.premature_continue:
+   append=append.replace(' jsl NORMALCALL\n rtl',' jsl NORMALCALL\n bcs NormalPickerProbe_Return\n jsl EARLYCONTINUE\nNormalPickerProbe_Return:\n.a16\n.i16\n rtl');bindings['EARLYCONTINUE']='SourceTryNormalAttack4086_Continue'
   lua='local picker_calls=0\n'+lua.replace(' local c=rows[word(INDEX)+1];put(EXPECTFAULT,c.fault)',' local c=rows[word(INDEX)+1];picker_calls=0;put(EXPECTFAULT,c.fault)')
   lua+=r'''
 emu.addMemoryCallback(function()picker_calls=picker_calls+1 end,emu.callbackType.exec,sy.SourceAttackPicker4086_Execute,sy.SourceAttackPicker4086_Execute,emu.cpuType.snes,mt)
@@ -251,13 +361,47 @@ emu.addMemoryCallback(function()
  emu.log('NORMALPICKSTATE|'..word(INDEX)..'|'..word(sy.SourceAttackPicker4086_Status)..'|'..word(sy.SourceAttackPicker4086_Result)..'|'..word(sy.SourceEntityRange4086_Status)..'|'..word(sy.SourceAnimationRange4086_Status)..'|'..word(sy.SourceCheckRange4086_Status)..'|'..(word(sy.SourceRandom4086_SeedLo)|(word(sy.SourceRandom4086_SeedLo+2)<<16)))
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
+ if a.normal_prepare_success:
+  lua='local prep_trace,prep_order_faults={},0\n'+lua.replace(' local c=rows[word(INDEX)+1];put(EXPECTFAULT,c.fault)',' local c=rows[word(INDEX)+1];prep_trace={};prep_order_faults=0;put(EXPECTFAULT,c.fault)')
+  lua+=r"""
+emu.addMemoryCallback(function()prep_trace={};prep_order_faults=0 end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];prep_trace[#prep_trace+1]=1
+ if word(0x43900c+c.self*80)~=16 or word(0x43eb00+c.self*32)~=55 or word(0x40c058+c.self*96)~=66 then prep_order_faults=prep_order_faults+1 end
+end,emu.callbackType.exec,sy.SourceSetIdle4086_Begin,sy.SourceSetIdle4086_Begin,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()prep_trace[#prep_trace+1]=2 end,emu.callbackType.exec,sy.SourceAnimationInit4086_StartFrame,sy.SourceAnimationInit4086_StartFrame,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()prep_trace[#prep_trace+1]=3 end,emu.callbackType.exec,sy.SourceAnimationCallback4086_Run,sy.SourceAnimationCallback4086_Run,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()prep_trace[#prep_trace+1]=4 end,emu.callbackType.exec,sy.SourceFrameEffects4086_Run,sy.SourceFrameEffects4086_Run,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];prep_trace[#prep_trace+1]=5
+ if word(0x43eb00+c.self*32)~=3 or word(0x40c058+c.self*96)~=0 or word(sy.SourceAnimationInit4086_State)~=2 then prep_order_faults=prep_order_faults+1 end
+end,emu.callbackType.exec,sy.SourceTryNormalAttack4086_PostIdle,sy.SourceTryNormalAttack4086_PostIdle,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('PREPORDER|'..word(INDEX)..'|'..prep_order_faults..'|'..table.concat(prep_trace,','))
+ emu.log('PREPOWNERS|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceCommonRun4086_State)..'|'..word(sy.SourceCommonThink4086_State)..'|'..word(sy.SourceAIReadonly4086_Status)..'|'..word(sy.SourceNormalAttackRun4086_Status)..'|'..word(sy.SourceNormalAttack4086_State))
+end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
+"""
  r=Reporter('M4-AI-TARGET',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,apply,ready,magic,tables,lua,r,batch_size=1,append=append,bindings=bindings,frame_limit=6000 if a.normal_chance else 2000)
  results=[list(map(int,l.split('AITARGET|',1)[1].split('|')))for l in log.splitlines()if 'AITARGET|'in l]
  wanted=[[i,0,0,3 if c['fault']else 2,c['expected'],55 if c['fault']else (c['expected']-0x414000)//80 if c['expected']else 65535]for i,c in enumerate(rows)]
- if a.normal_selector:wanted=[[i,0,0,3 if c['fault']else 2,c['expected'],55 if c['fault']else 0]for i,c in enumerate(rows)]
+ if a.normal_selector:wanted=[[i,0,0,3 if c['fault']else 2,c['expected'],55 if c['fault']else int(a.normal_prepare_success)]for i,c in enumerate(rows)]
+ if a.normal_prepare_pending:wanted=[[i,0,0,3 if a.premature_continue else 1,c['expected'],55]for i,c in enumerate(rows)]
+ if a.prepare_owner!='selector':wanted=[[i,0,0,1 if a.normal_prepare_pending else 2,c['expected'],0 if a.normal_prepare_pending else 1]for i,c in enumerate(rows)]
+ if a.complete_idle:wanted=[[i,0,0,2,c['expected'],1]for i,c in enumerate(rows)]
  if a.normal_run:wanted=[[i,0,0,3 if c['fault']else 2,c['expected'],55 if c['fault']else 0]for i,c in enumerate(rows)]
  failures=[dict(input=c,actual=v,expected=e)for c,v,e in zip(rows,results,wanted)if v!=e]
  traces=[]
+ preparation_trace=[];owner_states=[]
+ if a.normal_prepare_success:
+  for line in log.splitlines():
+   if 'PREPORDER|'in line:
+    v=line.split('PREPORDER|',1)[1].split('|');preparation_trace.append([int(v[0]),int(v[1]),list(map(int,v[2].split(',')))if v[2]else []])
+   if 'PREPOWNERS|'in line:owner_states.append(list(map(int,line.split('PREPOWNERS|',1)[1].split('|'))))
+  wanted_trace=[1,2,3,4,5]if a.complete_idle else[1]if a.normal_prepare_pending else[1,5]
+  r.check('actual source idle call precedes frame-zero services and post-idle attack flag publication',preparation_trace==[[i,0,wanted_trace]for i in range(len(rows))])
+  if a.prepare_owner=='ai':
+   closed=[2,5,2,9,2,2,7]if a.complete_idle else[1,2,1,7,1,1,5]
+   r.check('actual outer AI and every child lease complete or remain pending together',owner_states==[[i,*closed]for i in range(len(rows))])
  if a.normal_run:
   for line in log.splitlines():
    if 'NORMALTRACE|'not in line:continue
@@ -271,6 +415,6 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
  r.check('direct real source target selection without VM arguments/context; retired/dead self remains eligible to query; exact typed scratch/CPU/entities/order retained; guarded failures',len(results)==len(rows)and not failures)
  if a.normal_picker:
   picker_counts=[list(map(int,l.split('NORMALPICKCOUNT|',1)[1].split('|')))for l in log.splitlines()if 'NORMALPICKCOUNT|'in l]
-  r.check('test-only picker executes exactly after the source rejection gates, with no choice returning false and positive body remaining explicit',picker_counts==[[i,c['picker_calls']]for i,c in enumerate(rows)])
- (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',action_query_entry_bound=a.action_query,normalattack_selector_bound=a.normal_selector or a.normal_run,grounded_common_attack_path_executed=a.normal_run,selector_traces=traces,source_timer_delay_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_timer_authority_sha256=hashlib.sha256(a.normal_timer_authority.read_bytes()).hexdigest()if a.normal_timer_authority else None,source_vulnerability_attacking_false_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_testonly_picker_bound=a.normal_picker,source_chance_rejection_nextattack_bound=a.normal_chance,active_combo_skips_chance_bound=a.normal_chance,mutable_cache_domain='normal-role-only'if a.normal_picker else None,picker_call_counts=picker_counts if a.normal_picker else None,normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
+  r.check('test-only picker executes exactly after source rejection gates and once per admitted preparation'if a.normal_prepare_success else'test-only picker executes exactly after the source rejection gates, with no choice returning false and positive body remaining explicit',picker_counts==[[i,c['picker_calls']]for i,c in enumerate(rows)])
+ (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',action_query_entry_bound=a.action_query,normalattack_selector_bound=a.normal_selector or a.normal_run,grounded_common_attack_path_executed=a.normal_run,selector_traces=traces,source_timer_delay_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_timer_authority_sha256=hashlib.sha256(a.normal_timer_authority.read_bytes()).hexdigest()if a.normal_timer_authority else None,source_vulnerability_attacking_false_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_testonly_picker_bound=a.normal_picker,source_chance_rejection_nextattack_bound=a.normal_chance,source_successful_same_idle_preparation_bound=a.normal_prepare_success and not a.normal_prepare_pending,source_changed_idle_yield_bound=a.normal_prepare_pending,premature_frame_zero_continuation_rejected=a.premature_continue,actual_frame_zero_executed=a.complete_idle,preparation_owner=a.prepare_owner,source_preparation_execution_traces=preparation_trace,source_preparation_owner_states=owner_states,active_combo_skips_chance_bound=a.normal_chance,mutable_cache_domain='normal-role-only'if a.normal_picker else None,picker_call_counts=picker_counts if a.normal_picker else None,normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
 if __name__=='__main__':main()

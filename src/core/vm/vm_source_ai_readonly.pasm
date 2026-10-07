@@ -265,6 +265,56 @@ SourceAIReadonly4086_AttackUnbound:
 SourceAIReadonly4086_AttackRan:
 .a16
 .i16
+ lda.l SourceNormalAttackRun4086_Status
+ cmp #1
+ bne SourceAIReadonly4086_AttackComplete
+ lda #1
+ sta.l SourceAIReadonly4086_Status
+ ply
+ plx
+ plp
+ clc
+ rtl
+SourceAIReadonly4086_Continue:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l SourceAIReadonly4086_Ready
+ cmp #$B5E8
+ beq SourceAIReadonly4086_ContinueReady
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_ContinueReady:
+.a16
+.i16
+ lda.l SourceAIReadonly4086_Status
+ cmp #1
+ beq SourceAIReadonly4086_ContinuePending
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_ContinuePending:
+.a16
+.i16
+ jsl SourceCommonThink4086_CheckOwner
+ bcc SourceAIReadonly4086_ContinueOwner
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_ContinueOwner:
+.a16
+.i16
+ lda.l SourceCommonThink4086_State
+ cmp #7
+ beq SourceAIReadonly4086_ContinuePhase
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_ContinuePhase:
+.a16
+.i16
+ jsl SourceNormalAttackRun4086_Continue
+ bcc SourceAIReadonly4086_AttackRan
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_AttackComplete:
+.a16
+.i16
  lda.l SourceNormalAttack4086_Result
  beq SourceAIReadonly4086_AttackFalse
  jmp SourceAIReadonly4086_True
@@ -360,6 +410,7 @@ SourceAIReadonly4086_Publish:
  sta.l SourceCommonThink4086_Response+2
  lda #2
  sta.l SourceAIReadonly4086_Status
+ lda #0
  ply
  plx
  plp
@@ -370,6 +421,7 @@ SourceAIReadonly4086_Bad:
 .i16
  lda #3
  sta.l SourceAIReadonly4086_Status
+ lda #0
  ply
  plx
  plp
