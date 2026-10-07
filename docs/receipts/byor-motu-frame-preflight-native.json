@@ -1,0 +1,40 @@
+{
+  "schema": "BYOR_4086_UPDATE_FRAME_PREFLIGHT_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-frame-preflight-pure-native-v3/report.json",
+      "sha256": "b7f2d42698f986c01795066fb5562f1f09a5aeee6afcaf2aedaa16a70da54ec8",
+      "cases": 105
+    },
+    {
+      "path": "out/byor-motu-frame-preflight-prefix-native/report.json",
+      "sha256": "fb0b367562b46ddfee7ff1e3844226f1d9afa334d95a426f25d314a677c064e1",
+      "cases": 2568
+    },
+    {
+      "path": "out/byor-motu-frame-preflight-init-native/report.json",
+      "sha256": "205fa4a5fa3992bc7ef6f2397bc51c6bee4e34318019891b405fc5994e6396d3",
+      "cases": 1746
+    },
+    {
+      "path": "out/byor-motu-frame-preflight-live-idle-native/report.json",
+      "sha256": "d11338dee2a522f278547aebb87661ec86ad183e9439e8cb96e1f2696efcb7b9",
+      "cases": 56
+    }
+  ],
+  "pure_preflight_actor_writes": 0,
+  "pure_preflight_self_entry": false,
+  "out_of_range_frame_policy": "Literal source no-op",
+  "actual_frame_callback_idle_regression": true,
+  "bank_zero_bytes_changed": 0,
+  "bank_zero_free_before_nmi_bytes": 2,
+  "protected_dirty_files_unchanged": 17,
+  "width_guard_new_violations": 0,
+  "width_guard_authority_baseline": 183,
+  "timed_update_animation_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

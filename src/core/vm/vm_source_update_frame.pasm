@@ -135,8 +135,10 @@ SourceUpdateFrame4086_CheckIdle__ok:
     clc
     rtl
 
-; Input Slot/Request plus table lease. Return C=0 and Pending in A.
-SourceUpdateFrame4086_Begin:
+; Pure actor preflight: validate Slot/Request/table and capture frame identity.
+; Writes scratch only; no actor mutation, self entry, or service publication.
+; Out-of-range Request is the literal update_frame no-op, not a fault.
+SourceUpdateFrame4086_Preflight:
 .a16
 .i16
     php
@@ -146,25 +148,25 @@ SourceUpdateFrame4086_Begin:
     lda.l SourceUpdateFrame4086_Ready
     cmp #$B4E3
     beq SourceUpdateFrame4086_Branch_6
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_6:
 .a16
 .i16
     jsl SourceUpdateFrame4086_CheckIdle
     bcc SourceUpdateFrame4086_Branch_7
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_7:
 .a16
 .i16
     jsl SourceFrameEffectPlan4086_CheckIdle
     bcc SourceUpdateFrame4086_PlanIdle
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_PlanIdle:
 .a16
 .i16
     jsl SourceSelf4086_CheckIdle
     bcc SourceUpdateFrame4086_SelfIdle
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_SelfIdle:
 .a16
 .i16
@@ -172,69 +174,69 @@ SourceUpdateFrame4086_SelfIdle:
     and #$00FF
     cmp #VMSTAT_RUNNING
     bne SourceUpdateFrame4086_Branch_8
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_8:
 .a16
 .i16
     cmp #VMSTAT_YIELDED
     bne SourceUpdateFrame4086_Branch_9
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_9:
 .a16
 .i16
     cmp #VMSTAT_FAULT
     bne SourceUpdateFrame4086_Branch_10
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_10:
 .a16
 .i16
     lda.l VmSourceWorld_Ready
     cmp #$B4A3
     beq SourceUpdateFrame4086_Branch_11
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_11:
 .a16
 .i16
     lda.l VmSourceWorld_PoolBase
     cmp #$4000
     beq SourceUpdateFrame4086_Branch_12
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_12:
 .a16
 .i16
     lda.l VmSourceWorld_SideBase
     cmp #$6800
     beq SourceUpdateFrame4086_Branch_13
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_13:
 .a16
 .i16
     lda.l VmSourceWorld_Count
     bne SourceUpdateFrame4086_Branch_14
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_14:
 .a16
 .i16
     cmp #129
     bcc SourceUpdateFrame4086_Branch_15
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_15:
 .a16
 .i16
     cmp.l SourceUpdateFrame4086_Slot
     bne SourceUpdateFrame4086_Branch_16
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_16:
 .a16
 .i16
     bcs SourceUpdateFrame4086_Branch_17
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_17:
 .a16
 .i16
     lda.l SourceUpdateFrame4086_Request
     bpl SourceUpdateFrame4086_Branch_18
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_18:
 .a16
 .i16
@@ -269,20 +271,20 @@ SourceUpdateFrame4086_Branch_18:
     tax
     lda.l $410004,x
     bne SourceUpdateFrame4086_Branch_19
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_19:
 .a16
 .i16
     lda.l $410010,x                ; complete INTEGER animation id
     cmp #BOR_VT_INTEGER
     beq SourceUpdateFrame4086_Branch_20
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_20:
 .a16
 .i16
     lda.l $410012,x
     beq SourceUpdateFrame4086_Branch_21
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_21:
 .a16
 .i16
@@ -297,21 +299,21 @@ SourceUpdateFrame4086_Branch_21:
     lda.l SourceUpdateFrame4086_Base
     cmp #$8000
     bcs SourceUpdateFrame4086_Branch_22
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_22:
 .a16
 .i16
     lda.l SourceUpdateFrame4086_Bytes
     cmp #24
     bcs SourceUpdateFrame4086_Branch_23
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_23:
 .a16
 .i16
     clc
     adc.l SourceUpdateFrame4086_Base
     bcc SourceUpdateFrame4086_Branch_24
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_24:
 .a16
 .i16
@@ -319,7 +321,7 @@ SourceUpdateFrame4086_Branch_24:
     lda.l SourceUpdateFrame4086_Bank
     cmp #64
     bcc SourceUpdateFrame4086_Branch_25
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_25:
 .a16
 .i16
@@ -328,7 +330,7 @@ SourceUpdateFrame4086_Branch_25:
     jsr SourceUpdateFrame4086_Read
     cmp #$3442                    ; B4FE
     beq SourceUpdateFrame4086_Branch_26
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_26:
 .a16
 .i16
@@ -337,7 +339,7 @@ SourceUpdateFrame4086_Branch_26:
     jsr SourceUpdateFrame4086_Read
     cmp #$4546
     beq SourceUpdateFrame4086_Branch_27
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_27:
 .a16
 .i16
@@ -346,7 +348,7 @@ SourceUpdateFrame4086_Branch_27:
     jsr SourceUpdateFrame4086_Read
     cmp #1
     beq SourceUpdateFrame4086_Branch_28
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_28:
 .a16
 .i16
@@ -354,20 +356,20 @@ SourceUpdateFrame4086_Branch_28:
     inx
     jsr SourceUpdateFrame4086_Read
     bne SourceUpdateFrame4086_Branch_29
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_29:
 .a16
 .i16
     cmp #129
     bcc SourceUpdateFrame4086_Branch_30
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_30:
 .a16
 .i16
     sta.l SourceUpdateFrame4086_Animations
     lda.l SourceUpdateFrame4086_Handle
     bne SourceUpdateFrame4086_Branch_31
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_31:
 .a16
 .i16
@@ -378,7 +380,7 @@ SourceUpdateFrame4086_Branch_32:
 .a16
 .i16
     beq SourceUpdateFrame4086_Branch_33
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_33:
 .a16
 .i16
@@ -397,7 +399,7 @@ SourceUpdateFrame4086_Begin__handle_ok:
     clc
     adc #8
     bcc SourceUpdateFrame4086_Branch_34
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_34:
 .a16
 .i16
@@ -408,7 +410,7 @@ SourceUpdateFrame4086_Branch_35:
 .a16
 .i16
     beq SourceUpdateFrame4086_Branch_36
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_36:
 .a16
 .i16
@@ -418,7 +420,7 @@ SourceUpdateFrame4086_Begin__directory_ok:
     jsr SourceUpdateFrame4086_Read
     cmp.l SourceUpdateFrame4086_Handle
     beq SourceUpdateFrame4086_Branch_37
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_37:
 .a16
 .i16
@@ -426,18 +428,18 @@ SourceUpdateFrame4086_Branch_37:
     inx
     jsr SourceUpdateFrame4086_Read
     bne SourceUpdateFrame4086_Branch_38
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_38:
 .a16
 .i16
     bpl SourceUpdateFrame4086_Branch_39
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_39:
 .a16
 .i16
     cmp #1366                     ; prevent count*24 uint16 overflow
     bcc SourceUpdateFrame4086_Branch_40
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_40:
 .a16
 .i16
@@ -448,7 +450,7 @@ SourceUpdateFrame4086_Branch_40:
     clc
     adc.l SourceUpdateFrame4086_Base
     bcc SourceUpdateFrame4086_Branch_41
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_41:
 .a16
 .i16
@@ -459,7 +461,7 @@ SourceUpdateFrame4086_Branch_41:
     clc
     adc.l SourceUpdateFrame4086_Base
     bcc SourceUpdateFrame4086_Branch_42
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_42:
 .a16
 .i16
@@ -468,7 +470,7 @@ SourceUpdateFrame4086_Branch_42:
     sbc.l SourceUpdateFrame4086_AnimationData
     cmp #128
     beq SourceUpdateFrame4086_Branch_43
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_43:
 .a16
 .i16
@@ -487,7 +489,7 @@ SourceUpdateFrame4086_Branch_44:
 .a16
 .i16
     bcc SourceUpdateFrame4086_Branch_45
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_45:
 .a16
 .i16
@@ -501,21 +503,21 @@ SourceUpdateFrame4086_Begin__animation_ok:
     pha
     asl a                         ; count*16
     bcc SourceUpdateFrame4086_Branch_46
-    jmp SourceUpdateFrame4086_Begin__drop_bad
+    jmp SourceUpdateFrame4086_PreflightDropBad
 SourceUpdateFrame4086_Branch_46:
 .a16
 .i16
     clc
     adc 1,s                       ; count*24
     bcc SourceUpdateFrame4086_Branch_47
-    jmp SourceUpdateFrame4086_Begin__drop_bad
+    jmp SourceUpdateFrame4086_PreflightDropBad
 SourceUpdateFrame4086_Branch_47:
 .a16
 .i16
     clc
     adc.l SourceUpdateFrame4086_FirstFrame
     bcc SourceUpdateFrame4086_Branch_48
-    jmp SourceUpdateFrame4086_Begin__drop_bad
+    jmp SourceUpdateFrame4086_PreflightDropBad
 SourceUpdateFrame4086_Branch_48:
 .a16
 .i16
@@ -526,7 +528,7 @@ SourceUpdateFrame4086_Branch_49:
 .a16
 .i16
     beq SourceUpdateFrame4086_Branch_50
-    jmp SourceUpdateFrame4086_Begin__drop_bad
+    jmp SourceUpdateFrame4086_PreflightDropBad
 SourceUpdateFrame4086_Branch_50:
 .a16
 .i16
@@ -537,7 +539,7 @@ SourceUpdateFrame4086_Begin__frame_range_ok:
     lda.l SourceUpdateFrame4086_Request
     cmp.l SourceUpdateFrame4086_Count
     bcc SourceUpdateFrame4086_Branch_51
-    jmp SourceUpdateFrame4086_Complete
+    jmp SourceUpdateFrame4086_PreflightOk
 SourceUpdateFrame4086_Branch_51:
 .a16
 .i16
@@ -562,8 +564,54 @@ SourceUpdateFrame4086_Branch_51:
     inx
     jsr SourceUpdateFrame4086_Read
     beq SourceUpdateFrame4086_Branch_52
-    jmp SourceUpdateFrame4086_Bad
+    jmp SourceUpdateFrame4086_PreflightBad
 SourceUpdateFrame4086_Branch_52:
+.a16
+.i16
+SourceUpdateFrame4086_PreflightOk:
+.a16
+.i16
+    ply
+    plx
+    plp
+    clc
+    rtl
+SourceUpdateFrame4086_PreflightDropBad:
+.a16
+.i16
+    pla
+SourceUpdateFrame4086_PreflightBad:
+.a16
+.i16
+    lda #1
+    sta.l SourceUpdateFrame4086_Fault
+    lda #3
+    sta.l SourceUpdateFrame4086_State
+    ply
+    plx
+    plp
+    sec
+    rtl
+
+; Input Slot/Request plus table lease. Return C=0 and Pending in A.
+SourceUpdateFrame4086_Begin:
+.a16
+.i16
+    php
+    rep #$38
+    phx
+    phy
+    jsl SourceUpdateFrame4086_Preflight
+    bcc SourceUpdateFrame4086_BeginPreflightOk
+    jmp SourceUpdateFrame4086_Bad
+SourceUpdateFrame4086_BeginPreflightOk:
+.a16
+.i16
+    lda.l SourceUpdateFrame4086_Request
+    cmp.l SourceUpdateFrame4086_Count
+    bcc SourceUpdateFrame4086_BeginApply
+    jmp SourceUpdateFrame4086_Complete
+SourceUpdateFrame4086_BeginApply:
 .a16
 .i16
     lda.l VmSourceWorld_Time
@@ -615,11 +663,6 @@ SourceUpdateFrame4086_Branch_53:
     sta.l $41000A,x
     lda #1
     bra SourceUpdateFrame4086_Issue
-SourceUpdateFrame4086_Begin__drop_bad:
-.a16
-.i16
-    pla
-    jmp SourceUpdateFrame4086_Bad
 SourceUpdateFrame4086_Begin__effects:
 .a16
 .i16
