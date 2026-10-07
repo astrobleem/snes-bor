@@ -1,0 +1,115 @@
+{
+  "schema": "BYOR_MOTU_AI_WARP_BUSY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-ai-warp-busy-authority/report.json",
+      "sha256": "c534cee42fc9afdba454d29805509408359367de3b1e627580fbd3277f045469",
+      "cases": 1200
+    },
+    {
+      "path": "out/byor-motu-ai-warp-busy-native/report.json",
+      "sha256": "042413b997b6e854573445f03d0004a94f94c268ebafd2d65740c9a8d4ef1e23",
+      "cases": 269
+    }
+  ],
+  "current_authored_subtypes": [
+    {
+      "identity": "Shock",
+      "subtype": 0,
+      "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e"
+    },
+    {
+      "identity": "Slash",
+      "subtype": 0,
+      "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7"
+    },
+    {
+      "identity": "Spark",
+      "subtype": 0,
+      "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd"
+    },
+    {
+      "identity": "He_Man",
+      "subtype": 0,
+      "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40"
+    },
+    {
+      "identity": "He_ManB",
+      "subtype": 0,
+      "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea"
+    },
+    {
+      "identity": "HBreath",
+      "subtype": 0,
+      "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36"
+    },
+    {
+      "identity": "HWWind",
+      "subtype": 0,
+      "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c"
+    },
+    {
+      "identity": "ShWave",
+      "subtype": 0,
+      "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181"
+    },
+    {
+      "identity": "Skeletor",
+      "subtype": 0,
+      "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b"
+    },
+    {
+      "identity": "GeyserN",
+      "subtype": 0,
+      "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a"
+    },
+    {
+      "identity": "SkFBall",
+      "subtype": 0,
+      "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd"
+    },
+    {
+      "identity": "SkGeyser",
+      "subtype": 0,
+      "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940"
+    },
+    {
+      "identity": "SkGeyserT",
+      "subtype": 0,
+      "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14"
+    },
+    {
+      "identity": "SkTorn",
+      "subtype": 0,
+      "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb"
+    },
+    {
+      "identity": "Knightbot",
+      "subtype": 0,
+      "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610"
+    },
+    {
+      "identity": "ShockBall",
+      "subtype": 0,
+      "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807"
+    }
+  ],
+  "checks": [
+    "Literal pinned complete warp/busy oracle",
+    "Native actual early warp branches from link/subtype/parent and full32 idling/link busy predicate",
+    "FOLLOW+parent distance/action requirement explicitly rejected without palette or gameplay fallback",
+    "All16 current authored source models declare subtype0",
+    "Saved common thinker actor and current world epoch validated before response publication",
+    "Full physical sibling state, CPU and response preservation on fault",
+    "All17 protected fingerprints unchanged; ROM audit ALL CHECKS PASS"
+  ],
+  "bank0_growth": 0,
+  "follow_distance_native_bound": false,
+  "nonclaims": [
+    "Warp/busy handlers not yet installed into complete common thinker dispatcher",
+    "Other common enemy AI handlers and player thinker remain unbound",
+    "No actual MOTU candidate, real combat, moving lossless rendering or Demo completion"
+  ],
+  "no_color_reduction": true
+}

@@ -181,3 +181,35 @@ SourceCommonThink4086_PreflightBad:
 .i16
  sec
  rts
+
+SourceCommonThink4086_CheckOwner:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ jsr SourceCommonThink4086_Preflight
+ bcc SourceCommonThink4086_CheckOwnerSlot
+SourceCommonThink4086_CheckOwnerBad:
+.a16
+.i16
+ ply
+ plx
+ plp
+ sec
+ rtl
+SourceCommonThink4086_CheckOwnerSlot:
+.a16
+.i16
+ lda.l SourceAI4086_Slot
+ cmp.l SourceCommonThink4086_Slot
+ bne SourceCommonThink4086_CheckOwnerBad
+SourceCommonThink4086_CheckOwnerGood:
+.a16
+.i16
+ ply
+ plx
+ plp
+ clc
+ rtl
