@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_MOTU_MOVE_CLEAR_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-move-clear-native/report.json",
+      "sha256": "c4fe6cfb0e2f8169d736574c735c7c903f06991207c19a8f807646d00870fa1b",
+      "cases": 338
+    },
+    {
+      "path": "out/byor-motu-world-movement-native/report.json",
+      "sha256": "7b2890d614722c991dae2fc17babda17e1fa80f295e987d0c8ffea965383e47e",
+      "cases": 410
+    }
+  ],
+  "native_clear_service": 12,
+  "native_clear_calls": 1063,
+  "native_velocity_calls": 742,
+  "checks": [
+    "Literal arrange_ents movement reset tail",
+    "Physical slots 0/1/63/127 and full-range accumulator input",
+    "Two-axis clear after post-update and compaction, including fresh actors",
+    "Readonly siblings, canonical leases and CPU preservation",
+    "Tick owner requires native result before service acknowledgement",
+    "Pinned traversal and clock-commit behavior retained",
+    "ROM audit ALL CHECKS PASS"
+  ],
+  "bank0_growth": 0,
+  "position_integration_bound": false,
+  "post_update_backend_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

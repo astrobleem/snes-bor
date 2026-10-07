@@ -612,7 +612,12 @@ SourceWorldTick4086_Ack__frame_idle:
 .i16
     lda.l SourceWorldTick4086_Phase
     cmp #10
+    beq SourceWorldTick4086_AckMovement
+    cmp #12
     bne SourceWorldTick4086_AckVelocityDone
+SourceWorldTick4086_AckMovement:
+.a16
+.i16
     lda.l SourceVelocity4086_Ready
     beq SourceWorldTick4086_AckVelocityDone
     cmp #$B5DE
@@ -724,6 +729,16 @@ SourceWorldTick4086_Issue:
 .a16
 .i16
     sta.l SourceWorldTick4086_Phase
+    cmp #12
+    bne SourceWorldTick4086_IssuePending
+    lda.l SourceVelocity4086_Ready
+    cmp #$B5DE
+    bne SourceWorldTick4086_IssuePending
+    lda #0
+    sta.l SourceVelocity4086_Status
+SourceWorldTick4086_IssuePending:
+.a16
+.i16
     lda #1
     sta.l SourceWorldTick4086_Pending
 SourceWorldTick4086_ReturnPhase:

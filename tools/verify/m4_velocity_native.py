@@ -55,7 +55,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--rom',type=Path,required=True);p.add_argument('--authority',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--clear',action='store_true');p.add_argument('--rom',type=Path,required=True);p.add_argument('--authority',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
     authority=json.loads(a.authority.read_text());assert authority['status']=='PASS'
     inputs=authority['inputs'][::7];rng=random.Random(408611)
@@ -70,15 +70,20 @@ def main():
         rows.append(dict(values=v,expected=[n&0xffffffff for n in expected],fault=fault,bad='',slot=(0,1,63,127)[i%4]))
     for bad in ('ready','world','tick','pending','phase','repeat','state','pool','side','aux','count','count_high','slot'):
         rows.append(dict(values=[123,-456,65536,-65536,65536],expected=[123,(-456)&0xffffffff],fault=1,bad=bad,slot=127))
-    sy=symbols(Path('src/main.sym'));entry=sy['SourceVelocity4086_Apply']
-    lua=LUA+f"emu.addMemoryCallback(function()local s=emu.getState();cpu={{}};for _,k in ipairs({{'x','y','d','dbr','sp','ps'}})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,{entry},{entry},emu.cpuType.snes,mt)\n"
+    entry_name='SourceVelocity4086_Clear' if a.clear else 'SourceVelocity4086_Apply'
+    if a.clear:
+        for row in rows:
+            row['fault']=int(bool(row['bad']));row['expected']=[n&0xffffffff for n in row['values'][:2]] if row['fault'] else [0,0]
+    sy=symbols(Path('src/main.sym'));entry=sy[entry_name]
+    body=LUA.replace("set('SourceWorldTick4086_State',1)","set('SourceWorldTick4086_State',3)").replace("set('SourceWorldTick4086_Phase',10)","set('SourceWorldTick4086_Phase',12)") if a.clear else LUA
+    lua=body+f"emu.addMemoryCallback(function()local s=emu.getState();cpu={{}};for _,k in ipairs({{'x','y','d','dbr','sp','ps'}})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,{entry},{entry},emu.cpuType.snes,mt)\n"
     r=Reporter('M4-VELOCITY',kind='GATE')
-    rom,log=run_fixture(a.rom,a.output,rows,'SourceVelocity4086_Apply','SourceVelocity4086_Ready',0xb5de,[],lua,r,batch_size=2)
+    rom,log=run_fixture(a.rom,a.output,rows,entry_name,'SourceVelocity4086_Ready',0xb5de,[],lua,r,batch_size=2)
     results=[list(map(int,line.split('VELOCITY|',1)[1].split('|')))for line in log.splitlines()if 'VELOCITY|'in line]
     failures=[dict(index=i,input=c,actual=v)for i,(c,v)in enumerate(zip(rows,results))if v != [i,0,0,3 if c['fault']else 2,*c['expected']]]
     r.check('signed full product, cancellation, both-axis overflow guards, readonly siblings/tick state and CPU',len(results)==len(rows)and not failures)
     d=dict(schema='BYOR_4086_VELOCITY_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],
-           rom_sha256=hashlib.sha256(rom).hexdigest(),authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),
+           rom_sha256=hashlib.sha256(rom).hexdigest(),authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),clear_service=a.clear,
            numeric_policy=authority['numeric_policy'],world_service_acknowledged=False,collision_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
     (a.output/'report.json').write_text(json.dumps(d,indent=2)+'\n');r.finish()
 

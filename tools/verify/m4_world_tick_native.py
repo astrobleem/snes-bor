@@ -259,7 +259,23 @@ WorldTickFixture_End:
 .i16
     lda.l PHASE
     cmp #10
-    bne WorldTickFixture_VelocityDone
+    beq WorldTickFixture_VelocityRequest
+    cmp #12
+    beq WorldTickFixture_ClearRequest
+    jmp WorldTickFixture_VelocityDone
+WorldTickFixture_ClearRequest:
+.a16
+.i16
+    jsl CLEARVELOCITY
+    bcs WorldTickFixture_PendingFault
+WorldTickFixture_ClearObserved:
+.a16
+.i16
+    nop
+    jmp WorldTickFixture_VelocityDone
+WorldTickFixture_VelocityRequest:
+.a16
+.i16
     lda #10
     jsl ACK
     bcs WorldTickFixture_VelocityEarlyAckRejected
@@ -289,6 +305,7 @@ WorldTickFixture_VelocityDone:
                         SCRIPTCALL=sy['SourceVMRun4086_Call'],SCRIPTREADY=sy['SourceVMRun4086_Ready'])
     if a.velocity_backend:
         replacements['VELOCITY']=sy['SourceVelocity4086_Apply']
+        replacements['CLEARVELOCITY']=sy['SourceVelocity4086_Clear']
         replacements['OWNERFAULT']=sy['SourceWorldTick4086_Fault']
     asm=asm.replace('    ldx.l FAULTINDEX','    lda.l FAULTINDEX\n    tax\n    lda #1')
     for name,value in replacements.items():
@@ -447,6 +464,10 @@ end,emu.callbackType.exec,SCRIPTCOMPLETE,SCRIPTCOMPLETE,emu.cpuType.snes,mt)
         velocity_init+='for s=0,c.n-1 do put(0x41f500+s*20,0,4);put(0x41f504+s*20,0,4);put(0x416820+s*64,65536,4);put(0x416824+s*64,(s+1)*65536,4);put(0x416828+s*64,-(s+1)*65536,4) end\n'
         lua+=f'''emu.addMemoryCallback(function()
  local s=word(sy.SourceWorldTick4086_Slot)
+ emu.log('WORLDTICKCLEAR|'..word(INDEX)..'|'..s..'|'..dw(0x41f500+s*20)..'|'..dw(0x41f504+s*20)..'|'..word({sy['SourceVelocity4086_Status']}))
+end,emu.callbackType.exec,{fs['WorldTickFixture_ClearObserved']},{fs['WorldTickFixture_ClearObserved']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local s=word(sy.SourceWorldTick4086_Slot)
  emu.log('WORLDTICKVELOCITY|'..word(INDEX)..'|'..s..'|'..dw(0x41f500+s*20)..'|'..dw(0x41f504+s*20)..'|'..word({sy['SourceVelocity4086_Status']}))
 end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTickFixture_VelocityObserved']},emu.cpuType.snes,mt)
 '''
@@ -474,8 +495,10 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
             run_frames_exact(m,60)
             if (startup.u16(m,INDEX)==len(rows) and startup.u16(m,FAULT_INDEX)==10) or startup.u16(m,ERROR):break
         reporter.check('native traversal batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,FAULT_INDEX)==10 and startup.u16(m,ERROR)==0)
-    actual=[dict(events=[]) for _ in rows];clock_checks=[];faults=[];script_results=[];velocity_results=[]
+    actual=[dict(events=[]) for _ in rows];clock_checks=[];faults=[];script_results=[];velocity_results=[];clear_results=[]
     for line in (folder/'mesen.log').read_text().splitlines():
+        if 'WORLDTICKCLEAR|' in line:
+            clear_results.append(list(map(int,line.split('WORLDTICKCLEAR|',1)[1].split('|'))))
         if 'WORLDTICKVELOCITY|' in line:
             velocity_results.append(list(map(int,line.split('WORLDTICKVELOCITY|',1)[1].split('|'))))
         if 'WORLDTICKSCRIPT|' in line:
@@ -498,6 +521,7 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
     reporter.check('invalid ownership and incomplete services reject without clock mutation',
                    faults==[[i,1,49 if i==5 else 48,1] for i in range(10)])
     if a.velocity_backend:
+        reporter.check('actual arrange_ents tail clears each admitted movement accumulator',clear_results==[[i,s,0,0,2] for i,r in enumerate(actual) for phase,s in r['events'] if phase==12] and bool(clear_results))
         expected_velocity=[[i,s,((s+1)*32768)&0xffffffff,(-(s+1)*32768)&0xffffffff,2] for i,r in enumerate(actual) for phase,s in r['events'] if phase==10]
         reporter.check('actual service 10 rejects early acknowledgement and publishes exactly once before the owner acknowledgement',velocity_results==expected_velocity and bool(velocity_results))
     if callback:
@@ -513,7 +537,7 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
         rom_sha256=hashlib.sha256(rom).hexdigest(),authority_functions_sha256=authority['functions_sha256'],
         cases=len(rows),events=sum(len(r['events']) for r in actual),comparisons=comparisons,
         rejections=faults,early_direct_clock_commit_rejections=len(rows),
-        callback=callback,script_results=script_results,velocity_backend=a.velocity_backend,velocity_results=velocity_results,
+        callback=callback,script_results=script_results,velocity_backend=a.velocity_backend,velocity_results=velocity_results,clear_results=clear_results,
         bank0_growth=0,live_gameplay_handlers_bound=False,motu_gameplay_proven=False)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 

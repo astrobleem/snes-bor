@@ -1,6 +1,6 @@
 ; Generic source velocity accumulator: full signed 64-bit product / 2^17.
 ; ACCEPTED_COMPAT_Q16_16. Checked two-axis publication; no position integration.
-; Requires an outstanding source world tick service 10. Does not acknowledge it.
+; Requires outstanding source world tick Pending=1, Phase=10. Does not acknowledge it.
 SourceVelocity4086_Ready = $43BC52
 SourceVelocity4086_Status = $43BC54
 SourceVelocity4086_Aux = $43BC56
@@ -356,3 +356,104 @@ SourceVelocity4086_Bad:
  plp
  sec
  rtl
+
+; Literal arrange_ents tail: clear movex and movez after post-update.
+SourceVelocity4086_Clear:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l SourceVelocity4086_Ready
+ cmp #$B5DE
+ beq SourceVelocity4086_ClearGuard0
+ jmp SourceVelocity4086_Bad
+SourceVelocity4086_ClearGuard0:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Ready
+ cmp #$B4D5
+ beq SourceVelocity4086_ClearGuard1
+ jmp SourceVelocity4086_Bad
+SourceVelocity4086_ClearGuard1:
+.a16
+.i16
+ lda.l VmSourceWorld_Ready
+ cmp #$B4A3
+ beq SourceVelocity4086_ClearGuard2
+ jmp SourceVelocity4086_Bad
+SourceVelocity4086_ClearGuard2:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Phase
+ cmp #12
+ beq SourceVelocity4086_ClearGuard3
+ jmp SourceVelocity4086_Bad
+SourceVelocity4086_ClearGuard3:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Pending
+ cmp #1
+ beq SourceVelocity4086_ClearGuard4
+ jmp SourceVelocity4086_Bad
+SourceVelocity4086_ClearGuard4:
+.a16
+.i16
+ lda.l SourceWorldTick4086_State
+ cmp #3
+ beq SourceVelocity4086_ClearGuard5
+ jmp SourceVelocity4086_Bad
+SourceVelocity4086_ClearGuard5:
+.a16
+.i16
+ lda.l SourceUpdateFrame4086_Ready
+ cmp #$B4E3
+ beq SourceVelocity4086_ClearGuard6
+ jmp SourceVelocity4086_Bad
+SourceVelocity4086_ClearGuard6:
+.a16
+.i16
+ lda.l SourceVelocity4086_Status
+ beq SourceVelocity4086_ClearFresh
+ jmp SourceVelocity4086_Bad
+SourceVelocity4086_ClearFresh:
+.a16
+.i16
+ lda.l VmSourceWorld_PoolBase
+ cmp #$4000
+ bne SourceVelocity4086_ClearBad
+ lda.l VmSourceWorld_SideBase
+ cmp #$6800
+ bne SourceVelocity4086_ClearBad
+ lda.l VmSourceWorld_Count
+ beq SourceVelocity4086_ClearBad
+ cmp #129
+ bcs SourceVelocity4086_ClearBad
+ lda.l SourceWorldTick4086_Slot
+ cmp.l VmSourceWorld_Count
+ bcs SourceVelocity4086_ClearBad
+ asl a
+ asl a
+ sta.l SourceVelocity4086_Aux
+ asl a
+ asl a
+ clc
+ adc.l SourceVelocity4086_Aux
+ tax
+ lda #0
+ sta.l SOURCE_UPDATE_FRAME_AUX,x
+ sta.l SOURCE_UPDATE_FRAME_AUX+2,x
+ sta.l SOURCE_UPDATE_FRAME_AUX+4,x
+ sta.l SOURCE_UPDATE_FRAME_AUX+6,x
+ lda #2
+ sta.l SourceVelocity4086_Status
+ ply
+ plx
+ plp
+ clc
+ rtl
+SourceVelocity4086_ClearBad:
+.a16
+.i16
+ jmp SourceVelocity4086_Bad
