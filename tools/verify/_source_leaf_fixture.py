@@ -12,7 +12,7 @@ import game_bor_startup_select as startup
 REQUEST, INDEX, ERROR = 0x7ffd80, 0x7ffd82, 0x7ffd84
 
 
-def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None, append='', bindings=None, probes=None, batch_size=8):
+def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None, append='', bindings=None, probes=None, batch_size=8, frame_limit=2000):
     if batch_size not in (1,2,4,8,16,32,64):raise ValueError('LEAF_BATCH_SIZE')
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(rom_path.read_bytes())
     if raw[first:first+32768]!=bytes(32768) or raw[59*32768:61*32768]!=bytes(65536) or raw[0x7fd8]!=8:raise ValueError('LEAF_PRIVATE_RESERVATION')
@@ -115,7 +115,7 @@ LeafFixture_Return:
         lua='emu.addMemoryCallback(function() emu.write('+str(sy['SourceLifecycle4086_Ready'])+',0,emu.memType.snesMemory); emu.write('+str(sy['SourceLifecycle4086_Ready']+1)+',0,emu.memType.snesMemory) end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,emu.memType.snesMemory)\n'+lua
     if 'SourceBirthCore4086_Ready' in sy:
         lua='emu.addMemoryCallback(function() emu.write('+str(sy['SourceBirthCore4086_Ready'])+',0,emu.memType.snesMemory); emu.write('+str(sy['SourceBirthCore4086_Ready']+1)+',0,emu.memType.snesMemory) end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,emu.memType.snesMemory)\n'+lua
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k in ('VmCode_Wram','VmSlots_Wram') or k.startswith(('SourceVMRun4086_','VmSourceCallback_','SourceRandom4086_','SourcePlayerSpawnHeight4086_','SourceEmptyInitEnvironment4086_','SourceEnvironment4086_','SourceSpawnSlot4086_','SourceCtorOwner4086_','SourceCtorState4086_','SourceFactors4086_','SourceCtorModel4086_','SourceScriptClone4086_','SourceAnimationCallback4086_','SourceDefaultInit4086_','SourceDefaultPlayer4086_','SourceLifecycle4086_','SourceDefaultChoice4086_','SourceBirthCore4086_','VmCall_','VmNativeVariant_','SourceRetirement4086_','VmSourceVars_','SourceFrameEffect','SourceFrameMotion4086_','SourceUpdateFrame4086_','SourceIdle4086_','SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','SourceSelf4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_','VmState_'))})+'\n'+lua
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k in ('VmCode_Wram','VmSlots_Wram') or k.startswith(('SourceVMRun4086_','VmSourceCallback_','SourceRandom4086_','SourcePlayerSpawnHeight4086_','SourceEmptyInitEnvironment4086_','SourceEnvironment4086_','SourceTarget4086_','SourceSpawnSlot4086_','SourceCtorOwner4086_','SourceCtorState4086_','SourceFactors4086_','SourceCtorModel4086_','SourceScriptClone4086_','SourceAnimationCallback4086_','SourceDefaultInit4086_','SourceDefaultPlayer4086_','SourceLifecycle4086_','SourceDefaultChoice4086_','SourceBirthCore4086_','VmCall_','VmNativeVariant_','SourceRetirement4086_','VmSourceVars_','SourceFrameEffect','SourceFrameMotion4086_','SourceUpdateFrame4086_','SourceIdle4086_','SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','SourceSelf4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_','VmState_'))})+'\n'+lua
     values.update(INIT=fs['LeafFixture_Init'],AFTER=fs['LeafFixture_After'],RESULT=fs['LeafFixture_Result'])
     if post:values['POSTRESULT']=fs['LeafFixture_Post']
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
@@ -130,7 +130,7 @@ LeafFixture_Return:
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('LEAF_BOOTSTRAP')
         run_frames_exact(m,12);m.write_u16(INDEX,0);m.write_u16(ERROR,0);m.write_u16(REQUEST,magic)
-        for _ in range(2000):
+        for _ in range(frame_limit):
             run_frames_exact(m,1)
             if startup.u16(m,INDEX)==len(rows) or startup.u16(m,ERROR):break
         reporter.check('native leaf batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,ERROR)==0)

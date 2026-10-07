@@ -12,18 +12,25 @@ local mt=emu.memType.snesMemory
 local function put(a,v,n)for i=0,(n or 2)-1 do emu.write(a+i,(v>>(8*i))&255,mt)end end
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
 local function set(k,v)put(sy[k],v)end
-local ranges={{0x414000,576},{0x439000,320},{0x40c000,384},{0x43fd80,32}}
+local ranges={}
 local before,cpu,ctx={}, {},0
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];put(EXPECTFAULT,c.fault)
+ ranges=c.capacity==128 and {{0x414000,18432},{0x439000,10240},{0x40c000,12288},{0x43fd80,32},{0x41f200,256}} or {{0x414000,576},{0x439000,320},{0x40c000,384},{0x43fd80,32},{0x41f200,8}}
  for _,r in ipairs(ranges)do for i=0,r[2]-1 do emu.write(r[1]+i,165,mt)end end
- for i=0,3 do local v=0x414000+i*80;put(v,v,4);put(v+4,c.exists[i+1],4);local l=0x439000+i*80;put(l+60,c.old,4);put(l+72,0);put(l+74,0xb4fb)end
+ for i=0,c.capacity-1 do local v=0x414000+i*80;put(v,v,4);put(v+4,c.exists[i+1],4);local l=0x439000+i*80;put(l+60,c.old,4);put(l+72,0);put(l+74,0xb4fb)end
  put(0x43fd80,c.count,4)
- set('VmSourceWorld_Ready',0xb4a3);set('VmSourceWorld_PoolBase',0x4000);set('VmSourceWorld_SideBase',0x6800);set('VmSourceWorld_Count',4);set('VmSourceWorld_TemplateCount',8)
- set('SourceModelEntityCopy4086_Ready',0xb4eb);set('SourceModelEntityCopy4086_Models',8);set('SourceModelEntityCopy4086_Entities',4)
+ set('SourceWorldTick4086_Ready',0);set('SourceTarget4086_OrderReady',c.order_ready)
+ for i=0,c.capacity-1 do put(0x41f200+i*2,c.order[i+1])end
+ set('VmSourceWorld_Ready',0xb4a3);set('VmSourceWorld_PoolBase',0x4000);set('VmSourceWorld_SideBase',0x6800);set('VmSourceWorld_Count',c.capacity);set('VmSourceWorld_TemplateCount',8)
+ set('SourceModelEntityCopy4086_Ready',0xb4eb);set('SourceModelEntityCopy4086_Models',8);set('SourceModelEntityCopy4086_Entities',c.capacity)
  set('SourceLifecycle4086_Ready',0xb4fb);set('SourceLifecycle4086_Status',0);set('SourceLifecycle4086_Base',0x8000);set('SourceLifecycle4086_Bank',59);set('SourceLifecycle4086_Bytes',LIFEBYTES);set('SourceLifecycle4086_Models',8)
  set('SourceSpawnSlot4086_Ready',0xb5a1);set('SourceSpawnSlot4086_Status',0);set('SourceSpawnSlot4086_Model',c.model);put(sy.SourceSpawnSlot4086_OverrideLo,c.override,4)
- if c.bad=='ready'then set('SourceSpawnSlot4086_Ready',0)
+ if c.bad=='order_ready'then set('SourceTarget4086_OrderReady',1)
+ elseif c.bad=='order_missing'then set('SourceWorldTick4086_Ready',0xb4d5);set('SourceTarget4086_OrderReady',0)
+ elseif c.bad=='order_duplicate'then set('SourceTarget4086_OrderReady',0xb4d3);put(0x41f204,1)
+ elseif c.bad=='order_range'then set('SourceTarget4086_OrderReady',0xb4d3);put(0x41f206,4)
+ elseif c.bad=='ready'then set('SourceSpawnSlot4086_Ready',0)
  elseif c.bad=='sticky'then set('SourceSpawnSlot4086_Status',3)
  elseif c.bad=='limit_sticky'then set('SourceSpawnSlot4086_Status',4)
  elseif c.bad=='world'then set('VmSourceWorld_Ready',0)
@@ -60,15 +67,19 @@ def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  priorities=(-2147483648,-65537,-65536,-2,-1,0,1,2147483647);models=[dict(id=i,fields=dict(subtype=0,nomove=0,makeinv=0,priority=v,knockdowncount=0.0))for i,v in enumerate(priorities)];table=pack_life(dict(models=models));rows=[]
  for c in fixtures():
-  want=choose(c);rows.append(dict(c,model=priorities.index(c['priority']),bad='',fault=want['limit'],status=4 if want['limit']else 2,wantslot=want['slot']&65535,wantkill=want['needkill']))
+  want=choose(c);rows.append(dict(c,capacity=4,order=c.get('order',list(range(4))),order_ready=0xb4d3 if 'order'in c else 0,model=priorities.index(c['priority']),bad='',fault=want['limit'],status=4 if want['limit']else 2,wantslot=want['slot']&65535,wantkill=want['needkill']))
+ for order in (list(reversed(range(128))),list(range(17,128))+list(range(17)),list(range(1,128,2))+list(range(0,128,2))):
+  for override in (0,999999):
+   c=dict(priority=2147483647,old=-1,override=override,exists=[int(i in(0,127))for i in range(128)],count=2,order=order)
+   want=choose(c);rows.append(dict(c,capacity=128,order_ready=0xb4d3,model=7,bad='',fault=0,status=2,wantslot=want['slot'],wantkill=want['needkill']))
  base=dict(rows[3],override=0,old=-1,count=3,exists=[1,1,1,0],fault=1,status=3,wantslot=65535,wantkill=0)
- for bad in('ready','sticky','limit_sticky','world','base','side','count','model','models','core','entities','life','life_sticky','life_table','roles','role_high','token','token_high','exists','exists_high','current_marker','current_model'):rows.append(dict(base,bad=bad))
+ for bad in('order_ready','order_missing','order_duplicate','order_range','ready','sticky','limit_sticky','world','base','side','count','model','models','core','entities','life','life_sticky','life_table','roles','role_high','token','token_high','exists','exists_high','current_marker','current_model'):rows.append(dict(base,bad=bad))
  rows.extend([dict(rows[0],model=65535,bad=bad,fault=0,status=2,wantslot=65535,wantkill=0)for bad in('','world','life')])
  # Ready rejection precedes deterministic output reset; seed output sentinels
  # so guard rows still have an explicit expected result.
  lua=LUA.replace("set('SourceSpawnSlot4086_Status',0)","set('SourceSpawnSlot4086_Slot',65535);set('SourceSpawnSlot4086_NeedKill',0);set('SourceSpawnSlot4086_Status',0)").replace('LIFEBYTES',str(len(table)))
  sy=symbols(Path('src/main.sym'));entry=sy['SourceSpawnSlot4086_Select'];lua+=f"emu.addMemoryCallback(function()local s=emu.getState();cpu={{}};for _,k in ipairs({{'x','y','d','dbr','sp','ps'}})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,{entry},{entry},emu.cpuType.snes,mt)\n"
- r=Reporter('M4-SPAWN-SLOT',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'SourceSpawnSlot4086_Select','SourceSpawnSlot4086_Ready',0xb5a1,[(59,0,table)],lua,r,batch_size=8)
+ r=Reporter('M4-SPAWN-SLOT',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'SourceSpawnSlot4086_Select','SourceSpawnSlot4086_Ready',0xb5a1,[(59,0,table)],lua,r,batch_size=8,frame_limit=6000)
  results=[list(map(int,line.split('SLOTRESULT|',1)[1].split('|')))for line in log.splitlines()if 'SLOTRESULT|'in line];r.check('source first-slot order, signed priority/override boundaries, nullable model, explicit capacity limit, guards and read-only physical/context state',results==[[i,0,0,c['status'],c['wantslot'],c['wantkill']]for i,c in enumerate(rows)])
  d=dict(schema='BYOR_4086_FIXED_SPAWN_SLOT_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,heap_growth_bound=False,priority_kill_bound=False,full_constructor_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True);(a.output/'report.json').write_text(json.dumps(d,indent=2)+'\n');r.finish()
 if __name__=='__main__':main()

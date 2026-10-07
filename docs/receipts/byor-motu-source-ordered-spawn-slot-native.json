@@ -1,0 +1,67 @@
+{
+  "schema": "BYOR_4086_ORDERED_SPAWN_SLOT_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "evidence": {
+    "spawn-order-authority": {
+      "report": "out/byor-motu-spawn-order-authority/report.json",
+      "sha256": "cfdfe402c8d0460b014c78a31d5a6f42385c10a1769fc6005d372bcd36233247",
+      "cases": 4480
+    },
+    "spawn-order": {
+      "report": "out/byor-motu-spawn-order-native/report.json",
+      "sha256": "58070bc6d07dd562e16e959bc758ebab7047d9c43aac71508e6bb8131a764087",
+      "cases": 4515
+    },
+    "player-ordered-ctor-owner": {
+      "report": "out/byor-motu-player-ordered-ctor-owner-native/report.json",
+      "sha256": "7f10678a37596af73446aef9f63d7ce156ced07a054d6b887e96f98f5e9cb7af",
+      "cases": 2
+    },
+    "select-ordered-ctor-owner": {
+      "report": "out/byor-motu-select-ordered-ctor-owner-native/report.json",
+      "sha256": "ed0e7587a5582f35d2adfb09d48c01a35924af4f55ba03285a855a280b2a203e",
+      "cases": 2
+    },
+    "knightbot-ordered-ctor-owner": {
+      "report": "out/byor-motu-knightbot-ordered-ctor-owner-native/report.json",
+      "sha256": "f7ab03d6d00143215a200488856b3d77e1f524b83a4eda6c785f4304f30c26f5",
+      "cases": 2
+    },
+    "skeletor-ordered-ctor-owner": {
+      "report": "out/byor-motu-skeletor-ordered-ctor-owner-native/report.json",
+      "sha256": "30d8e453a3de9d6ad09453ee23d7dbedc02ae06ee0f437827de8a14ef9233f64",
+      "cases": 2
+    },
+    "none-ordered-ctor-owner": {
+      "report": "out/byor-motu-none-ordered-ctor-owner-native/report.json",
+      "sha256": "dd3b097663472c18af61cd56a4e0478865f5a741ff828359f8d777a8903b94e1",
+      "cases": 2
+    },
+    "effect-ordered-ctor-owner": {
+      "report": "out/byor-motu-effect-ordered-ctor-owner-native/report.json",
+      "sha256": "363133101131a805189b256ebdced2ab37f2c0cb38c0b719a8b2f6c7e8ada4e7",
+      "cases": 2
+    }
+  },
+  "code_bank": 62,
+  "bank0_growth": 0,
+  "control_span": [
+    "43B880",
+    "43B8B2"
+  ],
+  "policy": "Validate a complete B4D3 shared ent_list permutation using a 128-slot bitmap, then choose the earliest physical entity in pointer order under signed source override rules. No order lease is permitted only for an isolated identity-order world with SourceWorldTick disabled; malformed/missing live order faults. Entity state and pointer order remain read-only.",
+  "authority": "Verbatim pinned predicate with actual reordered C entity pointers and physical pool identity return.",
+  "native_order_domain": "All 24 four-slot orders plus reverse, rotation and odd/even 128-slot orders; invalid lease, missing live lease, duplicate and out-of-range reject.",
+  "audit": "out/byor-motu-spawn-order-audit.log",
+  "remaining": [
+    "constructor token publication",
+    "live stage/player producer",
+    "active interpreter constructor continuation"
+  ],
+  "heap_growth_bound": false,
+  "full_constructor_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
