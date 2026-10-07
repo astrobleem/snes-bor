@@ -1,0 +1,49 @@
+{
+  "schema": "BYOR_MOTU_COMMON_SPAWN_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-common-spawn-authority/report.json",
+      "sha256": "8618a9d7da7017b2cfc7bceb255f36afcf3fc22635a9d9cf7392559d05160d60",
+      "cases": 30
+    },
+    {
+      "path": "out/byor-motu-common-spawn-native/report.json",
+      "sha256": "a1e8e24416921538f21fdd52cd2b7dcf114635ea3f439db9c3b632286b1c47f3",
+      "cases": 84
+    },
+    {
+      "path": "out/byor-motu-common-spawn-frame-native/report.json",
+      "sha256": "827fbf3c795c1a0a3b9ae8c06c3f859703ae4007264628c8c17da7eb64041e8c",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 3,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 3,
+          "fault": 0
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "Literal pinned common_spawn action oracle",
+    "Animating source callback clears idling without clearing takeaction",
+    "Ended source action clears callback and executes generic DEFAULT_IDLE_ONLY real idle frame zero",
+    "Existing authored non-idle animation transitions through actual callback and effect owners",
+    "Current global self preserved and whole AI/world service remains pending",
+    "All protected17 fingerprints unchanged; ROM audit ALL CHECKS PASS"
+  ],
+  "bank0_growth": 0,
+  "nonclaims": [
+    "Generic action dispatcher and full world AI owner not yet integrated",
+    "Other action and think callback bodies remain unbound",
+    "No actual MOTU candidate, real combat, moving lossless rendering or Demo completion"
+  ],
+  "no_color_reduction": true
+}

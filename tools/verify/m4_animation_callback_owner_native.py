@@ -49,6 +49,7 @@ def main():
     p.add_argument('--birth-core',action='store_true',help='Execute actual B4BI core/flags/relation birth augmentation.')
     p.add_argument('--initial-select',action='store_true',help='Initialize authored player SELECT through real default-choice/ent_set_anim/frame-zero owners.')
     p.add_argument('--initial-jump',action='store_true',help='Run real default choice/action/JUMP frame zero and current makeinv fields, isolated.')
+    p.add_argument('--common-spawn',action='store_true',help='Execute actual common_spawn idle transition through existing non-idle animation; isolated AI action, no world clock commit')
     p.add_argument('--initial-idle',action='store_true',help='Execute generic missing-animation set_idle and actual authored idle frame zero.')
     p.add_argument('--initial-walk',action='store_true',help='Execute generic default walk selection and actual authored walk frame zero.')
     p.add_argument('--initial-none-walk',action='store_true',help='Prepare authored TYPE_NONE walker from current speed, then execute real walk frame zero.')
@@ -68,6 +69,7 @@ def main():
     p.add_argument('--ctor-model',action='store_true',help='Install fresh fields from the current shared cached model before script bind.')
     p.add_argument('--script-clone',action='store_true',help='Run real constructor method-1 clear/bind before default initialization.')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+    if a.common_spawn and (not a.initial_idle or a.default_owner or a.ctor_owner):raise ValueError('COMMON_SPAWN_FIXTURE_REQUIRES_ISOLATED_INITIAL_IDLE')
     owners,code,metadata,dispatch=derive(source);callbacks=pack(owners)
     registry=model_registry(source);models=pack_registry(registry);births=pack_birth(birth_templates(source))
     coretable=pack_core(birth_core(source)) if a.birth_core else b''
@@ -131,6 +133,8 @@ def main():
         for row in init_report['animations']:
             model=next(m['id'] for m in registry['models'] if m['identity']==row['model']);struct.pack_into('<H',cache,(model*init_report['maximum_animations']+row['engine_animation_id'])*2,row['handle'])
         animation_cache=bytes(cache);rows=[dict(f=0,direction=d,default=default,fault=0) for d in (0,1)]
+    if a.common_spawn:
+        previous_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity'] and h['role']!='idle')
     sy=symbols(Path('src/main.sym'));raw=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate']
     first=39*32768
     if raw[first:first+32768]!=bytes(32768) or raw[60*32768:61*32768]!=bytes(32768):raise ValueError('CALLBACK_NATIVE_RESERVED_ROM')
@@ -349,6 +353,11 @@ CallbackFixture_EffectsDone:
         asm=asm.replace(' jsl STAGEPREPARE\n bcs CallbackFixture_Bad',' jsl QUEUENEXT\n bcs CallbackFixture_Bad\n cmp #1\n bne CallbackFixture_Bad')
         asm=asm.replace('CallbackFixture_PropertiesPublished:\n.a16\n.i16\n nop','CallbackFixture_PropertiesPublished:\n.a16\n.i16\n nop\n lda.l MUSICSTATUS\n cmp #1\n bne CallbackFixture_QueueAck\nCallbackFixture_InstrumentMusicService:\n.a16\n.i16\n nop\n jsl MUSICACK\n bcs CallbackFixture_Bad\nCallbackFixture_QueueAck:\n.a16\n.i16\n jsl QUEUEACK\n bcs CallbackFixture_Bad\nCallbackFixture_QueuePublished:\n.a16\n.i16\n nop')
         asm=asm.replace(' jsl CLOCKCOMMIT',' clc ; full queue/world tick intentionally remains uncommitted')
+    if a.common_spawn:
+        asm=asm.replace(' jsl IDLEBEGIN',' jsl COMMONBEGIN')
+        asm=asm.replace(' jsl INITACK',' jsl COMMONCONTINUE')
+        asm=asm.replace(' jsl DEFAULTTAIL\n bcs CallbackFixture_Bad\n','')
+        asm=asm.replace(' jsl CLOCKCOMMIT\n bcs CallbackFixture_Bad\n',' nop\n')
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,FRAMEBEGIN=sy['SourceUpdateFrame4086_Begin'],
         FRAMEACK=sy['SourceUpdateFrame4086_Ack'],CALLBACKBEGIN=sy['SourceAnimationCallback4086_Begin'],
         CALLBACKRUN=sy['SourceAnimationCallback4086_Run'],CALLBACKREADY=sy['SourceAnimationCallback4086_Ready'],
@@ -358,6 +367,7 @@ CallbackFixture_EffectsDone:
     if a.effects_runner:values.update(EFFECTRUN=sy['SourceFrameEffects4086_Run'],EFFECTACK=sy['SourceFrameEffectPlan4086_Ack'],EFFECTACKWORD=sy['SourceFrameEffectPlan4086_Acknowledged'])
     if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:values.update(DEFAULTBEGIN=sy['SourceDefaultChoice4086_Begin'],STARTFRAME=sy['SourceAnimationInit4086_StartFrame'],INITACK=sy['SourceAnimationInit4086_Ack'])
     if a.initial_jump:values.update(DEFAULTPREPARE=sy['SourceDefaultChoice4086_Prepare'],PLAYERBEGIN=sy['SourceDefaultPlayer4086_BeginAction'],PLAYERINV=sy['SourceDefaultPlayer4086_ApplyInvincibility'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
+    if a.common_spawn:values.update(COMMONBEGIN=sy['SourceCommonSpawn4086_Begin'],COMMONCONTINUE=sy['SourceCommonSpawn4086_Continue'])
     if a.initial_idle:values.update(IDLEBEGIN=sy['SourceDefaultInit4086_BeginIdle'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.initial_walk:values.update(WALKBEGIN=sy['SourceWalk4086_BeginDefaultOnly'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.initial_none_walk:values.update(NONEWALKPREP=sy['SourceDefaultNone4086_PrepareWalk'])
@@ -671,6 +681,11 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
     if a.freeze_state:
         address=sy['SourceCtorState4086_FreezeBirthDone']
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,39 do cleared=cleared+emu.read(0x42e000+slot*40+j,mt);sibling=sibling+emu.read(0x42e000+(slot+1)*40+j,mt)end;emu.log('CTORFREEZE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x41f300+slot*4)..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
+    if a.common_spawn:
+        settings=dict(SourceAI4086_Ready=0xb5e2,SourceAI4086_State=1,SourceAI4086_Slot=0,SourceAI4086_SpawnID=role_id(config,'spawn'),SourceAI4086_RespawnID=role_id(config,'respawn'),SourceCommonSpawn4086_Ready=0xb5e3,SourceCommonSpawn4086_State=0,SourceWorldTick4086_Ready=0xb4d5,SourceWorldTick4086_State=1,SourceWorldTick4086_Pending=1,SourceWorldTick4086_Phase=6,SourceWorldTick4086_Slot=0,SourceWorldTick4086_TimeLo=48,SourceWorldTick4086_TimeHi=0,SourceFreeze4086_Ready=0xb5df,SourceLifecycle4086_Ready=0xb4fb,SourceSelf4086_Ready=0xb4f6,SourceSelf4086_Active=0,SourceSelf4086_Fault=0,SourceSelf4086_GlobalLow=0x4000,SourceSelf4086_GlobalHigh=0x41)
+        initialinstall+='\n'+'\n'.join(" set('"+k+"',"+str(v)+")"for k,v in settings.items())
+        initialinstall+='\nput(0x43900c,4,4);put(0x43eb00,3,2);put(0x41f510,0,2);put(0x416804,'+str(previous_animation['handle'])+',2);put(0x414014,'+str(previous_animation['engine_animation_id'])+',4);put(0x414004,1,4)\n'
+        lua+="emu.addMemoryCallback(function()emu.log('COMMONSPAWN|'..word(INDEX)..'|'..word(sy.SourceCommonSpawn4086_State)..'|'..dw(0x43900c)..'|'..word(0x43eb00)..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceWorldTick4086_Pending)..'|'..dw(sy.VmSourceWorld_Time))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -723,17 +738,17 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     reporter.check('nonempty initializer copy is exact and metadata stays immutable',len(initializers)==len(rows) and
         all(r[1]==0 for r in initializers) and ((a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk) or sum(r[2] for r in initializers)>=4))
     if a.effects_runner:
-        expected_frame=[[i,1,0,1,0x4000,0x41,1,48,1] if c['fault'] else ([i,2,2,0,0,0,1,48,0]if a.queue_producer else[i,2,2,0,0,0,0,49,0]) for i,c in enumerate(rows)]
-        reporter.check('actual callback birth followed by native captured effect retirement and clock',frame_results==expected_frame)
+        expected_frame=[[i,1,0,1,0x4000,0x41,1,48,1] if c['fault'] else ([i,2,2,0,0x4000,0x41,1,48,0]if a.common_spawn else [i,2,2,0,0,0,1,48,0]if a.queue_producer else[i,2,2,0,0,0,0,49,0]) for i,c in enumerate(rows)]
+        reporter.check('actual frame/effect completion with current self retained and world clock pending'if a.common_spawn else'actual callback birth followed by native captured effect retirement and clock',frame_results==expected_frame)
     if coretable:reporter.check('authored callback publishes exact native birth core and preserves parent role/type',core_results==[[i,0] for i in range(len(rows))])
-    if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:reporter.check('authored '+(enemy_role.upper()if a.initial_enemy else'JUMP'if a.initial_jump else'IDLE'if a.initial_idle else'WALK'if a.initial_walk else'SELECT')+' initialization completes actual frame-zero before clock retirement',len(select_results)==len(rows)and all(r[0]==i and (a.initial_enemy or a.initial_idle or a.initial_walk or r[1]==(65535 if a.initial_jump else animation['engine_animation_id']))and r[2:]==[2,1,animation['engine_animation_id'],animation['handle'],0]for i,r in enumerate(select_results)))
+    if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:reporter.check('authored '+(enemy_role.upper()if a.initial_enemy else'JUMP'if a.initial_jump else'IDLE'if a.initial_idle else'WALK'if a.initial_walk else'SELECT')+(' transition completes actual frame zero; world service remains pending'if a.common_spawn else' initialization completes actual frame-zero before clock retirement'),len(select_results)==len(rows)and all(r[0]==i and (a.initial_enemy or a.initial_idle or a.initial_walk or r[1]==(65535 if a.initial_jump else animation['engine_animation_id']))and r[2:]==[2,1,animation['engine_animation_id'],animation['handle'],0]for i,r in enumerate(select_results)))
     if a.initial_jump:reporter.check('real JUMP frame zero and post-callback source makeinv fields',jump_results==[[i,300*65536,2,1,3,5,1,1,848,1]for i in range(len(rows))])
     tail_results=[list(map(int,line.split('CALLBACKTAIL|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKTAIL|'in line]
     if a.initial_jump:reporter.check('source current-model tail after JUMP and before clock retirement',tail_results==[[i,max(0,rootcore['multiple']),2,2 if rootcore['subject_to_wall']>0 or rootcore['subject_to_platform']>0 else 0]for i in range(len(rows))])
     idle_results=[list(map(int,line.split('CALLBACKIDLE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKIDLE|'in line]
     if a.initial_idle:
         cached_none=model_core_inputs(source)['models'][default]['fields']['type']==0
-        reporter.check('generic set_idle flags and cached-type movement plus authored idle frame zero',idle_results==[[i,3,0,65536 if cached_none and not a.ctor_state else 0,131072 if cached_none and not a.ctor_state else 0,2]for i in range(len(rows))])
+        reporter.check('generic set_idle flags and cached-type movement plus authored idle frame zero',idle_results==[[i,3,0,65536 if cached_none and not a.ctor_state else 0,131072 if cached_none and not a.ctor_state else 0,0 if a.common_spawn else 2]for i in range(len(rows))])
     walk_results=[list(map(int,line.split('CALLBACKWALK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKWALK|'in line]
     if a.initial_walk:reporter.check('source default walk mode retained through real authored frame zero',walk_results==[[i,0 if a.ctor_model else c['direction'],2]for i,c in enumerate(rows)])
     none_walk_results=[list(map(int,line.split('CALLBACKNONEWALK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKNONEWALK|'in line]
@@ -807,6 +822,10 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         reporter.check('real constructor clears stale freeze row/toss before alive publication and retains next row',freeze_birth_results==[[i,0,0,10200,0,0]for i in range(len(rows))])
         r.update(freeze_constructor_initialization_bound=True,freeze_birth_results=freeze_birth_results)
     r.update(scroller_owner_bound=a.scroller_owner,scroller_no_player_return_only=a.scroller_owner,scroller_results=scroller_results)
+    if a.common_spawn:
+        common_results=[list(map(int,line.split('COMMONSPAWN|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'COMMONSPAWN|'in line]
+        reporter.check('actual common_spawn clears action and forces authored idle frame zero, without acknowledging whole AI/world service',common_results==[[i,2,0,3,1,1,48]for i in range(len(rows))])
+        r.update(common_spawn_bound=True,common_spawn_results=common_results,prior_animation=previous_animation,world_clock_committed=False)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 

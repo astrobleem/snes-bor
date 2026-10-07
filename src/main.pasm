@@ -13683,3 +13683,6 @@ SourceVM_InstructionReservation:
 .bank 63
 .org $8000
 .include "core/vm/vm_source_ai.pasm"
+
+.include "core/vm/vm_source_set_idle.pasm"
+.include "core/vm/vm_source_common_spawn.pasm"

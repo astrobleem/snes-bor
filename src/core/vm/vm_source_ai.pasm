@@ -710,3 +710,27 @@ SourceAI4086_PreflightBad:
 .i16
  sec
  rts
+
+; Public read-only ownership check for actual callback backends.
+SourceAI4086_CheckOwner:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ jsr SourceAI4086_Preflight
+ bcc SourceAI4086_CheckOwnerGood
+ ply
+ plx
+ plp
+ sec
+ rtl
+SourceAI4086_CheckOwnerGood:
+.a16
+.i16
+ ply
+ plx
+ plp
+ clc
+ rtl
