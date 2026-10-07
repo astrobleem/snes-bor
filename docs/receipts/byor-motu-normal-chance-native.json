@@ -1,0 +1,37 @@
+{
+  "schema": "BYOR_MOTU_NORMAL_CHANCE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proof": {
+    "path": "out/byor-motu-normal-chance-native-exported/report.json",
+    "sha256": "44373db853adb9fcbb89f84e0fc4fbe03038e279f7dbe63302f49247d7d40413",
+    "cases": 520
+  },
+  "authority_receipt": "docs/receipts/byor-motu-attack-timing-authority.json",
+  "cutoffs": [
+    -1,
+    0,
+    125,
+    237,
+    250,
+    475,
+    500,
+    1250,
+    2375,
+    2500,
+    4512,
+    4750,
+    5000,
+    9025,
+    9500,
+    9999
+  ],
+  "actual_source_rng_and_full_unsigned_modulo": true,
+  "always_branch_bypasses_cutoff_and_rng": true,
+  "cpu_vm_model_scratch_crt_and_entity_retention": true,
+  "actual_entity_model_cutoff_selection_bound": false,
+  "normal_attack_caller_bound": false,
+  "protected_dirty_tracked_files": 17,
+  "bank_zero_growth_bytes": 0,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

@@ -13726,3 +13726,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_attack_choice_profile.pasm"
 
 .include "core/vm/vm_source_attack_picker.pasm"
+
+.include "core/vm/vm_source_normal_chance.pasm"
