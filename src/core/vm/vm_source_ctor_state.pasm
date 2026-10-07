@@ -368,6 +368,12 @@ SourceCtorState4086_Guard_38:
 SourceCtorState4086_MaximumValid:
 .a16
 .i16
+ jsl SourceFreeze4086_PreflightBirth
+ bcc SourceCtorState4086_FreezePreflightOk
+ jmp SourceCtorState4086_Bad
+SourceCtorState4086_FreezePreflightOk:
+.a16
+.i16
  ; All external domains validated; no callback occurs during the reset.
  lda.l SourceCtorState4086_View
  clc
@@ -483,6 +489,12 @@ SourceCtorState4086_ClearAux:
  beq SourceCtorState4086_Guard_44
  jmp SourceCtorState4086_ClearAux
 SourceCtorState4086_Guard_44:
+.a16
+.i16
+ jsl SourceFreeze4086_InitializeBirth
+ bcc SourceCtorState4086_FreezeBirthDone
+ jmp SourceCtorState4086_Bad
+SourceCtorState4086_FreezeBirthDone:
 .a16
 .i16
  lda.l SourceCtorState4086_View

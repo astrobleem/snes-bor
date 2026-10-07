@@ -1,0 +1,62 @@
+{
+  "schema": "BYOR_MOTU_FREEZE_OWNER_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-world-freeze-native/report.json",
+      "sha256": "bb49989f92bff0d874acc532d25a61da58a195150307f49b40e40fbaaf785c51",
+      "rom_sha256": "194aadee2ea65708a2a7a445fec4a9adfef3f96a0c410316bdc520ca6cb090e7"
+    },
+    {
+      "path": "out/byor-motu-freeze-constructor-native/report.json",
+      "sha256": "428cd52403c70629fb6dc217344cc55201bbe3cc247ae46e0fd86bb8db5fa3eb",
+      "rom_sha256": "1f0a72a81f3cf4509c26e1106eaf28ae19485d29db65ae808f32f463684dfdaf"
+    }
+  ],
+  "world_cases": 410,
+  "freeze_service_calls": 1970,
+  "velocity_calls": 742,
+  "movement_clears": 1063,
+  "constructor_cases": 2,
+  "constructor_reset_observers": [
+    [
+      0,
+      0,
+      0,
+      10200,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      10200,
+      0,
+      0
+    ]
+  ],
+  "checks": [
+    "Actual native tick services 1/3/4 reject early acknowledgement",
+    "Pinned source traversal, compaction and clock commits retained",
+    "Freeze results reset only when a new request is issued",
+    "Constructor checks enabled freeze/toss leases before live state mutation",
+    "Actual source Knightbot constructor clears poisoned freeze row and toss timestamp before exists publication",
+    "Adjacent poisoned freeze row retained exactly",
+    "Generic cold-disabled freeze lease leaves existing constructor path admitted",
+    "All 17 protected dirty tracked files retain byte fingerprints",
+    "ROM audit ALL CHECKS PASS"
+  ],
+  "bank0_growth": 0,
+  "new_state_bytes": 5120,
+  "new_state_start": "42E000",
+  "new_state_end_exclusive": "42F400",
+  "new_scratch_start": "43BC7E",
+  "new_scratch_end_exclusive": "43BC90",
+  "nonclaims": [
+    "LOST, AI, ANIMATION, ATTACK, HEALTH and POST_UPDATE services still instrumented in world traversal proof",
+    "No moving lossless renderer or full native resource coexistence certification",
+    "No source-selected MOTU candidate, combat or Demo completion"
+  ],
+  "no_color_reduction": true
+}

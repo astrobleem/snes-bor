@@ -59,6 +59,7 @@ def main():
     p.add_argument('--ctor-owner',action='store_true',help='Execute slot selection and complete generic constructor continuation instead of fixture leaf sequencing.')
     p.add_argument('--queue-producer',action='store_true',help='Execute actual native queue request and acknowledgement; leave the full world tick uncommitted.')
     p.add_argument('--scroller-owner',action='store_true',help='Resume a terminal authored spawn through the complete scroller owner; no player/camera motion or full world tick claim.')
+    p.add_argument('--freeze-state',action='store_true',help='Enable canonical freeze rows and observe actual constructor reset before alive publication.')
     p.add_argument('--emit-only',action='store_true',help='Emit the private source-derived fixture and observer without launching or certifying it.')
     p.add_argument('--smartspawn',action='store_true',help='Apply source-derived stage properties after the complete constructor; boss music remains an explicit pending service.')
     p.add_argument('--stage-queue-index',type=int,help='Read constructor inputs from an authored stage spawn record; post-constructor overrides remain separate.')
@@ -89,6 +90,7 @@ def main():
         if model['declared_type']!='enemy':raise ValueError('STAGE_QUEUE_FIXTURE_ENEMY_INIT_CAPABILITY')
         a.initial_enemy=model['identity']
     if a.queue_producer and not a.smartspawn:raise ValueError('QUEUE_PRODUCER_REQUIRES_POST_PROPERTIES')
+    if a.freeze_state and not a.ctor_owner:raise ValueError('FREEZE_BIRTH_REQUIRES_CTOR_OWNER')
     if a.scroller_owner and not a.queue_producer:raise ValueError('SCROLLER_OWNER_REQUIRES_QUEUE_PRODUCER')
     spawn_caps=None;boss_music_present=False
     if a.smartspawn:
@@ -430,6 +432,8 @@ emu.addMemoryCallback(function()
  for j=0,63 do emu.write(sy.VmSourceModels_Loaded+j,j<2 and 255 or 0,mt)end
  set('VmSourceEntity_Ready',0xb48b);set('VmSourceEntity_Base',0x4000);set('VmSourceEntity_Bank',0x41);set('VmSourceEntity_Count',128)
  set('VmSourceMutation_Ready',0xb4a2);set('SourceToss4086_Ready',0xb4e2)
+ set('SourceFreeze4086_Ready',FREEZESTATE)
+ if FREEZESTATE~=0 then for j=0,79 do put(0x42e000+j,0xff,1)end;put(0x41f300,0xffffffff,4)end
  set('SourceVMRun4086_Ready',0xb4d7);set('SourceVMRun4086_Busy',0)
  set('VmSourceCallback_Ready',0xb4a5);set('VmSourceCallback_Active',0);set('VmSourceCallback_Request',0)
  set('VmSourceFrame_Ready',0xb4fd);set('VmSourceFrame_Base',DISPATCHBASE);set('VmSourceFrame_Bank',CODEBANK)
@@ -663,6 +667,10 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
             lua+=f"emu.addMemoryCallback(function()emu.log('SCROLLERCTOR|'..word(INDEX)..'|'..word(sy.SourceScrollerOwner4086_State)..'|'..word(sy.SourceScrollerPrefix4086_State)..'|'..word(sy.SourceWait4086_Status)..'|'..word(sy.SourceCameraMotion4086_Status))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
         address=fs['CallbackFixture_InstrumentMusicService']
         lua+=f"emu.addMemoryCallback(function()emu.log('QUEUE_MUSIC_SERVICE_INSTRUMENTED|'..word(INDEX))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
+    lua=lua.replace('FREEZESTATE',str(0xb5df if a.freeze_state else 0))
+    if a.freeze_state:
+        address=sy['SourceCtorState4086_FreezeBirthDone']
+        lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,39 do cleared=cleared+emu.read(0x42e000+slot*40+j,mt);sibling=sibling+emu.read(0x42e000+(slot+1)*40+j,mt)end;emu.log('CTORFREEZE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x41f300+slot*4)..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -794,7 +802,12 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     r.update(default_owner_bound=a.default_owner,default_owner_results=owner_results)
     r.update(initial_enemy=a.initial_enemy,initial_enemy_role=enemy_role,initial_enemy_results=enemy_results,enemy_drop_context_instrumented=bool(a.initial_enemy),full_default_init_bound=False)
     r.update(stage_queue_index=a.stage_queue_index,stage_queue_row=stage_row,stage_queue_table_sha256=hashlib.sha256(queue_table).hexdigest()if queue_table else None,stage_queue_constructor_inputs_bound=stage_row is not None,stage_queue_post_constructor_properties_bound=a.smartspawn,smartspawn_results=smart_results,smartspawn_music_execution_bound=False,queue_producer_bound=a.queue_producer,queue_producer_results=queue_results,queue_music_service_instrumented=a.queue_producer)
+    if a.freeze_state:
+        freeze_birth_results=[list(map(int,line.split('CTORFREEZE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORFREEZE|'in line]
+        reporter.check('real constructor clears stale freeze row/toss before alive publication and retains next row',freeze_birth_results==[[i,0,0,10200,0,0]for i in range(len(rows))])
+        r.update(freeze_constructor_initialization_bound=True,freeze_birth_results=freeze_birth_results)
     r.update(scroller_owner_bound=a.scroller_owner,scroller_no_player_return_only=a.scroller_owner,scroller_results=scroller_results)
+    r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
 

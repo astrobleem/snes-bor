@@ -454,3 +454,90 @@ SourceFreeze4086_Bad:
  plp
  sec
  rtl
+
+; Constructor preflight occurs before any live state reset. Cold-disabled lease
+; ignores child arrays; enabled freeze state also owns canonical toss timestamps.
+SourceFreeze4086_PreflightBirth:
+.a16
+.i16
+ php
+ rep #$38
+ lda.l SourceFreeze4086_Ready
+ beq SourceFreeze4086_BirthLeaseOk
+ cmp #$B5DF
+ bne SourceFreeze4086_BirthLeaseBad
+ lda.l SourceToss4086_Ready
+ cmp #$B4E2
+ bne SourceFreeze4086_BirthLeaseBad
+ lda.l VmSourceWorld_Count
+ beq SourceFreeze4086_BirthLeaseBad
+ cmp #129
+ bcs SourceFreeze4086_BirthLeaseBad
+ lda.l SourceScriptClone4086_Slot
+ cmp.l VmSourceWorld_Count
+ bcs SourceFreeze4086_BirthLeaseBad
+SourceFreeze4086_BirthLeaseOk:
+.a16
+.i16
+ plp
+ clc
+ rtl
+SourceFreeze4086_BirthLeaseBad:
+.a16
+.i16
+ plp
+ sec
+ rtl
+
+SourceFreeze4086_InitializeBirth:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ jsl SourceFreeze4086_PreflightBirth
+ bcs SourceFreeze4086_BirthBad
+ lda.l SourceFreeze4086_Ready
+ beq SourceFreeze4086_BirthDone
+ lda.l SourceScriptClone4086_Slot
+ asl a
+ asl a
+ tax
+ lda #0
+ sta.l SOURCE_WORLD_TOSS_TIMES,x
+ sta.l SOURCE_WORLD_TOSS_TIMES+2,x
+ txa
+ asl a
+ sta.l SourceFreeze4086_Value
+ asl a
+ asl a
+ clc
+ adc.l SourceFreeze4086_Value
+ tax
+ ldy #20
+ lda #0
+SourceFreeze4086_BirthClear:
+.a16
+.i16
+ sta.l SOURCE_WORLD_FREEZE,x
+ inx
+ inx
+ dey
+ bne SourceFreeze4086_BirthClear
+SourceFreeze4086_BirthDone:
+.a16
+.i16
+ ply
+ plx
+ plp
+ clc
+ rtl
+SourceFreeze4086_BirthBad:
+.a16
+.i16
+ ply
+ plx
+ plp
+ sec
+ rtl

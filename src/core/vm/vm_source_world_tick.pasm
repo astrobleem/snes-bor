@@ -611,6 +611,31 @@ SourceWorldTick4086_Ack__frame_idle:
 .a16
 .i16
     lda.l SourceWorldTick4086_Phase
+    cmp #1
+    beq SourceWorldTick4086_AckFreeze
+    cmp #3
+    beq SourceWorldTick4086_AckFreeze
+    cmp #4
+    bne SourceWorldTick4086_AckFreezeDone
+SourceWorldTick4086_AckFreeze:
+.a16
+.i16
+    lda.l SourceFreeze4086_Ready
+    beq SourceWorldTick4086_AckFreezeDone
+    cmp #$B5DF
+    beq SourceWorldTick4086_AckFreezeLease
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_AckFreezeLease:
+.a16
+.i16
+    lda.l SourceFreeze4086_Status
+    cmp #2
+    beq SourceWorldTick4086_AckFreezeDone
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_AckFreezeDone:
+.a16
+.i16
+    lda.l SourceWorldTick4086_Phase
     cmp #10
     beq SourceWorldTick4086_AckMovement
     cmp #12
@@ -729,6 +754,24 @@ SourceWorldTick4086_Issue:
 .a16
 .i16
     sta.l SourceWorldTick4086_Phase
+    cmp #1
+    beq SourceWorldTick4086_IssueFreeze
+    cmp #3
+    beq SourceWorldTick4086_IssueFreeze
+    cmp #4
+    bne SourceWorldTick4086_IssueMovement
+SourceWorldTick4086_IssueFreeze:
+.a16
+.i16
+    lda.l SourceFreeze4086_Ready
+    cmp #$B5DF
+    bne SourceWorldTick4086_IssueMovement
+    lda #0
+    sta.l SourceFreeze4086_Status
+SourceWorldTick4086_IssueMovement:
+.a16
+.i16
+    lda.l SourceWorldTick4086_Phase
     cmp #12
     bne SourceWorldTick4086_IssuePending
     lda.l SourceVelocity4086_Ready
