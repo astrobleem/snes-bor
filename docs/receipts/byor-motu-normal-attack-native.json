@@ -1,0 +1,25 @@
+{
+  "schema": "BYOR_MOTU_NORMAL_ATTACK_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-normal-attack-authority/report.json",
+      "sha256": "acf779e6cfae81d2ce4b94cb9c16d4ff8b9c1940d0cee7d8aa897c69ca7a01d5",
+      "cases": 288
+    },
+    {
+      "path": "out/byor-motu-normal-attack-native/report.json",
+      "sha256": "ed14cd3b1ff35bb63619778652fdef3948735d41856f4eb54fea4ae7c9ca4afb",
+      "cases": 316
+    }
+  ],
+  "running_field": "42F400+physical_slot*24+4, signed32",
+  "selector_bodies_instrumented": true,
+  "common_enemy_grounded_attack_integrated": false,
+  "world_tick_acknowledged": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}
