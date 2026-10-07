@@ -66,10 +66,10 @@ emu.addMemoryCallback(function()emu.log('BIRTHCORECLOCK|'..word(INDEX)..'|'..wor
 '''
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--table',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--attack-timing',type=Path);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);table=a.table.read_bytes();count=unpack(table);assert count==16;rows=[]
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--table',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--attack-timing',type=Path);p.add_argument('--attack-body',type=Path);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);table=a.table.read_bytes();count=unpack(table);assert count==16;rows=[]
     for model in range(count):
         data=table[HEADER+model*STRIDE:HEADER+(model+1)*STRIDE];cap=int.from_bytes(data[2:4],'little')
-        for slot in (0,1,127):rows.append(dict(model=model,slot=slot,fault=int(not cap),bad='',core=list(data[16:112]),flags=list(data[112:144]),relation=list(data[144:208])))
+        for slot in ((0,1,95,96,127)if a.attack_body else(0,1,127)):rows.append(dict(model=model,slot=slot,fault=int(not cap),bad='',core=list(data[16:112]),flags=list(data[112:144]),relation=list(data[144:208])))
     base=next(r for r in rows if not r['fault'])
     for bad in ('ready','sticky','models','paired','base','bytes','bank','slot','model','alive','token','retire','vars','core','flags','self','count'):
         for slot in (0,127):rows.append(dict(base,slot=slot,fault=1,bad=bad))
@@ -83,12 +83,22 @@ def main():
         lua=lua.replace(' before={};'," set('SourceAttackTiming4086_Ready',0xb603);set('SourceAttackTiming4086_Status',2);set('SourceAttackTiming4086_Models',16);for j=0,191 do emu.write(0x40bd00+j,timingbytes[29+j],mt)end\n before={};")
         lua=lua.replace('if c.fault==0 then\n', 'if c.fault==0 then\n for j,value in ipairs(c.wanttiming)do before[0x438800+c.slot*14+j-1]=value end\n',1)
     else:lua=lua.replace(' before={};'," set('SourceAttackTiming4086_Ready',0)\n before={};")
-    reporter=Reporter('M4-BIRTH-CORE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'SourceBirthCore4086_Apply','SourceBirthCore4086_Ready',0xb4f9,[(60,0,table)],lua,reporter,post='SourceClock4086_Commit');results=[];costs=[];clocks=[]
+    tables=[(60,0,table)]
+    if a.attack_body:
+        from m4_animation_init_native import luav
+        import struct
+        body=a.attack_body.read_bytes();assert len(body)==160 and struct.unpack_from('<4s6H',body)==(b'B4BC',1,16,9,12,4,0);tables.append((59,0,body))
+        for c in rows:c['wantbody']=list(body[16+c['model']*9:25+c['model']*9])+[5,0xb6]
+        lua=lua.replace('local ranges={{','local ranges={{0x435800,1536},{0x40bdcc,352},{')
+        lua=lua.replace(' before={};'," set('SourceAttackBody4086_Ready',0xb605);set('SourceAttackBody4086_Status',0);set('SourceAttackBody4086_Bank',59);set('SourceAttackBody4086_Base',0x8000);set('SourceAttackBody4086_Bytes',160)\n before={};")
+        lua=lua.replace('if c.fault==0 then\n','if c.fault==0 then\n local b=c.slot<96 and 0x435980+c.slot*11 or 0x40bdcc+(c.slot-96)*11;for j,value in ipairs(c.wantbody)do before[b+j-1]=value end\n',1)
+    else:lua=lua.replace(' before={};'," set('SourceAttackBody4086_Ready',0)\n before={};")
+    reporter=Reporter('M4-BIRTH-CORE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'SourceBirthCore4086_Apply','SourceBirthCore4086_Ready',0xb4f9,tables,lua,reporter,post='SourceClock4086_Commit');results=[];costs=[];clocks=[]
     for line in log.splitlines():
         for marker,target in [('BIRTHCORERESULT|',results),('BIRTHCORECOST|',costs),('BIRTHCORECLOCK|',clocks)]:
             if marker in line:target.append(list(map(int,line.split(marker,1)[1].split('|'))))
     reporter.check('exact source-derived core/flags/relations and preserved unrelated bytes/context',len(results)==len(rows) and all(r==[i,0,0,3 if c['fault'] else 2] for i,(r,c) in enumerate(zip(results,rows))))
     reporter.check('admitted birth fault blocks clock retirement',len(clocks)==len(rows) and all(r==([i,1,48,1] if c['fault'] else [i,0,49,0]) for i,(r,c) in enumerate(zip(clocks,rows))))
-    report=dict(schema='BYOR_4086_NONE_IDLE_BIRTH_CORE_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),table_sha256=hashlib.sha256(table).hexdigest(),cases=len(rows),inputs=[{k:v for k,v in r.items() if k not in ('core','flags','relation')} for r in rows],results=results,costs=costs,clocks=clocks,combat_birth_fields_zeroed=True,attack_timing_actual_birth_copy_bound=bool(a.attack_timing),alive_publication_bound=False,full_constructor_cleanup_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True);(a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
+    report=dict(schema='BYOR_4086_NONE_IDLE_BIRTH_CORE_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),table_sha256=hashlib.sha256(table).hexdigest(),cases=len(rows),inputs=[{k:v for k,v in r.items() if k not in ('core','flags','relation')} for r in rows],results=results,costs=costs,clocks=clocks,combat_birth_fields_zeroed=True,attack_timing_actual_birth_copy_bound=bool(a.attack_timing),attack_body_actual_birth_copy_bound=bool(a.attack_body),alive_publication_bound=False,full_constructor_cleanup_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True);(a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 if __name__=='__main__':main()

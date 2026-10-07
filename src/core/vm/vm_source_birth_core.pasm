@@ -301,6 +301,17 @@ SourceBirthCore4086_VarNext:
 SourceBirthCore4086_TimingChecked:
 .a16
 .i16
+ lda.l SourceAttackBody4086_Ready
+ beq SourceBirthCore4086_BodyChecked
+ lda.l SourceBirthCore4086_Model
+ tax
+ lda.l SourceBirthCore4086_Slot
+ jsl SourceAttackBody4086_PreflightEntity
+ bcc SourceBirthCore4086_BodyChecked
+ jmp SourceBirthCore4086_Bad
+SourceBirthCore4086_BodyChecked:
+.a16
+.i16
  lda.l SourceLifecycle4086_Ready
  beq SourceBirthCore4086_Good
  lda.l SourceBirthCore4086_Slot
@@ -436,6 +447,17 @@ SourceBirthCore4086_RelationLoop:
  bcc SourceBirthCore4086_TimingCopied
  jmp SourceBirthCore4086_Bad
 SourceBirthCore4086_TimingCopied:
+.a16
+.i16
+ lda.l SourceAttackBody4086_Ready
+ beq SourceBirthCore4086_BodyCopied
+ lda.l SourceBirthCore4086_Model
+ tax
+ lda.l SourceBirthCore4086_Slot
+ jsl SourceAttackBody4086_CopyEntity
+ bcc SourceBirthCore4086_BodyCopied
+ jmp SourceBirthCore4086_Bad
+SourceBirthCore4086_BodyCopied:
 .a16
 .i16
  lda.l SourceBirthCore4086_Slot

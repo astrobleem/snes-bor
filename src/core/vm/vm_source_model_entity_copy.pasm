@@ -205,6 +205,17 @@ SourceModelEntityCopy4086_PolicyChecked:
 SourceModelEntityCopy4086_TimingChecked:
 .a16
 .i16
+ lda.l SourceAttackBody4086_Ready
+ beq SourceModelEntityCopy4086_BodyChecked
+ lda.l SourceModelEntityCopy4086_Model
+ tax
+ lda.l SourceModelEntityCopy4086_Slot
+ jsl SourceAttackBody4086_PreflightEntity
+ bcc SourceModelEntityCopy4086_BodyChecked
+ jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_BodyChecked:
+.a16
+.i16
     lda.l SourceLifecycle4086_Ready
     beq SourceModelEntityCopy4086_LifecycleDone
     lda.l SourceModelEntityCopy4086_Slot
@@ -481,6 +492,17 @@ SourceModelEntityCopy4086_PolicyCopied:
     bcc SourceModelEntityCopy4086_TimingCopied
     jmp SourceModelEntityCopy4086_Bad
 SourceModelEntityCopy4086_TimingCopied:
+.a16
+.i16
+ lda.l SourceAttackBody4086_Ready
+ beq SourceModelEntityCopy4086_BodyCopied
+ lda.l SourceModelEntityCopy4086_Model
+ tax
+ lda.l SourceModelEntityCopy4086_Slot
+ jsl SourceAttackBody4086_CopyEntity
+ bcc SourceModelEntityCopy4086_BodyCopied
+ jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_BodyCopied:
 .a16
 .i16
     lda #1

@@ -1,0 +1,40 @@
+{
+  "schema": "BYOR_MOTU_ATTACK_BODY_BIRTH_MODEL_COPY_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-body-preflight-native/report.json",
+      "sha256": "53b5de4e6f04133668be73dc6d019f1f93c15209f815763b2872dac8ed3aa38b",
+      "cases": 276
+    },
+    {
+      "path": "out/byor-motu-attack-body-timing-ctor-native/report.json",
+      "sha256": "0ce0823d836cdb0a90f5bb773fd58df38a1936d9aa868f5912c1ebf158ba8e18",
+      "cases": 304
+    },
+    {
+      "path": "out/byor-motu-attack-body-timing-model-copy-native/report.json",
+      "sha256": "6d34932734335abd27cd7abf30984bc6cbd4784c285aa60bc9a3346910a15b40",
+      "cases": 66
+    },
+    {
+      "path": "out/byor-motu-attack-body-timing-old-birth-native/report.json",
+      "sha256": "c688807a2794e10b662d8130608072aaa7918b40d819a24ebc4136be8d2fbd5e",
+      "cases": 114
+    }
+  ],
+  "turn_chain_fields_bound_through_fresh_ctor_model": true,
+  "turn_chain_fields_bound_through_model_entity_copy": true,
+  "turn_chain_fields_bound_through_old_none_idle_birth": true,
+  "joint_attack_timing_fields_proven": true,
+  "preflight_validates_before_actor_writes": true,
+  "split_boundary_slots_95_96_proven": true,
+  "optional_off_model_copy_results_unchanged": true,
+  "full_constructor_bound": false,
+  "complete_model_switch_bound": false,
+  "normal_prepare_bound": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

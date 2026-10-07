@@ -22,13 +22,38 @@ SourceAttackBody4086_CopyEntity:
  pha
  tsc
  sec
- sbc #24
+ sbc #26
  tcs
  inc a
  tcd
- lda 25,s
- sta $06
+ lda #0
+ sta $18
+ bra SourceAttackBody4086_Inputs
+SourceAttackBody4086_PreflightEntity:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ phd
+ pha
+ txa
+ pha
+ tsc
+ sec
+ sbc #26
+ tcs
+ inc a
+ tcd
+ lda #1
+ sta $18
+SourceAttackBody4086_Inputs:
+.a16
+.i16
  lda 27,s
+ sta $06
+ lda 29,s
  sta $04
  lda.l SourceAttackBody4086_Ready
  cmp #$B605
@@ -270,6 +295,14 @@ SourceAttackBody4086_Guard23:
  ldy #6
  lda [$00],y
  sta.l SourceAttackBody4086_Models
+ lda $18
+ beq SourceAttackBody4086_Install
+ lda #2
+ sta.l SourceAttackBody4086_Status
+ jmp SourceAttackBody4086_Return
+SourceAttackBody4086_Install:
+.a16
+.i16
  lda $04
  cmp #96
  bcc SourceAttackBody4086_LowRows
@@ -347,7 +380,7 @@ SourceAttackBody4086_Return:
 .i16
  tsc
  clc
- adc #24
+ adc #26
  tcs
  lda.l SourceAttackBody4086_Status
  cmp #2
