@@ -696,6 +696,12 @@ SourceWorldTick4086_AckAIRunDone:
 SourceWorldTick4086_AckAIDone:
 .a16
 .i16
+    jsl SourceUpdateAnimation4086_CheckWorldAck
+    bcc SourceWorldTick4086_AckAnimationDone
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_AckAnimationDone:
+.a16
+.i16
     lda.l SourceWorldTick4086_Phase
     cmp #1
     beq SourceWorldTick4086_AckFreeze
@@ -873,6 +879,7 @@ SourceWorldTick4086_IssueScriptDone:
 SourceWorldTick4086_IssueAIDone:
 .a16
 .i16
+    jsl SourceUpdateAnimation4086_PrimeWorldPhase
     lda.l SourceWorldTick4086_Phase
     cmp #1
     beq SourceWorldTick4086_IssueFreeze

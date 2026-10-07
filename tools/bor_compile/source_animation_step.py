@@ -126,6 +126,35 @@ def unpack(table):
     return rows
 
 
+def validate_update_frame_pairing(timing_table, frame_table):
+    """Grant timed playback only for the same captured update_frame identities.
+
+    The native owner reads loop decisions from B4AT and performs delay writes
+    through B4FE. Their complete handle/count/delay correspondence is therefore
+    an installation requirement, including frames not initially visible.
+    """
+    from source_frame_effects_4086 import unpack as unpack_frames
+    timing_rows = unpack(timing_table)
+    frame_rows = unpack_frames(frame_table)['animations']
+    if len(timing_rows) != len(frame_rows):
+        raise ValueError('UPDATE_ANIMATION_FRAME_TABLE_COUNT')
+    frames = 0
+    for timing_row, frame_row in zip(timing_rows, frame_rows):
+        if timing_row['handle'] != frame_row['handle']:
+            raise ValueError('UPDATE_ANIMATION_FRAME_TABLE_HANDLE')
+        delays = [frame['delay_ticks'] for frame in frame_row['frames']]
+        if timing_row['animation'].count != len(delays):
+            raise ValueError('UPDATE_ANIMATION_FRAME_TABLE_FRAMES')
+        if timing_row['delays'] != delays:
+            raise ValueError('UPDATE_ANIMATION_FRAME_TABLE_DELAYS')
+        frames += len(delays)
+    return dict(capability='TIMED_UPDATE_ANIMATION_4086',
+                animations=len(timing_rows), frames=frames,
+                timing_sha256=hashlib.sha256(timing_table).hexdigest(),
+                frame_sha256=hashlib.sha256(frame_table).hexdigest(),
+                frame_services_required=True)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--source', required=True)

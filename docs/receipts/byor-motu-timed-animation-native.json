@@ -1,0 +1,140 @@
+{
+  "schema": "BYOR_4086_UPDATE_ANIMATION_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-timed-animation-native-v3/report.json",
+      "sha256": "f1722ddd31340cbbc1217d5748c921f4f059d034fa5a87fbf7d2920981a60035",
+      "cases": 936
+    },
+    {
+      "path": "out/byor-motu-timed-animation-guards-native/report.json",
+      "sha256": "1997b9550c6d680d656c84a0fa024c558ddeedc9d9a24728e1a1620c0ec4018c",
+      "cases": 80
+    },
+    {
+      "path": "out/byor-motu-timed-animation-resume-guards-native/report.json",
+      "sha256": "1c37a9db334efa92390cee537112897a7caffeb1c7ad3c40a1a1ad8c37df310a",
+      "cases": 80
+    },
+    {
+      "path": "out/byor-motu-timed-animation-kill-native-v2/report.json",
+      "sha256": "da078f514bfadd83a1a269f194400c1fd3d571cd0409134f996c874bd8844d8b",
+      "cases": 528
+    },
+    {
+      "path": "out/byor-motu-timed-animation-complete-order-native/report.json",
+      "sha256": "911604d107fd3967a8aac85ca63d185eae9366757f1287ac01d214b987d288d1",
+      "cases": 18
+    },
+    {
+      "path": "out/byor-motu-timed-animation-prime-native/report.json",
+      "sha256": "176c96941641ea2946962f12092bba0a65e0be65c9fefb598abe92d6381d3a67",
+      "cases": 48
+    },
+    {
+      "path": "out/byor-motu-timed-animation-ack-native/report.json",
+      "sha256": "697f9aabc51405cdbf786f825141ac9293daa36bc35719bcf3e2f1fc828de689",
+      "cases": 192
+    },
+    {
+      "path": "out/byor-motu-timed-animation-authority/report.json",
+      "sha256": "33f8270dc0566519d877f5797c313a07f10de9658adef30d2f1725116394536a",
+      "cases": 936
+    },
+    {
+      "path": "out/byor-motu-timed-animation-kill-authority/report.json",
+      "sha256": "c2729b3f6421f149a730c10ca5a83c815207a04e10c6f11378f2f653501cd4ad",
+      "cases": 528
+    }
+  ],
+  "paired_tables": {
+    "capability": "TIMED_UPDATE_ANIMATION_4086",
+    "animations": 80,
+    "frames": 836,
+    "timing_sha256": "b8654b0692ea8907e4a024b1f85584ad4341d61378798edd6f2fc8b9d4a90822",
+    "frame_sha256": "b02003ab0b0bde907ac928795e9767f723563aa02c3986d75a033ef0f38f4608",
+    "frame_services_required": true,
+    "rejections": [
+      {
+        "case": "animation_count",
+        "fault": "UPDATE_ANIMATION_FRAME_TABLE_COUNT"
+      },
+      {
+        "case": "frame_count",
+        "fault": "UPDATE_ANIMATION_FRAME_TABLE_FRAMES"
+      },
+      {
+        "case": "last_frame_delay",
+        "fault": "UPDATE_ANIMATION_FRAME_TABLE_DELAYS"
+      }
+    ]
+  },
+  "phase": 7,
+  "control_range": "40BF2E..40BF4B",
+  "ready": "B60F",
+  "new_code_bank": 63,
+  "bank28_new_call_bytes": 13,
+  "bank28_remaining_zero_bytes": 3,
+  "frame_mark_observed_before_update_frame": true,
+  "prefix_runs_once_before_frame_request": true,
+  "actual_empty_callback_and_frame_effect_continuation": true,
+  "actual_terminal_kill": "No-event/no-minion retirement; saved BOR self restored",
+  "autokill_values": [
+    1,
+    65536,
+    2147483648,
+    4294967295
+  ],
+  "full32_deadline_equality": true,
+  "mutable_animnum_not_used_as_pointer_identity": true,
+  "world_issue_invalidates_stale_completion": true,
+  "world_ack_requires_completed_same_slot_and_tick": true,
+  "textbox_action_input_bound": false,
+  "onkill_and_recursive_minion_kill_bound": false,
+  "scripted_later_frame_projectiles_and_audio_bound": false,
+  "preservation": {
+    "protected": 17,
+    "bank_zero_growth_bytes": 0,
+    "bank_zero_symbol_addresses_unchanged": true,
+    "external_relocations": [
+      {
+        "pc": "0x9641",
+        "symbol": "Vm_SourceFrameGate",
+        "old": "0x1c8d77",
+        "new": "0x1c8d7b"
+      },
+      {
+        "pc": "0x9697",
+        "symbol": "Vm_FetchSource",
+        "old": "0x1c848c",
+        "new": "0x1c8490"
+      },
+      {
+        "pc": "0x99a5",
+        "symbol": "Vm_SourceVariantAddFallback",
+        "old": "0x1c8883",
+        "new": "0x1c8887"
+      },
+      {
+        "pc": "0x9c9e",
+        "symbol": "Vm_SourceVariantTruthyFallback",
+        "old": "0x1c8857",
+        "new": "0x1c885b"
+      },
+      {
+        "pc": "0xa850",
+        "symbol": "Vm_SourceVariantCompareFallback",
+        "old": "0x1c8953",
+        "new": "0x1c8957"
+      }
+    ]
+  },
+  "width_guard_new_violations": 0,
+  "width_guard_authority_baseline": 183,
+  "bank_zero_free_before_nmi_bytes": 2,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
