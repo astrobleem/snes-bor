@@ -13740,6 +13740,7 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_normal_prepare.pasm"
 
 .include "core/vm/vm_source_common_attack_proc.pasm"
+.include "core/vm/vm_source_update_animation_prefix.pasm"
 .include "core/vm/vm_source_attack_runoff.pasm"
 .include "core/vm/vm_source_common_attack_finish.pasm"
 .include "core/vm/vm_source_attack_cost_state.pasm"

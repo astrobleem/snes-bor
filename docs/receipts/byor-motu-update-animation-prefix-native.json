@@ -1,0 +1,100 @@
+{
+  "schema": "BYOR_4086_UPDATE_ANIMATION_PREFIX_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-update-animation-prefix-authority/report.json",
+      "sha256": "08421d3f858a4e7e280e378a8dc54948da83bc408df36b4f811d467d0e8ddb29",
+      "cases": 578
+    },
+    {
+      "path": "out/byor-motu-update-animation-prefix-final-native/report.json",
+      "sha256": "1e77d1970cf1e952427023d50ca2f72abaac6b03d231926687a24ba737238335",
+      "cases": 578
+    },
+    {
+      "path": "out/byor-motu-update-animation-prefix-final-guards-native/report.json",
+      "sha256": "871b9b43296d9656b6dd8a080f8b572e033667c34ea9f3635becb06148cca1cc",
+      "cases": 155
+    }
+  ],
+  "model_descriptor": {
+    "path": "out/byor-motu-update-animation-inputs/report.json",
+    "sha256": "f8eb02a404d1b35f8692e9e27f33b3c3679e4037ff349696220f6e0776e2db1d",
+    "bytes": 280,
+    "model_count": 16,
+    "sleep_animation_id": 80
+  },
+  "actual_world_tick_phase": 5,
+  "source_function_unmodified_in_reference": true,
+  "actual_entity_fields": [
+    "idling",
+    "animnum",
+    "animating",
+    "sleeptime",
+    "invincible",
+    "blink",
+    "invinctime",
+    "arrowon",
+    "sealtime",
+    "seal"
+  ],
+  "scope": "Source-derived non-scrolling/facing-zero model and stage capability, escapehits zero or inpain nonzero, no expired thaw/colourmap restoration. Timed advance and frame effects are subsequent required services.",
+  "timer_wrap_and_unsigned_expiry_proven": true,
+  "per_entity_model_identity_checked": true,
+  "full_actor_siblings_and_cpu_context_preserved": true,
+  "expired_thaw_or_map_fault_before_actor_mutation": true,
+  "private_world_leases_parked_after_observation": true,
+  "retained_incomplete_runs": [
+    "out/byor-motu-update-animation-prefix-native",
+    "out/byor-motu-update-animation-prefix-path-fixed-native",
+    "out/byor-motu-update-animation-prefix-guards-native"
+  ],
+  "timed_advance_bound": false,
+  "thaw_and_colourmap_restoration_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "preservation": {
+    "protected": 17,
+    "bank_zero_symbol_addresses_unchanged": true,
+    "bank_zero_growth_bytes": 0,
+    "changes_only_external_relocations": [
+      {
+        "pc": "0x9641",
+        "symbol": "Vm_SourceFrameGate",
+        "old": "0x1c8d6f",
+        "new": "0x1c8d73"
+      },
+      {
+        "pc": "0x9697",
+        "symbol": "Vm_FetchSource",
+        "old": "0x1c8484",
+        "new": "0x1c8488"
+      },
+      {
+        "pc": "0x99a5",
+        "symbol": "Vm_SourceVariantAddFallback",
+        "old": "0x1c887b",
+        "new": "0x1c887f"
+      },
+      {
+        "pc": "0x9c9e",
+        "symbol": "Vm_SourceVariantTruthyFallback",
+        "old": "0x1c884f",
+        "new": "0x1c8853"
+      },
+      {
+        "pc": "0xa850",
+        "symbol": "Vm_SourceVariantCompareFallback",
+        "old": "0x1c894b",
+        "new": "0x1c894f"
+      }
+    ]
+  },
+  "width_guard_new_violations": 0,
+  "width_guard_authority_baseline": 183,
+  "bank_zero_free_before_nmi_bytes": 2,
+  "new_code_bank": 63
+}
