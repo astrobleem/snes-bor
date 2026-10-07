@@ -1,0 +1,61 @@
+{
+  "schema": "BYOR_MOTU_SCROLLER_OWNER_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-scroller-owner-native/report.json",
+      "sha256": "e64015d7fad8bd1458782aff1fe75d67a09babeeb5f9327e8b3153c28160562d",
+      "cases": 126,
+      "rom_sha256": "29e9e3cd6dab5aca38de7b283316dbade0e788f02c6fa24a725be88733aea2ec"
+    },
+    {
+      "path": "out/byor-motu-scroller-clock-gate-native/report.json",
+      "sha256": "ad54947b99be66500a954b6201f4172d4c44ead3c6663f7a6d95dcf77cbdc71d",
+      "cases": 293,
+      "rom_sha256": "63916565d54a981d0f2acaf62adac788e537930779d9c6b8a577a80ef2d16253"
+    },
+    {
+      "path": "out/byor-motu-scroller-clock-regression/report.json",
+      "sha256": "fafe3d447407731e0899cdccace4e5d90c87f04a42c0663b08bb1a8791c3c659",
+      "cases": null,
+      "rom_sha256": "a9b5f4133f8b2c9e87f2996b7b5fe2f98768f0a234a651f0a71f7237acd0e9b0"
+    },
+    {
+      "path": "out/byor-motu-scroller-terminal-33-ctor-native/report.json",
+      "sha256": "3c1ab91c5e3753b8ea019f9f263f144f58949b691e186012356db32b2219bd15",
+      "cases": 2,
+      "rom_sha256": "0a3d94fd13c6648b61634f34d5409e15bcb629bc69f3abd43e9b68f127981dd8"
+    },
+    {
+      "path": "out/byor-motu-scroller-terminal-34-ctor-native/report.json",
+      "sha256": "25e74224de690e676b2a3ff8516da19ab696f434375f42bc89c3ba2b0f94ebe5",
+      "cases": 2,
+      "rom_sha256": "611414107bfb1ef675bd8396317137fd246c06a13b969f9467feba64751603df"
+    }
+  ],
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "scope": "Complete admitted scroller invocation, with explicit real constructor continuation",
+  "checks": [
+    "Prefix, completion, queue, WAIT, role collection and camera are actual native services",
+    "Queue requests suspend at source index until completed constructor/properties acknowledgement",
+    "Terminal GUILE2 and HOLES authored constructors resume through real owner",
+    "Skipped prefix services are distinct from executed services",
+    "Pending constructors/default initialization/properties cannot be replaced",
+    "Clock requires admitted owner retirement and validates skipped-prefix identity",
+    "Disabled source world ignores retained stage service words; independent clock regression passes",
+    "CPU and physical entity preservation where services are readonly"
+  ],
+  "bank": 62,
+  "bank0_free_before_nmi": 2,
+  "protected_files_unchanged": 17,
+  "audit": "ALL CHECKS PASS",
+  "nonclaims": [
+    "Combat or moving-render integration",
+    "Multiple constructors in one uninterrupted queue invocation",
+    "Live player camera in constructor fixtures",
+    "Boss music transport; terminal GUILE2 music service is instrumented",
+    "MOTU foreign profile admission/full Demo completion"
+  ],
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

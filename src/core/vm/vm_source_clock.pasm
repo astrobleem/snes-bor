@@ -424,6 +424,19 @@ SourceClock4086_Commit_GuardWide_4:
 SourceClock4086_Commit__retire:
 .a16
 .i16
+    ; Plain clock use does not admit a source world or its retained stage words.
+    lda.l VmSourceWorld_Ready
+    bne SourceClock4086_StageWorldPresent
+    jmp SourceClock4086_CameraRetired
+SourceClock4086_StageWorldPresent:
+.a16
+.i16
+    cmp #$B4A3
+    beq SourceClock4086_StageWorldGranted
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_StageWorldGranted:
+.a16
+.i16
     ; The stage queue is part of this same world tick. A constructor, its
     ; post-properties/music service, or the remaining loop cannot be retired
     ; by a direct clock caller. Zero lease retains the existing clock path.
@@ -472,6 +485,21 @@ SourceClock4086_QueueDefaultDone:
 SourceClock4086_QueueRetired:
 .a16
 .i16
+    lda.l SourceScrollerOwner4086_Ready
+    beq SourceClock4086_ScrollerRetired
+    cmp #$B5DD
+    beq SourceClock4086_ScrollerGranted
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_ScrollerGranted:
+.a16
+.i16
+    lda.l SourceScrollerOwner4086_State
+    cmp #4
+    beq SourceClock4086_ScrollerRetired
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_ScrollerRetired:
+.a16
+.i16
     lda.l SourceWait4086_Ready
     beq SourceClock4086_WaitRetired
     cmp #$B5D9
@@ -483,6 +511,13 @@ SourceClock4086_WaitGranted:
     lda.l SourceWait4086_Status
     cmp #2
     beq SourceClock4086_WaitRetired
+    cmp #4
+    bne SourceClock4086_WaitNotRetired
+    jsr SourceClock4086_CheckSkippedScroller
+    bcc SourceClock4086_WaitRetired
+SourceClock4086_WaitNotRetired:
+.a16
+.i16
     jmp SourceClock4086_Commit__bad
 SourceClock4086_WaitRetired:
 .a16
@@ -498,6 +533,13 @@ SourceClock4086_CameraGranted:
     lda.l SourceCameraMotion4086_Status
     cmp #2
     beq SourceClock4086_CameraRetired
+    cmp #4
+    bne SourceClock4086_CameraNotRetired
+    jsr SourceClock4086_CheckSkippedScroller
+    bcc SourceClock4086_CameraRetired
+SourceClock4086_CameraNotRetired:
+.a16
+.i16
     jmp SourceClock4086_Commit__bad
 SourceClock4086_CameraRetired:
 .a16
@@ -598,3 +640,27 @@ SourceClock4086_Commit__bad:
     plp
     sec
     rtl
+
+; Only the admitted owner can retire services skipped by the source prefix.
+SourceClock4086_CheckSkippedScroller:
+.a16
+.i16
+    lda.l SourceScrollerOwner4086_Ready
+    cmp #$B5DD
+    bne SourceClock4086_SkippedBad
+    lda.l SourceScrollerOwner4086_State
+    cmp #4
+    bne SourceClock4086_SkippedBad
+    lda.l SourceScrollerPrefix4086_Ready
+    cmp #$B5D7
+    bne SourceClock4086_SkippedBad
+    lda.l SourceScrollerPrefix4086_State
+    cmp #4
+    bne SourceClock4086_SkippedBad
+    clc
+    rts
+SourceClock4086_SkippedBad:
+.a16
+.i16
+    sec
+    rts

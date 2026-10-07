@@ -58,6 +58,7 @@ def main():
     p.add_argument('--initial-none-model',help='Authored TYPE_NONE identity without WALK, through default owner and actual IDLE frame zero.')
     p.add_argument('--ctor-owner',action='store_true',help='Execute slot selection and complete generic constructor continuation instead of fixture leaf sequencing.')
     p.add_argument('--queue-producer',action='store_true',help='Execute actual native queue request and acknowledgement; leave the full world tick uncommitted.')
+    p.add_argument('--scroller-owner',action='store_true',help='Resume a terminal authored spawn through the complete scroller owner; no player/camera motion or full world tick claim.')
     p.add_argument('--smartspawn',action='store_true',help='Apply source-derived stage properties after the complete constructor; boss music remains an explicit pending service.')
     p.add_argument('--stage-queue-index',type=int,help='Read constructor inputs from an authored stage spawn record; post-constructor overrides remain separate.')
     p.add_argument('--ctor-state',action='store_true',help='Run real reset/setup/model/script body owner before authored default initialization.')
@@ -87,6 +88,7 @@ def main():
         if model['declared_type']!='enemy':raise ValueError('STAGE_QUEUE_FIXTURE_ENEMY_INIT_CAPABILITY')
         a.initial_enemy=model['identity']
     if a.queue_producer and not a.smartspawn:raise ValueError('QUEUE_PRODUCER_REQUIRES_POST_PROPERTIES')
+    if a.scroller_owner and not a.queue_producer:raise ValueError('SCROLLER_OWNER_REQUIRES_QUEUE_PRODUCER')
     spawn_caps=None;boss_music_present=False
     if a.smartspawn:
         if stage_row is None:raise ValueError('SMARTSPAWN_REQUIRES_SOURCE_STAGE_ROW')
@@ -361,6 +363,7 @@ CallbackFixture_EffectsDone:
     if a.script_clone:values.update(SCRIPTCLONECLEAR=sy['SourceScriptClone4086_Clear'],SCRIPTCLONEBIND=sy['SourceScriptClone4086_Bind'])
     if a.ctor_owner:values.update(CTOROWNERBEGIN=sy['SourceCtorOwner4086_Begin'],CTOROWNERCONTINUE=sy['SourceCtorOwner4086_Continue'],CTORRESULT=sy['SourceCtorOwner4086_Result'])
     if a.queue_producer:values.update(QUEUENEXT=sy['SourceStageProducer4086_Next'],QUEUEACK=sy['SourceStageProducer4086_AckSpawn'],MUSICSTATUS=sy['SourceSmartSpawn4086_Status'],MUSICACK=sy['SourceSmartSpawn4086_AckMusic'])
+    if a.scroller_owner:values.update(QUEUENEXT=sy['SourceScrollerOwner4086_Begin'],QUEUEACK=sy['SourceScrollerOwner4086_Continue'])
     if a.smartspawn:values['SMARTSPAWN']=sy['SourceSmartSpawn4086_Apply']
     if stage_row:values['STAGEPREPARE']=sy['SourceStageQueue4086_PrepareSpawn']
     if a.ctor_state:values.update(CTORSTATE=sy['SourceCtorState4086_Begin'])
@@ -641,8 +644,22 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         first=sum(len(st['records'])for st in stage_queue_report['stages'][:stage_row['stage_id']-1]);limit=first+len(stage_queue_report['stages'][stage_row['stage_id']-1]['records'])
         initialinstall+='\n'+ '\n'.join(" set('"+name+"',"+str(value)+")"for name,value in dict(SourceStageProducer4086_Ready=0xb5d6,SourceStageProducer4086_State=0,SourceStageProducer4086_First=first,SourceStageProducer4086_Limit=limit,SourceStageProducer4086_GroupMin=100,SourceStageProducer4086_GroupMax=100,SourceStageProducer4086_Completed=0,SourceStageProducer4086_Waiting=0,SourceSmartSpawn4086_Status=0).items())
         initialinstall+='\n put(sy.SourceStageProducer4086_GroupMin,100,4);put(sy.SourceStageProducer4086_GroupMax,100,4);put(sy.SourceStageProducer4086_Position,'+str(stage_row['at'])+',4)\n'
+        if a.scroller_owner:
+            if a.stage_queue_index!=limit-1:raise ValueError('SCROLLER_CTOR_FIXTURE_REQUIRES_TERMINAL_SOURCE_RECORD')
+            import io
+            from PIL import Image
+            stage_doc=document(source,stage_queue_report['stages'][stage_row['stage_id']-1]['source_path'])
+            panels=[r['values'][0]for r in stage_doc['directives']if r['directive']=='panel']
+            if len(panels)!=1:raise ValueError('SCROLLER_CTOR_FIXTURE_PANEL_SHAPE')
+            with Image.open(io.BytesIO(source.read(panels[0])))as im:width,height=im.size
+            controls=dict(SourceScrollerOwner4086_Ready=0xb5dd,SourceScrollerOwner4086_State=0,SourceScrollerPrefix4086_Ready=0xb5d7,SourceScrollerPrefix4086_State=0,SourceStageCompletion4086_Ready=0xb5d8,SourceWait4086_Ready=0xb5d9,SourceWait4086_Status=0,SourceCameraBounds4086_Ready=0xb5da,SourceCameraBounds4086_Status=0,SourceCameraBounds4086_MaxPlayers=4,SourceCameraBounds4086_CameraType=0,SourceCameraMotion4086_Ready=0xb5db,SourceCameraMotion4086_Status=0,SourceCameraMotion4086_Direction=2,SourceCameraMotion4086_Width=width,SourceCameraMotion4086_Height=height,SourceCameraMotion4086_HRes=320,SourceCameraMotion4086_VRes=240,SourceCameraMotion4086_Rocking=0)
+            initialinstall+='\n'+'\n'.join(" set('"+n+"',"+str(v)+")"for n,v in controls.items())
+            wide=dict(SourceScrollerPrefix4086_AdvanceTime=47,SourceScrollerPrefix4086_FreezeAll=0,SourceScrollerPrefix4086_Completed=0,SourceStageCompletion4086_LevelType=0,SourceWait4086_NoReset=0,SourceWait4086_SetTime=100,SourceWait4086_TimeLeft=-77,SourceCameraMotion4086_Speed=65536,SourceCameraMotion4086_OffsetX=0,SourceCameraMotion4086_OffsetZ=0,SourceCameraMotion4086_MinX=0,SourceCameraMotion4086_MaxX=(width-320)*65536,SourceCameraMotion4086_MinZ=0,SourceCameraMotion4086_MaxZ=height*65536,SourceCameraMotion4086_Blockade=0)
+            initialinstall+='\n'+'\n'.join(" set('"+n+"',"+str(v)+",4)"for n,v in wide.items())+'\n for i=0,3 do put(0x43fd84+i*4,0,4)end\n'
         address=fs['CallbackFixture_QueuePublished']
         lua+=f"emu.addMemoryCallback(function()emu.log('QUEUECTOR|'..word(INDEX)..'|'..word(sy.SourceStageProducer4086_State)..'|'..word(sy.SourceStageQueue4086_Index)..'|'..word(sy.SourceSmartSpawn4086_Status)..'|'..word(sy.SourceClock4086_Due)..'|'..dw(sy.SourceClock4086_TimeLo))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
+        if a.scroller_owner:
+            lua+=f"emu.addMemoryCallback(function()emu.log('SCROLLERCTOR|'..word(INDEX)..'|'..word(sy.SourceScrollerOwner4086_State)..'|'..word(sy.SourceScrollerPrefix4086_State)..'|'..word(sy.SourceWait4086_Status)..'|'..word(sy.SourceCameraMotion4086_Status))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
         address=fs['CallbackFixture_InstrumentMusicService']
         lua+=f"emu.addMemoryCallback(function()emu.log('QUEUE_MUSIC_SERVICE_INSTRUMENTED|'..word(INDEX))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
@@ -748,9 +765,13 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         expected=[[str(i),str(1 if 'BOSS_MUSIC'in trace else 2),'1',str(e['health']&0xffffffff),str(e['model_health']&0xffffffff),str(e['map']),str(e['boss']&0xffffffff),'1',e['name']]for i in range(len(rows))]
         reporter.check('actual completed authored constructor precedes source alias/health/map/boss properties and explicit music request',smart_results==expected)
     queue_results=[]
+    scroller_results=[]
     if a.queue_producer:
         queue_results=[list(map(int,line.split('QUEUECTOR|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'QUEUECTOR|'in line]
-        reporter.check('real queue request/constructor/properties and acknowledgement advance one source record without committing the world tick',queue_results==[[i,2,a.stage_queue_index+1,2,1,48]for i in range(len(rows))])
+        reporter.check('real queue request/constructor/properties and acknowledgement advance one source record without committing the world tick',queue_results==[[i,4 if a.scroller_owner else 2,a.stage_queue_index+1,2,1,48]for i in range(len(rows))])
+        if a.scroller_owner:
+            scroller_results=[list(map(int,line.split('SCROLLERCTOR|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'SCROLLERCTOR|'in line]
+            reporter.check('actual scroller continuation retires terminal queue and executes WAIT/camera before its no-player return',scroller_results==[[i,4,2,2,2]for i in range(len(rows))])
     if a.script_clone:reporter.check('constructor script cleanup/binding survives actual authored frame zero with foreign instance intact',clone_results==[[i,2,script_clone_report['models'][default]['initialized_mask'],0,0,99,3]for i in range(len(rows))])
     r=dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(raw).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
@@ -769,6 +790,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     r.update(default_owner_bound=a.default_owner,default_owner_results=owner_results)
     r.update(initial_enemy=a.initial_enemy,initial_enemy_role=enemy_role,initial_enemy_results=enemy_results,enemy_drop_context_instrumented=bool(a.initial_enemy),full_default_init_bound=False)
     r.update(stage_queue_index=a.stage_queue_index,stage_queue_row=stage_row,stage_queue_table_sha256=hashlib.sha256(queue_table).hexdigest()if queue_table else None,stage_queue_constructor_inputs_bound=stage_row is not None,stage_queue_post_constructor_properties_bound=a.smartspawn,smartspawn_results=smart_results,smartspawn_music_execution_bound=False,queue_producer_bound=a.queue_producer,queue_producer_results=queue_results,queue_music_service_instrumented=a.queue_producer)
+    r.update(scroller_owner_bound=a.scroller_owner,scroller_no_player_return_only=a.scroller_owner,scroller_results=scroller_results)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
 
