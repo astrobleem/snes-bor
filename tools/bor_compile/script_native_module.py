@@ -90,6 +90,21 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None,*,export_root
         if name in path:raise ValueError('NATIVE_FLAT_SLOT_RECURSION_UNSUPPORTED')
         for target in edges[name]:visit(target,path|{name})
     for name in edges:visit(name,set())
+    # Engine-native suspension must retain the active script call chain. Roots
+    # execute without a VM frame; each script CALL adds one 12-byte frame.
+    # These are source graph bounds, not an assertion of native service support.
+    native_chains=[]
+    def trace_calls(name, chain):
+        chain=chain+[name]
+        rows,reachable,_=decoded[name]
+        for pc,(op,arg,argc,nxt) in rows.items():
+            if pc not in reachable or op!='CALL':continue
+            if arg&0x8000:
+                native_chains.append(dict(name=library['builtin_requirements'][arg&0x7fff],
+                                          arity=argc,bytecode_pc=pc,functions=chain,
+                                          script_frames=len(chain)-1))
+            else:trace_calls(names[arg],chain)
+    for root in roots:trace_calls(root,[])
     if any(set(roots)&targets for targets in edges.values()):
         raise ValueError('NATIVE_ROOT_ENTRY_CALLED_AS_FUNCTION')
     requirements=sorted({(library['builtin_requirements'][arg&0x7fff],argc)
@@ -180,6 +195,10 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None,*,export_root
         initial_empty_locals=initialized,
         function_local_slots={name:dict(zip(library['functions'][name]['locals'],slots)) for name,slots in homes.items()},
         function_stack_slots=stacks,
+        native_call_chains=[dict(c,conservative_mutable_slots=sorted({s for name in c['functions']
+            for s in homes[name]+stacks[name]})) for c in native_chains],
+        max_native_call_script_frames=max((c['script_frames'] for c in native_chains),default=0),
+        native_continuation_bound=False,
         engine_api_requirements=[dict(id=native_ids[k],name=k[0],arity=k[1],bound=False) for k in requirements],
         source_numeric_equivalence=False,native_executed=False,entity_api_bound=False,
         unresolved_semantics=['Q16 arithmetic differs from binary64 including decimal NEG union fallthrough',

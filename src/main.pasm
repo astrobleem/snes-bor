@@ -13750,3 +13750,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_attack_cost_pay.pasm"
 
 .include "core/vm/vm_source_offscreen_state.pasm"
+
+.include "core/vm/vm_source_named_knife.pasm"

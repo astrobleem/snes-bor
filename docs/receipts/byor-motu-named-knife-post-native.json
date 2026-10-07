@@ -1,0 +1,120 @@
+{
+  "schema": "BYOR_MOTU_NAMED_KNIFE_POST_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "proofs": [
+    {
+      "path": "out/byor-motu-named-knife-post-native-v4/report.json",
+      "sha256": "4780865a2bdbe6aa71059073cb4fdfe93d53db9e415e316c4a307be70222a8ab",
+      "cases": 286
+    },
+    {
+      "path": "out/byor-motu-named-knife-timed-frame-regression/report.json",
+      "sha256": "ba46db90e1bf4a44b0c8f1bc60d63555e550453e2658cd3a30eeef3c8bf83e30",
+      "cases": 18
+    },
+    {
+      "path": "out/byor-motu-named-knife-capability.json",
+      "sha256": "c6c31bcc1ecea6b1f79ee401339a2adb5e7eb1c916ef30b9ba5015458edfc272"
+    },
+    {
+      "path": "out/byor-motu-projectile-call-chains.json",
+      "sha256": "2233448a439e7613f942a64f992a1179b98ddc4fc46972adeb8635215592b869"
+    }
+  ],
+  "lease": "B611",
+  "control_range": "40BF5E..40BF8F",
+  "source_function": "knife_spawn named/indexed branch",
+  "source_fields": [
+    "position.y",
+    "modeldata.type",
+    "owner",
+    "nograb",
+    "attacking",
+    "think",
+    "nextthink",
+    "trymove",
+    "takedamage",
+    "takeaction",
+    "modeldata.aimove",
+    "modeldata.offscreenkill",
+    "modeldata.aiattack",
+    "autokill",
+    "speedmul",
+    "base",
+    "hostile",
+    "candamage",
+    "wall/platform/hole/gravity/no_adjust_base",
+    "cantfire",
+    "colourmap index"
+  ],
+  "capability_constant_fields": {
+    "ptype": 0,
+    "remove_on_attack": 0
+  },
+  "palette_map_argument_domain": [
+    0
+  ],
+  "unsupported_nonzero_remove_rejected_by_compiler": true,
+  "source_owner_domain": "live distinct physical owner; checked engine self token",
+  "staged_engine_scalar_inputs_instrumented": [
+    "energycost",
+    "nocost",
+    "level nohit",
+    "saved mode"
+  ],
+  "constructor_allocation_bound": false,
+  "live_projectile_api_bound": false,
+  "source_numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "full_float_equivalence": false,
+  "callback_ids_semantic_only": true,
+  "arrow_move_bound": false,
+  "native_continuation_bound": false,
+  "call_chain_analysis_scope": "source animation/frame callback roots, not every engine script event",
+  "script_lowering_tests_passed": 9,
+  "preservation": {
+    "status": "PASS",
+    "protected": 17,
+    "bank_zero_symbol_addresses_unchanged": true,
+    "bank_zero_growth_bytes": 0,
+    "changed_bank_zero_bytes": 5,
+    "changes_only_external_relocations": [
+      {
+        "pc": "0x9641",
+        "symbol": "Vm_SourceFrameGate",
+        "old": "0x1c8d7f",
+        "new": "0x1c8d83"
+      },
+      {
+        "pc": "0x9697",
+        "symbol": "Vm_FetchSource",
+        "old": "0x1c8494",
+        "new": "0x1c8498"
+      },
+      {
+        "pc": "0x99a5",
+        "symbol": "Vm_SourceVariantAddFallback",
+        "old": "0x1c888b",
+        "new": "0x1c888f"
+      },
+      {
+        "pc": "0x9c9e",
+        "symbol": "Vm_SourceVariantTruthyFallback",
+        "old": "0x1c885f",
+        "new": "0x1c8863"
+      },
+      {
+        "pc": "0xa850",
+        "symbol": "Vm_SourceVariantCompareFallback",
+        "old": "0x1c895b",
+        "new": "0x1c895f"
+      }
+    ]
+  },
+  "width_guard_authority_baseline": 183,
+  "width_guard_new_violations": 0,
+  "audit_all_status": "PASS",
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
