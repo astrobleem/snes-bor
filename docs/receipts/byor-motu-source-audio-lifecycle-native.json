@@ -1,0 +1,190 @@
+{
+  "schema": "BYOR_ASAD_NATIVE_LIFECYCLE_V1",
+  "status": "PASS",
+  "checks": [
+    [
+      "cold reset enters INTRO, not TITLE/PLAYING",
+      true
+    ],
+    [
+      "cold reset is not PLAYING",
+      true
+    ],
+    [
+      "INTRO remains reachable through second scene card",
+      true
+    ],
+    [
+      "INTRO -> TITLE",
+      true
+    ],
+    [
+      "native leaf batch completed",
+      true
+    ],
+    [
+      "first source releases admission after observed DSP END",
+      true
+    ],
+    [
+      "second request admitted by unchanged foreground fixture",
+      true
+    ],
+    [
+      "restart reaches actual DSP END and releases admission",
+      true
+    ],
+    [
+      "both DSP traversals match every source BRR block",
+      true
+    ]
+  ],
+  "endpoints": [
+    {
+      "status": 4,
+      "active": 0,
+      "seen": 127,
+      "env": 0,
+      "requests": 1
+    },
+    {
+      "status": 4,
+      "active": 0,
+      "seen": 127,
+      "env": 0,
+      "requests": 2
+    }
+  ],
+  "rom_sha256": "57a5abf4f582b2278c434fbd9ff5d2a9d773dad4b247571d1130e0b5d259795e",
+  "no_emulator_reset_between_streams": true,
+  "no_directory_restoration": true,
+  "no_color_reduction": true,
+  "authored_polyphony_proven": false,
+  "motu_gameplay_proven": false,
+  "native_evidence": "out\\byor-motu-source-audio-lifecycle-final-native",
+  "native_report_sha256": "45efd9062fb782e846ccfea7425407d969d0fa08a77ba73d791f2f9e4dd380d9",
+  "driver_size": 3464,
+  "driver_sha256": "1b6b9b64bb3b8a54fe0181834361085485cce7f4d923062779b2db503345848a",
+  "completion_mechanism": "SPC output CPUIO2 publishes reserved voice0 ENVX; host requires nonzero then zero, producer complete and no pending payload",
+  "restart_mechanism": "Explicit bit6 first-normal-packet KON, bit7 prefill and 6-bit destination-high mask",
+  "streams": [
+    {
+      "source_blocks": 897,
+      "observed_blocks": 897,
+      "dsp_samples": 41589,
+      "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+      "trace_sha256": "3440a75c54586e2cbd410f43d300d4c1b22f4ab1e6c4793af20a88d5fe721706",
+      "meaningful_byte_mismatches": 0
+    },
+    {
+      "source_blocks": 897,
+      "observed_blocks": 897,
+      "dsp_samples": 41589,
+      "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+      "trace_sha256": "3440a75c54586e2cbd410f43d300d4c1b22f4ab1e6c4793af20a88d5fe721706",
+      "meaningful_byte_mismatches": 0
+    }
+  ],
+  "preservation": {
+    "status": "PASS",
+    "protected": 17,
+    "bank_zero_symbol_addresses_unchanged": true,
+    "masked_non_bank_zero_constants": {
+      "SourceAudio_StartTarget": "Tad_StreamStartPreparedSource",
+      "SourceAudio_StartRelay": "Tad_ProcessMaybeStream__return"
+    },
+    "bank_zero_growth_bytes": 0,
+    "changed_bank_zero_bytes": 10,
+    "changes_only_external_relocations": [
+      {
+        "pc": "0xd1e5",
+        "symbol": "Tad_StreamOneShotHdmaFence",
+        "old": "0xcb0eb",
+        "new": "0xcb103"
+      },
+      {
+        "pc": "0xe142",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaedd",
+        "new": "0xcaeea"
+      },
+      {
+        "pc": "0xe14d",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaedd",
+        "new": "0xcaeea"
+      },
+      {
+        "pc": "0xe158",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaedd",
+        "new": "0xcaeea"
+      },
+      {
+        "pc": "0xe163",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaedd",
+        "new": "0xcaeea"
+      },
+      {
+        "pc": "0x8922",
+        "symbol": "Tad_AudioDriver_SIZE",
+        "old": 3449,
+        "new": 3464
+      },
+      {
+        "pc": "0xac10",
+        "symbol": "Tad_DataTable",
+        "delta": 3,
+        "old": "0x18e23",
+        "new": "0x18e32"
+      },
+      {
+        "pc": "0xac15",
+        "symbol": "Tad_DataTable",
+        "delta": 0,
+        "old": "0x18e20",
+        "new": "0x18e2f"
+      },
+      {
+        "pc": "0xac1a",
+        "symbol": "Tad_DataTable",
+        "delta": 0,
+        "old": "0x18e20",
+        "new": "0x18e2f"
+      }
+    ],
+    "head": "962ebcbea58ab77e71e44d2d6595acfb4213a136"
+  },
+  "hybrid_regression": {
+    "native_evidence": "out\\byor-motu-hybrid-asad-lifecycle-native",
+    "result_sha256": "244e1bb778b44f1eece8ad7aa91e22d9f2f523f56440cffb9fa176840cb37d6b",
+    "source_audio_verified": true,
+    "pass": true,
+    "rom_sha256": "f31cd25f6b285aa1c7cb6241d16142196fe44f5957f27e7592e0803ed27e34a4",
+    "pixel_cadence_verified": true,
+    "peak_nmi_master_clocks": 49948,
+    "source_packet_prepare_peak_master_clocks": 60090,
+    "audio_service_peak_master_clocks": 84520,
+    "context_faults": 0,
+    "unsafe_palette_samples": 0,
+    "obj_overflow_samples": 0
+  },
+  "focused_regressions": {
+    "resident_voices": {
+      "status": "PASS",
+      "evidence": "out/byor-motu-spc-lifecycle-resident-regression",
+      "report_sha256": "695723afbb2202645a917bf92b6b19bfcbb54b5891fbf7093aee3ea7a1982fb3"
+    },
+    "original_bor": {
+      "status": "PASS",
+      "evidence": "out/byor-motu-spc-lifecycle-bor-smoke",
+      "report_sha256": "70bad04e397f7975b1e78a9b21802aa7fd99185ad8d6e194178c4819853aff7f"
+    },
+    "legacy_stream": {
+      "status": "PASS",
+      "evidence": "out/byor-motu-spc-lifecycle-legacy-regression",
+      "report_sha256": "15c7c068628d2c02665286fe7fcfe1b5392cca086650b89a580d24e894823b93"
+    }
+  }
+}

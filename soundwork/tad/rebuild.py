@@ -171,6 +171,11 @@ def verify_patched_toolchain(compiler: Path, baseline: dict) -> None:
                 f"expected {expected}, got {actual}"
             )
 
+    bundle_path = REPO_ROOT / identity["build_patch"]
+    bundle_sha = hashlib.sha256(bundle_path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+    if bundle_sha != identity.get("build_patch_sha256"):
+        raise SystemExit("FAIL: full reproducible SPC source patch identity mismatch")
+
     patch_identity = baseline.get("patch", {})
     for patch_name in ("stream_transport_patch", "stream_voice0_patch", "stream_voice0_envelope_patch"):
         stream_patch = patch_identity.get(patch_name)

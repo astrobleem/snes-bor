@@ -12872,6 +12872,12 @@ Tad_StreamServiceFootdie__enabled:
     brl Tad_StreamServiceFootdie__return
 Tad_StreamServiceFootdie__active:
     .a8
+    jsl SourceAudio_PollCompletion
+    lda.l AudioSemantic_FootDieStreamActive
+    bne Tad_StreamServiceFootdie__still_active
+    brl Tad_StreamServiceFootdie__return
+Tad_StreamServiceFootdie__still_active:
+.a8
 Tad_StreamServiceFootdie__consumer_mode_ready:
     ; Advance playback credit once per real NMI frame. The late pump in the
     ; same frame observes the same frame identity and cannot advance twice.
@@ -13133,6 +13139,16 @@ Tad_StreamSendFootdieFrame__store_destination:
     ora #$80
     bra Tad_StreamSendFootdieFrame__write_destination_high
 Tad_StreamSendFootdieFrame__normal_destination:
+.a8
+.i16
+    lda.l TadPrivate_stream_consumer_started
+    bne Tad_StreamSendFootdieFrame__continued_destination
+    pla
+    ora #$40 ; explicit KON for every new playback epoch
+    bra Tad_StreamSendFootdieFrame__write_destination_high
+Tad_StreamSendFootdieFrame__continued_destination:
+.a8
+.i16
     pla
 Tad_StreamSendFootdieFrame__write_destination_high:
 .a8
@@ -13409,6 +13425,10 @@ Tad_StreamStartSource__reset:
 .a16
 .i16
     lda #0
+    sta.l TadPrivate_stream_chunks_prepared
+    sta.l TadPrivate_stream_chunks_armed
+    sta.l TadPrivate_stream_chunks_accepted
+    sta.l SourceAudio_EnvelopeSeen
     sta.l SourceAudio_OffsetHi
     sta.l SourceAudio_PendingHi
     sep #$20

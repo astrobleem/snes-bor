@@ -9,9 +9,10 @@ SourceAudio_OffsetHi       = $7E28E8 ; .dw
 SourceAudio_PendingHi      = $7E28EA ; .dw
 SourceAudio_LengthHi       = $7E28EC ; .dw
 SourceAudio_ReadTemp       = $7E28EE ; .db
-SourceAudio_Status         = $7E28F0 ; .dw, 1=requested, 2=invalid, 3=busy
+SourceAudio_Status         = $7E28F0 ; .dw, 1=requested, 2=invalid, 3=busy, 4=DSP completed
 SourceAudio_Index          = $7E28F2 ; .dw source namespace identity
 SourceAudio_RequestIndex   = $7E28F4 ; .dw pending admission; never replaces active identity on rejection
+SourceAudio_EnvelopeSeen   = $7E28F8 ; .dw nonzero DSP ENVX observed this epoch
 SourceAudio_PacketLo       = $7E28F6 ; .dw packet-local pointer / output cursor
 
 ; A16 source sound index; C clear=request accepted, C set=explicit fault.
@@ -420,5 +421,46 @@ SourceAudio_FillHdmaRows__no_logical_carry:
 .i16
     lda.l SourceAudio_PacketLo
     tay
+    plp
+    rtl
+
+; Foreground-only DSP lifecycle observation. APUIO2 input/output are separate.
+; Require nonzero ENVX before zero: delayed KON/prefill cannot finish an epoch.
+; Legacy streams retain their existing lifecycle pending their own migration.
+SourceAudio_PollCompletion:
+.a8
+.i16
+    php
+    pha
+    lda.l AudioStream_SourceId
+    cmp #$ff
+    bne SourceAudio_PollCompletion__done
+    lda.l TadPrivate_stream_consumer_started
+    beq SourceAudio_PollCompletion__done
+    lda.l PARAMETER1_PORT
+    beq SourceAudio_PollCompletion__zero
+    sta.l SourceAudio_EnvelopeSeen
+    bra SourceAudio_PollCompletion__done
+SourceAudio_PollCompletion__zero:
+.a8
+.i16
+    lda.l SourceAudio_EnvelopeSeen
+    beq SourceAudio_PollCompletion__done
+    lda.l TadPrivate_stream_producer_done
+    beq SourceAudio_PollCompletion__done
+    lda.l TadPrivate_stream_pending
+    bne SourceAudio_PollCompletion__done
+    lda #0
+    sta.l AudioSemantic_FootDieStreamActive
+    rep #$20
+.a16
+    lda #4 ; actual DSP completion; retain namespace identity
+    sta.l SourceAudio_Status
+    sep #$20
+.a8
+SourceAudio_PollCompletion__done:
+.a8
+.i16
+    pla
     plp
     rtl

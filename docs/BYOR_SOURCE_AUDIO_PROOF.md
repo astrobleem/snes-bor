@@ -190,3 +190,21 @@ and the occupied shared-code banks 61..63. The offline transfer replay checks
 8,257,536 component pixels and rejects a palette-index/atlas mismatch before
 emulation. No color reduction is applied. Stream restart, polyphony, exact
 source-event latency and the actual foreign world owner remain pending.
+
+
+The generic ASAD backend now observes actual stream completion and supports a
+second sound without resetting the SPC driver. The driver publishes physical
+voice 0 ENVX through its previously unused running-driver output CPUIO2 latch;
+CPU input parameters use independent latches. The host requires an observed
+nonzero envelope, followed by zero, acknowledged producer completion and no
+pending packet. Ring END|LOOP flags are not treated as completion. Status 4
+means DSP playback ended; the namespace identity remains available.
+
+Each playback epoch clears the host transport counters and uses destination
+flag bit 6 for its first normal packet. Bit 7 still denotes prefill. This forces
+one KON per new sound even when the directory already points at the ring.
+`docs/receipts/byor-motu-source-audio-lifecycle-native.json` records two complete
+897-block traversals in the same native session. Both reach END and clear the
+active flag; no reset, loader transfer or directory restoration occurs between
+them. This proves sequential restart, not simultaneous source polyphony or
+exact authored sound-event latency. No color reduction is applied.

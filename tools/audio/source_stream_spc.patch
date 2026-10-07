@@ -1,5 +1,5 @@
 diff --git a/audio-driver/src/audio-driver.asm b/audio-driver/src/audio-driver.asm
-index 4db042b..b8499b3 100644
+index 4db042b..c155b09 100644
 --- a/audio-driver/src/audio-driver.asm
 +++ b/audio-driver/src/audio-driver.asm
 @@ -32,6 +32,13 @@
@@ -182,7 +182,19 @@ index 4db042b..b8499b3 100644
      NoCommand:
  
  
-@@ -1745,6 +1791,136 @@ CommandFunctionTable:
+@@ -1718,6 +1764,11 @@ Return:
+         bcc NoStl
+             jmp LOADER_ADDR
+     NoStl:
++    ; Running-driver output CPUIO2 is unused; input parameters are separate.
++    ; ENVX observes actual END, unlike ENDX which also marks ring END|LOOP.
++    mov DSPADDR, #VxENVX
++    mov A, DSPDATA
++    mov CPUIO2, A
+ .endinline
+ 
+ 
+@@ -1745,6 +1796,139 @@ CommandFunctionTable:
  CommandFunctionTableEnd:
  CommandFunctionTable_SIZE = CommandFunctionTableEnd - CommandFunctionTable
  
@@ -196,16 +208,15 @@ index 4db042b..b8499b3 100644
 +    ; and prevents the producer from overwriting one fixed buffer forever.
 +    mov A, DriverIO__PARAMETER_0_PORT
 +    mov zpTmp, A
-+    ; The host may set bit 7 of the high destination byte for the transport
-+    ; fixture. Ring addresses use high bytes below $80, so this mode bit does
-+    ; not overlap a real ARAM address. Keep the mode in lagDetector until
-+    ; completion.
++    ; Bit 7 suppresses KON for prefill; bit 6 requests a new playback epoch.
++    ; Ring destination high bytes are below $40. Save both flags until the
++    ; payload is received; neither flag is part of the physical address.
 +    mov A, DriverIO__PARAMETER_1_PORT
 +    mov zpTmp2, A
-+    and A, #$80
++    and A, #$c0
 +    mov lagDetector, A
 +    mov A, zpTmp2
-+    and A, #$7f
++    and A, #$3f
 +    mov zpTmp2, A
 +    ; Save the command shadow so the submit row can serve as a start latch.
 +    mov A, previousCommand
@@ -257,7 +268,11 @@ index 4db042b..b8499b3 100644
 +    ; claim voice 0.  The normal-mode transaction performs the one-time
 +    ; directory rewrite and KON after the ring is ready.
 +    mov A, lagDetector
++    and A, #$80
 +    bne StreamReceiveFrame__not_first
++    mov A, lagDetector
++    and A, #$40
++    bne StreamReceiveFrame__first_start
 +    ; The generated stream directory entry is not the ring pointer before
 +    ; the first normal-mode transaction. Use that durable DSP state to gate
 +    ; the one-time KON instead of depending on the command dispatcher shadow,
@@ -319,7 +334,7 @@ index 4db042b..b8499b3 100644
  
  
  ; Pause music and sound effects
-@@ -1779,6 +1955,9 @@ CommandFunctionTable_SIZE = CommandFunctionTableEnd - CommandFunctionTable
+@@ -1779,6 +1963,9 @@ CommandFunctionTable_SIZE = CommandFunctionTableEnd - CommandFunctionTable
  
  ; IN: Y = channels
  .proc __cmd__keyoff

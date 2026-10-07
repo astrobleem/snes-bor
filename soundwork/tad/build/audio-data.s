@@ -35,11 +35,11 @@
 .export Tad_Loader_Bin := __Tad_AudioData_0 + 0
 .export Tad_Loader_SIZE = 116
 .export Tad_AudioDriver_Bin := __Tad_AudioData_0 + 116
-.export Tad_AudioDriver_SIZE = 3449
+.export Tad_AudioDriver_SIZE = 3464
 
 ;; [u24 ; N_DATA_ITEMS] - table of PRG ROM offsets (from the start of the first Audio Data segment)
 ;; u16 footer - 16 bit clipped `bin_data_offset + bin_file.len()` (used to determine the size of the last item)
-Tad_DataTable := __Tad_AudioData_0 + 3565
+Tad_DataTable := __Tad_AudioData_0 + 3580
 Tad_DataTable_SIZE = 8
 
 N_DATA_ITEMS = 2
@@ -123,7 +123,7 @@ AUDIO_DATA_BANK = .bankbyte(__Tad_AudioData_0)
   .assert .loword(*) = $8000, lderror, "AUDIO1 does not start at the beginning of a LoRom bank ($8000)"
   .assert .bankbyte(*) = .bankbyte(__Tad_AudioData_0) + 1, lderror, "AUDIO1 segment must point to the bank immediatly after AUDIO0"
   __Tad_AudioData_1: .incbin "audio-data.bin", $7fcd
-  .assert .sizeof(__Tad_AudioData_1) = $6faa, error, "audio-data.bin file size does not match binary size in the assembly file"
+  .assert .sizeof(__Tad_AudioData_1) = $6fb9, error, "audio-data.bin file size does not match binary size in the assembly file"
 
 .assert .bankbyte(Tad_DataTable) = .bankbyte(Tad_DataTable + Tad_DataTable_SIZE), lderror, "Tad_DataTable does not fit in a single bank"
 
