@@ -1,0 +1,54 @@
+{
+  "schema": "BYOR_MOTU_TARGET_METADATA_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-target-metadata-native/report.json",
+      "sha256": "bcea2d251d56062130518436b5827cb037ebbd7a066d7fcb4f5e852f99254271",
+      "cases": 883
+    },
+    {
+      "path": "out/byor-motu-target-live-api-native/report.json",
+      "sha256": "155e5b44f866241af10b80af1a91b16d4addbb306d2e4648312aaa4d02f7f0f1",
+      "cases": 45
+    },
+    {
+      "path": "out/byor-motu-target-legacy-regression/report.json",
+      "sha256": "a889c3c5fb9792d73e6502c5508bc7ebaaebc7a2b3c88ceadb4ceff0e007ab9a",
+      "cases": 45
+    },
+    {
+      "path": "out/byor-motu-entity-names-regression/report.json",
+      "sha256": "e871302bcf7bf065bc2a786583496345a230ef8e12aeee5525952a8fce27d436",
+      "cases": 6
+    }
+  ],
+  "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_collision_frames": 836,
+  "source_models": 16,
+  "ent_max_scan_capacity": 128,
+  "metadata_source": "actual core/lifecycle/shallow-copied modeldata/current frame cursor",
+  "inactive_rows": "neutral metadata; no collision frame dereference",
+  "dead_policy": "full32 nonzero",
+  "invincible_policy": "full32 == 1",
+  "hostile_mask_policy": "low16 only after every live type32 fits16; wider types explicitly fail",
+  "position_policy": "ACCEPTED_COMPAT_Q16_16",
+  "source_numeric_equivalence": false,
+  "metadata_producer_executed": true,
+  "script_findtarget_adapter_executed": true,
+  "legacy_metadata_path_regression": true,
+  "direct_AI_target_query_bound": false,
+  "grounded_combat_integrated": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "layout": {
+    "property_name_table_bytes": 160,
+    "property_name_table_sha256": "f2488f2376f7443a941f154c3279b183137ced6a92d3b0817b683e4e66da3673",
+    "property_name_table_unchanged": true,
+    "bank0_growth": 0,
+    "bank0_end": "0xff9e",
+    "reserved_banks_29_through_35_empty": true
+  }
+}

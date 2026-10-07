@@ -44,6 +44,10 @@ SOURCE_TARGET_ORDER = $41F200
 Vm_SourceFindTarget:
 .a16
 .i16
+    jml SourceTargetMeta4086_FindTargetAdapter
+Vm_SourceFindTarget_LegacyEntry:
+.a16
+.i16
     lda.l VmNativeVariant_ContextValid
     cmp #$B48F
     bne Vm_SourceFindTarget_Bad
@@ -516,3 +520,8 @@ Vm_SourceTargetOrderValidate_Bad:
 Vm_SourceTargetBitMask:
     .dw $0001,$0002,$0004,$0008,$0010,$0020,$0040,$0080
     .dw $0100,$0200,$0400,$0800,$1000,$2000,$4000,$8000
+SourceTarget4086_OrderBridge:
+.a16
+.i16
+    jsr Vm_SourceTargetOrderValidate
+    rtl

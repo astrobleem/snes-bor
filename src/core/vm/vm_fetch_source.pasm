@@ -51,6 +51,8 @@ Vm_FetchSourceInit:
     sta.l SourceModelAttackPolicy4086_Status
     sta.l SourceCollisionFrame4086_Ready
     sta.l SourceCollisionFrame4086_Status
+    sta.l SourceTargetMeta4086_Ready
+    sta.l SourceTargetMeta4086_Status
     sta.l SourceWorldTick4086_Ready
     sta.l SourceWorldTick4086_State
     sta.l SourceWorldTick4086_Pending
