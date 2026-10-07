@@ -1,0 +1,32 @@
+{
+  "schema": "BYOR_MOTU_ATTACK_TIMING_BIRTH_MODEL_COPY_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-timing-model-copy-native/report.json",
+      "sha256": "94fb8f014a689ca6f0c3f55d00a88646230cc3d9959f9fbb733e7e03b2343de2",
+      "cases": 66
+    },
+    {
+      "path": "out/byor-motu-attack-timing-ctor-bound-native/report.json",
+      "sha256": "f33dc7c328e736bf434d87718a3492ab850ec358dc5ee161f1c39134ab247d12",
+      "cases": 238
+    },
+    {
+      "path": "out/byor-motu-attack-timing-old-birth-native/report.json",
+      "sha256": "41a5b84f5c8c0f028f8664833cfe6c229e595d73d46d46eb8d639e242e92516d",
+      "cases": 82
+    }
+  ],
+  "actual_model_switch_component_bound": true,
+  "actual_fresh_constructor_model_copy_bound": true,
+  "actual_older_birth_primitive_bound": true,
+  "source_binary32_scalar_identity_preserved": true,
+  "parameter_preflight_precedes_entity_writes": true,
+  "optional_off_model_copy_results_unchanged": true,
+  "full_constructor_and_weapon_model_switch_proven": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

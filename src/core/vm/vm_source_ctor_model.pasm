@@ -126,6 +126,17 @@ SourceCtorModel4086_Guard_7:
 SourceCtorModel4086_PolicyChecked:
 .a16
 .i16
+ lda.l SourceAttackTiming4086_Ready
+ beq SourceCtorModel4086_TimingChecked
+ lda.l SourceScriptClone4086_Model
+ tax
+ lda.l SourceScriptClone4086_Slot
+ jsl SourceAttackTiming4086_PreflightEntity
+ bcc SourceCtorModel4086_TimingChecked
+ jmp SourceCtorModel4086_Bad
+SourceCtorModel4086_TimingChecked:
+.a16
+.i16
  lda #2
  sta.l SourceCtorModel4086_Status
  ply
@@ -255,6 +266,17 @@ SourceCtorModel4086_Guard_9:
  bcc SourceCtorModel4086_PolicyCopied
  jmp SourceCtorModel4086_Bad
 SourceCtorModel4086_PolicyCopied:
+.a16
+.i16
+ lda.l SourceAttackTiming4086_Ready
+ beq SourceCtorModel4086_TimingCopied
+ lda.l SourceScriptClone4086_Model
+ tax
+ lda.l SourceScriptClone4086_Slot
+ jsl SourceAttackTiming4086_CopyEntity
+ bcc SourceCtorModel4086_TimingCopied
+ jmp SourceCtorModel4086_Bad
+SourceCtorModel4086_TimingCopied:
 .a16
 .i16
  lda #2

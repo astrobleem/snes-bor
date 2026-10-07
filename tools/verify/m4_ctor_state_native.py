@@ -65,7 +65,7 @@ LUA=LUA[:start]+""" if c.fault==0 then
 LUA=LUA.replace("word(sy.SourceCtorModel4086_Status)","word(sy.SourceCtorState4086_Status)")
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--attack-timing',action='store_true');a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
  cr=clone(source);ct=pack_clone(cr);cb,*_=derive(source);bt=pack(cb);lr=life(source);lt=pack_life(lr);mr=core(source);sr=state(source);st=pack_state(sr);fr=factors(source);policy=attack_policy(source);rows=[]
  def case(slot,m,level=1,live=0,maximum=0,time=48,player=3,nohit=0,saved=0,direction=1,mutate=False):
   f=dict(m['fields']);sm=sr['models'][m['id']]
@@ -88,6 +88,16 @@ def main():
  for level,nohit,saved,time,direction in itertools.product((0,1),(0,1),(0,1),(0,0xffffffff),(0,2,-1)):rows.append(case(127,player_model,level=level,nohit=nohit,saved=saved,time=time,direction=direction,live=3,maximum=7))
  for slot,bad in itertools.product((0,127),('state_ready','state_sticky','state_pending','state_models','state_base','state_bank','state_bytes','player_high','player_range','nohit','saved','level','alive','pool_alive','role_count','role_count_high','maximum','factor_ready','factor_status','factor_model','factor_stamp','callback_program','ready','world','pool','side','count','clone_slot','token','token_high','models','model','table','bank','bytes','vars','callback','cleanup','core','entities','life_ready','life_sticky','life_models','life_table','initialized','clear_entry','onkill')):rows.append(dict(rows[0],slot=slot,bad=bad,fault=1))
  sy=symbols(Path('src/main.sym'));lua=LUA.replace('MODE',str(0x7ffd88)).replace('CLONEBYTES',str(len(ct))).replace('LIFEBYTES',str(len(lt))).replace('STATEBYTES',str(len(st))).replace('CALLBACKBYTES',str(len(bt))).replace('PROGRAMS',str(cb['program_count']))
+ if a.attack_timing:
+  from source_attack_timing_4086 import derive as timing,pack as pack_timing
+  from m4_animation_init_native import luav
+  timing_data=pack_timing(timing(source))
+  for c in rows:c['wanttiming']=list(timing_data[28+c['model']*12:40+c['model']*12])+[3,0xb6]
+  lua='local timingbytes='+luav(list(timing_data))+'\n'+lua
+  lua=lua.replace('local ranges={{0x42e000','local ranges={{0x438800,1984},{0x40bd00,192},{0x42e000')
+  lua=lua.replace(' before={};'," set('SourceAttackTiming4086_Ready',0xb603);set('SourceAttackTiming4086_Status',2);set('SourceAttackTiming4086_Models',16);for j=0,191 do emu.write(0x40bd00+j,timingbytes[29+j],mt)end\n before={};")
+  lua=lua.replace('if c.fault==0 then\n local function expect','if c.fault==0 then\n for j,value in ipairs(c.wanttiming)do before[0x438800+c.slot*14+j-1]=value end\n local function expect')
+ else:lua=lua.replace(' before={};'," set('SourceAttackTiming4086_Ready',0)\n before={};")
  lua=lua.replace("local s=emu.getState();cpu={};ctx=0;for _,k in ipairs({'x','y','d','dbr','sp','ps'})do cpu[k]=s['cpu.'..k]end",'')
  entry=sy['SourceCtorState4086_Begin'];lua+=f"emu.addMemoryCallback(function()local s=emu.getState();cpu={{}};ctx=0;for _,k in ipairs({{'x','y','d','dbr','sp','ps'}})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,{entry},{entry},emu.cpuType.snes,mt)\n"
  lua+="emu.addMemoryCallback(function()emu.log('CTORMAX|'..word(INDEX)..'|'..word(sy.SourceWorldTick4086_Maximum))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
@@ -107,6 +117,6 @@ end
  results=[list(map(int,line.split('TAILRESULT|',1)[1].split('|')))for line in log.splitlines()if 'TAILRESULT|'in line];maxima=[list(map(int,line.split('CTORMAX|',1)[1].split('|')))for line in log.splitlines()if 'CTORMAX|'in line]
  r.check('all current models, independent fields, full reset/name/map/source roles, inherited mutations, signed coordinates and guards preserve physical/context boundaries',results==[[i,0,0,3 if c['fault']else 2]for i,c in enumerate(rows)])
  r.check('source count/maximum publication and unsigned nextthink/nextmove wrap',maxima==[[i,129 if c['bad']=='maximum'else c['maximum']if c['fault']else c['wantmaximum']]for i,c in enumerate(rows)])
- d=dict(schema='BYOR_4086_CTOR_STATE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,maxima=maxima,script_cleanup_and_factor_copy_instrumented=True,slot_allocation_bound=False,drawmethod_execution_bound=False,palette_upload_bound=False,full_constructor_bound=False,combat_birth_fields_zeroed=True,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
+ d=dict(schema='BYOR_4086_CTOR_STATE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,maxima=maxima,script_cleanup_and_factor_copy_instrumented=True,slot_allocation_bound=False,drawmethod_execution_bound=False,palette_upload_bound=False,full_constructor_bound=False,combat_birth_fields_zeroed=True,attack_timing_actual_model_copy_bound=a.attack_timing,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
  (a.output/'report.json').write_text(json.dumps(d,indent=2)+'\n');r.finish()
 if __name__=='__main__':main()

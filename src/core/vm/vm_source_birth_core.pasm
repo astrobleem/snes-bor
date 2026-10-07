@@ -290,6 +290,17 @@ SourceBirthCore4086_VarNext:
  sta.l SourceBirthCore4086_Variable
  dey
  bne SourceBirthCore4086_VarLoop
+ lda.l SourceAttackTiming4086_Ready
+ beq SourceBirthCore4086_TimingChecked
+ lda.l SourceBirthCore4086_Model
+ tax
+ lda.l SourceBirthCore4086_Slot
+ jsl SourceAttackTiming4086_PreflightEntity
+ bcc SourceBirthCore4086_TimingChecked
+ jmp SourceBirthCore4086_Bad
+SourceBirthCore4086_TimingChecked:
+.a16
+.i16
  lda.l SourceLifecycle4086_Ready
  beq SourceBirthCore4086_Good
  lda.l SourceBirthCore4086_Slot
@@ -416,6 +427,17 @@ SourceBirthCore4086_RelationLoop:
  jsr SourceBirthCore4086_NextRead
  dey
  bne SourceBirthCore4086_RelationLoop
+ lda.l SourceAttackTiming4086_Ready
+ beq SourceBirthCore4086_TimingCopied
+ lda.l SourceBirthCore4086_Model
+ tax
+ lda.l SourceBirthCore4086_Slot
+ jsl SourceAttackTiming4086_CopyEntity
+ bcc SourceBirthCore4086_TimingCopied
+ jmp SourceBirthCore4086_Bad
+SourceBirthCore4086_TimingCopied:
+.a16
+.i16
  lda.l SourceBirthCore4086_Slot
  jsl SourceCombatState4086_BirthClear
  lda.l SOURCE_RETIREMENT_ROLES
