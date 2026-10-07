@@ -5,7 +5,8 @@ SourceAIReadonly4086_Ready = $43BD48
 SourceAIReadonly4086_Status = $43BD4A
 SourceAIReadonly4086_Relation = $43BD4C
 SourceAIReadonly4086_Result = $43BD4E
-SourceAIReadonly4086_End = $43BD50
+SourceAIReadonly4086_Air = $43BD50
+SourceAIReadonly4086_End = $43BD52
 SourceAIReadonly4086_Execute:
 .a16
 .i16
@@ -68,6 +69,18 @@ SourceAIReadonly4086_NotEscape:
  bne SourceAIReadonly4086_GrabDispatchNext
  jmp SourceAIReadonly4086_Grab
 SourceAIReadonly4086_GrabDispatchNext:
+.a16
+.i16
+ cmp #7
+ bne SourceAIReadonly4086_NotAttack
+ jmp SourceAIReadonly4086_Attack
+SourceAIReadonly4086_NotAttack:
+.a16
+.i16
+ cmp #8
+ bne SourceAIReadonly4086_NotMove
+ jmp SourceAIReadonly4086_Move
+SourceAIReadonly4086_NotMove:
 .a16
 .i16
  cmp #6
@@ -163,19 +176,7 @@ SourceAIReadonly4086_Grab:
 SourceAIReadonly4086_GrabLease:
 .a16
 .i16
- ; Current physical core row, 96 bytes; grabbing +80, attacking +88.
- lda.l SourceAI4086_Slot
- asl a
- asl a
- asl a
- asl a
- asl a
- pha
- asl a
- clc
- adc 1,s
- tax
- pla
+ jsr SourceAIReadonly4086_Core
  lda.l $40C050,x
  ora.l $40C052,x
  bne SourceAIReadonly4086_GrabActive
@@ -201,6 +202,115 @@ SourceAIReadonly4086_GrabNoVictim:
  ; common_grab_check returns before any mutation when other == NULL.
  ; ai_check_grab still returns 1, short-circuiting common_think.
  jmp SourceAIReadonly4086_True
+SourceAIReadonly4086_Attack:
+.a16
+.i16
+ ; Pinned THINK_SPEED=2; (unsigned time / 2) % 4 uses bits 1..2.
+ lda.l VmSourceWorld_Time
+ lsr a
+ and #3
+ bne SourceAIReadonly4086_AttackTick
+ jmp SourceAIReadonly4086_False
+SourceAIReadonly4086_AttackTick:
+.a16
+.i16
+ jsr SourceAIReadonly4086_CoreLease
+ bcc SourceAIReadonly4086_AttackCore
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_AttackCore:
+.a16
+.i16
+ jsr SourceAIReadonly4086_Core
+ lda.l $40C038,x
+ cmp #$FFFF
+ bne SourceAIReadonly4086_AttackMask
+ lda.l $40C03A,x
+ cmp #$FFFF
+ bne SourceAIReadonly4086_AttackMask
+ jmp SourceAIReadonly4086_False
+SourceAIReadonly4086_AttackMask:
+.a16
+.i16
+ ; MASK_AIATTACK1=0000FFFF: equality, not separate bit tests.
+ lda.l $40C038,x
+ cmp #1
+ beq SourceAIReadonly4086_AttackDisabled
+ cmp #2
+ beq SourceAIReadonly4086_AttackDisabled
+ cmp #4
+ bne SourceAIReadonly4086_AttackAir
+SourceAIReadonly4086_AttackDisabled:
+.a16
+.i16
+ jmp SourceAIReadonly4086_False
+SourceAIReadonly4086_AttackAir:
+.a16
+.i16
+ jsr SourceAIReadonly4086_InAir
+ bcc SourceAIReadonly4086_AttackAirChecked
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_AttackAirChecked:
+.a16
+.i16
+ ora #0
+ beq SourceAIReadonly4086_AttackUnbound
+ jmp SourceAIReadonly4086_False
+SourceAIReadonly4086_AttackUnbound:
+.a16
+.i16
+ ; Grounded normal_attack must execute its grab/upper/block/etc sequence.
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_Move:
+.a16
+.i16
+ jsr SourceAIReadonly4086_CoreLease
+ bcc SourceAIReadonly4086_MoveCore
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_MoveCore:
+.a16
+.i16
+ ; Source common_move computes inair before interpreting aimove.
+ jsr SourceAIReadonly4086_InAir
+ bcc SourceAIReadonly4086_MoveAirChecked
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_MoveAirChecked:
+.a16
+.i16
+ sta.l SourceAIReadonly4086_Air
+ jsr SourceAIReadonly4086_Core
+ lda.l $40C034,x
+ cmp #$FFFF
+ bne SourceAIReadonly4086_MoveMask
+ lda.l $40C036,x
+ cmp #$FFFF
+ bne SourceAIReadonly4086_MoveMask
+ jmp SourceAIReadonly4086_False
+SourceAIReadonly4086_MoveMask:
+.a16
+.i16
+ lda.l $40C034,x
+ and #$0780
+ beq SourceAIReadonly4086_MoveOrdinary
+ ; Biker/arrow/star/bomb have priority even with NOMOVE or an airborne actor.
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_MoveOrdinary:
+.a16
+.i16
+ lda.l $40C034,x
+ and #$0800
+ beq SourceAIReadonly4086_MoveAir
+ jmp SourceAIReadonly4086_False
+SourceAIReadonly4086_MoveAir:
+.a16
+.i16
+ lda.l SourceAIReadonly4086_Air
+ beq SourceAIReadonly4086_MoveUnbound
+ jmp SourceAIReadonly4086_False
+SourceAIReadonly4086_MoveUnbound:
+.a16
+.i16
+ ; Real grounded movement target/item/turn/path services remain explicit.
+ jmp SourceAIReadonly4086_Bad
 SourceAIReadonly4086_Busy:
 .a16
 .i16
@@ -267,4 +377,63 @@ SourceAIReadonly4086_Link:
  tax
  lda.l $40901C,x
  ora.l $40901E,x
+ rts
+
+SourceAIReadonly4086_Core:
+.a16
+.i16
+ lda.l SourceAI4086_Slot
+ asl a
+ asl a
+ asl a
+ asl a
+ asl a
+ pha
+ asl a
+ clc
+ adc 1,s
+ tax
+ pla
+ rts
+SourceAIReadonly4086_CoreLease:
+.a16
+.i16
+ lda.l SourceModelEntityCopy4086_Ready
+ cmp #$B4EB
+ bne SourceAIReadonly4086_CoreLeaseBad
+ clc
+ rts
+SourceAIReadonly4086_CoreLeaseBad:
+.a16
+.i16
+ sec
+ rts
+SourceAIReadonly4086_InAir:
+.a16
+.i16
+ lda.l SourceAI4086_View
+ tax
+ lda.l $410008,x
+ cmp #2
+ bne SourceAIReadonly4086_InAirBad
+ lda.l $41000A,x
+ bne SourceAIReadonly4086_InAirBad
+ lda.l $41000C,x
+ sta.l SourceModelEntityCopy4086_Lo
+ lda.l $41000E,x
+ sta.l SourceModelEntityCopy4086_Hi
+ lda.l SourceAI4086_Side
+ tax
+ lda.l $416830,x
+ sta.l SourceDefaultPlayer4086_InvLo
+ lda.l $416832,x
+ sta.l SourceDefaultPlayer4086_InvHi
+ jsl SourceInAir4086_Q16Compatibility
+ ora #0
+ clc
+ rts
+SourceAIReadonly4086_InAirBad:
+.a16
+.i16
+ sec
  rts

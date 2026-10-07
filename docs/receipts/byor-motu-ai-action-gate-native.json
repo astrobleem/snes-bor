@@ -1,0 +1,42 @@
+{
+  "schema": "BYOR_MOTU_AI_ACTION_GATE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-ai-action-gate-authority/report.json",
+      "sha256": "892836b17aa70b69b7d2c9ceb438b2b304839a5d9cd3cdd614d3604af1bff0c5",
+      "cases": 1632
+    },
+    {
+      "path": "out/byor-motu-ai-action-gate-native/report.json",
+      "sha256": "daf322f7a5b3284812f84402dff8a0a65131dd4858cda0ff3be830557a042b40",
+      "cases": 492
+    },
+    {
+      "path": "out/byor-motu-ai-grab-action-gate-regression/report.json",
+      "sha256": "57b508abd425c8c2c6001f4184170473c4ba0813e26e741f04a26af9c18650a0",
+      "cases": 230
+    },
+    {
+      "path": "out/byor-motu-ai-animation-absence-action-gate-regression/report.json",
+      "sha256": "6aa0cb8a35884c44a22cc5a04aaa7d51a6b99b808494c3da8fba7963cd4a03ce",
+      "cases": 173
+    },
+    {
+      "path": "out/byor-motu-ai-warp-busy-action-gate-regression/report.json",
+      "sha256": "eddd23ae11e8c41831607e3b52be73eb4ff3c5b7cd617fe23366079218b17a9c",
+      "cases": 269
+    }
+  ],
+  "numeric_policy": "ACCEPTED_COMPAT Q16 inair >=6554",
+  "source_q16_threshold_differences": 116,
+  "grounded_normal_attack_bound": false,
+  "grounded_common_move_bound": false,
+  "special_move_handlers_bound": false,
+  "common_think_dispatch_integrated": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}
