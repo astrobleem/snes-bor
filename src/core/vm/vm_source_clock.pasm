@@ -424,6 +424,48 @@ SourceClock4086_Commit_GuardWide_4:
 SourceClock4086_Commit__retire:
 .a16
 .i16
+    ; The stage queue is part of this same world tick. A constructor, its
+    ; post-properties/music service, or the remaining loop cannot be retired
+    ; by a direct clock caller. Zero lease retains the existing clock path.
+    lda.l SourceStageProducer4086_Ready
+    beq SourceClock4086_QueueRetired
+    cmp #$B5D6
+    beq SourceClock4086_QueueGranted
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_QueueGranted:
+.a16
+.i16
+    lda.l SourceStageProducer4086_State
+    cmp #4
+    beq SourceClock4086_QueueDone
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_QueueDone:
+.a16
+.i16
+    lda.l SourceCtorOwner4086_Phase
+    beq SourceClock4086_QueueCtorDone
+    cmp #2
+    beq SourceClock4086_QueueCtorDone
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_QueueCtorDone:
+.a16
+.i16
+    lda.l SourceDefaultInit4086_Phase
+    beq SourceClock4086_QueueDefaultDone
+    cmp #6
+    beq SourceClock4086_QueueDefaultDone
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_QueueDefaultDone:
+.a16
+.i16
+    lda.l SourceSmartSpawn4086_Status
+    beq SourceClock4086_QueueRetired
+    cmp #2
+    beq SourceClock4086_QueueRetired
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_QueueRetired:
+.a16
+.i16
     jsl SourceUpdateFrame4086_CheckIdle
     bcc SourceClock4086_Commit_GuardWide_5
     jmp SourceClock4086_Commit__bad

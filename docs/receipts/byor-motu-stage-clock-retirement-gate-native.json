@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_MOTU_STAGE_CLOCK_RETIREMENT_GATE_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out\\byor-motu-stage-clock-gate-native\\report.json",
+  "proof_sha256": "39f3056bd44508295678ce8d1d49904be659aae472f2c83a51529ab0393b237e",
+  "rom_sha256": "50989e99d488167e5875b42f0553c07e78794930db50618aaa58ff21ef863173",
+  "cases": 161,
+  "scope": "Admitted queue must finish its loop, constructor/default initialization and properties/music before clock commit",
+  "disabled_queue_preserves_existing_clock": true,
+  "uint32_rollover_checked": true,
+  "unfinished_queue_preserves_due_and_time": true,
+  "bank": 61,
+  "bank0_free_before_nmi": 2,
+  "protected_files_unchanged": 17,
+  "audit": "ALL CHECKS PASS",
+  "audit_sha256": "faa8d3f6746986520e5435779ee99d33033465a34bc7f89edde0c4931b7c9163",
+  "nonclaims": [
+    "Actual live world/queue execution in this leaf guard test",
+    "MOTU gameplay or completion"
+  ],
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
