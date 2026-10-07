@@ -1424,3 +1424,179 @@ SourceLost4086_CompareDone:
 .a16
 .i16
  rts
+
+; Execute only the source kill(self) request under the separate no-event and
+; no-minion retirement capability. PLAYER_DIE and damage requests reject.
+; Actual current global self must already be the tick actor; never fabricate it.
+SourceLost4086_ApplyNoEventKill:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l SourceLost4086_Ready
+ cmp #$B5E0
+ bne SourceLost4086_KillFar1
+ jmp SourceLost4086_KillLease
+SourceLost4086_KillFar1:
+.a16
+.i16
+ jmp SourceLost4086_Bad
+SourceLost4086_KillLease:
+.a16
+.i16
+ lda.l SourceLost4086_Status
+ cmp #1
+ bne SourceLost4086_KillFar2
+ jmp SourceLost4086_KillPending
+SourceLost4086_KillFar2:
+.a16
+.i16
+ jmp SourceLost4086_Bad
+SourceLost4086_KillPending:
+.a16
+.i16
+ lda.l SourceLost4086_Request
+ cmp #1
+ bne SourceLost4086_KillFar3
+ jmp SourceLost4086_KillRequestGuard
+SourceLost4086_KillFar3:
+.a16
+.i16
+ jmp SourceLost4086_Bad
+SourceLost4086_KillRequestGuard:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Ready
+ cmp #$B4D5
+ beq SourceLost4086_KillFar4
+ jmp SourceLost4086_KillBad
+SourceLost4086_KillFar4:
+.a16
+.i16
+ lda.l SourceWorldTick4086_State
+ cmp #1
+ beq SourceLost4086_KillFar5
+ jmp SourceLost4086_KillBad
+SourceLost4086_KillFar5:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Pending
+ cmp #1
+ beq SourceLost4086_KillFar6
+ jmp SourceLost4086_KillBad
+SourceLost4086_KillFar6:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Phase
+ cmp #2
+ beq SourceLost4086_KillFar7
+ jmp SourceLost4086_KillBad
+SourceLost4086_KillFar7:
+.a16
+.i16
+ lda.l VmSourceWorld_Time
+ cmp.l SourceWorldTick4086_TimeLo
+ beq SourceLost4086_KillFar8
+ jmp SourceLost4086_KillBad
+SourceLost4086_KillFar8:
+.a16
+.i16
+ lda.l VmSourceWorld_Time+2
+ cmp.l SourceWorldTick4086_TimeHi
+ beq SourceLost4086_KillFar9
+ jmp SourceLost4086_KillBad
+SourceLost4086_KillFar9:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Slot
+ cmp.l VmSourceWorld_Count
+ bcs SourceLost4086_KillSlotBad
+ asl a
+ asl a
+ asl a
+ asl a
+ sta.l SourceLost4086_Compare
+ asl a
+ asl a
+ clc
+ adc.l SourceLost4086_Compare
+ cmp.l SourceLost4086_View
+ beq SourceLost4086_KillSlotOk
+SourceLost4086_KillSlotBad:
+.a16
+.i16
+ jmp SourceLost4086_Bad
+SourceLost4086_KillSlotOk:
+.a16
+.i16
+ lda.l SourceLost4086_View
+ clc
+ adc #$4000
+ cmp.l SourceSelf4086_GlobalLow
+ beq SourceLost4086_KillFar10
+ jmp SourceLost4086_KillBad
+SourceLost4086_KillFar10:
+.a16
+.i16
+ lda.l SourceSelf4086_GlobalHigh
+ cmp #$41
+ beq SourceLost4086_KillFar11
+ jmp SourceLost4086_KillBad
+SourceLost4086_KillFar11:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Slot
+ sta.l SourceRetirement4086_Slot
+ jsl SourceRetirement4086_ApplyNoEvents
+ bcc SourceLost4086_KillFar12
+ jmp SourceLost4086_KillBad
+SourceLost4086_KillFar12:
+.a16
+.i16
+ lda.l SourceRetirement4086_Status
+ cmp #2
+ beq SourceLost4086_KillFar13
+ jmp SourceLost4086_KillBad
+SourceLost4086_KillFar13:
+.a16
+.i16
+ lda.l SourceLost4086_View
+ tax
+ lda.l SOURCE_WORLD_POOL+4,x
+ ora.l SOURCE_WORLD_POOL+6,x
+ beq SourceLost4086_KillFar14
+ jmp SourceLost4086_KillBad
+SourceLost4086_KillFar14:
+.a16
+.i16
+ ; Pinned kill restores tempent, including a valid pointer to the retired row.
+ lda.l SourceLost4086_View
+ clc
+ adc #$4000
+ cmp.l SourceSelf4086_GlobalLow
+ beq SourceLost4086_KillSelfLowOk
+ jmp SourceLost4086_Bad
+SourceLost4086_KillSelfLowOk:
+.a16
+.i16
+ lda.l SourceSelf4086_GlobalHigh
+ cmp #$41
+ beq SourceLost4086_KillSelfHighOk
+ jmp SourceLost4086_Bad
+SourceLost4086_KillSelfHighOk:
+.a16
+.i16
+ lda #2
+ sta.l SourceLost4086_Status
+ lda #1
+ ply
+ plx
+ plp
+ clc
+ rtl
+SourceLost4086_KillBad:
+.a16
+.i16
+ jmp SourceLost4086_Bad

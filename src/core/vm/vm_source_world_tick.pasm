@@ -285,6 +285,31 @@ SourceWorldTick4086_Branch_28:
 SourceWorldTick4086_Poll__reset:
 .a16
 .i16
+    ; Pinned update_ents assigns global self only for an eligible old actor.
+    ; arrange_ents uses explicit e and retains this last self pointer.
+    lda.l SourceSelf4086_Ready
+    beq SourceWorldTick4086_SelfUnbound
+    cmp #$B4F6
+    beq SourceWorldTick4086_SelfLease
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_SelfLease:
+.a16
+.i16
+    jsl SourceSelf4086_CheckIdle
+    bcc SourceWorldTick4086_SelfIdle
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_SelfIdle:
+.a16
+.i16
+    lda.l SourceWorldTick4086_View
+    clc
+    adc #$4000
+    sta.l SourceSelf4086_GlobalLow
+    lda #$41
+    sta.l SourceSelf4086_GlobalHigh
+SourceWorldTick4086_SelfUnbound:
+.a16
+.i16
     lda #1
     jmp SourceWorldTick4086_Issue
 SourceWorldTick4086_Poll__after_entity_service:
@@ -611,6 +636,24 @@ SourceWorldTick4086_Ack__frame_idle:
 .a16
 .i16
     lda.l SourceWorldTick4086_Phase
+    cmp #2
+    bne SourceWorldTick4086_AckLostDone
+    lda.l SourceLost4086_Ready
+    beq SourceWorldTick4086_AckLostDone
+    cmp #$B5E0
+    beq SourceWorldTick4086_AckLostLease
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_AckLostLease:
+.a16
+.i16
+    lda.l SourceLost4086_Status
+    cmp #2
+    beq SourceWorldTick4086_AckLostDone
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_AckLostDone:
+.a16
+.i16
+    lda.l SourceWorldTick4086_Phase
     cmp #1
     beq SourceWorldTick4086_AckFreeze
     cmp #3
@@ -754,6 +797,17 @@ SourceWorldTick4086_Issue:
 .a16
 .i16
     sta.l SourceWorldTick4086_Phase
+    cmp #2
+    bne SourceWorldTick4086_IssueLostDone
+    lda.l SourceLost4086_Ready
+    cmp #$B5E0
+    bne SourceWorldTick4086_IssueLostDone
+    lda #0
+    sta.l SourceLost4086_Status
+SourceWorldTick4086_IssueLostDone:
+.a16
+.i16
+    lda.l SourceWorldTick4086_Phase
     cmp #1
     beq SourceWorldTick4086_IssueFreeze
     cmp #3

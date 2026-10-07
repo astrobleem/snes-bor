@@ -1,0 +1,44 @@
+{
+  "schema": "BYOR_MOTU_LOST_OWNER_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-lost-kill-native/report.json",
+      "sha256": "ef074b8408fa1019ff151d07f89343f7bba4e314dbd364147191b428b36d0ee0",
+      "rom_sha256": "24a3814e36af4f5e977971b7ebea1afdb9e16dad058c70e626a9f7f619b420a3",
+      "cases": 200
+    },
+    {
+      "path": "out/byor-motu-world-lost-native/report.json",
+      "sha256": "65d55c141e35571707b47d9fabf256e4b96c78a4605e3dc03d2e14d535999aa2",
+      "rom_sha256": "c6a297b7d0683f1bb44089eef43f7ac25113c58befe96621950fd7b00cb1b3f4",
+      "cases": 410
+    }
+  ],
+  "world_lost_service_calls": 591,
+  "world_actual_retirements": 4,
+  "checks": [
+    "Real lost scrolling/pit/lifespan kill requests execute complete no-event native retirement",
+    "Pinned relation, role, script instance variable, owner cantfire and dead self pointer restoration",
+    "Physical victim slots 1,123,127 with six and 128 capacity",
+    "Unbound player death/damage, callback entries, changed epoch or victim and wrong self reject before live mutation",
+    "World tick publishes actual current global self for eligible old actors when the self capability is enabled",
+    "Fresh actors do not change update_ents self; post-update retains the last self pointer",
+    "Lost status resets only when a new source service 2 is issued",
+    "Enabled tick owner rejects early acknowledgement until real decision/retirement completion",
+    "410-case pinned traversal, compaction, frozen, movement and clock regression",
+    "Full DWORD existence state initialized in fixture",
+    "All 17 protected dirty tracked files retain original byte fingerprints",
+    "ROM audit ALL CHECKS PASS"
+  ],
+  "bank0_growth": 0,
+  "no_event_retirement_bound": true,
+  "nonclaims": [
+    "Player death and pit/lifespan damage callbacks remain unbound",
+    "AI/animation/attacks/health/post-update still instrumented in world proof",
+    "Lost model/stage context not installed from foreign profile compiler yet",
+    "No moving lossless presentation or actual MOTU candidate",
+    "No source combat or Demo completion"
+  ],
+  "no_color_reduction": true
+}
