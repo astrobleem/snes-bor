@@ -1,0 +1,39 @@
+{
+  "schema": "BYOR_MOTU_AI_TARGET_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-ai-target-native/report.json",
+      "sha256": "a4df0496aa9946dd016e55d265acfbdff8a74d8072f8975a1989e9b3c5076fba",
+      "cases": 85
+    },
+    {
+      "path": "out/byor-motu-ai-target-offset-native/report.json",
+      "sha256": "5b89321aeecbba884ae0e8af5c47caafc3607a825992951625c39e185bdc83af",
+      "cases": 48
+    }
+  ],
+  "direct_query": "normal_find_target(-1,0)",
+  "metadata_producer_executed": true,
+  "script_arguments_or_context_manufactured": false,
+  "invalid_VM_context_and_arguments_used_in_fixture": true,
+  "typed_VM_result_preserved": true,
+  "source_self_exists_or_dead_recheck_inserted": false,
+  "self_physical_slots": [
+    0,
+    1,
+    63,
+    127
+  ],
+  "mutable_model_rows": 16,
+  "current_collision_frame_independent_of_current_model": true,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "source_numeric_equivalence": false,
+  "normalattack_selector_bound": false,
+  "grounded_combat_integrated": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}
