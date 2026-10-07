@@ -8,13 +8,19 @@ from _harness import Reporter
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for k in ('rom','authority','output'):p.add_argument('--'+k,type=Path,required=True)
- p.add_argument('--ai-dispatch',action='store_true');p.add_argument('--source',type=Path)
+ p.add_argument('--air-authority',type=Path);p.add_argument('--ai-dispatch',action='store_true');p.add_argument('--source',type=Path)
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);au=json.loads(a.authority.read_text());assert au['status']=='PASS'
  base=dict(time=50,nextthink=50,endgame=0,takeaction=17,think=6,noaicontrol=0,reactive=1,update_mark=55,animation=5,spawn=3,respawn=4,exists=1,mutation=0,bad='',fault=0)
  rows=[dict(base,slot=s,animating=v)for s,v in itertools.product((0,1,95,96,127),(-32768,-1,1,32767))]
  for slot in (0,127):
   for bad in ('proc_ready','proc_busy','proc_sticky','ai_state','callback_low','callback_high','live_low','live_high','tick','phase','self_active','self_fault','token','model','animating_zero'):rows.append(dict(rows[0],slot=slot,bad=bad,fault=1))
- if a.ai_dispatch:rows=[c for c in rows if c['bad']in ('','proc_ready','proc_busy','proc_sticky','animating_zero')]
+ if a.air_authority:
+  air=json.loads(a.air_authority.read_text());assert air['status']=='PASS'
+  for c,slot in itertools.product(air['inputs'],(0,1,95,96,127)):rows.append(dict(base,slot=slot,animating=0,air=c))
+  for slot in (0,127):
+   for bad in ('air_y_tag','air_y_high','ground_zero','ground_positive','ground_negative'):
+    rows.append(dict(base,slot=slot,animating=0,air=dict(y=0 if bad=='ground_zero'else 4*65536-1 if bad=='ground_positive'else -4*65536+1 if bad=='ground_negative'else 4*65536,base=0),bad=bad,fault=1))
+ if a.ai_dispatch:rows=[c for c in rows if c['bad']in ('','proc_ready','proc_busy','proc_sticky','animating_zero','air_y_tag','air_y_high','ground_zero','ground_positive','ground_negative')]
  lua=OWNER_LUA[:OWNER_LUA.index('emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1];local phase=')]
  setup=r'''
  set('SourceAI4086_State',c.bad=='ai_state'and 2 or 1);set('SourceAI4086_Slot',s);put(sy.SourceAI4086_Callback,c.bad=='callback_low'and 16 or 17,4);if c.bad=='callback_high'then put(sy.SourceAI4086_Callback+2,1)end
@@ -22,6 +28,10 @@ def main():
  if c.bad=='live_low'then put(life+12,16)elseif c.bad=='live_high'then put(life+14,1)elseif c.bad=='animating_zero'then put(aux+16,0)end
  -- Source's first predicate must avoid even the Y coordinate/resource path.
  put(v+8,1,4);put(v+12,0x7fffffff,4);put(0x40c058+s*96,66,4)
+ '''
+ if a.air_authority:
+  setup+=r'''
+ if c.air then put(v+8,c.bad=='air_y_tag'and 1 or 2,4);if c.bad=='air_y_high'then put(v+10,1)end;put(v+12,c.air.y,4);put(0x416830+s*64,c.air.base,4)end
  '''
  if a.ai_dispatch:
   assert a.source is not None
@@ -52,6 +62,6 @@ end,emu.callbackType.exec,AFTER,AFTER,emu.cpuType.snes,mt)
  if a.ai_dispatch:
   dispatch=[list(map(int,l.split('ATKDISPATCH|',1)[1].split('|')))for l in log.splitlines()if'ATKDISPATCH|'in l]
   r.check('actual callback 17 dispatch and AI completion/explicit body failure',dispatch==[[i,3 if c['fault']else 2,1 if c['fault']else 5]for i,c in enumerate(rows)])
- report=dict(schema='BYOR_4086_ATTACK_PROC_PREFIX_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,actual=actual,expected=expected,failures=failures[:10],authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),rom_sha256=hashlib.sha256(raw).hexdigest(),stable_callback_id=17,actual_ai_dispatcher_executed=a.ai_dispatch,finished_attack_bound=False,motu_gameplay_proven=False,no_color_reduction=True);(a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');r.finish()
+ report=dict(schema='BYOR_4086_ATTACK_PROC_PREFIX_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,actual=actual,expected=expected,failures=failures[:10],authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),rom_sha256=hashlib.sha256(raw).hexdigest(),stable_callback_id=17,actual_ai_dispatcher_executed=a.ai_dispatch,airborne_branch_bound=bool(a.air_authority),numeric_policy="ACCEPTED_COMPAT_Q16_16",air_authority_sha256=hashlib.sha256(a.air_authority.read_bytes()).hexdigest()if a.air_authority else None,finished_attack_bound=False,motu_gameplay_proven=False,no_color_reduction=True);(a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');r.finish()
 
 if __name__=='__main__':main()

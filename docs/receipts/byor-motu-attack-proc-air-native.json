@@ -1,0 +1,35 @@
+{
+  "schema": "BYOR_MOTU_ATTACK_PROC_AIR_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-proc-air-authority/report.json",
+      "sha256": "91852fff08d18cad73831bb7388b9db4fbf0d1ba0ce8741ba0b16c6a08f6ad80",
+      "cases": 40
+    },
+    {
+      "path": "out/byor-motu-attack-proc-air-native/report.json",
+      "sha256": "3a7a75388c9cb1549560fe9aa8b754387f8d1bb6d3a29f8f41ee0102301ab9bc",
+      "cases": 260
+    },
+    {
+      "path": "out/byor-motu-attack-proc-air-ai-native/report.json",
+      "sha256": "d5c466d43e191ec018de1f8e80f1d944c26225ac7dfc387ccff649f0f8b85452",
+      "cases": 238
+    }
+  ],
+  "literal_engine_diff_and_attack_function_authority": true,
+  "animating_short_circuit_preserved": true,
+  "actual_y_and_base_read": true,
+  "signed_extreme_abs_difference": true,
+  "threshold_four": true,
+  "grounded_finished_body_explicit_failure": true,
+  "actual_ai_dispatch_proven": true,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16; classifications match pinned floats in sampled cases; universal float storage equivalence not claimed",
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "static_presentation_modified": false,
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
