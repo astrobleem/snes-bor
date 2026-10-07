@@ -159,3 +159,34 @@ pixels with no mismatch and no unsafe palette/VRAM access or OBJ overflow.
 The corrected transport transferred 36 of 44 original-BOR source-2 chunks
 during the measured effect sequence; full concurrent playback is unproven.
 Do not carry forward the old 44-chunk completion claim to this updated host.
+
+
+The subsequent joint proof combines the retained hybrid sequence with the real
+namespace-16 asset and the production SPC driver. See
+`docs/receipts/byor-motu-hybrid-asad-dsp-native.json`. All 57 transport chunks,
+8,073 meaningful BRR bytes, tail padding, and 897 DSP blocks match. The voice
+plays continuously for 78 fields and reaches END. Concurrently, all 4,300,800
+visible pixels match, with zero unsafe CGRAM/VRAM accesses and OBJ overflow.
+
+Late-only packet preparation was insufficient: the consumer overtook the
+producer at field 52, and the DSP read stale blocks beginning at source block
+336. That failure is retained separately. The working policy prepares the
+next-field packet with palette IRQs active. The arm helper changes the NMI
+HDMA shadow; it does not enable a channel in the current scanout. One long
+pointer now serves an entire 144-byte generic packet, preserving the existing
+mode-4 table layout. Legacy sources retain their byte-reader path. The logical
+bank carry is explicitly maintained, and the 76,509-byte asset traverses all
+8,501 DSP blocks after this optimization.
+
+The final joint proof measures packet preparation at 55,154 master clocks,
+frame audio service at 83,394 clocks, peak canvas NMI at 49,942 clocks, and a
+minimum NMI return margin of 414 clocks before the next field. These are fixed
+scene measurements, not a moving-world resource certificate.
+
+Palette payloads occupy `$E0:0000..$E4:FFFF`. A configurable audio reservation
+starts at `$E8:0000`, with all 17 assets occupying 241,920 bytes. Both use EXB
+mapping 2 without overlap. Fixture programs avoid bank 60's descriptor table
+and the occupied shared-code banks 61..63. The offline transfer replay checks
+8,257,536 component pixels and rejects a palette-index/atlas mismatch before
+emulation. No color reduction is applied. Stream restart, polyphony, exact
+source-event latency and the actual foreign world owner remain pending.

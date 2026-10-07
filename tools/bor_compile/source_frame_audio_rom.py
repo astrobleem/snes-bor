@@ -36,7 +36,11 @@ def unpack(table):
     return result
 
 
-def pack(folder,output):
+def pack(folder,output,*,cpu_base=CPU_BASE):
+    if not CPU_BASE<=cpu_base<CPU_BASE+CAPACITY or cpu_base%65536:
+        raise ValueError('ASAD_ROM_WINDOW_BASE')
+    capacity=CPU_BASE+CAPACITY-cpu_base
+    rom_base=ROM_BASE+cpu_base-CPU_BASE
     manifest=json.loads((folder/'report.json').read_text())
     rows=sorted(manifest['compiled'],key=lambda r:r['sound_index'])
     if [r['sound_index']for r in rows]!=list(range(len(manifest['namespace']))):
@@ -50,12 +54,12 @@ def pack(folder,output):
         if not brr or len(brr)%9 or any(brr[i]&3 for i in range(0,len(brr)-9,9))or brr[-9]&3!=1:
             raise ValueError('ASAD_BRR_END_OR_LOOP')
         count=math.ceil(len(brr)/144);start=len(data)
-        if count>65535 or start+count*144>CAPACITY:raise ValueError('ASAD_ROM_CAPACITY')
-        pointer=CPU_BASE+start
+        if count>65535 or start+count*144>capacity:raise ValueError('ASAD_ROM_CAPACITY')
+        pointer=cpu_base+start
         table.extend(pointer.to_bytes(3,'little'));table.extend(len(brr).to_bytes(3,'little'));table.extend(struct.pack('<H',count))
         data.extend(brr);data.extend(bytes(count*144-len(brr)))
         assets.append(dict(sound_index=row['sound_index'],source_path=row['source_path'],
-            cpu_pointer=pointer,rom_offset=ROM_BASE+start,brr_bytes=len(brr),
+            cpu_pointer=pointer,rom_offset=rom_base+start,brr_bytes=len(brr),
             transfer_bytes=count*144,tail_padding_bytes=count*144-len(brr),
             crosses_64k_bank=(pointer>>16)!=((pointer+len(brr)-1)>>16),
             brr_sha256=row['brr_sha256'],source_sha256=row['source_sha256']))
@@ -66,7 +70,7 @@ def pack(folder,output):
     report=dict(schema='BYOR_SOURCE_AUDIO_ROM_V1',status='PASS',namespace=manifest['namespace'],
         descriptor_sha256=hashlib.sha256(table).hexdigest(),payload_sha256=hashlib.sha256(data).hexdigest(),
         descriptor_bytes=len(table),payload_bytes=len(data),meaningful_brr_bytes=sum(r['brr_bytes']for r in rows),
-        rom_window_base=ROM_BASE,cpu_window_base=CPU_BASE,capacity_bytes=CAPACITY,
+        rom_window_base=rom_base,cpu_window_base=cpu_base,capacity_bytes=capacity,
         source_frame_table_sha256=manifest['source_frame_table_sha256'],assets=assets,
         requires_sa1_exb_mapping=2,fxb_mapping_consumed=False,native_runtime_proven=False,
         source_audio_policy='ACCEPTED_COMPAT full-duration mono PCM_u8/11025Hz then BRR',
@@ -74,27 +78,31 @@ def pack(folder,output):
     (output/'report.json').write_text(json.dumps(report,indent=2)+'\n');return report
 
 
-def install(raw,table,data,descriptor_offset):
+def install(raw,table,data,descriptor_offset,*,cpu_base=CPU_BASE):
     """Install only into measured empty, disjoint ROM reservations."""
     unpack(table)
+    if not CPU_BASE<=cpu_base<CPU_BASE+CAPACITY or cpu_base%65536:
+        raise ValueError('ASAD_ROM_WINDOW_BASE')
+    rom_base=ROM_BASE+cpu_base-CPU_BASE
     if len(raw)<ROM_BASE+CAPACITY:raise ValueError('ASAD_ROM_TOO_SMALL')
     if not 0<=descriptor_offset<=ROM_BASE-len(table):raise ValueError('ASAD_DESCRIPTOR_RESERVATION')
-    if len(data)>CAPACITY:raise ValueError('ASAD_ROM_CAPACITY')
-    for start,payload in [(descriptor_offset,table),(ROM_BASE,data)]:
+    if len(data)>CPU_BASE+CAPACITY-cpu_base:raise ValueError('ASAD_ROM_CAPACITY')
+    for start,payload in [(descriptor_offset,table),(rom_base,data)]:
         if raw[start:start+len(payload)]!=bytes(len(payload)):
             raise ValueError('ASAD_RESERVATION_NOT_EMPTY')
     # Validate payload extents and final padding before modifying the image.
     for row in unpack(table):
-        at=row['cpu_pointer']-CPU_BASE;length=row['brr_bytes'];end=at+row['chunks']*144
-        if end>len(data)or any(data[at+length:end]):raise ValueError('ASAD_TRANSFER_PADDING')
+        at=row['cpu_pointer']-cpu_base;length=row['brr_bytes'];end=at+row['chunks']*144
+        if at<0 or end>len(data)or any(data[at+length:end]):raise ValueError('ASAD_TRANSFER_PADDING')
     raw[descriptor_offset:descriptor_offset+len(table)]=table
-    raw[ROM_BASE:ROM_BASE+len(data)]=data
+    raw[rom_base:rom_base+len(data)]=data
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--assets',required=True,type=Path);p.add_argument('--output',required=True,type=Path)
-    a=p.parse_args();r=pack(a.assets,a.output)
+    p.add_argument('--cpu-base',type=lambda s:int(s,0),default=CPU_BASE,help='Bank-aligned E-window reservation')
+    a=p.parse_args();r=pack(a.assets,a.output,cpu_base=a.cpu_base)
     print('ASAD:',len(r['assets']),'sources;',r['payload_bytes'],'ROM bytes')
 
 

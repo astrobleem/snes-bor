@@ -23,8 +23,10 @@ def offset(address):
     return (address>>16)*32768+(address&65535)-32768
 
 
-def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm='',audio_service=False,source_clock=False,palette_count=None,compact_canvas_nmi=False,sparse_targets=False,serialize_audio_raster=False):
+def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm='',audio_service=False,source_clock=False,palette_count=None,compact_canvas_nmi=False,sparse_targets=False,serialize_audio_raster=False,continuous_audio_pump=False,source_audio_index=None,early_source_packet_staging=False):
     if serialize_audio_raster and not (audio_service and sparse_targets):raise ValueError('AUDIO_RASTER_RESERVATION_OWNER_REQUIRED')
+    if continuous_audio_pump and not serialize_audio_raster:raise ValueError('CONTINUOUS_AUDIO_REQUIRES_RASTER_RESERVATION')
+    if early_source_packet_staging and source_audio_index is None:raise ValueError('EARLY_SOURCE_PACKET_OWNER_REQUIRED')
     if source_clock and not audio_service:raise ValueError('CLOCK_SERVICE_OWNER_REQUIRED')
     private,private_sy=combine(raw,report,folder,76)
     # Regenerate only bank 39, with real long-call destinations and wrappers.
@@ -221,6 +223,92 @@ SourceCanvasAudioRasterReleased:
 .a16
 .i16
 ''')
+        if early_source_packet_staging:
+            # The real arm helper only changes NMI's HDMA shadow. Preparing
+            # next-field data does not enable a channel during this scanout.
+            asm=asm.replace('''    lda.l SourceRaster_Row
+    cmp.l SourceRaster_RowLimit
+    bcs SourceCanvasAudioRasterReleased
+    jmp SourceCanvasAudioReturn
+''','')
+    if continuous_audio_pump:
+        marker='    beq SourceCanvasAudioReturn\n    sta.l $7FF880'
+        if asm.count(marker)!=1:raise ValueError('CONTINUOUS_AUDIO_FIELD_BOUNDARY')
+        asm=asm.replace(marker,'    beq SourceCanvasAudioWait\n    sta.l $7FF880')
+        marker='SourceCanvasAudioDone:\n.a16\n.i16\n    nop\nSourceCanvasAudioReturn:'
+        if asm.count(marker)!=1:raise ValueError('CONTINUOUS_AUDIO_RETURN_BOUNDARY')
+        asm=asm.replace(marker,'''SourceCanvasAudioDone:
+.a16
+.i16
+    nop
+    bra SourceCanvasAudioReturn
+SourceCanvasAudioWait:
+.a16
+.i16
+    jsl $%06X
+    rep #$30
+.a16
+.i16
+SourceCanvasAudioWaitDone:
+.a16
+.i16
+    nop
+SourceCanvasAudioReturn:'''%sy['Tad_StreamLatePump'])
+    if source_audio_index is not None:
+        if not continuous_audio_pump or not 0<=source_audio_index<2047:
+            raise ValueError('ASAD_CANVAS_AUDIO_OWNER_REQUIRED')
+        marker='    lda #2\n    sta.l $%06X\n    jsl $A7C780'%sy['AudioStream_SourceId']
+        if asm.count(marker)!=1:raise ValueError('ASAD_CANVAS_REQUEST_BOUNDARY')
+        asm=asm.replace(marker,'''    rep #$30
+.a16
+.i16
+    lda #%d
+    jsl $%06X
+    bcc SourceCanvasAsadAccepted
+    lda #1
+    sta.l SourceRaster_Fault
+    jmp SourceCanvasAudioReturn
+SourceCanvasAsadAccepted:
+.a16
+.i16
+    sep #$20
+.a8
+    lda #2
+    sta.l $%06X
+    lda #1
+    sta.l $%06X
+    rep #$30
+.a16
+.i16
+'''%(source_audio_index,sy['SourceAudio_Start'],sy['AudioStream_TransportOnly'],sy['AudioStream_SerialPermit']))
+        marker='SourceCanvasAudioRasterReleased:\n.a16\n.i16\n'
+        if asm.count(marker)!=1:raise ValueError('ASAD_CANVAS_PREFILL_BOUNDARY')
+        asm=asm.replace(marker,marker+'''    lda.l $%06X
+    cmp #7
+    bcc SourceCanvasAsadPrefill
+    sep #$20
+.a8
+    lda #0
+    sta.l $%06X
+    bra SourceCanvasAsadPrefillDone
+SourceCanvasAsadPrefill:
+.a16
+.i16
+    sep #$20
+.a8
+    lda #2
+    sta.l $%06X
+    lda.l $%06X
+    bne SourceCanvasAsadPrefillDone
+    lda #1
+    sta.l $%06X
+SourceCanvasAsadPrefillDone:
+.a8
+.i16
+    rep #$30
+.a16
+.i16
+'''%(sy['TadPrivate_stream_chunks_accepted'],sy['AudioStream_TransportOnly'],sy['AudioStream_TransportOnly'],sy['TadPrivate_stream_pending'],sy['AudioStream_SerialPermit']))
     (folder/'production-gate.pasm').write_text(asm)
     command=[r'C:\Users\chad\.dotnet\dotnet.exe',r'E:\gh\poppy-astrobleem\src\Poppy.CLI\bin\Release\net10.0\poppy.dll',str(folder/'production-gate.pasm'),
              '--output',str(folder/'production-gate.bin'),'--symbols',str(folder/'production-gate.sym'),'--no-pansy']

@@ -13,14 +13,14 @@ from unittest.mock import patch
 import numpy as np
 from PIL import Image
 from m4_bg_components_native import compile_rom
-from m4_raster_production_nmi import build as production_build
+from m4_raster_production_nmi import build as production_build,offset
 from m4_raster_irq_gate_native import gate_observer
 from actor_s5_entity_fixture import symbols
 from _harness import McpSession,MESEN_EXE,_free_tcp_port,Reporter,exact_input_edge,run_frames_exact
 import game_bor_startup_select as startup
 
 
-def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,source_clock=False,compact_canvas_nmi=False,sparse_palette=False,serialize_audio_raster=False,fold_first_use=False,prepared_sequence=None):
+def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,source_clock=False,compact_canvas_nmi=False,sparse_palette=False,serialize_audio_raster=False,fold_first_use=False,prepared_sequence=None,continuous_audio_pump=False,source_audio_index=None,early_source_packet_staging=False):
     schedule=json.loads(deadlines.read_text());plan=json.loads((residency/'report.json').read_text())
     if not schedule['resident_identity_replay']:raise ValueError('PRODUCTION_SEQUENCE_UNPROVEN_DEADLINES')
     hybrid=plan.get('schema')=='BYOR_HYBRID_FIXED_CONTEXT_RESIDENCY_V1'
@@ -77,6 +77,11 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
         (cache/f'{name}.chr').write_bytes(data)
         (cache/f'0-{name}.map').write_bytes((residency/f'00-{name}.map').read_bytes())
     (cache/'layout.json').write_text(json.dumps(dict(low_chr_vram_base=49152)))
+    residency_identity=None
+    if hybrid:
+        from hybrid_residency_identity import replay
+        residency_identity=replay(residency,plan,schedule,assets,cache)
+        (folder/'residency-pixel-identity.json').write_text(json.dumps(residency_identity,indent=2)+'\n')
     kwargs={}
     if hybrid:
         if not plan.get('offset_map_aliases_bg2') or not plan.get('static_obj_subdivision'):
@@ -89,7 +94,8 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
     # Pack all per-field programs and their immutable bytes into fast ROM.
     # Shared source capabilities now occupy banks 61..63. Never overwrite
     # them with fixture programs. Use only measured empty FastROM banks.
-    program_banks=[b for b in [*range(53,61),*range(47,52)]
+    # Bank 60 also reserves $3C:C000..FFFF for the source-audio namespace.
+    program_banks=[b for b in [*range(53,60),*range(47,52)]
                    if original[b*32768:(b+1)*32768]==bytes(32768)]
     if not program_banks:raise ValueError('PRODUCTION_SEQUENCE_FASTROM_CAPACITY')
     program_bank=0
@@ -179,7 +185,7 @@ SourceCanvasProgramTable:
 '''%(len(programs),len(programs)-1)
     for program in programs:
         pos=program['start'];asm+='    .dw $%04X,$%04X\n'%(0x8000+pos%32768-1,0x80+pos//32768)
-    raw,gates=production_build(component,reports[0],folder,original,sy,True,True,prefix,0xa7d000,asm,audio_service,source_clock,palette_count=palette_count,compact_canvas_nmi=compact_canvas_nmi,sparse_targets=sparse_palette,serialize_audio_raster=serialize_audio_raster)
+    raw,gates=production_build(component,reports[0],folder,original,sy,True,True,prefix,0xa7d000,asm,audio_service,source_clock,palette_count=palette_count,compact_canvas_nmi=compact_canvas_nmi,sparse_targets=sparse_palette,serialize_audio_raster=serialize_audio_raster,continuous_audio_pump=continuous_audio_pump,source_audio_index=source_audio_index,early_source_packet_staging=early_source_packet_staging)
     rom=bytearray(raw)
     for first,size in [(46*32768,32768),(64*32768,5*65536)]:
         if rom[first:first+size]!=bytes(size):raise ValueError('PRODUCTION_SEQUENCE_ROM_RESERVATION_OCCUPIED')
@@ -214,6 +220,10 @@ SourceCanvasProgramTable:
     resources['sparse_palette_events']=sparse_palette
     resources['serialized_audio_raster']=serialize_audio_raster
     resources['prepared_sequence_used']=bool(prepared_sequence)
+    resources['continuous_audio_pump']=continuous_audio_pump
+    resources['source_audio_namespace_index']=source_audio_index
+    resources['early_source_packet_staging']=early_source_packet_staging
+    resources['residency_pixel_identity']=residency_identity
     resources['input_hashes']={str(p):{n:hashlib.sha256((p/n).read_bytes()).hexdigest()
         for n in ('report.json','initial.json','indices.bin','low_indices.bin','expected.rgb555')}for p in assets}
     resources['palette_first_use_folds']=folds
@@ -221,7 +231,7 @@ SourceCanvasProgramTable:
     return bytes(rom),gates,resources,traces,assets
 
 
-def verify(rom,gates,resources,traces,assets,source_rom,sy,folder):
+def verify(rom,gates,resources,traces,assets,source_rom,sy,folder,audio_hooks=None):
     path=folder/'proof.sfc';path.write_bytes(rom)
     for p in [source_rom.with_suffix('.msu'),*source_rom.parent.glob('bor-*.pcm')]:
         destination=folder/('proof'+p.name[3:])
@@ -338,6 +348,25 @@ emu.addMemoryCallback(audio,emu.callbackType.exec,DONE,DONE,emu.cpuType.snes,emu
                .replace('EXHAUSTED',str(sy['TadPrivate_stream_producer_done']))
                .replace('START',str(39*32768+(gates['SourceCanvasAudioStart']&65535)-32768))
                .replace('DONE',str(39*32768+(gates['SourceCanvasAudioDone']&65535)-32768)))
+    if resources.get('source_audio_namespace_index') is not None:
+        with lua.open('a') as script:
+            script.write('''
+local packetstart=nil;local packetcount=0
+emu.addMemoryCallback(function()
+ if active then
+  local s=emu.getState();packetstart={clock=s.masterClock,line=s['ppu.scanline'],field=s['ppu.frameCount'],chunk=word(CHUNK)}
+ end
+end,emu.callbackType.exec,PACKET_ENTRY_ADDRESS,PACKET_ENTRY_ADDRESS,emu.cpuType.snes,emu.memType.snesPrgRom)
+emu.addMemoryCallback(function()
+ if packetstart and packetcount<128 then
+  local s=emu.getState();packetcount=packetcount+1
+  emu.log('ASADPACKETPREP|'..packetstart.chunk..'|'..packetstart.clock..'|'..s.masterClock..'|'..packetstart.line..'|'..s['ppu.scanline']..'|'..packetstart.field..'|'..s['ppu.frameCount'])
+ end
+ packetstart=nil
+end,emu.callbackType.exec,PACKET_ARM_ADDRESS,PACKET_ARM_ADDRESS,emu.cpuType.snes,emu.memType.snesPrgRom)
+'''.replace('CHUNK',str(sy['TadPrivate_stream_chunk_index']))
+               .replace('PACKET_ENTRY_ADDRESS',str(offset(sy['Tad_StreamSendFootdieFrame'])))
+               .replace('PACKET_ARM_ADDRESS',str(offset(sy['Tad_StreamArmFootdieFrame']))))
     class Observed(McpSession):
         def __enter__(self):
             import mesen_mcp.session as module
@@ -346,12 +375,14 @@ emu.addMemoryCallback(audio,emu.callbackType.exec,DONE,DONE,emu.cpuType.snes,emu
                 return super().__enter__()
     expected=[np.fromfile(p/'expected.rgb555',dtype='<u2').reshape(224,256) for p in assets]
     pixels=[];steps=[];snapshots=[]
-    with Observed(rom=path,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=folder/'mesen.log') as m:
+    with Observed(rom=path,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=folder/'mesen.log',env=audio_hooks['env']if audio_hooks else None) as m:
         reporter=Reporter('M4-PRODUCTION-SEQUENCE',kind='GATE')
         with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('PRODUCTION_SEQUENCE_PLAYING_REQUIRED')
-        run_frames_exact(m,12);m.write_u8(0x7ff860,0xa5)
+        run_frames_exact(m,12)
+        if audio_hooks:audio_hooks['before'](m,sy)
+        m.write_u8(0x7ff860,0xa5)
         advanced=0;owned=False
         for attempt in range(1500):
             progress=m.tool('run_frames',{'count':1});steps.append(progress)
@@ -360,13 +391,15 @@ emu.addMemoryCallback(audio,emu.callbackType.exec,DONE,DONE,emu.cpuType.snes,emu
             if startup.u16(m,0x7ff856):raise ValueError('PRODUCTION_SEQUENCE_HANDOFF_FAULT')
             if startup.u16(m,0x7ff840)!=0xb4b0:continue
             owned=True;advanced+=1
+            if audio_hooks:audio_hooks['sample'](m,sy)
             shot=m.tool('take_screenshot',{'format':'path'});rgb=np.asarray(Image.open(shot['path']).convert('RGB'),dtype=np.int32)
             actual=(rgb[:,:,0]>>3)|((rgb[:,:,1]>>3)<<5)|((rgb[:,:,2]>>3)<<10)
             matches=[i for i,e in enumerate(expected) if actual.shape==e.shape and np.array_equal(actual,e)]
             descriptor=m.read_memory('SnesMemory',0x7ff840,64);field=int.from_bytes(descriptor[50:52],'little')
             pixels.append(dict(sample=advanced,program_field=field,matches=matches));snapshots.append(descriptor.hex())
             if matches:shutil.copyfile(shot['path'],folder/f'frame-{matches[0]:02d}.png')
-            if field>=72 and advanced>=77:break
+            if field>=72 and advanced>=(audio_hooks['fields']if audio_hooks else 77):break
+        if audio_hooks:audio_hooks['closeout'](m,sy,owned)
         (folder/'cpu-state.json').write_text(json.dumps(m.get_cpu_state(),indent=2))
         (folder/'audio-closeout.bin').write_bytes(m.read_memory('SnesMemory',sy['TadPrivate_stream_frame'],64))
         if resources.get('native_source_clock_service'):
@@ -423,7 +456,7 @@ emu.addMemoryCallback(audio,emu.callbackType.exec,DONE,DONE,emu.cpuType.snes,emu
         result.update(audio_service_events=audio,audio_service_peak_master_clocks=max(spans,default=0),
                       audio_stream_chunks_accepted=accepted,
                       audio_stream_transport_active_verified=admitted,
-                      audio_stream_transport_complete_verified=audio[-1][3]==audio[-1][5] and audio[-1][6]==1 if audio else False,
+                      audio_stream_transport_complete_verified=accepted==final_word('AudioStream_SourceChunks') and closeout[sy['TadPrivate_stream_producer_done']-sy['TadPrivate_stream_frame']]==1,
                       scope='Continuous fixed-context sequence with the real production TAD frame and late pumps, plus a native original-BOR source-2 stream request. No moving compositor, MOTU audio binding or live world admission.')
         result['pass']=result['pass'] and admitted
     if resources.get('native_source_clock_service'):
@@ -434,8 +467,21 @@ emu.addMemoryCallback(audio,emu.callbackType.exec,DONE,DONE,emu.cpuType.snes,emu
         result.update(native_clock_ready=ready,native_clock_fault=fault,native_clock_ticks_committed=time,
                       clock_scope='Owned 4086 physical-field clock with empty logical ticks; no live entity update or MOTU gameplay.')
         result['pass']=result['pass'] and ready==0xb4c5 and fault==0 and time>0
+    if audio_hooks:
+        from m4_source_audio_native_verify import verify as verify_audio
+        try:audio_proof=verify_audio(folder,audio_hooks['assets'],require_dsp_trace=True)
+        except AssertionError as error:
+            audio_proof=dict(status='FAIL',error=str(error),retained_evidence=True)
+        result['source_audio_verification']=audio_proof
+        result['pass']=result['pass']and audio_proof['status']=='PASS'
+        result['scope']='Fixed-context hybrid pixel sequence with an instrumented ASAD namespace sound, seven-chunk prefill, actual production transport and DSP. No authored concurrent gameplay or exact sound-event timing proof.'
+        prep=[list(map(int,line.split('ASADPACKETPREP|',1)[1].split('|')))for line in lines if 'ASADPACKETPREP|'in line]
+        result['source_packet_prepare_events']=prep
+        result['source_packet_prepare_peak_master_clocks']=max((r[2]-r[1]for r in prep),default=0)
     (folder/'result.json').write_text(json.dumps(result,indent=2)+'\n')
-    print(json.dumps({k:v for k,v in result.items() if k not in ('resources','pixels','observer','snapshots','completed_display_pixels','nmi_returns','audio_service_events')}))
+    summary={k:v for k,v in result.items() if k not in ('resources','pixels','observer','snapshots','completed_display_pixels','nmi_returns','audio_service_events','source_packet_prepare_events','source_audio_verification')}
+    if audio_hooks:summary['source_audio_verified']=result['source_audio_verification']['status']=='PASS'
+    print(json.dumps(summary))
     if not result['pass']:raise SystemExit(1)
 
 
@@ -449,9 +495,10 @@ def main():
     p.add_argument('--serialize-audio-raster',action='store_true')
     p.add_argument('--fold-first-use',action='store_true')
     p.add_argument('--prepared-sequence',type=Path,help='Retained native compiler inputs for a reproducible regression')
+    p.add_argument('--continuous-audio-pump',action='store_true',help='Poll stream ACKs within the reserved late-field window')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     sy=symbols(Path(__file__).resolve().parents[2]/'src/main.sym')
-    rom,gates,resources,traces,assets=build(a.sequence,a.residency,a.deadlines,a.rom.read_bytes(),sy,folder,a.audio_service,a.source_clock,a.compact_canvas_nmi,a.sparse_palette,a.serialize_audio_raster,a.fold_first_use,a.prepared_sequence)
+    rom,gates,resources,traces,assets=build(a.sequence,a.residency,a.deadlines,a.rom.read_bytes(),sy,folder,a.audio_service,a.source_clock,a.compact_canvas_nmi,a.sparse_palette,a.serialize_audio_raster,a.fold_first_use,a.prepared_sequence,a.continuous_audio_pump)
     (folder/'proof.sfc').write_bytes(rom)
     (folder/'compiled.json').write_text(json.dumps(dict(resources=resources,gates=gates,assets=[str(p) for p in assets],traces=traces),indent=2))
     print('PRODUCTION_SEQUENCE_COMPILED')

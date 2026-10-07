@@ -19,6 +19,16 @@ class AudioRomTests(unittest.TestCase):
                 at=ROM_BASE+descriptor['cpu_pointer']-CPU_BASE
                 self.assertEqual(raw[at:at+row['brr_bytes']],(assets/row['brr_path']).read_bytes())
             with self.assertRaisesRegex(ValueError,'RESERVATION_NOT_EMPTY'):install(raw,table,data,60*32768+16384)
+            moved=pack(assets,folder/'moved',cpu_base=0xe80000)
+            moved_table=(folder/'moved/descriptors.bin').read_bytes()
+            moved_data=(folder/'moved/payload.bin').read_bytes()
+            self.assertEqual(moved_data,data)
+            raw=bytearray(4*1024*1024);raw[ROM_BASE:ROM_BASE+0x50000]=b'P'*0x50000
+            install(raw,moved_table,moved_data,60*32768+16384,cpu_base=0xe80000)
+            self.assertEqual(raw[ROM_BASE:ROM_BASE+0x50000],b'P'*0x50000)
+            self.assertEqual(raw[0x280000:0x280000+len(data)],data)
+            self.assertEqual(moved['assets'][0]['cpu_pointer'],0xe80000)
+            with self.assertRaisesRegex(ValueError,'ROM_WINDOW_BASE'):pack(assets,folder/'bad',cpu_base=0xe80001)
 
     def test_reject_bad_count_length_overlap_and_padding(self):
         with self.assertRaisesRegex(ValueError,'NAMESPACE_COUNT'):

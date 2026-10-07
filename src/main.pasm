@@ -13182,6 +13182,11 @@ Tad_StreamSendFootdieFrame__marker_ready:
     sta.l TadPrivate_stream_state
     lda #0
     sta.l TadPrivate_stream_row_token
+    lda.l AudioStream_SourceId
+    cmp #$ff
+    bne Tad_StreamSendFootdieFrame__row
+    jsl SourceAudio_FillHdmaRows
+    jmp Tad_StreamSendFootdieFrame__rows_complete
 Tad_StreamSendFootdieFrame__row:
     sep #$20
 .a8
@@ -13222,6 +13227,9 @@ Tad_StreamSendFootdieFrame__second_no_carry:
     dec
     sta.l TadPrivate_stream_state
     bne Tad_StreamSendFootdieFrame__row
+Tad_StreamSendFootdieFrame__rows_complete:
+.a8
+.i16
     lda #0
     sta TAD_STREAM_HDMA_TABLE,y
     rep #$10

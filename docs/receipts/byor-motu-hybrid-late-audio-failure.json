@@ -1,0 +1,18 @@
+{
+  "status": "FAIL",
+  "source_blocks": 897,
+  "observed_blocks": 934,
+  "first_block_mismatch": 336,
+  "first_ledger_underrun": 52,
+  "all_transport_chunks_arrived": true,
+  "schema": "BYOR_JOINT_AUDIO_POLICY_FAILURE_V1",
+  "classification": "LATE_ONLY_PACKET_PREPARATION_UNDERRUN",
+  "native_pixel_fields": 75,
+  "native_pixel_mismatches": 0,
+  "source_namespace_index": 16,
+  "source_brr_bytes": 8073,
+  "source_chunk_count": 57,
+  "no_color_reduction": true,
+  "lossless_renderer_hardware_infeasibility_proven": false,
+  "next_experiment": "Foreground next-field packet staging with IRQs active; arm helper changes NMI shadow only"
+}

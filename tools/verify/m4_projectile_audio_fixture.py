@@ -133,7 +133,7 @@ ScriptedProjectileAudioArmGuardDone:
  rtl
 '''
 
-def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_driver=None,prefill=False,arm_guard=False,generic_rom=None):
+def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_driver=None,prefill=False,arm_guard=False,generic_rom=None,external_observer=None):
     r=json.loads((source_audio/'report.json').read_text())
     row=next(x for x in r['compiled']if x['source_path'].lower()==sound_path.lower())
     assert row['normalized_sample_rate']==11025 and (generic_rom or row['brr_bytes']<=32768)
@@ -153,7 +153,7 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
             table=(generic_rom/'descriptors.bin').read_bytes();data=(generic_rom/'payload.bin').read_bytes()
             assert hashlib.sha256(table).hexdigest()==manifest['descriptor_sha256']
             assert hashlib.sha256(data).hexdigest()==manifest['payload_sha256']
-            install(raw,table,data,offset(sy['SourceAudio_Table']))
+            install(raw,table,data,offset(sy['SourceAudio_Table']),cpu_base=manifest['cpu_window_base'])
         else:
             assert len(payload)<=16384 and len(payload)%9==0
             at=60*32768+16384
@@ -190,11 +190,29 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
         m.write_u16(sy['AudioSemantic_FootDieStreamFrame'],0xffff)
         (folder/'voice0.raw.arm').touch()
         m.record_audio(folder/'source-energy.wav')
+    def observe(m,sy):
+        b=m.read_memory('SnesMemory',sy['TadPrivate_stream_frame'],64)
+        def word(name):
+            at=sy[name]-sy['TadPrivate_stream_frame'];return int.from_bytes(b[at:at+2],'little')
+        nmi=m.read_memory('SnesMemory',sy['Nmi_HdmaEnable'],32)
+        audio=m.get_audio_state();voice=next(v for v in audio['voices']if v['voice']==0)
+        high=m.read_memory('SnesMemory',sy['SourceAudio_OffsetHi'],32)if generic_rom else bytes(32)
+        observations.append(dict(field=len(observations),transport=b.hex(),chunks_accepted=word('TadPrivate_stream_chunks_accepted'),chunks_expected=word('AudioStream_SourceChunks'),consumer_chunk=word('TadPrivate_stream_consumer_chunk'),source_offset=word('TadPrivate_stream_source_offset')+(int.from_bytes(high[:2],'little')<<16),producer_done=b[sy['TadPrivate_stream_producer_done']-sy['TadPrivate_stream_frame']],nmi=nmi.hex(),voice0=voice))
+        previous=observations[-2]['chunks_accepted']if len(observations)>1 else 0
+        current=observations[-1]['chunks_accepted']
+        for chunk in range(previous,current):
+            slot=chunk%8;aram=sy['TAD_STREAM_RING_ADDR']+slot*144
+            actual=m.read_memory('SpcRam',aram,144)
+            expected=bytearray(payload[chunk*144:(chunk+1)*144].ljust(144,b'\0'))
+            if slot==7 and(chunk+1)*144<len(payload):expected[135]|=3
+            meaningful=min(144,len(payload)-chunk*144)
+            received.append(dict(chunk=chunk,field=len(observations)-1,aram=aram,sha256=hashlib.sha256(actual).hexdigest(),expected_sha256=hashlib.sha256(expected).hexdigest(),mismatched_bytes=sum(a!=b for a,b in zip(actual,expected)),meaningful_bytes=meaningful,meaningful_mismatched_bytes=sum(a!=b for a,b in zip(actual[:meaningful],expected[:meaningful])),padding_mismatched_bytes=sum(a!=b for a,b in zip(actual[meaningful:],expected[meaningful:])),observer_gap=current-previous))
+    if external_observer is not None:external_observer['sample']=observe
     def closeout(m,sy,completed):
         if generic_rom:
             diagnostic={name:m.read_memory('SnesMemory',sy[name],32).hex()for name in ('SourceAudio_Status','SourceAudio_BaseLo','SourceAudio_Table','AudioSemantic_FootDieStreamActive')}
             (folder/'audio-admission.json').write_text(json.dumps(diagnostic,indent=2)+'\n')
-        if completed:
+        if completed and external_observer is None:
             if isolate:m.write_u16(sy['Game_State'],3)
             done_field=None
             limit=max(400,math.ceil(row['normalized_frames']/(32000*1411/4096)*60.1)+100)
@@ -211,22 +229,7 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
                         if accepted<7:m.write_memory('SnesMemory',sy['AudioStream_SerialPermit'],'01')
                         else:m.write_memory('SnesMemory',sy['AudioStream_TransportOnly'],'00')
                 run_frames_exact(m,1)
-                b=m.read_memory('SnesMemory',sy['TadPrivate_stream_frame'],64)
-                def word(name):
-                    at=sy[name]-sy['TadPrivate_stream_frame'];return int.from_bytes(b[at:at+2],'little')
-                nmi=m.read_memory('SnesMemory',sy['Nmi_HdmaEnable'],32)
-                audio=m.get_audio_state();voice=next(v for v in audio['voices']if v['voice']==0)
-                high=m.read_memory('SnesMemory',sy['SourceAudio_OffsetHi'],32)if generic_rom else bytes(32)
-                observations.append(dict(field=i,transport=b.hex(),chunks_accepted=word('TadPrivate_stream_chunks_accepted'),chunks_expected=word('AudioStream_SourceChunks'),consumer_chunk=word('TadPrivate_stream_consumer_chunk'),source_offset=word('TadPrivate_stream_source_offset')+(int.from_bytes(high[:2],'little')<<16),producer_done=b[sy['TadPrivate_stream_producer_done']-sy['TadPrivate_stream_frame']],nmi=nmi.hex(),voice0=voice))
-                previous=observations[-2]['chunks_accepted']if len(observations)>1 else 0
-                current=observations[-1]['chunks_accepted']
-                for chunk in range(previous,current):
-                    slot=chunk%8;aram=sy['TAD_STREAM_RING_ADDR']+slot*144
-                    actual=m.read_memory('SpcRam',aram,144)
-                    expected=bytearray(payload[chunk*144:(chunk+1)*144].ljust(144,b'\0'))
-                    if slot==7 and(chunk+1)*144<len(payload):expected[135]|=3
-                    meaningful=min(144,len(payload)-chunk*144)
-                    received.append(dict(chunk=chunk,field=i,aram=aram,sha256=hashlib.sha256(actual).hexdigest(),expected_sha256=hashlib.sha256(expected).hexdigest(),mismatched_bytes=sum(a!=b for a,b in zip(actual,expected)),meaningful_bytes=meaningful,meaningful_mismatched_bytes=sum(a!=b for a,b in zip(actual[:meaningful],expected[:meaningful])),padding_mismatched_bytes=sum(a!=b for a,b in zip(actual[meaningful:],expected[meaningful:])),observer_gap=current-previous))
+                observe(m,sy)
                 if observations[-1]['producer_done']and observations[-1]['chunks_accepted']>=observations[-1]['chunks_expected']:
                     if done_field is None:done_field=i
                     if i-done_field>=16:break

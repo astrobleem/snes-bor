@@ -12,6 +12,7 @@ SourceAudio_ReadTemp       = $7E28EE ; .db
 SourceAudio_Status         = $7E28F0 ; .dw, 1=requested, 2=invalid, 3=busy
 SourceAudio_Index          = $7E28F2 ; .dw source namespace identity
 SourceAudio_RequestIndex   = $7E28F4 ; .dw pending admission; never replaces active identity on rejection
+SourceAudio_PacketLo       = $7E28F6 ; .dw packet-local pointer / output cursor
 
 ; A16 source sound index; C clear=request accepted, C set=explicit fault.
 ; Caller preserves the source event until accepted. No silent preemption.
@@ -326,4 +327,98 @@ SourceAudio_Account__more:
     lda #0
     sta.l TadPrivate_stream_pending_done
     sec
+    rtl
+
+; A8/X16 logical source offset/Y16 output cursor. Build one long pointer
+; for the complete packet. IRQ/NMI remain enabled and preserve D/stack.
+; Return X=next logical offset, Y=next table cursor, original D/P.
+; Same mode-4 rows and loop-header location as the existing transport.
+SourceAudio_FillHdmaRows:
+.a8
+.i16
+    php
+    rep #$38
+.a16
+.i16
+    phx
+    phy
+    phd
+    txa
+    clc
+    adc.l SourceAudio_BaseLo
+    sta.l SourceAudio_PacketLo
+    lda.l SourceAudio_ReadBank
+    and #$00ff
+    adc #0
+    sep #$20
+.a8
+    pha
+    rep #$20
+.a16
+    lda.l SourceAudio_PacketLo
+    pha
+    tsc
+    inc a
+    tcd
+    lda 6,s
+    tax
+    ldy #0
+    sep #$20
+.a8
+SourceAudio_FillHdmaRows__row:
+.a8
+.i16
+    lda #1
+    sta.l $7E0000+TAD_STREAM_HDMA_TABLE,x
+    inx
+    lda.l TadPrivate_stream_command
+    sta.l $7E0000+TAD_STREAM_HDMA_TABLE,x
+    inx
+    lda [$00],y
+    sta.l $7E0000+TAD_STREAM_HDMA_TABLE,x
+    inx
+    iny
+    lda [$00],y
+    sta.l $7E0000+TAD_STREAM_HDMA_TABLE,x
+    inx
+    iny
+    lda.l TadPrivate_stream_row_token
+    sta.l $7E0000+TAD_STREAM_HDMA_TABLE,x
+    inx
+    inc a
+    and #$1f
+    sta.l TadPrivate_stream_row_token
+    cpy #144
+    bne SourceAudio_FillHdmaRows__row
+    lda #0
+    sta.l TadPrivate_stream_state
+    rep #$20
+.a16
+    txa
+    sta.l SourceAudio_PacketLo
+    tsc
+    clc
+    adc #3
+    tcs
+    pld
+    ply
+    plx
+    txa
+    clc
+    adc #144
+    tax
+    bcc SourceAudio_FillHdmaRows__no_logical_carry
+    sep #$20
+.a8
+    lda.l SourceAudio_ReadBank
+    inc a
+    sta.l SourceAudio_ReadBank
+    rep #$20
+.a16
+SourceAudio_FillHdmaRows__no_logical_carry:
+.a16
+.i16
+    lda.l SourceAudio_PacketLo
+    tay
+    plp
     rtl

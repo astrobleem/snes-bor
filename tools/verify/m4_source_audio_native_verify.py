@@ -20,10 +20,10 @@ def verify(folder, assets, require_dsp_trace=False):
     # would overwrite a slot and make its earlier contents unobservable.
     assert all(1<=r['observer_gap']<=8 for r in chunks)
     assert sum(r['meaningful_bytes'] for r in chunks)==len(payload)
-    assert all(r['mismatched_bytes']==0 and r['sha256']==r['expected_sha256'] for r in chunks)
+    assert all(r['mismatched_bytes']==0 and r['sha256']==r['expected_sha256'] for r in chunks),'SOURCE_STREAM_TRANSPORT_BYTES:'+str([(r['chunk'],r['mismatched_bytes'])for r in chunks if r['mismatched_bytes']][:12])
     assert observations[-1]['producer_done'] and observations[-1]['chunks_accepted']==expected
     underruns=[r['field'] for r in observations if not r['producer_done'] and r['consumer_chunk']>r['chunks_accepted']]
-    assert not underruns
+    assert not underruns,'SOURCE_STREAM_CONSUMER_UNDERRUN:'+str(underruns[:12])
     active=[r for r in observations if r['voice0']['envelope']]
     assert active and observations[-1]['voice0']['envelope']==0
     assert [r['field'] for r in active]==list(range(active[0]['field'],active[-1]['field']+1))
@@ -68,7 +68,7 @@ def verify(folder, assets, require_dsp_trace=False):
             value=2166136261
             for byte in block:value=((value^byte)*16777619)&0xffffffff
             expected_blocks.append((0x121a+(i%128)*9,block[0],value))
-        assert traversed==expected_blocks
+        assert traversed==expected_blocks,'SOURCE_STREAM_DSP_BLOCKS:'+str(dict(expected=len(expected_blocks),actual=len(traversed),first_mismatch=next((i for i,(a,b)in enumerate(zip(traversed,expected_blocks))if a!=b),None)))
         block_proof=dict(source_blocks=len(expected_blocks),observed_blocks=len(traversed),
             skipped_blocks=0,repeated_blocks=0,block_fingerprint_mismatches=0,
             dsp_samples=count,endx_sample=metadata['endx_sample'],
