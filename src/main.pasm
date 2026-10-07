@@ -13713,3 +13713,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_recheck_nextattack.pasm"
 .include "core/vm/vm_source_check_range.pasm"
 .include "core/vm/vm_source_animation_range.pasm"
+
+.include "core/vm/vm_source_entity_range.pasm"

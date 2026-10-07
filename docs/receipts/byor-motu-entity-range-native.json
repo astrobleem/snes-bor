@@ -1,0 +1,19 @@
+{
+  "schema": "BYOR_MOTU_ENTITY_RANGE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proof": {
+    "path": "out/byor-motu-entity-range-native/report.json",
+    "cases": 284,
+    "sha256": "2419d7349ef5d660dd63f0d7192899e0ec937ba942537f8f3100c11a39651138"
+  },
+  "actual_entity_coordinates": true,
+  "current_mutable_role_handle": true,
+  "actual_birth_or_current_animation_cursor_not_used": true,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "combat_choice_body_bound": false,
+  "motu_gameplay_proven": false,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0,
+  "no_color_reduction": true
+}
