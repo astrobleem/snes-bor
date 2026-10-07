@@ -13657,6 +13657,7 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_ctor_owner.pasm"
 .include "core/vm/vm_source_stage_queue.pasm"
 .include "core/vm/vm_source_smartspawn.pasm"
+.include "core/vm/vm_source_entity_count.pasm"
 .include "core/vm/vm_source_random_float.pasm"
 .include "core/vm/vm_source_air.pasm"
 

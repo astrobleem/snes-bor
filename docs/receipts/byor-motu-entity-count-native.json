@@ -1,0 +1,29 @@
+{
+  "schema": "BYOR_MOTU_ENTITY_COUNT_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out\\byor-motu-entity-count-native\\report.json",
+  "proof_sha256": "af528a5df7d8e221a337dab8d321be069f281176e5de886ae906a0ac7c4316c0",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "function_sha256": "727838ce7586987e7106d1dab78093c5e7b20f181b24af3d429a4221c644ea53",
+  "cases": 100,
+  "rom_sha256": "1c9e8804ad85bff8d8158e2e4654ba17e239d25a0929a0e99775a0c9e69333d1",
+  "scope": "Actual source count_ents predicate for admitted low sixteen bit type masks; physical permutation does not affect the count",
+  "checks": [
+    "Mixed types, overlapping type masks, zero masks",
+    "32-bit existence values including high-word-only nonzero",
+    "Pool lengths 1,2,7,128",
+    "Invalid world/pool/length rejection",
+    "All physical entity bytes and CPU context unchanged"
+  ],
+  "bank": 62,
+  "bank0_free_before_nmi": 2,
+  "protected_files_unchanged": 17,
+  "audit": "ALL CHECKS PASS",
+  "audit_sha256": "5306f654cc6383dbb73e47fe8190eac11e55bbca9f49f86f8795d663db3f62ab",
+  "nonclaims": [
+    "Native stage dispatch",
+    "Live MOTU gameplay or completion"
+  ],
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
