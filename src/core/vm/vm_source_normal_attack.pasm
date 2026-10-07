@@ -131,3 +131,28 @@ SourceNormalAttack4086_PreflightBad:
 .i16
  sec
  rts
+SourceNormalAttack4086_CheckOwner:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ jsr SourceNormalAttack4086_Preflight
+ bcs SourceNormalAttack4086_OwnerBad
+ lda.l SourceNormalAttack4086_Slot
+ cmp.l SourceAI4086_Slot
+ bne SourceNormalAttack4086_OwnerBad
+ ply
+ plx
+ plp
+ clc
+ rtl
+SourceNormalAttack4086_OwnerBad:
+.a16
+.i16
+ ply
+ plx
+ plp
+ sec
+ rtl

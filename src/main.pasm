@@ -13700,3 +13700,4 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_common_run.pasm"
 .include "core/vm/vm_source_c_random.pasm"
 .include "core/vm/vm_source_normal_attack.pasm"
+.include "core/vm/vm_source_try_grab.pasm"

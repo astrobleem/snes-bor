@@ -1,0 +1,25 @@
+{
+  "schema": "BYOR_MOTU_TRY_GRAB_NULL_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-try-grab-authority/report.json",
+      "sha256": "cc19a97ebcd723c744f714e8799d5ddf66694a4d5750dd507ec0c184cf33d513",
+      "cases": 512
+    },
+    {
+      "path": "out/byor-motu-try-grab-native/report.json",
+      "sha256": "b628c2f11c97095a2540d885b0a1eca3627bea17571ea8e272756a1511001051",
+      "cases": 163
+    }
+  ],
+  "random_profile": "ACCEPTED_COMPAT_C_RUNTIME_RAND_WIN32",
+  "mandatory_rand_calls_per_authorized_invocation": 1,
+  "target_and_grab_services_bound": false,
+  "grounded_attack_integrated": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}
