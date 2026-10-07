@@ -1,0 +1,39 @@
+{
+  "schema": "BYOR_4086_FIXED_SPAWN_SLOT_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "evidence": {
+    "byor-motu-spawn-slot-authority": {
+      "report": "out/byor-motu-spawn-slot-authority/report.json",
+      "sha256": "881d8fc4d298d48ae86d5155b3c59e1f9e2f8a328fd2ff6094be21288d471a87",
+      "cases": 2560
+    },
+    "byor-motu-spawn-slot-native": {
+      "report": "out/byor-motu-spawn-slot-native/report.json",
+      "sha256": "3ad1635d2cade1d156f907af1115c7515a286ee2c1798779d0c374b9e1c4c7c3",
+      "cases": 2585
+    }
+  },
+  "entry": "SourceSpawnSlot4086_Select",
+  "resources": {
+    "code_bank": 62,
+    "bank0_growth": 0,
+    "control_span": [
+      "43B880",
+      "43B89C"
+    ]
+  },
+  "policy": "Read-only earliest source slot: first free slot or eligible negative-priority override in source scan order. Uses signed int32 priority and spawnoverride comparisons. A full fixed native pool is an explicit RESOURCE_LIMIT (status4,C1); nullable source model yields no choice.",
+  "model_priority_source": "Paired B4LI immutable current-model scalar capability; mutable priority APIs require a separate capability.",
+  "remaining": [
+    "execute real retirement when NeedKill=1",
+    "run named/script cleanup, factor copy, body setup and all default-init continuations before returning an entity token",
+    "prove authored live population fits the granted native capacity; dynamic heap growth is unbound"
+  ],
+  "audit": "out/byor-motu-spawn-slot-audit.log",
+  "heap_growth_bound": false,
+  "priority_kill_bound": false,
+  "full_constructor_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

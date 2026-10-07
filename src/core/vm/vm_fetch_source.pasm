@@ -69,6 +69,8 @@ Vm_FetchSourceInit:
     sta.l SourceFactors4086_Status
     sta.l SourceCtorState4086_Ready
     sta.l SourceCtorState4086_Status
+    sta.l SourceSpawnSlot4086_Ready
+    sta.l SourceSpawnSlot4086_Status
     sta.l SourceDefaultInit4086_Phase
     sta.l SourceDefaultInit4086_OwnerSlot
     sta.l SourceDefaultInit4086_Walk
