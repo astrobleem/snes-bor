@@ -1,0 +1,35 @@
+{
+  "schema": "BYOR_4086_STAGE_QUEUE_LOADER_RECEIPT_V1",
+  "status": "PASS",
+  "authority_report": "out/byor-motu-stage-queue-authority/report.json",
+  "authority_sha256": "5bc58989341ad75d2b87f90ed70c8461d7c331a75e7a6532beddce06bc75ae31",
+  "compiler_report": "out/byor-motu-stage-queue-inputs/report.json",
+  "compiler_report_sha256": "36ab04b41454cf897c19b1822c9362ad40c7c872a68196644383c9d1e44e0f55",
+  "table": "out/byor-motu-stage-queue-inputs/stage_queue.bin",
+  "table_sha256": "ac98f3b346f2a8f8864dccb6711ce9d7341b730434519bb2bc2918bb3c3a8958",
+  "table_bytes": 4504,
+  "row_stride": 128,
+  "source_stages": 2,
+  "source_records": 35,
+  "record_kinds": {
+    "spawn": 22,
+    "wait": 7,
+    "group": 5,
+    "empty": 1
+  },
+  "authority_cases": 107,
+  "authority_streams": 28,
+  "policy": "Verbatim pinned C SPAWN/WAIT/GROUP/AT and property loader cases. SPAWN resets then resolves model identity; WAIT/GROUP reset all pending properties; bare AT preserves an empty queue row; AT copies then clears. Health overrides cascade by player count. Original binary32 coordinates and offline Q16 projection are paired in each validated row. Alias and model identity remain source-derived. Unknown directives, queued scripts/music and unbound properties fail explicitly.",
+  "numeric_scope": "Authored MOTU queue coordinates are integral and exactly representable as Q16; general source floats retain binary32 bits and explicit projection metadata, not full live coordinate equivalence.",
+  "remaining": [
+    "native producer and actual queue admission/control",
+    "post-constructor smartspawn alias/health/map/boss properties and events",
+    "live enemy/player counts, wait/group, scrolling and completion"
+  ],
+  "stage_metadata_execution_bound": false,
+  "live_producer_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
