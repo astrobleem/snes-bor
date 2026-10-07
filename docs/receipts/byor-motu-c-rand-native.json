@@ -1,0 +1,42 @@
+{
+  "schema": "BYOR_MOTU_C_RUNTIME_RAND_WIN32_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-c-rand-authority/report.json",
+      "sha256": "26788de481161cc020a19eb77a0792daeec33b6955a985cd21f29c1e8632f2ba",
+      "cases": 512
+    },
+    {
+      "path": "out/byor-motu-c-rand-native/report.json",
+      "sha256": "7933c77e83a4a2defc1953ff4cdb607a34f86e9f7d539d5053190fb13b51f426",
+      "cases": 515
+    },
+    {
+      "path": "out/byor-motu-c-rand-constant-native/report.json",
+      "sha256": "12521397337ee566b080468c7caa7a885170f207b7847a35fe64509e864e0926",
+      "cases": 515
+    }
+  ],
+  "policy": "ACCEPTED_COMPAT_C_RUNTIME_RAND_WIN32; measured current msvcrt.dll, original 2014 engine CRT binary not verified",
+  "engine_rand32_stream_shared": false,
+  "multiplier_loop_iterations_before": 32,
+  "multiplier_loop_iterations_after": 18,
+  "observed_master_clocks_before": {
+    "min": 12068,
+    "max": 35254,
+    "average": 16757.921875
+  },
+  "observed_master_clocks_after": {
+    "min": 10648,
+    "max": 28522,
+    "average": 11226.97265625
+  },
+  "cost_observations_include_fixture_return_and_any_interrupts": true,
+  "world_owner_installed": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}

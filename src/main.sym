@@ -3249,6 +3249,7 @@
 08:8EBA Character_Pickup_CheckOverlap__vs5_dx_have
 0D:8EBB StageEnv_AliasName17
 3E:8EBD SourceDefaultChoice4086_Guard_6
+3F:8EBE SourceCRandom4086_Next
 0C:8EC1 Vm_Dec_DivModNUnsigned__skip
 08:8EC2 Character_Pickup_CheckOverlap__vs5_dx_ok
 3E:8EC2 SourceDefaultChoice4086_Guard_7
@@ -3257,16 +3258,19 @@
 0C:8EC5 Vm_Dec_Q16Mul
 0D:8EC9 StageEnv_AliasName19
 3E:8ECE SourceDefaultChoice4086_Guard_8
+3F:8ECF SourceCRandom4086_ReadyOk
 0D:8ED0 StageEnv_AliasName20
 07:8ED1 G13_PlayerScore_Add32__threshold_loop_p1
 0D:8ED7 StageEnv_AliasName21
 08:8ED9 Character_Pickup_CheckOverlap__vs5_dy_otherge
 00:8EDA Text_DrawScore32__do_subtract
 3E:8EDB SourceDefaultChoice4086_Guard_9
+3F:8EDB SourceCRandom4086_ProfileOk
 08:8EDE Character_Pickup_CheckOverlap__vs5_dy_have
 0D:8EDE StageEnv_AliasName22
 08:8EE3 Character_Pickup_CheckOverlap__vs5_dy_ok
 0D:8EE3 StageEnv_AliasName23
+3F:8EE4 SourceCRandom4086_Idle
 0D:8EE8 StageEnv_AliasName24
 0D:8EEE StageEnv_AliasName25
 0D:8EF2 StageEnv_AliasName26
@@ -3289,6 +3293,7 @@
 1C:8F19 Vm_SourceFrameLookup__directory
 0D:8F1A StageEnv_AliasName32
 3E:8F1A SourceDefaultChoice4086_Guard_11
+3F:8F1A SourceCRandom4086_Multiply
 00:8F1B Text_DrawScore32__emit
 03:8F1D Spawn_DoRosterReassign__failed
 03:8F1F Spawn_RevealPendingItems
@@ -3298,6 +3303,7 @@
 1C:8F29 Vm_SourceFrameLookup__program
 0D:8F2B StageEnv_AliasName35
 00:8F2D Text_DrawScore32__done
+3F:8F2D SourceCRandom4086_Shift
 00:8F2E Core_Text_DrawLabeledNumber__score
 07:8F30 G13_PlayerScore_Add32__done
 3E:8F30 SourceDefaultChoice4086_Guard_13
@@ -3333,6 +3339,7 @@
 03:8F7C Spawn_RevealPendingItems__check4
 00:8F7D Core_Text_G1Demo
 0D:8F7E StageEnv_AliasName44
+3F:8F80 SourceCRandom4086_Bad
 3E:8F82 SourceDefaultChoice4086_Done
 3E:8F82 SourceDefaultChoice4086_Guard_20
 0D:8F87 StageEnv_AliasName45
@@ -8974,6 +8981,15 @@
 00:43BD52 SourceCommonRun4086_Ready
 00:43BD54 SourceCommonRun4086_State
 00:43BD56 SourceCommonRun4086_End
+00:43BD56 SourceCRandom4086_Ready
+00:43BD58 SourceCRandom4086_SeedLo
+00:43BD5A SourceCRandom4086_SeedHi
+00:43BD5C SourceCRandom4086_CallsLo
+00:43BD5E SourceCRandom4086_CallsHi
+00:43BD60 SourceCRandom4086_Busy
+00:43BD62 SourceCRandom4086_Result
+00:43BD66 SourceCRandom4086_Profile
+00:43BD68 SourceCRandom4086_End
 00:43C000 SOURCE_MODEL_ANIMATION_CACHE
 00:43FB00 SOURCE_UPDATE_FRAME_QUAKE
 00:43FD80 SOURCE_RETIREMENT_ROLES
