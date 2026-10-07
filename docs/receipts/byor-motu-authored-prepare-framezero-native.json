@@ -1,0 +1,39 @@
+{
+  "schema": "BYOR_MOTU_AUTHORED_NORMAL_PREPARE_FRAME_ZERO_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-normal-prepare-authored-ai-final-native/report.json",
+      "sha256": "962cf794dab54a051d607b4659fce336d3a950eab30d79fbe10f31e05497e7ea",
+      "cases": 8
+    },
+    {
+      "path": "out/byor-motu-normal-prepare-consumed-guards-native/report.json",
+      "sha256": "ac38201357853626c0f4dff3ab38713f3968a644e374e494e1d1049056117919",
+      "cases": 10
+    }
+  ],
+  "actor": "Knightbot",
+  "authored_idle_handle": 74,
+  "authored_attack_handle": 79,
+  "target": "He_Man",
+  "target_idle_handle": 6,
+  "source_frame_zero_base": 40,
+  "source_frame_zero_delay_ticks": 16,
+  "script_program": 6,
+  "script_frame_zero_compiled_entry": 65535,
+  "source_frame_zero_has_no_command": true,
+  "actual_script_bind_initializer_callback_dispatch_and_cleanup": true,
+  "script_vm_portal_executes_empty_frame_route": true,
+  "script_instruction_execution_on_frame_zero": false,
+  "later_shockball_command_not_yet_proven": true,
+  "actual_ai_pending_and_continuation": true,
+  "fixture_request_consumed_during_nested_source_dispatch": true,
+  "private_bytecode_reservation_verified": true,
+  "production_runtime_modified": false,
+  "protected_dirty_tracked_files": 17,
+  "static_presentation_modified": false,
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

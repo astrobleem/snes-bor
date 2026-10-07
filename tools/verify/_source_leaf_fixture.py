@@ -26,9 +26,14 @@ LeafFixture_Gate:
  rep #$38
  phx
  phy
+ lda.l 8387378
+ cmp #$B4D8
+ beq LeafFixture_Return
  lda.l REQUEST
  cmp #MAGIC
  bne LeafFixture_Return
+ lda #0
+ sta.l REQUEST
 LeafFixture_Init:
 .a16
 .i16
@@ -58,6 +63,8 @@ LeafFixture_Result:
  bcs LeafFixture_Done
  and #7
  bne LeafFixture_Init
+ lda #MAGIC
+ sta.l REQUEST
  bra LeafFixture_Return
 LeafFixture_Bad:
 .a16
@@ -101,8 +108,9 @@ LeafFixture_Return:
     if apply not in sy:values['APPLY']=fs[apply]
     if probes:values.update({k:fs[v] for k,v in probes.items()})
     if any(bank==58 for bank,_,_ in tables) and raw[58*32768:59*32768]!=bytes(32768):raise ValueError('LEAF_BANK58_NOT_EMPTY')
+    if any(bank==38 for bank,_,_ in tables) and (sy.get('SourceVM_InstructionReservation')!=(38<<16|0x8000) or raw[38*32768:39*32768]!=bytes([255])*32768):raise ValueError('LEAF_SCRIPT_BANK38_NOT_RESERVED')
     for bank,at,data in tables:
-        if bank not in (58,59,60) or not 0<=at<=32768-len(data):raise ValueError('LEAF_TABLE_RESERVATION')
+        if bank not in (38,58,59,60) or not 0<=at<=32768-len(data):raise ValueError('LEAF_TABLE_RESERVATION')
         raw[bank*32768+at:bank*32768+at+len(data)]=data
     if raw[offset(entry):offset(entry)+5]!=bytes.fromhex('08 c2 31 da 5a'):raise ValueError('LEAF_GATE')
     raw[offset(entry):offset(entry)+5]=b'\x5c'+struct.pack('<I',fs['LeafFixture_Gate'])[:3]+b'\xea'
@@ -116,7 +124,7 @@ LeafFixture_Return:
         lua='emu.addMemoryCallback(function() emu.write('+str(sy['SourceLifecycle4086_Ready'])+',0,emu.memType.snesMemory); emu.write('+str(sy['SourceLifecycle4086_Ready']+1)+',0,emu.memType.snesMemory) end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,emu.memType.snesMemory)\n'+lua
     if 'SourceBirthCore4086_Ready' in sy:
         lua='emu.addMemoryCallback(function() emu.write('+str(sy['SourceBirthCore4086_Ready'])+',0,emu.memType.snesMemory); emu.write('+str(sy['SourceBirthCore4086_Ready']+1)+',0,emu.memType.snesMemory) end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,emu.memType.snesMemory)\n'+lua
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k in ('VmCode_Wram','VmSlots_Wram') or k.startswith(('SourceVMRun4086_','VmSourceCallback_','SourceRandom4086_','SourceCRandom4086_','SourcePlayerSpawnHeight4086_','SourceEmptyInitEnvironment4086_','SourceEnvironment4086_','SourceStageQueue4086_','SourceStageProducer4086_','SourceScrollerPrefix4086_','SourceStageCompletion4086_','SourceWait4086_','SourceCameraBounds4086_','SourceCameraMotion4086_','SourceScrollerOwner4086_','SourceVelocity4086_','SourceFreeze4086_','SourceLost4086_','SourceUpdateScript4086_','SourceAI4086_','SourceAIRun4086_','SourceCommonSpawn4086_','SourceAnythingWalk4086_','SourceCommonDrop4086_','SourceCommonThink4086_','SourceCommonRun4086_','SourceNormalAttack4086_','SourceNormalAttackRun4086_','SourceRecheckNextAttack4086_','SourceCheckRange4086_','SourceAnimationRange4086_','SourceEntityRange4086_','SourceCheckEnergy4086_','SourceAnimationEnergy4086_','SourceEntityEnergy4086_','SourceAttackChoiceProfile4086_','SourceAttackPicker4086_','SourceNormalChance4086_','SourceEntityNormalChance4086_','SourceAttackTiming4086_','SourceAttackDelay4086_','SourceAttackBody4086_','SourceCommonAttackProc4086_','SourceCommonAttackFinish4086_','SourceNormalPrepare4086_','SourceTryGrab4086_','SourceTryBlock4086_','SourceAttackEntry4086_','SourceCollisionFrame4086_','SourceModelAttackPolicy4086_','SourceAIReadonly4086_','SourceToss4086_','SourceSmartSpawn4086_','SourceTarget4086_','SourceTargetMeta4086_','SourceAITarget4086_','SourceTryNormalAttack4086_','VmSourceEntity_','SourceSpawnSlot4086_','SourceCtorOwner4086_','SourceCtorState4086_','SourceFactors4086_','SourceCtorModel4086_','SourceScriptClone4086_','SourceAnimationCallback4086_','SourceDefaultInit4086_','SourceDefaultPlayer4086_','SourceLifecycle4086_','SourceDefaultChoice4086_','SourceBirthCore4086_','VmSourceFrame_','VmSourceInstr_','VmSourceModels_','VmSourceCallback_','SourceVMRun4086_','VmCall_','VmNativeVariant_','SourceRetirement4086_','VmSourceVars_','SourceFrameEffect','SourceFrameMotion4086_','SourceUpdateFrame4086_','SourceSetIdle4086_','SourceIdle4086_','SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','SourceSelf4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_','VmState_'))})+'\n'+lua
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k in ('VmCode_Wram','VmSlots_Wram') or k.startswith(('SourceVMRun4086_','VmSourceCallback_','SourceRandom4086_','SourceCRandom4086_','SourcePlayerSpawnHeight4086_','SourceEmptyInitEnvironment4086_','SourceEnvironment4086_','SourceStageQueue4086_','SourceStageProducer4086_','SourceScrollerPrefix4086_','SourceStageCompletion4086_','SourceWait4086_','SourceCameraBounds4086_','SourceCameraMotion4086_','SourceScrollerOwner4086_','SourceVelocity4086_','SourceFreeze4086_','SourceLost4086_','SourceUpdateScript4086_','SourceAI4086_','SourceAIRun4086_','SourceCommonSpawn4086_','SourceAnythingWalk4086_','SourceCommonDrop4086_','SourceCommonThink4086_','SourceCommonRun4086_','SourceNormalAttack4086_','SourceNormalAttackRun4086_','SourceRecheckNextAttack4086_','SourceCheckRange4086_','SourceAnimationRange4086_','SourceEntityRange4086_','SourceCheckEnergy4086_','SourceAnimationEnergy4086_','SourceEntityEnergy4086_','SourceAttackChoiceProfile4086_','SourceAttackPicker4086_','SourceNormalChance4086_','SourceEntityNormalChance4086_','SourceAttackTiming4086_','SourceAttackDelay4086_','SourceAttackBody4086_','SourceCommonAttackProc4086_','SourceCommonAttackFinish4086_','SourceNormalPrepare4086_','SourceTryGrab4086_','SourceTryBlock4086_','SourceAttackEntry4086_','SourceCollisionFrame4086_','SourceModelAttackPolicy4086_','SourceAIReadonly4086_','SourceToss4086_','SourceSmartSpawn4086_','SourceTarget4086_','SourceTargetMeta4086_','SourceAITarget4086_','SourceTryNormalAttack4086_','VmSourceEntity_','SourceSpawnSlot4086_','SourceCtorOwner4086_','SourceCtorState4086_','SourceFactors4086_','SourceCtorModel4086_','SourceScriptClone4086_','SourceAnimationCallback4086_','SourceDefaultInit4086_','SourceDefaultPlayer4086_','SourceLifecycle4086_','SourceDefaultChoice4086_','SourceBirthCore4086_','VmSourceFrame_','VmSourceInstr_','VmSourceModels_','VmSourceCallback_','SourceVMRun4086_','VmCall_','VmNativeVariant_','SourceRetirement4086_','VmSourceVars_','SourceFrameEffect','SourceFrameMotion4086_','SourceUpdateFrame4086_','SourceSetIdle4086_','SourceIdle4086_','SourceModel','SourceWeapon4086_','SourceAnimationInit4086_','SourceSelf4086_','SourceClock4086_','SourceWorldTick4086_','SourceFrameStack4086_','VmSourceWorld_','VmState_','VmPriv_','VmStr_','Vm_Source'))})+'\n'+lua
     values.update(INIT=fs['LeafFixture_Init'],AFTER=fs['LeafFixture_After'],RESULT=fs['LeafFixture_Result'])
     if post:values['POSTRESULT']=fs['LeafFixture_Post']
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
@@ -138,6 +146,7 @@ LeafFixture_Return:
         if not completed:
             import json
             diagnostics=dict(index=startup.u16(m,INDEX),error=startup.u16(m,ERROR),request=startup.u16(m,REQUEST),game_state=startup.u16(m,startup.STATE),vm_status=startup.u16(m,sy['VmState_Status']))
+            diagnostics['owners']={k:startup.u16(m,sy[k]) for k in ('SourceVMRun4086_Ready','SourceVMRun4086_Busy','SourceVMRun4086_Status','SourceAnimationCallback4086_State','SourceNormalPrepare4086_Status','SourceScriptClone4086_Status','SourceUpdateFrame4086_State','SourceUpdateFrame4086_Pending','SourceAI4086_State') if k in sy}
             (folder/'incomplete.json').write_text(json.dumps(diagnostics,indent=2)+'\n')
             print('Incomplete leaf diagnostics:',diagnostics)
         reporter.check('native leaf batch completed',completed)
