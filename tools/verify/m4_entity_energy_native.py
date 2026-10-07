@@ -27,6 +27,7 @@ SETUP=r'''
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for k in ('rom','source','output'):p.add_argument('--'+k,type=Path,required=True)
+ p.add_argument('--action-owner',action='store_true')
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  ir=derive(Source(a.source));table=pack(ir);rows=[]
  for i,an in enumerate(ir['animations']):
@@ -38,6 +39,12 @@ def main():
  for c in rows[:16]:rows.append(dict(c,absent=True,expected=0))
  lua=OWNER_LUA[:OWNER_LUA.index('emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1];local phase=')]
  lua=lua.replace(' before={};',SETUP+' before={};').replace('{{0x414000,18432}', '{{0x437e00,2560},{0x40c000,12288},{sy.VmNativeVariant_Result,8},{sy.SourceRandom4086_Ready,12},{sy.SourceCRandom4086_Ready,18},{0x414000,18432}')
+ if a.action_owner:
+  rows=[c for c in rows if c['bad']not in ('common_ready','common_slot')]
+  rows.append(dict(rows[0],bad='action_state',fault=1))
+  lua=lua.replace("set('SourceAI4086_State',2)","set('SourceAI4086_State',c.bad=='action_state'and 2 or 1)")
+  lua=lua.replace(' before={};',"set('SourceCommonThink4086_Ready',0);set('SourceCommonThink4086_State',0);set('SourceCommonThink4086_Slot',65535)\n before={};")
+
  lua+=r'''
 emu.addMemoryCallback(function()local st=emu.getState();cpu={};for _,k in ipairs({'x','y','d','dbr','sp','ps'})do cpu[k]=st['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,APPLY,APPLY,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
@@ -52,7 +59,7 @@ end,emu.callbackType.exec,AFTER,AFTER,emu.cpuType.snes,mt)
  expected=[[i,0,0,3 if c['fault']else 2,55 if c['fault']else c['expected']]for i,c in enumerate(rows)]
  failures=[dict(input=c,actual=v,expected=e)for c,v,e in zip(rows,actual,expected)if v!=e]
  reporter.check('actual current health/dynamic MP/scalar seal/current role handle; no birth-cursor/max-resource/timer substitution; CPU/entities/VM/RNG retained',len(actual)==len(rows)and not failures)
- r=dict(schema='BYOR_4086_ENTITY_ENERGY_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',cases=len(rows),inputs=rows,actual=actual,expected=expected,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),table_sha256=hashlib.sha256(table).hexdigest(),actual_entity_binding=True,current_mutable_animation_binding=True,combat_choice_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
+ r=dict(schema='BYOR_4086_ENTITY_ENERGY_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',cases=len(rows),inputs=rows,actual=actual,expected=expected,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),table_sha256=hashlib.sha256(table).hexdigest(),actual_entity_binding=True,actual_action_owner=a.action_owner,current_mutable_animation_binding=True,combat_choice_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
  (a.output/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
 if __name__=='__main__':main()

@@ -1,4 +1,4 @@
-; Actual common_think range query. A=target physical slot (FFFF=NULL), X=role.
+; Actual check_range under think or action ownership. A=target physical slot (FFFF=NULL), X=role.
 ; Reads current mutable animation cache; no birth-model identity substitution.
 ; Neither source macro nor this adapter inserts target exists/dead filtering.
 ; Numeric predicate is explicit ACCEPTED_COMPAT_Q16_16.
@@ -41,7 +41,20 @@ SourceEntityRange4086_Start:
 .i16
  lda #1
  sta.l SourceEntityRange4086_Status
+ ; Range/energy are source helpers for both think and takeaction bodies.
+ ; Dispatch on the actual AI owner; a failed think lease is never bypassed.
+ lda.l SourceAI4086_State
+ cmp #1
+ bne SourceEntityRange4086_ThinkOwner
+ jsl SourceAI4086_CheckOwner
+ jmp SourceEntityRange4086_OwnerResult
+SourceEntityRange4086_ThinkOwner:
+.a16
+.i16
  jsl SourceCommonThink4086_CheckOwner
+SourceEntityRange4086_OwnerResult:
+.a16
+.i16
  bcc SourceEntityRange4086_Guard3
  jmp SourceEntityRange4086_Bad
 SourceEntityRange4086_Guard3:

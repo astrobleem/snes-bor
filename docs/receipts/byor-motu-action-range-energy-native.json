@@ -1,0 +1,36 @@
+{
+  "schema": "BYOR_MOTU_ACTION_RANGE_ENERGY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-action-range-native/report.json",
+      "sha256": "440817c38c492d326107e57196e579c36984aeed3c3b471118498a72bf5101cd",
+      "cases": 283
+    },
+    {
+      "path": "out/byor-motu-action-energy-native/report.json",
+      "sha256": "66ba77a14bb3fcf67a242794d6604b08a6c406a981f3b06c9b7699ff3282ae06",
+      "cases": 360
+    },
+    {
+      "path": "out/byor-motu-action-range-think-regression-native/report.json",
+      "sha256": "d1b84ba6eb81fb9469a1c756345de089ce4a00e75a49663c16276e610fe07b63",
+      "cases": 284
+    },
+    {
+      "path": "out/byor-motu-action-energy-think-regression-native/report.json",
+      "sha256": "0b99c5b8f5a8f0f577ec0302b2a03f2b1dbcb3e954d965f0f0d0fec4a80020a6",
+      "cases": 361
+    }
+  ],
+  "actual_ai_state_selects_action_or_think_owner": true,
+  "action_proofs_disable_common_think_lease": true,
+  "invalid_action_owner_rejected": true,
+  "existing_think_predicates_preserved": true,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "normal_prepare_present_attack_selection_bound": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

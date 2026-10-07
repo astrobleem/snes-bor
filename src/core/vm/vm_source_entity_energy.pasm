@@ -1,4 +1,4 @@
-; Actual common_think check_energy(Which,Role), over the current model cache.
+; Actual AI-owned check_energy(Which,Role), over the current model cache.
 ; MP is dynamic entity MP (+76), health is actual typed view health, seal is
 ; the separately initialized combat scalar, NOT the sealtime timer.
 SourceEntityEnergy4086_Ready = $43BE9E
@@ -37,7 +37,20 @@ SourceEntityEnergy4086_Start:
 .i16
  lda #1
  sta.l SourceEntityEnergy4086_Status
+ ; Range/energy are source helpers for both think and takeaction bodies.
+ ; Dispatch on the actual AI owner; a failed think lease is never bypassed.
+ lda.l SourceAI4086_State
+ cmp #1
+ bne SourceEntityEnergy4086_ThinkOwner
+ jsl SourceAI4086_CheckOwner
+ jmp SourceEntityEnergy4086_OwnerResult
+SourceEntityEnergy4086_ThinkOwner:
+.a16
+.i16
  jsl SourceCommonThink4086_CheckOwner
+SourceEntityEnergy4086_OwnerResult:
+.a16
+.i16
  bcc SourceEntityEnergy4086_Guard3
  jmp SourceEntityEnergy4086_Bad
 SourceEntityEnergy4086_Guard3:
