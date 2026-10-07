@@ -1,0 +1,44 @@
+{
+  "schema": "BYOR_MOTU_COMMON_RUN_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-common-think-authority/report.json",
+      "sha256": "437935019fa347ef86e7c845ed5c019ddee8dd7a9474a650ff3435abe9481765",
+      "cases": 240
+    },
+    {
+      "path": "out/byor-motu-common-run-native/report.json",
+      "sha256": "439e62040dc4feeeb9ac8a7b4926117c0f6db840c5a1ed302f57183fcbeec597",
+      "cases": 119
+    },
+    {
+      "path": "out/byor-motu-common-enemy-air-world-native/report.json",
+      "sha256": "4c55bf80157b4d689ffe28a9ab425f0c979ce0382d90e049276250b9188a11cf",
+      "cases": 402
+    },
+    {
+      "path": "out/byor-motu-common-ground-unbound-native/report.json",
+      "sha256": "100c9b54da06299315f27f9bcca9a3d071846fd81dc250e85f5803f4529cc449",
+      "cases": 48
+    }
+  ],
+  "native_service_responses_instrumented": false,
+  "world_common_enemy_calls": 726,
+  "world_cases": 402,
+  "world_current_enemy_metadata_source_derived": true,
+  "world_enemy_styles_controlled_normal": true,
+  "world_enemy_coordinates_held_airborne": true,
+  "world_other_gameplay_services_instrumented": true,
+  "common_enemy_entry_integrated": true,
+  "grounded_normal_attack_bound": false,
+  "grounded_common_move_bound": false,
+  "initialized_special_handlers_bound": false,
+  "linked_grab_handlers_bound": false,
+  "numeric_policy": "ACCEPTED_COMPAT Q16 inair >=6554",
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}

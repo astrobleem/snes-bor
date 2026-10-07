@@ -284,6 +284,21 @@ SourceAIRun4086_Far31:
 .a16
 .i16
  lda.l SourceAI4086_Callback
+ cmp #6
+ bne SourceAIRun4086_NotCommonThink
+ lda #0
+ sta.l SourceCommonRun4086_State
+ jsl SourceCommonRun4086_Begin
+ bcc SourceAIRun4086_CommonThinkDone
+ jmp SourceAIRun4086_Bad
+SourceAIRun4086_CommonThinkDone:
+.a16
+.i16
+ lda #2
+ jmp SourceAIRun4086_Resume
+SourceAIRun4086_NotCommonThink:
+.a16
+.i16
  cmp #15
  beq SourceAIRun4086_Far32
  jmp SourceAIRun4086_Bad

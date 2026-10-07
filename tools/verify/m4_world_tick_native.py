@@ -36,6 +36,8 @@ def main():
     p.add_argument('--expected-velocity',nargs=3,type=float,default=[-1.5,-0.75,0.25],metavar=('X','Z','Y'))
     p.add_argument('--script-toss-count',type=int,default=0)
     p.add_argument('--ai-backend',action='store_true',help='actual AI dispatcher, closed no-action/no-think fixture; requires update-method-source')
+    p.add_argument('--common-enemy-air',action='store_true',help='actual common enemy thinker with authored enemy model/animation metadata, controlled normal styles and airborne coordinates')
+    p.add_argument('--case-index',type=int,help='Run one case after backend filtering for bounded failure isolation.')
     p.add_argument('--update-method-source',type=Path,help='validate and execute metadata-derived uninitialized update methods; requires lost backend')
     p.add_argument('--lost-backend',action='store_true',help='execute actual lost decision and no-event retirement; other death/damage handlers remain unbound')
     p.add_argument('--freeze-backend',action='store_true',help='execute actual source mark/freeze/timer services; other gameplay handlers remain instrumented')
@@ -44,12 +46,14 @@ def main():
     if a.lost_backend and (not a.freeze_backend or a.script_source):raise ValueError('LOST_FIXTURE_REQUIRES_FREEZE_BACKEND_AND_CLOSED_NO_SCRIPT_SCOPE')
     if a.update_method_source and not a.lost_backend:raise ValueError('UPDATE_METHOD_FIXTURE_REQUIRES_LOST_BACKEND')
     if a.ai_backend and not a.update_method_source:raise ValueError('AI_FIXTURE_REQUIRES_UPDATE_METHOD_SOURCE')
+    if a.common_enemy_air and not a.ai_backend:raise ValueError('COMMON_ENEMY_FIXTURE_REQUIRES_AI_BACKEND')
     folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     authority=json.loads((a.authority/'report.json').read_text());rows=cases()
     if authority['status']!='PASS' or [r['case'] for r in authority['results']]!=rows:
         raise ValueError('WORLD_TICK_PINNED_AUTHORITY_REQUIRED')
     if a.update_method_source:rows=[r for r in rows if r['kill_stage']!=5]
     if a.ai_backend:rows=[r for r in rows if r['kill_stage']!=6]
+    if a.case_index is not None:rows=[rows[a.case_index]]
     sy=symbols(Path('src/main.sym'));rom=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate'];start=39*32768
     callback=None;callback_blob=None
     if a.script_source:
@@ -433,7 +437,7 @@ emu.addMemoryCallback(function()
  local i=word(FAULTINDEX)
  emu.log('WORLDTICKFAULT|'..i..'|'..word(sy.SourceWorldTick4086_Fault)..'|'..dw(sy.SourceClock4086_TimeLo)..'|'..word(sy.SourceClock4086_Due))
 end,emu.callbackType.exec,FAULTOBSERVE,FAULTOBSERVE,emu.cpuType.snes,mt)
-'''.replace('FIXTURES',fixture).replace('SYMBOLS','{'+','.join(k+'='+str(v) for k,v in sy.items() if k.startswith(('SourceWorldTick4086_','SourceClock4086_','VmSourceWorld_','VmState_','SourceVelocity4086_','SourceFreeze4086_','SourceLost4086_','SourceSelf4086_','SourceUpdateScript4086_','SourceAI4086_','SourceAIRun4086_')))+'}')
+'''.replace('FIXTURES',fixture).replace('SYMBOLS','{'+','.join(k+'='+str(v) for k,v in sy.items() if k.startswith(('SourceWorldTick4086_','SourceClock4086_','VmSourceWorld_','VmState_','SourceVelocity4086_','SourceFreeze4086_','SourceLost4086_','SourceSelf4086_','SourceUpdateScript4086_','SourceAI4086_','SourceAIRun4086_','SourceCommonRun4086_','SourceCommonThink4086_')))+'}')
     script_definitions=script_init=script_prepare=''
     if callback:
         count,slots=struct.unpack_from('<2H',callback_blob,8);offsets=struct.unpack_from('<6I',callback_blob,24)
@@ -530,6 +534,25 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
         velocity_init+='\n'.join(f'put({sy[k]},{v},2)'for k,v in settings.items())+'\n'
         velocity_init+='for j=0,4095 do put(0x43c000+j,0,1)end;for s=0,c.n-1 do put(0x416804+s*64,1,2);put(0x439000+s*80,0,4);put(0x43900c+s*80,0,4);put(0x42f400+s*24,0,4);put(0x416814+s*64,c.time,4);put(0x41f510+s*20,1,2)end\n'
         lua+=f"emu.addMemoryCallback(function()local s=word(sy.SourceWorldTick4086_Slot);emu.log('WORLDTICKAI|'..word(INDEX)..'|'..s..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..dw(0x42e024+s*40))end,emu.callbackType.exec,{fs['WorldTickFixture_AIObserved']},{fs['WorldTickFixture_AIObserved']},emu.cpuType.snes,mt)\n"
+    enemy_descriptor=None
+    if a.common_enemy_air:
+        from source_model_switch_requirements import derive as model_requirements,pack_animation_cache
+        from source_lifecycle_inputs import derive as lifecycle_inputs
+        requirements=model_requirements(source);animation_cache=pack_animation_cache(requirements);maximum=requirements['maximum_animations']
+        (folder/'common_animation_cache.bin').write_bytes(animation_cache)
+        enemies=[m for m in requirements['models']if m['declared_type']=='enemy'];life=lifecycle_inputs(source)
+        if not enemies:raise ValueError('COMMON_ENEMY_FIXTURE_NO_AUTHORED_ENEMIES')
+        enemy_descriptor=[]
+        for m in enemies:
+            handles={n:struct.unpack_from('<H',animation_cache,(m['id']*maximum+n)*2)[0]for n in (0,21,36,49)}
+            if not handles[0]or any(handles[n]for n in (21,36,49)):raise ValueError('COMMON_ENEMY_FIXTURE_UNBOUND_ANIMATION_HANDLER')
+            enemy_descriptor.append(dict(id=m['id'],identity=m['identity'],source_sha256=m['source_sha256'],idle_handle=handles[0],subtype=life['models'][m['id']]['fields']['subtype']))
+        settings=dict(SourceCommonRun4086_Ready=0xb5e9,SourceCommonRun4086_State=0,SourceCommonThink4086_Ready=0xb5e7,SourceCommonThink4086_State=0,SourceAIReadonly4086_Ready=0xb5e8,SourceAIReadonly4086_Status=0,SourceModelAnimationCopy4086_Maximum=maximum,SourceModelAnimationCopy4086_Bytes=len(animation_cache))
+        velocity_init+='\n'.join(f'put({sy[k]},{v},2)'for k,v in settings.items())+'\n'
+        velocity_init+='local acache={'+','.join(str(b)for b in animation_cache)+'};for j=0,#acache-1 do put(0x43c000+j,acache[j+1],1)end\n'
+        velocity_init+='local enemies={'+','.join('{'+','.join(str(m[k])for k in ('id','idle_handle','subtype'))+'}'for m in enemy_descriptor)+'};for s=0,c.n-1 do local e=enemies[s%#enemies+1];put(0x416800+s*64,e[1],2);put(0x416804+s*64,e[2],2);put(0x40902c+s*64,masks[e[1]+1],4);put(0x439000+s*80,6,4);put(0x439014+s*80,0,4);put(0x439030+s*80,e[3],4);put(0x43eb00+s*32,3,4);put(0x40c034+s*96,0,4);put(0x40c038+s*96,0,4);put(0x40c058+s*96,0,4);put(0x41400c+s*80,65536,4);put(0x416830+s*64,0,4)end\n'
+        lua+=f"emu.addMemoryCallback(function()local s=word(sy.SourceWorldTick4086_Slot);emu.log('WORLDTICKCOMMON|'..word(INDEX)..'|'..s..'|'..word(sy.SourceCommonRun4086_State)..'|'..word(sy.SourceCommonThink4086_State)..'|'..dw(0x416814+s*64))end,emu.callbackType.exec,{fs['WorldTickFixture_AIObserved']},{fs['WorldTickFixture_AIObserved']},emu.cpuType.snes,mt)\n"
+        lua+=f"emu.addMemoryCallback(function()local s=word(sy.SourceAI4086_Slot);emu.log('COMMONAIFAULT|'..word(INDEX)..'|'..s..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceCommonRun4086_State)..'|'..word(sy.SourceCommonThink4086_State)..'|'..word({sy['SourceAIReadonly4086_Status']})..'|'..dw(0x41400c+s*80)..'|'..dw(0x416830+s*64)..'|'..word(0x416800+s*64)..'|'..dw(0x40902c+s*64)..'|'..word({sy['SourceScriptClone4086_Status']}))end,emu.callbackType.exec,{sy['SourceAIRun4086_Bad']},{sy['SourceAIRun4086_Bad']},emu.cpuType.snes,mt)\n"
     lua=lua.replace('SCRIPTDEFINITIONS',script_definitions).replace('SCRIPTINIT',velocity_init+script_init).replace('SCRIPTPREPARE',script_prepare)
     for key,value in dict(INDEX=INDEX,INIT=fs['WorldTickFixture_Init'],OBSERVE=fs['WorldTickFixture_Observe'],RESULT=fs['WorldTickFixture_Result'],
         FAULTINDEX=FAULT_INDEX,FAULTINIT=fs['WorldTickFixture_FaultInit'],FAULTOBSERVE=fs['WorldTickFixture_FaultObserved']).items():
@@ -551,7 +574,7 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('WORLD_TICK_NATIVE_BOOTSTRAP')
         run_frames_exact(m,12);m.write_u16(REQUEST,0xb4d6)
-        for _ in range(128 if callback else 12):
+        for _ in range(128 if callback else 24 if a.common_enemy_air else 12):
             run_frames_exact(m,60)
             if (startup.u16(m,INDEX)==len(rows) and startup.u16(m,FAULT_INDEX)==10) or startup.u16(m,ERROR):break
         reporter.check('native traversal batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,FAULT_INDEX)==10 and startup.u16(m,ERROR)==0)
@@ -587,7 +610,11 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
     reporter.check('invalid ownership and incomplete services reject without clock mutation',
                    faults==[[i,1,49 if i==5 else 48,1] for i in range(10)])
     if a.ai_backend:
-        reporter.check('actual no-callback AI dispatch completes and marks source update before owner acknowledgement',ai_results==[[i,slot,2,5,2]for i,r in enumerate(actual)for phase,slot in r['events']if phase==6] and bool(ai_results))
+        reporter.check('actual AI dispatch completes and marks source update before owner acknowledgement',ai_results==[[i,slot,2,5,2]for i,r in enumerate(actual)for phase,slot in r['events']if phase==6] and bool(ai_results))
+    common_enemy_results=[]
+    if a.common_enemy_air:
+        common_enemy_results=[list(map(int,l.split('WORLDTICKCOMMON|',1)[1].split('|')))for l in (folder/'mesen.log').read_text().splitlines()if 'WORLDTICKCOMMON|'in l]
+        reporter.check('real common enemy thinker completes before AI/world acknowledgement and schedules unsigned nextthink from source time',common_enemy_results==[[i,slot,2,9,(rows[i]['time']+2)&0xffffffff]for i,r in enumerate(actual)for phase,slot in r['events']if phase==6]and bool(common_enemy_results))
     if a.update_method_source:
         reporter.check('metadata-derived uninitialized update methods complete before acknowledgement',update_method_results==[[i,slot,2]for i,r in enumerate(actual)for phase,slot in r['events']if phase==5] and bool(update_method_results))
     if a.lost_backend:
@@ -613,7 +640,7 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
         rom_sha256=hashlib.sha256(rom).hexdigest(),authority_functions_sha256=authority['functions_sha256'],
         cases=len(rows),events=sum(len(r['events']) for r in actual),comparisons=comparisons,
         rejections=faults,early_direct_clock_commit_rejections=len(rows),
-        ai_backend=a.ai_backend,ai_results=ai_results,update_method_descriptor=update_descriptor,update_method_results=update_method_results,callback=callback,script_results=script_results,velocity_backend=a.velocity_backend,velocity_results=velocity_results,clear_results=clear_results,freeze_backend=a.freeze_backend,freeze_results=freeze_results,lost_backend=a.lost_backend,lost_results=lost_results,
+        ai_backend=a.ai_backend,ai_results=ai_results,common_enemy_air=a.common_enemy_air,common_enemy_descriptor=enemy_descriptor,common_enemy_results=common_enemy_results,common_enemy_styles_controlled_normal=a.common_enemy_air,common_enemy_coordinates_held_airborne=a.common_enemy_air,common_enemy_animation_cache_sha256=hashlib.sha256(animation_cache).hexdigest()if a.common_enemy_air else None,update_method_descriptor=update_descriptor,update_method_results=update_method_results,callback=callback,script_results=script_results,velocity_backend=a.velocity_backend,velocity_results=velocity_results,clear_results=clear_results,freeze_backend=a.freeze_backend,freeze_results=freeze_results,lost_backend=a.lost_backend,lost_results=lost_results,
         bank0_growth=0,live_gameplay_handlers_bound=False,motu_gameplay_proven=False)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 

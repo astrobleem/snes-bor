@@ -13697,3 +13697,4 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_common_think.pasm"
 
 .include "core/vm/vm_source_ai_readonly.pasm"
+.include "core/vm/vm_source_common_run.pasm"
