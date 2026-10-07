@@ -1,0 +1,38 @@
+{
+  "schema": "BYOR_MOTU_NORMAL_PREPARE_PREFIX_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-normal-prepare-real-target-native/report.json",
+      "sha256": "4a87a9fd3e921ac8867c2734ba0d2ffdf6647618e2ead9867a5e3e11b3e0dd8e",
+      "cases": 576
+    },
+    {
+      "path": "out/byor-motu-normal-prepare-ai-dispatch-native/report.json",
+      "sha256": "3ee02ef8f6bde00b092f17bbdacea88eac34116ff5513c29131ff4ac7d45a501",
+      "cases": 576
+    },
+    {
+      "path": "out/byor-motu-normal-prepare-guards-native/report.json",
+      "sha256": "14a5a9b37d47770325e6798eda085e9c16394fded745d7b010545fd943fe3606",
+      "cases": 65
+    },
+    {
+      "path": "out/byor-motu-callback-registry-default-authority/report.json",
+      "sha256": "3cfb03656ef7a6741711b7e3d43f48291d27180687586687e1d8860e497aa57f",
+      "cases": 3167
+    }
+  ],
+  "stable_callback_id": 16,
+  "prior_fifteen_callback_ids_unchanged": true,
+  "actual_ai_dispatcher_executed": true,
+  "domain": "Actual target query, NULL-target return, full32 noflip, source direction, unsigned wait, NULL weapon and no normal/special roles with chainlength <= 1",
+  "guard_cases": 65,
+  "present_turn_weapon_attack_chain_branches_explicit_fault": true,
+  "present_attack_selection_bound": false,
+  "source_animation_frame_zero_pending_bound": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

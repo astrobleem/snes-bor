@@ -5,7 +5,7 @@ from dialect_4086 import ENGINE_COMMIT
 from script_nested_authority import extract
 from source_default_init_4086 import initialize,Service
 
-CALLBACKS=['player_takedamage','player_think','player_trymove','common_spawn','common_drop','common_think','biker_takedamage','arrow_takedamage','common_trymove','common_takedamage','trap_think','obstacle_takedamage','steamer_think','text_think','anything_walk']
+from source_engine_function_ids import CALLBACKS
 ANIMS=['idle','spawn','respawn','select','jump','walk']
 FIELDS=['nograb','attacking','health','dead','invincible','blink','invinctime','arrowon','playerindex','direction','ptype']
 MODELFIELDS=['multiple','subject_to_gravity','no_adjust_base']

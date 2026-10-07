@@ -13736,3 +13736,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_attack_delay.pasm"
 
 .include "core/vm/vm_source_attack_body.pasm"
+
+.include "core/vm/vm_source_normal_prepare.pasm"

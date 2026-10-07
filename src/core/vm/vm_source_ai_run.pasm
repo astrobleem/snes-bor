@@ -234,6 +234,19 @@ SourceAIRun4086_Far25:
 SourceAIRun4086_Far26:
 .a16
 .i16
+ cmp #16
+ bne SourceAIRun4086_NotNormalPrepare
+ jsl SourceNormalPrepare4086_Execute
+ bcc SourceAIRun4086_NormalPrepareDone
+ jmp SourceAIRun4086_Bad
+SourceAIRun4086_NormalPrepareDone:
+.a16
+.i16
+ lda #1
+ jmp SourceAIRun4086_Resume
+SourceAIRun4086_NotNormalPrepare:
+.a16
+.i16
  cmp #5
  beq SourceAIRun4086_Far27
  jmp SourceAIRun4086_Bad
