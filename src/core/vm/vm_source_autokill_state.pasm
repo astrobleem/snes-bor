@@ -35,7 +35,7 @@ SourceAutokillState4086_SpanGood:
 .i16
  pla
  plp
- clc
+ jsl SourceOffscreenState4086_CheckCacheSpan
  rtl
 SourceAutokillState4086_SpanBad:
 .a16

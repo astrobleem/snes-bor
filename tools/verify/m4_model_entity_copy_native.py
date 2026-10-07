@@ -19,7 +19,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--authority',type=Path,required=True)
     p.add_argument('--lifecycle',type=Path,help='Enable paired current-model scalar installation')
     p.add_argument('--attack-policy',type=Path,help='Pinned C model attack policy authority report')
-    p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--offscreen-state',action='store_true');p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     authority=json.loads(a.authority.read_text())
     if authority['status']!='PASS' or authority['functions_sha256']!='b986f6344bb027ff9bbc61f30375b49503941b5088906fd09aa7dc564b3d0c35':
@@ -64,6 +64,11 @@ def main():
         policy=json.loads(a.attack_policy.read_text());assert policy['status']=='PASS'
         for bad in ('policy_ready','policy_models','policy_pair'):rows.append(dict(base,fault=1,bad=bad,after=base['before'],want=base['view']))
         for i,c in enumerate(rows):c['policy']=list(struct.pack('<4i',*policy['actual'][i%len(policy['actual'])]))
+    if a.offscreen_state:
+        from source_offscreen_inputs import pack as pack_offscreen
+        offscreen_table=pack_offscreen(dict(models=[dict(id=0,offscreenkill=0),dict(id=1,offscreenkill=-2147483648)]))
+        for bad in ('offscreen_ready','offscreen_cache','offscreen_table'):
+            rows.append(dict(base,fault=1,bad=bad,after=base['before'],want=base['view']))
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(a.rom.read_bytes())
     if raw[first:first+32768]!=bytes(32768) or raw[0x7fd8]!=8:raise ValueError('MODEL_ENTITY_PROOF_RESERVED_ROM_OR_BWRAM')
     asm='''.snes
@@ -145,6 +150,8 @@ EntityCopyFixture_Return:
     fs=symbols(folder/'fixture.sym');code=(folder/'fixture.bin').read_bytes()[first:]
     if raw[offset(entry):offset(entry)+5]!=bytes.fromhex('08 c2 31 da 5a'):raise ValueError('MODEL_ENTITY_PROOF_GATE')
     raw[first:first+len(code)]=code;raw[offset(entry):offset(entry)+5]=b'\x5c'+struct.pack('<I',fs['EntityCopyFixture_Gate'])[:3]+b'\xea'
+    if a.offscreen_state:
+        assert raw[60*32768:61*32768]==bytes(32768);raw[60*32768:60*32768+len(offscreen_table)]=offscreen_table
     if lifetable:
         assert raw[59*32768:60*32768]==bytes(32768);raw[59*32768:59*32768+len(lifetable)]=lifetable
     rom=folder/'bor.sfc';rom.write_bytes(raw)
@@ -156,7 +163,7 @@ EntityCopyFixture_Return:
         if isinstance(value,list):return '{'+','.join(luav(v) for v in value)+'}'
         if isinstance(value,dict):return '{'+','.join(k+'='+luav(v) for k,v in value.items())+'}'
         return str(value)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceLifecycle4086_','SourceModelAttackPolicy4086_','SourceModelEntityCopy4086_','VmSourceWorld_'))})+'\n'
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceOffscreenState4086_','SourceAutokillState4086_','SourceMovementState4086_','SourceAttackCostState4086_','SourceModelAnimationCopy4086_','SourceLifecycle4086_','SourceModelAttackPolicy4086_','SourceModelEntityCopy4086_','VmSourceWorld_'))})+'\n'
     lua+='local lifeenabled='+str(bool(lifetable)).lower()+'\nlocal lifetable='+luav(list(lifetable))+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local cpu={};local start=0;local context_faults=0
@@ -245,6 +252,19 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
  for j=0,31 do local expected=j<16 and 0xa5 or c.policy[j-15];if emu.read(0x40bc00+j,mt)~=expected then cachefault=cachefault+1 end end
 """
         lua=lua.replace(" emu.log('ENTITYCOPYRESULT|",check+" emu.log('ENTITYCOPYRESULT|")
+    if a.offscreen_state:
+        setup="""
+ put(sy.SourceOffscreenState4086_Ready,c.bad=='offscreen_ready'and 0xb611 or 0xb610);put(sy.SourceOffscreenState4086_Base,c.bad=='offscreen_table'and 0x8002 or 0x8000);put(sy.SourceOffscreenState4086_Bank,60);put(sy.SourceOffscreenState4086_Bytes,40);put(sy.SourceOffscreenState4086_Models,2)
+ put(sy.SourceAutokillState4086_Ready,0xb60e);put(sy.SourceMovementState4086_Ready,0xb60b);put(sy.SourceAttackCostState4086_Ready,0xb609);put(sy.SourceModelAnimationCopy4086_Ready,0xb4e9);put(sy.SourceModelAnimationCopy4086_Bytes,c.bad=='offscreen_cache'and 5634 or 5376)
+ for j=0,8191 do emu.write(0x43c000+j,(j*17+91)&255,mt)end
+"""
+        lua=lua.replace(" set('Ready',0xb4eb)",setup+" set('Ready',0xb4eb)")
+        check="""
+ for j=0,8191 do local off=j-(0x1600+c.slot*4);local expected=(j*17+91)&255;if c.fault==0 and off>=0 and off<4 then expected=off==3 and 128 or 0 end;if emu.read(0x43c000+j,mt)~=expected then mismatch=mismatch+1 end end
+"""
+        lua=lua.replace(" emu.log('ENTITYCOPYRESULT|",check+" emu.log('ENTITYCOPYRESULT|")
+    else:
+        lua=lua.replace(" put(sy.SourceLifecycle4086_Ready,0)"," put(sy.SourceOffscreenState4086_Ready,0)\n put(sy.SourceLifecycle4086_Ready,0)")
     script=folder/'observer.lua';script.write_text(lua)
     class Observed(McpSession):
         def __enter__(self):
@@ -275,7 +295,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
         core_fields=ENTITY_CORE_FIELDS,cache_fields=CACHED_FIELDS,cache_range='40B000..40B9FF',entity_range='40C000..40EFFF',
         source_type_policy='Install new model type now; return original entity type for restoration after source animation initialization.',
         current_model_lifecycle_installation_proven=bool(lifetable),lifecycle_table_sha256=hashlib.sha256(lifetable).hexdigest() if lifetable else None,
-        current_model_speed_installation_proven=True,speed_numeric_policy='ACCEPTED_COMPAT_Q16_16',source_float_arithmetic_equivalence=False,
+        current_model_speed_installation_proven=True,offscreen_model_field_replaced=a.offscreen_state,speed_numeric_policy='ACCEPTED_COMPAT_Q16_16',source_float_arithmetic_equivalence=False,
         model_attack_policy_installed=bool(a.attack_policy),model_attack_policy_authority_sha256=hashlib.sha256(a.attack_policy.read_bytes()).hexdigest()if a.attack_policy else None,
         full_model_switch_bound=False,animation_initialization_bound=False,live_presentation_contention_proven=False,
         motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)

@@ -216,6 +216,15 @@ SourceModelEntityCopy4086_TimingChecked:
 SourceModelEntityCopy4086_BodyChecked:
 .a16
 .i16
+ lda.l SourceModelEntityCopy4086_Model
+ tax
+ lda.l SourceModelEntityCopy4086_Slot
+ jsl SourceOffscreenState4086_PreflightModel
+ bcc SourceModelEntityCopy4086_OffscreenCopied
+ jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_OffscreenCopied:
+.a16
+.i16
     lda.l SourceLifecycle4086_Ready
     beq SourceModelEntityCopy4086_LifecycleDone
     lda.l SourceModelEntityCopy4086_Slot
@@ -503,6 +512,15 @@ SourceModelEntityCopy4086_TimingCopied:
  bcc SourceModelEntityCopy4086_BodyCopied
  jmp SourceModelEntityCopy4086_Bad
 SourceModelEntityCopy4086_BodyCopied:
+.a16
+.i16
+ lda.l SourceModelEntityCopy4086_Model
+ tax
+ lda.l SourceModelEntityCopy4086_Slot
+ jsl SourceOffscreenState4086_ApplyModel
+ bcc SourceModelEntityCopy4086_OffscreenApplied
+ jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_OffscreenApplied:
 .a16
 .i16
     lda #1

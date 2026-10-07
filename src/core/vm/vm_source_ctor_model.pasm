@@ -148,6 +148,15 @@ SourceCtorModel4086_TimingChecked:
 SourceCtorModel4086_BodyChecked:
 .a16
 .i16
+ lda.l SourceScriptClone4086_Model
+ tax
+ lda.l SourceScriptClone4086_Slot
+ jsl SourceOffscreenState4086_PreflightModel
+ bcc SourceCtorModel4086_OffscreenBodyChecked
+ jmp SourceCtorModel4086_Bad
+SourceCtorModel4086_OffscreenBodyChecked:
+.a16
+.i16
  lda #2
  sta.l SourceCtorModel4086_Status
  ply
@@ -299,6 +308,15 @@ SourceCtorModel4086_TimingCopied:
  bcc SourceCtorModel4086_BodyCopied
  jmp SourceCtorModel4086_Bad
 SourceCtorModel4086_BodyCopied:
+.a16
+.i16
+ lda.l SourceScriptClone4086_Model
+ tax
+ lda.l SourceScriptClone4086_Slot
+ jsl SourceOffscreenState4086_ApplyModel
+ bcc SourceCtorModel4086_OffscreenBodyCopied
+ jmp SourceCtorModel4086_Bad
+SourceCtorModel4086_OffscreenBodyCopied:
 .a16
 .i16
  lda #2

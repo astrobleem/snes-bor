@@ -65,7 +65,7 @@ LUA=LUA[:start]+""" if c.fault==0 then
 LUA=LUA.replace("word(sy.SourceCtorModel4086_Status)","word(sy.SourceCtorState4086_Status)")
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--attack-timing',action='store_true');p.add_argument('--autokill-state',action='store_true');p.add_argument('--movement-state',action='store_true');p.add_argument('--attack-cost',action='store_true');p.add_argument('--attack-body',action='store_true');a=p.parse_args();a.movement_state=a.movement_state or a.autokill_state;a.attack_cost=a.attack_cost or a.movement_state;a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--attack-timing',action='store_true');p.add_argument('--autokill-state',action='store_true');p.add_argument('--offscreen-state',action='store_true');p.add_argument('--movement-state',action='store_true');p.add_argument('--attack-cost',action='store_true');p.add_argument('--attack-body',action='store_true');a=p.parse_args();a.autokill_state=a.autokill_state or a.offscreen_state;a.movement_state=a.movement_state or a.autokill_state;a.attack_cost=a.attack_cost or a.movement_state;a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
  cr=clone(source);ct=pack_clone(cr);cb,*_=derive(source);bt=pack(cb);lr=life(source);lt=pack_life(lr);mr=core(source);sr=state(source);st=pack_state(sr);fr=factors(source);policy=attack_policy(source);rows=[]
  def case(slot,m,level=1,live=0,maximum=0,time=48,player=3,nohit=0,saved=0,direction=1,mutate=False):
   f=dict(m['fields']);sm=sr['models'][m['id']]
@@ -130,6 +130,16 @@ def main():
   lua=lua.replace('if c.fault==0 then\n','if c.fault==0 then\n for j=0,3 do before[0x43d800+c.slot*4+j]=0 end\n',1)
  else:lua=lua.replace(' before={};'," set('SourceAutokillState4086_Ready',0)\n before={};")
  if a.autokill_state:lua+="emu.addMemoryCallback(function()local c=rows[word(INDEX)+1];emu.log('CTORAUTOKILLPUBLISH|'..word(INDEX)..'|'..word(0x43d800+c.slot*4)..'|'..word(0x43d802+c.slot*4))end,emu.callbackType.exec,sy.SourceCtorState4086_AIStateBirthDone,sy.SourceCtorState4086_AIStateBirthDone,emu.cpuType.snes,mt)\n"
+ if a.offscreen_state:
+  from source_offscreen_inputs import derive as offscreen,pack as pack_offscreen
+  from m4_animation_init_native import luav
+  osdata=pack_offscreen(offscreen(source));tables.append((58,0,osdata))
+  for c in rows:c['wantoffscreen']=list(osdata[24+c['model']*8+4:32+c['model']*8])
+  for bad in ('offscreen_ready','offscreen_cache_size','offscreen_table'):rows.append(dict(rows[0],bad=bad,fault=1))
+  lua=lua.replace(' before={};'," set('SourceOffscreenState4086_Ready',c.bad=='offscreen_ready'and 0xb611 or 0xb610);set('SourceOffscreenState4086_Base',c.bad=='offscreen_table'and 0x8002 or 0x8000);set('SourceOffscreenState4086_Bank',58);set('SourceOffscreenState4086_Bytes',152);set('SourceOffscreenState4086_Models',16);if c.bad=='offscreen_cache_size'then set('SourceModelAnimationCopy4086_Bytes',5634)end\n before={};")
+  lua=lua.replace('if c.fault==0 then\n','if c.fault==0 then\n for j,value in ipairs(c.wantoffscreen)do before[0x43d600+c.slot*4+j-1]=value end\n',1)
+  lua+="emu.addMemoryCallback(function()local c=rows[word(INDEX)+1];emu.log('CTOROFFSCREENCLEAR|'..word(INDEX)..'|'..word(0x43d600+c.slot*4)..'|'..word(0x43d602+c.slot*4))end,emu.callbackType.exec,sy.SourceCtorState4086_AIStateBirthDone,sy.SourceCtorState4086_AIStateBirthDone,emu.cpuType.snes,mt)\n"
+ else:lua=lua.replace(' before={};'," set('SourceOffscreenState4086_Ready',0)\n before={};")
  lua=lua.replace("local s=emu.getState();cpu={};ctx=0;for _,k in ipairs({'x','y','d','dbr','sp','ps'})do cpu[k]=s['cpu.'..k]end",'')
  entry=sy['SourceCtorState4086_Begin'];lua+=f"emu.addMemoryCallback(function()local s=emu.getState();cpu={{}};ctx=0;for _,k in ipairs({{'x','y','d','dbr','sp','ps'}})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,{entry},{entry},emu.cpuType.snes,mt)\n"
  lua+="emu.addMemoryCallback(function()emu.log('CTORMAX|'..word(INDEX)..'|'..word(sy.SourceWorldTick4086_Maximum))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
@@ -155,6 +165,8 @@ end
   publish=[list(map(int,l.split('CTORDESTPUBLISH|',1)[1].split('|')))for l in log.splitlines()if 'CTORDESTPUBLISH|'in l];r.check('actual two destination DWORDs zero before exists publication',publish==[[i,0]for i,c in enumerate(rows)if not c['fault']])
  if a.autokill_state:
   publish=[list(map(int,l.split('CTORAUTOKILLPUBLISH|',1)[1].split('|')))for l in log.splitlines()if 'CTORAUTOKILLPUBLISH|'in l];r.check('actual full32 autokill zero before exists publication',publish==[[i,0,0]for i,c in enumerate(rows)if not c['fault']])
- d=dict(schema='BYOR_4086_CTOR_STATE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,maxima=maxima,script_cleanup_and_factor_copy_instrumented=True,slot_allocation_bound=False,drawmethod_execution_bound=False,palette_upload_bound=False,full_constructor_bound=False,combat_birth_fields_zeroed=True,attack_timing_actual_model_copy_bound=a.attack_timing,attack_body_actual_model_copy_bound=a.attack_body,attack_cost_actual_birth_clear_bound=a.attack_cost,movement_dest_actual_birth_clear_bound=a.movement_state,autokill_actual_birth_clear_bound=a.autokill_state,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
+ if a.offscreen_state:
+  publish=[list(map(int,l.split('CTOROFFSCREENCLEAR|',1)[1].split('|')))for l in log.splitlines()if 'CTOROFFSCREENCLEAR|'in l];r.check('actual offscreenkill memset zero before exists, then authored model field installed',publish==[[i,0,0]for i,c in enumerate(rows)if not c['fault']])
+ d=dict(schema='BYOR_4086_CTOR_STATE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,maxima=maxima,script_cleanup_and_factor_copy_instrumented=True,slot_allocation_bound=False,drawmethod_execution_bound=False,palette_upload_bound=False,full_constructor_bound=False,combat_birth_fields_zeroed=True,attack_timing_actual_model_copy_bound=a.attack_timing,attack_body_actual_model_copy_bound=a.attack_body,attack_cost_actual_birth_clear_bound=a.attack_cost,movement_dest_actual_birth_clear_bound=a.movement_state,autokill_actual_birth_clear_bound=a.autokill_state,offscreen_actual_model_copy_bound=a.offscreen_state,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
  (a.output/'report.json').write_text(json.dumps(d,indent=2)+'\n');r.finish()
 if __name__=='__main__':main()

@@ -393,6 +393,12 @@ SourceCtorState4086_MovementPreflightOk:
 SourceCtorState4086_AutokillMovementPreflightOk:
 .a16
 .i16
+ jsl SourceOffscreenState4086_PreflightBirth
+ bcc SourceCtorState4086_OffscreenAutokillMovementPreflightOk
+ jmp SourceCtorState4086_Bad
+SourceCtorState4086_OffscreenAutokillMovementPreflightOk:
+.a16
+.i16
  ; All external domains validated; no callback occurs during the reset.
  lda.l SourceCtorState4086_View
  clc
@@ -536,6 +542,12 @@ SourceCtorState4086_MovementBirthDone:
  bcc SourceCtorState4086_AutokillMovementBirthDone
  jmp SourceCtorState4086_Bad
 SourceCtorState4086_AutokillMovementBirthDone:
+.a16
+.i16
+ jsl SourceOffscreenState4086_BirthClear
+ bcc SourceCtorState4086_OffscreenAutokillMovementBirthDone
+ jmp SourceCtorState4086_Bad
+SourceCtorState4086_OffscreenAutokillMovementBirthDone:
 .a16
 .i16
  lda.l SourceScriptClone4086_Slot

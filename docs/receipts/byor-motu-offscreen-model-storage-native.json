@@ -1,0 +1,123 @@
+{
+  "schema": "BYOR_MOTU_OFFSCREEN_MODEL_STORAGE_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "proofs": [
+    {
+      "path": "out/byor-motu-offscreen-span-native/report.json",
+      "sha256": "fb1d40bb483cb36a7cec91ffe9f51e973b48a0f01a7d9c43b4b8ea91ddb1f4c4",
+      "cases": 24
+    },
+    {
+      "path": "out/byor-motu-offscreen-clear-native/report.json",
+      "sha256": "0dc1ac03aec853c830e0f39659f5126e0889e6f84d29ebab5640586bcf229af0",
+      "cases": 121
+    },
+    {
+      "path": "out/byor-motu-offscreen-model-native/report.json",
+      "sha256": "7f0875856a4bf701f653d7b6cf0cb5085493547dd47fb872d2d22b4789088b70",
+      "cases": 110
+    },
+    {
+      "path": "out/byor-motu-offscreen-model-preflight-native/report.json",
+      "sha256": "7d389846d632241047a749a9296167eb5f5b628b51f457d26c663d389e35c897",
+      "cases": 110
+    },
+    {
+      "path": "out/byor-motu-offscreen-ctor-native/report.json",
+      "sha256": "0ed2c6f70a8748e1d8169a903e21af153027cc436859f29b7b54e2eaf357a36f",
+      "cases": 248
+    },
+    {
+      "path": "out/byor-motu-offscreen-old-birth-native/report.json",
+      "sha256": "484d003a59191bd77b12f65d40445c942e7ca749bdc4824d5bf52cf8638ec0a4",
+      "cases": 92
+    },
+    {
+      "path": "out/byor-motu-offscreen-model-copy-native-v2/report.json",
+      "sha256": "9c5f75b2819743e6edf362673172505fe20ab73cb9e9131d1621913853956eda",
+      "cases": 488
+    },
+    {
+      "path": "out/byor-motu-projectile-authority-v2/report.json",
+      "sha256": "7bad848d78db3e9f92dbdcf18d871e7e8422fc54f30f00e9979ae5a7ee0fb401",
+      "cases": 368
+    }
+  ],
+  "source_field": "modeldata.offscreenkill",
+  "physical_range": "43D600..43D7FF",
+  "actor_capacity": 128,
+  "stride": 4,
+  "control_range": "40BF4C..40BF5D",
+  "lease": "B610",
+  "required_leases": [
+    "B609",
+    "B60B",
+    "B60E"
+  ],
+  "animation_cache_capacity": 5632,
+  "current_motu_cache_bytes": 5376,
+  "source_inputs": {
+    "path": "out/byor-motu-offscreen-inputs/report.json",
+    "sha256": "c6f0a68e82bba20dc927d32d702f1fd3e86d9e6455568894ff4912eed81b6a45"
+  },
+  "ordinary_constructor_memset_before_exists": true,
+  "ordinary_constructor_model_field_installed": true,
+  "old_none_idle_birth_model_field_installed": true,
+  "full_model_copy_replaces_field": true,
+  "immutable_loader_domain": "none/player/enemy; subtype none; no arrow/biker loader defaults; unsupported loader domains fail explicitly",
+  "native_named_projectile_constructor_bound": false,
+  "pinned_named_knife_post_semantics_authority": true,
+  "spawn_and_colourmap_authority_services_instrumented": true,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "preservation": {
+    "status": "PASS",
+    "protected": 17,
+    "bank_zero_symbol_addresses_unchanged": true,
+    "bank_zero_growth_bytes": 0,
+    "changed_bank_zero_bytes": 7,
+    "changes_only_external_relocations": [
+      {
+        "pc": "0x9641",
+        "symbol": "Vm_SourceFrameGate",
+        "old": "0x1c8d7b",
+        "new": "0x1c8d7f"
+      },
+      {
+        "pc": "0x9697",
+        "symbol": "Vm_FetchSource",
+        "old": "0x1c8490",
+        "new": "0x1c8494"
+      },
+      {
+        "pc": "0x99a5",
+        "symbol": "Vm_SourceVariantAddFallback",
+        "old": "0x1c8887",
+        "new": "0x1c888b"
+      },
+      {
+        "pc": "0x9c9e",
+        "symbol": "Vm_SourceVariantTruthyFallback",
+        "old": "0x1c885b",
+        "new": "0x1c885f"
+      },
+      {
+        "pc": "0xa850",
+        "symbol": "Vm_SourceVariantCompareFallback",
+        "old": "0x1c8957",
+        "new": "0x1c895b"
+      },
+      {
+        "pc": "0xd172",
+        "symbol": "SourceClock4086_NmiGate",
+        "old": "0x3ef5ff",
+        "new": "0x3ef659"
+      }
+    ]
+  },
+  "width_guard_authority_baseline": 183,
+  "width_guard_new_violations": 0,
+  "audit_all_status": "PASS"
+}
