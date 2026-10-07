@@ -281,3 +281,168 @@ SourceCtorOwner4086_Bad:
  plp
  sec
  rtl
+
+; Publish the C spawn return into the native variant only after the real
+; constructor completes. Failed validation leaves all eight result bytes
+; untouched. A valid dead pointer is permitted, as in C after a frame-zero
+; callback; no alive-only pointer substitution is performed.
+SourceCtorOwner4086_Result:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l SourceCtorOwner4086_Phase
+ cmp #2
+ beq SourceCtorOwner4086_ResultDone
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultDone:
+.a16
+.i16
+ lda.l SourceCtorOwner4086_Model
+ cmp #$FFFF
+ bne SourceCtorOwner4086_ResultModel
+ lda.l SourceDefaultInit4086_OwnerSlot
+ cmp #$FFFF
+ beq SourceCtorOwner4086_ResultNull
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultNull:
+.a16
+.i16
+ lda #0
+ sta.l VmNativeVariant_Result
+ sta.l VmNativeVariant_Result+2
+ sta.l VmNativeVariant_Result+4
+ sta.l VmNativeVariant_Result+6
+ jmp SourceCtorOwner4086_ResultGood
+SourceCtorOwner4086_ResultModel:
+.a16
+.i16
+ lda.l SourceDefaultInit4086_Phase
+ cmp #6
+ beq SourceCtorOwner4086_ResultInitDone
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultInitDone:
+.a16
+.i16
+ jsl SourceAnimationInit4086_CheckIdle
+ bcc SourceCtorOwner4086_ResultAnimationIdle
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultAnimationIdle:
+.a16
+.i16
+ jsl SourceUpdateFrame4086_CheckIdle
+ bcc SourceCtorOwner4086_ResultFrameIdle
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultFrameIdle:
+.a16
+.i16
+ lda.l VmSourceWorld_Ready
+ cmp #$B4A3
+ beq SourceCtorOwner4086_ResultWorld
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultWorld:
+.a16
+.i16
+ lda.l VmSourceWorld_PoolBase
+ cmp #$4000
+ beq SourceCtorOwner4086_ResultPool
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultPool:
+.a16
+.i16
+ lda.l VmSourceWorld_SideBase
+ cmp #$6800
+ beq SourceCtorOwner4086_ResultSide
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultSide:
+.a16
+.i16
+ lda.l SourceCtorOwner4086_Model
+ cmp.l VmSourceWorld_TemplateCount
+ bcc SourceCtorOwner4086_ResultModelRange
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultModelRange:
+.a16
+.i16
+ lda.l SourceDefaultInit4086_OwnerSlot
+ cmp.l VmSourceWorld_Count
+ bcc SourceCtorOwner4086_ResultCount
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultCount:
+.a16
+.i16
+ cmp #128
+ bcc SourceCtorOwner4086_ResultSlot
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultSlot:
+.a16
+.i16
+ asl a
+ asl a
+ asl a
+ asl a
+ tay ; physical slot*16, then *64 sides and *80 views
+ asl a
+ asl a
+ tax
+ lda.l $416800,x
+ cmp.l SourceCtorOwner4086_Model
+ beq SourceCtorOwner4086_ResultPairedModel
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultPairedModel:
+.a16
+.i16
+ txa
+ pha
+ tya
+ clc
+ adc 1,s
+ tax
+ pla
+ txa
+ clc
+ adc #$4000
+ cmp.l $414000,x
+ beq SourceCtorOwner4086_ResultTokenLow
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultTokenLow:
+.a16
+.i16
+ lda.l $414002,x
+ cmp #$41
+ beq SourceCtorOwner4086_ResultTokenHigh
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultTokenHigh:
+.a16
+.i16
+ lda.l $414006,x
+ beq SourceCtorOwner4086_ResultExistsHigh
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultExistsHigh:
+.a16
+.i16
+ lda.l $414004,x
+ cmp #2
+ bcc SourceCtorOwner4086_ResultExists
+ jmp SourceCtorOwner4086_Bad
+SourceCtorOwner4086_ResultExists:
+.a16
+.i16
+ lda #BOR_VT_PTR
+ sta.l VmNativeVariant_Result
+ lda #0
+ sta.l VmNativeVariant_Result+2
+ lda.l $414000,x
+ sta.l VmNativeVariant_Result+4
+ lda.l $414002,x
+ sta.l VmNativeVariant_Result+6
+SourceCtorOwner4086_ResultGood:
+.a16
+.i16
+ ply
+ plx
+ plp
+ clc
+ rtl

@@ -306,6 +306,7 @@ CallbackFixture_EffectsDone:
         if not a.ctor_state:raise ValueError('CTOR_OWNER_REQUIRES_CTOR_STATE')
         asm=asm.replace(' jsl SCRIPTCLONECLEAR\n bcs CallbackFixture_Bad\n jsl CTORFACTORS\n bcs CallbackFixture_Bad\n jsl CTORSTATE\n bcs CallbackFixture_Bad','')
         asm=asm.replace(' jsl OWNERBEGIN',' jsl CTOROWNERBEGIN').replace(' jsl OWNERCONTINUE',' jsl CTOROWNERCONTINUE')
+        asm=asm.replace('CallbackFixture_Result:\n.a16\n.i16\n nop','CallbackFixture_Result:\n.a16\n.i16\n nop\n jsl CTORRESULT\n bcs CallbackFixture_Bad\nCallbackFixture_ResultPublished:\n.a16\n.i16\n nop')
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,FRAMEBEGIN=sy['SourceUpdateFrame4086_Begin'],
         FRAMEACK=sy['SourceUpdateFrame4086_Ack'],CALLBACKBEGIN=sy['SourceAnimationCallback4086_Begin'],
         CALLBACKRUN=sy['SourceAnimationCallback4086_Run'],CALLBACKREADY=sy['SourceAnimationCallback4086_Ready'],
@@ -321,7 +322,7 @@ CallbackFixture_EffectsDone:
     if a.initial_enemy:values.update(ENEMYPREP=sy['SourceDefaultEnemy4086_PrepareNormal'],ENEMYDROP=sy['SourceDefaultEnemy4086_BeginHorizontalDrop'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.default_owner:values.update(OWNERBEGIN=sy['SourceDefaultInit4086_Begin'],OWNERCONTINUE=sy['SourceDefaultInit4086_Continue'])
     if a.script_clone:values.update(SCRIPTCLONECLEAR=sy['SourceScriptClone4086_Clear'],SCRIPTCLONEBIND=sy['SourceScriptClone4086_Bind'])
-    if a.ctor_owner:values.update(CTOROWNERBEGIN=sy['SourceCtorOwner4086_Begin'],CTOROWNERCONTINUE=sy['SourceCtorOwner4086_Continue'])
+    if a.ctor_owner:values.update(CTOROWNERBEGIN=sy['SourceCtorOwner4086_Begin'],CTOROWNERCONTINUE=sy['SourceCtorOwner4086_Continue'],CTORRESULT=sy['SourceCtorOwner4086_Result'])
     if a.ctor_state:values.update(CTORSTATE=sy['SourceCtorState4086_Begin'])
     if a.ctor_factors:values.update(CTORFACTORS=sy['SourceFactors4086_Apply'])
     if a.ctor_model:values.update(CTORMODEL=sy['SourceCtorModel4086_Apply'])
@@ -583,6 +584,8 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         initialinstall+="\n set('SourceTarget4086_OrderReady',0xb4d3);for i=0,127 do put(0x41f200+i*2,i,2)end\n"
         initialinstall+="\n set('SourceCtorOwner4086_Phase',0);set('SourceCtorOwner4086_Model',65535);set('SourceSpawnSlot4086_Ready',0xb5a1);set('SourceSpawnSlot4086_Status',0);set('SourceSpawnSlot4086_Model',"+str(default)+");put(sy.SourceSpawnSlot4086_OverrideLo,999999,4)\n"
         lua+="emu.addMemoryCallback(function()emu.log('CTOROWNER|'..word(INDEX)..'|'..word(sy.SourceCtorOwner4086_Phase)..'|'..word(sy.SourceCtorOwner4086_Model)..'|'..word(sy.SourceSpawnSlot4086_Slot)..'|'..word(sy.SourceSpawnSlot4086_NeedKill))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
+        address=fs['CallbackFixture_ResultPublished']
+        lua+=f"emu.addMemoryCallback(function()emu.log('CTORPUBLISHED|'..word(INDEX)..'|'..word(sy.VmNativeVariant_Result)..'|'..word(sy.VmNativeVariant_Result+2)..'|'..dw(sy.VmNativeVariant_Result+4))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -671,6 +674,8 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     if a.ctor_owner:
         ctor_owner_results=[list(map(int,line.split('CTOROWNER|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTOROWNER|'in line]
         reporter.check('generic source constructor slot/cleanup/factors/body and real default-init continuation completes before clock retirement',ctor_owner_results==[[i,2,default,0,0]for i in range(len(rows))])
+        published=[list(map(int,line.split('CTORPUBLISHED|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORPUBLISHED|'in line]
+        reporter.check('actual completed constructor publishes the stable source pointer variant',published==[[i,5,0,0x414000]for i in range(len(rows))])
     if a.script_clone:reporter.check('constructor script cleanup/binding survives actual authored frame zero with foreign instance intact',clone_results==[[i,2,script_clone_report['models'][default]['initialized_mask'],0,0,99,3]for i in range(len(rows))])
     r=dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(raw).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),

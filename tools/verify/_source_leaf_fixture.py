@@ -133,5 +133,11 @@ LeafFixture_Return:
         for _ in range(frame_limit):
             run_frames_exact(m,1)
             if startup.u16(m,INDEX)==len(rows) or startup.u16(m,ERROR):break
-        reporter.check('native leaf batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,ERROR)==0)
+        completed=startup.u16(m,INDEX)==len(rows) and startup.u16(m,ERROR)==0
+        if not completed:
+            import json
+            diagnostics=dict(index=startup.u16(m,INDEX),error=startup.u16(m,ERROR),request=startup.u16(m,REQUEST),game_state=startup.u16(m,startup.STATE),vm_status=startup.u16(m,sy['VmState_Status']))
+            (folder/'incomplete.json').write_text(json.dumps(diagnostics,indent=2)+'\n')
+            print('Incomplete leaf diagnostics:',diagnostics)
+        reporter.check('native leaf batch completed',completed)
     return raw,(folder/'mesen.log').read_text()

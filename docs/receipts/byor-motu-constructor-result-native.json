@@ -1,0 +1,57 @@
+{
+  "schema": "BYOR_4086_CONSTRUCTOR_RESULT_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "evidence": {
+    "ctor-result": {
+      "report": "out/byor-motu-ctor-result-native/report.json",
+      "sha256": "f68745b05ba45f0639a169edef277d330b9961576d189d9fe7278fb19875cf49",
+      "cases": 58
+    },
+    "player-published-ctor-owner": {
+      "report": "out/byor-motu-player-published-ctor-owner-native/report.json",
+      "sha256": "13a915ecc01a73e946a7a8de4442c77ebb6a3721a06ab5d4e9a70cafcfad98fb",
+      "cases": 2
+    },
+    "select-published-ctor-owner": {
+      "report": "out/byor-motu-select-published-ctor-owner-native/report.json",
+      "sha256": "ca64a9571dcbb17639a791ad9b8559a63c16317125225ef0bc3fa536f4097215",
+      "cases": 2
+    },
+    "knightbot-published-ctor-owner": {
+      "report": "out/byor-motu-knightbot-published-ctor-owner-native/report.json",
+      "sha256": "fe861d7990400ad0b0e9f527ea6ef445aca001612935e9c2c77c5e21be7e4f34",
+      "cases": 2
+    },
+    "skeletor-published-ctor-owner": {
+      "report": "out/byor-motu-skeletor-published-ctor-owner-native/report.json",
+      "sha256": "8608434aea3b12b136f82e7de4bdc3f2384c32c5779a0bc0f2875dd482f512b5",
+      "cases": 2
+    },
+    "none-published-ctor-owner": {
+      "report": "out/byor-motu-none-published-ctor-owner-native/report.json",
+      "sha256": "2dc17991ae5e817425627ebd0be56b8c5161ad59d63ad9f07109f6008d0d80d4",
+      "cases": 2
+    },
+    "effect-published-ctor-owner": {
+      "report": "out/byor-motu-effect-published-ctor-owner-native/report.json",
+      "sha256": "30c32084cb759e87b2bc15e6a2c9ce001fa253445901683d274cb1f62f1f35c8",
+      "cases": 2
+    }
+  },
+  "entry": "SourceCtorOwner4086_Result",
+  "code_bank": 62,
+  "bank0_growth": 0,
+  "additional_control_bytes": 0,
+  "policy": "Publish the exact stable source entity pointer variant only from completed constructor/default-init tickets with matching world/pool/side/model/token and retired frame work. Valid dead pointers remain pointers; a null-model ticket returns EMPTY. Faults preserve all eight prior result bytes and entity state.",
+  "audit": "out/byor-motu-ctor-result-audit.log",
+  "remaining": [
+    "live stage/player producer",
+    "smartspawn post-construction overrides and events",
+    "active interpreter constructor continuation"
+  ],
+  "full_constructor_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
