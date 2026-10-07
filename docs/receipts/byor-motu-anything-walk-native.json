@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_MOTU_ANYTHING_WALK_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-anything-walk-authority/report.json",
+      "sha256": "c70325d8c40999203750775eaf2b7b898fb191bb1402ab8a5b380797534158d0",
+      "cases": 224
+    },
+    {
+      "path": "out/byor-motu-anything-walk-native/report.json",
+      "sha256": "034ff5b0c9131f5fd1e023afc6256e622ae279bb3ce02e539e3ffc14ac88301d",
+      "cases": 240
+    }
+  ],
+  "checks": [
+    "Literal pinned anything_walk strict source bounds",
+    "Actual semantic callback ID15 validated against physical thinker identity",
+    "Both boundary equalities stay alive; points outside retire",
+    "Real no-event retirement, source relation/role/variable cleanup and self restoration",
+    "Full physical sibling state and CPU preserved",
+    "Q16.16 bounds overflow explicitly fails before retirement",
+    "All17 protected fingerprints unchanged; ROM audit ALL CHECKS PASS"
+  ],
+  "native_coordinate_policy": "checked Q16.16 ACCEPTED_COMPAT; representable source fixture values exact",
+  "bank0_growth": 0,
+  "nonclaims": [
+    "Generic AI dispatcher not yet integrated",
+    "Event/minion retirement remains unbound",
+    "No actual MOTU candidate, real combat, moving lossless rendering or Demo completion"
+  ],
+  "no_color_reduction": true
+}

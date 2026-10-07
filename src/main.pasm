@@ -13686,3 +13686,5 @@ SourceVM_InstructionReservation:
 
 .include "core/vm/vm_source_set_idle.pasm"
 .include "core/vm/vm_source_common_spawn.pasm"
+
+.include "core/vm/vm_source_anything_walk.pasm"
