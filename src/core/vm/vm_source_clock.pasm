@@ -428,7 +428,13 @@ SourceClock4086_Commit__retire:
     ; post-properties/music service, or the remaining loop cannot be retired
     ; by a direct clock caller. Zero lease retains the existing clock path.
     lda.l SourceStageProducer4086_Ready
-    beq SourceClock4086_QueueRetired
+    bne SourceClock4086_QueuePresent
+    ; Child services are admitted only inside the stage producer's lease.
+    ; Battery-backed scratch can retain child words from an earlier fixture.
+    jmp SourceClock4086_CameraRetired
+SourceClock4086_QueuePresent:
+.a16
+.i16
     cmp #$B5D6
     beq SourceClock4086_QueueGranted
     jmp SourceClock4086_Commit__bad
@@ -479,6 +485,21 @@ SourceClock4086_WaitGranted:
     beq SourceClock4086_WaitRetired
     jmp SourceClock4086_Commit__bad
 SourceClock4086_WaitRetired:
+.a16
+.i16
+    lda.l SourceCameraMotion4086_Ready
+    beq SourceClock4086_CameraRetired
+    cmp #$B5DB
+    beq SourceClock4086_CameraGranted
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_CameraGranted:
+.a16
+.i16
+    lda.l SourceCameraMotion4086_Status
+    cmp #2
+    beq SourceClock4086_CameraRetired
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_CameraRetired:
 .a16
 .i16
     jsl SourceUpdateFrame4086_CheckIdle

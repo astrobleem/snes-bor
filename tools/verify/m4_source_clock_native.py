@@ -144,6 +144,8 @@ end,emu.callbackType.exec,AFTER,AFTER,emu.cpuType.snes,mt)
       .replace('RAW',str(sy['SourceClock4086_RawLo'])).replace('DUE',str(sy['SourceClock4086_Due']))
       .replace('TIME',str(sy['SourceClock4086_TimeLo'])).replace('RUNNING',str(sy['SourceClock4086_Running']))
       .replace('FAULT',str(sy['SourceClock4086_Fault'])).replace('AFTER',str(gates['SourceClockFixture_After'])))
+    with lua.open('a') as diagnostic:
+        diagnostic.write("\nemu.addMemoryCallback(function()emu.log('SOURCECLOCKOWNERS|'..word("+str(sy['SourceStageProducer4086_Ready'])+")..'|'..word("+str(sy['SourceWait4086_Ready'])+")..'|'..word("+str(sy['SourceCameraMotion4086_Ready'])+")..'|'..word("+str(sy['SourceCameraMotion4086_Status'])+"))end,emu.callbackType.exec,"+str(sy['SourceClock4086_Commit__bad'])+","+str(sy['SourceClock4086_Commit__bad'])+",emu.cpuType.snes,mt)\n")
     class Observed(McpSession):
         def __enter__(self):
             import mesen_mcp.session as module

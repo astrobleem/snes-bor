@@ -1,0 +1,59 @@
+{
+  "schema": "BYOR_MOTU_CAMERA_MOTION_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-camera-motion-authority/report.json",
+      "sha256": "895940017ef4f8a85bb1f05a3accd86fd8230c9404d25da92fc3070fd22ab132",
+      "cases": 9600,
+      "rom_sha256": null
+    },
+    {
+      "path": "out/byor-motu-camera-motion-native/report.json",
+      "sha256": "eb7e1cf0910d9cd1b8c5b85e10c5d692ac5b6fa1e51e4adb2faeea9197a7ee89",
+      "cases": 298,
+      "rom_sha256": "ba68047a2f00b8b7ae60b23dc529ac139c693516e8a4256655ec77ae9ca8b786"
+    },
+    {
+      "path": "out/byor-motu-camera-clock-gate-native/report.json",
+      "sha256": "2a18828483151125ab113b553d869dabd66de75ac357afca0109601d19e7ded5",
+      "cases": 241,
+      "rom_sha256": "0c953d06308818f1022ed8940fb5af9850a19ee35d578d19b5f67204a1f725bf"
+    },
+    {
+      "path": "out/byor-motu-camera-clock-regression/report.json",
+      "sha256": "66ab8b7091955fa9c31e9b8ddfd4c0289e1dcba2a81b1be9c9397b6f7627d871",
+      "cases": null,
+      "rom_sha256": "8f98c358d811aa755dce90b1355600a43d36326bdebe0d3b00a0cd360703b6e6"
+    }
+  ],
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "scope": "Actual native WAIT release, role collection and admitted rightward/back camera movement",
+  "checks": [
+    "Literal C source-sized horizontal/depth camera outputs",
+    "Native spawn preparation shares world camera coordinates",
+    "Source position increments at endpoint",
+    "WAIT holds X but permits depth camera",
+    "Rocking/nonrocking depth inset",
+    "No physical entity/role mutation and CPU context preserved",
+    "Camera service must retire before logical tick commit",
+    "Disabled stage producer ignores retained child control words; plain clock/backlog/pause regression passes"
+  ],
+  "supported_source_directions": [
+    2,
+    3
+  ],
+  "bank": 62,
+  "bank0_free_before_nmi": 2,
+  "protected_files_unchanged": 17,
+  "audit": "ALL CHECKS PASS",
+  "numeric_policy": "Admitted Q16; arithmetic overflow or nonrepresentable half quantum explicitly faults before coordinate publication",
+  "nonclaims": [
+    "Native left/vertical/elevator direction support",
+    "Full queue/camera/world service integration",
+    "Live moving rendering or combat",
+    "MOTU foreign profile admission/full Demo"
+  ],
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

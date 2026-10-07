@@ -21,6 +21,7 @@ emu.addMemoryCallback(function()
  set('SourceClock4086_Ready',0xb4c5);set('SourceClock4086_Due',1);set('SourceClock4086_TimeLo',c.time,4);set('SourceClock4086_Fault',0)
  set('SourceStageProducer4086_Ready',c.ready);set('SourceStageProducer4086_State',c.state);set('SourceCtorOwner4086_Phase',c.ctor);set('SourceDefaultInit4086_Phase',c.default);set('SourceSmartSpawn4086_Status',c.properties)
  set('SourceWait4086_Ready',c.wait_ready);set('SourceWait4086_Status',c.wait_status)
+ set('SourceCameraMotion4086_Ready',c.camera_ready);set('SourceCameraMotion4086_Status',c.camera_status)
 end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local s=emu.getState();ctx=0;for _,k in ipairs({'x','y','d','dbr','sp'})do if cpu[k]~=s['cpu.'..k]then ctx=ctx+1 end end
@@ -41,6 +42,11 @@ def main():
     for row in rows:row.update(wait_ready=0,wait_status=0)
     for ready,status,time in itertools.product((0,0xb5d9,65535),(0,1,2,3,65535),(48,0xffffffff)):
         rows.append(dict(ready=0xb5d6,state=4,ctor=2,default=6,properties=2,time=time,wait_ready=ready,wait_status=status,fault=int(ready!=0 and(ready!=0xb5d9 or status!=2))))
+    for row in rows:row.update(camera_ready=0,camera_status=0)
+    for ready,status,time in itertools.product((0,0xb5db,65535),(0,1,2,3,65535),(48,0xffffffff)):
+        rows.append(dict(ready=0xb5d6,state=4,ctor=2,default=6,properties=2,time=time,wait_ready=0xb5d9,wait_status=2,camera_ready=ready,camera_status=status,fault=int(ready!=0 and(ready!=0xb5db or status!=2))))
+    for wait_ready,camera_ready,status in itertools.product((0xb5d9,65535),(0xb5db,65535),(0,1,2,3,65535)):
+        rows.append(dict(ready=0,state=65535,ctor=65535,default=65535,properties=65535,time=48,wait_ready=wait_ready,wait_status=status,camera_ready=camera_ready,camera_status=status,fault=0))
     sy=symbols(Path('src/main.sym'));entry=sy['SourceClock4086_Commit'];lua=LUA+f"emu.addMemoryCallback(function()local s=emu.getState();cpu={{}};for _,k in ipairs({{'x','y','d','dbr','sp','ps'}})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,{entry},{entry},emu.cpuType.snes,mt)\n"
     r=Reporter('M4-STAGE-CLOCK-GATE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'SourceClock4086_Commit','SourceClock4086_Ready',0xb4c5,[],lua,r,batch_size=2)
     results=[list(map(int,line.split('QUEUECLOCK|',1)[1].split('|')))for line in log.splitlines()if 'QUEUECLOCK|'in line]

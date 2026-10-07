@@ -23,8 +23,8 @@ def main():
         s=dict(direction=direction,width=width,height=height,x=x,y=6.25,dx=0.,dy=0.,speed=speed,waiting=waiting,enemies=enemies,cameratype=cameratype,players=roles+[None]*(4-len(roles)),maxplayers=4,offsetx=0.,offsetz=0.,minx=0.,maxx=float(width-320),minz=0.,maxz=float(height),blockade=25.,rocking=0,hres=320,vres=240,pos=77,noreset=0,settime=100,time=48,timeleft=-77,go_time=123)
         cases.append(s);v=copy.deepcopy(s);move(v);expected.append(normalized(v))
     # Sequential endpoint progress and asymmetric source clamp/control cases.
-    for maxplayers,noreset,time,rocking,offsetx,offsetz in itertools.product((1,2,4),(0,2),(0,0xfffffff0),(0,1),(-50.,100.),(-25.,40.)):
-        s=dict(cases[-1],maxplayers=maxplayers,noreset=noreset,time=time,rocking=rocking,offsetx=offsetx,offsetz=offsetz,waiting=1,enemies=0)
+    for direction,maxplayers,noreset,time,rocking,offsetx,offsetz in itertools.product((2,3,8,9),(1,2,4),(0,2),(0,0xfffffff0),(0,1),(-50.,100.),(-25.,40.)):
+        s=dict(cases[-1],direction=direction,maxplayers=maxplayers,noreset=noreset,time=time,rocking=rocking,offsetx=offsetx,offsetz=offsetz,waiting=1,enemies=0)
         cases.append(s);v=copy.deepcopy(s);move(v);expected.append(normalized(v))
     crows=[]
     for s in cases:
