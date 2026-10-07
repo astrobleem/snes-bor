@@ -1,0 +1,156 @@
+{
+  "schema": "BYOR_SOURCE_SCREEN_DIRTY_NATIVE_V1",
+  "status": "PASS",
+  "rom_sha256": "b7519f7ee6e8fc6994fa7842f3333df4aa6dfa0578936c2d07e6ceff88e643c1",
+  "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+  "opaque_pixels": 2751,
+  "changed_underlay_pixels": 142,
+  "native_recomputed_pixels": 142,
+  "retained_pixels": 2609,
+  "rgb555_mismatches": [
+    0,
+    0
+  ],
+  "job_master_clocks": {
+    "cold": 401594,
+    "warm": 159970
+  },
+  "events": [
+    [
+      12838,
+      2947800
+    ],
+    [
+      12960,
+      3349394
+    ],
+    [
+      12981,
+      3546288
+    ],
+    [
+      13130,
+      3706258
+    ]
+  ],
+  "busy_host_bwram_reads": true,
+  "no_color_reduction": true,
+  "source_epoch_checked": true,
+  "unroll": 3,
+  "destination_ids_range_checked": true,
+  "source_poses": [
+    {
+      "viewport": [
+        256,
+        224
+      ],
+      "piece_size": [
+        16,
+        32
+      ],
+      "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+      "actors": [
+        {
+          "model": "HBreath",
+          "animation": "idle",
+          "frame": 11,
+          "position": [
+            98,
+            220,
+            93
+          ],
+          "order": 2
+        },
+        {
+          "model": "He_ManB",
+          "animation": "freespecial4",
+          "frame": 6,
+          "position": [
+            80,
+            220,
+            0
+          ],
+          "order": 0
+        },
+        {
+          "model": "Knightbot",
+          "animation": "idle",
+          "frame": 0,
+          "position": [
+            200,
+            220,
+            0
+          ],
+          "order": 1
+        }
+      ]
+    },
+    {
+      "viewport": [
+        256,
+        224
+      ],
+      "piece_size": [
+        16,
+        32
+      ],
+      "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+      "actors": [
+        {
+          "model": "HBreath",
+          "animation": "idle",
+          "frame": 11,
+          "position": [
+            98,
+            220,
+            93
+          ],
+          "order": 2
+        },
+        {
+          "model": "He_ManB",
+          "animation": "freespecial4",
+          "frame": 6,
+          "position": [
+            50,
+            220,
+            0
+          ],
+          "order": 0
+        },
+        {
+          "model": "Knightbot",
+          "animation": "idle",
+          "frame": 0,
+          "position": [
+            200,
+            220,
+            0
+          ],
+          "order": 1
+        }
+      ]
+    }
+  ],
+  "scope": "Two source-derived underlay poses; exact cache update on SA-1 IRAM. No live geometry gathering, dynamic palette allocation, CHR publication, production contention or gameplay admission.",
+  "native_evidence": "out\\byor-motu-screen-dirty-lookup-unrolled-native",
+  "result_sha256": "9aef080e8c21185b0994923f6a7b7670475eca216be9633233997b270aca8b56",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "compiler_workspace": {
+    "input_record_stride": 6,
+    "records_are_source_row_pointer32_and_underlay_id16": true,
+    "rom_matrix_bytes": 698500,
+    "cache_words_stride_bytes": 6,
+    "previous_underlay_id_bank": "43",
+    "rgb555_result_bank": "42",
+    "worker_iram": "3200",
+    "source_or_geometry_change_policy": "explicit cold invalidation required; this fixture rejects different immutable source row pointers"
+  },
+  "scalar_comparison": {
+    "cold": 456010,
+    "warm": 209350
+  },
+  "full_moving_renderer_admitted": false,
+  "authored_concurrency_proven": false,
+  "motu_gameplay_proven": false
+}

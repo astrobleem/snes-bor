@@ -1270,3 +1270,21 @@ claimed. Clock constant columns use separate banked labels: Poppy arithmetic
 on a ROM label discarded its bank in the first failed arithmetic fixture.
 The corrected columns pass the native comparison. No color reduction is
 applied, and bank zero remains two bytes free before NMI.
+
+
+A subsequent native SCREEN lookup cache experiment changes the supplied player
+pose by 30 source pixels while retaining the same source HBreath frame and
+geometry. See `byor-motu-screen-dirty-lookup-native.json`. Of 2,751 opaque
+pixels, 142 underlay RGB8 identities change. The SA-1 reuses 2,609 exact cached
+RGB555 values and recalculates all 142 changed values. Both native poses match
+source composition with zero RGB555 mismatch.
+
+With a three-pixel loop and the host polling BW-RAM, cold generation takes
+401,594 master clocks and the changed-underlay update takes 159,970 clocks.
+The scalar comparison takes 456,010 and 209,350 clocks respectively. Destination
+IDs remain bounds checked before matrix reads. Source-row identities must be
+identical for cache reuse; a source-frame/geometry change requires explicit
+cold invalidation. These figures cover color lookup and cache work only. They
+do not include gathering live world pixels, palette allocation, CHR/map
+publication or production SA-1/audio contention, and are not a moving renderer
+admission. No color reduction is applied.
