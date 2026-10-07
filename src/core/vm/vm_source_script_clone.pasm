@@ -208,7 +208,7 @@ SourceScriptClone4086_CheckProgram:
  asl a
  asl a
  clc
- adc #34
+ adc #32
  clc
  adc.l SourceAnimationCallback4086_Base
  bcc SourceScriptClone4086_Far_16
@@ -226,11 +226,20 @@ SourceScriptClone4086_Far_16:
  rep #$20
 .a16
  lda.w $0000,x
+ sta.l SourceScriptClone4086_Row
+ lda.w $0002,x
  plb
  cmp.l SourceScriptClone4086_Program
  beq SourceScriptClone4086_Far_17
  jmp SourceScriptClone4086_Bad
 SourceScriptClone4086_Far_17:
+.a16
+.i16
+ lda.l SourceScriptClone4086_Row
+ cmp.l SourceScriptClone4086_Model
+ beq SourceScriptClone4086_Far_17_ModelID
+ jmp SourceScriptClone4086_Bad
+SourceScriptClone4086_Far_17_ModelID:
 .a16
 .i16
  lda.l SourceScriptClone4086_Relation
@@ -565,3 +574,124 @@ SourceScriptClone4086_Read:
  plb
  ora #0
  rts
+
+; Nonpublishing paired ROM model/program validation for constructor preflight.
+SourceScriptClone4086_CheckModelProgram:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ jsr SourceScriptClone4086_Preflight
+ bcc SourceScriptClone4086_ProgramCheckStart
+ jmp SourceScriptClone4086_Bad
+SourceScriptClone4086_ProgramCheckStart:
+.a16
+.i16
+ lda.l SourceScriptClone4086_Model
+ asl a
+ asl a
+ asl a
+ clc
+ adc #24
+ sta.l SourceScriptClone4086_Row
+ tax
+ jsr SourceScriptClone4086_Read
+ cmp.l SourceScriptClone4086_Model
+ beq SourceScriptClone4086_ProgramCheck_Far_10
+ jmp SourceScriptClone4086_Bad
+SourceScriptClone4086_ProgramCheck_Far_10:
+.a16
+.i16
+ inx
+ inx
+ jsr SourceScriptClone4086_Read
+ cmp #2
+ bcc SourceScriptClone4086_ProgramCheck_Far_11
+ jmp SourceScriptClone4086_Bad
+SourceScriptClone4086_ProgramCheck_Far_11:
+.a16
+.i16
+ sta.l SourceScriptClone4086_Mask
+ inx
+ inx
+ jsr SourceScriptClone4086_Read
+ sta.l SourceScriptClone4086_Program
+ inx
+ inx
+ jsr SourceScriptClone4086_Read
+ beq SourceScriptClone4086_ProgramCheck_Far_12
+ jmp SourceScriptClone4086_Bad
+SourceScriptClone4086_ProgramCheck_Far_12:
+.a16
+.i16
+ lda.l SourceScriptClone4086_Mask
+ bne SourceScriptClone4086_ProgramCheck_Far_13
+ jmp SourceScriptClone4086_ProgramCheck_Absent
+SourceScriptClone4086_ProgramCheck_Far_13:
+.a16
+.i16
+ lda.l SourceScriptClone4086_Program
+ cmp.l SourceAnimationCallback4086_Programs
+ bcc SourceScriptClone4086_ProgramCheck_Far_14
+ jmp SourceScriptClone4086_Bad
+SourceScriptClone4086_ProgramCheck_Far_14:
+.a16
+.i16
+ bra SourceScriptClone4086_ProgramCheck_CheckProgram
+SourceScriptClone4086_ProgramCheck_Absent:
+.a16
+.i16
+ lda.l SourceScriptClone4086_Program
+ cmp #$FFFF
+ beq SourceScriptClone4086_ProgramCheck_Far_15
+ jmp SourceScriptClone4086_Bad
+SourceScriptClone4086_ProgramCheck_Far_15:
+.a16
+.i16
+SourceScriptClone4086_ProgramCheck_CheckProgram:
+.a16
+.i16
+ ; Match the actual immutable B4CO model row's program before publishing.
+ lda.l SourceScriptClone4086_Model
+ asl a
+ asl a
+ asl a
+ asl a
+ clc
+ adc #32
+ clc
+ adc.l SourceAnimationCallback4086_Base
+ bcc SourceScriptClone4086_ProgramCheck_Far_16
+ jmp SourceScriptClone4086_Bad
+SourceScriptClone4086_ProgramCheck_Far_16:
+.a16
+.i16
+ tax
+ phb
+ sep #$20
+.a8
+ lda.l SourceAnimationCallback4086_Bank
+ pha
+ plb
+ rep #$20
+.a16
+ lda.w $0000,x
+ sta.l SourceScriptClone4086_Row
+ lda.w $0002,x
+ plb
+ cmp.l SourceScriptClone4086_Program
+ beq SourceScriptClone4086_ProgramCheck_Far_17
+ jmp SourceScriptClone4086_Bad
+SourceScriptClone4086_ProgramCheck_Far_17:
+.a16
+.i16
+ lda.l SourceScriptClone4086_Row
+ cmp.l SourceScriptClone4086_Model
+ beq SourceScriptClone4086_ProgramCheck_Far_17_ModelID
+ jmp SourceScriptClone4086_Bad
+SourceScriptClone4086_ProgramCheck_Far_17_ModelID:
+.a16
+.i16
+ jmp SourceScriptClone4086_Good

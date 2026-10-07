@@ -1,0 +1,172 @@
+{
+  "schema": "BYOR_4086_CONSTRUCTOR_BODY_PRELUDE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "evidence": {
+    "byor-motu-ctor-state-native": {
+      "report": "out/byor-motu-ctor-state-native/report.json",
+      "sha256": "eb171b2aff1cdcb6352112d197a336b248ae11f656a17f88081386c7b20831af",
+      "cases": 238
+    },
+    "byor-motu-ctor-model-preflight-regression-native": {
+      "report": "out/byor-motu-ctor-model-preflight-regression-native/report.json",
+      "sha256": "e79e643677cab7ce356ba7aaef235a751e18030b06d2d28457be0df90a5cb339",
+      "cases": 159
+    },
+    "byor-motu-script-model-id-regression-native": {
+      "report": "out/byor-motu-script-model-id-regression-native/report.json",
+      "sha256": "9dfae5f570cd9869d574766a621f93b25f4e6e0aa7e6fa615877c4a064bae9a1",
+      "cases": 246
+    },
+    "byor-motu-select-body-ctor-native": {
+      "report": "out/byor-motu-select-body-ctor-native/report.json",
+      "sha256": "2aa48242c15a00541b7949c68b11a59c1d560076def3fee997f1bb5fc3ac9e42",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 3,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 3,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-player-body-ctor-native": {
+      "report": "out/byor-motu-player-body-ctor-native/report.json",
+      "sha256": "c80faf7661886274c3838283c386009e28895bd5f5ddbb3e8dc3ef1dcfb04b66",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 3,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 3,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-knightbot-body-ctor-native": {
+      "report": "out/byor-motu-knightbot-body-ctor-native/report.json",
+      "sha256": "84456860cd2933a78ce45573b6b0f43d03fe225a4173f430936977e832ecc82b",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-skeletor-body-ctor-native": {
+      "report": "out/byor-motu-skeletor-body-ctor-native/report.json",
+      "sha256": "40acd9fb37eb3520e65a2015c3196577cef29bc017d81ea63bd4c927494ef785",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 8,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 8,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-none-body-ctor-native": {
+      "report": "out/byor-motu-none-body-ctor-native/report.json",
+      "sha256": "4bc924dc30e8e5c839fbedbfa45e50b88e1c1be89fade8a8e520cc689c2a224e",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 4,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 4,
+          "fault": 0
+        }
+      ]
+    },
+    "byor-motu-effect-body-ctor-native": {
+      "report": "out/byor-motu-effect-body-ctor-native/report.json",
+      "sha256": "f265149e808c33d83c53db3f3d2da6467e6063e458a67bb3581eb3d8d50fe7e9",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 5,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 5,
+          "fault": 0
+        }
+      ]
+    }
+  },
+  "entry": "SourceCtorState4086_Begin",
+  "sequence": [
+    "caller selects free slot and completes source named/script cleanup and exact independent factor copy",
+    "paired callback model/program and cached-field preflight before entity writes",
+    "reset transient view/side/relation/flags/aux state while preserving pool token, sort/resource identities",
+    "publish exists and source ent_count/maximum; install source position/facing/time/lifespan/alpha/display name",
+    "install fresh current cached model scalars and current speed identity",
+    "bind admitted shared script instance",
+    "finish source player nohit/saved-mode masks, player index, textbox role, summonkill and map-zero/default-palette identity",
+    "caller runs real DefaultInit Begin/Continue with all frame-zero callbacks/effects"
+  ],
+  "resources": {
+    "code_bank": 62,
+    "bank0_growth": 0,
+    "control_span": [
+      "43B848",
+      "43B880"
+    ],
+    "body_span": [
+      "433800",
+      "435800"
+    ],
+    "body_bytes": 8192,
+    "body_row_bytes": 64,
+    "remaining_low_gap_before_held_palette": [
+      "435800",
+      "435E00"
+    ]
+  },
+  "source_name_case": "Cached model display name uses first source NAME; KnightBot case is retained rather than substituting the registry declaration Knightbot.",
+  "guard_fix": "Program equality alone cannot detect a shifted table when two models both lack a script. Bind and nonpublishing constructor program preflight now require the actual B4CO model row ID.",
+  "numeric_policy": "entity positions ACCEPTED_COMPAT Q16.16; uint32 nextthink/nextmove wrap; direct integer tick loader authority is separate",
+  "audit": "out/byor-motu-ctor-state-audit.log",
+  "protected_files_unchanged": 17,
+  "source_alpha_identity_preserved": true,
+  "palette_upload_bound": false,
+  "drawmethod_execution_bound": false,
+  "slot_allocation_and_priority_kill_bound": false,
+  "nested_script_constructor_continuation_bound": false,
+  "full_constructor_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

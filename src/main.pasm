@@ -13652,6 +13652,7 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_script_clone.pasm"
 .include "core/vm/vm_source_ctor_model.pasm"
 .include "core/vm/vm_source_factors.pasm"
+.include "core/vm/vm_source_ctor_state.pasm"
 .include "core/vm/vm_source_random_float.pasm"
 .include "core/vm/vm_source_air.pasm"
 

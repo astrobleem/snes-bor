@@ -13,7 +13,7 @@ SourceCtorModel4086_Status = $43B82E
 SourceCtorModel4086_Index = $43B830
 SourceCtorModel4086_End = $43B832
 
-SourceCtorModel4086_Apply:
+SourceCtorModel4086_Preflight:
 .a16
 .i16
  php
@@ -114,6 +114,28 @@ SourceCtorModel4086_Guard_7:
  sta.l SourceCtorModel4086_SpeedLo
  lda.l SourceModelEntityCopy4086_Hi
  sta.l SourceCtorModel4086_SpeedHi
+
+ lda #2
+ sta.l SourceCtorModel4086_Status
+ ply
+ plx
+ plp
+ clc
+ rtl
+
+SourceCtorModel4086_Apply:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ jsl SourceCtorModel4086_Preflight
+ bcc SourceCtorModel4086_ApplyGood
+ jmp SourceCtorModel4086_Bad
+SourceCtorModel4086_ApplyGood:
+.a16
+.i16
  ; All rejectable domains checked before any entity write.
  lda #0
  sta.l SourceCtorModel4086_Index
