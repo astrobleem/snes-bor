@@ -4475,6 +4475,7 @@
 3E:9C06 SourceDefaultInitTail4086_Clamp
 0C:9C07 Character_Throw_Play__check_thrown
 0D:9C07 ActorBehavior_Slot2Busy
+3F:9C0A SourceTryNormalAttack4086_Execute
 0D:9C0D ActorBehavior_Slot3Busy
 1C:9C0D Vm_SourceVarsBranch_37
 1C:9C0F Vm_SourceVarsValidate__bad
@@ -4483,13 +4484,16 @@
 1C:9C14 Vm_SourceVarsResolveKey
 10:9C17 SourceVisual_LoadResources__piece_count_valid
 0D:9C19 ActorBehavior_Slot5Busy
+3F:9C1B SourceTryNormalAttack4086_Lease
 3E:9C1C SourceDefaultInitTail4086_Done
 0D:9C1D ActorBehavior_SlotBusy
 1C:9C22 Vm_SourceVarsBranch_38
+3F:9C24 SourceTryNormalAttack4086_Idle
 3E:9C28 SourceDefaultInit4086_BeginIdle
 10:9C29 SourceVisual_LoadResources__record_match
 00:9C2B Vm_CompareInt
 0C:9C2B Character_Throw_Play__zpos_le0
+3F:9C2D SourceTryNormalAttack4086_Owner
 1C:9C2E Vm_SourceVarsBranch_39
 0C:9C31 Character_Throw_Play__still_air
 0D:9C31 ActorBehavior_SlotBusy__hp
@@ -4499,8 +4503,10 @@
 0D:9C39 ActorBehavior_CaptureRoster
 1C:9C39 Vm_SourceVarsResolveKey__char
 3E:9C39 SourceDefaultInitIdle4086_Guard_1
+3F:9C39 SourceTryNormalAttack4086_Query
 00:9C40 STAGE_TIMER_RESET
 1C:9C41 Vm_SourceVarsBranch_41
+3F:9C42 SourceTryNormalAttack4086_Target
 3E:9C45 SourceDefaultInitIdle4086_Guard_2
 1C:9C4C Vm_SourceVarsResolveKey__ok
 1C:9C4C Vm_SourceVarsBranch_42
@@ -4510,6 +4516,7 @@
 1C:9C53 Vm_SourceVarsFind
 3E:9C5D SourceDefaultInitIdle4086_Guard_4
 0C:9C60 Character_Throw_Play__ordinary_land
+3F:9C63 SourceTryNormalAttack4086_Bad
 00:9C64 Vm_CompareInt__lt
 1C:9C65 Vm_SourceVarsFind__row
 3E:9C69 SourceDefaultInitIdle4086_Guard_5
@@ -9237,6 +9244,9 @@
 00:43BDC6 SourceAITarget4086_Result
 00:43BDCA SourceAITarget4086_Selected
 00:43BDCC SourceAITarget4086_End
+00:43BDCC SourceTryNormalAttack4086_Ready
+00:43BDCE SourceTryNormalAttack4086_Status
+00:43BDD0 SourceTryNormalAttack4086_End
 00:43C000 SOURCE_MODEL_ANIMATION_CACHE
 00:43FB00 SOURCE_UPDATE_FRAME_QUAKE
 00:43FD80 SOURCE_RETIREMENT_ROLES

@@ -1,0 +1,27 @@
+{
+  "schema": "BYOR_MOTU_NORMAL_ATTACK_NO_TARGET_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-normal-entry-authority/report.json",
+      "sha256": "fd30f691117a19855289c1a0d0a618212d9612739322888364ffa8814a09e645",
+      "cases": 64
+    },
+    {
+      "path": "out/byor-motu-normal-entry-native/report.json",
+      "sha256": "0f1a6bf8b67f09c848ca949455a3f86438dc325e89f810a3807df47c26088411",
+      "cases": 90
+    }
+  ],
+  "real_target_query_executed": true,
+  "no_target_returns_literal_false": true,
+  "both_RNG_streams_unchanged": true,
+  "typed_VM_return_preserved": true,
+  "present_target_body_bound": false,
+  "grounded_attack_integrated": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}

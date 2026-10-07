@@ -13708,3 +13708,4 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_target_metadata.pasm"
 .include "core/vm/vm_source_entity_names.pasm"
 .include "core/vm/vm_source_ai_target.pasm"
+.include "core/vm/vm_source_try_normal_attack.pasm"
