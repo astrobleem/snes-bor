@@ -157,6 +157,18 @@ SourceAIRun4086_PrepareContinueBad:
 SourceAIRun4086_NotPreparePending:
 .a16
 .i16
+ cmp #17
+ bne SourceAIRun4086_NotAttackPending
+ jsl SourceCommonAttackProc4086_Continue
+ bcs SourceAIRun4086_AttackContinueBad
+ jmp SourceAIRun4086_AttackProcDone
+SourceAIRun4086_AttackContinueBad:
+.a16
+.i16
+ jmp SourceAIRun4086_Bad
+SourceAIRun4086_NotAttackPending:
+.a16
+.i16
  cmp #4
  beq SourceAIRun4086_Far14
  jmp SourceAIRun4086_Bad
@@ -279,6 +291,14 @@ SourceAIRun4086_NotNormalPrepare:
  bcc SourceAIRun4086_AttackProcDone
  jmp SourceAIRun4086_Bad
 SourceAIRun4086_AttackProcDone:
+.a16
+.i16
+ lda.l SourceCommonAttackProc4086_Status
+ cmp #1
+ bne SourceAIRun4086_AttackProcComplete
+ lda #17
+ jmp SourceAIRun4086_Pending
+SourceAIRun4086_AttackProcComplete:
 .a16
 .i16
  lda #1

@@ -1,0 +1,67 @@
+{
+  "schema": "BYOR_4086_FINISHED_ATTACK_PROC_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-finished-proc-authority/report.json",
+      "sha256": "f27e46f2617da2615e75dfa3055d8a209b556feffabc86581da13f0a01c43b03",
+      "cases": 106
+    },
+    {
+      "path": "out/byor-motu-finished-proc-framezero-reactive-fixed-native/report.json",
+      "sha256": "69e41b1f914365b765f765c16942a07ad4f2fc766cd82d9f102883bd2559988e",
+      "cases": 56
+    },
+    {
+      "path": "out/byor-motu-finished-proc-cost-framezero-ai-native/report.json",
+      "sha256": "588686d31ddb6ac7d27e28ab13e1b3c0c60c9c098c445042b8e18a9aa159bbc8",
+      "cases": 56
+    },
+    {
+      "path": "out/byor-motu-finished-proc-guards-native/report.json",
+      "sha256": "ad8e894f7e279e3b526d09b30c688daa8354d2d9224e8bdad5b0fd1775809dc9",
+      "cases": 100
+    },
+    {
+      "path": "out/byor-motu-finished-proc-cost-resume-guards-native/report.json",
+      "sha256": "e5d5580fe5d2b295eea685369c24455f27fe7ed713866f4b0b1c0a13ef645f61",
+      "cases": 10
+    },
+    {
+      "path": "out/byor-motu-finished-proc-short-circuit-ai-native/report.json",
+      "sha256": "2743cb0f4eb81a74c05a308e1ca602e34e292de9894f184661756355735c6672",
+      "cases": 238
+    }
+  ],
+  "capability_domain": "grounded/nonanimating, actual smartbomber role not self, reactive==1 requires NULL actual weapent, finish player or NULL opponent",
+  "actual_global_smartbomber_field": "43FD94 full32 under B4F8 role lease",
+  "unsupported_self_smartbomb_or_nonnull_shot_weapon_rejected_before_actor_mutation": true,
+  "actual_tocost_payment": true,
+  "full32_reactive_exact_comparison": true,
+  "source_attacking_clear_before_finish": true,
+  "real_idle_framezero_before_finish_stall": true,
+  "actual_ai_pending_kind": 17,
+  "actual_ai_pending_state": [
+    1,
+    1,
+    17
+  ],
+  "actual_ai_terminal_state": [
+    2,
+    5,
+    0
+  ],
+  "no_cost_repayment_on_resume": true,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "bank_zero_growth_bytes": 0,
+  "bank_zero_symbol_addresses_unchanged": true,
+  "bank_zero_changes_only_external_call_relocations": [],
+  "protected_dirty_tracked_files": 17,
+  "width_guard_new_violations": 0,
+  "width_guard_authority_baseline": 183,
+  "total_gameplay_timing_budget_proven": false,
+  "static_obj_presentation_modified": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

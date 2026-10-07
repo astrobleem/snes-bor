@@ -13,6 +13,21 @@ SourceCommonAttackFinish4086_Execute:
  rep #$38
  phx
  phy
+ jsl SourceCommonAttackFinish4086_Preflight
+ bcc SourceCommonAttackFinish4086_ExecuteChecked
+ jmp SourceCommonAttackFinish4086_Bad
+SourceCommonAttackFinish4086_ExecuteChecked:
+.a16
+.i16
+ jmp SourceCommonAttackFinish4086_Apply
+; Pure entity preflight; captures branch identity, never publishes actor writes.
+SourceCommonAttackFinish4086_Preflight:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
  lda.l SourceCommonAttackFinish4086_Ready
  cmp #$B608
  beq SourceCommonAttackFinish4086_ReadyChecked
@@ -120,7 +135,7 @@ SourceCommonAttackFinish4086_EntityCountChecked:
  lda.l $40C048,x
  and #1
  sta.l SourceCommonAttackFinish4086_Player
- bne SourceCommonAttackFinish4086_Apply
+ bne SourceCommonAttackFinish4086_PreflightGood
  lda.l SourceAI4086_Side
  tax
  lda.l $40900C,x
@@ -131,8 +146,16 @@ SourceCommonAttackFinish4086_OpponentChecked:
 .a16
 .i16
  jsr SourceCommonAttackFinish4086_TimingRow
- bcc SourceCommonAttackFinish4086_Apply
+ bcc SourceCommonAttackFinish4086_PreflightGood
  jmp SourceCommonAttackFinish4086_Bad
+SourceCommonAttackFinish4086_PreflightGood:
+.a16
+.i16
+ ply
+ plx
+ plp
+ clc
+ rtl
 SourceCommonAttackFinish4086_Apply:
 .a16
 .i16
