@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_MOTU_ENTITY_NORMAL_CHANCE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proof": {
+    "path": "out/byor-motu-entity-normal-chance-native/report.json",
+    "sha256": "079d2f1ece0ae92a05b51e313d73183623f6d4c50fda77092537641d436bdfb4",
+    "cases": 799
+  },
+  "profile_table_sha256": "bcb79b1d590cdd0b76c5ad95f1367d8331540e3747406c62d1e713356746c2ba",
+  "source_viewport": [
+    320,
+    240
+  ],
+  "actual_current_model_aiattack_self_x_camera_bound": true,
+  "strict_extended_signed_q16_thresholds": true,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "requires_closed_static_attackthrottle_and_global_coefficients": true,
+  "normal_attack_caller_bound": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
