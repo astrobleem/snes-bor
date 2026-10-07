@@ -68,6 +68,7 @@ Vm_FetchSourceInit:
     sta.l SourceAnimationCallback4086_Ready
     sta.l SourceFrameMotion4086_Ready
     sta.l SourceModelAnimationCopy4086_Ready
+    sta.l SourceAttackCostState4086_Ready
     sta.l SourceModelEntityCopy4086_Ready
     sta.l SourceAnimationInit4086_Ready
     sta.l SourceFrameStack4086_Ready

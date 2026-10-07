@@ -1,6 +1,7 @@
 ; Mutable cached-model animation pointers, represented by immutable frame
 ; handles. This is one component of set_model_ex, not the complete model switch.
-; B4E9 leases an exclusive $43C000..$43DFFF cache and paired B4FE descriptor.
+; B4E9 leases $43C000..$43DFFF when B609 is disabled; B609 owns
+; $43DE00..$43DFFF and limits this cache to 7680 bytes. Paired B4FE descriptor.
 ; Source TYPE and script identity are separate; no source actor aliases exist.
 SourceModelAnimationCopy4086_Ready = $7FFC50
 SourceModelAnimationCopy4086_Models = $7FFC52
@@ -114,6 +115,12 @@ SourceModelAnimationCopy4086_Branch_12:
     bcc SourceModelAnimationCopy4086_Branch_13
     jmp SourceModelAnimationCopy4086_Bad
 SourceModelAnimationCopy4086_Branch_13:
+.a16
+.i16
+    jsl SourceAttackCostState4086_CheckCacheSpan
+    bcc SourceModelAnimationCopy4086_CostSpanChecked
+    jmp SourceModelAnimationCopy4086_Bad
+SourceModelAnimationCopy4086_CostSpanChecked:
 .a16
 .i16
     cmp.l SourceModelAnimationCopy4086_Bytes

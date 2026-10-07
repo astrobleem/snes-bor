@@ -1,0 +1,96 @@
+{
+  "schema": "BYOR_4086_ATTACK_COST_STORAGE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-cost-span-native/report.json",
+      "sha256": "157cf1352747fbeaa64df59fb94308bf3a173281ea7f74a35679d052dd99428e",
+      "cases": 21,
+      "rom_sha256": "f065810d2449c9ced5a2e35e0e849c5663011b352ef7606fc949875b9b2acd2d"
+    },
+    {
+      "path": "out/byor-motu-attack-cost-clear-native/report.json",
+      "sha256": "91803994c3dc844c15b9efeb351544fa403cb09c256b87a1cdbf944fc103ed6c",
+      "cases": 115,
+      "rom_sha256": "48dcf5807cff7c5618113e9d4588ea9a7a299777cc17db03ceba6525020db50d"
+    },
+    {
+      "path": "out/byor-motu-attack-cost-ctor-native/report.json",
+      "sha256": "9fef3e94b5218d0203440f799ebedf962037d3f8b076415cba608279a1d94670",
+      "cases": 241,
+      "rom_sha256": "acfa850c34452d6af15e6fecddc0be1de5dab9189a3635f267e5a24a24dcafcb"
+    },
+    {
+      "path": "out/byor-motu-attack-cost-old-birth-native/report.json",
+      "sha256": "a045c7bcb9de1b0e9575ec99642166a8a25d3235fa983c7eaaf57a1abde09ae8",
+      "cases": 85,
+      "rom_sha256": "517fa8e9335a400c974226bf47cd2aeab3d014ddd3600597f17987e1f5db5b42"
+    },
+    {
+      "path": "out/byor-motu-attack-cost-model-copy-native/report.json",
+      "sha256": "af9c19229ab058883df15076761ebd986a8bb934253aa20199042b7a9866f859",
+      "cases": 2066,
+      "rom_sha256": "c9ec27b957e6ca34ccc140435492d9adf763b1468bd3bcb48f69d54e0dfdaa88"
+    },
+    {
+      "path": "out/byor-motu-attack-cost-disabled-copy-native/report.json",
+      "sha256": "21cb207610aa85d9a133a40956493a02b30957fbd6c20799b9afcdefb1c6182e",
+      "cases": 2062,
+      "rom_sha256": "d51291dffc7b4cffdd2cde53d1c18a27dfbb0549c947ca380c503d431447cfb1"
+    }
+  ],
+  "actual_entity_field": "int32 entity.tocost: 43DE00 + 4*slot",
+  "actor_capacity": 128,
+  "active_animation_cache_capacity": 7680,
+  "disabled_animation_cache_capacity": 8192,
+  "constructor_clear_before_exists": true,
+  "old_none_birth_clear": true,
+  "model_copy_preserves_field": true,
+  "bank_zero_growth_bytes": 0,
+  "bank_zero_symbol_addresses_unchanged": true,
+  "bank_zero_changes_only_external_call_relocations": [
+    {
+      "pc": "0x9641",
+      "symbol": "Vm_SourceFrameGate",
+      "old": "0x1c8d5f",
+      "new": "0x1c8d63"
+    },
+    {
+      "pc": "0x9697",
+      "symbol": "Vm_FetchSource",
+      "old": "0x1c8474",
+      "new": "0x1c8478"
+    },
+    {
+      "pc": "0x99a5",
+      "symbol": "Vm_SourceVariantAddFallback",
+      "old": "0x1c886b",
+      "new": "0x1c886f"
+    },
+    {
+      "pc": "0x9c9e",
+      "symbol": "Vm_SourceVariantTruthyFallback",
+      "old": "0x1c883f",
+      "new": "0x1c8843"
+    },
+    {
+      "pc": "0xa850",
+      "symbol": "Vm_SourceVariantCompareFallback",
+      "old": "0x1c893b",
+      "new": "0x1c893f"
+    },
+    {
+      "pc": "0xd172",
+      "symbol": "SourceClock4086_NmiGate",
+      "old": "0x3ef57b",
+      "new": "0x3ef5af"
+    }
+  ],
+  "protected_tracked_files": 17,
+  "cost_payment_bound": false,
+  "finished_attack_proc_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
