@@ -94,7 +94,7 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None,*,export_root
     # execute without a VM frame; each script CALL adds one 12-byte frame.
     # These are source graph bounds, not an assertion of native service support.
     native_chains=[]
-    def trace_calls(name, chain):
+    def trace_calls(name, chain, frame_calls):
         chain=chain+[name]
         rows,reachable,_=decoded[name]
         for pc,(op,arg,argc,nxt) in rows.items():
@@ -102,9 +102,10 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None,*,export_root
             if arg&0x8000:
                 native_chains.append(dict(name=library['builtin_requirements'][arg&0x7fff],
                                           arity=argc,bytecode_pc=pc,functions=chain,
+                                          frame_calls=frame_calls,
                                           script_frames=len(chain)-1))
-            else:trace_calls(names[arg],chain)
-    for root in roots:trace_calls(root,[])
+            else:trace_calls(names[arg],chain,frame_calls+[dict(function=name,bytecode_pc=pc)])
+    for root in roots:trace_calls(root,[],[])
     if any(set(roots)&targets for targets in edges.values()):
         raise ValueError('NATIVE_ROOT_ENTRY_CALLED_AS_FUNCTION')
     requirements=sorted({(library['builtin_requirements'][arg&0x7fff],argc)
@@ -142,7 +143,7 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None,*,export_root
                for name,fn in library['functions'].items()}
         stacks={name:root_stacks[:data[2]] if name in roots else [slot() for _ in range(data[2])]
                 for name,data in decoded.items()}
-    entries={};patches=[];arg_offset=0;initialized={}
+    entries={};patches=[];arg_offset=0;initialized={};all_targets={}
     inverse={value:BINOP_OPCODE[key] for key,value in BINARY.items()}
     def emit(op,a=0,b=0,c=0):
         index=len(m.instructions);m.instructions.append(Instr(op,a,b,c));return index
@@ -182,6 +183,7 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None,*,export_root
                 m.callsites.append(cs);i=emit(8,0,dest,len(m.callsites)-1)
                 if kind==0:patches.append((i,names[arg],len(m.callsites)-1,'function'))
         epilogue=len(m.instructions);emit(43)
+        all_targets[name]=targets
         for i in returns:m.instructions[i].a=epilogue
         for i,pname,target,kind in patches:
             if pname==name and kind=='local':m.instructions[i].a=targets[target]
@@ -195,7 +197,10 @@ def lower(library,entry='main',numeric_policy=None,native_ids=None,*,export_root
         initial_empty_locals=initialized,
         function_local_slots={name:dict(zip(library['functions'][name]['locals'],slots)) for name,slots in homes.items()},
         function_stack_slots=stacks,
-        native_call_chains=[dict(c,conservative_mutable_slots=sorted({s for name in c['functions']
+        native_call_chains=[dict(c,native_ip=all_targets[c['functions'][-1]][c['bytecode_pc']],
+            native_callsite=m.instructions[all_targets[c['functions'][-1]][c['bytecode_pc']]].c,
+            frame_callsites=[m.instructions[all_targets[f['function']][f['bytecode_pc']]].c for f in c['frame_calls']],
+            conservative_mutable_slots=sorted({s for name in c['functions']
             for s in homes[name]+stacks[name]})) for c in native_chains],
         max_native_call_script_frames=max((c['script_frames'] for c in native_chains),default=0),
         native_continuation_bound=False,

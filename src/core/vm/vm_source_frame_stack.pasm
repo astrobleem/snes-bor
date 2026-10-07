@@ -41,6 +41,23 @@ SourceFrameStack4086_IdleBad:
     sec
     rtl
 
+ ; Native script yield is a separate, fully checked stack admission.
+SourceFrameStack4086_PushNative:
+.a16
+.i16
+    php
+    rep #$38
+    phb
+    phx
+    phy
+    jsl SourceNativeContinuation4086_Match
+    bcc SourceFrameStack4086_NativeMatched
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_NativeMatched:
+.a16
+.i16
+    jmp SourceFrameStack4086_PushMotionCheck
+
 SourceFrameStack4086_Push:
 .a16
 .i16
@@ -81,6 +98,9 @@ SourceFrameStack4086_Relaxed_4:
     beq SourceFrameStack4086_Relaxed_5
     jmp SourceFrameStack4086_Bad
 SourceFrameStack4086_Relaxed_5:
+.a16
+.i16
+SourceFrameStack4086_PushMotionCheck:
 .a16
 .i16
     lda.l SourceFrameMotion4086_Ready
@@ -170,6 +190,15 @@ SourceFrameStack4086_PushEffectPlanDone:
 SourceFrameStack4086_PushSelfDone:
 .a16
 .i16
+    lda.l SourceUpdateFrame4086_Pending
+    cmp #1
+    bne SourceFrameStack4086_PushSnapshotReady
+    jsl SourceNativeSnapshot4086_Capture
+    bcc SourceFrameStack4086_PushSnapshotReady
+    jmp SourceFrameStack4086_Bad
+SourceFrameStack4086_PushSnapshotReady:
+.a16
+.i16
     lda.l SourceFrameStack4086_Depth
     jsr SourceFrameStack4086_RowOffset
     tay
@@ -184,6 +213,25 @@ SourceFrameStack4086_PushSelfDone:
     lda.l SourceFrameStack4086_Depth
     inc a
     sta.l SourceFrameStack4086_Depth
+    lda.l SourceUpdateFrame4086_Pending
+    cmp #1
+    bne SourceFrameStack4086_ChildFrameReset
+    lda.l SourceFrameStack4086_Depth
+    inc a
+    sta.l SourceFrameStack4086_Depth
+    lda #0
+    sta.l VmSourceCallback_Active
+    sta.l SourceNativeContinuation4086_Request
+    sep #$20
+.a8
+    lda #VMSTAT_DONE
+    sta.l VmState_Status
+    rep #$38
+.a16
+.i16
+SourceFrameStack4086_ChildFrameReset:
+.a16
+.i16
     lda #0
     sta.l SourceUpdateFrame4086_State
     sta.l SourceUpdateFrame4086_Pending

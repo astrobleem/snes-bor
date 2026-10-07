@@ -13752,3 +13752,13 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_offscreen_state.pasm"
 
 .include "core/vm/vm_source_named_knife.pasm"
+
+.include "core/vm/vm_source_native_continuation.pasm"
+
+.include "core/vm/vm_source_native_snapshot.pasm"
+
+.include "core/vm/vm_source_native_restore.pasm"
+
+.include "core/vm/vm_source_animation_slots.pasm"
+
+.include "core/vm/vm_source_native_pair.pasm"

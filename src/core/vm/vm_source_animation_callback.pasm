@@ -742,6 +742,12 @@ SourceAnimationCallback4086_Prepare__route_valid:
 SourceAnimationCallback4086_Prepare__copy_required:
 .a16
 .i16
+    jsl SourceAnimationSlots4086_Release
+    bcc SourceAnimationCallback4086_Prepare__slots_released
+    jmp SourceAnimationCallback4086_HelperBad
+SourceAnimationCallback4086_Prepare__slots_released:
+.a16
+.i16
     lda.l SourceAnimationCallback4086_Initializers
     clc
     adc #$9AA0                    ; VmCode_Wram low16, validated metadata range

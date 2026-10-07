@@ -1,0 +1,124 @@
+{
+  "schema": "BYOR_MOTU_NATIVE_CONTINUATION_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-native-continuation-abi-v2/report.json",
+      "sha256": "4f8512057d74c21c059bd3d930e7ea0c27a9eddf48346966ddb37f64a2651211",
+      "table_sha256": "4b873eee495bec692a02b2ee5ca2adad6f1731687bf51d41cb89bd292dea6b7e",
+      "peak_snapshot_bytes": 497,
+      "context_bytes": 237,
+      "table_bytes": 1716
+    },
+    {
+      "path": "out/byor-motu-native-continuation-match-final/report.json",
+      "sha256": "51626a1918787a05fb2b13bcc893be0d7496cac9459168e047095dbb4ecd84cc",
+      "cases": 132,
+      "rom_sha256": "ae149cf2a6c629be3cb56ff1be5f3705dd0198d1818d1cb1a4aa769beca7194e",
+      "table_sha256": "4b873eee495bec692a02b2ee5ca2adad6f1731687bf51d41cb89bd292dea6b7e"
+    },
+    {
+      "path": "out/byor-motu-native-snapshot-capture-final/report.json",
+      "sha256": "0d19620be111fb8be988d960c4e080ba637166f9227218b2748fc4f06bcfb41a",
+      "cases": 69,
+      "rom_sha256": "02c87a358a8efd0f4b7b7a2f4f745f97281fb6853e1f99c733503c8bedb47753",
+      "table_sha256": "4b873eee495bec692a02b2ee5ca2adad6f1731687bf51d41cb89bd292dea6b7e"
+    },
+    {
+      "path": "out/byor-motu-native-snapshot-restore-final/report.json",
+      "sha256": "2a610d247d57d76f18c70d8ff9e52fa97d6a11666d584d04d0bc541e11c38753",
+      "cases": 83,
+      "rom_sha256": "d1e2d5e14afbd220153ad3cb2aae279925d4f4fc4838e48054b7cb08532ece8b",
+      "table_sha256": "4b873eee495bec692a02b2ee5ca2adad6f1731687bf51d41cb89bd292dea6b7e"
+    },
+    {
+      "path": "out/byor-motu-animation-slots-native-v2/report.json",
+      "sha256": "39014b3544c9e4578d0ad9809781b078a4c679a94d435dca52bf4d5c4339b5d2",
+      "cases": 30,
+      "rom_sha256": "990f824371b33d4efe888ac8d75127e688f37f8e3890b509b5a05d9c584ff46a",
+      "table_sha256": "4b873eee495bec692a02b2ee5ca2adad6f1731687bf51d41cb89bd292dea6b7e"
+    },
+    {
+      "path": "out/byor-motu-native-pair-roundtrip-v1/report.json",
+      "sha256": "0066786053d1a2d22278ab4b77ae8f5d9c646a69ba5b57d845ce8af6e03900e6",
+      "cases": 60,
+      "rom_sha256": "9ef4a76f0f848aa51d578608606b3100ce3285eb1f99274c66b6b15bc99c58e5",
+      "table_sha256": "4b873eee495bec692a02b2ee5ca2adad6f1731687bf51d41cb89bd292dea6b7e"
+    },
+    {
+      "path": "out/byor-motu-native-pair-frame-regression/report.json",
+      "sha256": "653d13b49ac534ea71a3657f43ced3c4b1cab8cf8f202ea81b04a6f07bc18191",
+      "cases": 18,
+      "rom_sha256": "ff5d8a2cef98b8d57d93b9348faf3c4597281e8c927ab17ecbd31c90f36bb377"
+    }
+  ],
+  "records": 28,
+  "table_bytes": 1716,
+  "fixed_context_bytes": 237,
+  "peak_snapshot_bytes": 497,
+  "snapshot_capacity": 512,
+  "frame_stack_rows_per_native": 2,
+  "maximum_native_nesting_without_other_frame_rows": 4,
+  "dynamic_string_ownership": "Capture preflights aggregate aliases and retains once per saved cell; callback initializer releases live temporary ownership; restore preflights saved/current aggregate ownership, releases child cells and transfers retained references once; consumed tail marker rejects repeated restore.",
+  "leases": [
+    "B612 continuation table",
+    "B613 native request",
+    "B614 snapshot ownership"
+  ],
+  "control_range": "40BF90..40BFBD",
+  "snapshot_arena": "existing 40F000..40FFFF plus 43FD00..43FD7F",
+  "offline_tests_passed": 19,
+  "rom_audit": "ALL CHECKS PASS; 183 width baseline violations; zero new; two baseline entries clean",
+  "preservation": {
+    "status": "PASS",
+    "protected": 17,
+    "bank_zero_symbol_addresses_unchanged": true,
+    "bank_zero_growth_bytes": 0,
+    "changed_bank_zero_bytes": 5,
+    "changes_only_external_relocations": [
+      {
+        "pc": "0x9641",
+        "symbol": "Vm_SourceFrameGate",
+        "old": "0x1c8d83",
+        "new": "0x1c8d8f"
+      },
+      {
+        "pc": "0x9697",
+        "symbol": "Vm_FetchSource",
+        "old": "0x1c8498",
+        "new": "0x1c84a4"
+      },
+      {
+        "pc": "0x99a5",
+        "symbol": "Vm_SourceVariantAddFallback",
+        "old": "0x1c888f",
+        "new": "0x1c889b"
+      },
+      {
+        "pc": "0x9c9e",
+        "symbol": "Vm_SourceVariantTruthyFallback",
+        "old": "0x1c8863",
+        "new": "0x1c886f"
+      },
+      {
+        "pc": "0xa850",
+        "symbol": "Vm_SourceVariantCompareFallback",
+        "old": "0x1c895f",
+        "new": "0x1c896b"
+      }
+    ],
+    "head": "73141e86cbb44c627fdf7a66f9d64416618969ea"
+  },
+  "source_native_ids": {
+    "projectile": "020E (8 arguments)",
+    "spawn": "0212 (0 arguments)"
+  },
+  "native_request_instrumented": true,
+  "child_callback_body_instrumented": true,
+  "native_constructor_execution_bound": false,
+  "live_projectile_api_bound": false,
+  "actual_knightbot_frame6_projectile_and_audio_proven": false,
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

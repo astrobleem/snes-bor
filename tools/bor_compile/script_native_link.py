@@ -46,6 +46,7 @@ def link(programs):
         source,natives=unpack(blob);ib=len(m.instructions);sb=len(m.slots);cb=len(m.callsites)
         entries.append(dict(identity=identity,entry_ip=ib+source.entry_main,
             instructions=len(source.instructions),slots=len(source.slots),slot_base=sb,
+            callsite_base=cb,callsites=len(source.callsites),
             source_module_sha256=hashlib.sha256(blob).hexdigest()))
         strings={}
         for i,string in enumerate(source.strings):
