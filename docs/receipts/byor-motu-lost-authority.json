@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_MOTU_LOST_AUTHORITY_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out/byor-motu-lost-authority/report.json",
+  "proof_sha256": "3e141ade28c87ce8d3333ea507c99ab4bb613ef5c624917fc0af9b08ef95ad10",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "function_sha256": "568707f6ec5ef39f20480096f361d825dd9dd83e68f493fc4bb8a19f84b2c38d",
+  "cases": 2554,
+  "checks": [
+    "Literal pinned check_lost and actual is_frozen macro",
+    "Default and negative authored offscreenkill thresholds",
+    "Horizontal and exact vertical-direction comparisons",
+    "Parked weapon Z=100000 sentinel and independent extreme pit check",
+    "PLAYER type mask versus kill request",
+    "Pit and lifespan damage copy source health/attack type/drop vector",
+    "Lifespan zero decrements to -1 before expiry on the following tick",
+    "Frozen countdown held; infinite 0x7fffffff retained"
+  ],
+  "native_backend_bound": false,
+  "death_damage_handlers_instrumented": true,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
