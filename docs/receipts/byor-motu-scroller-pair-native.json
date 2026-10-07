@@ -1,0 +1,53 @@
+{
+  "schema": "BYOR_MOTU_SCROLLER_PAIR_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out/byor-motu-scroller-opening-pair-native/report.json",
+  "proof_sha256": "36c1467cf0ba9eeb48ac2fe712dbbfbc82d809a5c4050560f248b48fce11c1e6",
+  "rom_sha256": "6e3bf79528d55561bd0974cae584a7c879ab3eb78c6b6663ef6d1154323bb07a",
+  "source_records": [
+    0,
+    1
+  ],
+  "controlled_catchup_position": 200,
+  "births": [
+    [
+      0,
+      0,
+      4276224,
+      36044800,
+      14417920,
+      70,
+      70,
+      0
+    ],
+    [
+      1,
+      1,
+      4276304,
+      36044800,
+      12451840,
+      55,
+      55,
+      0
+    ]
+  ],
+  "checks": [
+    "Two actual source constructor/default/script/property handoffs in one native scroller invocation",
+    "Distinct stable source pointer variants for physical slots 0 and 1",
+    "Source geometry and per-spawn health override",
+    "First entity view/core/side/life/body/relation bytes retained exactly",
+    "Next authored AT bounds queue invocation",
+    "Actual WAIT/camera retirement before no-player return",
+    "Logical clock intentionally held pending remaining world services"
+  ],
+  "protected_files_unchanged": 17,
+  "bank0_free_before_nmi": 2,
+  "nonclaims": [
+    "Live camera trajectory: positions 15 and 200 are authored, the fixture holds catch-up position 200",
+    "Pool/role/drop context installation is instrumented",
+    "Player, AI, combat, moving rendering or full-world integration",
+    "MOTU foreign profile admission or Demo completion"
+  ],
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
