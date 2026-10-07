@@ -177,6 +177,7 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
         m.write_memory('SnesMemory',0x2007,'00')
         for name,value in [('AudioStream_Enable',1),('AudioStream_TransportOnly',2 if prefill else 0),('AudioStream_SerialPermit',1),('AudioSemantic_FootDieStreamActive',0)]:m.write_memory('SnesMemory',sy[name],f'{value:02x}')
         m.write_u16(sy['AudioSemantic_FootDieStreamFrame'],0xffff)
+        (folder/'voice0.raw.arm').touch()
         m.record_audio(folder/'source-energy.wav')
     def closeout(m,sy,completed):
         if completed:
@@ -184,9 +185,15 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
             done_field=None
             for i in range(400):
                 if prefill:
-                    accepted=observations[-1]['chunks_accepted']if observations else 0
-                    if accepted<7:m.write_memory('SnesMemory',sy['AudioStream_SerialPermit'],'01')
-                    else:m.write_memory('SnesMemory',sy['AudioStream_TransportOnly'],'00')
+                    control=m.read_memory('SnesMemory',sy['TadPrivate_stream_frame'],64)
+                    accepted=int.from_bytes(control[sy['TadPrivate_stream_chunks_accepted']-sy['TadPrivate_stream_frame']:][:2],'little')
+                    pending=control[sy['TadPrivate_stream_pending']-sy['TadPrivate_stream_frame']]
+                    # Permit only an idle producer. Regranting while a chunk
+                    # is in flight can prefill an eighth chunk before mode
+                    # switches, then overwrite the head on the first KON.
+                    if not pending:
+                        if accepted<7:m.write_memory('SnesMemory',sy['AudioStream_SerialPermit'],'01')
+                        else:m.write_memory('SnesMemory',sy['AudioStream_TransportOnly'],'00')
                 run_frames_exact(m,1)
                 b=m.read_memory('SnesMemory',sy['TadPrivate_stream_frame'],64)
                 def word(name):
@@ -215,6 +222,26 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
 BINDINGS=dict(FRAMEDATA='SourceUpdateFrame4086_FrameData',STREAMSOURCE='AudioStream_SourceId',SOUNDTICKET='SourceFrameEffectPlan4086_Acknowledged',SOUNDACK='SourceFrameEffectPlan4086_Ack',STREAMREQUESTS='AudioSemantic_StreamRequestCount',STREAMCHUNKS='AudioStream_SourceChunks',STREAMLENGTH='AudioStream_SourceLength',NMISKIPPED='Core_Nmi_Play__frame_skipped',NMICOMMIT='Core_Nmi_Play__do_commit',NMIHARDWAREFRAME='Nmi_FrameCounter')
 IDLE_BINDINGS=dict(WAITCOUNTER='Nmi_FrameCounter',STREAMENABLE='AudioStream_Enable',STREAMACTIVE='AudioSemantic_FootDieStreamActive',TADLATE='Tad_StreamLatePump')
 ARM_BINDINGS=dict(ARMPHASE='TadPrivate_stream_arm_phase',ARMREAL='Tad_StreamArmFootdieFrame')
+
+WAIT_CONTEXT_BINDINGS=dict(WAITENTRY='Tad_StreamWaitFrame',WAITEXIT='Core_Nmi_WaitFrame__return',WAITFRAME='Nmi_FrameCounter')
+WAIT_CONTEXT_OBSERVER=r'''
+local waitcpu=nil
+emu.addMemoryCallback(function()
+ if not sourceaudioactive then return end
+ local st=emu.getState();waitcpu={counter=word(WAITFRAME)}
+ for _,k in ipairs({'x','y','d','dbr','sp','ps'})do waitcpu[k]=st['cpu.'..k]end
+end,emu.callbackType.exec,WAITENTRY,WAITENTRY,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ if not waitcpu then return end
+ local st=emu.getState();local faults=0
+ for _,k in ipairs({'x','y','d','dbr','sp'})do if waitcpu[k]~=st['cpu.'..k]then faults=faults+1 end end
+ local now=word(WAITFRAME);local diff=(waitcpu.counter-now)&65535
+ local flags=(waitcpu.counter>=now and 1 or 0)|(diff==0 and 2 or 0)|((diff&32768)~=0 and 128 or 0)
+ if (st['cpu.ps']&179)~=flags or (st['cpu.ps']&76)~=(waitcpu.ps&76)then faults=faults+1 end
+ if st['cpu.a']~=waitcpu.counter or now==waitcpu.counter then faults=faults+1 end
+ emu.log('SOURCEAUDIOWAITCTX|'..now..'|'..faults);waitcpu=nil
+end,emu.callbackType.exec,WAITEXIT,WAITEXIT,emu.cpuType.snes,mt)
+'''
 
 OBSERVER=r'''
 local sourceaudioactive=false

@@ -12706,22 +12706,6 @@ Tad_StreamServiceFootdie__enabled:
     brl Tad_StreamServiceFootdie__return
 Tad_StreamServiceFootdie__active:
     .a8
-    ; Transport-only prefill is not playback time. Start a fresh consumer
-    ; epoch when normal voice-0 playback becomes active.
-    lda.l AudioStream_TransportOnly
-    cmp #2
-    beq Tad_StreamServiceFootdie__consumer_mode_ready
-    lda.l TadPrivate_stream_consumer_started
-    bne Tad_StreamServiceFootdie__consumer_mode_ready
-    rep #$20
-.a16
-    lda #0
-    sta.l TadPrivate_stream_consumer_budget
-    sta.l TadPrivate_stream_consumer_chunk
-    sep #$20
-.a8
-    lda #1
-    sta.l TadPrivate_stream_consumer_started
 Tad_StreamServiceFootdie__consumer_mode_ready:
     ; Advance playback credit once per real NMI frame. The late pump in the
     ; same frame observes the same frame identity and cannot advance twice.
@@ -12736,7 +12720,11 @@ Tad_StreamServiceFootdie__consumer_mode_ready:
     adc #103
     sta.l TadPrivate_stream_budget
     lda.l AudioStream_TransportOnly
+    and #$00ff                  ; byte mode must not include SerialPermit
     cmp #2
+    beq Tad_StreamServiceFootdie__consumer_budget_ready
+    lda.l TadPrivate_stream_consumer_started
+    and #$00ff
     beq Tad_StreamServiceFootdie__consumer_budget_ready
     lda.l TadPrivate_stream_consumer_budget
     clc
@@ -12773,9 +12761,13 @@ Tad_StreamServiceFootdie__not_serial:
 Tad_StreamServiceFootdie__pending:
     lda.l TadPrivate_stream_arm_phase
     beq Tad_StreamServiceFootdie__await_ack
+    cmp #1
+    bne Tad_StreamServiceFootdie__already_armed
     jsl Tad_StreamArmFootdieFrame
     lda #2
     sta.l TadPrivate_stream_arm_phase
+Tad_StreamServiceFootdie__already_armed:
+    .a8
     brl Tad_StreamServiceFootdie__return
 Tad_StreamServiceFootdie__await_ack:
     ; A refill is complete only when TAD has acknowledged the command.  The
@@ -12829,6 +12821,23 @@ Tad_StreamServiceFootdie__ack_ready:
     sta.l TadPrivate_stream_chunks_accepted
     sep #$20
 .a8
+    ; The SPC starts voice 0 before acknowledging the first normal transfer.
+    ; Begin conservative consumption credit here, not when the host merely
+    ; switches out of prefill. Early credit can overwrite an unconsumed ring
+    ; slot even when every transported byte and the old ledger look correct.
+    lda.l AudioStream_TransportOnly
+    bne Tad_StreamServiceFootdie__ready
+    lda.l TadPrivate_stream_consumer_started
+    bne Tad_StreamServiceFootdie__ready
+    rep #$20
+.a16
+    lda #0
+    sta.l TadPrivate_stream_consumer_budget
+    sta.l TadPrivate_stream_consumer_chunk
+    sep #$20
+.a8
+    lda #1
+    sta.l TadPrivate_stream_consumer_started
 Tad_StreamServiceFootdie__ready:
     .a8
     lda.l AudioStream_TransportOnly
@@ -13768,3 +13777,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_native_request.pasm"
 
 .include "core/vm/vm_source_native_result.pasm"
+
+.include "core/audio_idle_wait.pasm"

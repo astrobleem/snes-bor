@@ -154,13 +154,16 @@ def main():
    asm=asm.replace('ScriptedProjectileConstructorDone:\n.a16\n.i16\n','ScriptedProjectileConstructorDone:\n.a16\n.i16\n'+audio_asm)
    asm+=NEAR.replace('NEARRELAY',str((sy['Tad_ProcessMaybeStream__return']&65535)-1)).replace('NEARBANK',str(sy['AudioSemantic_StreamBackendPolicy']>>16)).replace('NEARTARGET',str((sy['AudioSemantic_StreamBackendPolicy']&65535)-1))
    bindings.update(AUDIO_BINDINGS);probes['AFTERAUDIO']='ScriptedProjectileAfterAudio';lua+=OBSERVER
+   if not a.idle_audio_pump and 'Tad_StreamWaitFrame' in sy:
+    from m4_projectile_audio_fixture import WAIT_CONTEXT_BINDINGS, WAIT_CONTEXT_OBSERVER
+    bindings.update(WAIT_CONTEXT_BINDINGS);lua+=WAIT_CONTEXT_OBSERVER
    if a.idle_audio_pump:
     from m4_projectile_audio_fixture import IDLE, IDLE_BINDINGS
     asm+=IDLE.replace('WAITRETURN',str(sy['Core_Nmi_WaitFrame__loop']+6));bindings.update(IDLE_BINDINGS)
    if a.audio_arm_guard:
     from m4_projectile_audio_fixture import ARM_GUARD, ARM_BINDINGS
     asm+=ARM_GUARD;bindings.update(ARM_BINDINGS)
-   fixture_hooks=dict(rom_transform=transform,before_start=before,closeout=closeout)
+   fixture_hooks=dict(rom_transform=transform,before_start=before,closeout=closeout,emulator_env={'MESEN_VOICE_CAPTURE_PATH':str(a.output/'voice0.raw'),'MESEN_VOICE_CAPTURE_VOICE':'0','MESEN_VOICE_CAPTURE_ARM_FILE':str(a.output/'voice0.raw.arm')})
   # Relax distant fixture rejection branches with explicit-width trampolines.
   counter=[0]
   def relax(m):
@@ -196,9 +199,13 @@ emu.addMemoryCallback(function()local changed=0;for addr,value in pairs(waiting)
   if a.audio_source:
    requests=[list(map(int,l.split('SOURCEAUDIOREQUEST|',1)[1].split('|')))for l in log.splitlines()if'SOURCEAUDIOREQUEST|'in l]
    r.check('source sound namespace -> real TAD stream request, exact compiled payload length/chunk count',requests==[[1,audio_row['brr_bytes'],(audio_row['brr_bytes']+143)//144]])
-   if a.isolate_audio and a.idle_audio_pump and a.spc_driver and a.prefill_audio and a.audio_arm_guard:
+   if a.isolate_audio and a.spc_driver and a.prefill_audio:
     from m4_source_audio_native_verify import verify
-    audio_verification=verify(a.output,a.audio_source.resolve())
+    audio_verification=verify(a.output,a.audio_source.resolve(),require_dsp_trace=True)
+    if not a.idle_audio_pump and 'Tad_StreamWaitFrame' in sy:
+     contexts=[list(map(int,l.split('SOURCEAUDIOWAITCTX|',1)[1].split('|')))for l in log.splitlines()if'SOURCEAUDIOWAITCTX|'in l]
+     r.check('shared foreground wait preserves A/X/Y/D/DBR/SP and original REP/CMP flags across real NMI and active stream',len(contexts)>=40 and all(v[1]==0 for v in contexts))
+     audio_verification['shared_wait_context_observations']=len(contexts);audio_verification['shared_wait_context_faults']=sum(v[1]for v in contexts)
     r.check('private stream: all BRR bytes, padding, voice0 pitch/gain, continuous full-duration envelope and END; no observed producer underrun',audio_verification['status']=='PASS')
  else:r.check('actual source FRAME6, real bytecode/script CALL frame, typed model/coordinate/direction request, cooperative yield and exact native continuation identity; no child allocated',actual==expected)
  (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_SCRIPTED_PROJECTILE_REQUEST_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),wait_observations=waits,natural_frame_observations=natural,from_authored_frame_zero=a.from_frame_zero,actual=actual,expected=expected,rom_sha256=hashlib.sha256(raw).hexdigest(),source_model='Knightbot',source_frame=6,compiled_source_sha256=hashlib.sha256(code+meta+dispatch).hexdigest(),source_stage_context_instrumented=True,source_self_global_lease_disabled=not a.constructor,constructor_executed=a.constructor,constructor_observations=actual_ctor,constructor_expected=expected_ctor,source_frame_audio_request_executed=bool(a.audio_source),source_frame_audio_executed=audio_verification is not None,audio_verification=audio_verification,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()

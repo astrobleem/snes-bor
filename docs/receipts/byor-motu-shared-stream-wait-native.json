@@ -1,0 +1,3677 @@
+{
+  "schema": "BYOR_SHARED_STREAM_WAIT_RECEIPT_V1",
+  "status": "PASS",
+  "scope": "Shared host stream guard/foreground idle service/ACK-based consumption epoch; SPC driver and source binding remain private",
+  "native": {
+    "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+    "status": "PASS",
+    "source_path": "data/chars/KnBot/energy.wav",
+    "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+    "compiled_brr_sha256": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b",
+    "compiled_brr_bytes": 8073,
+    "chunks": 57,
+    "meaningful_byte_mismatches": 0,
+    "padding_byte_mismatches": 0,
+    "observer_peak_chunk_gap": 1,
+    "observed_consumer_underruns": 0,
+    "first_active_field": 21,
+    "last_active_field": 98,
+    "active_fields": 78,
+    "expected_active_fields": 78.24583461623554,
+    "effective_sample_rate_hz": 11023.4375,
+    "start_latency_observation": "First envelope observation relative to post-constructor observer; not source-event exact timing",
+    "prefill_chunks": 7,
+    "voice0_srcn": 33,
+    "voice0_pitch": 1411,
+    "voice0_gain": 127,
+    "final_voice0_envelope": 0,
+    "audio_recording_pcm_sha256": "4f7c2b177467d5e89b0e6453fabf827356ca454a19e479b21400ed31cd51208b",
+    "audio_recording_file_sha256": "eed2780687324f4cb01b3e35a0ab5d5fc2d90e39752b3004058ae90f68a1adae",
+    "dsp_source_block_traversal": {
+      "source_blocks": 897,
+      "observed_blocks": 897,
+      "skipped_blocks": 0,
+      "repeated_blocks": 0,
+      "block_fingerprint_mismatches": 0,
+      "dsp_samples": 41589,
+      "endx_sample": 41589,
+      "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+      "trace_sha256": "12d921f69ff7e0fa946b1106239c0bf6de7c21e8a9c2cc94704d6966b93a83c5"
+    },
+    "policy": {
+      "tool": "ffmpeg",
+      "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+      "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+      "rate_hz": 11025,
+      "padded_frames": 2
+    },
+    "private_runtime_only": true,
+    "legacy_gameplay_paused": true,
+    "sample_exact_recording_proven": false,
+    "concurrent_audio_proven": false,
+    "production_binding_installed": false,
+    "motu_gameplay_proven": false,
+    "no_color_reduction": true,
+    "shared_wait_context_observations": 101,
+    "shared_wait_context_faults": 0
+  },
+  "native_rom_sha256": "5ad4114d0eb023b883d05855cd2a07cf6b8be67271dd6ec4b03fd81a96f45f52",
+  "native_fixture": "out/byor-motu-scripted-projectile-audio-shared-v3",
+  "static_smoke": {
+    "schema": "BYOR_SHARED_AUDIO_BOR_SMOKE_V1",
+    "status": "PASS",
+    "rom_sha256": "f57f39e4ca058b9ac58380b23963a002b9bb7e9a118ee3ccc9eddbf074ea4410",
+    "checks": [
+      [
+        "cold reset enters INTRO, not TITLE/PLAYING",
+        true
+      ],
+      [
+        "cold reset is not PLAYING",
+        true
+      ],
+      [
+        "INTRO remains reachable through second scene card",
+        true
+      ],
+      [
+        "INTRO -> TITLE",
+        true
+      ],
+      [
+        "source KULA selection and generated selected-set campaign entry zero",
+        true
+      ],
+      [
+        "first stage remains PLAYING through bounded native observation",
+        true
+      ],
+      [
+        "ordinary static source presentation becomes visible with no hard source admission errors",
+        true
+      ],
+      [
+        "idle stream remains unclaimed",
+        true
+      ]
+    ],
+    "observations": [
+      {
+        "field": 0,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 96,
+        "stream_active": 0
+      },
+      {
+        "field": 1,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 97,
+        "stream_active": 0
+      },
+      {
+        "field": 2,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 98,
+        "stream_active": 0
+      },
+      {
+        "field": 3,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 99,
+        "stream_active": 0
+      },
+      {
+        "field": 4,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 100,
+        "stream_active": 0
+      },
+      {
+        "field": 5,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 101,
+        "stream_active": 0
+      },
+      {
+        "field": 6,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 102,
+        "stream_active": 0
+      },
+      {
+        "field": 7,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 103,
+        "stream_active": 0
+      },
+      {
+        "field": 8,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 104,
+        "stream_active": 0
+      },
+      {
+        "field": 9,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 104,
+        "stream_active": 0
+      },
+      {
+        "field": 10,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 106,
+        "stream_active": 0
+      },
+      {
+        "field": 11,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 107,
+        "stream_active": 0
+      },
+      {
+        "field": 12,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 108,
+        "stream_active": 0
+      },
+      {
+        "field": 13,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 109,
+        "stream_active": 0
+      },
+      {
+        "field": 14,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 109,
+        "stream_active": 0
+      },
+      {
+        "field": 15,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 110,
+        "stream_active": 0
+      },
+      {
+        "field": 16,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 111,
+        "stream_active": 0
+      },
+      {
+        "field": 17,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 112,
+        "stream_active": 0
+      },
+      {
+        "field": 18,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 113,
+        "stream_active": 0
+      },
+      {
+        "field": 19,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 114,
+        "stream_active": 0
+      },
+      {
+        "field": 20,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 115,
+        "stream_active": 0
+      },
+      {
+        "field": 21,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 116,
+        "stream_active": 0
+      },
+      {
+        "field": 22,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 117,
+        "stream_active": 0
+      },
+      {
+        "field": 23,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 118,
+        "stream_active": 0
+      },
+      {
+        "field": 24,
+        "state": 0,
+        "source_calls": 0,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 119,
+        "stream_active": 0
+      },
+      {
+        "field": 25,
+        "state": 0,
+        "source_calls": 1,
+        "source_error": 0,
+        "actor_errors": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 120,
+        "stream_active": 0
+      },
+      {
+        "field": 26,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 121,
+        "stream_active": 0
+      },
+      {
+        "field": 27,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 122,
+        "stream_active": 0
+      },
+      {
+        "field": 28,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 123,
+        "stream_active": 0
+      },
+      {
+        "field": 29,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 124,
+        "stream_active": 0
+      },
+      {
+        "field": 30,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 125,
+        "stream_active": 0
+      },
+      {
+        "field": 31,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 126,
+        "stream_active": 0
+      },
+      {
+        "field": 32,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 127,
+        "stream_active": 0
+      },
+      {
+        "field": 33,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 128,
+        "stream_active": 0
+      },
+      {
+        "field": 34,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 129,
+        "stream_active": 0
+      },
+      {
+        "field": 35,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 130,
+        "stream_active": 0
+      },
+      {
+        "field": 36,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 131,
+        "stream_active": 0
+      },
+      {
+        "field": 37,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 132,
+        "stream_active": 0
+      },
+      {
+        "field": 38,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 133,
+        "stream_active": 0
+      },
+      {
+        "field": 39,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 134,
+        "stream_active": 0
+      },
+      {
+        "field": 40,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 136,
+        "stream_active": 0
+      },
+      {
+        "field": 41,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 136,
+        "stream_active": 0
+      },
+      {
+        "field": 42,
+        "state": 0,
+        "source_calls": 2,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 137,
+        "stream_active": 0
+      },
+      {
+        "field": 43,
+        "state": 0,
+        "source_calls": 3,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 138,
+        "stream_active": 0
+      },
+      {
+        "field": 44,
+        "state": 0,
+        "source_calls": 3,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 139,
+        "stream_active": 0
+      },
+      {
+        "field": 45,
+        "state": 0,
+        "source_calls": 4,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 140,
+        "stream_active": 0
+      },
+      {
+        "field": 46,
+        "state": 0,
+        "source_calls": 4,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 141,
+        "stream_active": 0
+      },
+      {
+        "field": 47,
+        "state": 0,
+        "source_calls": 4,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 142,
+        "stream_active": 0
+      },
+      {
+        "field": 48,
+        "state": 0,
+        "source_calls": 4,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 143,
+        "stream_active": 0
+      },
+      {
+        "field": 49,
+        "state": 0,
+        "source_calls": 5,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 144,
+        "stream_active": 0
+      },
+      {
+        "field": 50,
+        "state": 0,
+        "source_calls": 5,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 145,
+        "stream_active": 0
+      },
+      {
+        "field": 51,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 146,
+        "stream_active": 0
+      },
+      {
+        "field": 52,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 148,
+        "stream_active": 0
+      },
+      {
+        "field": 53,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 148,
+        "stream_active": 0
+      },
+      {
+        "field": 54,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 150,
+        "stream_active": 0
+      },
+      {
+        "field": 55,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 150,
+        "stream_active": 0
+      },
+      {
+        "field": 56,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 151,
+        "stream_active": 0
+      },
+      {
+        "field": 57,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 152,
+        "stream_active": 0
+      },
+      {
+        "field": 58,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 153,
+        "stream_active": 0
+      },
+      {
+        "field": 59,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 154,
+        "stream_active": 0
+      },
+      {
+        "field": 60,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 155,
+        "stream_active": 0
+      },
+      {
+        "field": 61,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 156,
+        "stream_active": 0
+      },
+      {
+        "field": 62,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 157,
+        "stream_active": 0
+      },
+      {
+        "field": 63,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 158,
+        "stream_active": 0
+      },
+      {
+        "field": 64,
+        "state": 0,
+        "source_calls": 6,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 159,
+        "stream_active": 0
+      },
+      {
+        "field": 65,
+        "state": 0,
+        "source_calls": 7,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 160,
+        "stream_active": 0
+      },
+      {
+        "field": 66,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 161,
+        "stream_active": 0
+      },
+      {
+        "field": 67,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 162,
+        "stream_active": 0
+      },
+      {
+        "field": 68,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 164,
+        "stream_active": 0
+      },
+      {
+        "field": 69,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 164,
+        "stream_active": 0
+      },
+      {
+        "field": 70,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 165,
+        "stream_active": 0
+      },
+      {
+        "field": 71,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 166,
+        "stream_active": 0
+      },
+      {
+        "field": 72,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 168,
+        "stream_active": 0
+      },
+      {
+        "field": 73,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 169,
+        "stream_active": 0
+      },
+      {
+        "field": 74,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 170,
+        "stream_active": 0
+      },
+      {
+        "field": 75,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 171,
+        "stream_active": 0
+      },
+      {
+        "field": 76,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 171,
+        "stream_active": 0
+      },
+      {
+        "field": 77,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 172,
+        "stream_active": 0
+      },
+      {
+        "field": 78,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 173,
+        "stream_active": 0
+      },
+      {
+        "field": 79,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 174,
+        "stream_active": 0
+      },
+      {
+        "field": 80,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 175,
+        "stream_active": 0
+      },
+      {
+        "field": 81,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 176,
+        "stream_active": 0
+      },
+      {
+        "field": 82,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 177,
+        "stream_active": 0
+      },
+      {
+        "field": 83,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 178,
+        "stream_active": 0
+      },
+      {
+        "field": 84,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 179,
+        "stream_active": 0
+      },
+      {
+        "field": 85,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 180,
+        "stream_active": 0
+      },
+      {
+        "field": 86,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 181,
+        "stream_active": 0
+      },
+      {
+        "field": 87,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 182,
+        "stream_active": 0
+      },
+      {
+        "field": 88,
+        "state": 0,
+        "source_calls": 8,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 183,
+        "stream_active": 0
+      },
+      {
+        "field": 89,
+        "state": 0,
+        "source_calls": 9,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 184,
+        "stream_active": 0
+      },
+      {
+        "field": 90,
+        "state": 0,
+        "source_calls": 9,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 185,
+        "stream_active": 0
+      },
+      {
+        "field": 91,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 186,
+        "stream_active": 0
+      },
+      {
+        "field": 92,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 187,
+        "stream_active": 0
+      },
+      {
+        "field": 93,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 188,
+        "stream_active": 0
+      },
+      {
+        "field": 94,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 189,
+        "stream_active": 0
+      },
+      {
+        "field": 95,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 190,
+        "stream_active": 0
+      },
+      {
+        "field": 96,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 191,
+        "stream_active": 0
+      },
+      {
+        "field": 97,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 192,
+        "stream_active": 0
+      },
+      {
+        "field": 98,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 193,
+        "stream_active": 0
+      },
+      {
+        "field": 99,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 194,
+        "stream_active": 0
+      },
+      {
+        "field": 100,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 195,
+        "stream_active": 0
+      },
+      {
+        "field": 101,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 196,
+        "stream_active": 0
+      },
+      {
+        "field": 102,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 197,
+        "stream_active": 0
+      },
+      {
+        "field": 103,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 198,
+        "stream_active": 0
+      },
+      {
+        "field": 104,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 199,
+        "stream_active": 0
+      },
+      {
+        "field": 105,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 200,
+        "stream_active": 0
+      },
+      {
+        "field": 106,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 201,
+        "stream_active": 0
+      },
+      {
+        "field": 107,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 202,
+        "stream_active": 0
+      },
+      {
+        "field": 108,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 203,
+        "stream_active": 0
+      },
+      {
+        "field": 109,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 204,
+        "stream_active": 0
+      },
+      {
+        "field": 110,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 205,
+        "stream_active": 0
+      },
+      {
+        "field": 111,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 207,
+        "stream_active": 0
+      },
+      {
+        "field": 112,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 208,
+        "stream_active": 0
+      },
+      {
+        "field": 113,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 209,
+        "stream_active": 0
+      },
+      {
+        "field": 114,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 209,
+        "stream_active": 0
+      },
+      {
+        "field": 115,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 210,
+        "stream_active": 0
+      },
+      {
+        "field": 116,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 211,
+        "stream_active": 0
+      },
+      {
+        "field": 117,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 212,
+        "stream_active": 0
+      },
+      {
+        "field": 118,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 213,
+        "stream_active": 0
+      },
+      {
+        "field": 119,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 214,
+        "stream_active": 0
+      },
+      {
+        "field": 120,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 215,
+        "stream_active": 0
+      },
+      {
+        "field": 121,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 216,
+        "stream_active": 0
+      },
+      {
+        "field": 122,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 218,
+        "stream_active": 0
+      },
+      {
+        "field": 123,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 218,
+        "stream_active": 0
+      },
+      {
+        "field": 124,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 220,
+        "stream_active": 0
+      },
+      {
+        "field": 125,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 221,
+        "stream_active": 0
+      },
+      {
+        "field": 126,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 222,
+        "stream_active": 0
+      },
+      {
+        "field": 127,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 222,
+        "stream_active": 0
+      },
+      {
+        "field": 128,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 223,
+        "stream_active": 0
+      },
+      {
+        "field": 129,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 225,
+        "stream_active": 0
+      },
+      {
+        "field": 130,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 226,
+        "stream_active": 0
+      },
+      {
+        "field": 131,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 226,
+        "stream_active": 0
+      },
+      {
+        "field": 132,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 228,
+        "stream_active": 0
+      },
+      {
+        "field": 133,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 229,
+        "stream_active": 0
+      },
+      {
+        "field": 134,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 230,
+        "stream_active": 0
+      },
+      {
+        "field": 135,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 230,
+        "stream_active": 0
+      },
+      {
+        "field": 136,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 231,
+        "stream_active": 0
+      },
+      {
+        "field": 137,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 232,
+        "stream_active": 0
+      },
+      {
+        "field": 138,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 233,
+        "stream_active": 0
+      },
+      {
+        "field": 139,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 235,
+        "stream_active": 0
+      },
+      {
+        "field": 140,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 235,
+        "stream_active": 0
+      },
+      {
+        "field": 141,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 236,
+        "stream_active": 0
+      },
+      {
+        "field": 142,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 237,
+        "stream_active": 0
+      },
+      {
+        "field": 143,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 238,
+        "stream_active": 0
+      },
+      {
+        "field": 144,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 239,
+        "stream_active": 0
+      },
+      {
+        "field": 145,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 241,
+        "stream_active": 0
+      },
+      {
+        "field": 146,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 241,
+        "stream_active": 0
+      },
+      {
+        "field": 147,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 243,
+        "stream_active": 0
+      },
+      {
+        "field": 148,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 243,
+        "stream_active": 0
+      },
+      {
+        "field": 149,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 244,
+        "stream_active": 0
+      },
+      {
+        "field": 150,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 245,
+        "stream_active": 0
+      },
+      {
+        "field": 151,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 247,
+        "stream_active": 0
+      },
+      {
+        "field": 152,
+        "state": 0,
+        "source_calls": 10,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 248,
+        "stream_active": 0
+      },
+      {
+        "field": 153,
+        "state": 0,
+        "source_calls": 11,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 249,
+        "stream_active": 0
+      },
+      {
+        "field": 154,
+        "state": 0,
+        "source_calls": 12,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 250,
+        "stream_active": 0
+      },
+      {
+        "field": 155,
+        "state": 0,
+        "source_calls": 12,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 251,
+        "stream_active": 0
+      },
+      {
+        "field": 156,
+        "state": 0,
+        "source_calls": 12,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 252,
+        "stream_active": 0
+      },
+      {
+        "field": 157,
+        "state": 0,
+        "source_calls": 12,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 253,
+        "stream_active": 0
+      },
+      {
+        "field": 158,
+        "state": 0,
+        "source_calls": 12,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 253,
+        "stream_active": 0
+      },
+      {
+        "field": 159,
+        "state": 0,
+        "source_calls": 13,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 254,
+        "stream_active": 0
+      },
+      {
+        "field": 160,
+        "state": 0,
+        "source_calls": 13,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 256,
+        "stream_active": 0
+      },
+      {
+        "field": 161,
+        "state": 0,
+        "source_calls": 14,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 256,
+        "stream_active": 0
+      },
+      {
+        "field": 162,
+        "state": 0,
+        "source_calls": 14,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 257,
+        "stream_active": 0
+      },
+      {
+        "field": 163,
+        "state": 0,
+        "source_calls": 15,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 258,
+        "stream_active": 0
+      },
+      {
+        "field": 164,
+        "state": 0,
+        "source_calls": 15,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 259,
+        "stream_active": 0
+      },
+      {
+        "field": 165,
+        "state": 0,
+        "source_calls": 16,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 260,
+        "stream_active": 0
+      },
+      {
+        "field": 166,
+        "state": 0,
+        "source_calls": 16,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 262,
+        "stream_active": 0
+      },
+      {
+        "field": 167,
+        "state": 0,
+        "source_calls": 17,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 263,
+        "stream_active": 0
+      },
+      {
+        "field": 168,
+        "state": 0,
+        "source_calls": 17,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 263,
+        "stream_active": 0
+      },
+      {
+        "field": 169,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 264,
+        "stream_active": 0
+      },
+      {
+        "field": 170,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 266,
+        "stream_active": 0
+      },
+      {
+        "field": 171,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 267,
+        "stream_active": 0
+      },
+      {
+        "field": 172,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 267,
+        "stream_active": 0
+      },
+      {
+        "field": 173,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 269,
+        "stream_active": 0
+      },
+      {
+        "field": 174,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 270,
+        "stream_active": 0
+      },
+      {
+        "field": 175,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 271,
+        "stream_active": 0
+      },
+      {
+        "field": 176,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 272,
+        "stream_active": 0
+      },
+      {
+        "field": 177,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 273,
+        "stream_active": 0
+      },
+      {
+        "field": 178,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 274,
+        "stream_active": 0
+      },
+      {
+        "field": 179,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 275,
+        "stream_active": 0
+      },
+      {
+        "field": 180,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 276,
+        "stream_active": 0
+      },
+      {
+        "field": 181,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 276,
+        "stream_active": 0
+      },
+      {
+        "field": 182,
+        "state": 0,
+        "source_calls": 18,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 277,
+        "stream_active": 0
+      },
+      {
+        "field": 183,
+        "state": 0,
+        "source_calls": 19,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 278,
+        "stream_active": 0
+      },
+      {
+        "field": 184,
+        "state": 0,
+        "source_calls": 20,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 280,
+        "stream_active": 0
+      },
+      {
+        "field": 185,
+        "state": 0,
+        "source_calls": 20,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 281,
+        "stream_active": 0
+      },
+      {
+        "field": 186,
+        "state": 0,
+        "source_calls": 20,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 281,
+        "stream_active": 0
+      },
+      {
+        "field": 187,
+        "state": 0,
+        "source_calls": 20,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 282,
+        "stream_active": 0
+      },
+      {
+        "field": 188,
+        "state": 0,
+        "source_calls": 20,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 283,
+        "stream_active": 0
+      },
+      {
+        "field": 189,
+        "state": 0,
+        "source_calls": 21,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 284,
+        "stream_active": 0
+      },
+      {
+        "field": 190,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 285,
+        "stream_active": 0
+      },
+      {
+        "field": 191,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 286,
+        "stream_active": 0
+      },
+      {
+        "field": 192,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 287,
+        "stream_active": 0
+      },
+      {
+        "field": 193,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 288,
+        "stream_active": 0
+      },
+      {
+        "field": 194,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 290,
+        "stream_active": 0
+      },
+      {
+        "field": 195,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 290,
+        "stream_active": 0
+      },
+      {
+        "field": 196,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 291,
+        "stream_active": 0
+      },
+      {
+        "field": 197,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 292,
+        "stream_active": 0
+      },
+      {
+        "field": 198,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 293,
+        "stream_active": 0
+      },
+      {
+        "field": 199,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 295,
+        "stream_active": 0
+      },
+      {
+        "field": 200,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 295,
+        "stream_active": 0
+      },
+      {
+        "field": 201,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 296,
+        "stream_active": 0
+      },
+      {
+        "field": 202,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 297,
+        "stream_active": 0
+      },
+      {
+        "field": 203,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 298,
+        "stream_active": 0
+      },
+      {
+        "field": 204,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 299,
+        "stream_active": 0
+      },
+      {
+        "field": 205,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 300,
+        "stream_active": 0
+      },
+      {
+        "field": 206,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 301,
+        "stream_active": 0
+      },
+      {
+        "field": 207,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 302,
+        "stream_active": 0
+      },
+      {
+        "field": 208,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 303,
+        "stream_active": 0
+      },
+      {
+        "field": 209,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 304,
+        "stream_active": 0
+      },
+      {
+        "field": 210,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 305,
+        "stream_active": 0
+      },
+      {
+        "field": 211,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 306,
+        "stream_active": 0
+      },
+      {
+        "field": 212,
+        "state": 0,
+        "source_calls": 22,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 307,
+        "stream_active": 0
+      },
+      {
+        "field": 213,
+        "state": 0,
+        "source_calls": 23,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 308,
+        "stream_active": 0
+      },
+      {
+        "field": 214,
+        "state": 0,
+        "source_calls": 24,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 309,
+        "stream_active": 0
+      },
+      {
+        "field": 215,
+        "state": 0,
+        "source_calls": 24,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 310,
+        "stream_active": 0
+      },
+      {
+        "field": 216,
+        "state": 0,
+        "source_calls": 24,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 311,
+        "stream_active": 0
+      },
+      {
+        "field": 217,
+        "state": 0,
+        "source_calls": 24,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 312,
+        "stream_active": 0
+      },
+      {
+        "field": 218,
+        "state": 0,
+        "source_calls": 24,
+        "source_error": 39,
+        "actor_errors": [
+          39,
+          39,
+          0,
+          0,
+          0,
+          0
+        ],
+        "committed_nmi": 313,
+        "stream_active": 0
+      }
+    ],
+    "player": "KULA",
+    "selected_set": 0,
+    "campaign_id": 3,
+    "visible_oam_entries": 10,
+    "busy_retry_observations": 193,
+    "source_presentation": "existing static OBJ",
+    "full_campaign_regression_run": false,
+    "motu_gameplay_proven": false
+  },
+  "preservation": {
+    "status": "PASS",
+    "head": "7236bcd8699f1124d585cd385eb148416d0d0d4c",
+    "protected_files": 17,
+    "bank_zero_growth_bytes": 0,
+    "all_existing_bank_zero_symbols_unchanged": true,
+    "bank_zero_changed_bytes": 11,
+    "existing_wait_replacement_bytes": 6,
+    "external_relocations": [
+      {
+        "pc": "0xd1e5",
+        "symbol": "Tad_StreamOneShotHdmaFence",
+        "old": "0xcb0b5",
+        "new": "0xcb0c3"
+      },
+      {
+        "pc": "0xe142",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaecb",
+        "new": "0xcaed9"
+      },
+      {
+        "pc": "0xe14d",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaecb",
+        "new": "0xcaed9"
+      },
+      {
+        "pc": "0xe158",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaecb",
+        "new": "0xcaed9"
+      },
+      {
+        "pc": "0xe163",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaecb",
+        "new": "0xcaed9"
+      }
+    ],
+    "new_wait_code_bank": 63,
+    "original_wait_rts_preserved": true,
+    "bank_zero_pre_nmi_free_bytes": 2
+  },
+  "focused_static_tests": {
+    "status": "PASS",
+    "cases": 9,
+    "modules": [
+      "test_normal_source_visual_fit",
+      "test_source_visual_extended_admission"
+    ]
+  },
+  "rom_audit": {
+    "status": "ALL CHECKS PASS",
+    "width_new_violations": 0,
+    "width_baselined_violations": 183,
+    "width_baseline_entries_now_clean": 2,
+    "raw_width_clean": false
+  },
+  "production_spc_driver_changed": false,
+  "production_source_audio_binding_installed": false,
+  "full_campaigns_rerun": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

@@ -425,10 +425,14 @@ Core_Nmi_BlankScreen:
 ; Busy-waits for the next real NMI. Dangerous if NMI is ever stopped
 ; (Core_Nmi_Stop) without a matching Core_Nmi_Start — hangs forever.
 Core_Nmi_WaitFrame:
-    rep #$31
+    ; Replace six existing bytes with an external jump and two padding bytes.
+    ; All new wait/stream logic lives in bank 63; bank 0 does not grow.
+    jml Tad_StreamWaitFrame
+    nop
+    nop
 .a16
-    lda.l Nmi_FrameCounter
 Core_Nmi_WaitFrame__loop:
     cmp.l Nmi_FrameCounter
     beq Core_Nmi_WaitFrame__loop
+Core_Nmi_WaitFrame__return:
     rts

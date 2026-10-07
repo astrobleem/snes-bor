@@ -56,3 +56,37 @@ This proves isolated transport and full-duration DSP execution. It does not
 prove source-event-exact timing, sample-exact recorded waveform, concurrent
 effects, ordinary TAD voice coexistence, production binding, or MOTU gameplay.
 Those remain integration requirements. No color reduction was applied.
+
+Shared host integration
+-----------------------
+
+The host now services stream ACKs while waiting for the next NMI, using code
+in bank 63. The original bank-0 wait reserves exactly its old six entry bytes
+for an external jump and padding; its loop/RTS addresses and total size remain
+unchanged. The helper preserves X/Y/D/DBR/SP and the original REP/CMP A/flags
+contract. No stream work was added to NMI.
+
+Repeated service calls no longer re-arm a descriptor in arm phase 2. Consumer
+credit begins only after the SPC acknowledges the first normal transaction,
+and byte mode/epoch fields are explicitly masked during 16-bit reads. This
+prevents premature ring-slot replacement. The private prefill controller grants
+a permit only while the producer is idle, so the first normal transaction fills
+slot 7 and starts at the original ring head.
+
+`out/byor-motu-scripted-projectile-audio-shared-v3` proves the shared host with
+the private SPC driver/source binding. Its sample-level DSP observer traverses
+all 897 source BRR blocks in order, checking physical address, header and FNV32
+block fingerprint, with no skipped, repeated or mismatched blocks. Separate
+SPC RAM reads still check all 8073 meaningful bytes and final transfer padding
+against the SHA256-identified compiled asset. The voice envelope remains active
+for 78 fields and then ends. This adds source block traversal evidence, without
+claiming the resampled BRR recording equals the original WAV sample for sample.
+
+The focused original-BOR Easy selector/first-stage smoke reaches visible static
+source OBJ presentation at field 219. Initial `$27` diagnostics are existing
+owned-DMA busy retries; they are counted separately from hard errors. Nine
+existing source visual tests pass. All 17 protected tracked files are unchanged.
+The width audit has zero new violations, 183 existing baseline violations and
+two baseline entries now clean; this is not a claim that the raw width guard
+has zero violations. The production SPC driver and MOTU sound owner still await
+integration. No full campaigns were rerun.

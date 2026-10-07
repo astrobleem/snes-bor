@@ -12,7 +12,7 @@ import game_bor_startup_select as startup
 REQUEST, INDEX, ERROR = 0x7ffd80, 0x7ffd82, 0x7ffd84
 
 
-def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None, append='', bindings=None, probes=None, batch_size=8, frame_limit=2000, rom_transform=None, closeout=None, before_start=None):
+def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None, append='', bindings=None, probes=None, batch_size=8, frame_limit=2000, rom_transform=None, closeout=None, before_start=None, emulator_env=None):
     if batch_size not in (1,2,4,8,16,32,64):raise ValueError('LEAF_BATCH_SIZE')
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(rom_path.read_bytes())
     if raw[first:first+32768]!=bytes(32768) or raw[59*32768:61*32768]!=bytes(65536) or raw[0x7fd8]!=8:raise ValueError('LEAF_PRIVATE_RESERVATION')
@@ -135,7 +135,7 @@ LeafFixture_Return:
             import mesen_mcp.session as module
             def launch(argv,**kwargs):return subprocess.Popen([*argv,'--donotsavesettings',str(script)],**kwargs)
             with patch.object(module,'subprocess',SimpleNamespace(Popen=launch,DEVNULL=subprocess.DEVNULL,PIPE=subprocess.PIPE)):return super().__enter__()
-    with Observed(rom=rom,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=folder/'mesen.log') as m:
+    with Observed(rom=rom,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=folder/'mesen.log',env=emulator_env) as m:
         with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('LEAF_BOOTSTRAP')

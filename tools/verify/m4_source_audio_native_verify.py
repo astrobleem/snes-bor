@@ -7,7 +7,7 @@ import wave
 from pathlib import Path
 
 
-def verify(folder, assets):
+def verify(folder, assets, require_dsp_trace=False):
     trace=json.loads((folder/'audio-stream-trace.json').read_text())
     source=trace['source']
     payload=(assets/source['brr_path']).read_bytes()
@@ -40,6 +40,37 @@ def verify(folder, assets):
         pcm=recording.readframes(recording.getnframes())
     assert hashlib.sha256(pcm).hexdigest()==fingerprint['sha256']
     assert fingerprint['peakAmplitude']>0 and all(v>0 for v in fingerprint['rmsLevels'])
+    dsp_trace=folder/'voice0.raw.trace'
+    block_proof=None
+    if require_dsp_trace or dsp_trace.exists():
+        metadata=json.loads((folder/'voice0.raw.json').read_text())
+        assert metadata['voice']==0 and metadata['sample_rate']==32000
+        assert metadata['kon_sample']==0 and metadata['koff_sample'] is None
+        assert metadata['endx_sample']==metadata['sample_count']
+        captured=(folder/'voice0.raw').read_bytes()
+        assert len(captured)==metadata['sample_count']*4
+        traversed=[];count=0
+        with dsp_trace.open() as lines:
+            for i,line in enumerate(lines):
+                sample,address,header,fingerprint_=line.strip().split(',')
+                assert int(sample)==i
+                item=(int(address,16),int(header,16),int(fingerprint_,16))
+                if not traversed or traversed[-1]!=item:traversed.append(item)
+                count=i+1
+        assert count==metadata['sample_count']
+        expected_blocks=[]
+        for i in range(len(payload)//9):
+            block=bytearray(payload[i*9:i*9+9])
+            if i%128==127 and i!=len(payload)//9-1:block[0]|=3
+            value=2166136261
+            for byte in block:value=((value^byte)*16777619)&0xffffffff
+            expected_blocks.append((0x121a+(i%128)*9,block[0],value))
+        assert traversed==expected_blocks
+        block_proof=dict(source_blocks=len(expected_blocks),observed_blocks=len(traversed),
+            skipped_blocks=0,repeated_blocks=0,block_fingerprint_mismatches=0,
+            dsp_samples=count,endx_sample=metadata['endx_sample'],
+            voice_pcm_sha256=hashlib.sha256(captured).hexdigest(),
+            trace_sha256=hashlib.sha256(dsp_trace.read_bytes()).hexdigest())
     result=dict(schema='BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1',status='PASS',
         source_path=source['source_path'],source_sha256=source['source_sha256'],
         compiled_brr_sha256=source['brr_sha256'],compiled_brr_bytes=len(payload),
@@ -51,6 +82,7 @@ def verify(folder, assets):
         prefill_chunks=7,voice0_srcn=33,voice0_pitch=1411,voice0_gain=127,
         final_voice0_envelope=0,audio_recording_pcm_sha256=fingerprint['sha256'],
         audio_recording_file_sha256=hashlib.sha256(wav.read_bytes()).hexdigest(),
+        dsp_source_block_traversal=block_proof,
         policy=source['audio_adaptation'],private_runtime_only=True,
         legacy_gameplay_paused=trace['legacy_gameplay_paused'],
         sample_exact_recording_proven=False,concurrent_audio_proven=False,
@@ -63,7 +95,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--folder',type=Path,required=True)
     p.add_argument('--assets',type=Path,required=True)
-    a=p.parse_args();r=verify(a.folder,a.assets)
+    p.add_argument('--require-dsp-trace',action='store_true')
+    a=p.parse_args();r=verify(a.folder,a.assets,a.require_dsp_trace)
     print('Private source stream:',r['status'],r['chunks'],'chunks;',r['active_fields'],'active fields')
 
 
