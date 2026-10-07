@@ -1,0 +1,65 @@
+{
+  "schema": "BYOR_MOTU_NORMAL_PREPARE_CHOICE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-normal-prepare-choice-authority/report.json",
+      "sha256": "089f51c4476e7b84fa9184e02cd0adddbb6711bbd54f5d828e533bb15f19ba5c",
+      "cases": 2048
+    },
+    {
+      "path": "out/byor-motu-normal-prepare-choice-coordinate-native/report.json",
+      "sha256": "7fa87eb7de55a87aff4af8b7976c0e7c3ae609edf99569d8a10fc4b5cf9da0aa",
+      "cases": 143
+    },
+    {
+      "path": "out/byor-motu-normal-prepare-choice-yield-native/report.json",
+      "sha256": "281c294311315cf34d358fa8e3b07c21a940dfec4c4abdb22f1f8711220d3ee7",
+      "cases": 120
+    },
+    {
+      "path": "out/byor-motu-attack-proc-prefix-authority/report.json",
+      "sha256": "230a9948fb64f7306ffbfcd3a539b49fcd90bd520053479b738d8097642990a1",
+      "cases": 4
+    },
+    {
+      "path": "out/byor-motu-attack-proc-prefix-native/report.json",
+      "sha256": "1cdee3514a6aefe1a06a1e2e1f38738217e6aab8bb0f3b26ec44f2302f8662d9",
+      "cases": 50
+    },
+    {
+      "path": "out/byor-motu-attack-proc-prefix-ai-native/report.json",
+      "sha256": "498633380b9dcaf7eb4879c56440945d8346fbe49d9c17db3b5a2a3a234b7c3c",
+      "cases": 28
+    },
+    {
+      "path": "out/byor-motu-callback-seventeen-default-authority/report.json",
+      "sha256": "3cfb03656ef7a6741711b7e3d43f48291d27180687586687e1d8860e497aa57f",
+      "cases": 3167
+    }
+  ],
+  "source_normal_prepare_weights": [
+    6,
+    5,
+    4,
+    3
+  ],
+  "actual_action_owned_source_range_queries": true,
+  "source_unconditional_then_conditional_rng_order": true,
+  "actual_set_attacking_macro_behavior": true,
+  "stable_attack_callback_id": 17,
+  "first_sixteen_function_ids_unchanged": true,
+  "changed_attack_animation_yield_proven": true,
+  "changed_attack_frame_zero_proven": false,
+  "common_attack_proc_animating_short_circuit_bound": true,
+  "actual_ai_attack_proc_dispatch_proven": true,
+  "finished_attack_bound": false,
+  "special_costmove_chain_weapon_turn_bound": false,
+  "mutable_animation_cache_domains_explicit": true,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "static_presentation_modified": false,
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
