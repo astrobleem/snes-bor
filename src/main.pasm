@@ -13762,3 +13762,9 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_animation_slots.pasm"
 
 .include "core/vm/vm_source_native_pair.pasm"
+
+.include "core/vm/vm_source_native_cold.pasm"
+
+.include "core/vm/vm_source_native_request.pasm"
+
+.include "core/vm/vm_source_native_result.pasm"

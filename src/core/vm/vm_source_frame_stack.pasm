@@ -114,6 +114,17 @@ SourceFrameStack4086_Relaxed_6:
     lda.l SourceFrameMotion4086_Status
     cmp #1
     beq SourceFrameStack4086_Relaxed_7
+    cmp #0
+    bne SourceFrameStack4086_NativeMotionBad
+    lda.l SourceUpdateFrame4086_Pending
+    cmp #1
+    bne SourceFrameStack4086_NativeMotionBad
+    lda.l SourceNativeContinuation4086_Request
+    cmp #$B613
+    beq SourceFrameStack4086_Relaxed_7
+SourceFrameStack4086_NativeMotionBad:
+.a16
+.i16
     jmp SourceFrameStack4086_Bad
 SourceFrameStack4086_Relaxed_7:
 .a16

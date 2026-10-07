@@ -111,6 +111,12 @@ Vm_NativeVariantDispatch__random:
 Vm_NativeVariantDispatch__toss:
 .a16
 .i16
+    cmp #$020E
+    bne Vm_NativeVariantDispatch__toss_other
+    jml SourceNativeRequest4086_Projectile
+Vm_NativeVariantDispatch__toss_other:
+.a16
+.i16
     cmp #$0213                     ; tossentity(self,lift,x,z), owned tick
     beq Vm_NativeVariantDispatch__toss_call
     cmp #$0215                     ; appended optional-argument signatures

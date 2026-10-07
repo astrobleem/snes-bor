@@ -329,3 +329,27 @@ Vm_SourceModelNameKey:
     .dw 110,97,109,101             ; case-folded "name", u16 per character
 Vm_SourceModelBitMasks:
     .db 1,2,4,8,16,32,64,128,0
+
+; Generic bank bridge: X is an admitted STR slot byte offset.
+SourceModelName4086_Resolve:
+.a16
+.i16
+    jsr Vm_SourceEntityResolveKey
+    bcs SourceModelName4086_Return
+    jsr Vm_SourceModelLookup
+SourceModelName4086_Return:
+.a16
+.i16
+    rtl
+
+SourceNativeNumber4086_Convert:
+.a16
+.i16
+    jsr Vm_SourceMutationNumber
+    rtl
+
+SourceNativeArgument4086_Read:
+.a16
+.i16
+    jsr Vm_SourceEntityArgSlot
+    rtl

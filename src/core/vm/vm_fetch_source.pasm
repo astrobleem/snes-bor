@@ -71,18 +71,7 @@ Vm_FetchSourceInit:
     sta.l SourceAttackCostState4086_Ready
     sta.l SourceAttackCostPay4086_Ready
     sta.l SourceAutokillState4086_Ready
-    sta.l SourceOffscreenState4086_Ready
-    sta.l SourceNamedKnife4086_Ready
-    sta.l SourceNativeContinuation4086_Ready
-    sta.l SourceNativeContinuation4086_Request
-    sta.l SourceNativeSnapshot4086_Ready
-    sta.l SourceMovementState4086_Ready
-    sta.l SourceUpdateAnimationPrefix4086_Ready
-    sta.l SourceUpdateAnimation4086_Ready
-    sta.l SourceAttackRunoff4086_Ready
-    sta.l SourceModelEntityCopy4086_Ready
-    sta.l SourceAnimationInit4086_Ready
-    sta.l SourceFrameStack4086_Ready
+    jsl SourceNativeCold4086_Clear
     sta.l SourceModelCachedCopy4086_Ready
     sta.l SourceModelAnimation4086_Ready
     sta.l SourceModelTransition4086_Ready

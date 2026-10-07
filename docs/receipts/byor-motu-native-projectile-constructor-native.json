@@ -1,0 +1,80 @@
+{
+  "schema": "BYOR_MOTU_NATIVE_PROJECTILE_CONSTRUCTOR_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-named-projectile-request-native-v5/report.json",
+      "sha256": "910cbcfc11699e41483d6e151d26ddd6b2f3568abe90caab0d800aa7e284713c",
+      "cases": 78,
+      "rom_sha256": "df544f2659e4989ce34b987e976465d3d5bb51cc049be4d6b3b4fdd84ccc1629"
+    },
+    {
+      "path": "out/byor-motu-scripted-projectile-request-native-v4/report.json",
+      "sha256": "210e7c8f6131323c0555add619dd0b0f1375c806ceeec1e444a754fc91b6c71f",
+      "cases": 10,
+      "rom_sha256": "a1e0a636aefeed72a777a483f679be3cad394ee560fbf99e7ff4c208832476bc"
+    },
+    {
+      "path": "out/byor-motu-scripted-projectile-constructor-native-v5/report.json",
+      "sha256": "9a65ca9725b519c52aaf41ef9d18c96fc5a8a92db6aada446b0c7fa7a47fd09f",
+      "cases": 10,
+      "rom_sha256": "ae01ffe0e245e25c125b6a13663da49d3049c9fd98d87b9c8ead2ef1584ec350"
+    },
+    {
+      "path": "out/byor-motu-scripted-projectile-natural-native-v3/report.json",
+      "sha256": "163d65210d463b5941be2f04a436297960ede0b27aecb252a784b463c85c967d",
+      "cases": 10,
+      "rom_sha256": "0f775047f2676ff466ee3391e80d7cb42dfcdb169c4d66788a16023585410852"
+    },
+    {
+      "path": "out/byor-motu-native-request-pair-regression/report.json",
+      "sha256": "e57011f134e836bc6539b8b2aada36405ac295384a58295fe2f96df362d6a534",
+      "cases": 60,
+      "rom_sha256": "79f576082ed2c1b0693d3b34b9a88b7a5f4781f159df20e44b168e7ea0df6915"
+    },
+    {
+      "path": "out/byor-motu-native-request-timed-regression/report.json",
+      "sha256": "f3297518f8e91a84b602b0798dce6baed77161f4b4093633557dadcccb7040f6",
+      "cases": 18,
+      "rom_sha256": "0202514557bb13bd33a0aa1acef496fdb8d7e49c779816caccbdebca4f683d95"
+    },
+    {
+      "path": "out/byor-motu-native-request-preservation.json",
+      "sha256": "2c8a5341ccd0b06d6f73e3c9d821e4512bff2f0387782893e12fa079c659fb0f",
+      "protected": 17,
+      "bank_zero_growth_bytes": 0
+    }
+  ],
+  "offline_tests": 15,
+  "audit": {
+    "path": "out/byor-motu-native-request-audit.log",
+    "sha256": "28b0162026164ddf74323ca0e47c2f8a4b41f0f6613dfb8154bee1e3231d1d9f",
+    "new_width_violations": 0,
+    "baselined_width_violations": 183,
+    "clean_baseline_entries": 2
+  },
+  "capabilities": [
+    "B615 named nonrelative eight-argument knife request; type0/map0",
+    "posted request blocks premature callback resume",
+    "actual source-model constructor and default frame services",
+    "paired frame/VM restoration and complete VT_PTR publication",
+    "actual authored Knightbot frames0-6 with B60F sixteen-tick delays"
+  ],
+  "native_code_bank": 63,
+  "bank_zero_growth_bytes": 0,
+  "protected_tracked_files": 17,
+  "source_scripted_constructor_cases": 10,
+  "scope": "Private foreground native fixtures on the production ROM bootstrap. Foreground supplies due ticks; no actor frame/IP/altitude injection during advancement. Authored seta40 sets BASE40, not altitude; fixture omits world physics so ShockBall altitude34 is expected.",
+  "unbound": [
+    "other projectile argument forms",
+    "production foreground constructor dispatcher",
+    "source frame audio service",
+    "world physics and live combat",
+    "moving lossless compositor",
+    "MOTU frontend/player selection/Demo completion"
+  ],
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_tmnt_work": true
+}

@@ -654,6 +654,26 @@ jmp SourceNativeSnapshot4086_RTransfer
 SourceNativeSnapshot4086_RCommit:
 .a16
 .i16
+lda $1E
+sta.l SourceNativeContinuation4086_Record
+lda $10
+sec
+sbc #16
+sta.l SourceNativeContinuation4086_Row
+lda $1A
+asl a
+sta $18
+lda.l SourceNativeContinuation4086_Row
+sec
+sbc $18
+sta.l SourceNativeContinuation4086_Row
+clc
+adc #8
+tay
+lda [$00],y
+sta.l SourceNativeContinuation4086_ResultSlot
+lda #2
+sta.l SourceNativeContinuation4086_State
 ldx $12
 lda #0
 sta.l $430000,x

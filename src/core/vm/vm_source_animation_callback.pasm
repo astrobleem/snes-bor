@@ -435,6 +435,29 @@ SourceAnimationCallback4086_Branch_43:
 SourceAnimationCallback4086_Run__span:
 .a16
 .i16
+    lda.l SourceNativeRequest4086_Ready
+    cmp #$B615
+    bne SourceAnimationCallback4086_Run__no_native
+    lda.l SourceNativeContinuation4086_Request
+    beq SourceAnimationCallback4086_Run__no_native
+    cmp #$B613
+    beq SourceAnimationCallback4086_Run__native_pending
+    jmp SourceAnimationCallback4086_CloseFault
+SourceAnimationCallback4086_Run__native_pending:
+.a16
+.i16
+    ; A posted constructor owns the yielded VM until foreground pair service.
+    ; Repeated Run calls must not execute the next source instruction early.
+    jsl SourceNativeContinuation4086_Match
+    bcc SourceAnimationCallback4086_Run__native_wait
+    jmp SourceAnimationCallback4086_CloseFault
+SourceAnimationCallback4086_Run__native_wait:
+.a16
+.i16
+    jmp SourceAnimationCallback4086_Ok
+SourceAnimationCallback4086_Run__no_native:
+.a16
+.i16
     jsl SourceVMRun4086_Call
     bcc SourceAnimationCallback4086_Branch_44
     jmp SourceAnimationCallback4086_CloseFault

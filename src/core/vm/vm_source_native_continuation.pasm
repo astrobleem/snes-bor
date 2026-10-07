@@ -20,6 +20,8 @@ SourceNativeContinuation4086_RowEnd = $40BFAA
 SourceNativeContinuation4086_ResultSlot = $40BFAC
 SourceNativeContinuation4086_Request = $40BFAE
 SourceNativeContinuation4086_End = $40BFB0
+SourceNativeRequest4086_Ready = $40BFBE ; B615 named constructor request adapter
+SourceNativeRequest4086_End = $40BFC0
 SOURCE_NATIVE_CONTEXT_BYTES = 237
 SOURCE_NATIVE_SNAPSHOT_BYTES = 512
 
