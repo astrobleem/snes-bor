@@ -13710,3 +13710,4 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_ai_target.pasm"
 .include "core/vm/vm_source_try_normal_attack.pasm"
 .include "core/vm/vm_source_normal_attack_run.pasm"
+.include "core/vm/vm_source_recheck_nextattack.pasm"

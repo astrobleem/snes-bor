@@ -3,7 +3,8 @@
 ; $40C000..$40EFFF (128*96). Native animation cache has a separate lease.
 ; Cache row fields match source_model_switch_authority.FIELDS (39 int32 /
 ; float bit patterns); type at +156. Entity core: 18 int32 fallback fields,
-; installed type +72, current MP +76, remaining 16 bytes reserved unchanged.
+; installed type +72, current MP +76; grabbing/lasthit/attacking/nextattack
+; dynamic entity fields at +80/+84/+88/+92 remain unchanged.
 ; Copying the old type back AFTER animation initialization belongs to the
 ; complete model-switch owner. This component returns it in OldTypeLo/Hi.
 SourceModelEntityCopy4086_Ready = $7FFC70

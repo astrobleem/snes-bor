@@ -1,0 +1,57 @@
+{
+  "schema": "BYOR_MOTU_RECHECK_NEXTATTACK_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-recheck-nextattack-authority/report.json",
+      "sha256": "675dc0fa2c7063c9e6c7f60276a93d75b4b42f6a9a13d31e7ac5c54c4f0cd18f",
+      "cases": 576,
+      "rerun_for_this_change": true
+    },
+    {
+      "path": "out/byor-motu-recheck-nextattack-native/report.json",
+      "sha256": "272fea027423c1104539537c459ec4da7eba9131bd7afc00088bc4932262e4ac",
+      "cases": 586,
+      "rerun_for_this_change": true
+    },
+    {
+      "path": "out/byor-motu-model-policy-constructor-native/report.json",
+      "sha256": "e3df22927e90c32ed3b7f93bc588ec744f7a84ac68b704bdf791c8355bff2f5e",
+      "cases": 162,
+      "rerun_for_this_change": false
+    },
+    {
+      "path": "out/byor-motu-model-policy-switch-native/report.json",
+      "sha256": "80b77bea92f1d18069052fc247e41810c9fb573016181a58ef24e8ea0886207d",
+      "cases": 480,
+      "rerun_for_this_change": false
+    }
+  ],
+  "timer_dynamic_field": "entity core +92",
+  "new_BW_RAM_entity_bytes": 0,
+  "fresh_constructor_timer_zero_from_retained_physical_proof": true,
+  "model_copy_preserves_dynamic_last16_bytes": true,
+  "full32_source_flag_truth": true,
+  "unsigned_timer_comparison": true,
+  "two_successive_source_calls": true,
+  "retired_target_exists_or_dead_guard_inserted": false,
+  "source_self_slots": [
+    0,
+    1,
+    63,
+    127
+  ],
+  "target_slots": [
+    0,
+    1,
+    63,
+    127
+  ],
+  "CPU_and_unrelated_entity_state_retained": true,
+  "normalattack_body_integrated": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}
