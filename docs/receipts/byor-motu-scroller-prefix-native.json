@@ -1,0 +1,38 @@
+{
+  "schema": "BYOR_MOTU_SCROLLER_PREFIX_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-scroller-prefix-authority/report.json",
+      "sha256": "5abaf2708842f747ca87c7b2aecfb70ee086e149380fcb8c750258dfa4466db7",
+      "cases": 560,
+      "rom_sha256": null
+    },
+    {
+      "path": "out/byor-motu-scroller-prefix-native/report.json",
+      "sha256": "c37e71322002c0234104c33dae693d11db2bc21edf56bfd140f137c717fc1529",
+      "cases": 568,
+      "rom_sha256": "3eabdcab6a6b7bed70417e367d14ba05ffe21aa1311f11631de102dec5a3d19d"
+    }
+  ],
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "scope": "Unmodified source update_scroller prefix before queue/completion/camera",
+  "checks": [
+    "Unsigned time/advancetime boundaries",
+    "Full-width C truth for freeze/completed",
+    "Both scroll deltas reset before any early return",
+    "Advancetime changes before completed test, after time/freeze gate",
+    "Previous pending queue cannot be replaced",
+    "CPU context preserved"
+  ],
+  "bank": 62,
+  "bank0_free_before_nmi": 2,
+  "protected_files_unchanged": 17,
+  "audit": "ALL CHECKS PASS",
+  "nonclaims": [
+    "Camera movement or completion owner",
+    "Live gameplay/full Demo"
+  ],
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
