@@ -498,6 +498,8 @@ SourceCtorState4086_FreezeBirthDone:
 .a16
 .i16
  lda.l SourceScriptClone4086_Slot
+ jsl SourceCombatState4086_BirthClear
+ lda.l SourceScriptClone4086_Slot
  jsl SourceAIState4086_InitializeBirth
  bcc SourceCtorState4086_AIStateBirthDone
  jmp SourceCtorState4086_Bad

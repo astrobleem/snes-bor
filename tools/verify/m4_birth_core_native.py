@@ -11,7 +11,7 @@ local mt=emu.memType.snesMemory
 local function put(a,v,n)for i=0,(n or 2)-1 do emu.write(a+i,(v>>(i*8))&255,mt)end end
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
 local function set(n,v)put(sy[n],v)end
-local ranges={{0x409000,8192},{0x40c000,12288},{0x43eb00,4096},{0x43fd80,32},{0x414000,10240},{0x418800,24576}}
+local ranges={{0x437e00,2560},{0x409000,8192},{0x40c000,12288},{0x43eb00,4096},{0x43fd80,32},{0x414000,10240},{0x418800,24576}}
 local before,cpu,start,ctx={},{},0,0
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];put(EXPECTFAULT,c.fault)
@@ -56,6 +56,7 @@ emu.addMemoryCallback(function()
   for i,n in ipairs(c.core)do before[0x40c000+c.slot*96+i-1]=n end
   for i,n in ipairs(c.flags)do before[0x43eb00+c.slot*32+i-1]=n end
   for i,n in ipairs(c.relation)do before[0x409000+c.slot*64+i-1]=n end
+  for j=0,19 do before[0x437e00+c.slot*20+j]=0 end;before[0x437e10+c.slot*20]=0xfb;before[0x437e11+c.slot*20]=0xb5
   before[0x43fd80]=1
  end
  local mismatch=0;for a,n in pairs(before)do if emu.read(a,mt)~=n then mismatch=mismatch+1 end end
@@ -78,6 +79,6 @@ def main():
             if marker in line:target.append(list(map(int,line.split(marker,1)[1].split('|'))))
     reporter.check('exact source-derived core/flags/relations and preserved unrelated bytes/context',len(results)==len(rows) and all(r==[i,0,0,3 if c['fault'] else 2] for i,(r,c) in enumerate(zip(results,rows))))
     reporter.check('admitted birth fault blocks clock retirement',len(clocks)==len(rows) and all(r==([i,1,48,1] if c['fault'] else [i,0,49,0]) for i,(r,c) in enumerate(zip(clocks,rows))))
-    report=dict(schema='BYOR_4086_NONE_IDLE_BIRTH_CORE_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),table_sha256=hashlib.sha256(table).hexdigest(),cases=len(rows),inputs=[{k:v for k,v in r.items() if k not in ('core','flags','relation')} for r in rows],results=results,costs=costs,clocks=clocks,alive_publication_bound=False,full_constructor_cleanup_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True);(a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
+    report=dict(schema='BYOR_4086_NONE_IDLE_BIRTH_CORE_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),table_sha256=hashlib.sha256(table).hexdigest(),cases=len(rows),inputs=[{k:v for k,v in r.items() if k not in ('core','flags','relation')} for r in rows],results=results,costs=costs,clocks=clocks,combat_birth_fields_zeroed=True,alive_publication_bound=False,full_constructor_cleanup_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True);(a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 if __name__=='__main__':main()

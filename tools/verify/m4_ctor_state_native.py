@@ -10,16 +10,19 @@ from source_model_core_4086 import derive as core,CACHED_FIELDS,FLOAT_FIELDS
 from source_ctor_state import derive as state,pack as pack_state
 from source_model_factors import derive as factors
 from source_binary32_q16 import project
+from source_model_attack_policy import derive as attack_policy,FIELDS as POLICY_FIELDS
 from m4_ctor_model_native import LUA as MODEL_LUA
 from _source_leaf_fixture import run_fixture
 from _harness import Reporter
 from actor_s5_entity_fixture import symbols
-LUA=MODEL_LUA.replace("local ranges={{0x40b000", "local ranges={{0x432800,4096},{0x433800,8192},{0x43b900,512},{0x43eb00,4096},{0x41f500,2560},{0x43fd80,32},{0x40b000")
+LUA=MODEL_LUA.replace("local ranges={{0x40b000", "local ranges={{0x42e000,5120},{0x41f300,512},{0x42f400,3072},{0x40bc00,256},{0x437e00,2560},{0x432800,4096},{0x433800,8192},{0x43b900,512},{0x43eb00,4096},{0x41f500,2560},{0x43fd80,32},{0x40b000")
 LUA=LUA.replace(" set('SourceCtorModel4086_Status',0)","""
  set('SourceCtorModel4086_Status',0)
  for i=0,127 do local r=0x414000+i*80;put(r,r,4);put(r+4,0,4)end;put(v+4,0,4)
  for i=0,c.live-1 do local slot=i>=c.slot and i+1 or i;put(0x414004+slot*80,1,4)end
  for i=0,31 do emu.write(0x43fd80+i,0,mt)end;put(0x43fd80,c.live,4);set('SourceWorldTick4086_Maximum',c.maximum)
+ set('SourceFreeze4086_Ready',0xb5df);set('SourceToss4086_Ready',0xb4e2);set('SourceModelAttackPolicy4086_Ready',0xb5f0);set('SourceModelAttackPolicy4086_Models',16)
+ for j,value in ipairs(c.policy)do emu.write(0x40bc00+c.model*16+j-1,value,mt)end
  set('SourceCtorState4086_Ready',0xb5c2);set('SourceCtorState4086_Status',0);set('SourceCtorState4086_Base',0x8000+CLONEBYTES+LIFEBYTES);set('SourceCtorState4086_Bank',59);set('SourceCtorState4086_Bytes',STATEBYTES);set('SourceCtorState4086_Models',16)
  put(sy.SourceCtorState4086_X,c.x,4);put(sy.SourceCtorState4086_Z,c.z,4);put(sy.SourceCtorState4086_A,c.a,4);put(sy.SourceCtorState4086_Direction,c.direction,4);put(sy.SourceCtorState4086_Time,c.time,4);put(sy.SourceCtorState4086_Player,c.player,4);set('SourceCtorState4086_NoHit',c.nohit);set('SourceCtorState4086_SavedMode',c.saved)
  set('SourceFactors4086_Ready',0xb5f1);set('SourceFactors4086_Status',2);put(0x43b900+c.slot*4,c.model);put(0x43b902+c.slot*4,0xb5f1);for j,value in ipairs(c.factor)do emu.write(0x432800+c.slot*32+j-1,value,mt)end
@@ -50,8 +53,11 @@ LUA=LUA.replace(" if c.bad=='cleanup'then", """ if c.bad=='state_ready'then set(
 start=LUA.index(' if c.fault==0 then');end=LUA.index(' local s=emu.getState()',start)
 LUA=LUA[:start]+""" if c.fault==0 then
  local function expect(base,bytes)for j,value in ipairs(bytes)do before[base+j-1]=value end end
+ for j=0,39 do before[0x42e000+c.slot*40+j]=0 end;for j=0,3 do before[0x41f300+c.slot*4+j]=0 end
+ for j=0,23 do before[0x42f400+c.slot*24+j]=0 end;expect(0x42f408+c.slot*24,c.policy)
  expect(0x40c000+c.slot*96,c.wantcore);expect(0x439000+c.slot*80,c.wantlife)
  expect(0x414000+c.slot*80,c.wantview);expect(0x416800+c.slot*64,c.wantside);expect(0x409000+c.slot*64,c.wantrelation);expect(0x433800+c.slot*64,c.wantname)
+ for i=0,19 do before[0x437e00+c.slot*20+i]=0 end;before[0x437e10+c.slot*20]=0xfb;before[0x437e11+c.slot*20]=0xb5
  for i=0,31 do before[0x43eb00+c.slot*32+i]=0 end;for i=0,19 do before[0x41f500+c.slot*20+i]=0 end
  for _,r in ipairs(c.changes)do expect(r.address,r.bytes)end
  end
@@ -60,7 +66,7 @@ LUA=LUA.replace("word(sy.SourceCtorModel4086_Status)","word(sy.SourceCtorState40
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
- cr=clone(source);ct=pack_clone(cr);cb,*_=derive(source);bt=pack(cb);lr=life(source);lt=pack_life(lr);mr=core(source);sr=state(source);st=pack_state(sr);fr=factors(source);rows=[]
+ cr=clone(source);ct=pack_clone(cr);cb,*_=derive(source);bt=pack(cb);lr=life(source);lt=pack_life(lr);mr=core(source);sr=state(source);st=pack_state(sr);fr=factors(source);policy=attack_policy(source);rows=[]
  def case(slot,m,level=1,live=0,maximum=0,time=48,player=3,nohit=0,saved=0,direction=1,mutate=False):
   f=dict(m['fields']);sm=sr['models'][m['id']]
   if mutate:f.update(speed=-1.25,health=-17,mp=23,multiple=-77,subject_to_wall=-2147483648,type=129)
@@ -76,7 +82,7 @@ def main():
   rel=bytearray(64);struct.pack_into('<i',rel,36,sm['summonkill']);struct.pack_into('<I',rel,44,cr['models'][m['id']]['initialized_mask']);name=bytearray(64);encoded=sm['display_name'].encode('ascii');name[:len(encoded)]=encoded;struct.pack_into('<H',name,50,m['id']);struct.pack_into('<H',name,62,0xb5c2)
   changes=[dict(address=0x43fd80,bytes=list(struct.pack('<I',live+1)))]
   if f['type']&128:changes.append(dict(address=0x43fd98,bytes=list(struct.pack('<I',0x414000+slot*80))))
-  return dict(slot=slot,model=m['id'],mode=0,level=level,alive=0,multiple=0,platform=0,wall=0,bad='',fault=0,cache=list(cache),wantcore=list(desired),wantlife=list(wl),wantview=list(view),wantside=list(side),wantrelation=list(rel),wantname=list(name),changes=changes,factor=list(bytes.fromhex(fr['models'][m['id']]['vector_hex'])),live=live,maximum=maximum,time=time,player=player,nohit=nohit,saved=saved,direction=direction,x=x,z=z,a=alt,wantmaximum=max(maximum,live+1))
+  return dict(slot=slot,model=m['id'],mode=0,level=level,alive=0,multiple=0,platform=0,wall=0,bad='',fault=0,cache=list(cache),wantcore=list(desired),wantlife=list(wl),wantview=list(view),wantside=list(side),wantrelation=list(rel),wantname=list(name),changes=changes,factor=list(bytes.fromhex(fr['models'][m['id']]['vector_hex'])),policy=list(struct.pack('<4i',*(policy['models'][m['id']]['fields'][f]for f in POLICY_FIELDS))),live=live,maximum=maximum,time=time,player=player,nohit=nohit,saved=saved,direction=direction,x=x,z=z,a=alt,wantmaximum=max(maximum,live+1))
  for slot,m,mutate in itertools.product((0,1,127),mr['models'],(False,True)):rows.append(case(slot,m,mutate=mutate))
  player_model=next(m for m in mr['models']if m['fields']['type']==1)
  for level,nohit,saved,time,direction in itertools.product((0,1),(0,1),(0,1),(0,0xffffffff),(0,2,-1)):rows.append(case(127,player_model,level=level,nohit=nohit,saved=saved,time=time,direction=direction,live=3,maximum=7))
@@ -85,10 +91,22 @@ def main():
  lua=lua.replace("local s=emu.getState();cpu={};ctx=0;for _,k in ipairs({'x','y','d','dbr','sp','ps'})do cpu[k]=s['cpu.'..k]end",'')
  entry=sy['SourceCtorState4086_Begin'];lua+=f"emu.addMemoryCallback(function()local s=emu.getState();cpu={{}};ctx=0;for _,k in ipairs({{'x','y','d','dbr','sp','ps'}})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,{entry},{entry},emu.cpuType.snes,mt)\n"
  lua+="emu.addMemoryCallback(function()emu.log('CTORMAX|'..word(INDEX)..'|'..word(sy.SourceWorldTick4086_Maximum))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
+ lua+=r'''
+local ctortrace={}
+for name,address in pairs(sy)do
+ if address>=0x3e8000 and address<0x400000 and(name:match('^SourceCtorState4086_')or name:match('^SourceCtorModel4086_')or name:match('^SourceFreeze4086_'))then
+  local label=name
+  emu.addMemoryCallback(function()
+   if word(INDEX)==0 then ctortrace[#ctortrace+1]=label;if #ctortrace>20 then table.remove(ctortrace,1)end end
+   if label=='SourceCtorState4086_Bad'or label=='SourceCtorState4086_BeginBad'then emu.log('CTORFAILTRACE|'..table.concat(ctortrace,','))end
+  end,emu.callbackType.exec,address,address,emu.cpuType.snes,mt)
+ end
+end
+'''
  r=Reporter('M4-CTOR-STATE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'SourceCtorState4086_Begin','SourceCtorState4086_Ready',0xb5c2,[(59,0,ct+lt+st),(60,0,bt)],lua,r,batch_size=2)
  results=[list(map(int,line.split('TAILRESULT|',1)[1].split('|')))for line in log.splitlines()if 'TAILRESULT|'in line];maxima=[list(map(int,line.split('CTORMAX|',1)[1].split('|')))for line in log.splitlines()if 'CTORMAX|'in line]
  r.check('all current models, independent fields, full reset/name/map/source roles, inherited mutations, signed coordinates and guards preserve physical/context boundaries',results==[[i,0,0,3 if c['fault']else 2]for i,c in enumerate(rows)])
  r.check('source count/maximum publication and unsigned nextthink/nextmove wrap',maxima==[[i,129 if c['bad']=='maximum'else c['maximum']if c['fault']else c['wantmaximum']]for i,c in enumerate(rows)])
- d=dict(schema='BYOR_4086_CTOR_STATE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,maxima=maxima,script_cleanup_and_factor_copy_instrumented=True,slot_allocation_bound=False,drawmethod_execution_bound=False,palette_upload_bound=False,full_constructor_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
+ d=dict(schema='BYOR_4086_CTOR_STATE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,maxima=maxima,script_cleanup_and_factor_copy_instrumented=True,slot_allocation_bound=False,drawmethod_execution_bound=False,palette_upload_bound=False,full_constructor_bound=False,combat_birth_fields_zeroed=True,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
  (a.output/'report.json').write_text(json.dumps(d,indent=2)+'\n');r.finish()
 if __name__=='__main__':main()

@@ -416,6 +416,8 @@ SourceBirthCore4086_RelationLoop:
  jsr SourceBirthCore4086_NextRead
  dey
  bne SourceBirthCore4086_RelationLoop
+ lda.l SourceBirthCore4086_Slot
+ jsl SourceCombatState4086_BirthClear
  lda.l SOURCE_RETIREMENT_ROLES
  inc a
  sta.l SOURCE_RETIREMENT_ROLES

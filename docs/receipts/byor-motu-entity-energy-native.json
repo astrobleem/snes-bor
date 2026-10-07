@@ -1,0 +1,73 @@
+{
+  "schema": "BYOR_MOTU_ENTITY_ENERGY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-animation-energy-authority/report.json",
+      "sha256": "ef6df6f4f167d1c51202fda05a3a9d46344ab44e8c39e84e0f397ba0904627c4",
+      "cases": 21600,
+      "loader_cases": 135
+    },
+    {
+      "path": "out/byor-motu-check-energy-native/report.json",
+      "sha256": "7934ffe9c0317f6b1ef1ddf871f3fbb8b74c71f08bbb979dc2df393d05289c37",
+      "cases": 612,
+      "loader_cases": null
+    },
+    {
+      "path": "out/byor-motu-combat-state-birth-native/report.json",
+      "sha256": "bf1dd6022096389faf051e822cbd67ad7cd924603a3fb894f328cc75f26038b4",
+      "cases": 130,
+      "loader_cases": null
+    },
+    {
+      "path": "out/byor-motu-combat-state-ctor-native/report.json",
+      "sha256": "f2486f939f4edb94448cb4ea5fe41bd6a259fc7994c1e9c30255b956ba160b68",
+      "cases": 238,
+      "loader_cases": null
+    },
+    {
+      "path": "out/byor-motu-combat-state-old-birth-native/report.json",
+      "sha256": "afe4bfd2cd9e09f0aa421f8d5ba564b6d01ba9c512fd861f7c17aa8e0b1b8506",
+      "cases": 82,
+      "loader_cases": null
+    },
+    {
+      "path": "out/byor-motu-animation-energy-query-native/report.json",
+      "sha256": "3f111af10bade50e6d81eb4e237400200637253f432e5fceb537c3172d5c04b3",
+      "cases": 101,
+      "loader_cases": null
+    },
+    {
+      "path": "out/byor-motu-entity-energy-native/report.json",
+      "sha256": "fc554e9c1b64cbe839f0ffe3cd830f0a9b5d913868e7d21f9a9481f9c539f57e",
+      "cases": 361,
+      "loader_cases": null
+    }
+  ],
+  "actual_current_health_and_MP_and_seal": true,
+  "current_mutable_animation_energy": true,
+  "combat_dynamic_state": {
+    "base": "437E00",
+    "end_exclusive": "438800",
+    "row_bytes": 20,
+    "entities": 128,
+    "fields": [
+      "drop",
+      "seal",
+      "combostep[0]",
+      "combotime"
+    ],
+    "marker": "B5FB",
+    "player_special_input_other_indices_bound": false
+  },
+  "both_birth_paths_initialize_combat_fields": true,
+  "compiler_enum_authority_bits": 32,
+  "compiler_enum_option": "-ei",
+  "combat_attack_choice_bound": false,
+  "motu_gameplay_proven": false,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0,
+  "no_color_reduction": true
+}

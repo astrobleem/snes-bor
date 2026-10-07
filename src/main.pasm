@@ -13715,3 +13715,10 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_animation_range.pasm"
 
 .include "core/vm/vm_source_entity_range.pasm"
+
+.include "core/vm/vm_source_check_energy.pasm"
+.include "core/vm/vm_source_combat_state.pasm"
+
+.include "core/vm/vm_source_animation_energy.pasm"
+
+.include "core/vm/vm_source_entity_energy.pasm"
