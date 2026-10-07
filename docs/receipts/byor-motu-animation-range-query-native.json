@@ -1,0 +1,17 @@
+{
+  "schema": "BYOR_MOTU_ANIMATION_RANGE_QUERY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proof": {
+    "path": "out/byor-motu-animation-range-query-native/report.json",
+    "cases": 99,
+    "sha256": "5fb147b2a4352d185fa90531355ef0d92f84724550c7a86c69aea90a40b1c3b7"
+  },
+  "all_source_animation_handles": 80,
+  "guarded_table_query_bound": true,
+  "actual_entity_range_binding": false,
+  "motu_gameplay_proven": false,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0,
+  "no_color_reduction": true
+}
