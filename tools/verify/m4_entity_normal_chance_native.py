@@ -7,12 +7,20 @@ from _harness import Reporter
 from compiler import Source
 from source_normal_chance_profile import pack
 from source_actor_numeric import random32_step
+from source_attack_timing_4086 import derive,pack as pack_timing
 from m4_animation_init_native import luav
 
 SETUP=r'''
  set('SourceAI4086_State',2);set('SourceAI4086_Slot',s);set('SourceCommonThink4086_Ready',c.bad=='common_ready'and 0 or 0xb5e7);set('SourceCommonThink4086_State',7);set('SourceCommonThink4086_Slot',s)
  put(side,c.bad=='model'and 16 or c.model);put(side+4,65535);put(side+6,65535)
  put(v+48,c.bad=='x_tag'and 1 or 2,4);put(v+52,c.x,4);put(0x40c038+s*96,c.ai,4)
+ set('SourceAttackTiming4086_Ready',c.bad=='timing_ready'and 0 or 0xb603);set('SourceAttackTiming4086_Status',c.bad=='timing_busy'and 1 or 2);set('SourceAttackTiming4086_Models',c.bad=='timing_models'and 15 or 16)
+ set('SourceModelEntityCopy4086_Models',16)
+ for j=0,11 do emu.write(0x438800+s*14+j,timingbytes[29+c.model*12+j],mt);emu.write(0x40bdc0+j,timingbytes[17+j],mt)end
+ put(0x438800+s*14+12,c.bad=='param_marker'and 0 or 0xb603)
+ if c.bad=='actor_throttle'then put(0x438800+s*14+4,1,4)end
+ if c.bad=='global_minimum'then put(0x40bdc0,1,4)end
+ if c.bad=='global_offscreen'then put(0x40bdc4,1,4)end
  put(sy.VmSourceWorld_AdvanceX,c.camera,4);set('SourceCameraMotion4086_Ready',c.bad=='camera_ready'and 0 or 0xb5db);set('SourceCameraMotion4086_HRes',c.bad=='native_width'and 256 or 320);set('SourceCameraMotion4086_VRes',240)
  set('SourceEntityNormalChance4086_Ready',c.bad=='ready'and 0 or 0xb601);set('SourceEntityNormalChance4086_Status',c.bad=='busy'and 1 or 0);set('SourceEntityNormalChance4086_Bank',c.bad=='bank'and 0 or 59);set('SourceEntityNormalChance4086_Base',c.bad=='base'and 0x7fff or c.bad=='extent'and 0xfff0 or 0x8000);set('SourceEntityNormalChance4086_Bytes',TABLEBYTES);put(sy.SourceEntityNormalChance4086_Result,55,4)
  set('SourceNormalChance4086_Ready',c.bad=='kernel_ready'and 0 or 0xb600);set('SourceNormalChance4086_Status',c.bad=='kernel_busy'and 1 or 0)
@@ -33,15 +41,21 @@ def main():
     i=len(rows);seed=(0,1,65535,0xffffffff)[i%4];after,value=random32_step(seed);off=int(x-camera < -10*65536 or x-camera >330*65536);cutoff=authority['source_models'][model]['offscreen_last_allowed'if off else'onscreen_last_allowed'];calls=int(not ai&8)
     rows.append(dict(slot=(0,1,63,127)[i%4],model=model,x=x,camera=camera,ai=ai,seed=seed,seed_after=after if calls else seed,calls=calls,expected=1 if ai&8 else int(value%10000<=cutoff),offscreen=off,time=50,nextthink=50,endgame=0,takeaction=0,think=6,noaicontrol=0,reactive=1,update_mark=1,animation=5,spawn=3,respawn=4,animating=1,exists=(0,1,65536,0xffffffff)[i%4],bad='',fault=0,patch=-1,value=0))
  base=rows[0]
- for bad in ('ready','busy','common_ready','phase','model','x_tag','camera_ready','native_width','bank','base','extent','kernel_ready','kernel_busy','rng_ready','rng_busy'):
+ for bad in ('ready','busy','common_ready','phase','model','x_tag','camera_ready','native_width','bank','base','extent','kernel_ready','kernel_busy','rng_ready','rng_busy','timing_ready','timing_busy','timing_models','param_marker','actor_throttle','global_minimum','global_offscreen'):
   rows.append(dict(base,bad=bad,fault=1,expected=55,seed_after=base['seed'],calls=0))
- for at,value in ((0,0),(4,2),(6,0),(6,15),(8,8),(10,256),(12,224),(14,1),(16,10000),(18,65534)):
+ for at,value in ((0,0),(4,3),(6,0),(6,15),(8,4),(10,256),(12,224),(14,1),(24,10000),(26,65534),(16,1),(20,1),(28,1)):
   rows.append(dict(base,patch=at,value=value,fault=1,expected=55,seed_after=base['seed'],calls=0))
- for bad in ('camera_ready','native_width','x_tag','bank','rng_ready','rng_busy'):
+ for bad in ('camera_ready','native_width','x_tag','bank','rng_ready','rng_busy','timing_ready','timing_busy','timing_models','param_marker','actor_throttle','global_minimum','global_offscreen'):
   rows.append(dict(base,bad=bad,ai=8,calls=0,seed_after=base['seed'],expected=1))
  lua=OWNER_LUA[:OWNER_LUA.index('emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1];local phase=')]
- lua='local tablebytes='+luav(list(table))+'\n'+lua.replace(' before={};',SETUP+' before={};').replace('TABLEBYTES',str(len(table))).replace('{{0x414000,18432}','{{sy.VmNativeVariant_Result,8},{sy.SourceModelEntityCopy4086_Lo,4},{sy.SourceRandom4086_Ready,12},{sy.SourceCRandom4086_Ready,18},{sy.VmSourceWorld_AdvanceX,4},{0x437e00,2560},{0x40c000,12288},{0x414000,18432}')
+ lua='local timingbytes='+luav(list(pack_timing(derive(Source(a.source)))))+'\nlocal tablebytes='+luav(list(table))+'\n'+lua.replace(' before={};',SETUP+' before={};').replace('TABLEBYTES',str(len(table))).replace('{{0x414000,18432}','{{0x438800,1792},{0x40bdc0,12},{sy.VmNativeVariant_Result,8},{sy.SourceModelEntityCopy4086_Lo,4},{sy.SourceRandom4086_Ready,12},{sy.SourceCRandom4086_Ready,18},{sy.VmSourceWorld_AdvanceX,4},{0x437e00,2560},{0x40c000,12288},{0x414000,18432}')
  lua+=r'''
+emu.addMemoryCallback(function()
+ local st=emu.getState();cpu={};for _,k in ipairs({'x','y','d','dbr','sp','ps'})do cpu[k]=st['cpu.'..k]end;cpu.sp=cpu.sp+3
+end,emu.callbackType.exec,APPLY,APPLY,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local st=emu.getState();ctx=0;for _,k in ipairs({'x','y','d','dbr','sp'})do if cpu[k]~=st['cpu.'..k]then ctx=ctx+1 end end;if(cpu.ps&254)~=(st['cpu.ps']&254)then ctx=ctx+1 end
+end,emu.callbackType.exec,AFTER,AFTER,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];for _,r in ipairs({{sy.SourceRandom4086_SeedLo,c.seed_after},{sy.SourceRandom4086_CallsLo,(0xffffffff+c.calls)&0xffffffff}})do for j=0,3 do before[r[1]+j]=(r[2]>>(8*j))&255 end end
  local changed=0;for a,v in pairs(before)do if emu.read(a,mt)~=v then changed=changed+1 end end

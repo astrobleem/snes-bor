@@ -21,7 +21,7 @@ SourceEntityNormalChance4086_Execute:
  phd
  tsc
  sec
- sbc #16
+ sbc #20
  tcs
  inc a
  tcd
@@ -64,6 +64,49 @@ SourceEntityNormalChance4086_G2:
 SourceEntityNormalChance4086_Profile:
 .a16
 .i16
+ lda.l SourceAttackTiming4086_Ready
+ cmp #$B603
+ beq SourceEntityNormalChance4086_Parameters
+ jmp SourceEntityNormalChance4086_Bad
+SourceEntityNormalChance4086_Parameters:
+.a16
+.i16
+ lda.l SourceAttackTiming4086_Status
+ cmp #2
+ beq SourceEntityNormalChance4086_ParameterCount
+ jmp SourceEntityNormalChance4086_Bad
+SourceEntityNormalChance4086_ParameterCount:
+.a16
+.i16
+ lda.l SourceAttackTiming4086_Models
+ cmp.l SourceModelEntityCopy4086_Models
+ beq SourceEntityNormalChance4086_ParameterRow
+ jmp SourceEntityNormalChance4086_Bad
+SourceEntityNormalChance4086_ParameterRow:
+.a16
+.i16
+ lda.l SourceAI4086_Slot
+ asl a
+ pha
+ asl a
+ clc
+ adc 1,s
+ asl a
+ clc
+ adc 1,s
+ tax
+ pla
+ lda.l SOURCE_ENTITY_ATTACK_TIMING+12,x
+ cmp #$B603
+ beq SourceEntityNormalChance4086_ParameterValues
+ jmp SourceEntityNormalChance4086_Bad
+SourceEntityNormalChance4086_ParameterValues:
+.a16
+.i16
+ lda.l SOURCE_ENTITY_ATTACK_TIMING+4,x
+ sta $10
+ lda.l SOURCE_ENTITY_ATTACK_TIMING+6,x
+ sta $12
  lda.l SourceEntityNormalChance4086_Bank
  beq SourceEntityNormalChance4086_BankBad
  cmp #64
@@ -110,7 +153,7 @@ SourceEntityNormalChance4086_G6:
 .i16
  ldy #4
  lda [$00],y
- cmp #1
+ cmp #2
  beq SourceEntityNormalChance4086_G7
  jmp SourceEntityNormalChance4086_Bad
 SourceEntityNormalChance4086_G7:
@@ -137,8 +180,9 @@ SourceEntityNormalChance4086_G9:
  sta.l SourceEntityNormalChance4086_Models
  asl a
  asl a
+ asl a
  clc
- adc #16
+ adc #24
  cmp.l SourceEntityNormalChance4086_Bytes
  beq SourceEntityNormalChance4086_G10
  jmp SourceEntityNormalChance4086_Bad
@@ -147,7 +191,7 @@ SourceEntityNormalChance4086_G10:
 .i16
  ldy #8
  lda [$00],y
- cmp #4
+ cmp #8
  beq SourceEntityNormalChance4086_G11
  jmp SourceEntityNormalChance4086_Bad
 SourceEntityNormalChance4086_G11:
@@ -186,6 +230,41 @@ SourceEntityNormalChance4086_G14:
  beq SourceEntityNormalChance4086_G15
  jmp SourceEntityNormalChance4086_Bad
 SourceEntityNormalChance4086_G15:
+.a16
+.i16
+ ldy #16
+ lda [$00],y
+ cmp.l SourceAttackTiming4086_Globals
+ beq SourceEntityNormalChance4086_Global1
+ jmp SourceEntityNormalChance4086_Bad
+SourceEntityNormalChance4086_Global1:
+.a16
+.i16
+ iny
+ iny
+ lda [$00],y
+ cmp.l SourceAttackTiming4086_Globals+2
+ beq SourceEntityNormalChance4086_Global2
+ jmp SourceEntityNormalChance4086_Bad
+SourceEntityNormalChance4086_Global2:
+.a16
+.i16
+ iny
+ iny
+ lda [$00],y
+ cmp.l SourceAttackTiming4086_Globals+4
+ beq SourceEntityNormalChance4086_Global3
+ jmp SourceEntityNormalChance4086_Bad
+SourceEntityNormalChance4086_Global3:
+.a16
+.i16
+ iny
+ iny
+ lda [$00],y
+ cmp.l SourceAttackTiming4086_Globals+6
+ beq SourceEntityNormalChance4086_Global4
+ jmp SourceEntityNormalChance4086_Bad
+SourceEntityNormalChance4086_Global4:
 .a16
 .i16
  lda.l SourceAI4086_View
@@ -273,8 +352,9 @@ SourceEntityNormalChance4086_Which:
  lda.l SourceAI4086_Model
  asl a
  asl a
+ asl a
  clc
- adc #16
+ adc #24
  tay
  lda [$00],y
  cmp #$FFFF
@@ -298,6 +378,24 @@ SourceEntityNormalChance4086_OffValid:
 .a16
 .i16
  sta $0C
+ iny
+ iny
+ lda [$00],y
+ cmp $10
+ beq SourceEntityNormalChance4086_CoefficientLow
+ jmp SourceEntityNormalChance4086_Bad
+SourceEntityNormalChance4086_CoefficientLow:
+.a16
+.i16
+ iny
+ iny
+ lda [$00],y
+ cmp $12
+ beq SourceEntityNormalChance4086_CoefficientHigh
+ jmp SourceEntityNormalChance4086_Bad
+SourceEntityNormalChance4086_CoefficientHigh:
+.a16
+.i16
  lda.l SourceEntityNormalChance4086_Offscreen
  beq SourceEntityNormalChance4086_Onscreen
  lda $0C
@@ -327,7 +425,7 @@ SourceEntityNormalChance4086_Success:
  sta.l SourceEntityNormalChance4086_Status
  tsc
  clc
- adc #16
+ adc #20
  tcs
  pld
  ply
@@ -342,7 +440,7 @@ SourceEntityNormalChance4086_Bad:
  sta.l SourceEntityNormalChance4086_Status
  tsc
  clc
- adc #16
+ adc #20
  tcs
  pld
  ply

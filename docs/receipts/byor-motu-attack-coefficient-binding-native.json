@@ -1,0 +1,47 @@
+{
+  "schema": "BYOR_MOTU_ATTACK_COEFFICIENT_BINDING_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-entity-normal-chance-cpu-native/report.json",
+      "sha256": "6eac6b0d8b0279ffaeb042d977c96800bd6c79f47d0e08c6898f3e6945263730",
+      "cases": 816,
+      "table_bytes": null
+    },
+    {
+      "path": "out/byor-motu-attack-timing-globals-native/report.json",
+      "sha256": "504d3fbef61d5678e77e909e9475fc55d51ab38660a205244c4978761a20ff16",
+      "cases": 296,
+      "table_bytes": null
+    },
+    {
+      "path": "out/byor-motu-normal-attack-body-authority/report.json",
+      "sha256": "2d997b458005339b22521116a2163c5f7bd28ba77dccae7afe9c3f838b0eb6a2",
+      "cases": 360,
+      "table_bytes": null
+    },
+    {
+      "path": "out/byor-motu-attack-delay-profile/report.json",
+      "sha256": "cab5c7a31a34184fda88d13dbc894b5a300c5748bae4e3f544c31ae5fd8ad8fb",
+      "cases": null,
+      "table_bytes": 20272
+    }
+  ],
+  "chance_profile_version": 2,
+  "actual_actor_throttle_and_global_coefficient_identity_guarded": true,
+  "always_bypasses_coefficient_and_rng_checks": true,
+  "globals_cache": {
+    "base": "40BDC0",
+    "bytes": 12
+  },
+  "chance_cpu_and_stack_retention_observed": true,
+  "normal_attack_body_callees_instrumented": true,
+  "normal_attack_body_native_bound": false,
+  "timer_lookup_native_bound": false,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "original_2014_binary_fpu_configuration_proven": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

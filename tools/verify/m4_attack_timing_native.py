@@ -46,8 +46,8 @@ emu.addMemoryCallback(function()
  set('SourceAttackTiming4086_Ready',c.bad=='ready'and 0 or 0xb603);set('SourceAttackTiming4086_Status',c.bad=='busy'and 1 or 0);set('SourceAttackTiming4086_Bank',c.bad=='bank'and 0 or 59);set('SourceAttackTiming4086_Base',c.bad=='base'and 0x7fff or c.bad=='extent'and 0xfff0 or 0x8000);set('SourceAttackTiming4086_Bytes',c.bad=='short'and 0 or TABLEBYTES);set('SourceAttackTiming4086_Models',55);set('SourceModelEntityCopy4086_Models',c.bad=='paired'and 15 or 16)
  local data=tables[c.synthetic+1];for j,value in ipairs(data)do emu.write(59*32768+j-1,value,emu.memType.snesPrgRom)end
  if c.patch>=0 then for j=0,1 do emu.write(59*32768+c.patch+j,(c.value>>(8*j))&255,emu.memType.snesPrgRom)end end
- for _,r in ipairs({{0x40bd00,192},{0x438800,1792}})do for j=0,r[2]-1 do emu.write(r[1]+j,0xa5,mt)end end
- before={};for _,r in ipairs({{0x40bd00,192},{0x438800,2048},{0x437e00,2560},{0x439000,10240},{0x40c000,12288},{0x414000,18432},{sy.VmNativeVariant_Result,8},{sy.SourceRandom4086_Ready,12},{sy.SourceCRandom4086_Ready,18}})do for j=0,r[2]-1 do before[r[1]+j]=emu.read(r[1]+j,mt)end end
+ for _,r in ipairs({{0x40bd00,204},{0x438800,1792}})do for j=0,r[2]-1 do emu.write(r[1]+j,0xa5,mt)end end
+ before={};for _,r in ipairs({{0x40bd00,204},{0x438800,2048},{0x437e00,2560},{0x439000,10240},{0x40c000,12288},{0x414000,18432},{sy.VmNativeVariant_Result,8},{sy.SourceRandom4086_Ready,12},{sy.SourceCRandom4086_Ready,18}})do for j=0,r[2]-1 do before[r[1]+j]=emu.read(r[1]+j,mt)end end
 end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(capture,emu.callbackType.exec,LOADTIMING,LOADTIMING,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()loadctx=context()end,emu.callbackType.exec,LOADAFTER,LOADAFTER,emu.cpuType.snes,mt)
@@ -55,7 +55,7 @@ emu.addMemoryCallback(capture,emu.callbackType.exec,COPYTIMING,COPYTIMING,emu.cp
 emu.addMemoryCallback(function()copyctx=context()end,emu.callbackType.exec,COPYAFTER,COPYAFTER,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];local data=tables[c.synthetic+1]
- if c.loaded then for j=0,191 do before[0x40bd00+j]=data[29+j]end end
+ if c.loaded then for j=0,191 do before[0x40bd00+j]=data[29+j]end;for j=0,11 do before[0x40bdc0+j]=data[17+j]end end
  if c.fault==0 then local base=0x438800+c.slot*14;for j=0,11 do before[base+j]=data[29+c.model*12+j]end;before[base+12]=3;before[base+13]=0xb6 end
  local changed=0;for a,v in pairs(before)do if emu.read(a,mt)~=v then changed=changed+1 end end
  emu.log('TIMINGSCALARS|'..word(INDEX)..'|'..loadctx..'|'..copyctx..'|'..changed..'|'..word(sy.SourceAttackTiming4086_Status)..'|'..word(sy.SourceAttackTiming4086_Models))

@@ -11,6 +11,7 @@ SourceAttackTiming4086_Status = $43BF16
 SourceAttackTiming4086_Models = $43BF18
 SourceAttackTiming4086_End = $43BF1A
 SOURCE_ATTACK_TIMING_CACHE = $40BD00
+SourceAttackTiming4086_Globals = $40BDC0 ; min chance, offscreen factor, duration
 SOURCE_ENTITY_ATTACK_TIMING = $438800
 SOURCE_ENTITY_ATTACK_TIMING_STRIDE = 14
 SOURCE_ENTITY_ATTACK_TIMING_END = $438F00
@@ -211,6 +212,19 @@ SourceAttackTiming4086_TimeGood:
  dex
  bne SourceAttackTiming4086_Row
  ; All header/row validation precedes cache publication.
+ ldy #16
+ ldx #0
+SourceAttackTiming4086_CopyGlobals:
+.a16
+.i16
+ lda [$00],y
+ sta.l SourceAttackTiming4086_Globals,x
+ iny
+ iny
+ inx
+ inx
+ cpx #12
+ bcc SourceAttackTiming4086_CopyGlobals
  ldy #28
  ldx #0
 SourceAttackTiming4086_CopyCache:
