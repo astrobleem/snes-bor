@@ -27,6 +27,9 @@ SourceAttackCostState4086_CheckCacheSpan:
 SourceAttackCostState4086_SpanGood:
 .a16
 .i16
+ lda 1,s
+ jsl SourceMovementState4086_CheckCacheSpan
+ bcs SourceAttackCostState4086_SpanBad
  pla
  plp
  clc

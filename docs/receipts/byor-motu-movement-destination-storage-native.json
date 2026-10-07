@@ -1,0 +1,95 @@
+{
+  "schema": "BYOR_4086_MOVEMENT_DEST_STORAGE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-movement-clear-native/report.json",
+      "sha256": "3535813693f9aee15d268ccb0c1de0f7450dfca34553c8877facb52a6d6c246c",
+      "cases": 117
+    },
+    {
+      "path": "out/byor-motu-movement-span-native/report.json",
+      "sha256": "d023e023097906058dcbd5c52df3a5a064be4dee526251af88f8ff176ec59fc2",
+      "cases": 21
+    },
+    {
+      "path": "out/byor-motu-movement-ctor-native/report.json",
+      "sha256": "465966aff24977ed112f087aaf47b621b6da68c6d0e8218b3318b22697568abf",
+      "cases": 243
+    },
+    {
+      "path": "out/byor-motu-movement-old-birth-native/report.json",
+      "sha256": "c6f41224fed1c6cd208d7d1195331aeacb0d2534544b499b20fd5c2a4a2b3c57",
+      "cases": 87
+    },
+    {
+      "path": "out/byor-motu-movement-model-copy-native/report.json",
+      "sha256": "ab9b68ad61c057754b35939a114f83cdc98ec3d682f22c8ce6fed0a593dd0b18",
+      "cases": 2066
+    }
+  ],
+  "source_fields": [
+    "entity.destx",
+    "entity.destz"
+  ],
+  "physical_range": "43DA00..43DDFF",
+  "actor_capacity": 128,
+  "stride": 8,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "fully_disabled_cache_capacity": 8192,
+  "cost_only_cache_capacity": 7680,
+  "cost_and_movement_cache_capacity": 6656,
+  "current_motu_cache_bytes": 5376,
+  "actual_birth_clear_before_exists": true,
+  "old_none_birth_clear": true,
+  "model_copy_preserves_both_destination_fields": true,
+  "bank_zero_growth_bytes": 0,
+  "bank_zero_symbol_addresses_unchanged": true,
+  "bank_zero_changes_only_external_call_relocations": [
+    {
+      "pc": "0x9641",
+      "symbol": "Vm_SourceFrameGate",
+      "old": "0x1c8d67",
+      "new": "0x1c8d6b"
+    },
+    {
+      "pc": "0x9697",
+      "symbol": "Vm_FetchSource",
+      "old": "0x1c847c",
+      "new": "0x1c8480"
+    },
+    {
+      "pc": "0x99a5",
+      "symbol": "Vm_SourceVariantAddFallback",
+      "old": "0x1c8873",
+      "new": "0x1c8877"
+    },
+    {
+      "pc": "0x9c9e",
+      "symbol": "Vm_SourceVariantTruthyFallback",
+      "old": "0x1c8847",
+      "new": "0x1c884b"
+    },
+    {
+      "pc": "0xa850",
+      "symbol": "Vm_SourceVariantCompareFallback",
+      "old": "0x1c8943",
+      "new": "0x1c8947"
+    },
+    {
+      "pc": "0xd172",
+      "symbol": "SourceClock4086_NmiGate",
+      "old": "0x3ef5af",
+      "new": "0x3ef5db"
+    }
+  ],
+  "protected_dirty_tracked_files": 17,
+  "width_guard_new_violations": 0,
+  "width_guard_authority_baseline": 183,
+  "runoff_behavior_bound": false,
+  "common_move_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

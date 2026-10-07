@@ -18,8 +18,8 @@ REQUEST,INDEX,ERROR=0x7ffb80,0x7ffb82,0x7ffb84
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True)
-    p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--attack-cost',action='store_true')
-    a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+    p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--attack-cost',action='store_true');p.add_argument('--movement-state',action='store_true')
+    a=p.parse_args();a.attack_cost=a.attack_cost or a.movement_state;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     requirements=derive(source);cache=pack_animation_cache(requirements);count=len(requirements['models']);maximum=requirements['maximum_animations']
     frames=frame_effects(source);empty_handle=len(frames['animations'])+1
     frames['animations'].append(dict(handle=empty_handle,frames=[],events=dict(frames['animations'][0]['events'])))
@@ -147,7 +147,7 @@ ModelCopyFixture_Return:
         if isinstance(value,dict):return '{'+','.join(k+'='+luav(v) for k,v in value.items())+'}'
         return str(value)
     lua='local rows='+luav(rows)+'\nlocal patches='+luav(patches)+'\nlocal initial_patches='+luav(initial_patches)+'\nlocal cache='+luav(words)+'\n'
-    lua+='local sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceModelAnimationCopy4086_','SourceUpdateFrame4086_','SourceAttackCostState4086_'))})+'\n'
+    lua+='local sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceModelAnimationCopy4086_','SourceUpdateFrame4086_','SourceAttackCostState4086_','SourceMovementState4086_'))})+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local cpu={};local start=0;local context_faults=0
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
@@ -159,11 +159,12 @@ emu.addMemoryCallback(function()
  for _,v in ipairs(initial_patches[n])do put(0x43c000+2*v[1],v[2])end
  for i=0,63 do emu.write(0x43bfc0+i,0x7b,mt);emu.write(0x43e000+i,0x2d,mt)end
  set('Ready',0xb4e9);set('Models',MODELS);set('Maximum',MAXIMUM);set('Bytes',CACHEBYTES)
+ put(sy.SourceMovementState4086_Ready,MOVEMENTSTATE and 0xb60b or 0)
  put(sy.SourceAttackCostState4086_Ready,ATTACKCOST and 0xb609 or 0)
  if c.bad=='cost_ready'then put(sy.SourceAttackCostState4086_Ready,0xb60a)
- elseif c.bad=='cost_boundary'then set('Maximum',240);set('Bytes',7680)
- elseif c.bad=='cost_overlap'then set('Maximum',241);set('Bytes',7712)
- elseif c.bad=='cost_disabled_full'then put(sy.SourceAttackCostState4086_Ready,0);set('Maximum',256);set('Bytes',8192)end
+ elseif c.bad=='cost_boundary'then set('Maximum',MOVEMENTSTATE and 208 or 240);set('Bytes',MOVEMENTSTATE and 6656 or 7680)
+ elseif c.bad=='cost_overlap'then set('Maximum',MOVEMENTSTATE and 209 or 241);set('Bytes',MOVEMENTSTATE and 6688 or 7712)
+ elseif c.bad=='cost_disabled_full'then put(sy.SourceMovementState4086_Ready,0);put(sy.SourceAttackCostState4086_Ready,0);set('Maximum',256);set('Bytes',8192)end
  set('OldModel',c.old);set('NewModel',c.new);set('Flags',c.flags);put(EXPECTFAULT,c.fault)
  put(sy.SourceUpdateFrame4086_Ready,0xb4e3);put(sy.SourceUpdateFrame4086_Base,0x8000)
  put(sy.SourceUpdateFrame4086_Bank,60);put(sy.SourceUpdateFrame4086_Bytes,TABLEBYTES)
@@ -201,6 +202,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
     for k,v in dict(INDEX=INDEX,EXPECTFAULT=REQUEST+6,MODELS=count,MAXIMUM=maximum,CACHEBYTES=len(cache),TABLEBYTES=len(table),
         INIT=fs['ModelCopyFixture_Init'],APPLY=sy['SourceModelAnimationCopy4086_Apply'],AFTER=fs['ModelCopyFixture_After'],RESULT=fs['ModelCopyFixture_Result']).items():
         lua=re.sub(r'\b'+k+r'\b',str(v),lua)
+    lua=lua.replace('MOVEMENTSTATE','true' if a.movement_state else 'false')
     lua=lua.replace('ATTACKCOST','true' if a.attack_cost else 'false')
     script=folder/'observer.lua';script.write_text(lua)
     class Observed(McpSession):
@@ -231,7 +233,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
         models=count,maximum_animations=maximum,cache_bytes=len(cache),reserved_cache_bytes=8192,
         cases=len(rows),rejection_cases=sum(c['fault'] for c in rows),case_inputs=rows,results=results,cpu_costs=costs,
         bwram_range='43C000..43DFFF exclusive B4E9 lease; 43BFC0/43E000 guards in private fixture',
-        attack_cost_model_copy_retention_proven=a.attack_cost,active_cache_capacity=7680 if a.attack_cost else None,
+        attack_cost_model_copy_retention_proven=a.attack_cost,movement_dest_model_copy_retention_proven=a.movement_state,active_cache_capacity=6656 if a.movement_state else 7680 if a.attack_cost else None,
         complete_model_switch_bound=False,entity_modeldata_copy_bound=False,model_switch_callbacks_bound=False,
         foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()

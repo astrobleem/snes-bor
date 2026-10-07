@@ -65,7 +65,7 @@ LUA=LUA[:start]+""" if c.fault==0 then
 LUA=LUA.replace("word(sy.SourceCtorModel4086_Status)","word(sy.SourceCtorState4086_Status)")
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--attack-timing',action='store_true');p.add_argument('--attack-cost',action='store_true');p.add_argument('--attack-body',action='store_true');a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--attack-timing',action='store_true');p.add_argument('--movement-state',action='store_true');p.add_argument('--attack-cost',action='store_true');p.add_argument('--attack-body',action='store_true');a=p.parse_args();a.attack_cost=a.attack_cost or a.movement_state;a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
  cr=clone(source);ct=pack_clone(cr);cb,*_=derive(source);bt=pack(cb);lr=life(source);lt=pack_life(lr);mr=core(source);sr=state(source);st=pack_state(sr);fr=factors(source);policy=attack_policy(source);rows=[]
  def case(slot,m,level=1,live=0,maximum=0,time=48,player=3,nohit=0,saved=0,direction=1,mutate=False):
   f=dict(m['fields']);sm=sr['models'][m['id']]
@@ -117,6 +117,13 @@ def main():
   lua=lua.replace('if c.fault==0 then\n','if c.fault==0 then\n for j=0,3 do before[0x43de00+c.slot*4+j]=0 end\n',1)
   lua+="emu.addMemoryCallback(function()local c=rows[word(INDEX)+1];emu.log('CTORCOSTPUBLISH|'..word(INDEX)..'|'..word(0x43de00+c.slot*4)..'|'..word(0x43de02+c.slot*4))end,emu.callbackType.exec,sy.SourceCtorState4086_AIStateBirthDone,sy.SourceCtorState4086_AIStateBirthDone,emu.cpuType.snes,mt)\n"
  else:lua=lua.replace(' before={};'," set('SourceAttackCostState4086_Ready',0)\n before={};")
+ if a.movement_state:
+     for bad in ('movement_ready','movement_cache_size'):rows.append(dict(rows[0],bad=bad,fault=1))
+     lua=lua.replace(' before={};'," set('SourceMovementState4086_Ready',c.bad=='movement_ready'and 0xb60c or 0xb60b);if c.bad=='movement_cache_size'then set('SourceModelAnimationCopy4086_Bytes',6658)end\n before={};")
+     lua=lua.replace('if c.fault==0 then\n','if c.fault==0 then\n for j=0,7 do before[0x43da00+c.slot*8+j]=0 end\n',1)
+ else:lua=lua.replace(' before={};'," set('SourceMovementState4086_Ready',0)\n before={};")
+ if a.movement_state:lua+="emu.addMemoryCallback(function()local c=rows[word(INDEX)+1];local nonzero=0;for j=0,7 do nonzero=nonzero|emu.read(0x43da00+c.slot*8+j,mt)end;emu.log('CTORDESTPUBLISH|'..word(INDEX)..'|'..nonzero)end,emu.callbackType.exec,sy.SourceCtorState4086_AIStateBirthDone,sy.SourceCtorState4086_AIStateBirthDone,emu.cpuType.snes,mt)\n"
+
  lua=lua.replace("local s=emu.getState();cpu={};ctx=0;for _,k in ipairs({'x','y','d','dbr','sp','ps'})do cpu[k]=s['cpu.'..k]end",'')
  entry=sy['SourceCtorState4086_Begin'];lua+=f"emu.addMemoryCallback(function()local s=emu.getState();cpu={{}};ctx=0;for _,k in ipairs({{'x','y','d','dbr','sp','ps'}})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,{entry},{entry},emu.cpuType.snes,mt)\n"
  lua+="emu.addMemoryCallback(function()emu.log('CTORMAX|'..word(INDEX)..'|'..word(sy.SourceWorldTick4086_Maximum))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
@@ -138,6 +145,8 @@ end
  r.check('source count/maximum publication and unsigned nextthink/nextmove wrap',maxima==[[i,129 if c['bad']=='maximum'else c['maximum']if c['fault']else c['wantmaximum']]for i,c in enumerate(rows)])
  if a.attack_cost:
   publish=[list(map(int,l.split('CTORCOSTPUBLISH|',1)[1].split('|')))for l in log.splitlines()if 'CTORCOSTPUBLISH|'in l];r.check('actual cost field zeroed before actor exists publication',publish==[[i,0,0]for i,c in enumerate(rows)if not c['fault']])
- d=dict(schema='BYOR_4086_CTOR_STATE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,maxima=maxima,script_cleanup_and_factor_copy_instrumented=True,slot_allocation_bound=False,drawmethod_execution_bound=False,palette_upload_bound=False,full_constructor_bound=False,combat_birth_fields_zeroed=True,attack_timing_actual_model_copy_bound=a.attack_timing,attack_body_actual_model_copy_bound=a.attack_body,attack_cost_actual_birth_clear_bound=a.attack_cost,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
+ if a.movement_state:
+  publish=[list(map(int,l.split('CTORDESTPUBLISH|',1)[1].split('|')))for l in log.splitlines()if 'CTORDESTPUBLISH|'in l];r.check('actual two destination DWORDs zero before exists publication',publish==[[i,0]for i,c in enumerate(rows)if not c['fault']])
+ d=dict(schema='BYOR_4086_CTOR_STATE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,maxima=maxima,script_cleanup_and_factor_copy_instrumented=True,slot_allocation_bound=False,drawmethod_execution_bound=False,palette_upload_bound=False,full_constructor_bound=False,combat_birth_fields_zeroed=True,attack_timing_actual_model_copy_bound=a.attack_timing,attack_body_actual_model_copy_bound=a.attack_body,attack_cost_actual_birth_clear_bound=a.attack_cost,movement_dest_actual_birth_clear_bound=a.movement_state,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
  (a.output/'report.json').write_text(json.dumps(d,indent=2)+'\n');r.finish()
 if __name__=='__main__':main()
