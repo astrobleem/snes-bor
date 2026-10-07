@@ -1,0 +1,99 @@
+{
+  "schema": "BYOR_SOURCE_AUDIO_ASAD_NATIVE_V1",
+  "status": "ISOLATED_NAMESPACE_AND_LONG_STREAM_PROVEN",
+  "descriptor_format": "ASAD1: pointer24, meaningful BRR bytes24, padded chunk count16",
+  "descriptor_cpu_address": "3CC000",
+  "max_sound_count": 2047,
+  "asset_count": 17,
+  "descriptor_sha256": "c39d4ea6dadc9fd20581718e256e85304d760ea94ef9d83ecdc9afb08bfc0e33",
+  "payload_sha256": "4e8cb0c20404be971781f04d3a4d8b7e4656d76f84e92a9732d7ca2d1c52d8fa",
+  "payload_bytes": 241920,
+  "meaningful_brr_bytes": 240786,
+  "cpu_rom_window": "E00000-EFFFFF",
+  "sa1_exb_mapping": 2,
+  "sa1_fxb_mapping_consumed": false,
+  "authored_frame_sound": {
+    "evidence": "out/byor-motu-scripted-projectile-asad-native-v2",
+    "source_model": "Knightbot",
+    "source_frame": 6,
+    "namespace_index": 16,
+    "source_brr_bytes": 8073,
+    "dsp_blocks": {
+      "source_blocks": 897,
+      "observed_blocks": 897,
+      "skipped_blocks": 0,
+      "repeated_blocks": 0,
+      "block_fingerprint_mismatches": 0,
+      "dsp_samples": 41589,
+      "endx_sample": 41589,
+      "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+      "trace_sha256": "12d921f69ff7e0fa946b1106239c0bf6de7c21e8a9c2cc94704d6966b93a83c5"
+    },
+    "checks": "PASS"
+  },
+  "long_asset": {
+    "evidence": "out/byor-motu-source-audio-rom-native-long-v3",
+    "namespace_index": 0,
+    "brr_bytes": 76509,
+    "final_acknowledged_cursor": 76509,
+    "chunks": 532,
+    "dsp_blocks": {
+      "source_blocks": 8501,
+      "observed_blocks": 8501,
+      "skipped_blocks": 0,
+      "repeated_blocks": 0,
+      "block_fingerprint_mismatches": 0,
+      "dsp_samples": 394768,
+      "endx_sample": 394768,
+      "voice_pcm_sha256": "7f37a950d485ad017d9be60c43d0c8f6466000573a2a8cd43692bf7ca305f411",
+      "trace_sha256": "e346b08777bd214d853a80688a3887e01ff47381fc81975913e699592225786a"
+    },
+    "verification_recomputed_from_retained_evidence": true
+  },
+  "preservation": {
+    "status": "PASS",
+    "protected": 17,
+    "bank_zero_symbol_addresses_unchanged": true,
+    "bank_zero_growth_bytes": 0,
+    "changed_bank_zero_bytes": 5,
+    "changes_only_external_relocations": [
+      {
+        "pc": "0xd1e5",
+        "symbol": "Tad_StreamOneShotHdmaFence",
+        "old": "0xcb0c3",
+        "new": "0xcb0dc"
+      },
+      {
+        "pc": "0xe142",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaed9",
+        "new": "0xcaedd"
+      },
+      {
+        "pc": "0xe14d",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaed9",
+        "new": "0xcaedd"
+      },
+      {
+        "pc": "0xe158",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaed9",
+        "new": "0xcaedd"
+      },
+      {
+        "pc": "0xe163",
+        "symbol": "TestSprite_WriteSolidTile",
+        "old": "0xcaed9",
+        "new": "0xcaedd"
+      }
+    ],
+    "head": "264d55730787c5d099f1edbcefcbe8af450230c2"
+  },
+  "alpha_palette_joint_admission_proven": false,
+  "production_foreign_sound_owner_installed": false,
+  "source_event_exact_timing_proven": false,
+  "restart_and_polyphony_proven": false,
+  "motu_demo_complete": false,
+  "no_color_reduction": true
+}

@@ -12797,6 +12797,8 @@ Tad_StreamServiceFootdie__ack_ready:
 .a16
     lda.l TadPrivate_stream_pending_source_offset
     sta.l TadPrivate_stream_source_offset
+    lda.l SourceAudio_PendingHi
+    sta.l SourceAudio_OffsetHi
     lda.l TadPrivate_stream_pending_chunk
     inc
     sta.l TadPrivate_stream_chunk_index
@@ -12849,8 +12851,7 @@ Tad_StreamServiceFootdie__ready:
 Tad_StreamServiceFootdie__ready_allowed:
     rep #$20
 .a16
-    lda.l TadPrivate_stream_source_offset
-    cmp.l AudioStream_SourceLength
+    jsl SourceAudio_IsDone
     bcs Tad_StreamServiceFootdie__return16
     lda.l TadPrivate_stream_budget
     cmp #144
@@ -12945,6 +12946,7 @@ Tad_StreamSendFootdieFrame:
     sta.l TadPrivate_stream_producer_done
 Tad_StreamSendFootdieFrame__state_ready:
     .a16
+    jsl SourceAudio_PrepareRead
     lda.l TadPrivate_stream_buffer
 Tad_StreamSendFootdieFrame__store_destination:
     sta.l PARAMETER0_PORT
@@ -13021,10 +13023,20 @@ Tad_StreamSendFootdieFrame__row:
     sta TAD_STREAM_HDMA_TABLE,y
     iny
     inx
+    bne Tad_StreamSendFootdieFrame__first_no_carry
+    jsl SourceAudio_ReadCarry
+Tad_StreamSendFootdieFrame__first_no_carry:
+.a8
+.i16
     jsr Tad_StreamReadSourceByte
     sta TAD_STREAM_HDMA_TABLE,y
     iny
     inx
+    bne Tad_StreamSendFootdieFrame__second_no_carry
+    jsl SourceAudio_ReadCarry
+Tad_StreamSendFootdieFrame__second_no_carry:
+.a8
+.i16
     lda.l TadPrivate_stream_row_token
     sta TAD_STREAM_HDMA_TABLE,y
     iny
@@ -13042,6 +13054,8 @@ Tad_StreamSendFootdieFrame__row:
 .i16
     rep #$20
 .a16
+    jsl SourceAudio_Account
+    bcs Tad_StreamSendFootdieFrame__source_accounted
     txa
     txa
     cmp.l AudioStream_SourceLength
@@ -13065,10 +13079,12 @@ Tad_StreamSendFootdieFrame__source_not_done:
     lda #144
     sta.l TadPrivate_stream_pending_payload
 Tad_StreamSendFootdieFrame__source_accounted:
+    .a8
     .i16
-    txa
-    cmp.l AudioStream_SourceLength
-    bcs Tad_StreamSendFootdieFrame__no_loop_header
+    ; END accounting is full-width for both legacy and ASAD sources. An A8
+    ; TXA/CMP here could omit intermediate ring LOOP flags for some lengths.
+    lda.l TadPrivate_stream_pending_done
+    bne Tad_StreamSendFootdieFrame__no_loop_header
     rep #$20
 .a16
     lda.l TadPrivate_stream_buffer
@@ -13188,6 +13204,12 @@ Tad_StreamSendFootdieFrame__save_buffer:
 ; Select and start a new stream source. Entry is .a8 with A=source ID.
 ; Source 0 is the accepted FOOTDIE payload; Batch-B sources are generated
 ; into separate ROM banks and share the same voice-0 transport.
+Tad_StreamStartPreparedSource:
+    php
+    rep #$30
+.a16
+.i16
+    bra Tad_StreamStartSource__reset
 Tad_StreamStartSource:
     php
     rep #$30
@@ -13201,6 +13223,12 @@ Tad_StreamStartSource:
     sta.l AudioStream_SourceLength
     lda.l AudioStream_SourceChunkTable,x
     sta.l AudioStream_SourceChunks
+Tad_StreamStartSource__reset:
+.a16
+.i16
+    lda #0
+    sta.l SourceAudio_OffsetHi
+    sta.l SourceAudio_PendingHi
     sep #$20
 .a8
     lda #0
@@ -13233,6 +13261,14 @@ Tad_StreamStartSource:
 Tad_StreamReadSourceByte:
     sep #$20
 .a8
+    lda.l AudioStream_SourceId
+    cmp #$ff
+    bne Tad_StreamReadSourceByte__legacy
+    jsl SourceAudio_ReadByte
+    rts
+Tad_StreamReadSourceByte__legacy:
+.a8
+.i16
     lda.l AudioStream_SourceId
     beq Tad_StreamReadSourceByte__footdie
     cmp #1
@@ -13779,3 +13815,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_native_result.pasm"
 
 .include "core/audio_idle_wait.pasm"
+
+.include "core/source_audio_stream.pasm"

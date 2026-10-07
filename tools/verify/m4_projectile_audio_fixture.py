@@ -1,7 +1,8 @@
 """Private B4EP sound9 -> real TAD stream proof, with source-derived payload.
 
-Replaces one reserved stream asset in the PRIVATE ROM. This is an instrumented
-binding; it does not register a foreign profile or a production sound owner.
+Uses ASAD namespace descriptors when supplied; otherwise replaces one reserved
+stream asset in the private ROM. Neither mode registers a foreign profile or
+a production sound owner.
 """
 import hashlib,json,math,struct
 from pathlib import Path
@@ -132,10 +133,10 @@ ScriptedProjectileAudioArmGuardDone:
  rtl
 '''
 
-def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_driver=None,prefill=False,arm_guard=False):
+def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_driver=None,prefill=False,arm_guard=False,generic_rom=None):
     r=json.loads((source_audio/'report.json').read_text())
     row=next(x for x in r['compiled']if x['source_path'].lower()==sound_path.lower())
-    assert row['normalized_sample_rate']==11025 and row['brr_bytes']<=32768
+    assert row['normalized_sample_rate']==11025 and (generic_rom or row['brr_bytes']<=32768)
     payload=(source_audio/row['brr_path']).read_bytes()
     assert hashlib.sha256(payload).hexdigest()==row['brr_sha256']
     observations=[];received=[]
@@ -144,20 +145,30 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
         # symbol can alias live bank13 code. Never replace that nominal bank.
         # Use the verified empty tail of the fixture's reserved bank60, then
         # patch only this private ROM's real long-read operand.
-        assert len(payload)<=16384 and len(payload)%9==0
-        at=60*32768+16384
-        padded_length=math.ceil(len(payload)/144)*144
-        assert raw[at:at+padded_length]==bytes(padded_length)
-        raw[at:at+len(payload)]=payload
-        instruction=offset(sy['Tad_StreamReadSourceByte__source1'])
-        assert raw[instruction]==0xbf
-        raw[instruction+1:instruction+4]=bytes.fromhex('00 c0 3c')
-        for name,value in [('AudioStream_SourceLengthTable',len(payload)),('AudioStream_SourceChunkTable',math.ceil(len(payload)/144))]:
-            at=offset(sy[name])+2;raw[at:at+2]=struct.pack('<H',value)
+        if generic_rom:
+            from source_frame_audio_rom import install
+            manifest=json.loads((generic_rom/'report.json').read_text())
+            assert manifest['source_frame_table_sha256']==r['source_frame_table_sha256']
+            assert manifest['namespace']==r['namespace']
+            table=(generic_rom/'descriptors.bin').read_bytes();data=(generic_rom/'payload.bin').read_bytes()
+            assert hashlib.sha256(table).hexdigest()==manifest['descriptor_sha256']
+            assert hashlib.sha256(data).hexdigest()==manifest['payload_sha256']
+            install(raw,table,data,offset(sy['SourceAudio_Table']))
+        else:
+            assert len(payload)<=16384 and len(payload)%9==0
+            at=60*32768+16384
+            padded_length=math.ceil(len(payload)/144)*144
+            assert raw[at:at+padded_length]==bytes(padded_length)
+            raw[at:at+len(payload)]=payload
+            instruction=offset(sy['Tad_StreamReadSourceByte__source1'])
+            assert raw[instruction]==0xbf
+            raw[instruction+1:instruction+4]=bytes.fromhex('00 c0 3c')
+            for name,value in [('AudioStream_SourceLengthTable',len(payload)),('AudioStream_SourceChunkTable',math.ceil(len(payload)/144))]:
+                at=offset(sy[name])+2;raw[at:at+2]=struct.pack('<H',value)
         assert raw[offset(sy['Tad_ProcessMaybeStream__return'])]==0x6b
         if spc_driver:
             driver=spc_driver.read_bytes();start=60*32768+24832
-            assert at+padded_length<=start
+            assert generic_rom or at+padded_length<=start
             assert len(driver)<=7936 and raw[start:start+len(driver)]==bytes(len(driver))
             raw[start:start+len(driver)]=driver
             pointer=sy['Tad_AudioDriver_Bin'];size=sy['Tad_AudioDriver_SIZE']
@@ -180,10 +191,15 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
         (folder/'voice0.raw.arm').touch()
         m.record_audio(folder/'source-energy.wav')
     def closeout(m,sy,completed):
+        if generic_rom:
+            diagnostic={name:m.read_memory('SnesMemory',sy[name],32).hex()for name in ('SourceAudio_Status','SourceAudio_BaseLo','SourceAudio_Table','AudioSemantic_FootDieStreamActive')}
+            (folder/'audio-admission.json').write_text(json.dumps(diagnostic,indent=2)+'\n')
         if completed:
             if isolate:m.write_u16(sy['Game_State'],3)
             done_field=None
-            for i in range(400):
+            limit=max(400,math.ceil(row['normalized_frames']/(32000*1411/4096)*60.1)+100)
+            assert limit<=2000
+            for i in range(limit):
                 if prefill:
                     control=m.read_memory('SnesMemory',sy['TadPrivate_stream_frame'],64)
                     accepted=int.from_bytes(control[sy['TadPrivate_stream_chunks_accepted']-sy['TadPrivate_stream_frame']:][:2],'little')
@@ -200,7 +216,8 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
                     at=sy[name]-sy['TadPrivate_stream_frame'];return int.from_bytes(b[at:at+2],'little')
                 nmi=m.read_memory('SnesMemory',sy['Nmi_HdmaEnable'],32)
                 audio=m.get_audio_state();voice=next(v for v in audio['voices']if v['voice']==0)
-                observations.append(dict(field=i,transport=b.hex(),chunks_accepted=word('TadPrivate_stream_chunks_accepted'),chunks_expected=word('AudioStream_SourceChunks'),consumer_chunk=word('TadPrivate_stream_consumer_chunk'),source_offset=word('TadPrivate_stream_source_offset'),producer_done=b[sy['TadPrivate_stream_producer_done']-sy['TadPrivate_stream_frame']],nmi=nmi.hex(),voice0=voice))
+                high=m.read_memory('SnesMemory',sy['SourceAudio_OffsetHi'],32)if generic_rom else bytes(32)
+                observations.append(dict(field=i,transport=b.hex(),chunks_accepted=word('TadPrivate_stream_chunks_accepted'),chunks_expected=word('AudioStream_SourceChunks'),consumer_chunk=word('TadPrivate_stream_consumer_chunk'),source_offset=word('TadPrivate_stream_source_offset')+(int.from_bytes(high[:2],'little')<<16),producer_done=b[sy['TadPrivate_stream_producer_done']-sy['TadPrivate_stream_frame']],nmi=nmi.hex(),voice0=voice))
                 previous=observations[-2]['chunks_accepted']if len(observations)>1 else 0
                 current=observations[-1]['chunks_accepted']
                 for chunk in range(previous,current):
@@ -216,7 +233,7 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
         m.stop_audio()
         (folder/'audio-fingerprint.json').write_text(json.dumps(m.audio_fingerprint(folder/'source-energy.wav'),indent=2)+'\n')
         (folder/'audio-state.json').write_text(json.dumps(m.get_audio_state(),indent=2,default=lambda x:x.hex()if isinstance(x,bytes)else str(x))+'\n')
-        (folder/'audio-stream-trace.json').write_text(json.dumps(dict(source_binding_instrumented=True,legacy_gameplay_paused=isolate,idle_wait_audio_pump=idle_pump,initial_seven_chunk_prefill=prefill,already_armed_table_guard=arm_guard,spc_driver_sha256=hashlib.sha256(spc_driver.read_bytes()).hexdigest()if spc_driver else None,source=row,received_chunks=received,observations=observations),indent=2)+'\n')
+        (folder/'audio-stream-trace.json').write_text(json.dumps(dict(source_binding_instrumented=True,generic_asad_namespace=bool(generic_rom),legacy_gameplay_paused=isolate,idle_wait_audio_pump=idle_pump,initial_seven_chunk_prefill=prefill,already_armed_table_guard=arm_guard,spc_driver_sha256=hashlib.sha256(spc_driver.read_bytes()).hexdigest()if spc_driver else None,source=row,received_chunks=received,observations=observations),indent=2)+'\n')
     return row,transform,before,closeout
 
 BINDINGS=dict(FRAMEDATA='SourceUpdateFrame4086_FrameData',STREAMSOURCE='AudioStream_SourceId',SOUNDTICKET='SourceFrameEffectPlan4086_Acknowledged',SOUNDACK='SourceFrameEffectPlan4086_Ack',STREAMREQUESTS='AudioSemantic_StreamRequestCount',STREAMCHUNKS='AudioStream_SourceChunks',STREAMLENGTH='AudioStream_SourceLength',NMISKIPPED='Core_Nmi_Play__frame_skipped',NMICOMMIT='Core_Nmi_Play__do_commit',NMIHARDWAREFRAME='Nmi_FrameCounter')

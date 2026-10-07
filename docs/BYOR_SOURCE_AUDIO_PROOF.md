@@ -119,3 +119,26 @@ model context remain isolated. `m4_resident_audio_native.py` separately proves
 two distinct resident effects can overlap on ordinary voices 7 and 6 without
 claiming voice 0; queue inputs are explicitly instrumented. Production source
 namespace/long-asset binding and source-event timing remain pending.
+
+
+ASAD namespace addressing now uses a compiler-owned descriptor table at
+`$3C:C000` and a separate `$E0:0000..$EF:FFFF` ROM payload window through
+SA-1 EXB mapping 2. FXB remains available to presentation. The fixed metadata
+reservation admits at most 2,047 sound identities; larger namespaces fail
+explicitly in compiler and runtime. Meaningful source lengths and cursors
+are wider than 16 bits. Transport tail padding is explicit and verified.
+
+`docs/receipts/byor-motu-source-audio-asad-native.json` records the isolated
+native evidence. Knightbot's authored frame-zero through frame-six callback,
+projectile constructor, and frame sound use sound namespace index 16 through
+`SourceAudio_Start`, with all 897 BRR blocks traversed exactly. The separate
+He_Man entry backend proof crosses the 64 KiB boundary, transfers 532 chunks,
+and traverses all 8,501 source blocks before END. Its verification was
+recomputed from retained evidence after correcting the observer's single-ACK
+assumption: two ACKs in distinct physical ring slots remain observable.
+
+These proofs do not establish live MOTU gameplay, exact sound-event latency,
+stream restart, polyphony, or admission alongside the moving lossless effect.
+An active stream explicitly rejects a new request as busy; no silent source
+alias or preemption is used. The production foreign sound-event owner remains
+pending. No color reduction was applied.

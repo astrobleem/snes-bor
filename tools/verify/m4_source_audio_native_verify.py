@@ -15,7 +15,10 @@ def verify(folder, assets, require_dsp_trace=False):
     chunks=trace['received_chunks'];observations=trace['observations']
     expected=math.ceil(len(payload)/144)
     assert [r['chunk'] for r in chunks]==list(range(expected))
-    assert all(r['observer_gap']==1 for r in chunks)
+    # Every acknowledged chunk must still have a distinct resident ring slot
+    # at observation. A burst of up to eight is safe to inspect; a larger gap
+    # would overwrite a slot and make its earlier contents unobservable.
+    assert all(1<=r['observer_gap']<=8 for r in chunks)
     assert sum(r['meaningful_bytes'] for r in chunks)==len(payload)
     assert all(r['mismatched_bytes']==0 and r['sha256']==r['expected_sha256'] for r in chunks)
     assert observations[-1]['producer_done'] and observations[-1]['chunks_accepted']==expected
@@ -75,10 +78,10 @@ def verify(folder, assets, require_dsp_trace=False):
         source_path=source['source_path'],source_sha256=source['source_sha256'],
         compiled_brr_sha256=source['brr_sha256'],compiled_brr_bytes=len(payload),
         chunks=expected,meaningful_byte_mismatches=0,padding_byte_mismatches=0,
-        observer_peak_chunk_gap=1,observed_consumer_underruns=0,
+        observer_peak_chunk_gap=max(r['observer_gap']for r in chunks),observed_consumer_underruns=0,
         first_active_field=active[0]['field'],last_active_field=active[-1]['field'],
         active_fields=observed_fields,expected_active_fields=expected_fields,
-        effective_sample_rate_hz=effective_rate,start_latency_observation='First envelope observation relative to post-constructor observer; not source-event exact timing',
+        effective_sample_rate_hz=effective_rate,start_latency_observation='First envelope observation relative to post-request native observer; not source-event exact timing',
         prefill_chunks=7,voice0_srcn=33,voice0_pitch=1411,voice0_gain=127,
         final_voice0_envelope=0,audio_recording_pcm_sha256=fingerprint['sha256'],
         audio_recording_file_sha256=hashlib.sha256(wav.read_bytes()).hexdigest(),
