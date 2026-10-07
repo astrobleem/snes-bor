@@ -17,7 +17,8 @@ def main():
   if c!=dict(identity=m['identity'],maximum=maximum,aggression=aggression):raise ValueError('ATTACK_DELAY_MODEL_AUTHORITY')
   if not 0<=maximum<=65535 or not -65385<=aggression<=0x7fffffff:raise ValueError('ATTACK_DELAY_UINT16_CAPACITY')
   stall=max(1,150-aggression);indices=[]
-  for value in (maximum,stall):
+  # randf(0) returns before RNG; no zero lookup table is required.
+  for value in (stall if maximum==0 else maximum,stall):
    valuebits=bits(value)
    if valuebits not in maxima:maxima.append(valuebits)
    indices.append(maxima.index(valuebits))

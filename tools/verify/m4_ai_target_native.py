@@ -18,7 +18,9 @@ def main():
  p.add_argument('--normal-run',action='store_true')
  p.add_argument('--normal-timer-authority',type=Path)
  p.add_argument('--normal-picker',action='store_true')
+ p.add_argument('--normal-chance',action='store_true')
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+ if a.normal_chance:a.normal_picker=True
  if a.normal_timer_authority or a.normal_picker:a.normal_selector=True
  ir=derive(Source(a.source));table=pack(ir)
  ids={m['identity']:m['index']for m in json.loads(Path('out/byor-motu-model-attack-policy/report.json').read_text())['models']};frames={}
@@ -83,6 +85,23 @@ def main():
    rejected=not vulnerable and bool(drop or attacking);unbound=not vulnerable and not rejected and action!=0;positive=not rejected and not unbound and choice=='near'
    calls=int(positive);seed_after=random32_step(1)[0]if calls else 1
    rows.append(dict(base,name='picker_gate_'+str(i),self=s,count=128,time=50,entities=entities,order=list(range(128)),bad='',fault=int(unbound or positive),expected=0x414000+80*target,drop=drop,attacking=attacking,action=action,choice=choice,seed_after=seed_after,calls=calls,picker_calls=int(not rejected and not unbound)))
+  if a.normal_chance:
+   from source_normal_chance_profile import pack as pack_chance
+   from source_attack_timing_4086 import derive as timing_profile,pack as pack_timing
+   ct=pack_chance(Source(a.source),json.loads(Path('out/byor-motu-normal-chance-authority/report.json').read_text()));dt=Path('out/byor-motu-attack-delay-profile/profile.b4td').read_bytes();tb=pack_timing(timing_profile(Source(a.source)));delaystart=struct.unpack_from('<H',dt,12)[0]
+   expanded=[]
+   for original in rows:
+    for active,seed in ((0,0),(0,1),(1,0),(1,1)):
+     c=dict(original,entities=[dict(e)for e in original['entities']],combo_step=65536 if active else 0,combo_time=51,nextattack_after=0,seed=seed,seed_after=random32_step(seed)[0]if original['calls']else seed)
+     for e in c['entities']:e['x']-=11*65536
+     if original['calls']:
+      after,value=random32_step(c['seed_after'])
+      if not active:
+       c['calls']+=1;c['seed_after']=after
+       if value%10000>5000:
+        after,value=random32_step(after);delay=struct.unpack_from('<H',dt,delaystart+2*(value%10000))[0];c.update(calls=3,seed_after=after,fault=0,nextattack_after=c['time']+delay)
+     expanded.append(c)
+   rows=expanded
  lua=LUA.replace('TABLESIZE',str(len(table))).replace('put(v+28,1,4)','put(v+28,e.direction,4)').replace('put(v+52,65536*e.slot,4)','put(v+52,e.x,4)').replace('put(v+60,220*65536,4)','put(v+60,e.z,4)')
  setup=r'''
  set('SourceAITarget4086_Ready',c.bad=='query_ready'and 0 or 0xb5f3);set('SourceAITarget4086_Status',c.bad=='query_busy'and 1 or 0);set('SourceAITarget4086_Result',55);put(sy.SourceAITarget4086_Result+2,0);set('SourceAITarget4086_Selected',55)
@@ -138,6 +157,16 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
  set('SourceEntityEnergy4086_Ready',0)
  set('SourceRandom4086_Ready',0xb4d4);put(sy.SourceRandom4086_SeedLo,1,4);put(sy.SourceRandom4086_CallsLo,0xffffffff,4);set('SourceRandom4086_Busy',0)
 '''
+   if a.normal_chance:
+    setup+=r'''
+ set('SourceModelEntityCopy4086_Models',16);put(0x437e10+self*20,0xb5fb);put(0x437e12+self*20,0);put(0x437e08+self*20,c.combo_step,4);put(0x437e0c+self*20,c.combo_time,4);put(0x40c038+self*96,0,4)
+ set('SourceAttackTiming4086_Ready',0xb603);set('SourceAttackTiming4086_Status',2);set('SourceAttackTiming4086_Models',16)
+ for j=0,11 do emu.write(0x438800+self*14+j,timingbytes[29+model*12+j],mt);emu.write(0x40bdc0+j,timingbytes[17+j],mt)end;put(0x438800+self*14+12,0xb603)
+ set('SourceEntityNormalChance4086_Ready',0xb601);set('SourceEntityNormalChance4086_Status',0);set('SourceEntityNormalChance4086_Bank',60);set('SourceEntityNormalChance4086_Base',CHANCEBASE);set('SourceEntityNormalChance4086_Bytes',CHANCEBYTES);set('SourceNormalChance4086_Ready',0xb600);set('SourceNormalChance4086_Status',0)
+ set('SourceCameraMotion4086_Ready',0xb5db);set('SourceCameraMotion4086_HRes',320);set('SourceCameraMotion4086_VRes',240);put(sy.VmSourceWorld_AdvanceX,0,4)
+ set('SourceAttackDelay4086_Ready',0xb604);set('SourceAttackDelay4086_Status',0);set('SourceAttackDelay4086_Bank',60);set('SourceAttackDelay4086_Base',DELAYBASE);set('SourceAttackDelay4086_Bytes',DELAYBYTES)
+ put(sy.SourceRandom4086_SeedLo,c.seed,4)
+'''
   lua=lua.replace(' before={};',setup+' before={};').replace("end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)"," for j=0,11 do before[sy.SourceRandom4086_Ready+j]=0xa5 end\n for j=0,17 do before[sy.SourceCRandom4086_Ready+j]=0x5a end\nend,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)",1)
   lua=lua.replace("word(sy.SourceAITarget4086_Status)","word(sy.SourceTryNormalAttack4086_Status)").replace("..word(sy.SourceAITarget4086_Selected)","..(word(sy.SourceNormalAttack4086_Response)|(word(sy.SourceNormalAttack4086_Response+2)<<16))")
   apply='SourceTryNormalAttack4086_Execute';ready='SourceTryNormalAttack4086_Ready';magic=0xb5f4
@@ -181,7 +210,14 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
  tables=[(59,0,table)];append='';bindings=None
  if a.normal_picker:
-  tables.append((60,0,rt+pt))
+  tables.append((60,0,rt+pt+(ct+dt if a.normal_chance else b'')))
+  if a.normal_chance:
+   from m4_animation_init_native import luav
+   lua='local timingbytes='+luav(list(tb))+'\n'+lua
+   for token,value in dict(CHANCEBASE=0x8000+len(rt)+len(pt),CHANCEBYTES=len(ct),DELAYBASE=0x8000+len(rt)+len(pt)+len(ct),DELAYBYTES=len(dt)).items():lua=lua.replace(token,str(value))
+   lua=lua.replace('{{0x437e00,2560}', '{{0x438800,1792},{0x40bdc0,12},{0x437e00,2560}')
+   lua=lua.replace('local n=0;for a,v in pairs(before)',r'''for j=0,3 do before[0x40c05c+c.self*96+j]=(c.nextattack_after>>(8*j))&255 end
+ local n=0;for a,v in pairs(before)''')
   lua=lua.replace('for j=0,11 do before[sy.SourceRandom4086_Ready+j]=0xa5 end','for j=0,11 do before[sy.SourceRandom4086_Ready+j]=emu.read(sy.SourceRandom4086_Ready+j,mt)end')
   lua=lua.replace('{{0x414000,18432},{0x40c000,12288},{0x42f400,3072},{0x439000,10240},{0x41f200,256}}','{{0x437e00,2560},{0x43c000,8192},{0x43eb00,4096},{0x414000,18432},{0x40c000,12288},{0x42f400,3072},{0x439000,10240},{0x41f200,256}}')
   for token,value in dict(PROFILEBASE=0x8000+len(rt),PROFILEBYTES=len(pt),RANGEBYTES=len(rt)).items():lua=lua.replace(token,str(value))
@@ -208,7 +244,7 @@ emu.addMemoryCallback(function()
  emu.log('NORMALPICKSTATE|'..word(INDEX)..'|'..word(sy.SourceAttackPicker4086_Status)..'|'..word(sy.SourceAttackPicker4086_Result)..'|'..word(sy.SourceEntityRange4086_Status)..'|'..word(sy.SourceAnimationRange4086_Status)..'|'..word(sy.SourceCheckRange4086_Status)..'|'..(word(sy.SourceRandom4086_SeedLo)|(word(sy.SourceRandom4086_SeedLo+2)<<16)))
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
- r=Reporter('M4-AI-TARGET',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,apply,ready,magic,tables,lua,r,batch_size=1,append=append,bindings=bindings)
+ r=Reporter('M4-AI-TARGET',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,apply,ready,magic,tables,lua,r,batch_size=1,append=append,bindings=bindings,frame_limit=6000 if a.normal_chance else 2000)
  results=[list(map(int,l.split('AITARGET|',1)[1].split('|')))for l in log.splitlines()if 'AITARGET|'in l]
  wanted=[[i,0,0,3 if c['fault']else 2,c['expected'],55 if c['fault']else (c['expected']-0x414000)//80 if c['expected']else 65535]for i,c in enumerate(rows)]
  if a.normal_selector:wanted=[[i,0,0,3 if c['fault']else 2,c['expected'],55 if c['fault']else 0]for i,c in enumerate(rows)]
@@ -229,5 +265,5 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
  if a.normal_picker:
   picker_counts=[list(map(int,l.split('NORMALPICKCOUNT|',1)[1].split('|')))for l in log.splitlines()if 'NORMALPICKCOUNT|'in l]
   r.check('test-only picker executes exactly after the source rejection gates, with no choice returning false and positive body remaining explicit',picker_counts==[[i,c['picker_calls']]for i,c in enumerate(rows)])
- (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',normalattack_selector_bound=a.normal_selector or a.normal_run,grounded_common_attack_path_executed=a.normal_run,selector_traces=traces,source_timer_delay_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_timer_authority_sha256=hashlib.sha256(a.normal_timer_authority.read_bytes()).hexdigest()if a.normal_timer_authority else None,source_vulnerability_attacking_false_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_testonly_picker_bound=a.normal_picker,mutable_cache_domain='normal-role-only'if a.normal_picker else None,picker_call_counts=picker_counts if a.normal_picker else None,normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
+ (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',normalattack_selector_bound=a.normal_selector or a.normal_run,grounded_common_attack_path_executed=a.normal_run,selector_traces=traces,source_timer_delay_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_timer_authority_sha256=hashlib.sha256(a.normal_timer_authority.read_bytes()).hexdigest()if a.normal_timer_authority else None,source_vulnerability_attacking_false_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_testonly_picker_bound=a.normal_picker,source_chance_rejection_nextattack_bound=a.normal_chance,active_combo_skips_chance_bound=a.normal_chance,mutable_cache_domain='normal-role-only'if a.normal_picker else None,picker_call_counts=picker_counts if a.normal_picker else None,normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
 if __name__=='__main__':main()

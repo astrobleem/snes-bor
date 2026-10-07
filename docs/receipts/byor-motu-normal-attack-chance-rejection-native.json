@@ -1,0 +1,38 @@
+{
+  "schema": "BYOR_MOTU_NORMAL_ATTACK_CHANCE_REJECTION_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-delay-zero-native/report.json",
+      "sha256": "ca11c9af1aa4a809f3849e51263d35201bf6e9bf7c8411eb89621ead1adfc02e",
+      "cases": 682
+    },
+    {
+      "path": "out/byor-motu-normal-chance-caller-bounded-native/report.json",
+      "sha256": "a0fecf8af542a0ec07f52875e4eb97221abef8d381f96aac8268b25a0de18adf",
+      "cases": 384
+    },
+    {
+      "path": "out/byor-motu-normal-picker-chance-regression-native/report.json",
+      "sha256": "15b6244fb3520d2731e009f1f7a4d600ebc6727a301a5a998c3d996214870b8e",
+      "cases": 96
+    }
+  ],
+  "actual_combo_step_full32_and_combo_time_unsigned_guarded": true,
+  "active_combo_bypasses_chance_rng": true,
+  "chance_rejected_actual_nextattack_update_cases": 17,
+  "timer_lookup_peak_master_cycles": 72638,
+  "timing_includes_runtime_interrupts": true,
+  "whole_game_timing_feasibility_proven": false,
+  "positive_and_negative_zero_skip_nextattack_rng": true,
+  "timer_lookup_table_bytes": 20272,
+  "unique_timer_delay_tables": 1,
+  "lookup_values_derived_from_literal_c_randf": true,
+  "normal_prepare_and_idle_frame_zero_bound": false,
+  "successful_normal_attack_body_bound": false,
+  "original_2014_binary_fpu_configuration_proven": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
