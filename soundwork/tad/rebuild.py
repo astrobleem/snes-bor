@@ -76,6 +76,15 @@ def find_compiler(explicit: str | None) -> Path:
         if not p.exists():
             raise SystemExit(f"FAIL: TAD_COMPILER path does not exist: {p}")
         return p
+    # The pinned source manifest may name an isolated checkout's compiler.
+    # Prefer its exact identity over a sibling checkout with older patches.
+    if BASELINE.exists():
+        identity=load_baseline().get("patched_toolchain", {})
+        declared=identity.get("compiler_path")
+        if declared:
+            p=Path(declared)
+            if not p.is_absolute():p=REPO_ROOT/p
+            if p.exists():return p
     if PATCHED_COMPILER.exists():
         return PATCHED_COMPILER
     for p in FALLBACK_COMPILER_PATHS:
@@ -152,6 +161,7 @@ def verify_patched_toolchain(compiler: Path, baseline: dict) -> None:
         )
     for raw_path, expected in identity.get("source_files_sha256", {}).items():
         source = Path(raw_path)
+        if not source.is_absolute():source=REPO_ROOT/source
         if not source.exists():
             raise SystemExit(f"FAIL: patched TAD source input is missing: {source}")
         actual = sha256_of(source).lower()
@@ -162,7 +172,7 @@ def verify_patched_toolchain(compiler: Path, baseline: dict) -> None:
             )
 
     patch_identity = baseline.get("patch", {})
-    for patch_name in ("stream_transport_patch", "stream_voice0_patch"):
+    for patch_name in ("stream_transport_patch", "stream_voice0_patch", "stream_voice0_envelope_patch"):
         stream_patch = patch_identity.get(patch_name)
         if not stream_patch:
             raise SystemExit(f"FAIL: baseline lacks {patch_name} identity")

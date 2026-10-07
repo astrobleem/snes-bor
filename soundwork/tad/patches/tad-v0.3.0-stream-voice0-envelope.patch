@@ -1,0 +1,24 @@
+--- a/audio-driver/src/audio-driver.asm
++++ b/audio-driver/src/audio-driver.asm
+@@ -1882,11 +1882,20 @@
+     mov A, #$04
+     mov Y, #33
+     movw DSPADDR, YA
++    ; MOTU source-stream experiment: configure the reserved voice's envelope.
++    ; Its ordinary TAD channel updates are excluded, so power-on DSP contents
++    ; cannot supply ADSR/gain defaults. Use the authored non-loop gain policy.
++    mov A, #$05
++    mov Y, #$00
++    movw DSPADDR, YA
++    mov A, #$07
++    mov Y, #$7f
++    movw DSPADDR, YA
+     mov A, #$00
+     mov Y, #$7f
+     movw DSPADDR, YA
+     inc A
+-    mov Y, #$83
++    mov Y, #$7f
+     movw DSPADDR, YA
+     inc A
+     mov Y, #$83

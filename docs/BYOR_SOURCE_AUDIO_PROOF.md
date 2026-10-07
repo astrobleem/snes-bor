@@ -90,3 +90,32 @@ The width audit has zero new violations, 183 existing baseline violations and
 two baseline entries now clean; this is not a claim that the raw width guard
 has zero violations. The production SPC driver and MOTU sound owner still await
 integration. No full campaigns were rerun.
+
+Production SPC driver
+---------------------
+
+The pinned production audio blob now contains the same 3449-byte driver used
+by the isolated proof. `soundwork/tad/driver_baseline.json` records its compiler,
+four source inputs, incremental envelope patch and prior toolchain identity.
+`rebuild.py` prefers this declared isolated compiler and validates every input
+and generated output. The external TAD checkout remains untouched.
+
+To reproduce the toolchain in a fresh workspace, create a detached worktree
+from TAD commit 00215a2e9aaf327d620120a48b47d74f80d5b521 at
+`out/byor-motu-tad-toolchain`, apply `tools/audio/source_stream_spc.patch`, and
+run the cargo command above from that worktree. Preserve that owned toolchain
+and build directory while the pinned production compiler depends on them.
+Then run `python soundwork/tad/rebuild.py --check` from this repository.
+
+The loader and common resident content bytes are identical. The three ROM
+offsets in the data table move by 12 bytes; the table itself moves from
+`$018E14` to `$018E20`. Bank 0 has four changed operand bytes (the existing
+driver-size immediate and existing table references), zero growth, and unchanged
+existing symbol addresses.
+
+`out/byor-motu-scripted-projectile-audio-production-driver` proves all 897 source
+blocks with the production driver and no SPC override. The source binding and
+model context remain isolated. `m4_resident_audio_native.py` separately proves
+two distinct resident effects can overlap on ordinary voices 7 and 6 without
+claiming voice 0; queue inputs are explicitly instrumented. Production source
+namespace/long-asset binding and source-event timing remain pending.

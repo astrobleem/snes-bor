@@ -199,7 +199,7 @@ emu.addMemoryCallback(function()local changed=0;for addr,value in pairs(waiting)
   if a.audio_source:
    requests=[list(map(int,l.split('SOURCEAUDIOREQUEST|',1)[1].split('|')))for l in log.splitlines()if'SOURCEAUDIOREQUEST|'in l]
    r.check('source sound namespace -> real TAD stream request, exact compiled payload length/chunk count',requests==[[1,audio_row['brr_bytes'],(audio_row['brr_bytes']+143)//144]])
-   if a.isolate_audio and a.spc_driver and a.prefill_audio:
+   if a.isolate_audio and a.prefill_audio:
     from m4_source_audio_native_verify import verify
     audio_verification=verify(a.output,a.audio_source.resolve(),require_dsp_trace=True)
     if not a.idle_audio_pump and 'Tad_StreamWaitFrame' in sy:

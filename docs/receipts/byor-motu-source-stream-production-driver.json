@@ -1,0 +1,916 @@
+{
+  "schema": "BYOR_SOURCE_STREAM_PRODUCTION_DRIVER_RECEIPT_V1",
+  "status": "PASS",
+  "scope": "Production pinned SPC driver; native source sound binding/model context still isolated",
+  "driver_sha256": "f63f82881f376e61623996459f37bc7c4c2520a346820481bb965efea90b87c2",
+  "driver_size": 3449,
+  "previous_driver_size": 3437,
+  "native": {
+    "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+    "status": "PASS",
+    "source_path": "data/chars/KnBot/energy.wav",
+    "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+    "compiled_brr_sha256": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b",
+    "compiled_brr_bytes": 8073,
+    "chunks": 57,
+    "meaningful_byte_mismatches": 0,
+    "padding_byte_mismatches": 0,
+    "observer_peak_chunk_gap": 1,
+    "observed_consumer_underruns": 0,
+    "first_active_field": 21,
+    "last_active_field": 98,
+    "active_fields": 78,
+    "expected_active_fields": 78.24583461623554,
+    "effective_sample_rate_hz": 11023.4375,
+    "start_latency_observation": "First envelope observation relative to post-constructor observer; not source-event exact timing",
+    "prefill_chunks": 7,
+    "voice0_srcn": 33,
+    "voice0_pitch": 1411,
+    "voice0_gain": 127,
+    "final_voice0_envelope": 0,
+    "audio_recording_pcm_sha256": "ffe7deadf49940ee41970a26d882f229ec2aded2bd20c55314f3a93c6c56e650",
+    "audio_recording_file_sha256": "76a633ab91b37e8e52beade0f43cf6d1417a9464d679d6613d816832962e7e76",
+    "dsp_source_block_traversal": {
+      "source_blocks": 897,
+      "observed_blocks": 897,
+      "skipped_blocks": 0,
+      "repeated_blocks": 0,
+      "block_fingerprint_mismatches": 0,
+      "dsp_samples": 41589,
+      "endx_sample": 41589,
+      "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+      "trace_sha256": "12d921f69ff7e0fa946b1106239c0bf6de7c21e8a9c2cc94704d6966b93a83c5"
+    },
+    "policy": {
+      "tool": "ffmpeg",
+      "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+      "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+      "rate_hz": 11025,
+      "padded_frames": 2
+    },
+    "private_runtime_only": true,
+    "legacy_gameplay_paused": true,
+    "sample_exact_recording_proven": false,
+    "concurrent_audio_proven": false,
+    "production_binding_installed": false,
+    "motu_gameplay_proven": false,
+    "no_color_reduction": true,
+    "shared_wait_context_observations": 101,
+    "shared_wait_context_faults": 0
+  },
+  "native_rom_sha256": "a8fe2f88c3b9969d384e3c214439b04aaffc877c8365f7aaf5387b47fc088409",
+  "resident_voices": {
+    "status": "PASS",
+    "rom_sha256": "2e33215c9f4f4df4443d1dd36875b425abac57252f51d98478371158f240bc49",
+    "checks": [
+      [
+        "cold reset enters INTRO, not TITLE/PLAYING",
+        true
+      ],
+      [
+        "cold reset is not PLAYING",
+        true
+      ],
+      [
+        "INTRO remains reachable through second scene card",
+        true
+      ],
+      [
+        "INTRO -> TITLE",
+        true
+      ],
+      [
+        "resident effects execute on physical voices7 and6",
+        true
+      ],
+      [
+        "both ordinary SFX voices overlap",
+        true
+      ],
+      [
+        "resident queue does not claim reserved stream voice0",
+        true
+      ]
+    ],
+    "queue_input_instrumented": true,
+    "observations": [
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 0,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 1,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 2,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 3,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 4,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 5,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 6,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 7,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 8,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 9,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 10,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 11,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 12,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 13,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -23,
+            "volR": -21,
+            "pitch": 20972,
+            "sampleSrc": 213,
+            "adsr1": 119,
+            "adsr2": 68,
+            "gain": 239,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 14,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": -39,
+            "volR": -39,
+            "pitch": 0,
+            "sampleSrc": 0,
+            "adsr1": 0,
+            "adsr2": 68,
+            "gain": 0,
+            "envelope": 0,
+            "currentOutput": 0
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 0,
+        "effect_id": 2,
+        "field": 15,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": 24,
+            "volR": 24,
+            "pitch": 1411,
+            "sampleSrc": 1,
+            "adsr1": 0,
+            "adsr2": 68,
+            "gain": 127,
+            "envelope": 127,
+            "currentOutput": -2
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 1,
+        "effect_id": 4,
+        "field": 0,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 27,
+            "volR": 95,
+            "pitch": 11818,
+            "sampleSrc": 161,
+            "adsr1": 30,
+            "adsr2": 248,
+            "gain": 207,
+            "envelope": 0,
+            "currentOutput": 0
+          },
+          {
+            "voice": 7,
+            "volL": 24,
+            "volR": 24,
+            "pitch": 1411,
+            "sampleSrc": 1,
+            "adsr1": 0,
+            "adsr2": 68,
+            "gain": 127,
+            "envelope": 127,
+            "currentOutput": -2
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      },
+      {
+        "request": 1,
+        "effect_id": 4,
+        "field": 1,
+        "voices": [
+          {
+            "voice": 6,
+            "volL": 24,
+            "volR": 24,
+            "pitch": 1411,
+            "sampleSrc": 4,
+            "adsr1": 0,
+            "adsr2": 248,
+            "gain": 127,
+            "envelope": 127,
+            "currentOutput": -2
+          },
+          {
+            "voice": 7,
+            "volL": 24,
+            "volR": 24,
+            "pitch": 1411,
+            "sampleSrc": 1,
+            "adsr1": 0,
+            "adsr2": 68,
+            "gain": 127,
+            "envelope": 127,
+            "currentOutput": -2
+          }
+        ],
+        "voice0": {
+          "voice": 0,
+          "volL": -111,
+          "volR": -68,
+          "pitch": 65217,
+          "sampleSrc": 48,
+          "adsr1": 0,
+          "adsr2": 176,
+          "gain": 228,
+          "envelope": 0,
+          "currentOutput": 0
+        }
+      }
+    ],
+    "authored_gameplay_event_proven": false,
+    "motu_gameplay_proven": false
+  },
+  "preservation": {
+    "protected_files": 17,
+    "bank_zero_growth_bytes": 0,
+    "all_existing_bank_zero_symbols_unchanged": true,
+    "bank_zero_changed_bytes": 4,
+    "changed_operands": [
+      {
+        "pc": "0x8922",
+        "kind": "existing LDY driver-size immediate",
+        "old": 3437,
+        "new": 3449
+      },
+      {
+        "pc": "0xac10",
+        "kind": "existing LDA long-indexed data-table operand",
+        "old": "0x18e17",
+        "new": "0x18e23"
+      },
+      {
+        "pc": "0xac15",
+        "kind": "existing SBC long-indexed data-table operand",
+        "old": "0x18e14",
+        "new": "0x18e20"
+      },
+      {
+        "pc": "0xac1a",
+        "kind": "existing LDA long-indexed data-table operand",
+        "old": "0x18e14",
+        "new": "0x18e20"
+      }
+    ],
+    "bank_zero_pre_nmi_free_bytes": 2
+  },
+  "loader_bytes_unchanged": true,
+  "resident_asset_bytes_unchanged": true,
+  "common_data_rom_table_shift_bytes": 12,
+  "external_tad_dirty_tree_unmodified": true,
+  "source_audio_binding_production": false,
+  "long_asset_runtime_binding_proven": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
