@@ -13688,3 +13688,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_common_spawn.pasm"
 
 .include "core/vm/vm_source_anything_walk.pasm"
+
+.include "core/vm/vm_source_common_drop.pasm"

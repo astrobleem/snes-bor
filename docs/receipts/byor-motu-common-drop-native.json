@@ -1,0 +1,37 @@
+{
+  "schema": "BYOR_MOTU_COMMON_DROP_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-common-drop-authority/report.json",
+      "sha256": "f853b01c1a5104f67323e010f48bd22e8d11baaf2510865647a1272a814e404b",
+      "cases": 252
+    },
+    {
+      "path": "out/byor-motu-common-drop-native/report.json",
+      "sha256": "0468ce9937b3130446b1e572f0e9b6c1128f4f9c94f1213ca4fa94059bb61ede",
+      "cases": 267
+    },
+    {
+      "path": "out/byor-motu-retirement-preflight-regression/report.json",
+      "sha256": "a122b65665f624508e6692405e97cc9e609582152684a954f5f085a8483d68fc",
+      "cases": 306
+    }
+  ],
+  "checks": [
+    "Literal pinned common_drop/diff/inair oracle",
+    "Native Q16 predicate, landing idling/action changes and full signed32 health",
+    "Real no-event retirement with victim health zero and source self restoration",
+    "Retirement preflight exposed before landing writes; callbacks/minions rejected before mutation",
+    "306-case focused shared retirement regression",
+    "All17 protected fingerprints unchanged; ROM audit ALL CHECKS PASS"
+  ],
+  "numeric_policy": "ACCEPTED_COMPAT Q16 inair absolute difference >=6554; 48 threshold-edge differences retained in source oracle",
+  "bank0_growth": 0,
+  "nonclaims": [
+    "Arbitrary binary32 inair threshold equivalence not claimed",
+    "Generic AI dispatcher and full world AI not yet integrated",
+    "No actual MOTU candidate, real combat, moving lossless rendering or Demo completion"
+  ],
+  "no_color_reduction": true
+}

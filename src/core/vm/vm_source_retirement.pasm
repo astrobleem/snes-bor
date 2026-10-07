@@ -117,6 +117,26 @@ SourceRetirement4086_ApplyNoEvents:
     rep #$38
     phx
     phy
+    jsl SourceRetirement4086_PreflightNoEvents
+    bcc SourceRetirement4086_ApplyChecked
+    jmp SourceRetirement4086_Bad
+SourceRetirement4086_ApplyChecked:
+.a16
+.i16
+    ora #0
+    bne SourceRetirement4086_ApplyLive
+    jmp SourceRetirement4086_Done
+SourceRetirement4086_ApplyLive:
+.a16
+.i16
+    jmp SourceRetirement4086_Mutate
+SourceRetirement4086_PreflightNoEvents:
+.a16
+.i16
+    php
+    rep #$38
+    phx
+    phy
     lda.l SourceRetirement4086_Ready
     cmp #$B4F8
     beq SourceRetirement4086_Branch_5
@@ -406,7 +426,7 @@ SourceRetirement4086_Branch_34:
     tax
     lda.l $414004,x
     bne SourceRetirement4086_Branch_35
-    jmp SourceRetirement4086_Done
+    jmp SourceRetirement4086_PreflightDead
 SourceRetirement4086_Branch_35:
 .a16
 .i16
@@ -437,14 +457,14 @@ SourceRetirement4086_NoSingleMinion:
 .i16
     lda.l SOURCE_RETIREMENT_RELATIONS+38,x
     beq SourceRetirement4086_Branch_39
-    jmp SourceRetirement4086_Mutate
+    jmp SourceRetirement4086_PreflightLive
 SourceRetirement4086_Branch_39:
 .a16
 .i16
     lda.l SOURCE_RETIREMENT_RELATIONS+36,x
     cmp #2
     beq SourceRetirement4086_Branch_40
-    jmp SourceRetirement4086_Mutate
+    jmp SourceRetirement4086_PreflightLive
 SourceRetirement4086_Branch_40:
 .a16
 .i16
@@ -482,6 +502,23 @@ SourceRetirement4086_NoChild:
 SourceRetirement4086_Branch_43:
 .a16
 .i16
+SourceRetirement4086_PreflightLive:
+.a16
+.i16
+    lda #1
+    bra SourceRetirement4086_PreflightGood
+SourceRetirement4086_PreflightDead:
+.a16
+.i16
+    lda #0
+SourceRetirement4086_PreflightGood:
+.a16
+.i16
+    ply
+    plx
+    plp
+    clc
+    rtl
 SourceRetirement4086_Mutate:
 .a16
 .i16
