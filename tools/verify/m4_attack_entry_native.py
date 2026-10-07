@@ -8,6 +8,7 @@ from _harness import Reporter
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for k in ('rom','authority','output'):p.add_argument('--'+k,type=Path,required=True)
+ p.add_argument('--jump-authority',type=Path)
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  au=json.loads(a.authority.read_text());assert au['status']=='PASS'
  base=dict(time=48,nextthink=48,endgame=0,takeaction=0,think=6,noaicontrol=0,reactive=1,update_mark=0x12340001,animation=5,spawn=3,respawn=4,animating=1,exists=1,bad='',mutation=0)
@@ -17,11 +18,19 @@ def main():
   if key in seen:continue
   seen.add(key)
   for model in range(16):rows.append(dict(base,**c,model=model,slot=(0,1,63,127)[len(rows)%4],fault=c['requires_target_service']))
+ if a.jump_authority:
+  jump=json.loads(a.jump_authority.read_text());assert jump['status']=='PASS';seen=set()
+  for c in jump['inputs']:
+   key=(c['first'],c['second'])
+   if key in seen:continue
+   seen.add(key)
+   for model in range(16):rows.append(dict(base,selector=6,running=0,first=c['first'],second=c['second'],model=model,slot=(0,1,63,127)[len(rows)%4],fault=c['requires_target_service']))
  for bad in ('ready','busy','commonready','commonphase','commonslot','normalready','normalphase','normalslot','world','pool','side','count','slot','tick','phase','state','pending','time','self_lease','self_active','self_fault','self_pointer','life','freeze','cache','cache_models','cache_max','cache_bytes','spawn_id','respawn_id','token','model'):
   rows.append(dict(rows[0],bad=bad,fault=1))
  lua=LUA.replace("set('SourceAI4086_State',0)","set('SourceAI4086_State',2);set('SourceAI4086_Slot',s)")
  setup="""
  put(side,c.model);cache=0x43c000+c.model*256;put(cache+24,c.animation);put(cache+76,c.animation);put(0x42f404+s*24,c.running,4)
+ put(cache+28,c.first or 0);put(cache+30,c.second or 0)
  set('SourceAttackEntry4086_Ready',0xb5ed);set('SourceAttackEntry4086_Status',0)
  set('SourceNormalAttack4086_Ready',0xb5eb);set('SourceNormalAttack4086_State',c.selector);set('SourceNormalAttack4086_Slot',s);set('SourceNormalAttack4086_Response',55,4)
  set('SourceCommonThink4086_Ready',0xb5e7);set('SourceCommonThink4086_State',7);set('SourceCommonThink4086_Slot',s)
@@ -47,5 +56,6 @@ emu.addMemoryCallback(function()local s=emu.getState();cpu={};for _,k in ipairs(
  failures=[dict(index=i,input=c,actual=v,expected=e)for i,(c,v,e)in enumerate(zip(rows,results,wanted))if v!=e]
  r.check('source early false gates; full32 running and all16 mutable model caches; target paths explicit fault; owners/CPU/siblings/both RNG streams',len(results)==len(rows)and not failures)
  report=dict(schema='BYOR_4086_ATTACK_ENTRY_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),target_services_bound=False,grounded_attack_integrated=False,motu_gameplay_proven=False,no_color_reduction=True)
+ if a.jump_authority:report['jump_authority_sha256']=hashlib.sha256(a.jump_authority.read_bytes()).hexdigest()
  (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');r.finish()
 if __name__=='__main__':main()

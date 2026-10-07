@@ -1,0 +1,27 @@
+{
+  "schema": "BYOR_MOTU_JUMP_ATTACK_ABSENCE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-jump-attack-authority/report.json",
+      "sha256": "7296229fca51eaba987eb36f635ac995c9c1aba3106ba12a0db5cd7a9b69be22",
+      "cases": 32
+    },
+    {
+      "path": "out/byor-motu-jump-entry-native/report.json",
+      "sha256": "cea1ff35bdb6ecc580e2d6f7bf159f3d5265a3040ce8aa659853b758f59f6537",
+      "cases": 352
+    }
+  ],
+  "absent_both_animations_returns_false": true,
+  "actual_mutable_model_caches": 16,
+  "both_rng_streams_unchanged": true,
+  "upper_runattack_regression": true,
+  "present_jumpattack_body_bound": false,
+  "grounded_attack_integrated": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}

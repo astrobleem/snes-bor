@@ -1,4 +1,4 @@
-; Literal common_try_upper(NULL)/common_try_runattack(NULL) early false gates.
+; Literal upper/runattack/jumpattack(NULL) early false gates.
 ; Any branch needing target/range/mutation services is explicitly unbound.
 SourceAttackEntry4086_Ready = $43BD7A
 SourceAttackEntry4086_Status = $43BD7C ; 0 idle,2 false complete,3 fault
@@ -34,6 +34,25 @@ SourceAttackEntry4086_Owner:
  beq SourceAttackEntry4086_Upper
  cmp #4
  beq SourceAttackEntry4086_Run
+ cmp #6
+ beq SourceAttackEntry4086_Jump
+ jmp SourceAttackEntry4086_Bad
+SourceAttackEntry4086_Jump:
+.a16
+.i16
+ ; Both validanim predicates precede all RNG and target services.
+ lda.l SourceModelAnimationCopy4086_Maximum
+ cmp #16
+ bcs SourceAttackEntry4086_JumpCache
+ jmp SourceAttackEntry4086_Bad
+SourceAttackEntry4086_JumpCache:
+.a16
+.i16
+ lda.l SourceAI4086_ModelOffset
+ tax
+ lda.l SOURCE_MODEL_ANIMATION_CACHE+28,x ; ANI_JUMPATTACK=14
+ ora.l SOURCE_MODEL_ANIMATION_CACHE+30,x ; ANI_JUMPATTACK2=15
+ beq SourceAttackEntry4086_False
  jmp SourceAttackEntry4086_Bad
 SourceAttackEntry4086_Run:
 .a16
