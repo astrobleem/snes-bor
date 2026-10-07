@@ -1,0 +1,16 @@
+{
+  "schema": "BYOR_4086_UNSIGNED_COLOURMAP_AUTHORITY_RECEIPT_V1",
+  "status": "PASS",
+  "before_report": "out/byor-motu-model-map-unsigned-before/report.json",
+  "before_sha256": "0502bbd326008b76d23542e7a54fbce59a7057fa47d625c75e8336af6ba1f2c4",
+  "before_mismatches": 4,
+  "after_report": "out/byor-motu-model-map-unsigned-authority/report.json",
+  "after_sha256": "c68801911687066af194e4ab76bf4316e05bb90ea87f6022ef0d6caadb943ef2",
+  "after_cases": 589,
+  "policy": "Pinned ent_set_colourmap accepts unsigned int. Convert signed source values to uint32 before the maps_loaded comparison; negative signed inputs consequently clamp to default map 0. Preserve the existing map 0/1/2 cases and all cached/entity/weapon mutation comparisons.",
+  "runtime_assembly_changed": false,
+  "source_palette_pixels_changed": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

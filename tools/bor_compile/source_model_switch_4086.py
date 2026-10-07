@@ -43,6 +43,9 @@ def copy_entity_uninitialized(entity,old):
 
 
 def set_colourmap(entity,which):
+    # Pinned ent_set_colourmap takes unsigned int, including when a signed
+    # source property is passed through C's parameter conversion.
+    which&=0xffffffff
     data=entity['modeldata']
     if which>data['maps_loaded']:which=0
     entity['colourmap']=data['palette'] if which<=0 else data['colourmap'][which-1]

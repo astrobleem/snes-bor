@@ -21,6 +21,7 @@ def fixtures():
         for flags in range(8) for anim_flag in (0,1) for oldtype,newtype in ((0,0),(1,0),(1,1))
         for number in (0,1,2,3) for select,time,map_,variant in ((0,1,1,0),(1,1,2,1),(0,0,0,0))]
     rows.extend(dict(rows[0],flags=1 if n<=6 else 0,oldtype=1,number=1,boundary=n) for n in range(1,9))
+    rows.extend(dict(rows[0],flags=1,number=1,map=value)for value in(-1,-2,-65536,-2147483648,2147483647))
     return rows
 
 
