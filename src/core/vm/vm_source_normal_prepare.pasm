@@ -605,6 +605,19 @@ SourceNormalPrepare4086_ContinueOwner:
 SourceNormalPrepare4086_ContinueAction:
 .a16
 .i16
+ lda.l SourceAI4086_Callback
+ cmp #16
+ beq SourceNormalPrepare4086_ContinueCallback
+ jmp SourceNormalPrepare4086_Bad
+SourceNormalPrepare4086_ContinueCallback:
+.a16
+.i16
+ lda.l SourceAI4086_Callback+2
+ beq SourceNormalPrepare4086_ContinueCallbackHigh
+ jmp SourceNormalPrepare4086_Bad
+SourceNormalPrepare4086_ContinueCallbackHigh:
+.a16
+.i16
  lda.l SourceAI4086_Slot
  cmp.l SourceAnimationInit4086_Slot
  beq SourceNormalPrepare4086_ContinueSlot

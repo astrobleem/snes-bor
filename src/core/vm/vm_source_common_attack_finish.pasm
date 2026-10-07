@@ -201,6 +201,19 @@ SourceCommonAttackFinish4086_ContinueOwner:
 SourceCommonAttackFinish4086_ContinueAction:
 .a16
 .i16
+ lda.l SourceAI4086_Callback
+ cmp #17
+ beq SourceCommonAttackFinish4086_ContinueCallback
+ jmp SourceCommonAttackFinish4086_Bad
+SourceCommonAttackFinish4086_ContinueCallback:
+.a16
+.i16
+ lda.l SourceAI4086_Callback+2
+ beq SourceCommonAttackFinish4086_ContinueCallbackHigh
+ jmp SourceCommonAttackFinish4086_Bad
+SourceCommonAttackFinish4086_ContinueCallbackHigh:
+.a16
+.i16
  lda.l SourceAI4086_Slot
  cmp.l SourceAnimationInit4086_Slot
  beq SourceCommonAttackFinish4086_ContinueSlot

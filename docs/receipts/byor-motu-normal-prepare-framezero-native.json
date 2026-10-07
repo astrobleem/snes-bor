@@ -1,0 +1,54 @@
+{
+  "schema": "BYOR_MOTU_NORMAL_PREPARE_FRAME_ZERO_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-normal-prepare-choice-framezero-native/report.json",
+      "sha256": "1e0c289febe4db5223fbd387a3f5b9b36b361853dc0f7f7dc3c260786315f528",
+      "cases": 120
+    },
+    {
+      "path": "out/byor-motu-normal-prepare-choice-framezero-ai-final-native/report.json",
+      "sha256": "7f61cabb6b46cc9d2f14ae7aa32a33b2769b616afa302422c07bb4be7b629767",
+      "cases": 120
+    },
+    {
+      "path": "out/byor-motu-normal-prepare-choice-framezero-guards-native/report.json",
+      "sha256": "cb4eb2276b68b97de85af7f29ad1983ae52788cee52b31534889cfb0c41f7995",
+      "cases": 10
+    },
+    {
+      "path": "out/byor-motu-attack-finish-callback-framezero-native/report.json",
+      "sha256": "e3d7a0638a846b427f868469d81e9b4ee124af7adcb607cecdc8ddef9cf41379",
+      "cases": 56
+    },
+    {
+      "path": "out/byor-motu-attack-finish-callback-guards-native/report.json",
+      "sha256": "ff00706466335eb99546077ff8e27433eb14eeeabb64da5a07ef2593694d6de7",
+      "cases": 10
+    }
+  ],
+  "actual_source_animation_init_callback_effects_and_ack": true,
+  "actual_ai_dispatch_continuation": true,
+  "pending_owner_state": [
+    1,
+    1,
+    16
+  ],
+  "completed_owner_state": [
+    2,
+    5,
+    0
+  ],
+  "null_think_leaves_nextthink_unchanged": true,
+  "captured_callback_full32_resume_guards": true,
+  "mutable_animation_cache_fixture": true,
+  "script_absent_model_domain": true,
+  "authored_knightbot_attack_not_yet_proven": true,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "static_presentation_modified": false,
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

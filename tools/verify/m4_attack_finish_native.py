@@ -12,7 +12,7 @@ from _harness import Reporter
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for k in ('rom','source','authority','output'):p.add_argument('--'+k,type=Path,required=True)
- p.add_argument('--complete-idle',action='store_true');p.add_argument('--pending',action='store_true');p.add_argument('--premature-continue',action='store_true')
+ p.add_argument('--resume-guards',action='store_true');p.add_argument('--complete-idle',action='store_true');p.add_argument('--pending',action='store_true');p.add_argument('--premature-continue',action='store_true')
  a=p.parse_args();a.pending=a.pending or a.complete_idle;a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);au=json.loads(a.authority.read_text());assert au['status']=='PASS';source=Source(a.source);ft=pack_frames(frames(source));fe=pack_effects(effects(source));it=pack_init(init(source));rows=[]
  for i,(c,e)in enumerate(zip(au['inputs'],au['actual'])):
   s=(0,1,95,96,127)[i%5];m=(0,1,15)[i%3]
@@ -31,6 +31,12 @@ def main():
   cb,*_=callbacks_profile(source);callbacks=pack_callbacks(cb);clone=pack_clone(clone_profile(source));plan=pack_plan(plan_profile(effects(source)))
   rows=[c for c in rows if cb['models'][c['model']]['program']==65535]
   tables=[(58,0,fe+callbacks+clone),(59,0,ft+it+plan)]
+ if a.resume_guards:
+  assert a.complete_idle and not a.premature_continue
+  seed=rows[0];rows=[]
+  for slot in (0,1,95,96,127):
+   for bad in ('low','high'):
+    rows.append(dict(seed,slot=slot,entities=[dict(seed['entities'][0],slot=slot)],resume_bad=bad,fault=1,expected=[111,*seed['expected'][1:]]))
  lua=BASE[:BASE.index('emu.addMemoryCallback(function()local s=emu.getState();cpu=')].replace('TABLESIZE',str(len(ft)))
  setup=r'''
  local s=c.slot;local v=0x414000+s*80;local side=0x416800+s*64;local life=0x439000+s*80;local flags=0x43eb00+s*32
@@ -85,6 +91,8 @@ end,emu.callbackType.exec,sy.SourceSetIdle4086_Begin,sy.SourceSetIdle4086_Begin,
 emu.addMemoryCallback(function()finishorder[#finishorder+1]=2;local c=rows[word(INDEX)+1];if word(0x42e008+c.slot*40)~=111 or word(0x42e00a+c.slot*40)~=0 or word(0x43eb00+c.slot*32)~=3 then orderfaults=orderfaults+1 end end,emu.callbackType.exec,sy.SourceCommonAttackFinish4086_PostIdle,sy.SourceCommonAttackFinish4086_PostIdle,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()emu.log('FINISHORDER|'..word(INDEX)..'|'..orderfaults..'|'..table.concat(finishorder,','))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
+ if a.resume_guards:
+  lua+="emu.addMemoryCallback(function()local c=rows[word(INDEX)+1];put(sy.SourceAI4086_Callback,c.resume_bad=='low'and 16 or 17,4);if c.resume_bad=='high'then put(sy.SourceAI4086_Callback+2,1)end end,emu.callbackType.exec,sy.SourceCommonAttackFinish4086_Continue,sy.SourceCommonAttackFinish4086_Continue,emu.cpuType.snes,mt)\n"
  lua=lua.replace('PENDING','true'if a.pending else'false');append='';bindings={};apply='SourceCommonAttackFinish4086_Execute'
  if a.premature_continue:
   assert a.pending;apply='FinishProbe';append='FinishProbe:\n.a16\n.i16\n jsl FINISH\n bcs FinishProbe_Return\n jsl CONTINUE\nFinishProbe_Return:\n.a16\n.i16\n rtl\n';bindings=dict(FINISH='SourceCommonAttackFinish4086_Execute',CONTINUE='SourceCommonAttackFinish4086_Continue')
@@ -93,7 +101,7 @@ emu.addMemoryCallback(function()emu.log('FINISHORDER|'..word(INDEX)..'|'..orderf
  r=Reporter('M4-ATTACK-FINISH',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,apply,'SourceCommonAttackFinish4086_Ready',0xb608,tables,lua,r,append=append,bindings=bindings,batch_size=1,frame_limit=4000)
  actual=[list(map(int,l.split('FINISHRESULT|',1)[1].split('|')))for l in log.splitlines()if 'FINISHRESULT|'in l];expected=[[i,0,0,3 if c['fault']else 1 if a.pending and not a.complete_idle else 2]for i,c in enumerate(rows)];failures=[dict(input=c,actual=v,expected=e)for c,v,e in zip(rows,actual,expected)if v!=e]
  r.check('literal finish through actual idle, independent cached/entity type, signed aggression, wrapped stall, owner guards, unchanged siblings/VM/RNG/CPU',len(actual)==len(rows)and not failures)
- order=[l.split('FINISHORDER|',1)[1].split('|')for l in log.splitlines()if 'FINISHORDER|'in l];wanted_order=[[str(i),'0',''if c['bad']else '1'if a.pending and not a.complete_idle else '1,2']for i,c in enumerate(rows)];r.check('literal call order: action/velocity clear then idle, completed idle before stall write',order==wanted_order)
- (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_ATTACK_FINISH_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,actual=actual,expected=expected,failures=failures[:10],rom_sha256=hashlib.sha256(raw).hexdigest(),authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),execution_order=order,changed_idle_pending=a.pending,premature_continue=a.premature_continue,actual_frame_zero_executed=a.complete_idle,finished_proc_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
+ order=[l.split('FINISHORDER|',1)[1].split('|')for l in log.splitlines()if 'FINISHORDER|'in l];wanted_order=[[str(i),'0',''if c['bad']else '1'if a.resume_guards or a.pending and not a.complete_idle else '1,2']for i,c in enumerate(rows)];r.check('literal call order: action/velocity clear then idle, completed idle before stall write',order==wanted_order)
+ (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_ATTACK_FINISH_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,actual=actual,expected=expected,failures=failures[:10],rom_sha256=hashlib.sha256(raw).hexdigest(),authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),execution_order=order,changed_idle_pending=a.pending,premature_continue=a.premature_continue,actual_frame_zero_executed=a.complete_idle,resume_callback_guards=a.resume_guards,finished_proc_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
 
 if __name__=='__main__':main()
