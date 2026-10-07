@@ -7,6 +7,7 @@ owner publishes one-bank WRAM records while a script holds its context lease.
 import struct
 
 MAGIC = 0xB48B  # V2: distinct from the former seven-property B48D view
+SOURCE_EXISTS_MAGIC = 0xB5EF  # Same property offsets; full32 source exists header
 STRIDE = 80
 MAX_RECORDS = 512
 # Build 4086 openborscript.c, af23dc9: property return types and entity fields.
@@ -30,7 +31,15 @@ def record(token, values, *, alive=True):
     return bytes(payload)
 
 
-def view(address, records):
+def source_record(token, values, *, exists=1):
+    if not isinstance(exists,int) or not -0x80000000 <= exists <= 0x7fffffff:
+        raise ValueError('ENTITY_SOURCE_EXISTS_SIGNED32_REQUIRED')
+    payload=bytearray(record(token,values,alive=bool(exists)))
+    struct.pack_into('<I',payload,4,exists & 0xffffffff)
+    return bytes(payload)
+
+
+def view(address, records, *, source_exists=False):
     if address >> 16 not in (0x7e, 0x7f):
         raise ValueError('ENTITY_VIEW_WRAM_REQUIRED')
     if not 0 < len(records) <= MAX_RECORDS:
@@ -42,7 +51,7 @@ def view(address, records):
         if len(item) != STRIDE:
             raise ValueError('ENTITY_VIEW_RECORD_SIZE')
         token, alive, reserved = struct.unpack_from('<IHH', item)
-        if not token or alive not in (0, 1) or reserved:
+        if not token or (not source_exists and (alive not in (0, 1) or reserved)):
             raise ValueError('ENTITY_VIEW_HEADER_INVALID')
         if item[72:] != bytes(8):
             raise ValueError('ENTITY_VIEW_RESERVED_TAIL_INVALID')
@@ -53,11 +62,11 @@ def view(address, records):
     if len(tokens) != len(set(tokens)):
         raise ValueError('ENTITY_VIEW_DUPLICATE_TOKEN')
     descriptor = struct.pack('<HBxHH', address & 0xffff, address >> 16,
-                             len(records), MAGIC)
+                             len(records), SOURCE_EXISTS_MAGIC if source_exists else MAGIC)
     return descriptor, b''.join(records)
 
 
-def get_property(records, token, name):
+def get_property(records, token, name, *, source_exists=False):
     """Host oracle for the exact eight-byte read-view result."""
     if token is None or token == 0:
         return bytes(8)
@@ -66,6 +75,7 @@ def get_property(records, token, name):
     if index is None:
         raise ValueError('ENTITY_PROPERTY_UNBOUND:' + name)
     for item in records:
-        if struct.unpack_from('<I', item)[0] == token and struct.unpack_from('<H', item, 4)[0] == 1:
+        live=bool(struct.unpack_from('<I',item,4)[0]) if source_exists else struct.unpack_from('<H',item,4)[0]==1
+        if struct.unpack_from('<I', item)[0] == token and live:
             return item[8 + index*8:16 + index*8]
     raise ValueError('ENTITY_HANDLE_STALE_OR_UNKNOWN')

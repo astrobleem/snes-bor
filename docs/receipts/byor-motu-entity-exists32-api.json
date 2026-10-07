@@ -1,0 +1,25 @@
+{
+  "schema": "BYOR_MOTU_ENTITY_EXISTS32_API_RECEIPT_V1",
+  "status": "PASS",
+  "proof": {
+    "path": "out/byor-motu-exists32-target-native/report.json",
+    "sha256": "cae3146b20739e8061491ef3decff7afe46f2117a5d91f3ae36fe9c3548b67d8",
+    "cases": 45
+  },
+  "legacy_view_magic": "B48B",
+  "source_exists32_view_magic": "B5EF",
+  "legacy_property_offsets_unchanged": true,
+  "source_exists_nonzero_values": [
+    1,
+    -1,
+    65536,
+    -2147483648
+  ],
+  "host_tests": 3,
+  "target_metadata_producer_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}

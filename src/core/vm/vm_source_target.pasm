@@ -227,9 +227,19 @@ Vm_SourceFindTarget_Candidate:
     sta.l SourceTarget4086_Record
     lda.l SourceTarget4086_Record
     tax
+    lda.l VmSourceEntity_Ready
+    cmp #$B5EF
+    beq Vm_SourceFindTarget_SourceAlive
     lda.l SOURCE_WORLD_POOL+4,x
     cmp #1
     beq Vm_SourceFindTarget_Alive
+    jmp Vm_SourceFindTarget_Next
+Vm_SourceFindTarget_SourceAlive:
+.a16
+.i16
+    lda.l SOURCE_WORLD_POOL+4,x
+    ora.l SOURCE_WORLD_POOL+6,x
+    bne Vm_SourceFindTarget_Alive
     jmp Vm_SourceFindTarget_Next
 Vm_SourceFindTarget_Alive:
 .a16

@@ -2,14 +2,15 @@
 ; Host world owns/publishes 80-byte V2 records; this code never aliases the
 ; legacy player/CharacterEntity layout. Descriptor is a script-time lease,
 ; not a production world allocator. Q16.16 coordinates are ACCEPTED_COMPAT.
-; Header: opaque u32 token, alive u16, reserved u16. Eight eight-byte variant
+; B48B header: opaque u32 token, alive u16, reserved u16. B5EF source-world
+; header: opaque u32 token, source exists int32. Eight eight-byte variant
 ; properties follow: a, animationID, direction, health, playerindex, x, z,
 ; maxhealth (modeldata.health, not a copy of current entity health).
 ; Build 4086 af23dc9 openborscript.c is the property/type authority.
 VmSourceEntity_Base = $7FF642
 VmSourceEntity_Bank = $7FF644
 VmSourceEntity_Count = $7FF646
-VmSourceEntity_Ready = $7FF648 ; $B48B V2 only while view owner holds lease
+VmSourceEntity_Ready = $7FF648 ; $B48B V2 or $B5EF source exists32 lease
 VmSourceEntity_TokenLo = $7FF64A
 VmSourceEntity_TokenHi = $7FF64C
 VmSourceEntity_Index = $7FF64E
@@ -205,6 +206,8 @@ Vm_SourceEntityLocate__nonzero:
     lda.l VmSourceEntity_Ready
     cmp #$B48B
     beq Vm_SourceEntityLocate__lease
+    cmp #$B5EF
+    beq Vm_SourceEntityLocate__lease
     jmp Vm_SourceEntityLocate__bad
 Vm_SourceEntityLocate__lease:
 .a16
@@ -237,9 +240,17 @@ Vm_SourceEntityLocate__bank_ok:
 .a16
 .i16
     lda.l VmSourceEntity_Count
-    beq Vm_SourceEntityLocate__bad
+    bne Vm_SourceEntityLocate__count_nonzero
+    jmp Vm_SourceEntityLocate__bad
+Vm_SourceEntityLocate__count_nonzero:
+.a16
+.i16
     cmp #513
-    bcs Vm_SourceEntityLocate__bad
+    bcc Vm_SourceEntityLocate__count_bounded
+    jmp Vm_SourceEntityLocate__bad
+Vm_SourceEntityLocate__count_bounded:
+.a16
+.i16
     asl a
     asl a
     asl a
@@ -259,10 +270,28 @@ Vm_SourceEntityLocate__bank_ok:
 Vm_SourceEntityLocate__scan:
 .a16
 .i16
+    lda.l VmSourceEntity_Ready
+    cmp #$B5EF
+    beq Vm_SourceEntityLocate__source_exists
     ldy #4
     jsr Vm_SourceEntityRead16
     cmp #1
     bne Vm_SourceEntityLocate__next
+    bra Vm_SourceEntityLocate__live
+Vm_SourceEntityLocate__source_exists:
+.a16
+.i16
+    ldy #4
+    jsr Vm_SourceEntityRead16
+    cmp #0
+    bne Vm_SourceEntityLocate__live
+    ldy #6
+    jsr Vm_SourceEntityRead16
+    cmp #0
+    beq Vm_SourceEntityLocate__next
+Vm_SourceEntityLocate__live:
+.a16
+.i16
     ldy #0
     jsr Vm_SourceEntityRead16
     cmp.l VmSourceEntity_TokenLo

@@ -62,6 +62,10 @@ def cases():
       ('full_capacity',[actor]+[Target(i+2,type=1,x=(2000+i)*65536) for i in range(126)]
                        +[Target(129,type=1,x=65536)],None),
     ]
+    for n in (1,-1,65536,-2147483648):
+        cases.extend([('source_exists_self_'+str(n),[actor,right],None),('source_exists_target_'+str(n),[actor,right],None),('source_exists_both_'+str(n),[actor,right],None)])
+    cases.append(('source_exists_target_0',[actor,replace(right,alive=False)],None))
+    cases.append(('source_exists_self_0',[actor,right],'source_self_dead'))
     return [(n,[replace(t,token=0x414000+i*80) for i,t in enumerate(rows)],bad) for n,rows,bad in cases]
 
 
@@ -97,6 +101,11 @@ def main():
             pool=bytearray(b''.join(record(t.token,dict(a=0,animationid=0,direction=t.direction,health=100,
                 playerindex=0,x=t.x,z=t.z,maxhealth=100),alive=t.alive) for t in rows))
             states=bytearray(b''.join(metadata(t) for t in rows))
+            source_exists=name.startswith('source_exists_')
+            if source_exists:
+                _,_,which,value=name.split('_',3);value=int(value)&0xffffffff
+                if which in ('self','both'):struct.pack_into('<I',pool,4,value)
+                if which in ('target','both'):struct.pack_into('<I',pool,80+4,value)
             if bad=='coordinate':pool[80+48]=1
             if bad=='reserved':struct.pack_into('<H',states,20+10,1)
             order=list(range(len(rows)))
@@ -115,7 +124,7 @@ def main():
                     metadata_expected=states.hex(),metadata_actual=actual_states.hex()),indent=2)+'\n')
                 raise ValueError('TARGET_NATIVE_POOL_WRITEBACK')
             m.write_memory('snesMemory',c(world,'VmSourceWorld_Ready'),world_descriptor(len(rows),0x1cb000,1,184,time=48).hex())
-            m.write_memory('snesMemory',c(entity,'VmSourceEntity_Base'),struct.pack('<HBxHH',0x4000,0x41,len(rows),0xb48b).hex())
+            m.write_memory('snesMemory',c(entity,'VmSourceEntity_Base'),struct.pack('<HBxHH',0x4000,0x41,len(rows),0xb5ef if source_exists else 0xb48b).hex())
             m.write_memory('snesMemory',c(variant,'VmNativeVariant_Self'),(struct.pack('<BBHI',5,0,0,rows[0].token)+bytes(24)).hex())
             m.write_u16(c(variant,'VmNativeVariant_ContextValid'),0xb48f)
             lease=bytearray(descriptor(len(rows),48))
