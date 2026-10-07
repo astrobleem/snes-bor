@@ -1,0 +1,20 @@
+{
+  "schema": "BYOR_MOTU_STAGE_DISPATCH_AUTHORITY_RECEIPT_V1",
+  "status": "PASS",
+  "proof": {
+    "path": "out/byor-motu-stage-dispatch-authority/report.json",
+    "sha256": "e61a6c02d4a631699e1b26e8b444dffe2c86a5c7b00fa4b5be9b993c58d38f56",
+    "status": "PASS",
+    "cases": 1716,
+    "rom_sha256": null
+  },
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "scope": "Pinned queue branch of update_scroller before camera movement",
+  "nonclaims": [
+    "Native queue dispatcher",
+    "Actual constructor execution in this C comparison",
+    "Real combat or completion"
+  ],
+  "waiting_policy": "WAIT holds camera advance but does not terminate the dispatch loop",
+  "no_color_reduction": true
+}
