@@ -13745,4 +13745,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_common_attack_finish.pasm"
 .include "core/vm/vm_source_attack_cost_state.pasm"
 .include "core/vm/vm_source_movement_state.pasm"
+.include "core/vm/vm_source_autokill_state.pasm"
 .include "core/vm/vm_source_attack_cost_pay.pasm"

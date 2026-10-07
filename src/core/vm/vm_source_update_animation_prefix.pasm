@@ -113,7 +113,7 @@ SourceUpdateAnimationPrefix4086_Branch12:
 .a16
 .i16
  lda.l SourceWorldTick4086_Phase
- cmp #$0005
+ cmp #$0007
  beq SourceUpdateAnimationPrefix4086_Branch13
  jmp SourceUpdateAnimationPrefix4086_Bad
 SourceUpdateAnimationPrefix4086_Branch13:

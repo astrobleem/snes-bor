@@ -1,5 +1,5 @@
 {
-  "schema": "BYOR_4086_UPDATE_ANIMATION_PREFIX_RECEIPT_V1",
+  "schema": "BYOR_4086_UPDATE_ANIMATION_PREFIX_RECEIPT_V2",
   "status": "PASS",
   "proofs": [
     {
@@ -8,14 +8,14 @@
       "cases": 578
     },
     {
-      "path": "out/byor-motu-update-animation-prefix-final-native/report.json",
-      "sha256": "1e77d1970cf1e952427023d50ca2f72abaac6b03d231926687a24ba737238335",
+      "path": "out/byor-motu-update-animation-prefix-phase7-native/report.json",
+      "sha256": "22869303aade36929eab2b71ddddaafae672d8484c307653102186b885fcbbd8",
       "cases": 578
     },
     {
-      "path": "out/byor-motu-update-animation-prefix-final-guards-native/report.json",
-      "sha256": "871b9b43296d9656b6dd8a080f8b572e033667c34ea9f3635becb06148cca1cc",
-      "cases": 155
+      "path": "out/byor-motu-update-animation-prefix-phase7-guards-native/report.json",
+      "sha256": "2d18809684ce8ccd7b5d2f78b3282137a441fa029e56162453913df1891abe2b",
+      "cases": 160
     }
   ],
   "model_descriptor": {
@@ -25,7 +25,7 @@
     "model_count": 16,
     "sleep_animation_id": 80
   },
-  "actual_world_tick_phase": 5,
+  "actual_world_tick_phase": 7,
   "source_function_unmodified_in_reference": true,
   "actual_entity_fields": [
     "idling",
@@ -64,37 +64,44 @@
       {
         "pc": "0x9641",
         "symbol": "Vm_SourceFrameGate",
-        "old": "0x1c8d6f",
-        "new": "0x1c8d73"
+        "old": "0x1c8d73",
+        "new": "0x1c8d77"
       },
       {
         "pc": "0x9697",
         "symbol": "Vm_FetchSource",
-        "old": "0x1c8484",
-        "new": "0x1c8488"
+        "old": "0x1c8488",
+        "new": "0x1c848c"
       },
       {
         "pc": "0x99a5",
         "symbol": "Vm_SourceVariantAddFallback",
-        "old": "0x1c887b",
-        "new": "0x1c887f"
+        "old": "0x1c887f",
+        "new": "0x1c8883"
       },
       {
         "pc": "0x9c9e",
         "symbol": "Vm_SourceVariantTruthyFallback",
-        "old": "0x1c884f",
-        "new": "0x1c8853"
+        "old": "0x1c8853",
+        "new": "0x1c8857"
       },
       {
         "pc": "0xa850",
         "symbol": "Vm_SourceVariantCompareFallback",
-        "old": "0x1c894b",
-        "new": "0x1c894f"
+        "old": "0x1c894f",
+        "new": "0x1c8953"
+      },
+      {
+        "pc": "0xd172",
+        "symbol": "SourceClock4086_NmiGate",
+        "old": "0x3ef5db",
+        "new": "0x3ef5ff"
       }
     ]
   },
   "width_guard_new_violations": 0,
   "width_guard_authority_baseline": 183,
   "bank_zero_free_before_nmi_bytes": 2,
-  "new_code_bank": 63
+  "new_code_bank": 63,
+  "supersedes_phase5_claim": "The earlier private proof used phase5; the world owner defines SCRIPT=5, AI=6, ANIMATION=7. Native guard is corrected to phase7; phase5 is rejected."
 }

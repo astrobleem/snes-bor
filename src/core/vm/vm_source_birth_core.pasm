@@ -325,6 +325,12 @@ SourceBirthCore4086_CostPreflightOk:
 SourceBirthCore4086_MovementPreflightOk:
 .a16
 .i16
+ jsl SourceAutokillState4086_PreflightBirth
+ bcc SourceBirthCore4086_AutokillMovementPreflightOk
+ jmp SourceBirthCore4086_Bad
+SourceBirthCore4086_AutokillMovementPreflightOk:
+.a16
+.i16
  lda.l SourceLifecycle4086_Ready
  beq SourceBirthCore4086_Good
  lda.l SourceBirthCore4086_Slot
@@ -487,6 +493,12 @@ SourceBirthCore4086_CostBirthDone:
  bcc SourceBirthCore4086_MovementBirthDone
  jmp SourceBirthCore4086_Bad
 SourceBirthCore4086_MovementBirthDone:
+.a16
+.i16
+ jsl SourceAutokillState4086_BirthClear
+ bcc SourceBirthCore4086_AutokillMovementBirthDone
+ jmp SourceBirthCore4086_Bad
+SourceBirthCore4086_AutokillMovementBirthDone:
 .a16
 .i16
  lda.l SOURCE_RETIREMENT_ROLES

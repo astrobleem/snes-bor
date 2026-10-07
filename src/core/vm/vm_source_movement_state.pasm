@@ -29,6 +29,9 @@ SourceMovementState4086_CheckCacheSpan:
 SourceMovementState4086_SpanGood:
 .a16
 .i16
+ lda 1,s
+ jsl SourceAutokillState4086_CheckCacheSpan
+ bcs SourceMovementState4086_SpanBad
  pla
  plp
  clc
