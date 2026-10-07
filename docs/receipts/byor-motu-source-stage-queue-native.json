@@ -1,0 +1,25 @@
+{
+  "schema": "BYOR_4086_STAGE_QUEUE_SPAWN_PREPARE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report": "out/byor-motu-stage-queue-native/report.json",
+  "report_sha256": "49cc87dc7258ab7278a76113cd11cecc816e524fdda5f0f3898976a6def6bc6e",
+  "native_cases": 137,
+  "source_spawn_records": 22,
+  "table_sha256": "ac98f3b346f2a8f8864dccb6711ce9d7341b730434519bb2bc2918bb3c3a8958",
+  "entry": "SourceStageQueue4086_PrepareSpawn",
+  "code_bank": 62,
+  "bank0_growth": 0,
+  "control_span": [
+    "43BB00",
+    "43BB2C"
+  ],
+  "policy": "B5D2 paired immutable B5SQ row lease, model/current-stage/header/bank/span validation. Actual spawn rows publish constructor model, direction, timestamp and offline Q16 positions plus source scrolling advance before initialization. Non-spawn rows and signed sum overflow reject without constructor-input or entity mutation. Source world/stage controls are explicit; cold boot disables the lease.",
+  "audit": "out/byor-motu-stage-queue-audit.log",
+  "constructor_execution_bound": false,
+  "post_constructor_properties_bound": false,
+  "live_queue_dispatch_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
