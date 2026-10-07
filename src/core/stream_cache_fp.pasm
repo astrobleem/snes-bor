@@ -90,6 +90,8 @@ Core_StreamCacheFp_Init:
 	lda #$FFFF
 	ldx #0
 Core_StreamCacheFp_Init__tile2slot:
+.a16
+.i16
 	sta.l StreamCacheFp_Tile2Slot,x
 	inx
 	inx
@@ -99,6 +101,8 @@ Core_StreamCacheFp_Init__tile2slot:
 	lda #$FFFF
 	ldx #0
 Core_StreamCacheFp_Init__slot2tile:
+.a16
+.i16
 	sta.l StreamCacheFp_Slot2Tile,x
 	inx
 	inx
@@ -154,6 +158,8 @@ Core_StreamCacheFp_AllocateSlot:
 	sec
 	sbc #STREAM_FP_CACHE_USABLE
 Core_StreamCacheFp_AllocateSlot__cursor_ok:
+.a16
+.i16
 	sta StreamCacheFp_ScanCursor
 
 	ldy #0
@@ -210,6 +216,8 @@ Core_StreamCacheFp_AllocateSlot__advance:
 	bcc Core_StreamCacheFp_AllocateSlot__advance_ok
 	lda #1
 Core_StreamCacheFp_AllocateSlot__advance_ok:
+.a16
+.i16
 	sta StreamCacheFp_Candidate
 
 	iny
@@ -292,6 +300,8 @@ Core_StreamCacheFp_Test:
 	lda #0
 	sta StreamCacheFp_Test_Index
 Core_StreamCacheFp_Test__loop:
+.a16
+.i16
 	lda StreamCacheFp_Test_Index
 	tax
 	jsr Core_StreamCacheFp_AllocateSlot

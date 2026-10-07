@@ -108,6 +108,8 @@ Core_Dma_Init__owner_clear:
 .a16
 	ldx #0
 Core_Dma_Init__clear_loop:
+.a16
+.i16
 	sta.l DmaQueue,x
 	inx
 	inx
@@ -139,6 +141,8 @@ Core_Dma_Enqueue__valid_type:
 	jsr Core_Error_Handler
 
 Core_Dma_Enqueue__valid_length:
+.a16
+.i16
 	lda DmaQueue_CurrentSlot
 	and #(DMA_QUEUE_SLOTS * DMA_QUEUE_SLOT_SIZE) - 1
 	tax
@@ -287,6 +291,8 @@ Core_Dma_ProcessQueue:
 	lda DmaQueue_CurrentSlot
 
 Core_Dma_ProcessQueue__loop:
+.a16
+.i16
 	and #(DMA_QUEUE_SLOTS * DMA_QUEUE_SLOT_SIZE) - 1
 	sta DmaQueue_CurrentSlot
 	tax
@@ -304,12 +310,16 @@ Core_Dma_ProcessQueue__loop:
 	bra Core_Dma_ProcessQueue__next
 
 Core_Dma_ProcessQueue__try_oam:
+.a8
+.i16
 	cmp #DMA_TYPE_OAM
 	bne Core_Dma_ProcessQueue__try_cgram
 	jsr Core_Dma_TransferOam
 	bra Core_Dma_ProcessQueue__next
 
 Core_Dma_ProcessQueue__try_cgram:
+.a8
+.i16
 	cmp #DMA_TYPE_CGRAM
 	bne Core_Dma_ProcessQueue__bad_type
 	jsr Core_Dma_TransferCgram

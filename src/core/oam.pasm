@@ -101,6 +101,8 @@ Core_Oam_Init:
     lda #0
     ldx #0
 Core_Oam_Init__clear_loop:
+.a16
+.i16
     sta.l OamShadow_Start,x
     inx
     inx
@@ -181,6 +183,8 @@ Core_Oam_ClearAll:
 
     ldx #0
 Core_Oam_ClearAll__loop:
+.a16
+.i16
     lda #OAM_DEFAULT_Y * 256 + OAM_HIDDEN_X
     sta.l Oam_Buffer,x
     lda #0
@@ -194,6 +198,8 @@ Core_Oam_ClearAll__loop:
 
     ldx #0
 Core_Oam_ClearAll__hi_loop:
+.a16
+.i16
     lda #$0101
     sta.l Oam_ExpandedHi,x
     inx
@@ -245,6 +251,8 @@ Core_Oam_ClearActive:
     tay
     ldx #0
 Core_Oam_ClearActive__main_loop:
+.a16
+.i16
     lda #OAM_DEFAULT_Y * 256 + OAM_HIDDEN_X
     sta.l Oam_Buffer,x
     lda #0
@@ -256,6 +264,8 @@ Core_Oam_ClearActive__main_loop:
     dey
     bne Core_Oam_ClearActive__main_loop
 Core_Oam_ClearActive__main_skip:
+.a16
+.i16
 
     ; Expanded high table has ONE byte per sprite, not one per four.
     ; Packed bytes are regenerated over the high-water extent before DMA.
@@ -268,6 +278,8 @@ Core_Oam_ClearActive__main_skip:
     sep #$20
 .a8
 Core_Oam_ClearActive__hi_loop:
+.a8
+.i16
     lda #OAM_HIDDEN_HI
     sta.l Oam_ExpandedHi,x
     inx
@@ -344,6 +356,8 @@ Core_Oam_Play__has_sprites:
     bcc Core_Oam_Play__hwm_done
     sta.l Oam_HighWaterSlot
 Core_Oam_Play__hwm_done:
+.a16
+.i16
 
     jsr Core_Oam_TransformHiOam
 
@@ -385,6 +399,8 @@ Core_Oam_Play__main_len_done:
     ; no range limit.
     jmp Core_Oam_Play__done
 Core_Oam_Play__queued_main:
+.a16
+.i16
     lda #1
     sta Oam_UploadFlag
 
@@ -429,6 +445,8 @@ Core_Oam_Play__queued_main:
     lda #OAM_SLOTS / 4
     bra Core_Oam_Play__hi_len_done
 Core_Oam_Play__hi_len_partial:
+.a16
+.i16
     lda.l Oam_HighWaterSlot
     clc
     adc #15

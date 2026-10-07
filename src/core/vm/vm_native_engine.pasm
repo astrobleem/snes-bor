@@ -2350,6 +2350,8 @@ AudioSemantic_EmitFall__overflow:
     sep #$20
 .a8
 AudioSemantic_EmitFall__queue:
+.a8
+.i16
     ; Tad_sfxQueue_sfx is a zero-page TAD queue. Bracket D=$0000 locally,
     ; preserving the bank-1 JSL/RTL boundary and the normal lower-ID priority.
     phd
@@ -2580,6 +2582,8 @@ AudioSemantic_EmitDiesound__identity_ok:
     inc
     sta.l AudioSemantic_FootDieRequestCount
 AudioSemantic_EmitDiesound__not_foot:
+.a8
+.i16
     lda.l Game_CampaignId
     cmp #3
     beq AudioSemantic_EmitDiesound__normal_source
@@ -2848,6 +2852,8 @@ Audio_FrameSoundDispatch__roster_ok:
     beq Audio_FrameSoundDispatch__selected_ok
     brl Audio_FrameSoundDispatch__next
 Audio_FrameSoundDispatch__selected_ok:
+.a8
+.i16
     inx
     inx
     lda.l Audio_FrameSoundRecords,x
@@ -2859,6 +2865,8 @@ Audio_FrameSoundDispatch__selected_ok:
     beq Audio_FrameSoundDispatch__variant_ok
     brl Audio_FrameSoundDispatch__next
 Audio_FrameSoundDispatch__variant_ok:
+.a8
+.i16
     inx
     inx
     inx

@@ -104,6 +104,8 @@ Core_Input_Poll:
 	rep #$31
 .a16
 Core_Input_Poll__wait_busy:
+.a16
+.i16
 	lda $4212            ; HVBJOY
 	and #$0001           ; bit0: auto-joypad-read in progress
 	bne Core_Input_Poll__wait_busy
@@ -126,6 +128,8 @@ Core_Input_Poll__wait_busy:
 	rtl
 
 Core_Input_Poll__no_pad1:
+.a16
+.i16
 	lda #0
 	sta.l Input_press_Addr
 	sta.l Input_old_Addr

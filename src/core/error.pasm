@@ -117,6 +117,8 @@ Core_Error_Handler:
 	bcc Core_Error_Handler__valid_code
 	lda #Error_InvalidException
 Core_Error_Handler__valid_code:
+.a16
+.i16
 	and #$00ff
 	sta ExcErr
 

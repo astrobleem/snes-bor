@@ -99,6 +99,8 @@ Core_Nmi_Init:
     lda #0
     ldx #0
 Core_Nmi_Init__clear_loop:
+.a16
+.i16
     sta.l NmiShadow_Start,x
     inx
     inx
@@ -232,6 +234,8 @@ Core_Nmi_Play:
     beq Core_Nmi_Play__do_commit
     bra Core_Nmi_Play__frame_skipped
 Core_Nmi_Play__frame_skipped:
+.a8
+.i16
     ; previous frame's processing isn't done yet — skip the visual commit,
     ; but keep whatever HDMA channels were already running going
     lda #2
@@ -241,6 +245,8 @@ Core_Nmi_Play__frame_skipped:
     brl Core_Nmi_Play__done   ; too far for an 8-bit bra from here
 
 Core_Nmi_Play__do_commit:
+.a8
+.i16
     lda #0
     sta $420C                 ; HDMAEN: disable all while we update things
     sta.l Nmi_HdmaEnableCurrent

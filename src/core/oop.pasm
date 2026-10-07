@@ -291,6 +291,8 @@ Core_Oop_Init:
 	; each sta.l clears the full 16-bit element.
 	ldx #0
 Core_Oop_Init__clear_objs:
+.a16
+.i16
 	lda #0
 	sta.l OopFlags,x
 	sta.l OopClassId,x
@@ -306,6 +308,8 @@ Core_Oop_Init__clear_objs:
 
 	ldx #0
 Core_Oop_Init__clear_classes:
+.a16
+.i16
 	lda #0
 	sta.l ClassFlags,x
 	sta.l ClassZpLen,x
@@ -373,6 +377,8 @@ Core_Oop_RegisterClass:
 		jsr Core_Error_Handler
 
 Core_Oop_RegisterClass__room_ok:
+.a16
+.i16
 	lda OopRegStaging_ZpLen
 	cmp #OOP_SELF_HEADER_SIZE
 	bcs Core_Oop_RegisterClass__zplen_ok
@@ -407,8 +413,12 @@ Core_Oop_RegisterClass__zplen_ok:
 ; @return carry<bool>  found
 ; @return x<16-bit>    free slot byte-offset
 Core_Oop__SeekFreeSlot:
+.a16
+.i16
 	ldx #0
 Core_Oop__SeekFreeSlot__scan:
+.a16
+.i16
 	lda.l OopFlags,x
 	and #OBJ_FLAG_PRESENT | OBJ_FLAG_DELETE_SCHEDULED
 	beq Core_Oop__SeekFreeSlot__found
@@ -426,10 +436,14 @@ Core_Oop__SeekFreeSlot__found:
 ; @return carry<bool>  found
 ; @return x<16-bit>    slot byte-offset
 Core_Oop__SeekByClassId:
+.a16
+.i16
 	and #$00ff
 	sta OopSeek_Key
 	ldx #0
 Core_Oop__SeekByClassId__scan:
+.a16
+.i16
 	lda.l OopClassId,x
 	cmp OopSeek_Key
 	bne Core_Oop__SeekByClassId__next
@@ -440,6 +454,8 @@ Core_Oop__SeekByClassId__scan:
 	sec
 	rts
 Core_Oop__SeekByClassId__next:
+.a16
+.i16
 	inx
 	inx
 	cpx #OOP_MAX_OBJECTS*2
@@ -452,12 +468,16 @@ Core_Oop__SeekByClassId__next:
 ; @return carry<bool>  found
 ; @return x<16-bit>    slot byte-offset
 Core_Oop__SeekByIdNum:
+.a16
+.i16
 	sta OopSeek_Num
 	tya
 	and #$00ff
 	sta OopSeek_Key
 	ldx #0
 Core_Oop__SeekByIdNum__scan:
+.a16
+.i16
 	lda.l OopClassId,x
 	cmp OopSeek_Key
 	bne Core_Oop__SeekByIdNum__next
@@ -471,6 +491,8 @@ Core_Oop__SeekByIdNum__scan:
 	sec
 	rts
 Core_Oop__SeekByIdNum__next:
+.a16
+.i16
 	inx
 	inx
 	cpx #OOP_MAX_OBJECTS*2
@@ -498,6 +520,8 @@ Core_Oop__ClearObjRam:
 	ldx.w OopCreate_RamOfs_Lo
 	ldy.w OopCreate_ZpLen_Lo
 Core_Oop__ClearObjRam__loop:
+.a16
+.i16
 	lda #0
 	sta.l OopObjRam,x
 	inx
@@ -546,6 +570,8 @@ Core_Oop_Create__not_singleton:
 		jsr Core_Error_Handler
 
 Core_Oop_Create__slot_ok:
+.a16
+.i16
 	stx.w OopCreate_Slot_Lo
 
 	ldx.w OopCreate_ClassOfs_Lo
@@ -562,6 +588,8 @@ Core_Oop_Create__slot_ok:
 		jsr Core_Error_Handler
 
 Core_Oop_Create__ram_ok:
+.a16
+.i16
 	lda OopObjRamPtr
 	sta OopCreate_RamOfs
 	clc
@@ -671,6 +699,8 @@ Core_Oop_Create__init_ok:
 ; @return x<16-bit>    current slot byte-offset — cheap to always re-store
 ;                       into your handle's +3 whether it moved or not
 Core_Oop_Exists:
+.a16
+.i16
 	sta OopSeek_Num
 	cpx #OOP_MAX_OBJECTS*2
 	bcs Core_Oop_Exists__reseek
@@ -809,6 +839,8 @@ Core_Oop_Call:
 	bcs Core_Oop_Call__found
 	rts
 Core_Oop_Call__found:
+.a16
+.i16
 	; 65816 long addressing has no ,Y indexed form (only ,X) — stash the
 	; object's slot first, repurpose x for the classOfs-indexed read, then
 	; reload the slot back into x before using it again below.
@@ -848,6 +880,8 @@ Core_Oop_Play:
 	bcs Core_Oop_Play__done
 
 Core_Oop_Play__loop:
+.a16
+.i16
 	stx.w OopObjIndex_Lo
 	lda.l OopFlags,x
 	and #OBJ_FLAG_PRESENT | OBJ_FLAG_DELETE_SCHEDULED | OBJ_FLAG_DISABLED
@@ -900,12 +934,16 @@ Core_Oop_CollectGarbage:
 	bcs Core_Oop_CollectGarbage__reset_flag
 
 Core_Oop_CollectGarbage__loop:
+.a16
+.i16
 	ldx.w OopObjIndex_Lo
 	lda.l OopFlags,x
 	and #OBJ_FLAG_DELETE_SCHEDULED
 	beq Core_Oop_CollectGarbage__skip
 		jsr Core_Oop__ReclaimSlot
 Core_Oop_CollectGarbage__skip:
+.a16
+.i16
 	lda OopObjIndex
 	clc
 	adc #2
@@ -924,6 +962,8 @@ Core_Oop_CollectGarbage__done:
 ;                    (x is NOT preserved — CollectGarbage's loop reloads it
 ;                    from its own cursor after this call)
 Core_Oop__ReclaimSlot:
+.a16
+.i16
 	lda.l OopDp,x
 	sec
 	sbc #OopObjRam_Lo
@@ -979,6 +1019,8 @@ Core_Oop__ReclaimSlot__shift:
 	bra Core_Oop__ReclaimSlot__shift
 
 Core_Oop__ReclaimSlot__shift_done:
+.a16
+.i16
 	lda OopObjRamPtr
 	sec
 	sbc OopGc_DeadLen
@@ -989,6 +1031,8 @@ Core_Oop__ReclaimSlot__shift_done:
 	cpx.w OopObjSlotPtr_Lo
 	bcs Core_Oop__ReclaimSlot__adjust_done
 Core_Oop__ReclaimSlot__adjust_loop:
+.a16
+.i16
 	lda.l OopFlags,x
 	beq Core_Oop__ReclaimSlot__adjust_next
 	lda.l OopDp,x
@@ -1010,6 +1054,8 @@ Core_Oop__ReclaimSlot__adjust_done:
 
 	; shrink the slot bound while the trailing slot(s) are now fully free
 Core_Oop__ReclaimSlot__shrink:
+.a16
+.i16
 	lda OopObjSlotPtr
 	beq Core_Oop__ReclaimSlot__shrink_done
 	sec

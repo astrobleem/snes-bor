@@ -53,6 +53,8 @@ Core_DmaChannel_Init:
 	lda #0
 	ldx #0
 Core_DmaChannel_Init__clear_loop:
+.a16
+.i16
 	sta.l DmaChannels,x
 	inx
 	cpx #DMA_CHANNELS_COUNT
@@ -66,6 +68,8 @@ Core_DmaChannel_Allocate:
 .a8
 	ldx #0
 Core_DmaChannel_Allocate__scan:
+.a8
+.i16
 	lda.l DmaChannels,x
 	beq Core_DmaChannel_Allocate__found
 	inx
@@ -76,6 +80,8 @@ Core_DmaChannel_Allocate__scan:
 	rts
 
 Core_DmaChannel_Allocate__found:
+.a8
+.i16
 	lda #1
 	sta.l DmaChannels,x
 	txa
@@ -104,6 +110,8 @@ Core_DmaChannel_Deallocate__valid_channel:
 	jsr Core_Error_Handler
 
 Core_DmaChannel_Deallocate__was_allocated:
+.a8
+.i16
 	; STZ has no long addressing mode on 65816 — `.l` on it doesn't error here,
 	; it silently emits a malformed encoding (confirmed by isolated repro).
 	; lda #0 / sta.l is the correct equivalent.

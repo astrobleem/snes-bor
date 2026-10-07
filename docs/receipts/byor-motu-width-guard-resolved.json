@@ -1,0 +1,1298 @@
+{
+  "schema": "BYOR_WIDTH_GUARD_RESOLUTION_V1",
+  "status": "PASS",
+  "assembler_authority": "check_width_directives.py poppy#386: pin immediate operand M/X sizing at branch/jump targets",
+  "corrected_sites": 183,
+  "corrected_files": 16,
+  "new_violations": 0,
+  "baselined_violations": 0,
+  "baseline_entries": 0,
+  "main_binary_sha256": "9fd642bbd51b545eca91a887f3b379d7f4c8d46bbcf9ebd241f8581ee70edee6",
+  "entire_main_binary_identical_to_commit": "9db8f055c52121c8a71f9e25c1c8a9cc3d6307db",
+  "bank_zero_code_growth_bytes": 0,
+  "protected_files_preserved": 17,
+  "runtime_control_flow_width_proof": false,
+  "sites": [
+    {
+      "file": "src/main.pasm",
+      "line": 365,
+      "label": "sa1_clear",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 565,
+      "label": "sa1_wait",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1166,
+      "label": "tadprivate_loader_checkreadyandsendloaderdatatype",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1271,
+      "label": "__anon1",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1282,
+      "label": "__anon2",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1310,
+      "label": "tadprivate_loader_transferdata__bankoverflow_1_resume",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1356,
+      "label": "__anon4",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1400,
+      "label": "tadprivate_loader_gotonextbank",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1443,
+      "label": "tad_init",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1465,
+      "label": "__anon6",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1496,
+      "label": "__anon8",
+      "accumulator_width": 8,
+      "index_width": 8
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1539,
+      "label": "tad_init__datatypeloop",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1544,
+      "label": "tad_init__transferloop",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1629,
+      "label": "__anon9",
+      "accumulator_width": 8,
+      "index_width": 8
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1653,
+      "label": "tad_process__sendcommand",
+      "accumulator_width": 8,
+      "index_width": 8
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1683,
+      "label": "tad_process__notpauseorplay",
+      "accumulator_width": 8,
+      "index_width": 8
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1692,
+      "label": "tad_process__notloaded",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1714,
+      "label": "tadprivate_process_waitingforloader",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1740,
+      "label": "tadprivate_process_waitingforloader__songdata",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1811,
+      "label": "tadprivate_process_waitingforloader__useblanksong",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1841,
+      "label": "tadprivate_process_loading",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1853,
+      "label": "tadprivate_process_loading__song",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 1889,
+      "label": "tad_finishloadingdata__loop",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 2049,
+      "label": "tad_loadsong",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 2085,
+      "label": "tad_loadsong__songrequested",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 2093,
+      "label": "tad_loadsong__setstateandswitchtoloader",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 2192,
+      "label": "__anon12",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 2369,
+      "label": "loadaudiodata",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/math.pasm",
+      "line": 182,
+      "label": "core_math_div__normalize_loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/error.pasm",
+      "line": 119,
+      "label": "core_error_handler__valid_code",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/dma_channel.pasm",
+      "line": 55,
+      "label": "core_dmachannel_init__clear_loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/dma_channel.pasm",
+      "line": 68,
+      "label": "core_dmachannel_allocate__scan",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/dma_channel.pasm",
+      "line": 78,
+      "label": "core_dmachannel_allocate__found",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/dma_channel.pasm",
+      "line": 106,
+      "label": "core_dmachannel_deallocate__was_allocated",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/dma.pasm",
+      "line": 110,
+      "label": "core_dma_init__clear_loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/dma.pasm",
+      "line": 141,
+      "label": "core_dma_enqueue__valid_length",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/dma.pasm",
+      "line": 289,
+      "label": "core_dma_processqueue__loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/dma.pasm",
+      "line": 306,
+      "label": "core_dma_processqueue__try_oam",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/dma.pasm",
+      "line": 312,
+      "label": "core_dma_processqueue__try_cgram",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_wram.pasm",
+      "line": 72,
+      "label": "core_wram_init__clear_blocks",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_wram.pasm",
+      "line": 104,
+      "label": "core_wram_init__clear_buffer",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_wram.pasm",
+      "line": 131,
+      "label": "core_wram_allocate__valid_length",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_wram.pasm",
+      "line": 174,
+      "label": "core_wram_allocate__scan_next",
+      "accumulator_width": 8,
+      "index_width": 8
+    },
+    {
+      "file": "src/core/allocate_wram.pasm",
+      "line": 231,
+      "label": "core_wram_deallocate__scan",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_wram.pasm",
+      "line": 242,
+      "label": "core_wram_deallocate__next",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_vram.pasm",
+      "line": 76,
+      "label": "core_vram_init__clear_blocks",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_vram.pasm",
+      "line": 127,
+      "label": "core_vram_allocate__step_min_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_vram.pasm",
+      "line": 133,
+      "label": "core_vram_allocate__step_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_vram.pasm",
+      "line": 179,
+      "label": "core_vram_allocate__advance_inrange",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_vram.pasm",
+      "line": 209,
+      "label": "core_vram_allocate__block_inrange",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_vram.pasm",
+      "line": 218,
+      "label": "core_vram_allocate__found",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_vram.pasm",
+      "line": 277,
+      "label": "core_vram_deallocate__scan",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_vram.pasm",
+      "line": 288,
+      "label": "core_vram_deallocate__next",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_cgram.pasm",
+      "line": 74,
+      "label": "core_cgram_init__clear_blocks",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_cgram.pasm",
+      "line": 125,
+      "label": "core_cgram_allocate__step_min_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_cgram.pasm",
+      "line": 131,
+      "label": "core_cgram_allocate__step_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_cgram.pasm",
+      "line": 144,
+      "label": "core_cgram_allocate__valid_length",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_cgram.pasm",
+      "line": 204,
+      "label": "core_cgram_allocate__block_inrange",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_cgram.pasm",
+      "line": 229,
+      "label": "core_cgram_allocate__bound_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_cgram.pasm",
+      "line": 280,
+      "label": "core_cgram_deallocate__scan",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/allocate_cgram.pasm",
+      "line": 291,
+      "label": "core_cgram_deallocate__next",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 293,
+      "label": "core_oop_init__clear_objs",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 308,
+      "label": "core_oop_init__clear_classes",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 375,
+      "label": "core_oop_registerclass__room_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 409,
+      "label": "core_oop__seekfreeslot",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 411,
+      "label": "core_oop__seekfreeslot__scan",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 428,
+      "label": "core_oop__seekbyclassid",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 432,
+      "label": "core_oop__seekbyclassid__scan",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 442,
+      "label": "core_oop__seekbyclassid__next",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 454,
+      "label": "core_oop__seekbyidnum",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 460,
+      "label": "core_oop__seekbyidnum__scan",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 473,
+      "label": "core_oop__seekbyidnum__next",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 500,
+      "label": "core_oop__clearobjram__loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 548,
+      "label": "core_oop_create__slot_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 564,
+      "label": "core_oop_create__ram_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 673,
+      "label": "core_oop_exists",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 811,
+      "label": "core_oop_call__found",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 850,
+      "label": "core_oop_play__loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 902,
+      "label": "core_oop_collectgarbage__loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 908,
+      "label": "core_oop_collectgarbage__skip",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 926,
+      "label": "core_oop__reclaimslot",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 981,
+      "label": "core_oop__reclaimslot__shift_done",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 991,
+      "label": "core_oop__reclaimslot__adjust_loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oop.pasm",
+      "line": 1012,
+      "label": "core_oop__reclaimslot__shrink",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 371,
+      "label": "core_screen__settargetposition__has_focus",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 385,
+      "label": "core_screen__settargetposition__handled",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 396,
+      "label": "core_screen__settargetposition__x_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 415,
+      "label": "core_screen__addstepx",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 434,
+      "label": "core_screen__substepx",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 455,
+      "label": "core_screen__addstepy",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 474,
+      "label": "core_screen__substepy",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 498,
+      "label": "core_screen__lutlookupx",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 510,
+      "label": "core_screen__lutlookupy",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 526,
+      "label": "core_screen__lutlookupy__airborne",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 544,
+      "label": "core_screen__easex__negative",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/screen.pasm",
+      "line": 557,
+      "label": "core_screen__easey__negative",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/nmi.pasm",
+      "line": 101,
+      "label": "core_nmi_init__clear_loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/nmi.pasm",
+      "line": 234,
+      "label": "core_nmi_play__frame_skipped",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/nmi.pasm",
+      "line": 243,
+      "label": "core_nmi_play__do_commit",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oam.pasm",
+      "line": 103,
+      "label": "core_oam_init__clear_loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oam.pasm",
+      "line": 183,
+      "label": "core_oam_clearall__loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oam.pasm",
+      "line": 196,
+      "label": "core_oam_clearall__hi_loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oam.pasm",
+      "line": 247,
+      "label": "core_oam_clearactive__main_loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oam.pasm",
+      "line": 258,
+      "label": "core_oam_clearactive__main_skip",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oam.pasm",
+      "line": 270,
+      "label": "core_oam_clearactive__hi_loop",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oam.pasm",
+      "line": 346,
+      "label": "core_oam_play__hwm_done",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oam.pasm",
+      "line": 387,
+      "label": "core_oam_play__queued_main",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/oam.pasm",
+      "line": 431,
+      "label": "core_oam_play__hi_len_partial",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/stream_cache.pasm",
+      "line": 148,
+      "label": "core_streamcache_init__tile2slot",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/stream_cache.pasm",
+      "line": 157,
+      "label": "core_streamcache_init__slot2tile",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/stream_cache.pasm",
+      "line": 224,
+      "label": "core_streamcache_allocateslot__cursor_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/stream_cache.pasm",
+      "line": 292,
+      "label": "core_streamcache_allocateslot__advance_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/stream_cache.pasm",
+      "line": 505,
+      "label": "core_streamcache_test__loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/stream_cache_fp.pasm",
+      "line": 92,
+      "label": "core_streamcachefp_init__tile2slot",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/stream_cache_fp.pasm",
+      "line": 101,
+      "label": "core_streamcachefp_init__slot2tile",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/stream_cache_fp.pasm",
+      "line": 156,
+      "label": "core_streamcachefp_allocateslot__cursor_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/stream_cache_fp.pasm",
+      "line": 212,
+      "label": "core_streamcachefp_allocateslot__advance_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/stream_cache_fp.pasm",
+      "line": 294,
+      "label": "core_streamcachefp_test__loop",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 4232,
+      "label": "anim_play__check_reselect",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 4335,
+      "label": "anim_play__stunned_reset",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 4342,
+      "label": "anim_play__not_stunned",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 4435,
+      "label": "anim_play__check_attack_trigger",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 4539,
+      "label": "anim_play__no_attack_trigger",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 4545,
+      "label": "anim_play__want_idle",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 4629,
+      "label": "anim_play__ai_dx_have",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 4649,
+      "label": "anim_play__ai_dy_have",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 4697,
+      "label": "anim_play__want_got",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 4939,
+      "label": "anim_play_attack__advance",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 5901,
+      "label": "character_playframe__not_stunned_x",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 5908,
+      "label": "character_playframe__dpad_x",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6095,
+      "label": "character_playframe__not_stunned_y",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6102,
+      "label": "character_playframe__dpad_y",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6110,
+      "label": "character_playframe__ai_y",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6122,
+      "label": "character_playframe__ai_y_playerge",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6128,
+      "label": "character_playframe__down",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6158,
+      "label": "character_playframe__up",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6309,
+      "label": "character_playframe__hi_store",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6617,
+      "label": "character_hitapply_vsentity1__dx_have",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6634,
+      "label": "character_hitapply_vsentity1__dy_have",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6638,
+      "label": "character_hitapply_vsentity1__dy_ok",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6716,
+      "label": "character_hitapply_vsentity2__dx_have",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6733,
+      "label": "character_hitapply_vsentity2__dy_have",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6737,
+      "label": "character_hitapply_vsentity2__dy_ok",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6787,
+      "label": "character_hitapply_vsentity3__dx_have",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6804,
+      "label": "character_hitapply_vsentity3__dy_have",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6808,
+      "label": "character_hitapply_vsentity3__dy_ok",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6866,
+      "label": "character_hitapply_vsplayer__dx_have",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6883,
+      "label": "character_hitapply_vsplayer__dy_have",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 6948,
+      "label": "character_hitapply_vsplayer__hp_ok",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 8055,
+      "label": "characterentity_init__role3_lower_tile",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 8376,
+      "label": "characterentity_oncommand__camera",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 8985,
+      "label": "bg_loadscene_streaming__row_no_vflip",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 9032,
+      "label": "bg_loadscene_streaming__row_done",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 9577,
+      "label": "bg_loadscenefp_streaming__row_no_vflip",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 9638,
+      "label": "bg_loadscenefp_streaming__row_done",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 9983,
+      "label": "core_streamscroll_pickcolumn__lo_ok",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 10304,
+      "label": "core_streamscroll_resolverows__commit",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 10318,
+      "label": "core_streamscroll_resolverows__col_free",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 10330,
+      "label": "core_streamscroll_resolverows__page_a",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 10374,
+      "label": "core_streamscroll_resolverows__not_new_lo",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 10912,
+      "label": "core_streamscrollfp_resolverows__row",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 11040,
+      "label": "core_streamscrollfp_resolverows__resolved",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 11099,
+      "label": "core_streamscrollfp_resolverows__no_vflip",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 11119,
+      "label": "core_streamscrollfp_resolverows__commit",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 11131,
+      "label": "core_streamscrollfp_resolverows__col_free",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 11167,
+      "label": "core_streamscrollfp_resolverows__not_below",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 11175,
+      "label": "core_streamscrollfp_resolverows__window_done",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 11685,
+      "label": "msu1_busy_loop",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 11691,
+      "label": "msu1_read_loop",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 11706,
+      "label": "msu1_missing",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 11949,
+      "label": "boot_setplayfieldborder__go",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 12010,
+      "label": "scpu_clear_ppu",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 12392,
+      "label": "scpu_boot__bg1sc_done",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/vm/vm_native_engine.pasm",
+      "line": 2352,
+      "label": "audiosemantic_emitfall__queue",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/vm/vm_native_engine.pasm",
+      "line": 2582,
+      "label": "audiosemantic_emitdiesound__not_foot",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/vm/vm_native_engine.pasm",
+      "line": 2850,
+      "label": "audio_framesounddispatch__selected_ok",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/vm/vm_native_engine.pasm",
+      "line": 2861,
+      "label": "audio_framesounddispatch__variant_ok",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 12761,
+      "label": "tad_streamservicefootdie__pending",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 12866,
+      "label": "tad_streamservicefootdie__consume_budget",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 12907,
+      "label": "testsprite_writesolidtile__plane01",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/main.pasm",
+      "line": 12965,
+      "label": "tad_streamsendfootdieframe__write_destination_high",
+      "accumulator_width": 8,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/input.pasm",
+      "line": 106,
+      "label": "core_input_poll__wait_busy",
+      "accumulator_width": 16,
+      "index_width": 16
+    },
+    {
+      "file": "src/core/input.pasm",
+      "line": 128,
+      "label": "core_input_poll__no_pad1",
+      "accumulator_width": 16,
+      "index_width": 16
+    }
+  ]
+}

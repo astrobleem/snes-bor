@@ -363,6 +363,8 @@ sa1_main:
     ldx #$0000
     txa                     ; A = 0
 sa1_clear:
+.a16
+.i16
     sta.l BW_CANVAS,x
     inx
     inx
@@ -563,6 +565,8 @@ sa1_loop_blits:
     ; be mistaken for this one, and the pump still gates on SFR bit 5 for
     ; its own start signal.
 sa1_wait:
+.a8
+.i16
     lda $3025               ; I-RAM mailbox: $AA = S-CPU has consumed canvas
     cmp #$AA
     bne sa1_wait
@@ -1164,6 +1168,8 @@ Tad_sfxQueue_pan = $21
 .i16
 ;; DB access registers
 TadPrivate_Loader_CheckReadyAndSendLoaderDataType:
+.a8
+.i16
     ; Test if the loader is ready
     ldx #LOADER_READY_HL
     cpx READY_PORT_HL
@@ -1269,6 +1275,8 @@ TadPrivate_Loader_TransferData:
     bne __anon1
         inc
     __anon1:
+.a16
+.i16
     ; Store word to read in X
     tax
 
@@ -1280,6 +1288,8 @@ TadPrivate_Loader_TransferData:
     bcs __anon2
         lda #0
     __anon2:
+.a16
+.i16
     sta TadPrivate_dataToTransfer_size
 
 
@@ -1308,6 +1318,8 @@ TadPrivate_Loader_TransferData:
         iny
         beq TadPrivate_Loader_TransferData__BankOverflow_1
     TadPrivate_Loader_TransferData__BankOverflow_1_Resume:
+.a8
+.i16
 
         lda 0,y
         sta.b <(DATA_PORT_H)
@@ -1354,6 +1366,8 @@ TadPrivate_Loader_TransferData__EndLoop:
 
         ; Wait for Loader to acknowledge the last write
         __anon4:
+.a8
+.i16
             cmp.l SPINLOCK_PORT
             bne __anon4
 
@@ -1398,6 +1412,8 @@ TadPrivate_Loader_TransferData__BankOverflow_2:
 .i16
 ; DB = TadPrivate_dataToTransfer_bank
 TadPrivate_Loader_GotoNextBank:
+.a8
+.i16
     phb
     pla
 
@@ -1441,6 +1457,8 @@ TadPrivate_Loader_GotoNextBank:
 .i16
 ; DB unknown
 Tad_Init:
+.a8
+.i16
     phb
 
     lda #$80
@@ -1463,6 +1481,8 @@ APUIO3 = $2143
     ; Wait for ready signal
     ldy #$bbaa
     __anon6:
+.a8
+.i16
         cpy APUIO0
         bne __anon6
 
@@ -1494,6 +1514,8 @@ APUIO3 = $2143
 
         ; Wait for a response form the IPL
         __anon8:
+.a8
+.i8
             cpx APUIO0
             bne __anon8
 
@@ -1537,11 +1559,15 @@ APUIO3 = $2143
     stz.w TadPrivate_nextSong_Lo
 
     Tad_Init__DataTypeLoop:
+.a8
+.i16
         lda #CODE
         jsr TadPrivate_Loader_CheckReadyAndSendLoaderDataType
         bcc Tad_Init__DataTypeLoop
 
     Tad_Init__TransferLoop:
+.a8
+.i16
         jsr TadPrivate_Loader_TransferData
         bcc Tad_Init__TransferLoop
 
@@ -1627,6 +1653,8 @@ __TadProc_Loaded:
     bcc __anon9
         lda #TAD_CENTER_PAN
     __anon9:
+.a8
+.i8
     sta.l PARAMETER1_PORT
 
     ; Send play-sound-effect command
@@ -1651,6 +1679,8 @@ __TadProc_Loaded:
         .a8
         .i8
         Tad_Process__SendCommand:
+.a8
+.i8
 ; [assert] assert .asize = 8, error
 ; [assert] assert .isize = 8, error
 
@@ -1681,6 +1711,8 @@ __TadProc_Loaded:
         ora #$80
         sta TadPrivate_state
 Tad_Process__NotPauseOrPlay:
+.a8
+.i8
 
     ; Reset command queue
     lda #$ff
@@ -1690,6 +1722,8 @@ Tad_Process__NotPauseOrPlay:
             rtl
 
     Tad_Process__NotLoaded:
+.a8
+.i16
         ; Song is not loaded into Audio-RAM
 
         ; Test if state is WAITING_FOR_LOADER_* or LOADING_*
@@ -1712,6 +1746,8 @@ Tad_Process__NotPauseOrPlay:
 .i16
 ;; DB access lowram
 TadPrivate_Process_WaitingForLoader:
+.a8
+.i16
     phb
 
     ; Setting DB to access registers as it:
@@ -1738,6 +1774,8 @@ TadPrivate_Process_WaitingForLoader:
         bra TadPrivate_Process_WaitingForLoader__LoadData
 
     TadPrivate_Process_WaitingForLoader__SongData:
+.a8
+.i16
         ; Songs
 
         ; Tad_flags MUST NOT have the stereo/surround loader flag set
@@ -1809,6 +1847,8 @@ TadPrivate_Process_WaitingForLoader__LoadData:
     bcs __anon10
         ; LoadAudioData returned false
     TadPrivate_Process_WaitingForLoader__UseBlankSong:
+.a8
+.i16
         ; The blank song is a single zero byte.
         ldy #1
         lda #^(Tad_BlankSongByte)
@@ -1839,6 +1879,8 @@ TadPrivate_Process_WaitingForLoader__Return:
 .i16
 ;; DB access lowram
 TadPrivate_Process_Loading:
+.a8
+.i16
     jsr TadPrivate_Loader_TransferData
     bcc TadPrivate_Process_Loading__Return
         ; Data loaded successfully
@@ -1851,6 +1893,8 @@ TadPrivate_Process_Loading:
             bra TadPrivate_Process_Loading__EndIf
 
         TadPrivate_Process_Loading__Song:
+.a8
+.i16
             ; TadPrivate_Process_Loading__Song data was loaded into Audio-RAM
             ; Loader has finished, audio driver is now active
 
@@ -1887,6 +1931,8 @@ TadPrivate_Process_Loading__Return:
 ; DB access lowram
 Tad_FinishLoadingData:
     Tad_FinishLoadingData__Loop:
+.a8
+.i16
 ; [assert] assert .asize = 8, error
 
 ; [assert] assert TadState::NULL < TAD__FIRST_LOADING_STATE, error
@@ -2047,6 +2093,8 @@ G11_QueueHitSfx:
 ; not inferred. Padding guards the call target so it falls through to the real
 ; first instruction -- re-verify the raw bytes here if surrounding code shifts.
 Tad_LoadSong:
+.a8
+.i16
 ; [assert] assert TAD__FIRST_LOADING_SONG_STATE > TadState::NULL, error
 ; [assert] assert TAD__FIRST_LOADING_SONG_STATE > TadState::WAITING_FOR_LOADER_COMMON, error
 ; [assert] assert TAD__FIRST_LOADING_SONG_STATE > TadState::WAITING_FOR_LOADER_SONG, error
@@ -2083,6 +2131,8 @@ Tad_LoadSong:
 ; `lda #WAITING_FOR_LOADER_COMMON` was overwritten with $7C too -- i.e. this
 ; routine could not reach state $7B by any path.
 Tad_LoadSong__SongRequested:
+.a8
+.i16
     lda TadPrivate_state
     cmp #TAD__FIRST_LOADING_SONG_STATE
     bcc Tad_LoadSong__Return
@@ -2091,6 +2141,8 @@ Tad_LoadSong__SongRequested:
         lda #WAITING_FOR_LOADER_SONG
 
     Tad_LoadSong__SetStateAndSwitchToLoader:
+.a8
+.i16
         sta TadPrivate_state
 
         ; Assert it is safe to send a switch-to-loader command when the loader is waiting for a READY signal
@@ -2190,6 +2242,8 @@ Tad_SetTransferSize:
     bcc __anon12
         ldx #TAD_MAX_TRANSFER_PER_FRAME
     __anon12:
+.a8
+.i16
     cpx #TAD_MIN_TRANSFER_PER_FRAME
     bcs __anon13
         ldx #TAD_MIN_TRANSFER_PER_FRAME
@@ -2367,6 +2421,8 @@ Tad_IsSongPlaying:
 ; live workaround warning.
 
 LoadAudioData:
+.a8
+.i16
     cmp #N_DATA_ITEMS
     bcc LoadAudioData__valid
         clc
@@ -4230,6 +4286,8 @@ Anim_Play:
     beq Anim_Play__check_reselect
     bra Anim_Play__no_reselect
 Anim_Play__check_reselect:
+.a8
+.i16
     ; Live character reselect: Select button, edge-triggered (Input_trigger,
     ; not Input_press, per core/input.pasm's $4218 layout comment "B Y Sel
     ; Start U D L R | A X L R 0000" -- Select is bit13 overall = bit5 of the
@@ -4333,6 +4391,8 @@ Anim_Play__not_dead:
     bne Anim_Play__stunned_reset
     brl Anim_Play__dispatch     ; already idle -- let it keep looping, just hold
 Anim_Play__stunned_reset:
+.a8
+.i16
     stz CHAR_SELECTED
     lda #$FF
     sta CHAR_FRAME_INDEX
@@ -4340,6 +4400,8 @@ Anim_Play__stunned_reset:
     sta CHAR_TICK_COUNTER
     brl Anim_Play__dispatch
 Anim_Play__not_stunned:
+.a8
+.i16
     ; plan_game.md 7 (grab mutual-lock slice): grab state overrides the
     ; "already attacking -- let it finish" latch below, on BOTH sides of a
     ; grab, same priority as the hit-stun check above:
@@ -4433,6 +4495,8 @@ Anim_Play__not_riseattack_check:
 Anim_Play__reacting:
     brl Anim_Play__dispatch
 Anim_Play__check_attack_trigger:
+.a8
+.i16
     ; --- plan.md Phase 3: route animation-selection by movement source
     ; instead of always reading the real controller -- CHAR_INPUT_DRIVEN
     ; wasn't checked here before this phase, which meant every entity
@@ -4537,12 +4601,16 @@ Anim_Play__no_attack2_trigger:
     sta CHAR_TICK_COUNTER
     brl Anim_Play__dispatch
 Anim_Play__no_attack_trigger:
+.a8
+.i16
     lda.l Input_press+1
     and #$03
     brl Anim_Play__want_idle
     lda #1
     brl Anim_Play__want_got
 Anim_Play__want_idle:
+.a8
+.i16
     lda #0
     brl Anim_Play__want_got
     ; --- mode 2: AI seek (plan.md Phase 3) -- walk toward Entity #0
@@ -4627,6 +4695,8 @@ Anim_Play__ai_dx_playerge:
     sec
     sbc CHAR_POS_X
 Anim_Play__ai_dx_have:
+.a16
+.i16
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Anim_Play__ai_dx_close
     sep #$20
@@ -4647,6 +4717,8 @@ Anim_Play__ai_dy_playerge:
     sec
     sbc CHAR_POS_Y
 Anim_Play__ai_dy_have:
+.a8
+.i16
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Anim_Play__ai_attack
     lda #1
@@ -4695,6 +4767,8 @@ Anim_Play__ai_attack_selected:
     sta CHAR_TICK_COUNTER
     brl Anim_Play__dispatch
 Anim_Play__want_got:
+.a8
+.i16
     cmp CHAR_SELECTED
     beq Anim_Play__dispatch
     sta CHAR_SELECTED
@@ -4937,6 +5011,8 @@ Anim_Play_Attack__not_busy:
     beq Anim_Play_Attack__advance
     brl Anim_Done   ; too far for an 8-bit bne from here
 Anim_Play_Attack__advance:
+.a8
+.i16
     ; plan_game.md 7 (G7 remaining, "attack2"): CHAR_ATTACK_VARIANT selects
     ; which of the two independent frame-count/delay/base field sets this
     ; attack cycle reads -- set once, at trigger time (Anim_Play__player_
@@ -5899,6 +5975,8 @@ Character_PlayFrame__x_check_stun:
     beq Character_PlayFrame__not_stunned_x
     brl Character_PlayFrame__hold
 Character_PlayFrame__not_stunned_x:
+.a8
+.i16
     lda CHAR_INPUT_DRIVEN
     cmp #1
     beq Character_PlayFrame__dpad_x
@@ -5906,6 +5984,8 @@ Character_PlayFrame__not_stunned_x:
     beq Character_PlayFrame__ai_x
     brl Character_PlayFrame__hold
 Character_PlayFrame__dpad_x:
+.a8
+.i16
     lda.l Input_press+1
     and #$03
     bne Character_PlayFrame__dpad_x_have
@@ -6093,6 +6173,8 @@ Character_PlayFrame__y_check_stun:
     beq Character_PlayFrame__not_stunned_y
     brl Character_PlayFrame__hold_y
 Character_PlayFrame__not_stunned_y:
+.a8
+.i16
     lda CHAR_INPUT_DRIVEN
     cmp #1
     beq Character_PlayFrame__dpad_y
@@ -6100,6 +6182,8 @@ Character_PlayFrame__not_stunned_y:
     beq Character_PlayFrame__ai_y
     brl Character_PlayFrame__hold_y
 Character_PlayFrame__dpad_y:
+.a8
+.i16
     lda.l Input_press+1
     and #$0C
     beq Character_PlayFrame__hold_y
@@ -6108,6 +6192,8 @@ Character_PlayFrame__dpad_y:
     beq Character_PlayFrame__down
     bra Character_PlayFrame__up
 Character_PlayFrame__ai_y:
+.a8
+.i16
     ; Same distance-recompute fix as __ai_x -- see its comment.
     lda.l G13_AiTargetY
     cmp CHAR_POS_Y
@@ -6120,12 +6206,16 @@ Character_PlayFrame__ai_y:
     bcc Character_PlayFrame__hold_y
     bra Character_PlayFrame__up    ; player is above -- reuse __up
 Character_PlayFrame__ai_y_playerge:
+.a8
+.i16
     sec
     sbc CHAR_POS_Y
     cmp #ANIM_AI_ATTACK_RANGE+1
     bcc Character_PlayFrame__hold_y
     bra Character_PlayFrame__down  ; player is below -- reuse __down
 Character_PlayFrame__down:
+.a8
+.i16
     lda CHAR_POS_Y
     clc
     adc #PLAYER_SPEED
@@ -6156,6 +6246,8 @@ Character_PlayFrame__down_clampcheck:
     lda #PLAYER_MAX_Y
     bra Character_PlayFrame__store_y
 Character_PlayFrame__up:
+.a8
+.i16
     lda CHAR_POS_Y
     sec
     sbc #PLAYER_SPEED
@@ -6307,6 +6399,8 @@ Character_PlayFrame__hi_xlow:
 .a8
     lda #$02
 Character_PlayFrame__hi_store:
+.a8
+.i16
     sta.l OamSetSprite_Hi
     ; --- Damage system: a dead AI entity or prop's sprite is hidden the
     ; same way the OAM layer already understands a slot as "clean" -- Y=$F0,
@@ -6615,6 +6709,8 @@ Character_HitApply_VsEntity1__dx_otherge:
     sec
     sbc CHAR_POS_X
 Character_HitApply_VsEntity1__dx_have:
+.a16
+.i16
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsEntity1__dx_ok
     rts                     ; no overlap on X
@@ -6632,10 +6728,14 @@ Character_HitApply_VsEntity1__dy_otherge:
     sec
     sbc CHAR_POS_Y
 Character_HitApply_VsEntity1__dy_have:
+.a8
+.i16
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsEntity1__dy_ok
     rts                     ; no overlap on Y
 Character_HitApply_VsEntity1__dy_ok:
+.a8
+.i16
     ; Damage system: a dead target (HP already 0) takes no further stun or
     ; damage -- HP==0 is a sticky terminal state, not just a display floor.
     ; See Anim_Play's own dead check for the rest of the reaction (AI stops
@@ -6714,6 +6814,8 @@ Character_HitApply_VsEntity2__dx_otherge:
     sec
     sbc CHAR_POS_X
 Character_HitApply_VsEntity2__dx_have:
+.a16
+.i16
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsEntity2__dx_ok
     rts                     ; no overlap on X
@@ -6731,10 +6833,14 @@ Character_HitApply_VsEntity2__dy_otherge:
     sec
     sbc CHAR_POS_Y
 Character_HitApply_VsEntity2__dy_have:
+.a8
+.i16
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsEntity2__dy_ok
     rts                     ; no overlap on Y
 Character_HitApply_VsEntity2__dy_ok:
+.a8
+.i16
     ; Damage system: same dead-target skip as VsEntity1 -- see its comment.
     lda.l Entity2_Hp
     beq Character_HitApply_VsEntity2__dead_skip
@@ -6785,6 +6891,8 @@ Character_HitApply_VsEntity3__dx_otherge:
     sec
     sbc CHAR_POS_X
 Character_HitApply_VsEntity3__dx_have:
+.a16
+.i16
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsEntity3__dx_ok
     rts                     ; no overlap on X
@@ -6802,10 +6910,14 @@ Character_HitApply_VsEntity3__dy_otherge:
     sec
     sbc CHAR_POS_Y
 Character_HitApply_VsEntity3__dy_have:
+.a8
+.i16
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsEntity3__dy_ok
     rts                     ; no overlap on Y
 Character_HitApply_VsEntity3__dy_ok:
+.a8
+.i16
     ; Damage system: same dead-target skip as VsEntity1 -- see its comment.
     lda.l Entity3_Hp
     beq Character_HitApply_VsEntity3__dead_skip
@@ -6864,6 +6976,8 @@ Character_HitApply_VsPlayer__dx_otherge:
     sec
     sbc CHAR_POS_X
 Character_HitApply_VsPlayer__dx_have:
+.a16
+.i16
     cmp #CHAR_HITBOX_W
     bcc Character_HitApply_VsPlayer__dx_ok
     rts                     ; no overlap on X
@@ -6881,6 +6995,8 @@ Character_HitApply_VsPlayer__dy_otherge:
     sec
     sbc CHAR_POS_Y
 Character_HitApply_VsPlayer__dy_have:
+.a8
+.i16
     cmp #CHAR_HITBOX_H
     bcc Character_HitApply_VsPlayer__dy_ok
     rts                     ; no overlap on Y
@@ -6946,6 +7062,8 @@ Character_HitApply_VsPlayer__not_invuln:
     bcs Character_HitApply_VsPlayer__hp_ok
     lda #0
 Character_HitApply_VsPlayer__hp_ok:
+.a8
+.i16
     jsl HudOpponentHost_StorePlayerHp
     lda #1
     sta CHAR_HIT_APPLIED
@@ -8053,6 +8171,8 @@ CharacterEntity_Init__role3:
     clc
     adc #28
 CharacterEntity_Init__role3_lower_tile:
+.a8
+.i16
     sta CHAR_TILE_COLUMN
     lda #120                        ; [120,152) x [40,104) -- clear of the
     sta CHAR_POS_X                  ; player's [120,152) x [150,214) (same
@@ -8374,6 +8494,8 @@ CharacterEntity_OnCommand:
     clc
     rts
 CharacterEntity_OnCommand__camera:
+.a16
+.i16
     ; No jump/airborne state on this entity -- always report grounded, which
     ; keeps Y-axis camera easing live (see screen.pasm's header on why
     ; SCREEN_MODE_AIRBORNE freezes it). Harmless since Y never scrolls here.
@@ -8983,6 +9105,8 @@ Bg_LoadScene_Streaming__row_no_hflip:
     ora #$8000
     sta StreamStage_Word
 Bg_LoadScene_Streaming__row_no_vflip:
+.a16
+.i16
 
     ; --- write to VRAM tilemap: word = BG1_TILEMAP_VRAM_WORD + col + row*32
     ; (page A only -- col is always < 32 in this boot-only load) ---
@@ -9030,6 +9154,8 @@ Bg_LoadScene_Streaming__row_no_vflip:
     beq Bg_LoadScene_Streaming__row_done
     brl Bg_LoadScene_Streaming__row_loop
 Bg_LoadScene_Streaming__row_done:
+.a16
+.i16
 
     ; --- column done: advance to the next one ---
     lda StreamStage_ColIndex
@@ -9575,6 +9701,8 @@ Bg_LoadSceneFp_Streaming__row_no_hflip:
     ora #$8000
     sta StreamStageFp_Word
 Bg_LoadSceneFp_Streaming__row_no_vflip:
+.a16
+.i16
 
     ; --- priority bit: same as HUD_ENTRY_HIGH -- renders this FP tile above
     ; OBJ under BGMODE's BG3-priority bit (see this routine's header). ---
@@ -9636,6 +9764,8 @@ Bg_LoadSceneFp_Streaming__row_no_vflip:
     beq Bg_LoadSceneFp_Streaming__row_done
     brl Bg_LoadSceneFp_Streaming__row_loop
 Bg_LoadSceneFp_Streaming__row_done:
+.a16
+.i16
 
     ; --- column done: advance to the next one ---
     lda StreamStageFp_ColIndex
@@ -9981,6 +10111,8 @@ Core_StreamScroll_PickColumn:
     bcs Core_StreamScroll_PickColumn__lo_ok
     lda #0
 Core_StreamScroll_PickColumn__lo_ok:
+.a16
+.i16
     sta StreamScroll_DesiredLo
 
     ; NEWLY FOUND POPPY BUG (add to poppy_assembler_bugs.md): a single `adc
@@ -10302,6 +10434,8 @@ Core_StreamScroll_ResolveRows__no_vflip:
     sta StreamScroll_PendTile
     brl Core_StreamScroll_ResolveRows__row
 Core_StreamScroll_ResolveRows__commit:
+.a16
+.i16
     ; every row resolved -- hand ColBuf (2*height_tiles bytes) off to
     ; Core_Nmi_Play's forced-blank column-write block, which writes it into
     ; VRAM at its ring position via direct $2116/$2118/$2119 port writes (NOT
@@ -10316,6 +10450,8 @@ Core_StreamScroll_ResolveRows__commit:
     sec                                ; NMI hasn't drained the previous
     rts                                ; column yet -- retry this commit later,
 Core_StreamScroll_ResolveRows__col_free:
+.a16
+.i16
     lda StreamScroll_PendCol
     and #$3F
     sta StreamScroll_ProdHi          ; reuse: vram_col scratch, done with the
@@ -10328,6 +10464,8 @@ Core_StreamScroll_ResolveRows__col_free:
     adc #BG1_TILEMAP_VRAM_WORD+1024  ; page B base
     bra Core_StreamScroll_ResolveRows__page_done
 Core_StreamScroll_ResolveRows__page_a:
+.a16
+.i16
     lda StreamScroll_ProdHi
     clc
     adc #BG1_TILEMAP_VRAM_WORD
@@ -10372,6 +10510,8 @@ Core_StreamScroll_ResolveRows__committed:
     adc #63
     sta StreamScroll_StagedHi
 Core_StreamScroll_ResolveRows__not_new_lo:
+.a16
+.i16
     lda StreamScroll_PendCol
     cmp StreamScroll_StagedHi
     bcc Core_StreamScroll_ResolveRows__not_new_hi
@@ -10910,6 +11050,8 @@ Core_StreamScrollFp_ResolveRows:
 .a16
 .i16
 Core_StreamScrollFp_ResolveRows__row:
+.a16
+.i16
     lda StreamScrollFp_PendTile
     cmp #FP_CONTENT_ROW_COUNT
     bcc Core_StreamScrollFp_ResolveRows__have_row
@@ -11038,6 +11180,8 @@ Core_StreamScrollFp_ResolveRows__enqueued:
 Core_StreamScrollFp_ResolveRows__hit:
     sta StreamStageFp_Slot
 Core_StreamScrollFp_ResolveRows__resolved:
+.a16
+.i16
 
     ; --- build the remapped hw tilemap word -- identical bit layout to
     ; Bg_LoadSceneFp_Streaming's row loop, INCLUDING FP_TILE_INDEX_BASE
@@ -11097,6 +11241,8 @@ Core_StreamScrollFp_ResolveRows__no_hflip:
     ora #$8000
     sta StreamStageFp_Word
 Core_StreamScrollFp_ResolveRows__no_vflip:
+.a16
+.i16
 
     ; --- priority bit: always set, unconditionally -- every frontpanel
     ; tile needs it (unlike BG1, which never sets it at all), same
@@ -11117,6 +11263,8 @@ Core_StreamScrollFp_ResolveRows__no_vflip:
     sta StreamScrollFp_PendTile
     brl Core_StreamScrollFp_ResolveRows__row
 Core_StreamScrollFp_ResolveRows__commit:
+.a16
+.i16
     ; every row resolved -- hand ColBuf off to Core_Nmi_Play's forced-blank
     ; column-write block (Core_StreamScrollFp_CommitColumn), same direct-
     ; port-write handoff BG1 uses and for the same reason (see
@@ -11129,6 +11277,8 @@ Core_StreamScrollFp_ResolveRows__commit:
     sec                                ; NMI hasn't drained the previous
     rts                                ; column yet -- retry this commit later
 Core_StreamScrollFp_ResolveRows__col_free:
+.a16
+.i16
     lda StreamScrollFp_PendCol
     and #$001F
     clc
@@ -11165,6 +11315,8 @@ Core_StreamScrollFp_ResolveRows__col_free:
     sta StreamScrollFp_StagedHi
     brl Core_StreamScrollFp_ResolveRows__window_done
 Core_StreamScrollFp_ResolveRows__not_below:
+.a16
+.i16
     lda StreamScrollFp_PendCol
     cmp StreamScrollFp_StagedHi
     bcc Core_StreamScrollFp_ResolveRows__window_done
@@ -11173,6 +11325,8 @@ Core_StreamScrollFp_ResolveRows__not_below:
     sbc #(STREAM_STAGE_VIEWPORT_COLS-1)
     sta StreamScrollFp_StagedLo
 Core_StreamScrollFp_ResolveRows__window_done:
+.a16
+.i16
 
     lda #$FFFF
     sta StreamScrollFp_PendCol
@@ -11683,12 +11837,16 @@ scpu_boot:
 
     ; Wait for data busy ($2000 bit 7) to clear
 msu1_busy_loop:
+.a8
+.i16
     lda $2000
     bmi msu1_busy_loop
 
     ; Read 46 bytes from MSU_DATA ($2001) to WRAM $7E:0300
     ldx #$0000
 msu1_read_loop:
+.a8
+.i16
     lda $2001               ; read byte from MSU-1 data stream
     sta.l $7E0300,x         ; store in WRAM $7E:0300
     inx
@@ -11704,6 +11862,8 @@ msu1_read_loop:
     bra msu1_done
 
 msu1_missing:
+.a8
+.i16
     lda #0
     sta.l $7E0330           ; MSU-1 success flag = 0 (stz has no long addr mode; see poppy bug #2)
 
@@ -11947,6 +12107,8 @@ Boot_SetPlayfieldBorder__streaming:
     asl a                        ; tiles -> pixels (*8)
     tay
 Boot_SetPlayfieldBorder__go:
+.a16
+.i16
     lda #0
     ldx #0
     jsr Core_Screen_SetPlayfieldBorder
@@ -12008,6 +12170,8 @@ Boot_SetPlayfieldBorder__go:
 
     ldx #$2100
 scpu_clear_ppu:
+.a16
+.i16
     stz $00,x
     inx
     cpx #$2140
@@ -12390,6 +12554,8 @@ scpu_boot__bg1sc_wide:
 .a8
     lda #$61
 scpu_boot__bg1sc_done:
+.a8
+.i16
     sta.l Nmi_Bg1TilemapVram
 
     lda #$68             ; BG3SC: tilemap at word $6800 (Phase 8: moved from
@@ -12759,6 +12925,8 @@ Tad_StreamServiceFootdie__not_serial:
     bne Tad_StreamServiceFootdie__pending
     brl Tad_StreamServiceFootdie__ready
 Tad_StreamServiceFootdie__pending:
+.a8
+.i16
     lda.l TadPrivate_stream_arm_phase
     beq Tad_StreamServiceFootdie__await_ack
     cmp #1
@@ -12864,6 +13032,8 @@ Tad_StreamServiceFootdie__ready_allowed:
     cmp #8
     bcs Tad_StreamServiceFootdie__return16
 Tad_StreamServiceFootdie__consume_budget:
+.a16
+.i16
     ; A consumer ahead of the acknowledged producer is an underfilled ring,
     ; not an unsigned lead of $ffff.  Only a real lead of eight chunks stalls
     ; production; otherwise reload the byte budget before consuming a payload.
@@ -12905,6 +13075,8 @@ TestSprite_WriteSolidTile:
     ldx #8
     lda #$00FF
 TestSprite_WriteSolidTile__plane01:
+.a16
+.i16
     sta.l $002118
     dex
     bne TestSprite_WriteSolidTile__plane01
@@ -12963,6 +13135,8 @@ Tad_StreamSendFootdieFrame__store_destination:
 Tad_StreamSendFootdieFrame__normal_destination:
     pla
 Tad_StreamSendFootdieFrame__write_destination_high:
+.a8
+.i16
     sta.l PARAMETER1_PORT
     ; Clear APUIO3 before dispatch. The submit row publishes the marker after
     ; the command is accepted, while APUIO0 remains the stable stream command.

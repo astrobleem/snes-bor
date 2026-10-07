@@ -180,6 +180,8 @@ Core_Math_Div:
 
 Core_Math_Div__has_divisor:
 Core_Math_Div__normalize_loop:
+.a16
+.i16
 	asl a
 	bcs Core_Math_Div__normalized
 	iny

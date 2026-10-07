@@ -369,6 +369,8 @@ Core_Screen__SetTargetPosition__single:
 	rts
 
 Core_Screen__SetTargetPosition__has_focus:
+.a16
+.i16
 	stz.w OopCall_Param_Lo
 	lda #SCREEN_CMD_GET_CAMERA_DATA
 	sta OopCall_CommandId
@@ -383,6 +385,8 @@ Core_Screen__SetTargetPosition__has_focus:
 	rts
 
 Core_Screen__SetTargetPosition__handled:
+.a16
+.i16
 	sta Screen_Mode
 
 	lda Screen_SizeX
@@ -394,6 +398,8 @@ Core_Screen__SetTargetPosition__handled:
 	bcs Core_Screen__SetTargetPosition__x_ok
 		lda #0
 Core_Screen__SetTargetPosition__x_ok:
+.a16
+.i16
 	sta Screen_TargetX
 
 	lda Screen_SizeY
@@ -413,6 +419,8 @@ Core_Screen__SetTargetPosition__y_ok:
 ; adds `a` (16-bit step magnitude, bits 0-7 -> fraction, bits 8-15 ->
 ; integer) to (Screen_PosXFrac,Screen_PosX) as a 24-bit fixed-point value.
 Core_Screen__AddStepX:
+.a16
+.i16
 	pha
 	and #$00ff
 	sep #$20
@@ -432,6 +440,8 @@ Core_Screen__AddStepX:
 	rts
 
 Core_Screen__SubStepX:
+.a16
+.i16
 	pha
 	and #$00ff
 	sep #$20
@@ -453,6 +463,8 @@ Core_Screen__SubStepX:
 	rts
 
 Core_Screen__AddStepY:
+.a16
+.i16
 	pha
 	and #$00ff
 	sep #$20
@@ -472,6 +484,8 @@ Core_Screen__AddStepY:
 	rts
 
 Core_Screen__SubStepY:
+.a16
+.i16
 	pha
 	and #$00ff
 	sep #$20
@@ -496,6 +510,8 @@ Core_Screen__SubStepY:
 ; @return a<16-bit>  step magnitude — x axis always follows regardless of
 ;                     grounded/airborne (see header note)
 Core_Screen__LutLookupX:
+.a16
+.i16
 	asl a
 	cmp #ScreenMoveLutEnd-ScreenMoveLut
 	bcc Core_Screen__LutLookupX__inrange
@@ -508,6 +524,8 @@ Core_Screen__LutLookupX__inrange:
 ; @param a<16-bit>  distance (already non-negative)
 ; @return a<16-bit>  step magnitude — y axis freezes (0) while airborne
 Core_Screen__LutLookupY:
+.a16
+.i16
 	sta Screen__LutDistance
 	lda Screen_Mode
 	cmp #SCREEN_MODE_AIRBORNE
@@ -524,6 +542,8 @@ Core_Screen__LutLookupY__grounded_inrange:
 	rts
 
 Core_Screen__LutLookupY__airborne:
+.a16
+.i16
 	lda Screen__LutDistance
 	asl a
 	cmp #ScreenMoveAirborneLutEnd-ScreenMoveAirborneLut
@@ -542,6 +562,8 @@ Core_Screen__EaseX:
 	jmp Core_Screen__AddStepX
 
 Core_Screen__EaseX__negative:
+.a16
+.i16
 	eor #$ffff
 	inc a
 	jsr Core_Screen__LutLookupX
@@ -555,6 +577,8 @@ Core_Screen__EaseY:
 	jmp Core_Screen__AddStepY
 
 Core_Screen__EaseY__negative:
+.a16
+.i16
 	eor #$ffff
 	inc a
 	jsr Core_Screen__LutLookupY

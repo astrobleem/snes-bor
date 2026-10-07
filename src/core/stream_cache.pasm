@@ -146,6 +146,8 @@ Core_StreamCache_Init:
 	lda #$FFFF
 	ldx #0
 Core_StreamCache_Init__tile2slot:
+.a16
+.i16
 	sta.l StreamCache_Tile2Slot,x
 	inx
 	inx
@@ -155,6 +157,8 @@ Core_StreamCache_Init__tile2slot:
 	lda #$FFFF
 	ldx #0
 Core_StreamCache_Init__slot2tile:
+.a16
+.i16
 	sta.l StreamCache_Slot2Tile,x
 	inx
 	inx
@@ -222,6 +226,8 @@ Core_StreamCache_AllocateSlot:
 	sec
 	sbc #STREAM_CACHE_USABLE
 Core_StreamCache_AllocateSlot__cursor_ok:
+.a16
+.i16
 	sta StreamCache_ScanCursor
 
 	ldy #0                          ; scan counter
@@ -290,6 +296,8 @@ Core_StreamCache_AllocateSlot__advance:
 	bcc Core_StreamCache_AllocateSlot__advance_ok
 	lda #1
 Core_StreamCache_AllocateSlot__advance_ok:
+.a16
+.i16
 	sta StreamCache_Candidate
 
 	iny
@@ -503,6 +511,8 @@ Core_StreamCache_Test:
 	lda #0
 	sta StreamCache_Test_Index
 Core_StreamCache_Test__loop:
+.a16
+.i16
 	lda StreamCache_Test_Index
 	tax                              ; tile_id = loop index (0..7)
 	jsr Core_StreamCache_AllocateSlot

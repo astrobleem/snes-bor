@@ -70,6 +70,8 @@ Core_Wram_Init:
 .a8
 	ldx #0
 Core_Wram_Init__clear_blocks:
+.a8
+.i16
 	; STZ has no long addressing mode on 65816; `.l` on it doesn't error, it
 	; silently emits a malformed instruction (confirmed by isolated repro —
 	; see core/dma_channel.pasm's header note). lda #0 / sta.l is correct.
@@ -102,6 +104,8 @@ WramAlloc_RunStart_Lo = $04F2
 .a16
 	ldx #0
 Core_Wram_Init__clear_buffer:
+.a16
+.i16
 	lda #0
 	sta.l WramBuffer,x
 	inx
@@ -129,6 +133,8 @@ Core_Wram_Allocate:
 	jsr Core_Error_Handler
 
 Core_Wram_Allocate__valid_length:
+.a16
+.i16
 	; blocksNeeded = (x >> 8) + (1 if low byte nonzero else 0)
 	txa
 	xba
@@ -172,6 +178,8 @@ Core_Wram_Allocate__run_broken:
 	sta WramAlloc_RunStart
 
 Core_Wram_Allocate__scan_next:
+.a8
+.i8
 	inx
 	cpx #WRAM_ALLOCATION_BLOCKS
 	bcc Core_Wram_Allocate__scan
@@ -229,6 +237,8 @@ Core_Wram_Deallocate:
 .a8
 	ldx #0
 Core_Wram_Deallocate__scan:
+.a8
+.i16
 	cmp.l WramAlloc_Blocks,x
 	bne Core_Wram_Deallocate__next
 	; STZ has no long addressing mode on 65816 (see core/dma_channel.pasm's
@@ -240,6 +250,8 @@ Core_Wram_Deallocate__scan:
 	sta.l WramAlloc_Blocks,x
 	pla
 Core_Wram_Deallocate__next:
+.a8
+.i16
 	inx
 	cpx #WRAM_ALLOCATION_BLOCKS
 	bcc Core_Wram_Deallocate__scan

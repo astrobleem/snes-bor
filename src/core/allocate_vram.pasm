@@ -74,6 +74,8 @@ Core_Vram_Init:
 .i16
 	ldx #0
 Core_Vram_Init__clear_blocks:
+.a8
+.i16
 	; STZ has no long addressing mode on 65816 — `.l` on it doesn't error
 	; here, it silently emits a malformed encoding (confirmed by isolated
 	; repro — see core/dma_channel.pasm's header note). lda #0 / sta.l is
@@ -125,12 +127,16 @@ Core_Vram_Allocate:
 	jsr Core_Error_Handler
 
 Core_Vram_Allocate__step_min_ok:
+.a16
+.i16
 	cmp #VRAM_ALLOCATION_STEP_MAX + 1
 	bcc Core_Vram_Allocate__step_ok
 	pea Error_VallocBadStepsize
 	jsr Core_Error_Handler
 
 Core_Vram_Allocate__step_ok:
+.a16
+.i16
 	sta VramAlloc_Stepsize
 
 	cpx #0
@@ -177,6 +183,8 @@ Core_Vram_Allocate__seek:
 	rts
 
 Core_Vram_Allocate__advance_inrange:
+.a16
+.i16
 	sta VramAlloc_Start
 	lsr a
 	lsr a
@@ -207,6 +215,8 @@ Core_Vram_Allocate__block_free:
 	rts
 
 Core_Vram_Allocate__block_inrange:
+.a16
+.i16
 	lda VramAlloc_NeedBytes
 	sec
 	sbc #VRAM_ALLOCATION_BLOCKSIZE
@@ -216,6 +226,8 @@ Core_Vram_Allocate__block_inrange:
 	; fallthrough: needed fewer bytes than a full block — already satisfied
 
 Core_Vram_Allocate__found:
+.a16
+.i16
 	; blocksToMark = ceil(Length / VRAM_ALLOCATION_BLOCKSIZE)
 	lda VramAlloc_Length
 	clc
@@ -275,6 +287,8 @@ Core_Vram_Deallocate:
 .i16
 	ldx #0
 Core_Vram_Deallocate__scan:
+.a8
+.i16
 	cmp.l VramAlloc_Blocks,x
 	bne Core_Vram_Deallocate__next
 	; STZ has no long addressing mode on 65816 (see core/dma_channel.pasm's
@@ -286,6 +300,8 @@ Core_Vram_Deallocate__scan:
 	sta.l VramAlloc_Blocks,x
 	pla
 Core_Vram_Deallocate__next:
+.a8
+.i16
 	inx
 	cpx #VRAM_ALLOCATION_BLOCKS
 	bcc Core_Vram_Deallocate__scan

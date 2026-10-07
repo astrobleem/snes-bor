@@ -72,6 +72,8 @@ Core_Cgram_Init:
 .i16
 	ldx #0
 Core_Cgram_Init__clear_blocks:
+.a8
+.i16
 	; STZ has no long addressing mode on 65816 — `.l` on it doesn't error
 	; here, it silently emits a malformed encoding (confirmed by isolated
 	; repro — see core/dma_channel.pasm's header note). lda #0 / sta.l is
@@ -123,12 +125,16 @@ Core_Cgram_Allocate:
 	jsr Core_Error_Handler
 
 Core_Cgram_Allocate__step_min_ok:
+.a16
+.i16
 	cmp #CGRAM_ALLOCATION_STEP_MAX + 1
 	bcc Core_Cgram_Allocate__step_ok
 	pea Error_CGallocBadStepsize
 	jsr Core_Error_Handler
 
 Core_Cgram_Allocate__step_ok:
+.a16
+.i16
 	sta CgramAlloc_Stepsize
 	; max.length = stepsize * 8 (three left shifts)
 	asl a
@@ -142,6 +148,8 @@ Core_Cgram_Allocate__step_ok:
 	jsr Core_Error_Handler
 
 Core_Cgram_Allocate__valid_length:
+.a16
+.i16
 	stx.w CgramAlloc_Length_Lo
 	stx.w CgramAlloc_NeedBytes_Lo
 
@@ -202,6 +210,8 @@ Core_Cgram_Allocate__block_free:
 	rts
 
 Core_Cgram_Allocate__block_inrange:
+.a16
+.i16
 	lda CgramAlloc_NeedBytes
 	sec
 	sbc #CGRAM_ALLOCATION_BLOCKSIZE
@@ -227,6 +237,8 @@ Core_Cgram_Allocate__found:
 	rts
 
 Core_Cgram_Allocate__bound_ok:
+.a16
+.i16
 	; blocksToMark = ceil(Length / CGRAM_ALLOCATION_BLOCKSIZE)
 	lda CgramAlloc_Length
 	clc
@@ -278,6 +290,8 @@ Core_Cgram_Deallocate:
 .i16
 	ldx #0
 Core_Cgram_Deallocate__scan:
+.a8
+.i16
 	cmp.l CgramAlloc_Blocks,x
 	bne Core_Cgram_Deallocate__next
 	; STZ has no long addressing mode on 65816 (see core/dma_channel.pasm's
@@ -289,6 +303,8 @@ Core_Cgram_Deallocate__scan:
 	sta.l CgramAlloc_Blocks,x
 	pla
 Core_Cgram_Deallocate__next:
+.a8
+.i16
 	inx
 	cpx #CGRAM_ALLOCATION_BLOCKS
 	bcc Core_Cgram_Deallocate__scan
