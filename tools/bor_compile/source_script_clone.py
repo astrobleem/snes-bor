@@ -30,9 +30,9 @@ def derive(source):
   program=callbacks['models'][i]['program']
   if m['inline_scripts']:mask=1
   if bool(mask)!=(program!=0xffff):raise ValueError('SOURCE_SCRIPT_CLONE_CALLBACK_PAIR:'+m['declaration'])
-  rows.append(dict(id=i,identity=m['declaration'],source_sha256=d['sha256'],scripts=scripts,initialized_mask=mask,inline_blocks=len(m['inline_scripts']),callback_program=program))
+  rows.append(dict(id=i,identity=m['declaration'],source_sha256=d['sha256'],scripts=scripts,initialized_mask=mask,inline_blocks=len(m['inline_scripts']),callback_program=program,update_method_initialized=False))
  if not 1<=len(rows)<=16:raise ValueError('SOURCE_SCRIPT_CLONE_MODEL_CAPACITY')
- return dict(schema='BYOR_4086_SCRIPT_CLONE_NO_ENTRIES_V1',engine_commit=ENGINE_COMMIT,models=rows,callback_table_sha256=hashlib.sha256(data).hexdigest(),callback_table_crc32=zlib.crc32(data)&0xffffffff,policy='constructor clears entity-owned named values while retaining names; then clones admitted shared animation program with initialized bit and interpreterowner=0; no init/clear entry exists',relation_initialized_offset=44,animation_variable_scope=1,script_instance_pointer_policy='stable entity token plus scope, shared immutable B4CO program identity',indexed_variable_api_admitted=False,native_constructor_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
+ return dict(schema='BYOR_4086_SCRIPT_CLONE_NO_ENTRIES_V1',engine_commit=ENGINE_COMMIT,models=rows,callback_table_sha256=hashlib.sha256(data).hexdigest(),callback_table_crc32=zlib.crc32(data)&0xffffffff,policy='constructor clears entity-owned named values while retaining names; then clones admitted shared animation program with initialized bit and interpreterowner=0; no init/clear entry exists',relation_initialized_offset=44,animation_variable_scope=1,script_instance_pointer_policy='stable entity token plus scope, shared immutable B4CO program identity',update_method_policy='uninitialized by closed animation-only method admission; initialized update methods fail compilation',indexed_variable_api_admitted=False,native_constructor_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
 
 def pack(report):
  body=bytearray()

@@ -1,0 +1,38 @@
+{
+  "schema": "BYOR_MOTU_UPDATE_METHOD_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-update-script-native/report.json",
+      "sha256": "dd1437bbe0bf4389a51bdbed8e3a6b8d2899bc2190d68d333ca57f3a9b0dc36a",
+      "rom_sha256": "5eae608898dadf6e107df37d759b43733104a9efedfb53b6a1d82990ec5cce75",
+      "cases": 118
+    },
+    {
+      "path": "out/byor-motu-world-update-method-native/report.json",
+      "sha256": "ada86824f7f8147cddfb169bd493821652442c85096e5ee52d0d542ab1ce9da1",
+      "rom_sha256": "3422b46ef511186925bffc5d616a0e55484ef49bf98a33a5b1635b4fc3370d0a",
+      "cases": 406
+    }
+  ],
+  "world_update_method_calls": 742,
+  "policy": "B5SC v1 compiler admits only animation script methods; initialized update methods explicitly rejected",
+  "checks": [
+    "Every authored model paired with immutable animation program descriptor",
+    "Full DWORD script instance mask equals compiled row",
+    "Current tick owner, epoch, self and alive entity checked",
+    "No entity/variable/global self mutation by absent method",
+    "Early owner acknowledgement rejected",
+    "Closed no-update method traversal excludes instrumentation-only service-5 kills",
+    "All 17 protected files retain original byte fingerprints",
+    "ROM audit ALL CHECKS PASS"
+  ],
+  "bank0_growth": 0,
+  "nonclaims": [
+    "Initialized entity update script execution unbound",
+    "AI/animation/attack/health/post-update still instrumented",
+    "No moving lossless presentation or actual MOTU candidate",
+    "No real combat or full Demo completion"
+  ],
+  "no_color_reduction": true
+}
