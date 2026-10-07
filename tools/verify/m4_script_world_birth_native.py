@@ -26,6 +26,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True)
     p.add_argument('--registry',type=Path,required=True);p.add_argument('--birth-templates',type=Path,required=True)
     p.add_argument('--frame-aux',action='store_true',help='Lease and verify auxiliary update_frame state during birth')
+    p.add_argument('--ai-state-birth',action='store_true',help='Verify distinct AI row reset before alive publication and preserve sibling/rejected state.')
     p.add_argument('--birth-core',type=Path,help='Paired B4BI physical core/flags/relation augmentation')
     p.add_argument('--lifecycle',type=Path,help='Paired B4LI current-model scalars at physical birth')
     p.add_argument('--case',action='append',help='Run only these bounded native probe names.')
@@ -106,6 +107,14 @@ emu.addMemoryCallback(function()
  emu.log('BIRTHLIFEPUBLISH|'..slot..'|'..word(base+16)..'|'..word(base+18)..'|'..word(base+74)..'|'..word(0x414004+slot*80))
 end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
 '''.replace('LIFEREADY',str(syms['SourceLifecycle4086_Ready'])).replace('BIRTHSLOT',str(syms['SourceBirthCore4086_Slot'])).replace('PUBLISHADDRESS',str(syms['Vm_SourceWorldSpawn__core_published'])))
+    if a.ai_state_birth:
+        with (a.output/'vm_cost.lua').open('a')as f:
+            f.write('''
+emu.addMemoryCallback(function()
+ local slot=word(BIRTHSLOT);local cleared=0;for j=0,23 do cleared=cleared+emu.read(0x42f400+slot*24+j,mt)end
+ emu.log('WORLDBIRTHAI|'..slot..'|'..cleared..'|'..word(0x414004+slot*80))
+end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
+'''.replace('BIRTHSLOT',str(syms['SourceBirthCore4086_Slot'])).replace('PUBLISHADDRESS',str(syms['Vm_SourceWorldSpawn__ai_state_published'])))
     with session(rom=rom,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=a.output/'mesen.log') as m:
         with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
@@ -148,6 +157,7 @@ end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
                 if name=='life_paired':m.write_u16(syms['SourceLifecycle4086_Models'],15)
                 if name=='life_sticky':m.write_u16(syms['SourceLifecycle4086_Status'],3)
             m.write_memory('snesMemory',(POOL_BANK<<16)+POOL_BASE,pool.hex())
+            if a.ai_state_birth:m.write_memory('snesMemory',0x42f400,bytes([0xa5]*48).hex())
             m.write_memory('snesMemory',(POOL_BANK<<16)+SIDE_BASE,sides.hex())
             ordered=name in ('reordered_allocated','invalid_order')
             m.write_u16(syms['SourceWorldTick4086_Ready'],0xb4d5 if ordered else 0)
@@ -245,6 +255,10 @@ end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
                         struct.pack_into('<I',row,68,int(motion_cases[name][1][60]!=0));struct.pack_into('<H',row,76,0xb508)
                     expected_life[born_slot*80:(born_slot+1)*80]=row
                 reporter.check(name+' current lifecycle row published before alive, or preserved on rejection',read_block(m,0x439000,160)==bytes(expected_life))
+            if a.ai_state_birth:
+                expected_ai=bytearray([0xa5]*48)
+                if outcome in ('PTR','PTR_FAULT','PTR_KILLED'):expected_ai[born_slot*24:(born_slot+1)*24]=bytes(24)
+                reporter.check(name+' AI birth state resets only the published actor and retains rejected/sibling rows',read_block(m,0x42f400,48)==bytes(expected_ai))
             if name=='reordered_allocated':
                 reporter.check('birth extends the source traversal prefix',startup.u16(m,syms['SourceWorldTick4086_Maximum'])==1)
             results.append(dict(case=name,fields=fields,status=status,error=error,return_variant_hex=returned.hex(),
@@ -272,6 +286,11 @@ end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
     report['current_lifecycle_birth_installation_proven']=bool(lifetable)
     report['lifecycle_table_sha256']=hashlib.sha256(lifetable).hexdigest() if lifetable else None
     report['lifecycle_before_alive_observer']=publications
+    if a.ai_state_birth:
+        ai_publications=[list(map(int,line.split('WORLDBIRTHAI|',1)[1].split('|')))for line in (a.output/'mesen.log').read_text(errors='replace').splitlines()if 'WORLDBIRTHAI|'in line]
+        expected_publications=sum(c[3]in ('PTR','PTR_FAULT','PTR_KILLED')for c in cases)+sum(c[0]=='retire_reuse'for c in cases)
+        reporter.check('observer proves distinct AI row cleared before exists publication',len(ai_publications)==expected_publications and all(r[1:]==[0,0]for r in ai_publications))
+        report.update(ai_before_alive_observer=ai_publications,ai_birth_initialization_proven=True,status='PASS'if all(ok for _,ok in reporter.results)else'FAIL')
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

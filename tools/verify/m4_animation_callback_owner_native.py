@@ -62,6 +62,7 @@ def main():
     p.add_argument('--queue-producer',action='store_true',help='Execute actual native queue request and acknowledgement; leave the full world tick uncommitted.')
     p.add_argument('--scroller-owner',action='store_true',help='Resume a terminal authored spawn through the complete scroller owner; no player/camera motion or full world tick claim.')
     p.add_argument('--freeze-state',action='store_true',help='Enable canonical freeze rows and observe actual constructor reset before alive publication.')
+    p.add_argument('--ai-state-birth',action='store_true',help='Observe stale AI scalar reset before constructor alive publication and retain the sibling row.')
     p.add_argument('--emit-only',action='store_true',help='Emit the private source-derived fixture and observer without launching or certifying it.')
     p.add_argument('--smartspawn',action='store_true',help='Apply source-derived stage properties after the complete constructor; boss music remains an explicit pending service.')
     p.add_argument('--stage-queue-index',type=int,help='Read constructor inputs from an authored stage spawn record; post-constructor overrides remain separate.')
@@ -683,6 +684,11 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         address=fs['CallbackFixture_InstrumentMusicService']
         lua+=f"emu.addMemoryCallback(function()emu.log('QUEUE_MUSIC_SERVICE_INSTRUMENTED|'..word(INDEX))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     lua=lua.replace('FREEZESTATE',str(0xb5df if a.freeze_state else 0))
+    if a.ai_state_birth:
+        if not a.ctor_state:raise ValueError('AI_STATE_BIRTH_REQUIRES_CTOR_STATE')
+        lua=lua.replace(" set('SourceVMRun4086_Ready',0xb4d7)"," for j=0,47 do put(0x42f400+j,0xff,1)end\n set('SourceVMRun4086_Ready',0xb4d7)")
+        address=sy['SourceCtorState4086_AIStateBirthDone']
+        lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,23 do cleared=cleared+emu.read(0x42f400+slot*24+j,mt);sibling=sibling+emu.read(0x42f400+(slot+1)*24+j,mt)end;emu.log('CTORAI|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     if a.freeze_state:
         address=sy['SourceCtorState4086_FreezeBirthDone']
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,39 do cleared=cleared+emu.read(0x42e000+slot*40+j,mt);sibling=sibling+emu.read(0x42e000+(slot+1)*40+j,mt)end;emu.log('CTORFREEZE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x41f300+slot*4)..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
@@ -692,7 +698,7 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         initialinstall+='\nput(0x43900c,4,4);put(0x43eb00,3,2);put(0x41f510,0,2);put(0x416804,'+str(previous_animation['handle'])+',2);put(0x414014,'+str(previous_animation['engine_animation_id'])+',4);put(0x414004,1,4)\n'
         lua+="emu.addMemoryCallback(function()emu.log('COMMONSPAWN|'..word(INDEX)..'|'..word(sy.SourceCommonSpawn4086_State)..'|'..dw(0x43900c)..'|'..word(0x43eb00)..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceWorldTick4086_Pending)..'|'..dw(sy.VmSourceWorld_Time))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
     if a.ai_run:
-        initialinstall+="\nset('SourceAI4086_State',0);set('SourceAI4086_Endgame',0,4);set('SourceAIRun4086_Ready',0xb5e6);set('SourceAIRun4086_State',0);put(0x439000,0,4);put(0x416814,48,4);put(0x43eb10,0,4);put(0x42e024,0,4)\n"
+        initialinstall+="\nset('SourceAI4086_State',0);set('SourceAI4086_Endgame',0,4);set('SourceAIRun4086_Ready',0xb5e6);set('SourceAIRun4086_State',0);put(0x439000,0,4);put(0x416814,48,4);put(0x42f400,0,4);put(0x42e024,0,4)\n"
         lua+="emu.addMemoryCallback(function()emu.log('AIRUNFRAME|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..dw(0x42e024)..'|'..dw(0x416814)..'|'..word(sy.SourceAIRun4086_PendingKind))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
@@ -839,6 +845,11 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         reporter.check('real check_ai action dispatch, real idle frame and uninitialized think method complete without consuming world clock',ai_frame_results==[[i,2,5,2,48,0]for i in range(len(rows))])
         r.update(ai_dispatch_frame_bound=True,ai_frame_results=ai_frame_results)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
+    if a.ai_state_birth:
+        ai_birth_results=[list(map(int,line.split('CTORAI|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORAI|'in line]
+        reporter.check('real constructor clears all 24 stale AI bytes before exists publication and preserves sibling row',ai_birth_results==[[i,0,0,6120,0]for i in range(len(rows))])
+        r.update(ai_constructor_initialization_bound=True,ai_birth_results=ai_birth_results)
+        r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
 

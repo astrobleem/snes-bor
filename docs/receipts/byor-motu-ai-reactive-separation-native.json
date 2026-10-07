@@ -1,0 +1,55 @@
+{
+  "schema": "BYOR_MOTU_AI_REACTIVE_SEPARATION_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "problem": "AI noaicontrol incorrectly aliased existing frame-effect reactive DWORD at flags+16; actual reactive effects could suppress think callbacks",
+  "fix": "reactive remains flags+16; noaicontrol now occupies separate per-entity AI row at 42F400+slot*24; both birth paths reset all 24 bytes before exists publication",
+  "proofs": [
+    {
+      "path": "out/byor-motu-ai-reactive-separated-sequence/report.json",
+      "sha256": "c69de571052e9ef1eb9ce0d7b6fe57495e7366105ba454e10b2b9213efd8a7ed",
+      "cases": 378
+    },
+    {
+      "path": "out/byor-motu-ai-reactive-separation-native/report.json",
+      "sha256": "5a78b5521a666089cb76c8d3afcd4ed43c4cbf573ebc9686176ee48446044545",
+      "cases": 60
+    },
+    {
+      "path": "out/byor-motu-ai-state-birth-native/report.json",
+      "sha256": "fb496bec62a23d3bcf6fe55cf9f75e63e9c7dadaff1d08fe705a7922270ff193",
+      "cases": 130
+    },
+    {
+      "path": "out/byor-motu-ai-state-constructor-native/report.json",
+      "sha256": "48d994e5e699b1263fb313136802311e71c3a62cd87e5e76a77db0ce44b18940",
+      "cases": 2
+    },
+    {
+      "path": "out/byor-motu-ai-state-world-birth-native/report.json",
+      "sha256": "ee614c76b8e1b66b9b55332f14b232f6c08f524544fcdba839df5add16b2c22b",
+      "cases": 3
+    },
+    {
+      "path": "out/byor-motu-ai-reactive-separated-world-native/report.json",
+      "sha256": "841d2bc5bcc94c17590e00b59a2870a9f022978c0919bc890d8aaab4a17af801",
+      "cases": 402
+    },
+    {
+      "path": "out/byor-motu-ai-reactive-separated-spawn-frame-native/report.json",
+      "sha256": "67286dca50d0702c9f4a15733b35dfe3fc82f09cbdf00c71dcffd8153766d649",
+      "cases": 2
+    }
+  ],
+  "ai_state_base": "42F400",
+  "ai_state_end_exclusive": "430000",
+  "ai_state_row_bytes": 24,
+  "ai_state_reserved_bytes_per_row": 20,
+  "whole_frame_completion_in_reactive_joint_probe_instrumented": true,
+  "ai_callback_bodies_in_sequence_probe_instrumented": true,
+  "full_motu_enemy_ai_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}

@@ -188,10 +188,19 @@ SourceAI4086_Far15:
 SourceAI4086_ThinkTimerDone:
 .a16
 .i16
- lda.l SourceAI4086_Flags
+ ; noaicontrol is separate from the frame-effect reactive DWORD.
+ lda.l SourceAI4086_Slot
+ asl a
+ asl a
+ asl a
+ pha
+ asl a
+ clc
+ adc 1,s
  tax
- lda.l $43EB10,x
- ora.l $43EB12,x
+ pla
+ lda.l SOURCE_ENTITY_AI_STATE,x
+ ora.l SOURCE_ENTITY_AI_STATE+2,x
  beq SourceAI4086_Far16
  jmp SourceAI4086_Script
 SourceAI4086_Far16:

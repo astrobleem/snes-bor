@@ -383,6 +383,13 @@ Vm_SourceWorldSpawn__publish_alive:
 Vm_SourceWorldSpawn__core_published:
 .a16
 .i16
+    lda.l SourceBirthCore4086_Slot
+    jsl SourceAIState4086_InitializeBirth
+    bcc Vm_SourceWorldSpawn__ai_state_published
+    jmp Vm_SourceWorldSpawn__bad
+Vm_SourceWorldSpawn__ai_state_published:
+.a16
+.i16
     lda.l VmSourceWorld_ViewOffset
     tax
     lda #1

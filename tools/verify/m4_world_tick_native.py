@@ -528,7 +528,7 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
     if a.ai_backend:
         settings=dict(SourceAI4086_Ready=0xb5e2,SourceAI4086_State=0,SourceAI4086_Endgame=0,SourceAI4086_SpawnID=23,SourceAI4086_RespawnID=104,SourceModelAnimationCopy4086_Ready=0xb4e9,SourceModelAnimationCopy4086_Models=16,SourceModelAnimationCopy4086_Maximum=128,SourceModelAnimationCopy4086_Bytes=4096)
         velocity_init+='\n'.join(f'put({sy[k]},{v},2)'for k,v in settings.items())+'\n'
-        velocity_init+='for j=0,4095 do put(0x43c000+j,0,1)end;for s=0,c.n-1 do put(0x416804+s*64,1,2);put(0x439000+s*80,0,4);put(0x43900c+s*80,0,4);put(0x43eb10+s*32,0,4);put(0x416814+s*64,c.time,4);put(0x41f510+s*20,1,2)end\n'
+        velocity_init+='for j=0,4095 do put(0x43c000+j,0,1)end;for s=0,c.n-1 do put(0x416804+s*64,1,2);put(0x439000+s*80,0,4);put(0x43900c+s*80,0,4);put(0x42f400+s*24,0,4);put(0x416814+s*64,c.time,4);put(0x41f510+s*20,1,2)end\n'
         lua+=f"emu.addMemoryCallback(function()local s=word(sy.SourceWorldTick4086_Slot);emu.log('WORLDTICKAI|'..word(INDEX)..'|'..s..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..dw(0x42e024+s*40))end,emu.callbackType.exec,{fs['WorldTickFixture_AIObserved']},{fs['WorldTickFixture_AIObserved']},emu.cpuType.snes,mt)\n"
     lua=lua.replace('SCRIPTDEFINITIONS',script_definitions).replace('SCRIPTINIT',velocity_init+script_init).replace('SCRIPTPREPARE',script_prepare)
     for key,value in dict(INDEX=INDEX,INIT=fs['WorldTickFixture_Init'],OBSERVE=fs['WorldTickFixture_Observe'],RESULT=fs['WorldTickFixture_Result'],

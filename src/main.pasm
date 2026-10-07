@@ -13682,6 +13682,7 @@ SourceVM_InstructionReservation:
 ; Additional generic source gameplay owners, outside all presentation reservations.
 .bank 63
 .org $8000
+.include "core/vm/vm_source_ai_state.pasm"
 .include "core/vm/vm_source_ai.pasm"
 
 .include "core/vm/vm_source_set_idle.pasm"

@@ -497,6 +497,13 @@ SourceCtorState4086_Guard_44:
 SourceCtorState4086_FreezeBirthDone:
 .a16
 .i16
+ lda.l SourceScriptClone4086_Slot
+ jsl SourceAIState4086_InitializeBirth
+ bcc SourceCtorState4086_AIStateBirthDone
+ jmp SourceCtorState4086_Bad
+SourceCtorState4086_AIStateBirthDone:
+.a16
+.i16
  lda.l SourceCtorState4086_View
  tax
  lda #1
