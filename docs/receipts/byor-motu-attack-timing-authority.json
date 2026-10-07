@@ -1,0 +1,32 @@
+{
+  "schema": "BYOR_MOTU_ATTACK_TIMING_AUTHORITY_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-timing-authority/report.json",
+      "sha256": "2561153a00fdf036f1fa1dd1e169d4c334d5021f157556b8fc20b8d97498d1b1",
+      "cases": 46,
+      "decisions": null
+    },
+    {
+      "path": "out/byor-motu-normal-chance-authority/report.json",
+      "sha256": "6220fccd0f5d6339097487a7bc936d1a72f118907dc285657d2917d07f16024f",
+      "cases": 3440,
+      "decisions": 34400000
+    }
+  ],
+  "source_models": 16,
+  "source_binary32_coefficients_preserved": true,
+  "source_model_default_attackthrottletime": 150,
+  "normal_equal_min_max_clamp_proven": true,
+  "normal_onscreen_cutoff": 9999,
+  "normal_offscreen_cutoff": 5000,
+  "rand32_modulus": 10000,
+  "actual_argument_parser_compiled": true,
+  "one_argument_attackthrottle_sets_time_zero": true,
+  "world_population_instrumented": true,
+  "rng_draw_controlled": true,
+  "runtime_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
