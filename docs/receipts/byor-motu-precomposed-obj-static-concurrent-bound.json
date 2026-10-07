@@ -1,0 +1,278 @@
+{
+  "schema": "BYOR_PRECOMPOSED_SCREEN_OBJ_STATIC_CONCURRENT_BOUND_V1",
+  "status": "STATIC_ACTOR_PLUS_PRECOMPOSED_EFFECT_HBLANK_LIMIT",
+  "native_renderer_admitted": false,
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "source_poses": {
+    "viewport": [
+      256,
+      224
+    ],
+    "piece_size": [
+      16,
+      32
+    ],
+    "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+    "actors": [
+      {
+        "model": "HBreath",
+        "animation": "idle",
+        "frame": 11,
+        "position": [
+          98,
+          220,
+          93
+        ],
+        "order": 2
+      },
+      {
+        "model": "He_ManB",
+        "animation": "freespecial4",
+        "frame": 6,
+        "position": [
+          80,
+          220,
+          0
+        ],
+        "order": 0
+      },
+      {
+        "model": "Knightbot",
+        "animation": "idle",
+        "frame": 0,
+        "position": [
+          200,
+          220,
+          0
+        ],
+        "order": 1
+      }
+    ]
+  },
+  "source_layers": [
+    {
+      "layer": {
+        "kind": "actor:He_ManB",
+        "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+        "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_dimensions": [
+          200,
+          200
+        ],
+        "position": [
+          -16,
+          44
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 3327,
+        "source_flip": false
+      },
+      "pieces": 27,
+      "size": [
+        16,
+        16
+      ],
+      "colors": 31
+    },
+    {
+      "layer": {
+        "kind": "actor:KnightBot",
+        "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+        "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+        "source_dimensions": [
+          50,
+          50
+        ],
+        "position": [
+          173,
+          172
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 1078,
+        "source_flip": false
+      },
+      "pieces": 9,
+      "size": [
+        16,
+        16
+      ],
+      "colors": 14
+    },
+    {
+      "layer": {
+        "kind": "actor:HBreath",
+        "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+        "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+        "source_dimensions": [
+          110,
+          90
+        ],
+        "position": [
+          84,
+          92
+        ],
+        "alpha": 1,
+        "visible_source_pixels": 2751,
+        "source_flip": false
+      },
+      "pieces": 57,
+      "size": [
+        8,
+        8
+      ],
+      "colors": 606
+    }
+  ],
+  "scene_opaque_rgb555_colors": 647,
+  "effect_composited_rgb555_colors": 606,
+  "effect_peak_scanline_colors": 65,
+  "ordinary_visible_static_rgb555_colors": 43,
+  "minimum_ordinary_static_palette_banks": 3,
+  "maximum_effect_banks": 5,
+  "maximum_effect_slots": 75,
+  "worst_scanline": 131,
+  "previous_scanline_colors": [
+    5591,
+    6538,
+    7671,
+    9741,
+    10568,
+    10731,
+    10798,
+    11822,
+    12883,
+    12981,
+    14895,
+    14963,
+    14991,
+    15951,
+    16016,
+    16085,
+    16086,
+    16910,
+    17040,
+    17116,
+    17142,
+    18033,
+    18035,
+    18173,
+    19056,
+    19222,
+    20147,
+    20213,
+    20247,
+    21204,
+    21237,
+    22193,
+    22259,
+    22292,
+    23246,
+    23281,
+    23282,
+    23315,
+    24276,
+    24306,
+    24338,
+    24339,
+    24371,
+    24372,
+    24373,
+    24377,
+    24408,
+    25330,
+    25362,
+    25395,
+    25428,
+    25434,
+    25435,
+    26453,
+    26456,
+    26489,
+    27515,
+    28539
+  ],
+  "required_scanline_colors": [
+    2308,
+    5590,
+    6472,
+    7594,
+    8728,
+    9741,
+    9819,
+    10798,
+    11756,
+    11859,
+    12649,
+    12981,
+    13939,
+    14996,
+    15949,
+    16016,
+    16085,
+    17040,
+    17967,
+    18065,
+    18100,
+    18166,
+    19122,
+    19153,
+    19157,
+    19223,
+    20248,
+    20253,
+    22228,
+    22260,
+    22261,
+    22327,
+    22366,
+    23278,
+    23284,
+    24303,
+    24308,
+    24338,
+    24341,
+    24373,
+    24375,
+    25361,
+    25364,
+    25394,
+    25397,
+    25431,
+    25434,
+    25464,
+    26419,
+    26452,
+    26458,
+    26487,
+    26489,
+    27444,
+    27477,
+    27510,
+    27545,
+    28570,
+    28572,
+    29596
+  ],
+  "adjacent_required_union": 108,
+  "unavoidable_color_writes": 33,
+  "unavoidable_cgram_data_bytes": 66,
+  "minimum_transfer_master_clocks": 528,
+  "hblank_master_clocks": 356,
+  "setup_overhead_included": false,
+  "lookahead_cannot_reduce_lower_bound": true,
+  "geometry_subdivision_cannot_reduce_lower_bound": true,
+  "lower_bound_scope": "Necessary best-case capacity bound after ordinary actors retain STATIC_OBJ_PALETTE; does not substitute a pool allocator for fixed-bank assignment",
+  "all_actor_raster_palette_sharing_rejected": false,
+  "all_actor_raster_joint_mask_solver": {
+    "status": "SOLVER_LIMIT",
+    "solver_status": 1,
+    "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is At lower/fixed bound)"
+  },
+  "greedy_joint_assignment_peak_unavoidable_writes": 43,
+  "joint_unsplit_pieces": 93,
+  "joint_unsplit_peak_sprites": 14,
+  "joint_unsplit_peak_tile_slivers": 19,
+  "alpha_policy": "Exact pinned BOR RGB8 SCREEN composition before RGB555; no hardware OBJ blending assumption",
+  "no_color_reduction": true,
+  "motu_gameplay_proven": false
+}

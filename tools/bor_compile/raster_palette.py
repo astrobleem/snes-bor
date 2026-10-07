@@ -117,7 +117,7 @@ def split_color_masks(pieces, banks, time_limit=60):
                 objective=float(result.fun),lower_bound=float(result.mip_dual_bound))
 
 
-def split_scene_color_masks(pieces, banks=tuple(range(8)), time_limit=60):
+def split_scene_color_masks(pieces, banks=tuple(range(8)), time_limit=60, adjacent_write_budget=None):
     """Piece-local color masks with shared row/bank capacity and eligibility.
 
     Unlike the simpler one-image model, equal colors on different actors may
@@ -137,7 +137,20 @@ def split_scene_color_masks(pieces, banks=tuple(range(8)), time_limit=60):
     pairs = sorted({(y,c) for i,y,c in atoms})
     start = n*nb+len(local)
     resident = {(y,c,b):start+j*nb+b for j,(y,c) in enumerate(pairs) for b in range(nb)}
-    count = start+len(resident); rr=[]; cc=[]; vv=[]; lo=[]; hi=[]
+    count = start+len(resident)
+    adjacent = {}; excess = {}; adjacent_lines = {}
+    if adjacent_write_budget is not None:
+        if not isinstance(adjacent_write_budget,int) or adjacent_write_budget<0:
+            raise ValueError('INVALID_ADJACENT_WRITE_BUDGET')
+        height=max(p['y']+p['height'] for p in pieces)
+        adjacent_pairs=sorted({(line,c) for y,c in pairs for line in (y,y+1) if 0<line<height})
+        adjacent={(y,c,b):count+j*nb+b for j,(y,c)in enumerate(adjacent_pairs)for b in range(nb)}
+        count+=len(adjacent)
+        lines=sorted({y for y,c in adjacent_pairs})
+        excess={(y,b):count+j*nb+b for j,y in enumerate(lines)for b in range(nb)}
+        count+=len(excess)
+        for y,c in adjacent_pairs:adjacent_lines.setdefault(y,[]).append(c)
+    rr=[]; cc=[]; vv=[]; lo=[]; hi=[]
     def row(items, lower, upper):
         r=len(lo)
         for c,v in items: rr.append(r); cc.append(c); vv.append(v)
@@ -159,8 +172,19 @@ def split_scene_color_masks(pieces, banks=tuple(range(8)), time_limit=60):
         row(live,0,32)
         row([(i*nb+b,(p['width']+7)//8) for i,p in enumerate(pieces)
              if p['y']<=y<p['y']+p['height'] for b in range(nb)],0,34)
+    # A bank holds only 15 opaque identities before the next line. The
+    # previous/current required union minus 15 is an unavoidable write lower
+    # bound, regardless of lookahead. This is necessary, not a full schedule.
+    for (y,c,b),variable in adjacent.items():
+        for line in (y-1,y):
+            if (line,c,b)in resident:row([(resident[line,c,b],1),(variable,-1)],-np.inf,0)
+    for y,colors in adjacent_lines.items():
+        for b in range(nb):row([(adjacent[y,c,b],1)for c in colors]+[(excess[y,b],-1)],-np.inf,15)
+        row([(excess[y,b],1)for b in range(nb)],0,adjacent_write_budget)
+    upper=np.ones(count)
+    for variable in excess.values():upper[variable]=adjacent_write_budget
     objective=np.zeros(count); objective[:n*nb]=1
-    result=milp(objective,integrality=np.ones(count),bounds=Bounds(0,1),
+    result=milp(objective,integrality=np.ones(count),bounds=Bounds(np.zeros(count),upper),
         constraints=LinearConstraint(coo_matrix((vv,(rr,cc)),shape=(len(lo),count)).tocsc(),lo,hi),
         options={'time_limit':time_limit,'mip_rel_gap':0.03})
     if result.x is None:
@@ -184,9 +208,20 @@ def split_scene_color_masks(pieces, banks=tuple(range(8)), time_limit=60):
             if len({c for p,b in zip(expanded,assignment) if b==bank for c in p['rows'].get(y,[])})>15:
                 raise AssertionError('SCENE_BANK_OVERFLOW')
     if len(expanded)>128: raise AssertionError('SCENE_OAM_OVERFLOW')
+    adjacent_bounds={}
+    if adjacent_write_budget is not None:
+        demands={}
+        for p,b in zip(expanded,assignment):
+            for y,cs in p['rows'].items():demands.setdefault(y,{}).setdefault(b,set()).update(cs)
+        for y in adjacent_lines:
+            lower_bound=sum(max(0,len(demands.get(y-1,{}).get(b,set())|demands.get(y,{}).get(b,set()))-15)for b in banks)
+            if lower_bound>adjacent_write_budget:raise AssertionError('ADJACENT_WRITE_BOUND_FAULT')
+            adjacent_bounds[y]=lower_bound
     return dict(status='COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN',pieces=expanded,assignment=assignment,
         solver_status=int(result.status),message=result.message,objective=float(result.fun),
-        lower_bound=float(result.mip_dual_bound),piece_row_color_identity_verified=True)
+        lower_bound=float(result.mip_dual_bound),piece_row_color_identity_verified=True,
+        adjacent_write_budget=adjacent_write_budget,adjacent_write_lower_bounds=adjacent_bounds,
+        complete_palette_write_schedule_proven=False)
 
 
 def schedule(pieces, assignment, height, lookahead=16, prefetch_write_budget=16, capacity=15):

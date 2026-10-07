@@ -1288,3 +1288,31 @@ cold invalidation. These figures cover color lookup and cache work only. They
 do not include gathering live world pixels, palette allocation, CHR/map
 publication or production SA-1/audio contention, and are not a moving renderer
 admission. No color reduction is applied.
+
+
+The precomposed OBJ alternative was measured separately from raw-color OBJ
+math. `byor-motu-precomposed-obj-static-concurrent-bound.json` derives exact
+RGB8 SCREEN colors for the supplied player/effect/enemy pose. The composed
+effect has 606 RGB555 identities and peaks at 65 on one scanline. Visible
+ordinary actor pixels require 43 static RGB555 colors, so even perfect packing
+needs at least three OBJ banks. At most five banks / 75 opaque slots remain
+for the effect.
+
+The effect requires 108 identities across scanlines 130 and 131. Keeping all
+previous-line requirements resident leaves insufficient prefetch space for
+at least 33 next-line identities. Those writes require 66 CGRAM bytes / 528
+master clocks at eight clocks per byte, exceeding the 356-clock HBlank before
+any transfer or register setup. This is independent of piece subdivision and
+lookahead. It rejects precomposed effect OBJ presentation **with ordinary
+actors retaining their static palettes**; it does not reject sharing raster
+palettes across all actors.
+
+For that broader all-actor raster case, 93 legal 8x8/16x16 unsplit pieces fit
+14 sprites and 19 tile slivers per line. A fixed-bank heuristic assignment is
+valid, but requires at least 43 writes at one adjacent-line transition. A
+joint color-mask/bank solver with a seven-write necessary bound reached its
+25-second solver limit; that is not infeasibility and seven writes is a probe
+constraint, not a measured transfer certificate. The new generic solver
+constraint accounts for per-bank adjacent unions and reports that it does not
+prove a complete slot schedule. The lossless BG path remains under continued
+engineering. No color reduction is applied.
