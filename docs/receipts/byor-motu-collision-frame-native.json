@@ -1,0 +1,39 @@
+{
+  "schema": "BYOR_MOTU_COLLISION_FRAME_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-collision-frame-native/report.json",
+      "sha256": "f98c59e0fa641097b1da1072c434c310adc892e303d398da623cf0b94e2696cc",
+      "cases": 860
+    },
+    {
+      "path": "out/byor-motu-collision-entity-native/report.json",
+      "sha256": "de55898f4582e75cd0e3308e870b0b6043481e037f5e3e1a0fa87eca449c229c",
+      "cases": 869
+    }
+  ],
+  "source_frames": 836,
+  "animations": 80,
+  "source_table_sha256": "a0d0222d9d3f6d694cad18ec12c244e45c9590aa2e610b26d2cf87c38c800ee3",
+  "actual_entity_cursor_read": true,
+  "entity_slots": [
+    0,
+    1,
+    63,
+    127
+  ],
+  "exists_full32_truth_values": [
+    1,
+    65536,
+    4294967295
+  ],
+  "native_and_fixture_cpu_context_observed": true,
+  "target_metadata_producer_bound": false,
+  "combat_collision_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}

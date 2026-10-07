@@ -13702,3 +13702,4 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_normal_attack.pasm"
 .include "core/vm/vm_source_try_grab.pasm"
 .include "core/vm/vm_source_attack_entry.pasm"
+.include "core/vm/vm_source_collision_frame.pasm"
