@@ -8,7 +8,9 @@ SourceAttackBody4086_Bank = $43BF30
 SourceAttackBody4086_Base = $43BF32
 SourceAttackBody4086_Bytes = $43BF34
 SourceAttackBody4086_Models = $43BF36
-SourceAttackBody4086_End = $43BF38
+SourceAttackBody4086_NoFlip = $43BF38
+SourceAttackBody4086_Chain = $43BF3C ; low36 chain codes, high nibble length
+SourceAttackBody4086_End = $43BF42
 SourceAttackBody4086_CopyEntity:
 .a16
 .i16
@@ -47,6 +49,26 @@ SourceAttackBody4086_PreflightEntity:
  inc a
  tcd
  lda #1
+ sta $18
+ bra SourceAttackBody4086_Inputs
+SourceAttackBody4086_ReadEntity:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ phd
+ pha
+ txa
+ pha
+ tsc
+ sec
+ sbc #26
+ tcs
+ inc a
+ tcd
+ lda #2
  sta $18
 SourceAttackBody4086_Inputs:
 .a16
@@ -293,10 +315,19 @@ SourceAttackBody4086_Guard23:
  dex
  bne SourceAttackBody4086_ChainCheck
  ldy #6
+ sep #$20
+.a8
  lda [$00],y
- sta.l SourceAttackBody4086_Models
+ sta $11
+ rep #$20
+.a16
  lda $18
- beq SourceAttackBody4086_Install
+ cmp #1
+ bne SourceAttackBody4086_Install
+ lda $10
+ xba
+ and #$00FF
+ sta.l SourceAttackBody4086_Models
  lda #2
  sta.l SourceAttackBody4086_Status
  jmp SourceAttackBody4086_Return
@@ -336,6 +367,13 @@ SourceAttackBody4086_Destination:
  clc
  adc $06
  sta $00
+ lda $18
+ cmp #2
+ bne SourceAttackBody4086_WriteRow
+ jmp SourceAttackBody4086_ReadRow
+SourceAttackBody4086_WriteRow:
+.a16
+.i16
  lda #1
  sta.l SourceAttackBody4086_Status
  lda #0
@@ -367,6 +405,87 @@ SourceAttackBody4086_Destination:
  ldy #9
  lda #$B605
  sta [$00],y
+ lda $10
+ xba
+ and #$00FF
+ sta.l SourceAttackBody4086_Models
+ lda #2
+ sta.l SourceAttackBody4086_Status
+ jmp SourceAttackBody4086_Return
+SourceAttackBody4086_ReadRow:
+.a16
+.i16
+ ldy #9
+ lda [$00],y
+ cmp #$B605
+ beq SourceAttackBody4086_ReadMarker
+ jmp SourceAttackBody4086_Bad
+SourceAttackBody4086_ReadMarker:
+.a16
+.i16
+ ldy #0
+ lda [$00],y
+ cmp $08
+ beq SourceAttackBody4086_ReadWord0
+ jmp SourceAttackBody4086_Bad
+SourceAttackBody4086_ReadWord0:
+.a16
+.i16
+ iny
+ iny
+ lda [$00],y
+ cmp $0A
+ beq SourceAttackBody4086_ReadWord1
+ jmp SourceAttackBody4086_Bad
+SourceAttackBody4086_ReadWord1:
+.a16
+.i16
+ iny
+ iny
+ lda [$00],y
+ cmp $0C
+ beq SourceAttackBody4086_ReadWord2
+ jmp SourceAttackBody4086_Bad
+SourceAttackBody4086_ReadWord2:
+.a16
+.i16
+ iny
+ iny
+ lda [$00],y
+ cmp $0E
+ beq SourceAttackBody4086_ReadWord3
+ jmp SourceAttackBody4086_Bad
+SourceAttackBody4086_ReadWord3:
+.a16
+.i16
+ iny
+ iny
+ sep #$20
+.a8
+ lda [$00],y
+ cmp $10
+ rep #$20
+.a16
+ beq SourceAttackBody4086_ReadByte
+ jmp SourceAttackBody4086_Bad
+SourceAttackBody4086_ReadByte:
+.a16
+.i16
+ lda $08
+ sta.l SourceAttackBody4086_NoFlip
+ lda $0A
+ sta.l SourceAttackBody4086_NoFlip+2
+ lda $0C
+ sta.l SourceAttackBody4086_Chain
+ lda $0E
+ sta.l SourceAttackBody4086_Chain+2
+ lda $10
+ and #$00FF
+ sta.l SourceAttackBody4086_Chain+4
+ lda $10
+ xba
+ and #$00FF
+ sta.l SourceAttackBody4086_Models
  lda #2
  sta.l SourceAttackBody4086_Status
  jmp SourceAttackBody4086_Return

@@ -1,0 +1,26 @@
+{
+  "schema": "BYOR_MOTU_ATTACK_BODY_READER_ACTION_QUERY_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-body-reader-atomic-native/report.json",
+      "sha256": "6a6e5fd7c7f6be11d95c385cddead530a96598c4855d80e4502a24712219f9b5",
+      "cases": 279
+    },
+    {
+      "path": "out/byor-motu-action-target-query-native/report.json",
+      "sha256": "83d40ff54956fe9061b53718e535cf1388b311fc3ce6eb4433480d7a33c46990",
+      "cases": 83
+    }
+  ],
+  "actual_turn_chain_fields_compared_to_current_profile": true,
+  "stale_marker_noflip_chain_rejected_before_output_publication": true,
+  "source_query_uses_actual_ai_action_owner": true,
+  "common_think_lease_disabled_for_action_query_proof": true,
+  "normal_prepare_callback_executed": false,
+  "whole_game_proven": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

@@ -19,6 +19,7 @@ def main():
  p.add_argument('--normal-timer-authority',type=Path)
  p.add_argument('--normal-picker',action='store_true')
  p.add_argument('--normal-chance',action='store_true')
+ p.add_argument('--action-query',action='store_true')
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  if a.normal_chance:a.normal_picker=True
  if a.normal_timer_authority or a.normal_picker:a.normal_selector=True
@@ -120,6 +121,11 @@ def main():
  if c.bad=='order_duplicate'then put(0x41f202,0)elseif c.bad=='order_range'then put(0x41f202,c.count)elseif c.bad=='self_coordinate'then put(0x414030,1)elseif c.bad=='self_direction'then put(0x414018,2)end
 '''
  lua=lua.replace(' before={};',setup+' before={};').replace("end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)"," for j=0,7 do before[sy.VmNativeVariant_Result+j]=0xa5 end\nend,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)",1)
+ if a.action_query:
+  assert not(a.normal_selector or a.normal_run or a.normal_picker)
+  rows=[c for c in rows if c['bad']not in ('common_ready','common_slot')]
+  lua=lua.replace("set('SourceAI4086_State',c.bad=='ai_state'and 1 or 2)","set('SourceAI4086_State',c.bad=='ai_state'and 2 or 1)")
+  lua=lua.replace(' before={};'," set('SourceCommonThink4086_Ready',0);set('SourceCommonThink4086_State',0);set('SourceCommonThink4086_Slot',65535)\n before={};")
  start=lua.index('emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1];local n=0;')
  lua=lua[:start]+r'''
 emu.addMemoryCallback(function()
@@ -128,6 +134,7 @@ emu.addMemoryCallback(function()
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
  apply='SourceAITarget4086_Unbounded';ready='SourceAITarget4086_Ready';magic=0xb5f3
+ if a.action_query:apply='SourceAITarget4086_ActionUnbounded'
  if a.normal_selector:
   setup=r'''
  set('SourceTryNormalAttack4086_Ready',c.bad=='normal_ready'and 0 or 0xb5f4);set('SourceTryNormalAttack4086_Status',c.bad=='normal_busy'and 2 or 0)
@@ -265,5 +272,5 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
  if a.normal_picker:
   picker_counts=[list(map(int,l.split('NORMALPICKCOUNT|',1)[1].split('|')))for l in log.splitlines()if 'NORMALPICKCOUNT|'in l]
   r.check('test-only picker executes exactly after the source rejection gates, with no choice returning false and positive body remaining explicit',picker_counts==[[i,c['picker_calls']]for i,c in enumerate(rows)])
- (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',normalattack_selector_bound=a.normal_selector or a.normal_run,grounded_common_attack_path_executed=a.normal_run,selector_traces=traces,source_timer_delay_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_timer_authority_sha256=hashlib.sha256(a.normal_timer_authority.read_bytes()).hexdigest()if a.normal_timer_authority else None,source_vulnerability_attacking_false_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_testonly_picker_bound=a.normal_picker,source_chance_rejection_nextattack_bound=a.normal_chance,active_combo_skips_chance_bound=a.normal_chance,mutable_cache_domain='normal-role-only'if a.normal_picker else None,picker_call_counts=picker_counts if a.normal_picker else None,normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
+ (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',action_query_entry_bound=a.action_query,normalattack_selector_bound=a.normal_selector or a.normal_run,grounded_common_attack_path_executed=a.normal_run,selector_traces=traces,source_timer_delay_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_timer_authority_sha256=hashlib.sha256(a.normal_timer_authority.read_bytes()).hexdigest()if a.normal_timer_authority else None,source_vulnerability_attacking_false_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_testonly_picker_bound=a.normal_picker,source_chance_rejection_nextattack_bound=a.normal_chance,active_combo_skips_chance_bound=a.normal_chance,mutable_cache_domain='normal-role-only'if a.normal_picker else None,picker_call_counts=picker_counts if a.normal_picker else None,normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
 if __name__=='__main__':main()

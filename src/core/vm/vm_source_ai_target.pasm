@@ -7,6 +7,46 @@ SourceAITarget4086_Status = $43BDC4 ; 0 idle,1 busy,2 complete,3 fault
 SourceAITarget4086_Result = $43BDC6 ; entity token32, zero if none
 SourceAITarget4086_Selected = $43BDCA ; physical slot or FFFF
 SourceAITarget4086_End = $43BDCC
+; Same source query from an actual check_ai ACTION callback. This entry does
+; not borrow or manufacture a common_think phase. Its caller owns action ID.
+SourceAITarget4086_ActionUnbounded:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l SourceAITarget4086_Ready
+ cmp #$B5F3
+ beq SourceAITarget4086_ActionLease
+ jmp SourceAITarget4086_Bad
+SourceAITarget4086_ActionLease:
+.a16
+.i16
+ lda.l SourceAITarget4086_Status
+ beq SourceAITarget4086_ActionStart
+ cmp #2
+ beq SourceAITarget4086_ActionStart
+ jmp SourceAITarget4086_Bad
+SourceAITarget4086_ActionStart:
+.a16
+.i16
+ lda #1
+ sta.l SourceAITarget4086_Status
+ lda.l SourceAI4086_State
+ cmp #1
+ beq SourceAITarget4086_ActionOwner
+ jmp SourceAITarget4086_Bad
+SourceAITarget4086_ActionOwner:
+.a16
+.i16
+ jsl SourceAI4086_CheckOwner
+ bcc SourceAITarget4086_ActionChecked
+ jmp SourceAITarget4086_Bad
+SourceAITarget4086_ActionChecked:
+.a16
+.i16
+ jmp SourceAITarget4086_Owner
 SourceAITarget4086_Unbounded:
 .a16
 .i16

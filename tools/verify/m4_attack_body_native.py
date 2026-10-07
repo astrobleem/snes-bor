@@ -33,13 +33,16 @@ emu.addMemoryCallback(function()
  for j,value in ipairs(tables[c.synthetic+1])do emu.write(59*32768+j-1,value,emu.memType.snesPrgRom)end
  if c.patch>=0 then for j=0,1 do emu.write(59*32768+c.patch+j,(c.value>>(8*j))&255,emu.memType.snesPrgRom)end end
  for _,r in ipairs({{0x435980,1056},{0x40bdcc,352}})do for j=0,r[2]-1 do emu.write(r[1]+j,0xa5,mt)end end
- before={};for _,r in ipairs({{0x435800,1536},{0x40bd00,768},{0x438800,1792},{0x437e00,2560},{0x439000,10240},{0x40c000,12288},{0x414000,18432},{sy.VmNativeVariant_Result,8},{sy.SourceRandom4086_Ready,12},{sy.SourceCRandom4086_Ready,18}})do for j=0,r[2]-1 do before[r[1]+j]=emu.read(r[1]+j,mt)end end
+ if READ and c.slot<128 and c.model<16 then local b=c.slot<96 and 0x435980+c.slot*11 or 0x40bdcc+(c.slot-96)*11;for j=0,8 do emu.write(b+j,tables[c.synthetic+1][17+c.model*9+j],mt)end;put(b+9,c.bad=='row_marker'and 0 or 0xb605);if c.bad=='row_noflip'then put(b,123456789,4)end;if c.bad=='row_chain'then emu.write(b+4,0,mt)end end
+ for j=0,9 do emu.write(sy.SourceAttackBody4086_NoFlip+j,0xa5,mt)end
+ before={};for _,r in ipairs({{sy.SourceAttackBody4086_NoFlip,10},{0x435800,1536},{0x40bd00,768},{0x438800,1792},{0x437e00,2560},{0x439000,10240},{0x40c000,12288},{0x414000,18432},{sy.VmNativeVariant_Result,8},{sy.SourceRandom4086_Ready,12},{sy.SourceCRandom4086_Ready,18}})do for j=0,r[2]-1 do before[r[1]+j]=emu.read(r[1]+j,mt)end end
 end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()local st=emu.getState();cpu={};for _,k in ipairs({'a','x','y','d','dbr','sp','ps'})do cpu[k]=st['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,COPYBODY,COPYBODY,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()local st=emu.getState();ctx=0;for _,k in ipairs({'a','x','y','d','dbr','sp'})do if cpu[k]~=st['cpu.'..k]then ctx=ctx+1 end end;if(cpu.ps&254)~=(st['cpu.ps']&254)then ctx=ctx+1 end end,emu.callbackType.exec,COPYAFTER,COPYAFTER,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];local data=tables[c.synthetic+1]
  if c.fault==0 then local base=c.slot<96 and 0x435980+c.slot*11 or 0x40bdcc+(c.slot-96)*11;for j=0,8 do before[base+j]=data[17+c.model*9+j]end;before[base+9]=5;before[base+10]=0xb6 end
+ if c.fault==0 and READ then for j=0,8 do before[sy.SourceAttackBody4086_NoFlip+j]=data[17+c.model*9+j]end;before[sy.SourceAttackBody4086_NoFlip+9]=0 end
  local changed=0;for a,v in pairs(before)do if emu.read(a,mt)~=v then changed=changed+1 end end
  emu.log('BODYFIELDS|'..word(INDEX)..'|'..ctx..'|'..changed..'|'..word(sy.SourceAttackBody4086_Status)..'|'..word(sy.SourceAttackBody4086_Models))
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
@@ -49,6 +52,7 @@ def main():
  p=argparse.ArgumentParser(description=__doc__)
  for k in ('rom','source','authority','output'):p.add_argument('--'+k,type=Path,required=True)
  p.add_argument('--preflight',action='store_true')
+ p.add_argument('--read',action='store_true')
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);authority=json.loads(a.authority.read_text());assert authority['status']=='PASS'
  profile=derive(Source(a.source));real=pack_runtime(profile);assert len(real)==160
  for i,m in enumerate(profile['models']):
@@ -60,11 +64,13 @@ def main():
   rows.append(dict(rows[0],bad=bad,slot=128 if bad=='slot'else 0,model=16 if bad=='model'else 0,fault=1))
  for at,value in ((0,0),(4,2),(6,0),(6,17),(8,8),(10,11),(12,0),(12,8),(14,1),(20,7),(24,0xd0)):
   rows.append(dict(rows[0],patch=at,value=value,fault=1))
- lua='local tables='+luav([list(real),list(synthetic)])+'\n'+LUA.replace('if c.fault==0 then','if c.fault==0 and not PREFLIGHT then').replace('PREFLIGHT','true'if a.preflight else'false').replace('TABLEBYTES',str(len(real))).replace('SLOT',str(REQUEST+10)).replace('MODEL',str(REQUEST+12));asm=ASM.replace('SLOT',str(REQUEST+10)).replace('MODEL',str(REQUEST+12))
- reporter=Reporter('M4-ATTACK-BODY-FIELDS',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'BodyProbe','SourceAttackBody4086_Ready',0xb605,[(59,0,real)],lua,reporter,append=asm,bindings=dict(COPYBODY='SourceAttackBody4086_PreflightEntity'if a.preflight else'SourceAttackBody4086_CopyEntity'),probes=dict(COPYAFTER='BodyProbe_After'),batch_size=1,frame_limit=6000)
+ if a.read:
+  for bad in ('row_marker','row_noflip','row_chain'):rows.append(dict(rows[0],bad=bad,fault=1))
+ lua='local tables='+luav([list(real),list(synthetic)])+'\n'+LUA.replace('if c.fault==0 then','if c.fault==0 and not PREFLIGHT and not READ then').replace('PREFLIGHT','true'if a.preflight else'false').replace('READ','true'if a.read else'false').replace('TABLEBYTES',str(len(real))).replace('SLOT',str(REQUEST+10)).replace('MODEL',str(REQUEST+12));asm=ASM.replace('SLOT',str(REQUEST+10)).replace('MODEL',str(REQUEST+12))
+ reporter=Reporter('M4-ATTACK-BODY-FIELDS',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'BodyProbe','SourceAttackBody4086_Ready',0xb605,[(59,0,real)],lua,reporter,append=asm,bindings=dict(COPYBODY='SourceAttackBody4086_ReadEntity'if a.read else'SourceAttackBody4086_PreflightEntity'if a.preflight else'SourceAttackBody4086_CopyEntity'),probes=dict(COPYAFTER='BodyProbe_After'),batch_size=1,frame_limit=6000)
  actual=[list(map(int,l.split('BODYFIELDS|',1)[1].split('|')))for l in log.splitlines()if 'BODYFIELDS|'in l];expected=[[i,0,0,3 if c['fault']else 2,55 if c['fault']else 16]for i,c in enumerate(rows)];failures=[dict(input=c,actual=v,expected=e)for c,v,e in zip(rows,actual,expected)if v!=e]
  reporter.check('literal C turn/chain identity, both row regions/all slots, atomic marker, siblings/choice buffer/cache/globals/VM/RNG/CPU/stack retention and guards',len(actual)==len(rows)and not failures)
- report=dict(schema='BYOR_4086_ATTACK_BODY_FIELDS_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',cases=len(rows),inputs=rows,actual=actual,expected=expected,failures=failures[:20],authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),table_sha256=hashlib.sha256(real).hexdigest(),rom_sha256=hashlib.sha256(raw).hexdigest(),entity_row_bytes=11,entity_bytes=1408,actual_birth_and_model_copy_bound=False,normal_prepare_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
+ report=dict(schema='BYOR_4086_ATTACK_BODY_FIELDS_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',cases=len(rows),inputs=rows,actual=actual,expected=expected,failures=failures[:20],authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),table_sha256=hashlib.sha256(real).hexdigest(),rom_sha256=hashlib.sha256(raw).hexdigest(),preflight_only=a.preflight,actual_row_reader=a.read,entity_row_bytes=11,entity_bytes=1408,actual_birth_and_model_copy_bound=False,normal_prepare_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
  (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 if __name__=='__main__':main()
