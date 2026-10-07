@@ -110,7 +110,7 @@ end,emu.callbackType.exec,AFTERCHILD,AFTERCHILD,emu.cpuType.snes,mt)
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for k in ('rom','source','output'):p.add_argument('--'+k,type=Path,required=True)
- p.add_argument('--constructor',action='store_true');p.add_argument('--from-frame-zero',action='store_true');a=p.parse_args();assert not a.from_frame_zero or a.constructor;a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+ p.add_argument('--constructor',action='store_true');p.add_argument('--from-frame-zero',action='store_true');p.add_argument('--audio-source',type=Path);p.add_argument('--isolate-audio',action='store_true');p.add_argument('--idle-audio-pump',action='store_true');p.add_argument('--spc-driver',type=Path);p.add_argument('--prefill-audio',action='store_true');p.add_argument('--audio-arm-guard',action='store_true');a=p.parse_args();assert not a.from_frame_zero or a.constructor;assert not a.audio_source or a.from_frame_zero;assert not(a.isolate_audio or a.idle_audio_pump or a.spc_driver or a.prefill_audio or a.audio_arm_guard)or a.audio_source;a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
  owner,code,meta,dispatch=derive(source);callbacks=pack(owner);reg=registry(source);models=pack_registry(reg);validate_pair(callbacks,models,code,meta,dispatch)
  nr,ncode,nmeta=continuations(source);assert(code,meta)==(ncode,nmeta);native=pack_continuations(nr);pair_native(native,code,meta)
  er=effects(source);fe=pack_effects(er);an=next(x for x in er['animations']if x['model']=='Knightbot'and x['role']=='attack1');model=next(x['id']for x in reg['models']if x['identity']=='Knightbot');child=next(x['id']for x in reg['models']if x['identity']=='ShockBall')
@@ -122,6 +122,7 @@ def main():
   ctorplan,ctorprefix,ctorsetup,walkid=resources(source,er,bundle,locations)
  assert len(bundle)<=32768
  rows=[dict(slot=s,direction=d,fault=0)for s in (0,1,95,96,127)for d in (0,1)]
+ if a.audio_source:rows=rows[:1]
  values=dict(MODEL=model,HANDLE=an['handle'],FRAMEBYTES=len(fe),CALLBACKBASE=locations['callbacks'],CALLBACKBYTES=len(callbacks),MODELBASE=locations['models'],MODELBYTES=len(models),DISPATCHBASE=locations['dispatch'],DISPATCHBYTES=len(dispatch),PROGRAMS=owner['program_count'],NATIVEBASE=locations['native'],NATIVEBYTES=len(native),NATIVECOUNT=len(nr['records']),CALLSITES=struct.unpack_from('<I',meta,32)[0],ARGS=struct.unpack_from('<I',meta,36)[0],STRINGS=struct.unpack_from('<I',meta,40)[0],INSTRUCTIONS=len(code)//8,SLOTCOUNT=struct.unpack_from('<H',meta,10)[0])
  lua='local metadata='+luav(list(meta))+'\nlocal pool='+luav(list(empty_pool()[0]))+'\nlocal vars='+luav(list(descriptor(0x414000,count=384)))+'\n'+LUA
  if a.constructor:
@@ -131,7 +132,7 @@ def main():
   lua=lua.replace("set('SourceSpawnSlot4086_Ready',0xb5a1)\nend","set('SourceSpawnSlot4086_Ready',0xb5a1)\n"+ctorsetup+'\nend')
  import re
  for key,value in values.items():lua=re.sub(r'\b'+key+r'\b',str(value),lua)
- asm=ASM;tables=[(38,0,bytes(bundle)),(58,0,fe)];bindings=dict(FRAMEBEGIN='SourceUpdateFrame4086_Begin',CALLBACKBEGIN='SourceAnimationCallback4086_Begin',CALLBACKRUN='SourceAnimationCallback4086_Run',NATIVEPOSTED='SourceNativeContinuation4086_Request',NATIVEMATCH='SourceNativeContinuation4086_Match');probes={'WAITPROBE':'ScriptedProjectileWaitProbe'}
+ asm=ASM;tables=[(38,0,bytes(bundle)),(58,0,fe)];bindings=dict(FRAMEBEGIN='SourceUpdateFrame4086_Begin',CALLBACKBEGIN='SourceAnimationCallback4086_Begin',CALLBACKRUN='SourceAnimationCallback4086_Run',NATIVEPOSTED='SourceNativeContinuation4086_Request',NATIVEMATCH='SourceNativeContinuation4086_Match');probes={'WAITPROBE':'ScriptedProjectileWaitProbe'};fixture_hooks={}
  if a.constructor:
   from m4_projectile_ctor_fixture import CONSTRUCT,BINDINGS
   asm=asm.replace(' plp\n clc\n rtl',CONSTRUCT.replace('WALKID',str(walkid))+' plp\n clc\n rtl',1);bindings.update(BINDINGS);tables.append((59,0,ctorplan));probes['AFTERCHILD']='ScriptedProjectileAfterChild';probes['WAITOBSERVED']='ScriptedProjectileWaitObserved'
@@ -144,6 +145,22 @@ def main():
    lua=lua.replace(init_end,timed_setup+'\n'+init_end);lua+=timed_observer
    asm=asm.replace('ScriptedProjectileFixtureRun:',PRELUDE+'ScriptedProjectileFixtureRun:',1)
    bindings.update(TIMED_BINDINGS);tables.append(timed_table);probes['NATURALTICK']='ScriptedProjectileNaturalTick'
+  if a.audio_source:
+   from m4_projectile_audio_fixture import configure, SERVICE, NEAR, BINDINGS as AUDIO_BINDINGS, OBSERVER
+   from actor_s5_entity_fixture import symbols
+   sy=symbols(Path('src/main.sym'))
+   sound=an['frames'][6]['sound'];audio_row,transform,before,closeout=configure(a.output,a.audio_source.resolve(),sound,a.isolate_audio,a.idle_audio_pump,a.spc_driver,a.prefill_audio,a.audio_arm_guard)
+   audio_asm=SERVICE.replace('SOUNDINDEX',str(audio_row['sound_index']))
+   asm=asm.replace('ScriptedProjectileConstructorDone:\n.a16\n.i16\n','ScriptedProjectileConstructorDone:\n.a16\n.i16\n'+audio_asm)
+   asm+=NEAR.replace('NEARRELAY',str((sy['Tad_ProcessMaybeStream__return']&65535)-1)).replace('NEARBANK',str(sy['AudioSemantic_StreamBackendPolicy']>>16)).replace('NEARTARGET',str((sy['AudioSemantic_StreamBackendPolicy']&65535)-1))
+   bindings.update(AUDIO_BINDINGS);probes['AFTERAUDIO']='ScriptedProjectileAfterAudio';lua+=OBSERVER
+   if a.idle_audio_pump:
+    from m4_projectile_audio_fixture import IDLE, IDLE_BINDINGS
+    asm+=IDLE.replace('WAITRETURN',str(sy['Core_Nmi_WaitFrame__loop']+6));bindings.update(IDLE_BINDINGS)
+   if a.audio_arm_guard:
+    from m4_projectile_audio_fixture import ARM_GUARD, ARM_BINDINGS
+    asm+=ARM_GUARD;bindings.update(ARM_BINDINGS)
+   fixture_hooks=dict(rom_transform=transform,before_start=before,closeout=closeout)
   # Relax distant fixture rejection branches with explicit-width trampolines.
   counter=[0]
   def relax(m):
@@ -155,8 +172,9 @@ def main():
   lua+=r'''
 emu.addMemoryCallback(function()local changed=0;for addr,value in pairs(waiting)do if emu.read(addr,mt)~=value then changed=changed+1 end end;emu.log('SCRIPTWAIT|'..word(INDEX)..'|'..changed)end,emu.callbackType.exec,WAITOBSERVED,WAITOBSERVED,emu.cpuType.snes,mt)
 '''
+ audio_verification=None
  r=Reporter('M4-SCRIPTED-PROJECTILE-CONSTRUCTOR'if a.constructor else'M4-SCRIPTED-PROJECTILE-REQUEST',kind='GATE')
- raw,log=run_fixture(a.rom,a.output,rows,'ScriptedProjectileFixture','SourceNativeRequest4086_Ready',0xb615,tables,lua,r,append=asm,bindings=bindings,batch_size=1,probes=probes,frame_limit=200)
+ raw,log=run_fixture(a.rom,a.output,rows,'ScriptedProjectileFixture','SourceNativeRequest4086_Ready',0xb615,tables,lua,r,append=asm,bindings=bindings,batch_size=1,probes=probes,frame_limit=200,**fixture_hooks)
  actual=[list(map(int,l.split('SCRIPTEDPROJECTILE|',1)[1].split('|')))for l in log.splitlines()if'SCRIPTEDPROJECTILE|'in l]
  if a.constructor:
   actual_ctor=[list(map(int,l.split('ACTUALPROJECTILECTOR|',1)[1].split('|')))for l in log.splitlines()if'ACTUALPROJECTILECTOR|'in l]
@@ -174,8 +192,15 @@ emu.addMemoryCallback(function()local changed=0;for addr,value in pairs(waiting)
   match=next((j,n)for j,n in enumerate(nr['records'])if n['model']=='Knightbot'and n['native_name']=='projectile')
   j,n=match;expected.append([i,2,j,0xb613,child,80*65536,221*65536,34*65536,c['direction'],n['resume_ip'],len(n['frame_callsites']),1,1])
  if a.constructor:
-  actual_final=[v for v in actual];r.check('authored caller resumes and closes callback after constructor; parent frame effects remain pending',all(v[-2:]==[2,2]for v in actual_final)and len(actual_final)==len(rows))
+  actual_final=[v for v in actual];r.check('authored caller resumes and closes callback after constructor; parent effects completion matches requested service scope',all(v[-2:]==[0 if a.audio_source else 2,2]for v in actual_final)and len(actual_final)==len(rows))
+  if a.audio_source:
+   requests=[list(map(int,l.split('SOURCEAUDIOREQUEST|',1)[1].split('|')))for l in log.splitlines()if'SOURCEAUDIOREQUEST|'in l]
+   r.check('source sound namespace -> real TAD stream request, exact compiled payload length/chunk count',requests==[[1,audio_row['brr_bytes'],(audio_row['brr_bytes']+143)//144]])
+   if a.isolate_audio and a.idle_audio_pump and a.spc_driver and a.prefill_audio and a.audio_arm_guard:
+    from m4_source_audio_native_verify import verify
+    audio_verification=verify(a.output,a.audio_source.resolve())
+    r.check('private stream: all BRR bytes, padding, voice0 pitch/gain, continuous full-duration envelope and END; no observed producer underrun',audio_verification['status']=='PASS')
  else:r.check('actual source FRAME6, real bytecode/script CALL frame, typed model/coordinate/direction request, cooperative yield and exact native continuation identity; no child allocated',actual==expected)
- (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_SCRIPTED_PROJECTILE_REQUEST_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),wait_observations=waits,natural_frame_observations=natural,from_authored_frame_zero=a.from_frame_zero,actual=actual,expected=expected,rom_sha256=hashlib.sha256(raw).hexdigest(),source_model='Knightbot',source_frame=6,compiled_source_sha256=hashlib.sha256(code+meta+dispatch).hexdigest(),source_stage_context_instrumented=True,source_self_global_lease_disabled=not a.constructor,constructor_executed=a.constructor,constructor_observations=actual_ctor,constructor_expected=expected_ctor,source_frame_audio_executed=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
+ (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_SCRIPTED_PROJECTILE_REQUEST_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),wait_observations=waits,natural_frame_observations=natural,from_authored_frame_zero=a.from_frame_zero,actual=actual,expected=expected,rom_sha256=hashlib.sha256(raw).hexdigest(),source_model='Knightbot',source_frame=6,compiled_source_sha256=hashlib.sha256(code+meta+dispatch).hexdigest(),source_stage_context_instrumented=True,source_self_global_lease_disabled=not a.constructor,constructor_executed=a.constructor,constructor_observations=actual_ctor,constructor_expected=expected_ctor,source_frame_audio_request_executed=bool(a.audio_source),source_frame_audio_executed=audio_verification is not None,audio_verification=audio_verification,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
 
 if __name__=='__main__':main()

@@ -1,0 +1,407 @@
+diff --git a/audio-driver/src/audio-driver.asm b/audio-driver/src/audio-driver.asm
+index 4db042b..b8499b3 100644
+--- a/audio-driver/src/audio-driver.asm
++++ b/audio-driver/src/audio-driver.asm
+@@ -32,6 +32,13 @@
+ 
+ .codebank CODE_ADDR..CODE_END_ADDR
+ 
++.assert STREAM_BUFFER_BYTES % 9 == 0
++.assert STREAM_RING_SIZE % 9 == 0
++.assert CODE_END_ADDR <= STREAM_STATE_ADDR
++.assert STREAM_STATE_END <= STREAM_RING_ADDR
++.assert STREAM_RING_END <= LAST_VAR_PAGE_ADDR
++.assert LAST_VAR_PAGE_ADDR + LAST_VAR_PAGE_SIZE == COMMON_DATA_ADDR
++
+ 
+ ; common audio data is stored at a fixed address in Audio RAM
+ .varbank CAD COMMON_DATA_ADDR..COMMON_DATA_ADDR+COMMON_DATA_HEADER_SIZE+1
+@@ -68,6 +75,17 @@ LAST_MUSIC_CHANNEL = N_MUSIC_CHANNELS - 1
+ FIRST_SFX_CHANNEL = LAST_MUSIC_CHANNEL + 1
+ LAST_SFX_CHANNEL = N_CHANNELS - 1
+ 
++; snes-bor production mode uses MSU-1 for music. Reserve physical DSP voice 0
++; for the specialized long-SFX streamer; TAD SFX voices 6 and 7 remain normal.
++RESERVE_STREAM_VOICE0 = 1
++STREAM_VOICE_MASK = $fe
++
++; Fixed test-stream ring. This is deliberately not a general sample heap.
++STREAM_FRAME_BYTES = STREAM_BUFFER_BYTES
++STREAM_HDMA_MARKER = $57
++STREAM_RECEIVE_FRAME = 22
++
++
+ 
+ ; Using separate values for slide and triangle to simplify the rust bytecode interpreter.
+ ; See: `channelSoA_volEffect_direction`
+@@ -118,7 +136,8 @@ VOL_PAN_EFFECT_TRIANGLE_DOWN = $41
+ 
+     ; bitmask - Set if S-DSP voice channel is music, clear if sfx.
+     ; Used to disable music channel S-DSP writes that are used by sound effects.
+-    ; Bits 0-5 MUST be set.
++    ; Bits 0-5 MUST be set. Physical stream reservation is applied at the
++    ; hardware-write firewall, not by changing this internal TAD invariant.
+     ; MUST ONLY be modified by `process_sfx_channels`.
+     musicSfxChannelMask : u8
+ 
+@@ -173,7 +192,6 @@ VOL_PAN_EFFECT_TRIANGLE_DOWN = $41
+     eonShadow_music : u8
+     eonShadow_sfx : u8
+ 
+-
+     ; `keyOnShadow` mask.
+     ;
+     ; Each bit determines the channel bytecode should emit a key-on event.
+@@ -378,6 +396,7 @@ __EndZeropageClearAddr = nonShadow_sfx + 1
+     sfxMutedChannels : u8
+ 
+ 
++
+ ; Channel variables that do not fit in zeropage
+ 
+     ; Delay before vibrato is applied to the current note (using `ticksAfterNote`).
+@@ -519,6 +538,7 @@ __EndZeropageClearAddr = nonShadow_sfx + 1
+     ; CAUTION: `bcStack` is offset by BC_CHANNEL_STACK_OFFSET to eliminate signed comparisons.
+     __bcStack : [u8 : BC_CHANNEL_STACK_SIZE * N_CHANNELS]
+         bcStack = __bcStack - BC_CHANNEL_STACK_OFFSET
++
+ .endvars
+ 
+ 
+@@ -544,7 +564,7 @@ __EndZeropageClearAddr = nonShadow_sfx + 1
+ 
+     ; All keys off
+     mov A, #DSP_KOFF
+-    mov Y, #$ff
++    mov Y, #STREAM_VOICE_MASK
+     movw DSPADDR, YA
+ 
+ 
+@@ -792,15 +812,18 @@ __EndZeropageClearAddr = nonShadow_sfx + 1
+     IsSurround:
+ 
+ 
+-    ; Reset bit-masks
++    ; Reset bit-masks. echoDirty and sfx_oneChannelSfxId are not physical
++    ; voice masks and intentionally retain the upstream $FF sentinel.
+     mov A, #$ff
+     mov echoDirty, A
++
+     mov io_musicChannelsMask, A
+     mov musicSfxChannelMask, A
+     mov volShadowDirty_music, A
+     mov keyOnMask_music, A
+ 
+     .assert N_SFX_CHANNELS == 2
++    mov A, #$ff
+     mov sfx_oneChannelSfxId+0, A
+     mov sfx_oneChannelSfxId+1, A
+ 
+@@ -982,6 +1005,7 @@ ClearEchoBufferEnd:
+ 
+     ; Send KOFF commands to the DSP
+     and A, musicSfxChannelMask
++    and A, #STREAM_VOICE_MASK
+     mov Y, A
+     mov A, #DSP_KOFF
+     movw DSPADDR, YA
+@@ -1045,8 +1069,11 @@ ClearEchoBufferEnd:
+     mov musicSfxChannelMask, A
+ 
+     ; Write keyOffShadow_sfx to the DSP
+-    mov A, #DSP_KOFF
+     mov Y, keyOffShadow_sfx
++    mov A, Y
++    and A, #STREAM_VOICE_MASK
++    mov Y, A
++    mov A, #DSP_KOFF
+     movw DSPADDR, YA
+ 
+ 
+@@ -1218,6 +1245,12 @@ _mutedChannels = zpTmp
+     VoiceChannelLoop:
+         dec X
+ 
++        ; Physical DSP voice 0 belongs exclusively to the BOR long-SFX
++        ; streamer. Do not let ordinary TAD channel-register writes replace
++        ; the stream SRCN, pitch, envelope, or volume after stream start.
++        cmp X, #0
++        beq VoiceRegistersUnchanged
++
+         asl voiceChannelsDirty_tmp
+         bcc VoiceRegistersUnchanged
+             mov A, LastVoiceRegister + X
+@@ -1310,6 +1343,7 @@ _mutedChannels = zpTmp
+     eor A, eonShadow_sfx
+     and A, sfxMusicEchoNoiseMask
+     eor A, eonShadow_music
++    and A, #STREAM_VOICE_MASK
+     mov Y, A
+     mov A, #DSP_EON
+     movw DSPADDR, YA
+@@ -1320,6 +1354,7 @@ _mutedChannels = zpTmp
+     mov A, nonShadow_music
+     and A, musicSfxChannelMask
+     or  A, nonShadow_sfx
++    and A, #STREAM_VOICE_MASK
+     mov Y, A
+     mov A, #DSP_NON
+     movw DSPADDR, YA
+@@ -1334,8 +1369,11 @@ _mutedChannels = zpTmp
+         ; processing music channels
+ 
+         ; Write pmonShadow to PMON
+-        mov A, #DSP_PMON
+         mov Y, pmonShadow
++        mov A, Y
++        and A, #STREAM_VOICE_MASK
++        mov Y, A
++        mov A, #DSP_PMON
+         movw DSPADDR, YA
+ 
+         mov A, noiseLock
+@@ -1382,6 +1420,9 @@ _mutedChannels = zpTmp
+ 
+ 
+     ; Y = keyOnShadow_*
++    mov A, Y
++    and A, #STREAM_VOICE_MASK
++    mov Y, A
+     mov A, #DSP_KON
+     movw DSPADDR, YA
+ 
+@@ -1703,6 +1744,11 @@ Return:
+             ; Acknowledge command
+             pop A
+             mov DriverIO__COMMAND_ACK_PORT, A
++            ; Stream payload uses APUIO3 for arbitrary BRR bytes.  Do not
++            ; reinterpret its final value as the loader-switch control bit.
++            and A, #DriverIO__COMMAND_MASK
++            cmp A, #STREAM_RECEIVE_FRAME
++            beq NoStl
+     NoCommand:
+ 
+ 
+@@ -1745,6 +1791,136 @@ CommandFunctionTable:
+ CommandFunctionTableEnd:
+ CommandFunctionTable_SIZE = CommandFunctionTableEnd - CommandFunctionTable
+ 
++; TAD-owned receive endpoint for one 144-byte BRR frame. The host sends one
++; submit row whose APUIO3 value is STREAM_HDMA_MARKER, then 72 mode-4 rows.
++; APUIO0 is reserved for command/ack traffic. Each payload row publishes two
++; BRR bytes on APUIO1/2, then commits the row with a low-5-bit token on APUIO3.
++.proc cmd__stream_receive_frame
++    ; Host supplies the current physical ring destination in PARAMETER_0/1
++    ; before starting the HDMA payload.  This keeps slot selection explicit
++    ; and prevents the producer from overwriting one fixed buffer forever.
++    mov A, DriverIO__PARAMETER_0_PORT
++    mov zpTmp, A
++    ; The host may set bit 7 of the high destination byte for the transport
++    ; fixture. Ring addresses use high bytes below $80, so this mode bit does
++    ; not overlap a real ARAM address. Keep the mode in lagDetector until
++    ; completion.
++    mov A, DriverIO__PARAMETER_1_PORT
++    mov zpTmp2, A
++    and A, #$80
++    mov lagDetector, A
++    mov A, zpTmp2
++    and A, #$7f
++    mov zpTmp2, A
++    ; Save the command shadow so the submit row can serve as a start latch.
++    mov A, previousCommand
++    push A
++    ; Reuse the lag byte as bounded receive-local scratch.  The old value is
++    ; restored before returning, so this does not alter TAD state.
++    mov A, lagDetector
++    push A
++ReceiveStreamFrame__wait_submit:
++    ; APUIO0 remains the accepted stream command for the entire transfer.
++    ; The host clears APUIO3 before dispatch, then the HDMA submit row
++    ; publishes STREAM_HDMA_MARKER. This prevents a payload dummy byte from
++    ; being interpreted as an ordinary TAD command.
++    mov A, DriverIO__SWITCH_TO_LOADER_PORT
++    cmp A, #STREAM_HDMA_MARKER
++    bne ReceiveStreamFrame__wait_submit
++    mov A, #$ff
++    mov previousCommand, A
++    mov A, #$00
++    mov lagDetector, A
++    mov Y, #0
++    mov X, #72
++ReceiveStreamFrame__payload:
++ReceiveStreamFrame__wait_token:
++    ; APUIO3 is written last by the mode-4 producer row. Do not sample the
++    ; data lanes until the expected commit token is visible.
++    mov A, DriverIO__SWITCH_TO_LOADER_PORT
++    cmp A, lagDetector
++    bne ReceiveStreamFrame__wait_token
++    mov A, DriverIO__PARAMETER_0_PORT
++    mov [zpTmp] + Y, A
++    inc Y
++    mov A, DriverIO__PARAMETER_1_PORT
++    mov [zpTmp] + Y, A
++    inc Y
++    mov A, lagDetector
++    inc A
++    and A, #$1f
++    mov lagDetector, A
++    dec X
++    beq ReceiveStreamFrame__payload_done
++    bra ReceiveStreamFrame__payload
++ReceiveStreamFrame__payload_done:
++
++    ; Restore the destination-mode byte before using it for first-start logic.
++    pop A
++    mov lagDetector, A
++    ; Transport-only prefill transactions populate the ring but must not
++    ; claim voice 0.  The normal-mode transaction performs the one-time
++    ; directory rewrite and KON after the ring is ready.
++    mov A, lagDetector
++    bne StreamReceiveFrame__not_first
++    ; The generated stream directory entry is not the ring pointer before
++    ; the first normal-mode transaction. Use that durable DSP state to gate
++    ; the one-time KON instead of depending on the command dispatcher shadow,
++    ; which is restored by the surrounding TAD protocol.
++    mov A, brrDirectory+133
++    cmp A, #hibyte(STREAM_RING_ADDR)
++    bne StreamReceiveFrame__first_start
++    mov A, brrDirectory+132
++    cmp A, #lobyte(STREAM_RING_ADDR)
++    beq StreamReceiveFrame__not_first
++StreamReceiveFrame__first_start:
++    mov A, #lobyte(STREAM_RING_ADDR)
++    mov brrDirectory+132, A
++    mov A, #hibyte(STREAM_RING_ADDR)
++    mov brrDirectory+133, A
++    ; Explicit stream ownership of physical DSP voice 0, only at first start.
++    mov A, #$04
++    mov Y, #33
++    movw DSPADDR, YA
++    ; MOTU source-stream experiment: configure the reserved voice's envelope.
++    ; Its ordinary TAD channel updates are excluded, so power-on DSP contents
++    ; cannot supply ADSR/gain defaults. Use the authored non-loop gain policy.
++    mov A, #$05
++    mov Y, #$00
++    movw DSPADDR, YA
++    mov A, #$07
++    mov Y, #$7f
++    movw DSPADDR, YA
++    mov A, #$00
++    mov Y, #$7f
++    movw DSPADDR, YA
++    inc A
++    mov Y, #$7f
++    movw DSPADDR, YA
++    inc A
++    mov Y, #$83
++    movw DSPADDR, YA
++    inc A
++    mov Y, #$05
++    movw DSPADDR, YA
++    mov A, #DSP_KON
++    mov Y, #$01
++    movw DSPADDR, YA
++StreamReceiveFrame__not_first:
++    mov A, #lobyte(STREAM_RING_ADDR)
++    mov brrDirectory+134, A
++    mov A, #hibyte(STREAM_RING_ADDR)
++    mov brrDirectory+135, A
++
++StreamReceiveFrame__restore_marker:
++    pop A
++    mov previousCommand, A
++
++StreamReceiveFrame__ack:
++    ; The outer IO dispatcher owns the authoritative command acknowledgement.
++    ret
++.endproc
++
+ 
+ 
+ ; Pause music and sound effects
+@@ -1779,6 +1955,9 @@ CommandFunctionTable_SIZE = CommandFunctionTableEnd - CommandFunctionTable
+ 
+ ; IN: Y = channels
+ .proc __cmd__keyoff
++    mov A, Y
++    and A, #STREAM_VOICE_MASK
++    mov Y, A
+     mov A, #DSP_KOFF
+     movw DSPADDR, YA
+ 
+diff --git a/audio-driver/src/common-memmap.inc b/audio-driver/src/common-memmap.inc
+index d6d27c7..739d032 100644
+--- a/audio-driver/src/common-memmap.inc
++++ b/audio-driver/src/common-memmap.inc
+@@ -46,18 +46,28 @@ LAST_VAR_PAGE_SIZE = (BC_CHANNEL_STACK_SIZE + 12) * 10
+ ;   * `addresses::COMMON_DATA` in `crates/compiler/src/driver_constants.rs`
+ ;   * The Tad_AudioDriver_SIZE assert in `ca65-api/tad-audio.s`
+ ;   * The Tad_AudioDriver_SIZE assert in `64tass-api/tad-process.inc`
+-COMMON_DATA_ADDR = $1100 - 28
++; snes-bor reserves a page-aligned stream state/ring region below lastvarpage.
++COMMON_DATA_ADDR = $1800 - 28
++
++STREAM_BUFFER_BYTES = 144
++STREAM_BUFFER_COUNT = 8
++STREAM_RING_SIZE = STREAM_BUFFER_BYTES * STREAM_BUFFER_COUNT
++STREAM_STATE_SIZE = $20
++LAST_VAR_PAGE_ADDR = COMMON_DATA_ADDR - LAST_VAR_PAGE_SIZE
++STREAM_RING_END = LAST_VAR_PAGE_ADDR
++STREAM_RING_ADDR = STREAM_RING_END - STREAM_RING_SIZE
++STREAM_STATE_END = STREAM_RING_ADDR
++STREAM_STATE_ADDR = STREAM_STATE_END - STREAM_STATE_SIZE
+ 
+ ; `CODE_ADDR` MUST be an even address (The loader only works with even addresses)
+ CODE_ADDR = $200 + LOADER_SIZE
+-CODE_END_ADDR = COMMON_DATA_ADDR - LAST_VAR_PAGE_SIZE
+-
++CODE_END_ADDR = STREAM_STATE_ADDR
+ 
+ .varbank zeropage           $0000..SHARED_ZEROPAGE_ADDR
+ .varbank loader_zeropage    SHARED_ZEROPAGE_ADDR..$00f0
+ .varbank firstpage          $0100..STACK_BOTTOM_ADDR
+ .varbank stack              STACK_BOTTOM_ADDR..$0200
+-.varbank lastvarpage        CODE_END_ADDR..COMMON_DATA_ADDR
++.varbank lastvarpage        LAST_VAR_PAGE_ADDR..COMMON_DATA_ADDR
+ 
+ 
+ ; Variables used by loader or used across song loads
+diff --git a/audio-driver/src/io-commands.inc b/audio-driver/src/io-commands.inc
+index 05e1f91..a224c5a 100644
+--- a/audio-driver/src/io-commands.inc
++++ b/audio-driver/src/io-commands.inc
+@@ -171,7 +171,7 @@ TAD_IO_VERSION = 20
+     ;    has been acknowledged.
+     DriverIO__COMMAND_PORT = CPUIO0
+ 
+-    DriverIO__N_COMMANDS = 11
++    DriverIO__N_COMMANDS = 12
+     DriverIO__COMMAND_MASK   = %00011110
+     DriverIO__COMMAND_I_MASK = %11100001
+ 
+@@ -297,5 +297,10 @@ IoCommands__PAUSE = 0
+     ;
+     ; NOTE: Global volumes persist after a new song or common-audio-data is loaded.
+     cmd__set_global_volumes ; CMD 20
++
++    ; Receive one 144-byte long-SFX frame. Parameter 0 selects the rotating
++    ; ring buffer. The host owns framing and the TAD command protocol.
++    cmd__stream_receive_frame ; CMD 22
++
+ .endftdef
+ 
+diff --git a/crates/compiler/src/driver_constants.rs b/crates/compiler/src/driver_constants.rs
+index 0271e28..884e12d 100644
+--- a/crates/compiler/src/driver_constants.rs
++++ b/crates/compiler/src/driver_constants.rs
+@@ -101,7 +101,9 @@ pub mod addresses {
+     );
+ 
+     // MUST match `audio-driver/src/common-memmap.inc`
+-    pub const COMMON_DATA: u16 = 0x1100 - 28;
++    // snes-bor reserves a page-aligned stream state/ring region below the
++    // last-variable page. Keep this synchronized with common-memmap.inc.
++    pub const COMMON_DATA: u16 = 0x1800 - 28;
+ 
+     const _: () = assert!(
+         _symbols::_LOADER_END_ADDR == DRIVER_CODE,

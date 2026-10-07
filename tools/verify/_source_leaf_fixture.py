@@ -12,7 +12,7 @@ import game_bor_startup_select as startup
 REQUEST, INDEX, ERROR = 0x7ffd80, 0x7ffd82, 0x7ffd84
 
 
-def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None, append='', bindings=None, probes=None, batch_size=8, frame_limit=2000):
+def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None, append='', bindings=None, probes=None, batch_size=8, frame_limit=2000, rom_transform=None, closeout=None, before_start=None):
     if batch_size not in (1,2,4,8,16,32,64):raise ValueError('LEAF_BATCH_SIZE')
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(rom_path.read_bytes())
     if raw[first:first+32768]!=bytes(32768) or raw[59*32768:61*32768]!=bytes(65536) or raw[0x7fd8]!=8:raise ValueError('LEAF_PRIVATE_RESERVATION')
@@ -114,6 +114,7 @@ LeafFixture_Return:
         raw[bank*32768+at:bank*32768+at+len(data)]=data
     if raw[offset(entry):offset(entry)+5]!=bytes.fromhex('08 c2 31 da 5a'):raise ValueError('LEAF_GATE')
     raw[offset(entry):offset(entry)+5]=b'\x5c'+struct.pack('<I',fs['LeafFixture_Gate'])[:3]+b'\xea'
+    if rom_transform:rom_transform(raw,{**sy,**fs})
     rom=folder/'bor.sfc';rom.write_bytes(raw)
     for media in [rom_path.with_suffix('.msu'),*rom_path.parent.glob('bor-*.pcm')]:
         target=folder/media.name
@@ -138,7 +139,9 @@ LeafFixture_Return:
         with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('LEAF_BOOTSTRAP')
-        run_frames_exact(m,12);m.write_u16(INDEX,0);m.write_u16(ERROR,0);m.write_u16(REQUEST,magic)
+        run_frames_exact(m,12);m.write_u16(INDEX,0);m.write_u16(ERROR,0)
+        if before_start:before_start(m,sy)
+        m.write_u16(REQUEST,magic)
         for _ in range(frame_limit):
             run_frames_exact(m,1)
             if startup.u16(m,INDEX)==len(rows) or startup.u16(m,ERROR):break
@@ -150,4 +153,5 @@ LeafFixture_Return:
             (folder/'incomplete.json').write_text(json.dumps(diagnostics,indent=2)+'\n')
             print('Incomplete leaf diagnostics:',diagnostics)
         reporter.check('native leaf batch completed',completed)
+        if closeout:closeout(m,sy,completed)
     return raw,(folder/'mesen.log').read_text()

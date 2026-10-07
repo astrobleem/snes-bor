@@ -1,0 +1,946 @@
+{
+  "schema": "BYOR_MOTU_SOURCE_AUDIO_PRIVATE_RECEIPT_V1",
+  "status": "PASS",
+  "scope": "Offline source audio compilation and isolated native Knightbot frame6 sound; no production binding or MOTU gameplay",
+  "head": "e4787b606ac7e91211b2e43592cc8f3a6c7c655d",
+  "assets": {
+    "schema": "BYOR_SOURCE_FRAME_AUDIO_V1",
+    "source_frame_table_sha256": "b02003ab0b0bde907ac928795e9767f723563aa02c3986d75a033ef0f38f4608",
+    "namespace": [
+      "data/chars/he-man/entry/entry.wav",
+      "data/chars/he-man/bigswing.wav",
+      "data/chars/he-man/sheath.wav",
+      "data/chars/he-man/pain.wav",
+      "data/sounds/quake.wav",
+      "data/chars/he-man/iceb.wav",
+      "data/chars/he-man/fx/wind.wav",
+      "data/chars/skeletor/entry.wav",
+      "data/chars/skeletor/laugh.wav",
+      "data/chars/skeletor/enough.wav",
+      "data/chars/skeletor/tornado.wav",
+      "data/chars/skeletor/explosion.wav",
+      "data/chars/skeletor/spin.wav",
+      "data/chars/skeletor/teleport.wav",
+      "data/chars/skeletor/fireball.wav",
+      "data/sounds/klunk.wav",
+      "data/chars/KnBot/energy.wav"
+    ],
+    "compiled": [
+      {
+        "sound_index": 0,
+        "source_path": "data/chars/he-man/entry/entry.wav",
+        "source_sha256": "aa6bb567ad386b1958c4f0475af952cfe59d0aea3cf396fb4fd850af0ae5abae",
+        "canonical_wav_sha256": "9d5cd606bab05c1f3d30939ea58b413daab6ae8b6ca2acd21e2ec217562aff09",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 136016,
+        "duration_ticks": 1543,
+        "duration_seconds": 12.337052154195012,
+        "brr_sha256": "76ffceb76e0bf425e778dea5744b1de4aad845831e87eaf5f9640b30fd88c068",
+        "brr_path": "76ffceb76e0bf425e778dea5744b1de4aad845831e87eaf5f9640b30fd88c068.brr",
+        "brr_bytes": 76509,
+        "brr_blocks": 8501,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 65520,
+            "brr_offset": 0,
+            "brr_bytes": 36855,
+            "first_filter": 0,
+            "single_effect_common_bytes": 36904
+          },
+          {
+            "sample_offset": 65520,
+            "samples": 65520,
+            "brr_offset": 36855,
+            "brr_bytes": 36855,
+            "first_filter": 0,
+            "single_effect_common_bytes": 36904
+          },
+          {
+            "sample_offset": 131040,
+            "samples": 4976,
+            "brr_offset": 73710,
+            "brr_bytes": 2799,
+            "first_filter": 0,
+            "single_effect_common_bytes": 2846
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 12
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 1,
+        "source_path": "data/chars/he-man/bigswing.wav",
+        "source_sha256": "aa70161fd77707d6804b6138875ee43186d0fe57dc2938c94fed77cd7ca55aa9",
+        "canonical_wav_sha256": "113da54d34cdb13b426c957883e3345bb64ec2e69c63ab47543e4e027296dd59",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 3312,
+        "duration_ticks": 38,
+        "duration_seconds": 0.3004081632653061,
+        "brr_sha256": "814064d163006cd25d20a2647ed0a8512b68d15ac267aa09f371a9ea80603185",
+        "brr_path": "814064d163006cd25d20a2647ed0a8512b68d15ac267aa09f371a9ea80603185.brr",
+        "brr_bytes": 1863,
+        "brr_blocks": 207,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 3312,
+            "brr_offset": 0,
+            "brr_bytes": 1863,
+            "first_filter": 0,
+            "single_effect_common_bytes": 1910
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 2
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 2,
+        "source_path": "data/chars/he-man/sheath.wav",
+        "source_sha256": "5c11557587fdee0d32cb28829d883560a8398c8784bfaef521a83cb240c37453",
+        "canonical_wav_sha256": "5f99e70be4394a223adbdfabb15c9bcd703c70c279e977cb6ef89f84810baf5f",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 4976,
+        "duration_ticks": 57,
+        "duration_seconds": 0.4513378684807256,
+        "brr_sha256": "33f2f555ec9eae9f31918f35a75397a049796d4411c406966d5f797608cdde8f",
+        "brr_path": "33f2f555ec9eae9f31918f35a75397a049796d4411c406966d5f797608cdde8f.brr",
+        "brr_bytes": 2799,
+        "brr_blocks": 311,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 4976,
+            "brr_offset": 0,
+            "brr_bytes": 2799,
+            "first_filter": 0,
+            "single_effect_common_bytes": 2846
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 6
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 3,
+        "source_path": "data/chars/he-man/pain.wav",
+        "source_sha256": "f00053c02678f25c1df84d13f8e7382ccad953fd8b4ec0b3b374a8388c458dd5",
+        "canonical_wav_sha256": "6f2f295099fb4e4eda7f5def1f160e0a575a0a8c4096e181378098d5c201096e",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 5952,
+        "duration_ticks": 68,
+        "duration_seconds": 0.5398639455782313,
+        "brr_sha256": "7759b2213833061deafcf1ea0e665c59b99a0d0bdd66d3515c5c7b8704d549e4",
+        "brr_path": "7759b2213833061deafcf1ea0e665c59b99a0d0bdd66d3515c5c7b8704d549e4.brr",
+        "brr_bytes": 3348,
+        "brr_blocks": 372,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 5952,
+            "brr_offset": 0,
+            "brr_bytes": 3348,
+            "first_filter": 0,
+            "single_effect_common_bytes": 3395
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 9
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 4,
+        "source_path": "data/sounds/quake.wav",
+        "source_sha256": "0c6a4dce448443f967f58e7196d639e8b55a33f4c4a23c88eb1b655eca86e303",
+        "canonical_wav_sha256": "7d1a64bdd348a6830f8206fb9e4df62ee3b2df1038364ac9aa967773346173be",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 22112,
+        "duration_ticks": 251,
+        "duration_seconds": 2.00562358276644,
+        "brr_sha256": "2395d47b4815105b7cb7ef1ab4850e3a927e83f7242939082493faba6065374e",
+        "brr_path": "2395d47b4815105b7cb7ef1ab4850e3a927e83f7242939082493faba6065374e.brr",
+        "brr_bytes": 12438,
+        "brr_blocks": 1382,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 22112,
+            "brr_offset": 0,
+            "brr_bytes": 12438,
+            "first_filter": 0,
+            "single_effect_common_bytes": 12485
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 11
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 5,
+        "source_path": "data/chars/he-man/iceb.wav",
+        "source_sha256": "65945eb0f3d66d6171ec6f4e3c73cf154e916f4d878457321b5b9ce7321d3aa0",
+        "canonical_wav_sha256": "16835c41444a0d70ada1cd496d3af0302a1b86b173757b89efe2474d352b1f22",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 23168,
+        "duration_ticks": 263,
+        "duration_seconds": 2.10140589569161,
+        "brr_sha256": "784e9c0993505b79d904d49595363566c5ff03731eccade393ee52ff8f836865",
+        "brr_path": "784e9c0993505b79d904d49595363566c5ff03731eccade393ee52ff8f836865.brr",
+        "brr_bytes": 13032,
+        "brr_blocks": 1448,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 23168,
+            "brr_offset": 0,
+            "brr_bytes": 13032,
+            "first_filter": 0,
+            "single_effect_common_bytes": 13081
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 3
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 6,
+        "source_path": "data/chars/he-man/fx/wind.wav",
+        "source_sha256": "4274c51fb2cc35730ae61b2f8e3510dc5133390fb9d393fc76e837966a7c6f45",
+        "canonical_wav_sha256": "205bfde64b08c6b94073a67062cee5236c4e257d0ee27e422f3b9f44aa90ddb1",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 31232,
+        "duration_ticks": 355,
+        "duration_seconds": 2.8328344671201813,
+        "brr_sha256": "bbbb983d7e1fcda417c03328261974b7b1303e795df18bd21068170458140e09",
+        "brr_path": "bbbb983d7e1fcda417c03328261974b7b1303e795df18bd21068170458140e09.brr",
+        "brr_bytes": 17568,
+        "brr_blocks": 1952,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 31232,
+            "brr_offset": 0,
+            "brr_bytes": 17568,
+            "first_filter": 0,
+            "single_effect_common_bytes": 17617
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 13
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 7,
+        "source_path": "data/chars/skeletor/entry.wav",
+        "source_sha256": "c90ab323d80dad881b08336368261a5e9d30acc84a394add04c4041f768cb8bc",
+        "canonical_wav_sha256": "12c32d6b59c0c2c20c4c24a53e32922d01f600e1cf3281b62ca58d5d14f82270",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 43488,
+        "duration_ticks": 494,
+        "duration_seconds": 3.944489795918367,
+        "brr_sha256": "3f7b5cbb6bf841ebccc7fcf795d346ecd434f90d0ce5062ba8ac061aae9af4cf",
+        "brr_path": "3f7b5cbb6bf841ebccc7fcf795d346ecd434f90d0ce5062ba8ac061aae9af4cf.brr",
+        "brr_bytes": 24462,
+        "brr_blocks": 2718,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 43488,
+            "brr_offset": 0,
+            "brr_bytes": 24462,
+            "first_filter": 0,
+            "single_effect_common_bytes": 24511
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 8
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 8,
+        "source_path": "data/chars/skeletor/laugh.wav",
+        "source_sha256": "93e69721225a7b8905fa2b8e03982e1f0e707eda05dfaec4c5bfaa011d594133",
+        "canonical_wav_sha256": "54438acd6355c8ac3787133118a36626b26d26ecdc008d5d778416fc0b3602a2",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 32064,
+        "duration_ticks": 364,
+        "duration_seconds": 2.9082993197278912,
+        "brr_sha256": "0983c69a7b9fe3d97c1bf05192ea457caf9ef585dde0f0d128028b666dd9be0b",
+        "brr_path": "0983c69a7b9fe3d97c1bf05192ea457caf9ef585dde0f0d128028b666dd9be0b.brr",
+        "brr_bytes": 18036,
+        "brr_blocks": 2004,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 32064,
+            "brr_offset": 0,
+            "brr_bytes": 18036,
+            "first_filter": 0,
+            "single_effect_common_bytes": 18085
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 6
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 9,
+        "source_path": "data/chars/skeletor/enough.wav",
+        "source_sha256": "8328c5ccb6f15489011c74e40b98fb494954ef4cdb85978699ee88e85f9827e4",
+        "canonical_wav_sha256": "91c81b93fb953d7c16640c866c4718793e33a975993e9cf3d97ae3c557e8c9fd",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 30496,
+        "duration_ticks": 346,
+        "duration_seconds": 2.766077097505669,
+        "brr_sha256": "bebff1c4257c1ccf2a32d0b9fb7a05d9b41744d5941adb46c97f316bc61f14d3",
+        "brr_path": "bebff1c4257c1ccf2a32d0b9fb7a05d9b41744d5941adb46c97f316bc61f14d3.brr",
+        "brr_bytes": 17154,
+        "brr_blocks": 1906,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 30496,
+            "brr_offset": 0,
+            "brr_bytes": 17154,
+            "first_filter": 0,
+            "single_effect_common_bytes": 17203
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 7
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 10,
+        "source_path": "data/chars/skeletor/tornado.wav",
+        "source_sha256": "d96915f1a0aaf95332b6d6c1f8e3cfd02eb829823b68ccacd930b807811e637f",
+        "canonical_wav_sha256": "50ec1befa5f07b95ea66c9080cab0207655bf6380da5f1be877aacddffff5099",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 31216,
+        "duration_ticks": 354,
+        "duration_seconds": 2.8313832199546485,
+        "brr_sha256": "ab90b9b0a49e4ec12f8805e221fafef45569ee0077040ef3ccf6f333411bda84",
+        "brr_path": "ab90b9b0a49e4ec12f8805e221fafef45569ee0077040ef3ccf6f333411bda84.brr",
+        "brr_bytes": 17559,
+        "brr_blocks": 1951,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 31216,
+            "brr_offset": 0,
+            "brr_bytes": 17559,
+            "first_filter": 0,
+            "single_effect_common_bytes": 17608
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 0
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 11,
+        "source_path": "data/chars/skeletor/explosion.wav",
+        "source_sha256": "ede9a5374f7297abf2a5798871691b8183f43a20c665756a54a94f48c194e353",
+        "canonical_wav_sha256": "83d42a972758612b63dbe6fc7d47ac30e9e674747ad2f63c801f1371115e0460",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 14480,
+        "duration_ticks": 165,
+        "duration_seconds": 1.3133786848072562,
+        "brr_sha256": "482844286ad382e50faa4e036d46abd0c5c4f8292f145bfb7a28bb5698ab1075",
+        "brr_path": "482844286ad382e50faa4e036d46abd0c5c4f8292f145bfb7a28bb5698ab1075.brr",
+        "brr_bytes": 8145,
+        "brr_blocks": 905,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 14480,
+            "brr_offset": 0,
+            "brr_bytes": 8145,
+            "first_filter": 0,
+            "single_effect_common_bytes": 8192
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 12
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 12,
+        "source_path": "data/chars/skeletor/spin.wav",
+        "source_sha256": "d068014326a4bb5ca12542ef119b87c7ee0c79e07784f132f0cc6fc499ec833a",
+        "canonical_wav_sha256": "14e46244bd4fef3ddeed85a34bb5e282968bf927586613ba216cb74b287891b6",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 7872,
+        "duration_ticks": 90,
+        "duration_seconds": 0.7140136054421768,
+        "brr_sha256": "1af385b23e4706e7796a50044d9b3188dbd09da56a3615974aa130f4d0bb822e",
+        "brr_path": "1af385b23e4706e7796a50044d9b3188dbd09da56a3615974aa130f4d0bb822e.brr",
+        "brr_bytes": 4428,
+        "brr_blocks": 492,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 7872,
+            "brr_offset": 0,
+            "brr_bytes": 4428,
+            "first_filter": 0,
+            "single_effect_common_bytes": 4475
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 10
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 13,
+        "source_path": "data/chars/skeletor/teleport.wav",
+        "source_sha256": "56151b9fef4fe63ce31a95b8e94f428c2ed290bf5bd15a55b6922b81a56479aa",
+        "canonical_wav_sha256": "143c6dba55b043f1bce2a0240b6ecf76edb98d753ecc0bfe3c877d4cb895e3aa",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 4672,
+        "duration_ticks": 53,
+        "duration_seconds": 0.42376417233560093,
+        "brr_sha256": "6e98e9408069c9c4bfdd0d678888c9ea4a6f5a7a822d4c81ae9822beed47d537",
+        "brr_path": "6e98e9408069c9c4bfdd0d678888c9ea4a6f5a7a822d4c81ae9822beed47d537.brr",
+        "brr_bytes": 2628,
+        "brr_blocks": 292,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 4672,
+            "brr_offset": 0,
+            "brr_bytes": 2628,
+            "first_filter": 0,
+            "single_effect_common_bytes": 2675
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 15
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 14,
+        "source_path": "data/chars/skeletor/fireball.wav",
+        "source_sha256": "c3af8ed2d2bd8c5fa1ec7b270bcc4a8c048210d21275f9e3b0f661cc9fd98d2a",
+        "canonical_wav_sha256": "f632e620677e720b6d5bb54ddbe3c472757137871c3f5b3fbf995e47cbe2872a",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 14528,
+        "duration_ticks": 165,
+        "duration_seconds": 1.3177324263038548,
+        "brr_sha256": "d2bd33857b6171685a0a302a057946734d418d61bc06919a769ddfa18e5eabe3",
+        "brr_path": "d2bd33857b6171685a0a302a057946734d418d61bc06919a769ddfa18e5eabe3.brr",
+        "brr_bytes": 8172,
+        "brr_blocks": 908,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 14528,
+            "brr_offset": 0,
+            "brr_bytes": 8172,
+            "first_filter": 0,
+            "single_effect_common_bytes": 8219
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 13
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 15,
+        "source_path": "data/sounds/klunk.wav",
+        "source_sha256": "b056422cd959b8a5ef57a697cdc9a41923b1a0fb51e4a2fcda177978dacffc75",
+        "canonical_wav_sha256": "7cb4118ee602f63a496093172dee98e1a0a89bc4427c439dd0e059abe44bfc3e",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 8128,
+        "duration_ticks": 93,
+        "duration_seconds": 0.737233560090703,
+        "brr_sha256": "56d2d42035dedfd73e32fe196055ecede25d7986eb0a8160691799e0fd37ab82",
+        "brr_path": "56d2d42035dedfd73e32fe196055ecede25d7986eb0a8160691799e0fd37ab82.brr",
+        "brr_bytes": 4572,
+        "brr_blocks": 508,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 8128,
+            "brr_offset": 0,
+            "brr_bytes": 4572,
+            "first_filter": 0,
+            "single_effect_common_bytes": 4619
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 8
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      },
+      {
+        "sound_index": 16,
+        "source_path": "data/chars/KnBot/energy.wav",
+        "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+        "canonical_wav_sha256": "6dca7ebe44066e669eae39c120233398b01e70e2b806e65cba85b1dbccf09474",
+        "normalized_sample_rate": 11025,
+        "normalized_frames": 14352,
+        "duration_ticks": 163,
+        "duration_seconds": 1.3017687074829931,
+        "brr_sha256": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b",
+        "brr_path": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b.brr",
+        "brr_bytes": 8073,
+        "brr_blocks": 897,
+        "single_effect_common_bytes": null,
+        "segments": [
+          {
+            "sample_offset": 0,
+            "samples": 14352,
+            "brr_offset": 0,
+            "brr_bytes": 8073,
+            "first_filter": 0,
+            "single_effect_common_bytes": 8120
+          }
+        ],
+        "audio_adaptation": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 2
+        },
+        "backend": "TAD_STREAM_VOICE0",
+        "loop": false
+      }
+    ],
+    "uncompiled_indices": [],
+    "compiler": "E:\\gh\\terrific-audio-driver\\target\\release\\tad-compiler.exe",
+    "compiler_version": "0.3.0",
+    "compiler_sha256": "666688e5f4d9c1ff02bac2456eb24742f9788c0b50a1e59821b5b88d2c0c73c9",
+    "runtime_binding_installed": false,
+    "audible_playback_proven": false,
+    "no_pcm_copies": true
+  },
+  "asset_verification": {
+    "schema": "BYOR_SOURCE_FRAME_AUDIO_VERIFY_V1",
+    "status": "PASS",
+    "cases": 17,
+    "assets": [
+      {
+        "source_path": "data/chars/he-man/entry/entry.wav",
+        "source_frames": 272007,
+        "source_rate_hz": 22050,
+        "source_channels": 1,
+        "stream_samples": 136016,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0011337868480725624,
+        "brr_bytes": 76509,
+        "segments": 3,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/he-man/bigswing.wav",
+        "source_frames": 13240,
+        "source_rate_hz": 44100,
+        "source_channels": 1,
+        "stream_samples": 3312,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.00018140589569160998,
+        "brr_bytes": 1863,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/he-man/sheath.wav",
+        "source_frames": 9939,
+        "source_rate_hz": 22050,
+        "source_channels": 1,
+        "stream_samples": 4976,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0005895691609977325,
+        "brr_bytes": 2799,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/he-man/pain.wav",
+        "source_frames": 11885,
+        "source_rate_hz": 22050,
+        "source_channels": 1,
+        "stream_samples": 5952,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0008616780045351474,
+        "brr_bytes": 3348,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/sounds/quake.wav",
+        "source_frames": 44202,
+        "source_rate_hz": 22050,
+        "source_channels": 1,
+        "stream_samples": 22112,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.000997732426303855,
+        "brr_bytes": 12438,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/he-man/iceb.wav",
+        "source_frames": 92660,
+        "source_rate_hz": 44100,
+        "source_channels": 1,
+        "stream_samples": 23168,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.00027210884353741496,
+        "brr_bytes": 13032,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/he-man/fx/wind.wav",
+        "source_frames": 62438,
+        "source_rate_hz": 22050,
+        "source_channels": 1,
+        "stream_samples": 31232,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.001179138321995465,
+        "brr_bytes": 17568,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/skeletor/entry.wav",
+        "source_frames": 86960,
+        "source_rate_hz": 22050,
+        "source_channels": 1,
+        "stream_samples": 43488,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0007256235827664399,
+        "brr_bytes": 24462,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/skeletor/laugh.wav",
+        "source_frames": 64116,
+        "source_rate_hz": 22050,
+        "source_channels": 1,
+        "stream_samples": 32064,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0005442176870748299,
+        "brr_bytes": 18036,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/skeletor/enough.wav",
+        "source_frames": 60977,
+        "source_rate_hz": 22050,
+        "source_channels": 1,
+        "stream_samples": 30496,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0006802721088435374,
+        "brr_bytes": 17154,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/skeletor/tornado.wav",
+        "source_frames": 124864,
+        "source_rate_hz": 44100,
+        "source_channels": 1,
+        "stream_samples": 31216,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0,
+        "brr_bytes": 17559,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/skeletor/explosion.wav",
+        "source_frames": 57870,
+        "source_rate_hz": 44100,
+        "source_channels": 1,
+        "stream_samples": 14480,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0011337868480725624,
+        "brr_bytes": 8145,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/skeletor/spin.wav",
+        "source_frames": 15724,
+        "source_rate_hz": 22050,
+        "source_channels": 1,
+        "stream_samples": 7872,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0009070294784580499,
+        "brr_bytes": 4428,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/skeletor/teleport.wav",
+        "source_frames": 18628,
+        "source_rate_hz": 44100,
+        "source_channels": 1,
+        "stream_samples": 4672,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0013605442176870747,
+        "brr_bytes": 2628,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/skeletor/fireball.wav",
+        "source_frames": 58058,
+        "source_rate_hz": 44100,
+        "source_channels": 1,
+        "stream_samples": 14528,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0012244897959183673,
+        "brr_bytes": 8172,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/sounds/klunk.wav",
+        "source_frames": 8120,
+        "source_rate_hz": 11025,
+        "source_channels": 1,
+        "stream_samples": 8128,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.0007256235827664399,
+        "brr_bytes": 4572,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      },
+      {
+        "source_path": "data/chars/KnBot/energy.wav",
+        "source_frames": 57400,
+        "source_rate_hz": 44100,
+        "source_channels": 1,
+        "stream_samples": 14352,
+        "stream_rate_hz": 11025,
+        "duration_difference_seconds": 0.00018140589569160998,
+        "brr_bytes": 8073,
+        "segments": 1,
+        "intermediate_end_flags": 0,
+        "loop_flags": 0
+      }
+    ],
+    "source_colors_unmodified": true,
+    "audio_policy": "ACCEPTED_COMPAT mono PCM_u8/11025Hz then TAD BRR; full duration within one padded block; independent segments begin filter0",
+    "native_playback_proven": false
+  },
+  "native": {
+    "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+    "status": "PASS",
+    "source_path": "data/chars/KnBot/energy.wav",
+    "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+    "compiled_brr_sha256": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b",
+    "compiled_brr_bytes": 8073,
+    "chunks": 57,
+    "meaningful_byte_mismatches": 0,
+    "padding_byte_mismatches": 0,
+    "observer_peak_chunk_gap": 1,
+    "observed_consumer_underruns": 0,
+    "first_active_field": 20,
+    "last_active_field": 97,
+    "active_fields": 78,
+    "expected_active_fields": 78.24583461623554,
+    "effective_sample_rate_hz": 11023.4375,
+    "start_latency_observation": "First envelope observation relative to post-constructor observer; not source-event exact timing",
+    "prefill_chunks": 7,
+    "voice0_srcn": 33,
+    "voice0_pitch": 1411,
+    "voice0_gain": 127,
+    "final_voice0_envelope": 0,
+    "audio_recording_pcm_sha256": "1e2496706f53f417fa65a5819a16ac9856c23b6a0ab9893219671777b0816696",
+    "audio_recording_file_sha256": "198e7b864c7c03af7687068f7b34563c51db271ad9417276d83911cce47ed7d2",
+    "policy": {
+      "tool": "ffmpeg",
+      "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+      "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+      "rate_hz": 11025,
+      "padded_frames": 2
+    },
+    "private_runtime_only": true,
+    "legacy_gameplay_paused": true,
+    "sample_exact_recording_proven": false,
+    "concurrent_audio_proven": false,
+    "production_binding_installed": false,
+    "motu_gameplay_proven": false,
+    "no_color_reduction": true
+  },
+  "rom_sha256": "1024f3b8755d2514623287e682ca6c77abe8c29e604e5445c9cc1e71576fab70",
+  "proof_folder": "out/byor-motu-scripted-projectile-audio-native-v13",
+  "driver_base_commit": "00215a2e9aaf327d620120a48b47d74f80d5b521",
+  "driver_source_provenance": [
+    {
+      "path": "audio-driver/src/audio-driver.asm",
+      "external_baseline_sha256": "484f16acbd9e0c35ad778819f3bc52cf984986f6c5b0cdf06ad90678757dc402",
+      "isolated_sha256": "4a6a5ddfeef6861659d0a596fcc7644aa5c1b92ee564e71d00d9d4fb48b55cee",
+      "external_tree_modified_by_this_task": false
+    },
+    {
+      "path": "audio-driver/src/common-memmap.inc",
+      "external_baseline_sha256": "fde1b0578655f3cccf704a049ef3a5b615f2607fd7cc99ab73714a031bc45f4d",
+      "isolated_sha256": "fde1b0578655f3cccf704a049ef3a5b615f2607fd7cc99ab73714a031bc45f4d",
+      "external_tree_modified_by_this_task": false
+    },
+    {
+      "path": "audio-driver/src/io-commands.inc",
+      "external_baseline_sha256": "7f2052e024951c799738167ad9dc03e348f243c71875f756d56b39744702722c",
+      "isolated_sha256": "7f2052e024951c799738167ad9dc03e348f243c71875f756d56b39744702722c",
+      "external_tree_modified_by_this_task": false
+    },
+    {
+      "path": "crates/compiler/src/driver_constants.rs",
+      "external_baseline_sha256": "3de3ee7cf0106d32e072e37a80362fed770e7fc0fd266eb12320a4f41f5460cb",
+      "isolated_sha256": "3de3ee7cf0106d32e072e37a80362fed770e7fc0fd266eb12320a4f41f5460cb",
+      "external_tree_modified_by_this_task": false
+    }
+  ],
+  "driver_patch": "tools/audio/source_stream_spc.patch",
+  "driver_patch_sha256": "0ecb9b7c7b71b7b26188cae149ec713a40e30f24a7c0c38ce207924293bb9ffa",
+  "driver_sha256": "f63f82881f376e61623996459f37bc7c4c2520a346820481bb965efea90b87c2",
+  "production_driver_unchanged": true,
+  "production_runtime_unchanged": true,
+  "remaining": [
+    "Generic foreground audio owner and source-derived prefill timing",
+    "Long source assets exceeding 16-bit stream length",
+    "Concurrent source effects and ordinary TAD voices",
+    "Moving lossless SCREEN presentation",
+    "MOTU frontend, combat and Demo completion"
+  ],
+  "no_pcm_copies": true,
+  "no_color_reduction": true
+}
