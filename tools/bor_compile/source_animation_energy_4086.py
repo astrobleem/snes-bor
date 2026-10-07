@@ -14,8 +14,9 @@ def load(rows):
  for row in rows:
   name,v=row['directive'],row['values']
   if name=='anim':
-   current=dict(role=' '.join(v),fields=dict(cost=0,mponly=0,disable=0));result.append(current)
+   current=dict(role=' '.join(v),fields=dict(cost=0,mponly=0,disable=0),numframes=0);result.append(current)
    if current['role'].lower() in ('special','special1'):current['fields']['cost']=6
+  elif name=='frame' and current is not None:current['numframes']+=1
   elif name in ('energycost','mpcost','mponly'):
    if current is None:raise ValueError('ANIMATION_ENERGY_WITHOUT_ANIMATION')
    if name=='mponly':current['fields']['mponly']=integer(v)
@@ -37,6 +38,7 @@ def pack(report):
  data=bytearray(struct.pack('<4s6H',b'B4AE',1,len(animations),16,0,0,0))
  for i,an in enumerate(animations,1):
   if an['handle']!=i:raise ValueError('ANIMATION_ENERGY_HANDLE_ORDER')
+  if an['numframes']==0:raise ValueError('ANIMATION_ENERGY_EMPTY_FRAMES_UNBOUND')
   data.extend(struct.pack('<4i',*(an['fields'][f]for f in FIELDS),0))
  return bytes(data)
 

@@ -1,0 +1,17 @@
+{
+  "schema": "BYOR_MOTU_ENERGY_VALIDANIM_RECEIPT_V1",
+  "status": "PASS",
+  "source_animations": 80,
+  "actual_loader_frame_counts_verified": true,
+  "source_table_sha256": "996f5560b163fa6bf7ca5a7503d54d60dc6b2a7a742e2dbf386698cf9ec71af6",
+  "empty_animation_policy": "ANIMATION_ENERGY_EMPTY_FRAMES_UNBOUND",
+  "validanim_macro_authority": {
+    "path": "out/byor-motu-animation-energy-validanim-authority/report.json",
+    "sha256": "01395de390353b495db5f9fde841992c0f50369035bb0f365c012b3821d222a2",
+    "cases": 21600
+  },
+  "prior_native_predicate_vectors_unchanged": true,
+  "native_predicate_not_rerun": true,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
