@@ -1,0 +1,125 @@
+{
+  "schema": "BYOR_MOTU_STAGE_QUEUE_PRODUCER_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "queue_authority_path": "docs/receipts/byor-motu-stage-dispatch-authority.json",
+  "native_loop": {
+    "path": "out/byor-motu-stage-producer-native/report.json",
+    "sha256": "94631172f3c12fa85ba1ec952f62cc18a0aa4c37bd5dc0f5dd004230745c9ec9",
+    "cases": 167,
+    "rom_sha256": "68d642f9b6adea7b70bb5decd783c23fa8c69a79b373529574be4466943451d5"
+  },
+  "native_ack": {
+    "path": "out/byor-motu-stage-producer-ack-native/report.json",
+    "sha256": "6c4fc1f64d4098caffe7ae6f2980756595eb1faffa5470935a2ed60945896a50",
+    "cases": 20,
+    "rom_sha256": "7bc42eb4de0180a8e3f95044251a3cd79ccba1efa8795a97116bee5095361716"
+  },
+  "actual_authored_constructors": [
+    {
+      "index": 0,
+      "path": "out/byor-motu-stage-producer-first-ctor-native/report.json",
+      "sha256": "0a2e976766e74a54eacc45c04c49a7af4ccac1c2705808521e2c7d5ffa72d99b",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "55b486b68971ddfda8cfff0300564a47fef57e1120117fe20d831bd6b5fed48b"
+    },
+    {
+      "index": 3,
+      "path": "out/byor-motu-stage-producer-record-3-ctor-native/report.json",
+      "sha256": "97c400bcd182e26e14312fc7ccc888f08349b1f4ae25c7e929abf6cd8d7722c7",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "55b486b68971ddfda8cfff0300564a47fef57e1120117fe20d831bd6b5fed48b"
+    },
+    {
+      "index": 33,
+      "path": "out/byor-motu-stage-producer-record-33-ctor-native/report.json",
+      "sha256": "46b16298ff8b23e17a669cb9a17ab24c9cf33ce9cf13a1c53214e04467f24c36",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 8,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 8,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "22472ce9d58156da5576028dc3523b29b4d42790fbd8a52e60f90c2fbb1c00af"
+    },
+    {
+      "index": 34,
+      "path": "out/byor-motu-stage-producer-record-34-ctor-native/report.json",
+      "sha256": "9c43776398d04730a9622aecd9cb5956f61866f9f9048decdd578f0264bcbd7a",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 8,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 8,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "061252fca225660c621c486d458035f82be99ab7b1ba4a76aa966034d91808a6"
+    }
+  ],
+  "actual_constructor_cases": 8,
+  "bank": 62,
+  "bank0_free_before_nmi": 2,
+  "protected_files_unchanged": 17,
+  "audit": "ALL CHECKS PASS",
+  "audit_sha256": "b8722f11f034debb9940c42feada53c3bedd21608754c190572ead304e922805",
+  "scope": [
+    "Source group thresholds count real native entity exists/type fields",
+    "Signed source AT/position comparison",
+    "WAIT does not terminate the queue loop",
+    "GROUP changes subsequent max checks without restarting the outer min gate",
+    "Actual null/spawn constructor requests hold the current queue index",
+    "Only completed constructor and paired post-properties can acknowledge a spawn",
+    "Music must be acknowledged before advancing past the boss",
+    "Actual authored constructors leave the full world tick uncommitted"
+  ],
+  "nonclaims": [
+    "Actual music service; boss acknowledgement service is instrumented",
+    "Time/freeze update_scroller prefix",
+    "Source camera movement and final completion checks",
+    "Live queue progression under combat",
+    "Actual MOTU boot/player frontend/effect presentation/Demo completion",
+    "Admission of foreign profile"
+  ],
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
