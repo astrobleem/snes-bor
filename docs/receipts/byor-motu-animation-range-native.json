@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_MOTU_ANIMATION_RANGE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-animation-range-authority/report.json",
+      "sha256": "07afd51117a918d4b284ffce6ef4c02f77d974569605961dafa94b470a103dfd",
+      "cases": 287
+    },
+    {
+      "path": "out/byor-motu-check-range-authority/report.json",
+      "sha256": "965476e650ff1d5768f24aa11270fb13e21bba52d8b01fd9a466be333641a2bc",
+      "cases": 13647
+    },
+    {
+      "path": "out/byor-motu-check-range-native/report.json",
+      "sha256": "b923f57a4ed5b32934dd70429b80411eb675266985a9351157133c524cb60f4c",
+      "cases": 998
+    }
+  ],
+  "source_animations": 80,
+  "compiled_table_bytes": 2576,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "source_macro_q16_differences": 496,
+  "native_arithmetic_width_bits": 48,
+  "actual_entity_binding": false,
+  "animation_table_query_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}
