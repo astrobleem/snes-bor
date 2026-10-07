@@ -65,6 +65,7 @@ def main():
   au=json.loads(a.normal_timer_authority.read_text());assert au['status']=='PASS';timed=[]
   for index in sorted(set(range(0,len(au['inputs']),17))|{0,1,2,3,len(au['inputs'])-1}):
    t=au['inputs'][index];entities=[dict(e)for e in base['entities'][:2]];entities[0]['hostile']=1 if t['found']else 0;entities[1]['x']=65536
+   model,handle,frame=frames[bool(t.get('vulnerable',1))];entities[1].update(model=model,handle=handle,frame=frame)
    timed.append(dict(base,name='source_timer_'+str(index),count=2,time=t['time'],entities=entities,order=[0,1],timing=t,bad='',fault=t['requires_body'],expected=0x414050 if t['found']else 0))
   rows=timed
  lua=LUA.replace('TABLESIZE',str(len(table))).replace('put(v+28,1,4)','put(v+28,e.direction,4)').replace('put(v+52,65536*e.slot,4)','put(v+52,e.x,4)').replace('put(v+60,220*65536,4)','put(v+60,e.z,4)')
@@ -160,5 +161,5 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
    expected_traces.append([i,state,3 if c['fault']else 2,trace])
   r.check('real selector consumption order and native owner completion/fault state',traces==expected_traces)
  r.check('direct real source target selection without VM arguments/context; retired/dead self remains eligible to query; exact typed scratch/CPU/entities/order retained; guarded failures',len(results)==len(rows)and not failures)
- (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',normalattack_selector_bound=a.normal_selector or a.normal_run,grounded_common_attack_path_executed=a.normal_run,selector_traces=traces,normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
+ (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',normalattack_selector_bound=a.normal_selector or a.normal_run,grounded_common_attack_path_executed=a.normal_run,selector_traces=traces,source_timer_delay_gate_bound=bool(a.normal_timer_authority),source_timer_authority_sha256=hashlib.sha256(a.normal_timer_authority.read_bytes()).hexdigest()if a.normal_timer_authority else None,source_vulnerability_attacking_false_gate_bound=bool(a.normal_timer_authority),normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
 if __name__=='__main__':main()

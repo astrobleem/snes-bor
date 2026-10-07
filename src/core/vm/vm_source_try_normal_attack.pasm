@@ -78,6 +78,20 @@ SourceTryNormalAttack4086_Delay:
 SourceTryNormalAttack4086_BodyUnbound:
 .a16
 .i16
+ ; The source vulnerability condition is determined without DROP/RISE
+ ; services when actual target.attacking is true. These are pure reads.
+ lda.l SourceTarget4086_SelectedMeta
+ tax
+ lda.l SOURCE_TARGET_META+8,x
+ bne SourceTryNormalAttack4086_ComboUnbound
+ lda.l SourceRecheckNextAttack4086_TargetCore
+ tax
+ lda.l $40C058,x
+ ora.l $40C05A,x
+ bne SourceTryNormalAttack4086_False
+SourceTryNormalAttack4086_ComboUnbound:
+.a16
+.i16
  jmp SourceTryNormalAttack4086_Bad
 SourceTryNormalAttack4086_False:
 .a16
