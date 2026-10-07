@@ -1,0 +1,46 @@
+{
+  "schema": "BYOR_MOTU_WAIT_RELEASE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-wait-authority/report.json",
+      "sha256": "4353221c933a6d7ae918a4ffb14a522b6b0a50262b2e4ab102dfc8bc9fb48990",
+      "cases": 288,
+      "rom_sha256": null
+    },
+    {
+      "path": "out/byor-motu-wait-native/report.json",
+      "sha256": "d696b13d52a8bccf78bbf6811648b84f0c0ee46f049f702e66a36f610130d97a",
+      "cases": 302,
+      "rom_sha256": "939880fe412b8e788f59e38f98d88c3323324707bef6a99fe3c7d1dc379fea42"
+    },
+    {
+      "path": "out/byor-motu-wait-clock-gate-native/report.json",
+      "sha256": "0c18dce4c7a7ac114c3155c9585aa4beb1bfc27ae63626c159c0e31dfc7360ad",
+      "cases": 191,
+      "rom_sha256": "088fbc4da3b10c530350483745d9e07ff801b2cd10154d2a10aae07878a43d56"
+    }
+  ],
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "scope": "Source WAIT release after queue retirement, before no-player return",
+  "checks": [
+    "Actual native ENEMY existence/type scan",
+    "Signed noreset <= 1",
+    "Signed timer multiplication with explicit C overflow rejection",
+    "Unsigned go_time rollover",
+    "No physical entity mutation and CPU context preserved",
+    "Enabled WAIT must complete before logical clock retirement"
+  ],
+  "bank": 62,
+  "bank0_free_before_nmi": 2,
+  "protected_files_unchanged": 17,
+  "audit": "ALL CHECKS PASS",
+  "focused_clock_regression": "out/byor-motu-wait-clock-regression",
+  "nonclaims": [
+    "Combat-driven enemy retirement",
+    "Moving camera and actual full world tick",
+    "Live MOTU gameplay or full Demo completion"
+  ],
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

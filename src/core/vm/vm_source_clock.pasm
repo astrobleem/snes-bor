@@ -466,6 +466,21 @@ SourceClock4086_QueueDefaultDone:
 SourceClock4086_QueueRetired:
 .a16
 .i16
+    lda.l SourceWait4086_Ready
+    beq SourceClock4086_WaitRetired
+    cmp #$B5D9
+    beq SourceClock4086_WaitGranted
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_WaitGranted:
+.a16
+.i16
+    lda.l SourceWait4086_Status
+    cmp #2
+    beq SourceClock4086_WaitRetired
+    jmp SourceClock4086_Commit__bad
+SourceClock4086_WaitRetired:
+.a16
+.i16
     jsl SourceUpdateFrame4086_CheckIdle
     bcc SourceClock4086_Commit_GuardWide_5
     jmp SourceClock4086_Commit__bad
