@@ -1,0 +1,40 @@
+{
+  "schema": "BYOR_MOTU_NORMAL_ATTACK_REAL_SELECTORS_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-normal-run-native/report.json",
+      "sha256": "35d957360c04934b588886840c203bdd1ee5a1016cdb049eefbb83588d5f2c4b",
+      "cases": 46
+    },
+    {
+      "path": "out/byor-motu-normal-run-action-regression/report.json",
+      "sha256": "36799a7faa5373fc46eed7efa0a3f1287286b9acaef593e2ec2e50c0000f9048",
+      "cases": 492
+    }
+  ],
+  "grounded_common_attack_path_executed": true,
+  "selector_false_paths_executed_in_order": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "selector_responses_instrumented": false,
+  "actual_C_rand_calls_per_sequence": 1,
+  "C_rand_counter_wrap_proven": true,
+  "C_rand_policy": "ACCEPTED_COMPAT_C_RUNTIME_RAND_WIN32",
+  "engine_rand32_stream_unchanged": true,
+  "source_animation_absence_fixture": true,
+  "typed_VM_return_preserved": true,
+  "capability_disabled_regression": true,
+  "present_target_or_animation_bodies_bound": false,
+  "authored_MOTU_combat_proven": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}

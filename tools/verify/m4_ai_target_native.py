@@ -15,6 +15,7 @@ def main():
  for k in ('rom','source','output'):p.add_argument('--'+k,type=Path,required=True)
  p.add_argument('--offset-only',action='store_true')
  p.add_argument('--normal-selector',action='store_true')
+ p.add_argument('--normal-run',action='store_true')
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  ir=derive(Source(a.source));table=pack(ir)
  ids={m['identity']:m['index']for m in json.loads(Path('out/byor-motu-model-attack-policy/report.json').read_text())['models']};frames={}
@@ -55,6 +56,9 @@ def main():
  if a.normal_selector:
   rows=[dict(c,fault=int(bool(c['fault']or c['expected'])))for c in rows]
   rows.extend(dict(base,name=b,bad=b,fault=1,expected=55)for b in ('normal_ready','normal_busy','normal_owner','normal_phase','normal_slot'))
+ if a.normal_run:
+  rows=[dict(c,time=50,fault=int(bool(c['expected'])),advance=1)for c in rows if not c['bad']]
+  rows.extend(dict(base,time=50,name=b,bad=b,fault=1,expected=55,advance=int(b=='entry_ready'))for b in ('run_ready','run_busy','grab_ready','entry_ready'))
  lua=LUA.replace('TABLESIZE',str(len(table))).replace('put(v+28,1,4)','put(v+28,e.direction,4)').replace('put(v+52,65536*e.slot,4)','put(v+52,e.x,4)').replace('put(v+60,220*65536,4)','put(v+60,e.z,4)')
  setup=r'''
  set('SourceAITarget4086_Ready',c.bad=='query_ready'and 0 or 0xb5f3);set('SourceAITarget4086_Status',c.bad=='query_busy'and 1 or 0);set('SourceAITarget4086_Result',55);put(sy.SourceAITarget4086_Result+2,0);set('SourceAITarget4086_Selected',55)
@@ -91,11 +95,54 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
   lua=lua.replace(' before={};',setup+' before={};').replace("end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)"," for j=0,11 do before[sy.SourceRandom4086_Ready+j]=0xa5 end\n for j=0,17 do before[sy.SourceCRandom4086_Ready+j]=0x5a end\nend,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)",1)
   lua=lua.replace("word(sy.SourceAITarget4086_Status)","word(sy.SourceTryNormalAttack4086_Status)").replace("..word(sy.SourceAITarget4086_Selected)","..(word(sy.SourceNormalAttack4086_Response)|(word(sy.SourceNormalAttack4086_Response+2)<<16))")
   apply='SourceTryNormalAttack4086_Execute';ready='SourceTryNormalAttack4086_Ready';magic=0xb5f4
+ if a.normal_run:
+  lua='local normaltrace={}\n'+lua.replace(' local c=rows[word(INDEX)+1];put(EXPECTFAULT,c.fault)',' local c=rows[word(INDEX)+1];normaltrace={};put(EXPECTFAULT,c.fault)')
+  setup=r'''
+ set('SourceNormalAttackRun4086_Ready',c.bad=='run_ready'and 0 or 0xb5f5);set('SourceNormalAttackRun4086_Status',c.bad=='run_busy'and 1 or 0)
+ set('SourceNormalAttack4086_Ready',0xb5eb);set('SourceNormalAttack4086_State',0)
+ set('SourceTryGrab4086_Ready',c.bad=='grab_ready'and 0 or 0xb5ec);set('SourceTryGrab4086_Status',0)
+ set('SourceAttackEntry4086_Ready',c.bad=='entry_ready'and 0 or 0xb5ed);set('SourceAttackEntry4086_Status',0)
+ set('SourceTryBlock4086_Ready',0xb5f1);set('SourceTryBlock4086_Status',0)
+ set('SourceTryNormalAttack4086_Ready',0xb5f4);set('SourceTryNormalAttack4086_Status',0)
+ set('SourceAIReadonly4086_Ready',0xb5e8);set('SourceAIReadonly4086_Status',0);put(sy.SourceCommonThink4086_Response,55,4)
+ set('SourceRetirement4086_Ready',0xb4f8)
+ for _,e in ipairs(c.entities)do put(0x414008+80*e.slot,2,4);put(0x41400c+80*e.slot,0,4)end
+ -- Legal missing animations exercise real source absence, not responses.
+ for model=0,15 do for _,id in ipairs({12,14,15,17,20,38})do put(0x43c000+256*model+id*2,0)end end
+ set('SourceCRandom4086_Ready',0xb5ea);put(sy.SourceCRandom4086_SeedLo,1,4);put(sy.SourceCRandom4086_CallsLo,0xffffffff,4);set('SourceCRandom4086_Busy',0);put(sy.SourceCRandom4086_Result,55,4);set('SourceCRandom4086_Profile',1)
+ for j=0,11 do emu.write(sy.SourceRandom4086_Ready+j,0xa5,mt)end
+'''
+  lua=lua.replace(' before={};',setup+' before={};').replace("end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)"," for j=0,11 do before[sy.SourceRandom4086_Ready+j]=0xa5 end\n for j=0,17 do before[sy.SourceCRandom4086_Ready+j]=emu.read(sy.SourceCRandom4086_Ready+j,mt)end\nend,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)",1)
+  lua=lua.replace('local n=0;for a,v in pairs(before)',r'''local c=rows[word(INDEX)+1]
+ if c.advance~=0 then for _,r in ipairs({{sy.SourceCRandom4086_SeedLo,2745024},{sy.SourceCRandom4086_CallsLo,0},{sy.SourceCRandom4086_Result,41}})do for j=0,3 do before[r[1]+j]=(r[2]>>(8*j))&255 end end end
+ local n=0;for a,v in pairs(before)''')
+  lua=lua.replace("word(sy.SourceAITarget4086_Status)","word(sy.SourceAIReadonly4086_Status)").replace("..word(sy.SourceAITarget4086_Selected)","..(word(sy.SourceCommonThink4086_Response)|(word(sy.SourceCommonThink4086_Response+2)<<16))")
+  apply='SourceAIReadonly4086_Execute';ready='SourceNormalAttackRun4086_Ready';magic=0xb5f5
+  lua+=r'''
+emu.addMemoryCallback(function()
+ normaltrace[#normaltrace+1]=word(sy.SourceNormalAttack4086_State)
+end,emu.callbackType.exec,sy.SourceNormalAttack4086_Continue,sy.SourceNormalAttack4086_Continue,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('NORMALTRACE|'..word(INDEX)..'|'..word(sy.SourceNormalAttack4086_State)..'|'..word(sy.SourceNormalAttackRun4086_Status)..'|'..table.concat(normaltrace,','))
+end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
+'''
  r=Reporter('M4-AI-TARGET',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,apply,ready,magic,[(59,0,table)],lua,r,batch_size=1)
  results=[list(map(int,l.split('AITARGET|',1)[1].split('|')))for l in log.splitlines()if 'AITARGET|'in l]
  wanted=[[i,0,0,3 if c['fault']else 2,c['expected'],55 if c['fault']else (c['expected']-0x414000)//80 if c['expected']else 65535]for i,c in enumerate(rows)]
  if a.normal_selector:wanted=[[i,0,0,3 if c['fault']else 2,c['expected'],55 if c['fault']else 0]for i,c in enumerate(rows)]
+ if a.normal_run:wanted=[[i,0,0,3 if c['fault']else 2,c['expected'],55 if c['fault']else 0]for i,c in enumerate(rows)]
  failures=[dict(input=c,actual=v,expected=e)for c,v,e in zip(rows,results,wanted)if v!=e]
+ traces=[]
+ if a.normal_run:
+  for line in log.splitlines():
+   if 'NORMALTRACE|'not in line:continue
+   q=line.split('NORMALTRACE|',1)[1].split('|');traces.append([int(q[0]),int(q[1]),int(q[2]),[int(n)for n in q[3].split(',')if n]])
+  expected_traces=[]
+  for i,c in enumerate(rows):
+   state=0 if c['bad']in ('run_ready','run_busy')else 1 if c['bad']=='grab_ready'else 2 if c['bad']=='entry_ready'else 5 if c['fault']else 7
+   trace=[]if state in (0,1)else [1]if state==2 else [1,2,3,4]if state==5 else [1,2,3,4,5,6]
+   expected_traces.append([i,state,3 if c['fault']else 2,trace])
+  r.check('real selector consumption order and native owner completion/fault state',traces==expected_traces)
  r.check('direct real source target selection without VM arguments/context; retired/dead self remains eligible to query; exact typed scratch/CPU/entities/order retained; guarded failures',len(results)==len(rows)and not failures)
- (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',normalattack_selector_bound=a.normal_selector,normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
+ (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',normalattack_selector_bound=a.normal_selector or a.normal_run,grounded_common_attack_path_executed=a.normal_run,selector_traces=traces,normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
 if __name__=='__main__':main()

@@ -258,8 +258,20 @@ SourceAIReadonly4086_AttackAirChecked:
 SourceAIReadonly4086_AttackUnbound:
 .a16
 .i16
- ; Grounded normal_attack must execute its grab/upper/block/etc sequence.
+ ; Optional source capability executes real selectors in source order.
+ jsl SourceNormalAttackRun4086_Execute
+ bcc SourceAIReadonly4086_AttackRan
  jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_AttackRan:
+.a16
+.i16
+ lda.l SourceNormalAttack4086_Result
+ beq SourceAIReadonly4086_AttackFalse
+ jmp SourceAIReadonly4086_True
+SourceAIReadonly4086_AttackFalse:
+.a16
+.i16
+ jmp SourceAIReadonly4086_False
 SourceAIReadonly4086_Move:
 .a16
 .i16

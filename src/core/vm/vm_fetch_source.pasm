@@ -55,6 +55,8 @@ Vm_FetchSourceInit:
     sta.l SourceTargetMeta4086_Status
     sta.l SourceAITarget4086_Ready
     sta.l SourceAITarget4086_Status
+    sta.l SourceNormalAttackRun4086_Ready
+    sta.l SourceNormalAttackRun4086_Status
     sta.l SourceWorldTick4086_Ready
     sta.l SourceWorldTick4086_State
     sta.l SourceWorldTick4086_Pending
