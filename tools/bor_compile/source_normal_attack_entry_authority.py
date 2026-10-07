@@ -5,9 +5,10 @@ from dialect_4086 import ENGINE_COMMIT
 from script_nested_authority import extract
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--wide',action='store_true');a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  s=subprocess.check_output(['git','show',ENGINE_COMMIT+':engine/openbor.c'],cwd='E:/gh/openbor-bcec').decode('latin1');f=extract(s,'common_try_normalattack')
- rows=[dict(found=t,passed=p,vulnerable=v,drop=d,attacking=k,rise=r)for t,p,v,d,k,r in itertools.product((0,1),repeat=6)]
+ truth=(0,1,65536,-1)if a.wide else(0,1)
+ rows=[dict(found=t,passed=p,vulnerable=v,drop=d,attacking=k,rise=r)for t,p,v,d,k,r in itertools.product((0,1),(0,1),(0,1),truth,truth,(0,1))]
  code='''#include <stdio.h>
 #include <stddef.h>
 #define MAX(a,b) ((a)>(b)?(a):(b))

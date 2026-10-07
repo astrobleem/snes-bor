@@ -17,8 +17,9 @@ def main():
  p.add_argument('--normal-selector',action='store_true')
  p.add_argument('--normal-run',action='store_true')
  p.add_argument('--normal-timer-authority',type=Path)
+ p.add_argument('--normal-picker',action='store_true')
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
- if a.normal_timer_authority:a.normal_selector=True
+ if a.normal_timer_authority or a.normal_picker:a.normal_selector=True
  ir=derive(Source(a.source));table=pack(ir)
  ids={m['identity']:m['index']for m in json.loads(Path('out/byor-motu-model-attack-policy/report.json').read_text())['models']};frames={}
  for an in ir['animations']:
@@ -68,6 +69,20 @@ def main():
    model,handle,frame=frames[bool(t.get('vulnerable',1))];entities[1].update(model=model,handle=handle,frame=frame)
    timed.append(dict(base,name='source_timer_'+str(index),count=2,time=t['time'],entities=entities,order=[0,1],timing=t,bad='',fault=t['requires_body'],expected=0x414050 if t['found']else 0))
   rows=timed
+ if a.normal_picker:
+  import itertools
+  from source_attack_choice_4086 import derive as choice_profile,pack as pack_choice
+  from source_animation_range_4086 import derive as range_profile,pack as pack_range
+  from source_actor_numeric import random32_step
+  profile=choice_profile(Source(a.source));pt=pack_choice(profile);rt=pack_range(range_profile(Source(a.source)))
+  rows=[]
+  for i,(vulnerable,drop,attacking,action,choice)in enumerate(itertools.product((0,1),(0,1,65536,0xffffffff),(0,65536),(0,6),('absent','near','far'))):
+   s=(0,1,63,127)[i%4];target=(s+1)%128;model=(0,4,8,15)[i%4]
+   fm,fh,fp=frames[bool(vulnerable)];sm,sh,sf=frames[True]
+   entities=[dict(base['entities'][0],slot=s,model=model,handle=sh,frame=sf,x=0,z=220*65536,type=2,hostile=1),dict(base['entities'][1],slot=target,model=fm,handle=fh,frame=fp,x=(1000 if choice=='far'else 1)*65536,z=220*65536,type=1,hostile=0)]
+   rejected=not vulnerable and bool(drop or attacking);unbound=not vulnerable and not rejected and action!=0;positive=not rejected and not unbound and choice=='near'
+   calls=int(positive);seed_after=random32_step(1)[0]if calls else 1
+   rows.append(dict(base,name='picker_gate_'+str(i),self=s,count=128,time=50,entities=entities,order=list(range(128)),bad='',fault=int(unbound or positive),expected=0x414000+80*target,drop=drop,attacking=attacking,action=action,choice=choice,seed_after=seed_after,calls=calls,picker_calls=int(not rejected and not unbound)))
  lua=LUA.replace('TABLESIZE',str(len(table))).replace('put(v+28,1,4)','put(v+28,e.direction,4)').replace('put(v+52,65536*e.slot,4)','put(v+52,e.x,4)').replace('put(v+60,220*65536,4)','put(v+60,e.z,4)')
  setup=r'''
  set('SourceAITarget4086_Ready',c.bad=='query_ready'and 0 or 0xb5f3);set('SourceAITarget4086_Status',c.bad=='query_busy'and 1 or 0);set('SourceAITarget4086_Result',55);put(sy.SourceAITarget4086_Result+2,0);set('SourceAITarget4086_Selected',55)
@@ -106,11 +121,32 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
  set('SourceRecheckNextAttack4086_Ready',0xb5f6);set('SourceRecheckNextAttack4086_Status',0)
  put(0x40c05c,c.timing.timer,4);put(0x40c058+96,c.timing.attacking,4);put(0x43eb0c+32,c.timing.blocking,4);put(0x43eb08+32,c.timing.jumping,4)
 '''
+  if a.normal_picker:
+   setup+=r'''
+ set('SourceModelAnimationCopy4086_Maximum',168);set('SourceModelAnimationCopy4086_Bytes',5376);set('SourceModelAnimationCopy4086_Frames',80)
+ for j=0,5375 do emu.write(0x43c000+j,0,mt)end
+ local target=c.entities[2].slot;local model=c.entities[1].model
+ set('VmSourceEntity_Bank',0x41)
+ for _,e in ipairs(c.entities)do put(0x414008+e.slot*80,2,4)end
+ if c.choice~='absent'then put(0x43c000+model*336+16,29)end
+ set('SourceRecheckNextAttack4086_Ready',0xb5f6);set('SourceRecheckNextAttack4086_Status',0);put(0x40c05c+self*96,0,4);put(0x40c058+target*96,c.attacking,4)
+ put(0x437e00+target*20,c.drop,4);put(0x437e10+target*20,0xb5fb);put(0x437e12+target*20,0);put(0x43900c+target*80,c.action,4)
+ set('SourceAttackChoiceProfile4086_Ready',0xb5fe);set('SourceAttackChoiceProfile4086_Status',0);set('SourceAttackChoiceProfile4086_Bank',60);set('SourceAttackChoiceProfile4086_Base',PROFILEBASE);set('SourceAttackChoiceProfile4086_Bytes',PROFILEBYTES)
+ set('SourceAttackPicker4086_Ready',0xb5ff);set('SourceAttackPicker4086_Status',0);set('SourceEntityRange4086_Ready',0xb5f9);set('SourceEntityRange4086_Status',0);set('SourceCheckRange4086_Ready',0xb5f7);set('SourceCheckRange4086_Status',0);set('SourceAnimationRange4086_Ready',0xb5f8);set('SourceAnimationRange4086_Status',0);set('SourceAnimationRange4086_Bank',60);set('SourceAnimationRange4086_Bytes',RANGEBYTES)
+ -- No special roles are present in this mutable-cache domain. Prove the
+ -- energy service is not silently executed by leaving its lease invalid.
+ set('SourceEntityEnergy4086_Ready',0)
+ set('SourceRandom4086_Ready',0xb4d4);put(sy.SourceRandom4086_SeedLo,1,4);put(sy.SourceRandom4086_CallsLo,0xffffffff,4);set('SourceRandom4086_Busy',0)
+'''
   lua=lua.replace(' before={};',setup+' before={};').replace("end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)"," for j=0,11 do before[sy.SourceRandom4086_Ready+j]=0xa5 end\n for j=0,17 do before[sy.SourceCRandom4086_Ready+j]=0x5a end\nend,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)",1)
   lua=lua.replace("word(sy.SourceAITarget4086_Status)","word(sy.SourceTryNormalAttack4086_Status)").replace("..word(sy.SourceAITarget4086_Selected)","..(word(sy.SourceNormalAttack4086_Response)|(word(sy.SourceNormalAttack4086_Response+2)<<16))")
   apply='SourceTryNormalAttack4086_Execute';ready='SourceTryNormalAttack4086_Ready';magic=0xb5f4
   if a.normal_timer_authority:
    lua=lua.replace('local n=0;for a,v in pairs(before)',r'''local c=rows[word(INDEX)+1];for j=0,3 do before[0x40c05c+j]=(c.timing.after>>(8*j))&255 end
+ local n=0;for a,v in pairs(before)''')
+  if a.normal_picker:
+   lua=lua.replace('local n=0;for a,v in pairs(before)',r'''local c=rows[word(INDEX)+1]
+ for _,r in ipairs({{sy.SourceRandom4086_SeedLo,c.seed_after},{sy.SourceRandom4086_CallsLo,(0xffffffff+c.calls)&0xffffffff}})do for j=0,3 do before[r[1]+j]=(r[2]>>(8*j))&255 end end
  local n=0;for a,v in pairs(before)''')
  if a.normal_run:
   lua='local normaltrace={}\n'+lua.replace(' local c=rows[word(INDEX)+1];put(EXPECTFAULT,c.fault)',' local c=rows[word(INDEX)+1];normaltrace={};put(EXPECTFAULT,c.fault)')
@@ -143,7 +179,36 @@ emu.addMemoryCallback(function()
  emu.log('NORMALTRACE|'..word(INDEX)..'|'..word(sy.SourceNormalAttack4086_State)..'|'..word(sy.SourceNormalAttackRun4086_Status)..'|'..table.concat(normaltrace,','))
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
- r=Reporter('M4-AI-TARGET',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,apply,ready,magic,[(59,0,table)],lua,r,batch_size=1)
+ tables=[(59,0,table)];append='';bindings=None
+ if a.normal_picker:
+  tables.append((60,0,rt+pt))
+  lua=lua.replace('for j=0,11 do before[sy.SourceRandom4086_Ready+j]=0xa5 end','for j=0,11 do before[sy.SourceRandom4086_Ready+j]=emu.read(sy.SourceRandom4086_Ready+j,mt)end')
+  lua=lua.replace('{{0x414000,18432},{0x40c000,12288},{0x42f400,3072},{0x439000,10240},{0x41f200,256}}','{{0x437e00,2560},{0x43c000,8192},{0x43eb00,4096},{0x414000,18432},{0x40c000,12288},{0x42f400,3072},{0x439000,10240},{0x41f200,256}}')
+  for token,value in dict(PROFILEBASE=0x8000+len(rt),PROFILEBYTES=len(pt),RANGEBYTES=len(rt)).items():lua=lua.replace(token,str(value))
+  append='''
+NormalPickerProbe:
+.a16
+.i16
+ jsl PROFILELOAD
+ bcc NormalPickerProbe_Execute
+ sec
+ rtl
+NormalPickerProbe_Execute:
+.a16
+.i16
+ jsl NORMALCALL
+ rtl
+'''
+  apply='NormalPickerProbe';bindings=dict(PROFILELOAD='SourceAttackChoiceProfile4086_Load',NORMALCALL='SourceTryNormalAttack4086_Execute')
+  lua='local picker_calls=0\n'+lua.replace(' local c=rows[word(INDEX)+1];put(EXPECTFAULT,c.fault)',' local c=rows[word(INDEX)+1];picker_calls=0;put(EXPECTFAULT,c.fault)')
+  lua+=r'''
+emu.addMemoryCallback(function()picker_calls=picker_calls+1 end,emu.callbackType.exec,sy.SourceAttackPicker4086_Execute,sy.SourceAttackPicker4086_Execute,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('NORMALPICKCOUNT|'..word(INDEX)..'|'..picker_calls)
+ emu.log('NORMALPICKSTATE|'..word(INDEX)..'|'..word(sy.SourceAttackPicker4086_Status)..'|'..word(sy.SourceAttackPicker4086_Result)..'|'..word(sy.SourceEntityRange4086_Status)..'|'..word(sy.SourceAnimationRange4086_Status)..'|'..word(sy.SourceCheckRange4086_Status)..'|'..(word(sy.SourceRandom4086_SeedLo)|(word(sy.SourceRandom4086_SeedLo+2)<<16)))
+end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
+'''
+ r=Reporter('M4-AI-TARGET',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,apply,ready,magic,tables,lua,r,batch_size=1,append=append,bindings=bindings)
  results=[list(map(int,l.split('AITARGET|',1)[1].split('|')))for l in log.splitlines()if 'AITARGET|'in l]
  wanted=[[i,0,0,3 if c['fault']else 2,c['expected'],55 if c['fault']else (c['expected']-0x414000)//80 if c['expected']else 65535]for i,c in enumerate(rows)]
  if a.normal_selector:wanted=[[i,0,0,3 if c['fault']else 2,c['expected'],55 if c['fault']else 0]for i,c in enumerate(rows)]
@@ -161,5 +226,8 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
    expected_traces.append([i,state,3 if c['fault']else 2,trace])
   r.check('real selector consumption order and native owner completion/fault state',traces==expected_traces)
  r.check('direct real source target selection without VM arguments/context; retired/dead self remains eligible to query; exact typed scratch/CPU/entities/order retained; guarded failures',len(results)==len(rows)and not failures)
- (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',normalattack_selector_bound=a.normal_selector or a.normal_run,grounded_common_attack_path_executed=a.normal_run,selector_traces=traces,source_timer_delay_gate_bound=bool(a.normal_timer_authority),source_timer_authority_sha256=hashlib.sha256(a.normal_timer_authority.read_bytes()).hexdigest()if a.normal_timer_authority else None,source_vulnerability_attacking_false_gate_bound=bool(a.normal_timer_authority),normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
+ if a.normal_picker:
+  picker_counts=[list(map(int,l.split('NORMALPICKCOUNT|',1)[1].split('|')))for l in log.splitlines()if 'NORMALPICKCOUNT|'in l]
+  r.check('test-only picker executes exactly after the source rejection gates, with no choice returning false and positive body remaining explicit',picker_counts==[[i,c['picker_calls']]for i,c in enumerate(rows)])
+ (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_AI_TARGET_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,results=results,failures=failures[:20],rom_sha256=hashlib.sha256(raw).hexdigest(),numeric_policy='ACCEPTED_COMPAT_Q16_16',normalattack_selector_bound=a.normal_selector or a.normal_run,grounded_common_attack_path_executed=a.normal_run,selector_traces=traces,source_timer_delay_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_timer_authority_sha256=hashlib.sha256(a.normal_timer_authority.read_bytes()).hexdigest()if a.normal_timer_authority else None,source_vulnerability_attacking_false_gate_bound=bool(a.normal_timer_authority or a.normal_picker),source_testonly_picker_bound=a.normal_picker,mutable_cache_domain='normal-role-only'if a.normal_picker else None,picker_call_counts=picker_counts if a.normal_picker else None,normalattack_present_target_body_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
 if __name__=='__main__':main()

@@ -1,7 +1,7 @@
 ; common_try_normalattack(NULL): execute the real unbounded target query.
 ; No target returns literal false before recheck_nextattack/random/mutations.
-; Present targets execute both literal timer rechecks. Combo/range/mutation
-; branches beyond the proven delay gate remain explicitly unbound.
+; Present targets execute both timer rechecks and the real test-only picker.
+; Positive selections still require the unbound chance/prepare/mutation body.
 SourceTryNormalAttack4086_Ready = $43BDCC
 SourceTryNormalAttack4086_Status = $43BDCE
 SourceTryNormalAttack4086_End = $43BDD0
@@ -69,12 +69,16 @@ SourceTryNormalAttack4086_Delay:
  lda.l SourceRecheckNextAttack4086_Result+2
  cmp.l VmSourceWorld_Time+2
  bcc SourceTryNormalAttack4086_BodyUnbound
- bne SourceTryNormalAttack4086_False
+ beq SourceTryNormalAttack4086_DelayLow
+ jmp SourceTryNormalAttack4086_False
+SourceTryNormalAttack4086_DelayLow:
+.a16
+.i16
  lda.l SourceRecheckNextAttack4086_Result
  cmp.l VmSourceWorld_Time
  bcc SourceTryNormalAttack4086_BodyUnbound
  beq SourceTryNormalAttack4086_BodyUnbound
- bra SourceTryNormalAttack4086_False
+ jmp SourceTryNormalAttack4086_False
 SourceTryNormalAttack4086_BodyUnbound:
 .a16
 .i16
@@ -83,12 +87,74 @@ SourceTryNormalAttack4086_BodyUnbound:
  lda.l SourceTarget4086_SelectedMeta
  tax
  lda.l SOURCE_TARGET_META+8,x
- bne SourceTryNormalAttack4086_ComboUnbound
+ bne SourceTryNormalAttack4086_Pick
  lda.l SourceRecheckNextAttack4086_TargetCore
  tax
  lda.l $40C058,x
  ora.l $40C05A,x
  bne SourceTryNormalAttack4086_False
+ ; Dynamic target.drop is independent of the sealtime timer and action ID.
+ lda.l SourceAITarget4086_Selected
+ asl a
+ asl a
+ pha
+ asl a
+ asl a
+ clc
+ adc 1,s
+ tax
+ pla
+ lda.l SOURCE_ENTITY_COMBAT+16,x
+ cmp #$B5FB
+ beq SourceTryNormalAttack4086_Combat
+ jmp SourceTryNormalAttack4086_Bad
+SourceTryNormalAttack4086_Combat:
+.a16
+.i16
+ lda.l SOURCE_ENTITY_COMBAT+18,x
+ beq SourceTryNormalAttack4086_Drop
+ jmp SourceTryNormalAttack4086_Bad
+SourceTryNormalAttack4086_Drop:
+.a16
+.i16
+ lda.l SOURCE_ENTITY_COMBAT,x
+ ora.l SOURCE_ENTITY_COMBAT+2,x
+ bne SourceTryNormalAttack4086_False
+ ; NULL cannot equal common_rise. Non-NULL action comparison remains
+ ; explicit until that callback has a source-derived registered identity.
+ lda.l SourceAITarget4086_Selected
+ asl a
+ asl a
+ asl a
+ asl a
+ pha
+ asl a
+ asl a
+ clc
+ adc 1,s
+ tax
+ pla
+ lda.l $43900C,x
+ ora.l $43900E,x
+ beq SourceTryNormalAttack4086_Pick
+ jmp SourceTryNormalAttack4086_Bad
+SourceTryNormalAttack4086_Pick:
+.a16
+.i16
+ lda.l SourceAITarget4086_Selected
+ sta.l SourceAttackPicker4086_Target
+ lda #1
+ sta.l SourceAttackPicker4086_TestOnly
+ lda #0
+ sta.l SourceAttackPicker4086_TestOnly+2
+ jsl SourceAttackPicker4086_Execute
+ bcc SourceTryNormalAttack4086_Picked
+ jmp SourceTryNormalAttack4086_Bad
+SourceTryNormalAttack4086_Picked:
+.a16
+.i16
+ lda.l SourceAttackPicker4086_Result+2
+ bmi SourceTryNormalAttack4086_False
 SourceTryNormalAttack4086_ComboUnbound:
 .a16
 .i16

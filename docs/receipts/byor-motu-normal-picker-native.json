@@ -1,0 +1,30 @@
+{
+  "schema": "BYOR_MOTU_NORMAL_PICKER_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-normal-entry-wide-authority/report.json",
+      "sha256": "6d73a15b80e31e5e13d9d74d02f5f84ea40ddec27aecbfa85fc75ffcb4e9c716",
+      "cases": 256
+    },
+    {
+      "path": "out/byor-motu-normal-picker-native-bank-width/report.json",
+      "sha256": "9b1bd6e404582740566c1b6b439c685dedffab53ed63e863b5e6d1c7c1757b08",
+      "cases": 96
+    }
+  ],
+  "independent_picker_receipt": "docs/receipts/byor-motu-attack-picker-native.json",
+  "actual_unbounded_target_query": true,
+  "actual_double_timer_recheck": true,
+  "actual_vulnerability_attacking_and_drop_gates": true,
+  "null_action_comparison_bound": true,
+  "non_null_rise_action_comparison_bound": false,
+  "testonly_picker_bound": true,
+  "mutable_cache_native_domain": "normal-role-only: absent, in-range, out-of-range",
+  "picker_rng_consumption_and_state_retention_proven": true,
+  "positive_selection_chance_and_prepare_body_bound": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
