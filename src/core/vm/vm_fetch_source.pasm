@@ -71,6 +71,7 @@ Vm_FetchSourceInit:
     sta.l SourceAttackCostState4086_Ready
     sta.l SourceAttackCostPay4086_Ready
     sta.l SourceMovementState4086_Ready
+    sta.l SourceAttackRunoff4086_Ready
     sta.l SourceModelEntityCopy4086_Ready
     sta.l SourceAnimationInit4086_Ready
     sta.l SourceFrameStack4086_Ready

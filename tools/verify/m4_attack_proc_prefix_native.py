@@ -57,7 +57,7 @@ end,emu.callbackType.exec,AFTER,AFTER,emu.cpuType.snes,mt)
 '''
  if a.ai_dispatch:
   lua+="emu.addMemoryCallback(function()emu.log('ATKDISPATCH|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
- r=Reporter('M4-ATTACK-PROC-PREFIX',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'SourceAIRun4086_Begin'if a.ai_dispatch else'SourceCommonAttackProc4086_Execute','SourceCommonAttackProc4086_Ready',0xb607,[(59,0,clone),(60,0,callbacks)]if a.ai_dispatch else[],lua,r,batch_size=2);actual=[list(map(int,l.split('ATTACKPROCPREFIX|',1)[1].split('|')))for l in log.splitlines()if 'ATTACKPROCPREFIX|'in l];expected=[[i,0,0,3 if c['fault']else 2]for i,c in enumerate(rows)];failures=[dict(input=c,actual=v,expected=e)for c,v,e in zip(rows,actual,expected)if v!=e]
+ r=Reporter('M4-ATTACK-PROC-PREFIX',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'SourceAIRun4086_Begin'if a.ai_dispatch else'SourceCommonAttackProc4086_Execute','SourceCommonAttackProc4086_Ready',0xb607,[(59,0,clone),(60,0,callbacks)]if a.ai_dispatch else[],lua,r,batch_size=64,frame_limit=400);actual=[list(map(int,l.split('ATTACKPROCPREFIX|',1)[1].split('|')))for l in log.splitlines()if 'ATTACKPROCPREFIX|'in l];expected=[[i,0,0,3 if c['fault']else 2]for i,c in enumerate(rows)];failures=[dict(input=c,actual=v,expected=e)for c,v,e in zip(rows,actual,expected)if v!=e]
  r.check('actual animating early return, no resource/coordinate service, unchanged entities/VM/RNG/CPU and explicit unfinished/owner faults',len(actual)==len(rows)and not failures)
  if a.ai_dispatch:
   dispatch=[list(map(int,l.split('ATKDISPATCH|',1)[1].split('|')))for l in log.splitlines()if'ATKDISPATCH|'in l]

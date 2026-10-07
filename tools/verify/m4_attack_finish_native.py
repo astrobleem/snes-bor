@@ -9,6 +9,25 @@ from m4_target_metadata_native import LUA as BASE
 from _source_leaf_fixture import run_fixture
 from _harness import Reporter
 
+FINISH_SETUP=r'''
+ local s=c.slot;local v=0x414000+s*80;local side=0x416800+s*64;local life=0x439000+s*80;local flags=0x43eb00+s*32
+ set('SourceAI4086_SpawnID',23);set('SourceAI4086_RespawnID',104);set('SourceAI4086_Ready',0xb5e2);set('SourceAI4086_State',c.bad=='ai_state'and 2 or 1);set('SourceAI4086_Slot',s);put(sy.SourceAI4086_Callback,c.bad=='callback_low'and 16 or 17,4);if c.bad=='callback_high'then put(sy.SourceAI4086_Callback+2,1)end
+ set('SourceWorldTick4086_Ready',0xb4d5);set('SourceWorldTick4086_State',1);set('SourceWorldTick4086_Pending',1);set('SourceWorldTick4086_Phase',6);set('SourceWorldTick4086_Slot',s);put(sy.SourceWorldTick4086_TimeLo,c.time,4)
+ set('SourceSelf4086_Ready',0xb4f6);set('SourceSelf4086_Active',0);set('SourceSelf4086_Fault',0);put(sy.SourceSelf4086_GlobalLow,v,4);set('SourceFreeze4086_Ready',0xb5df)
+ set('SourceModelAnimationCopy4086_Ready',0xb4e9);set('SourceModelAnimationCopy4086_Models',16);set('SourceModelAnimationCopy4086_Maximum',168);set('SourceModelAnimationCopy4086_Bytes',5376);set('SourceModelAnimationCopy4086_Frames',80)
+ for j=0,5375 do emu.write(0x43c000+j,0,mt)end;put(0x43c000+c.model*336,1);put(0x40b09c+c.model*160,c.type~1,4);put(v+16,1,4);put(v+20,0,4)
+ set('SourceAnimationInit4086_Ready',0xb4ec);set('SourceAnimationInit4086_State',0);set('SourceAnimationInit4086_Base',INITBASE);set('SourceAnimationInit4086_Bank',59);set('SourceAnimationInit4086_Bytes',INITBYTES)
+ set('SourceUpdateFrame4086_Ready',0xb4e3);set('SourceUpdateFrame4086_State',0);set('SourceUpdateFrame4086_Pending',0);set('SourceUpdateFrame4086_Animations',80);set('SourceUpdateFrame4086_Base',0x8000);set('SourceUpdateFrame4086_Bank',58);set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
+ put(life+12,c.bad=='action_low'and 16 or 17,4);if c.bad=='action_high'then put(life+14,1)end
+ put(flags,55,4);put(flags+4,66,4);put(flags+8,77,4);put(flags+12,88,4);put(flags+20,0,4);put(0x40c058+s*96,99,4);put(side+36,3*65536,4);put(side+40,4*65536,4);put(0x42e008+s*40,111,4)
+ put(0x40900c+s*64,c.bad=='opponent_low'and 1 or c.bad=='opponent_high'and 65536 or 0,4)
+ set('SourceAttackTiming4086_Status',c.bad=='timing_busy'and 1 or 2);set('SourceAttackTiming4086_Models',c.bad=='timing_models'and 15 or 16);if c.bad=='core_models'then set('SourceModelEntityCopy4086_Models',17)elseif c.bad=='core_zero'then set('SourceModelEntityCopy4086_Models',0)end
+ set('SourceAttackTiming4086_Ready',c.bad=='timing_ready'and 0 or 0xb603);put(0x438800+s*14,c.aggression,4);put(0x43880c+s*14,c.bad=='timing_marker'and 0 or 0xb603)
+ set('SourceCommonAttackFinish4086_Ready',c.bad=='finish_ready'and 0 or 0xb608);set('SourceCommonAttackFinish4086_Status',c.bad=='finish_busy'and 1 or c.bad=='finish_sticky'and 3 or 0)
+ '''
+
+FRAMEZERO_SETUP="\n put(0x416802+s*64,c.model);put(0x41f500+s*20,0,4);put(0x41f504+s*20,0,4);put(0x41f50c+s*20,0,4);put(0x43fb00,0,4);put(sy.VmSourceWorld_Level,1)\n set('VmSourceFrame_Ready',0xb4fd);set('VmSourceFrame_Programs',PROGRAMS);set('VmSourceInstr_Ready',0xb48e);set('SourceVMRun4086_Ready',0xb4d7);set('SourceVMRun4086_Busy',0);set('VmSourceModels_Count',16);set('VmSourceCallback_Active',0)\n set('SourceAnimationCallback4086_Ready',0xb4e6);set('SourceAnimationCallback4086_State',0);set('SourceAnimationCallback4086_Base',CALLBACKBASE);set('SourceAnimationCallback4086_Bank',58);set('SourceAnimationCallback4086_Bytes',CALLBACKBYTES)\n set('SourceUpdateFrame4086_Bytes',EFFECTBYTES);set('SourceFrameMotion4086_Ready',0xb4e8);set('SourceFrameMotion4086_Status',0);set('SourceFrameEffectLeaf4086_Ready',0xb4f4)\n set('SourceFrameEffectPlan4086_Ready',0xb4f2);set('SourceFrameEffectPlan4086_State',0);set('SourceFrameEffectPlan4086_Base',PLANBASE);set('SourceFrameEffectPlan4086_Bank',59);set('SourceFrameEffectPlan4086_Bytes',PLANBYTES);set('SourceFrameEffectPlan4086_Animations',80)\n put(sy.SourceFrameEffectPlan4086_PairedCrcLo,PAIREDCRC,4);put(sy.SourceFrameEffectPlan4086_BodyCrcLo,BODYCRC,4)\n set('VmSourceWorld_TemplateCount',16);set('VmSourceVars_Ready',0xb4a4);set('VmSourceVars_Base',0x8800);set('VmSourceVars_Bank',0x41);set('VmSourceVars_Count',384)\n put(0x410000+s*64,0x414000+s*80,4);put(0x40902c+s*64,0,4)\n set('SourceScriptClone4086_Ready',0xb5c1);set('SourceScriptClone4086_Status',0);set('SourceScriptClone4086_Base',CLONEBASE);set('SourceScriptClone4086_Bank',58);set('SourceScriptClone4086_Bytes',CLONEBYTES);set('SourceScriptClone4086_Models',16)\n"
+
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for k in ('rom','source','authority','output'):p.add_argument('--'+k,type=Path,required=True)
@@ -48,25 +67,10 @@ def main():
  if a.attack_proc:
   for i,c in enumerate(rows):c.setdefault('reactive',(0,1,65536,65537,0xffffffff)[i%5])
  lua=BASE[:BASE.index('emu.addMemoryCallback(function()local s=emu.getState();cpu=')].replace('TABLESIZE',str(len(ft)))
- setup=r'''
- local s=c.slot;local v=0x414000+s*80;local side=0x416800+s*64;local life=0x439000+s*80;local flags=0x43eb00+s*32
- set('SourceAI4086_SpawnID',23);set('SourceAI4086_RespawnID',104);set('SourceAI4086_Ready',0xb5e2);set('SourceAI4086_State',c.bad=='ai_state'and 2 or 1);set('SourceAI4086_Slot',s);put(sy.SourceAI4086_Callback,c.bad=='callback_low'and 16 or 17,4);if c.bad=='callback_high'then put(sy.SourceAI4086_Callback+2,1)end
- set('SourceWorldTick4086_Ready',0xb4d5);set('SourceWorldTick4086_State',1);set('SourceWorldTick4086_Pending',1);set('SourceWorldTick4086_Phase',6);set('SourceWorldTick4086_Slot',s);put(sy.SourceWorldTick4086_TimeLo,c.time,4)
- set('SourceSelf4086_Ready',0xb4f6);set('SourceSelf4086_Active',0);set('SourceSelf4086_Fault',0);put(sy.SourceSelf4086_GlobalLow,v,4);set('SourceFreeze4086_Ready',0xb5df)
- set('SourceModelAnimationCopy4086_Ready',0xb4e9);set('SourceModelAnimationCopy4086_Models',16);set('SourceModelAnimationCopy4086_Maximum',168);set('SourceModelAnimationCopy4086_Bytes',5376);set('SourceModelAnimationCopy4086_Frames',80)
- for j=0,5375 do emu.write(0x43c000+j,0,mt)end;put(0x43c000+c.model*336,1);put(0x40b09c+c.model*160,c.type~1,4);put(v+16,1,4);put(v+20,0,4)
- set('SourceAnimationInit4086_Ready',0xb4ec);set('SourceAnimationInit4086_State',0);set('SourceAnimationInit4086_Base',INITBASE);set('SourceAnimationInit4086_Bank',59);set('SourceAnimationInit4086_Bytes',INITBYTES)
- set('SourceUpdateFrame4086_Ready',0xb4e3);set('SourceUpdateFrame4086_State',0);set('SourceUpdateFrame4086_Pending',0);set('SourceUpdateFrame4086_Animations',80);set('SourceUpdateFrame4086_Base',0x8000);set('SourceUpdateFrame4086_Bank',58);set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
- put(life+12,c.bad=='action_low'and 16 or 17,4);if c.bad=='action_high'then put(life+14,1)end
- put(flags,55,4);put(flags+4,66,4);put(flags+8,77,4);put(flags+12,88,4);put(flags+20,0,4);put(0x40c058+s*96,99,4);put(side+36,3*65536,4);put(side+40,4*65536,4);put(0x42e008+s*40,111,4)
- put(0x40900c+s*64,c.bad=='opponent_low'and 1 or c.bad=='opponent_high'and 65536 or 0,4)
- set('SourceAttackTiming4086_Status',c.bad=='timing_busy'and 1 or 2);set('SourceAttackTiming4086_Models',c.bad=='timing_models'and 15 or 16);if c.bad=='core_models'then set('SourceModelEntityCopy4086_Models',17)elseif c.bad=='core_zero'then set('SourceModelEntityCopy4086_Models',0)end
- set('SourceAttackTiming4086_Ready',c.bad=='timing_ready'and 0 or 0xb603);put(0x438800+s*14,c.aggression,4);put(0x43880c+s*14,c.bad=='timing_marker'and 0 or 0xb603)
- set('SourceCommonAttackFinish4086_Ready',c.bad=='finish_ready'and 0 or 0xb608);set('SourceCommonAttackFinish4086_Status',c.bad=='finish_busy'and 1 or c.bad=='finish_sticky'and 3 or 0)
- '''
+ setup=FINISH_SETUP
  setup=setup.replace('INITBASE',str(0x8000+len(ft))).replace('INITBYTES',str(len(it)))
  if a.complete_idle:
-  complete_setup="\n put(0x416802+s*64,c.model);put(0x41f500+s*20,0,4);put(0x41f504+s*20,0,4);put(0x41f50c+s*20,0,4);put(0x43fb00,0,4);put(sy.VmSourceWorld_Level,1)\n set('VmSourceFrame_Ready',0xb4fd);set('VmSourceFrame_Programs',PROGRAMS);set('VmSourceInstr_Ready',0xb48e);set('SourceVMRun4086_Ready',0xb4d7);set('SourceVMRun4086_Busy',0);set('VmSourceModels_Count',16);set('VmSourceCallback_Active',0)\n set('SourceAnimationCallback4086_Ready',0xb4e6);set('SourceAnimationCallback4086_State',0);set('SourceAnimationCallback4086_Base',CALLBACKBASE);set('SourceAnimationCallback4086_Bank',58);set('SourceAnimationCallback4086_Bytes',CALLBACKBYTES)\n set('SourceUpdateFrame4086_Bytes',EFFECTBYTES);set('SourceFrameMotion4086_Ready',0xb4e8);set('SourceFrameMotion4086_Status',0);set('SourceFrameEffectLeaf4086_Ready',0xb4f4)\n set('SourceFrameEffectPlan4086_Ready',0xb4f2);set('SourceFrameEffectPlan4086_State',0);set('SourceFrameEffectPlan4086_Base',PLANBASE);set('SourceFrameEffectPlan4086_Bank',59);set('SourceFrameEffectPlan4086_Bytes',PLANBYTES);set('SourceFrameEffectPlan4086_Animations',80)\n put(sy.SourceFrameEffectPlan4086_PairedCrcLo,PAIREDCRC,4);put(sy.SourceFrameEffectPlan4086_BodyCrcLo,BODYCRC,4)\n set('VmSourceWorld_TemplateCount',16);set('VmSourceVars_Ready',0xb4a4);set('VmSourceVars_Base',0x8800);set('VmSourceVars_Bank',0x41);set('VmSourceVars_Count',384)\n put(0x410000+s*64,0x414000+s*80,4);put(0x40902c+s*64,0,4)\n set('SourceScriptClone4086_Ready',0xb5c1);set('SourceScriptClone4086_Status',0);set('SourceScriptClone4086_Base',CLONEBASE);set('SourceScriptClone4086_Bank',58);set('SourceScriptClone4086_Bytes',CLONEBYTES);set('SourceScriptClone4086_Models',16)\n"
+  complete_setup=FRAMEZERO_SETUP
   for token,value in dict(PROGRAMS=cb['program_count'],CALLBACKBASE=0x8000+len(fe),CALLBACKBYTES=len(callbacks),EFFECTBYTES=len(fe),PLANBASE=0x8000+len(ft)+len(it),PLANBYTES=len(plan),PAIREDCRC=struct.unpack_from('<I',plan,24)[0],BODYCRC=struct.unpack_from('<I',plan,28)[0],CLONEBASE=0x8000+len(fe)+len(callbacks),CLONEBYTES=len(clone)).items():complete_setup=complete_setup.replace(token,str(value))
   setup+=complete_setup
  if a.attack_proc:

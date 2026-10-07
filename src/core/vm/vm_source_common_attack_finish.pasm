@@ -43,6 +43,8 @@ SourceCommonAttackFinish4086_ReadyChecked:
 SourceCommonAttackFinish4086_Start:
 .a16
 .i16
+ lda #0
+ sta.l SourceAttackRunoff4086_Mode
  jsl SourceAI4086_CheckOwner
  bcc SourceCommonAttackFinish4086_OwnerChecked
  jmp SourceCommonAttackFinish4086_Bad
@@ -141,6 +143,13 @@ SourceCommonAttackFinish4086_EntityCountChecked:
  lda.l $40900C,x
  ora.l $40900E,x
  beq SourceCommonAttackFinish4086_OpponentChecked
+ lda.l SourceAI4086_Life
+ tax
+ lda.l $439034,x
+ ora.l $439036,x
+ bne SourceCommonAttackFinish4086_OpponentChecked
+ jsl SourceAttackRunoff4086_Preflight
+ bcc SourceCommonAttackFinish4086_OpponentChecked
  jmp SourceCommonAttackFinish4086_Bad
 SourceCommonAttackFinish4086_OpponentChecked:
 .a16
@@ -173,6 +182,25 @@ SourceCommonAttackFinish4086_Apply:
  lda #0
  sta.l $43900C,x
  sta.l $43900E,x
+ lda.l SourceAttackRunoff4086_Mode
+ cmp #1
+ bne SourceCommonAttackFinish4086_UseIdle
+ jsl SourceAttackRunoff4086_Begin
+ bcs SourceCommonAttackFinish4086_RunoffFailed
+ cmp #0
+ beq SourceCommonAttackFinish4086_UseIdle
+ cmp #1
+ beq SourceCommonAttackFinish4086_Yield
+ cmp #2
+ bne SourceCommonAttackFinish4086_RunoffFailed
+ jmp SourceCommonAttackFinish4086_PostIdle
+SourceCommonAttackFinish4086_RunoffFailed:
+.a16
+.i16
+ jmp SourceCommonAttackFinish4086_Bad
+SourceCommonAttackFinish4086_UseIdle:
+.a16
+.i16
  lda.l SourceAI4086_Slot
  sta.l SourceIdle4086_Slot
  jsl SourceSetIdle4086_Begin
@@ -244,6 +272,19 @@ SourceCommonAttackFinish4086_ContinueCallback:
  beq SourceCommonAttackFinish4086_ContinueCallbackHigh
  jmp SourceCommonAttackFinish4086_Bad
 SourceCommonAttackFinish4086_ContinueCallbackHigh:
+.a16
+.i16
+ lda.l SourceAttackRunoff4086_Mode
+ cmp #2
+ bne SourceCommonAttackFinish4086_ContinueIdle
+ jsl SourceAttackRunoff4086_Continue
+ bcs SourceCommonAttackFinish4086_RunoffContinueFailed
+ jmp SourceCommonAttackFinish4086_PostIdle
+SourceCommonAttackFinish4086_RunoffContinueFailed:
+.a16
+.i16
+ jmp SourceCommonAttackFinish4086_Bad
+SourceCommonAttackFinish4086_ContinueIdle:
 .a16
 .i16
  lda.l SourceAI4086_Slot

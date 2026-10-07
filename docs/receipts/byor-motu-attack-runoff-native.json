@@ -1,0 +1,135 @@
+{
+  "schema": "BYOR_4086_ATTACK_RUNOFF_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-runoff-authority/report.json",
+      "sha256": "e92ba94e1bb44812f5cdcbbbae92714c9365df1409ad198650f7b4ba3e0f438b",
+      "cases": 1008
+    },
+    {
+      "path": "out/byor-motu-attack-run-authority/report.json",
+      "sha256": "d9f6b45c8b64dca9eaae52fad3aaa1ce6f752f988fb39e8fa431649ea163ace7",
+      "cases": 96
+    },
+    {
+      "path": "out/byor-motu-attack-runoff-state-fixed-native/report.json",
+      "sha256": "161dd0e4c7baeab4be314636e068c9fb40aafe51d041f761f09ad0f81fb232b5",
+      "cases": 1008
+    },
+    {
+      "path": "out/byor-motu-attack-runoff-guards-seed-fixed-native/report.json",
+      "sha256": "87747ef3396d2fb3017acd9d276a84b1c11efb8e37698900cbdf9e29019b6100",
+      "cases": 130
+    },
+    {
+      "path": "out/byor-motu-attack-runoff-framezero-context-fixed-native/report.json",
+      "sha256": "72e16bad337a3e23a9aaaca3b331d8204f7d834305e480183654d949b23419a6",
+      "cases": 1008
+    },
+    {
+      "path": "out/byor-motu-attack-run-native/report.json",
+      "sha256": "84e7f6d02a6572bedcf9db5fe5caed0ae5747280ae1ad64a40f799a8b73dfe64",
+      "cases": 96
+    },
+    {
+      "path": "out/byor-motu-attack-run-framezero-native/report.json",
+      "sha256": "52e8cbdb64c10bdc556a461148292496d6973c66789448e43b75b1798f1d1f18",
+      "cases": 96
+    },
+    {
+      "path": "out/byor-motu-attack-run-ai-native/report.json",
+      "sha256": "a74c7032963c48a918a59b218b302354506a28e16dbf4ced78f5cc0bcfeff75b",
+      "cases": 96
+    },
+    {
+      "path": "out/byor-motu-attack-runoff-ai-native/report.json",
+      "sha256": "9280414d7b1a2119391a4de73a12510fdbe5ca73ce01572eb1aa1c0235ebf696",
+      "cases": 1008
+    },
+    {
+      "path": "out/byor-motu-runoff-finish-cost-regression-native/report.json",
+      "sha256": "b697d6e20eba6467040a06dff466d0d22a0d478bcb95675569e971869d2baee9",
+      "cases": 56
+    },
+    {
+      "path": "out/byor-motu-runoff-air-batch-native/report.json",
+      "sha256": "645e6fb164c9b64ff6e05e9d6f7634f77ad2aa1ce07f435cc7fb66f17aa63011",
+      "cases": 238
+    }
+  ],
+  "derived_profile": "out/byor-motu-adjust-walk-requirements/report.json",
+  "source_functions": [
+    "common_attack_finish",
+    "adjust_walk_animation",
+    "common_anim_series",
+    "diff"
+  ],
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "source_running_full_width": true,
+  "source_nomove_full_width": true,
+  "actual_opponent_pointer_resolved": true,
+  "default_walk_and_running_paths": true,
+  "run_absence_is_literal_noop": true,
+  "real_framezero_callback_effect_ack": true,
+  "actual_shared_rng": true,
+  "rng_called_only_at_literal_near_gate": true,
+  "actual_ai_callback17_continuation": true,
+  "actual_aggression_reread_after_callbacks": true,
+  "source_animation_pointer_alias_fixture": true,
+  "source_authored_walking_graphics_proven": false,
+  "source_directional_series_supported": false,
+  "source_directional_series_absent_in_motu": true,
+  "turning_and_common_move_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "preservation": {
+    "protected": 17,
+    "bank_zero_symbol_addresses_unchanged": true,
+    "bank_zero_growth_bytes": 0,
+    "changes_only_external_relocations": [
+      {
+        "pc": "0x9641",
+        "symbol": "Vm_SourceFrameGate",
+        "old": "0x1c8d6b",
+        "new": "0x1c8d6f"
+      },
+      {
+        "pc": "0x9697",
+        "symbol": "Vm_FetchSource",
+        "old": "0x1c8480",
+        "new": "0x1c8484"
+      },
+      {
+        "pc": "0x99a5",
+        "symbol": "Vm_SourceVariantAddFallback",
+        "old": "0x1c8877",
+        "new": "0x1c887b"
+      },
+      {
+        "pc": "0x9c9e",
+        "symbol": "Vm_SourceVariantTruthyFallback",
+        "old": "0x1c884b",
+        "new": "0x1c884f"
+      },
+      {
+        "pc": "0xa850",
+        "symbol": "Vm_SourceVariantCompareFallback",
+        "old": "0x1c8947",
+        "new": "0x1c894b"
+      }
+    ]
+  },
+  "width_guard_new_violations": 0,
+  "width_guard_authority_baseline": 183,
+  "bank_zero_free_before_nmi_bytes": 2,
+  "new_code_bank": 63,
+  "regression_fixture_batch_size": 64,
+  "retained_incomplete_regression_runs": [
+    "out/byor-motu-runoff-air-regression-native",
+    "out/byor-motu-runoff-air-diagnostic-native"
+  ],
+  "regression_failure_scope": "Small-batch bootstrap stopped before completion; observed completed calls matched expectations. No engine regression claim from incomplete runs."
+}
