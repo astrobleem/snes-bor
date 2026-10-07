@@ -11,6 +11,7 @@ SourceAudio_LengthHi       = $7E28EC ; .dw
 SourceAudio_ReadTemp       = $7E28EE ; .db
 SourceAudio_Status         = $7E28F0 ; .dw, 1=requested, 2=invalid, 3=busy
 SourceAudio_Index          = $7E28F2 ; .dw source namespace identity
+SourceAudio_RequestIndex   = $7E28F4 ; .dw pending admission; never replaces active identity on rejection
 
 ; A16 source sound index; C clear=request accepted, C set=explicit fault.
 ; Caller preserves the source event until accepted. No silent preemption.
@@ -22,7 +23,7 @@ SourceAudio_Start:
     pha
     phx
     phy
-    sta.l SourceAudio_Index
+    sta.l SourceAudio_RequestIndex
     lda.l AudioSemantic_FootDieStreamActive
     and #$00ff
     beq SourceAudio_Start__idle
@@ -64,7 +65,7 @@ SourceAudio_Start__validated4:
 SourceAudio_Start__validated5:
 .a16
 .i16
-    lda.l SourceAudio_Index
+    lda.l SourceAudio_RequestIndex
     cmp.l SourceAudio_Table+6
     bcc SourceAudio_Start__validated6
     jmp SourceAudio_Start__bad
@@ -109,6 +110,8 @@ SourceAudio_Start__validated10:
 .a16
 .i16
     sta.l AudioStream_SourceChunks
+    lda.l SourceAudio_RequestIndex
+    sta.l SourceAudio_Index
     sep #$20
 .a8
     lda.l SourceAudio_Table+10,x

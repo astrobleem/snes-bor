@@ -95,5 +95,23 @@
   "source_event_exact_timing_proven": false,
   "restart_and_polyphony_proven": false,
   "motu_demo_complete": false,
-  "no_color_reduction": true
+  "no_color_reduction": true,
+  "admission_regression": {
+    "evidence": "out/byor-motu-source-audio-admission-native",
+    "status": "PASS",
+    "invalid_index_rejected": true,
+    "busy_request_rejected": true,
+    "active_namespace_identity_preserved": true,
+    "dsp_blocks": {
+      "source_blocks": 897,
+      "observed_blocks": 897,
+      "skipped_blocks": 0,
+      "repeated_blocks": 0,
+      "block_fingerprint_mismatches": 0,
+      "dsp_samples": 41589,
+      "endx_sample": 41589,
+      "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+      "trace_sha256": "12d921f69ff7e0fa946b1106239c0bf6de7c21e8a9c2cc94704d6966b93a83c5"
+    }
+  }
 }

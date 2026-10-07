@@ -142,3 +142,20 @@ stream restart, polyphony, or admission alongside the moving lossless effect.
 An active stream explicitly rejects a new request as busy; no silent source
 alias or preemption is used. The production foreign sound-event owner remains
 pending. No color reduction was applied.
+
+
+The width guard was subsequently resolved in commit dc9e217. All 183 flagged
+sites now carry explicit accumulator/index assertions; the entire machine-code
+binary was byte-identical before and after. The raw guard has zero violations,
+and its obsolete baseline entries were removed. This fixes assembler sizing
+annotations without claiming a runtime control-flow proof for every call path.
+
+The current shared stream host also passes the retained fixed-context hybrid
+pixel regression: `docs/receipts/byor-motu-hybrid-shared-audio-regression.json`.
+Its frozen compiled palette indices match the original residency atlas. A
+regenerated frame had changed 421 indices, so combining that frame with the
+old atlas correctly failed pixel identity. The matched proof checks 4,300,800
+pixels with no mismatch and no unsafe palette/VRAM access or OBJ overflow.
+The corrected transport transferred 36 of 44 original-BOR source-2 chunks
+during the measured effect sequence; full concurrent playback is unproven.
+Do not carry forward the old 44-chunk completion claim to this updated host.

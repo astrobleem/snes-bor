@@ -20,12 +20,17 @@ from _harness import McpSession,MESEN_EXE,_free_tcp_port,Reporter,exact_input_ed
 import game_bor_startup_select as startup
 
 
-def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,source_clock=False,compact_canvas_nmi=False,sparse_palette=False,serialize_audio_raster=False,fold_first_use=False):
+def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,source_clock=False,compact_canvas_nmi=False,sparse_palette=False,serialize_audio_raster=False,fold_first_use=False,prepared_sequence=None):
     schedule=json.loads(deadlines.read_text());plan=json.loads((residency/'report.json').read_text())
     if not schedule['resident_identity_replay']:raise ValueError('PRODUCTION_SEQUENCE_UNPROVEN_DEADLINES')
     hybrid=plan.get('schema')=='BYOR_HYBRID_FIXED_CONTEXT_RESIDENCY_V1'
     assets=[sequence/f'frame-{i:02d}' for i in range(len(schedule['source_frame_start_fields']))]
-    if hybrid:
+    if prepared_sequence:
+        # A regression must consume immutable compiler inputs from its receipt,
+        # rather than regenerating a palette assignment beside an older atlas.
+        assets=[prepared_sequence/f'frame-{i:02d}' for i in range(len(assets))]
+        reports=[json.loads((p/'report.json').read_text()) for p in assets]
+    elif hybrid:
         from m4_hybrid_scene_native import prepare
         prepared=[prepare(p) for p in assets];reports=[v[1] for v in prepared];assets=[v[3] for v in prepared]
         for r in reports:r['native_obj_entries']=plan['static_obj_entries']
@@ -82,7 +87,13 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
     fields=schedule['fields']+[dict(field=schedule['fields'][-1]['field']+1,jobs=[],mandatory=[])]
     fields[0]=dict(field=0,jobs=[],mandatory=[])
     # Pack all per-field programs and their immutable bytes into fast ROM.
-    programs=[];blocks=[];cursor=53*32768;frame=0;descriptor_state={}
+    # Shared source capabilities now occupy banks 61..63. Never overwrite
+    # them with fixture programs. Use only measured empty FastROM banks.
+    program_banks=[b for b in [*range(53,61),*range(47,52)]
+                   if original[b*32768:(b+1)*32768]==bytes(32768)]
+    if not program_banks:raise ValueError('PRODUCTION_SEQUENCE_FASTROM_CAPACITY')
+    program_bank=0
+    programs=[];blocks=[];cursor=program_banks[0]*32768;frame=0;descriptor_state={}
     for row in fields:
         while frame+1<len(assets) and schedule['source_frame_start_fields'][frame+1]<=row['field']:frame+=1
         items=[]
@@ -98,8 +109,11 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
             if packets and packets[-1][0]+len(packets[-1][1])==address:packets[-1][1].extend(data)
             else:packets.append([address,bytearray(data)])
         reserve=256+40*len(packets);data_size=sum(len(p[1]) for p in packets)
-        if cursor%32768+reserve+data_size>32768:cursor=(cursor//32768+1)*32768
-        if cursor+reserve+data_size>64*32768:raise ValueError('PRODUCTION_SEQUENCE_FASTROM_CAPACITY')
+        if reserve+data_size>32768:raise ValueError('PRODUCTION_SEQUENCE_SINGLE_PROGRAM_CAPACITY')
+        if cursor%32768+reserve+data_size>32768:
+            program_bank+=1
+            if program_bank>=len(program_banks):raise ValueError('PRODUCTION_SEQUENCE_FASTROM_CAPACITY')
+            cursor=program_banks[program_bank]*32768
         start=cursor;payload=start+reserve;code=bytearray();config=None;bank_state=None;source_end=None
         def longword(address,value):code.extend(bytes([0xa9,value&255,value>>8,0x8f,address&255,(address>>8)&255,address>>16]))
         def descriptor(address,value):
@@ -167,9 +181,12 @@ SourceCanvasProgramTable:
         pos=program['start'];asm+='    .dw $%04X,$%04X\n'%(0x8000+pos%32768-1,0x80+pos//32768)
     raw,gates=production_build(component,reports[0],folder,original,sy,True,True,prefix,0xa7d000,asm,audio_service,source_clock,palette_count=palette_count,compact_canvas_nmi=compact_canvas_nmi,sparse_targets=sparse_palette,serialize_audio_raster=serialize_audio_raster)
     rom=bytearray(raw)
-    for first,size in [(46*32768,32768),(53*32768,11*32768),(64*32768,5*65536)]:
+    for first,size in [(46*32768,32768),(64*32768,5*65536)]:
         if rom[first:first+size]!=bytes(size):raise ValueError('PRODUCTION_SEQUENCE_ROM_RESERVATION_OCCUPIED')
-    for address,data in blocks:rom[address:address+len(data)]=data
+    for address,data in blocks:
+        if rom[address:address+len(data)]!=bytes(len(data)):
+            raise ValueError('PRODUCTION_SEQUENCE_PROGRAM_RESERVATION_OCCUPIED:'+hex(address))
+        rom[address:address+len(data)]=data
     traces=[]
     for i,(r,initial) in enumerate(zip(reports,initials)):
         state=list(initial);target=bytearray();payload=bytearray();trace=[]
@@ -196,6 +213,9 @@ SourceCanvasProgramTable:
     resources['compact_canvas_nmi']=compact_canvas_nmi
     resources['sparse_palette_events']=sparse_palette
     resources['serialized_audio_raster']=serialize_audio_raster
+    resources['prepared_sequence_used']=bool(prepared_sequence)
+    resources['input_hashes']={str(p):{n:hashlib.sha256((p/n).read_bytes()).hexdigest()
+        for n in ('report.json','initial.json','indices.bin','low_indices.bin','expected.rgb555')}for p in assets}
     resources['palette_first_use_folds']=folds
     if hybrid:resources.update(static_obj_oam_sha256=plan['oam_sha256'],static_obj_subdivision=plan['static_obj_subdivision'])
     return bytes(rom),gates,resources,traces,assets
@@ -428,9 +448,10 @@ def main():
     p.add_argument('--sparse-palette',action='store_true')
     p.add_argument('--serialize-audio-raster',action='store_true')
     p.add_argument('--fold-first-use',action='store_true')
+    p.add_argument('--prepared-sequence',type=Path,help='Retained native compiler inputs for a reproducible regression')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     sy=symbols(Path(__file__).resolve().parents[2]/'src/main.sym')
-    rom,gates,resources,traces,assets=build(a.sequence,a.residency,a.deadlines,a.rom.read_bytes(),sy,folder,a.audio_service,a.source_clock,a.compact_canvas_nmi,a.sparse_palette,a.serialize_audio_raster,a.fold_first_use)
+    rom,gates,resources,traces,assets=build(a.sequence,a.residency,a.deadlines,a.rom.read_bytes(),sy,folder,a.audio_service,a.source_clock,a.compact_canvas_nmi,a.sparse_palette,a.serialize_audio_raster,a.fold_first_use,a.prepared_sequence)
     (folder/'proof.sfc').write_bytes(rom)
     (folder/'compiled.json').write_text(json.dumps(dict(resources=resources,gates=gates,assets=[str(p) for p in assets],traces=traces),indent=2))
     print('PRODUCTION_SEQUENCE_COMPILED')
