@@ -96,6 +96,16 @@ SourceCommonAttackFinish4086_ModelCountChecked:
 SourceCommonAttackFinish4086_ModelChecked:
 .a16
 .i16
+ ; Source self->modeldata.type is the per-entity installed/retained type.
+ ; Shared ent->model->type is a different authority after model changes.
+ lda.l SourceModelEntityCopy4086_Entities
+ cmp.l VmSourceWorld_Count
+ beq SourceCommonAttackFinish4086_EntityCountChecked
+ jmp SourceCommonAttackFinish4086_Bad
+SourceCommonAttackFinish4086_EntityCountChecked:
+.a16
+.i16
+ lda.l SourceAI4086_Slot
  asl a
  asl a
  asl a
@@ -103,12 +113,11 @@ SourceCommonAttackFinish4086_ModelChecked:
  asl a
  pha
  asl a
- asl a
  clc
  adc 1,s
  tax
  pla
- lda.l $40B09C,x
+ lda.l $40C048,x
  and #1
  sta.l SourceCommonAttackFinish4086_Player
  bne SourceCommonAttackFinish4086_Apply

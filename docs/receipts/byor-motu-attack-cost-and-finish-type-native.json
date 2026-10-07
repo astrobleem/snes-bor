@@ -1,0 +1,77 @@
+{
+  "schema": "BYOR_4086_ATTACK_COST_AND_FINISH_TYPE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-cost-authority/report.json",
+      "sha256": "14fe61fff45205159cdb2ecb5be4b48c1a05dfdf120d06d40980e92d8f4a54de",
+      "cases": 480
+    },
+    {
+      "path": "out/byor-motu-attack-cost-pay-final-native/report.json",
+      "sha256": "6179081bd51a468cbc4a869975e362c99fa8cc038748190f3780d93db376c684",
+      "cases": 518
+    },
+    {
+      "path": "out/byor-motu-attack-finish-entity-type-native/report.json",
+      "sha256": "bee47663149c54d8a0388b3ddd2a54aa41a56c151a0abc0ed499c4ffc60b9176",
+      "cases": 256
+    },
+    {
+      "path": "out/byor-motu-attack-finish-entity-type-framezero-native/report.json",
+      "sha256": "a0ef14cb5cd8ff95f255ab0012797fc5c1e10491ea2b23dfaf36a990e505019c",
+      "cases": 56
+    }
+  ],
+  "cost_payment_actual_cached_role_and_live_animation_distinct": true,
+  "cost_field_full_int32": true,
+  "cost_payment_exactly_once": true,
+  "source_authored_nonzero_debit_cost": 10,
+  "negative_health_preserved_without_clamp": true,
+  "attack_finish_type_authority": "self->modeldata.type; per-entity core +72",
+  "idle_movement_type_authority": "ent->model->type; shared model template +156",
+  "supersedes_previous_attack_finish_cached_type_claim": true,
+  "old_fixture_proofs_retained": true,
+  "bank_zero_growth_bytes": 0,
+  "bank_zero_symbol_addresses_unchanged": true,
+  "bank_zero_changes_only_external_call_relocations": [
+    {
+      "pc": "0x9641",
+      "symbol": "Vm_SourceFrameGate",
+      "old": "0x1c8d63",
+      "new": "0x1c8d67"
+    },
+    {
+      "pc": "0x9697",
+      "symbol": "Vm_FetchSource",
+      "old": "0x1c8478",
+      "new": "0x1c847c"
+    },
+    {
+      "pc": "0x99a5",
+      "symbol": "Vm_SourceVariantAddFallback",
+      "old": "0x1c886f",
+      "new": "0x1c8873"
+    },
+    {
+      "pc": "0x9c9e",
+      "symbol": "Vm_SourceVariantTruthyFallback",
+      "old": "0x1c8843",
+      "new": "0x1c8847"
+    },
+    {
+      "pc": "0xa850",
+      "symbol": "Vm_SourceVariantCompareFallback",
+      "old": "0x1c893f",
+      "new": "0x1c8943"
+    }
+  ],
+  "protected_dirty_tracked_files": 17,
+  "finished_attack_proc_bound": false,
+  "smart_bomb_bound": false,
+  "subtract_shot_bound": false,
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

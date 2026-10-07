@@ -1,4 +1,4 @@
-"""Literal attack finish through actual idle, independent of entity type."""
+"""Literal attack finish through actual idle, over actual per-entity modeldata type."""
 import argparse,hashlib,json,struct
 from pathlib import Path
 from compiler import Source
@@ -16,7 +16,7 @@ def main():
  a=p.parse_args();a.pending=a.pending or a.complete_idle;a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);au=json.loads(a.authority.read_text());assert au['status']=='PASS';source=Source(a.source);ft=pack_frames(frames(source));fe=pack_effects(effects(source));it=pack_init(init(source));rows=[]
  for i,(c,e)in enumerate(zip(au['inputs'],au['actual'])):
   s=(0,1,95,96,127)[i%5];m=(0,1,15)[i%3]
-  ent=dict(slot=s,model=m,handle=2 if a.pending else 1,frame=0,exists=1,type=2 if c['type']&1 else 1,hostile=1,dead=0,invincible=0,detect=-1,hide=-1)
+  ent=dict(slot=s,model=m,handle=2 if a.pending else 1,frame=0,exists=1,type=c['type'],hostile=1,dead=0,invincible=0,detect=-1,hide=-1)
   rows.append(dict(c,slot=s,model=m,count=128,entities=[ent],bad='',fault=int(a.premature_continue),expected=e))
  if a.pending:rows=[c for c in rows if c['time']==50]
  if not a.pending:
@@ -44,7 +44,7 @@ def main():
  set('SourceWorldTick4086_Ready',0xb4d5);set('SourceWorldTick4086_State',1);set('SourceWorldTick4086_Pending',1);set('SourceWorldTick4086_Phase',6);set('SourceWorldTick4086_Slot',s);put(sy.SourceWorldTick4086_TimeLo,c.time,4)
  set('SourceSelf4086_Ready',0xb4f6);set('SourceSelf4086_Active',0);set('SourceSelf4086_Fault',0);put(sy.SourceSelf4086_GlobalLow,v,4);set('SourceFreeze4086_Ready',0xb5df)
  set('SourceModelAnimationCopy4086_Ready',0xb4e9);set('SourceModelAnimationCopy4086_Models',16);set('SourceModelAnimationCopy4086_Maximum',168);set('SourceModelAnimationCopy4086_Bytes',5376);set('SourceModelAnimationCopy4086_Frames',80)
- for j=0,5375 do emu.write(0x43c000+j,0,mt)end;put(0x43c000+c.model*336,1);put(0x40b09c+c.model*160,c.type,4);put(v+16,1,4);put(v+20,0,4)
+ for j=0,5375 do emu.write(0x43c000+j,0,mt)end;put(0x43c000+c.model*336,1);put(0x40b09c+c.model*160,c.type~1,4);put(v+16,1,4);put(v+20,0,4)
  set('SourceAnimationInit4086_Ready',0xb4ec);set('SourceAnimationInit4086_State',0);set('SourceAnimationInit4086_Base',INITBASE);set('SourceAnimationInit4086_Bank',59);set('SourceAnimationInit4086_Bytes',INITBYTES)
  set('SourceUpdateFrame4086_Ready',0xb4e3);set('SourceUpdateFrame4086_State',0);set('SourceUpdateFrame4086_Pending',0);set('SourceUpdateFrame4086_Animations',80);set('SourceUpdateFrame4086_Base',0x8000);set('SourceUpdateFrame4086_Bank',58);set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
  put(life+12,c.bad=='action_low'and 16 or 17,4);if c.bad=='action_high'then put(life+14,1)end
@@ -100,7 +100,7 @@ emu.addMemoryCallback(function()emu.log('FINISHORDER|'..word(INDEX)..'|'..orderf
   assert not a.premature_continue;apply='FinishCompleteProbe';append='FinishCompleteProbe:\n.a16\n.i16\n jsl FINISH\n bcs FinishCompleteProbe_Fail\n cmp #1\n bne FinishCompleteProbe_Fail\n jsl STARTFRAME\n bcs FinishCompleteProbe_Fail\n jsl CALLBACKBEGIN\n bcs FinishCompleteProbe_Fail\n jsl CALLBACKRUN\n bcs FinishCompleteProbe_Fail\n cmp #4\n bne FinishCompleteProbe_Fail\n lda #1\n jsl FRAMEACK\n bcs FinishCompleteProbe_Fail\n jsl EFFECTRUN\n bcs FinishCompleteProbe_Fail\n cmp #0\n bne FinishCompleteProbe_Fail\n jsl CONTINUE\n rtl\nFinishCompleteProbe_Fail:\n.a16\n.i16\n sec\n rtl\n';bindings=dict(FINISH='SourceCommonAttackFinish4086_Execute',STARTFRAME='SourceAnimationInit4086_StartFrame',CALLBACKBEGIN='SourceAnimationCallback4086_Begin',CALLBACKRUN='SourceAnimationCallback4086_Run',FRAMEACK='SourceUpdateFrame4086_Ack',EFFECTRUN='SourceFrameEffects4086_Run',CONTINUE='SourceCommonAttackFinish4086_Continue')
  r=Reporter('M4-ATTACK-FINISH',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,apply,'SourceCommonAttackFinish4086_Ready',0xb608,tables,lua,r,append=append,bindings=bindings,batch_size=1,frame_limit=4000)
  actual=[list(map(int,l.split('FINISHRESULT|',1)[1].split('|')))for l in log.splitlines()if 'FINISHRESULT|'in l];expected=[[i,0,0,3 if c['fault']else 1 if a.pending and not a.complete_idle else 2]for i,c in enumerate(rows)];failures=[dict(input=c,actual=v,expected=e)for c,v,e in zip(rows,actual,expected)if v!=e]
- r.check('literal finish through actual idle, independent cached/entity type, signed aggression, wrapped stall, owner guards, unchanged siblings/VM/RNG/CPU',len(actual)==len(rows)and not failures)
+ r.check('literal finish through actual idle, per-entity type with contradictory shared model template, signed aggression, wrapped stall, owner guards, unchanged siblings/VM/RNG/CPU',len(actual)==len(rows)and not failures)
  order=[l.split('FINISHORDER|',1)[1].split('|')for l in log.splitlines()if 'FINISHORDER|'in l];wanted_order=[[str(i),'0',''if c['bad']else '1'if a.resume_guards or a.pending and not a.complete_idle else '1,2']for i,c in enumerate(rows)];r.check('literal call order: action/velocity clear then idle, completed idle before stall write',order==wanted_order)
  (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_ATTACK_FINISH_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),inputs=rows,actual=actual,expected=expected,failures=failures[:10],rom_sha256=hashlib.sha256(raw).hexdigest(),authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),execution_order=order,changed_idle_pending=a.pending,premature_continue=a.premature_continue,actual_frame_zero_executed=a.complete_idle,resume_callback_guards=a.resume_guards,finished_proc_bound=False,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
 
