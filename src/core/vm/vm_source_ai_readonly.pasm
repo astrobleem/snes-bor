@@ -46,6 +46,24 @@ SourceAIReadonly4086_Far4:
 SourceAIReadonly4086_Far5:
 .a16
 .i16
+ cmp #2
+ bne SourceAIReadonly4086_NotLie
+ jmp SourceAIReadonly4086_LieAbsent
+SourceAIReadonly4086_NotLie:
+.a16
+.i16
+ cmp #3
+ bne SourceAIReadonly4086_NotGrabbed
+ jmp SourceAIReadonly4086_GrabbedAbsent
+SourceAIReadonly4086_NotGrabbed:
+.a16
+.i16
+ cmp #5
+ bne SourceAIReadonly4086_NotEscape
+ jmp SourceAIReadonly4086_EscapeAbsent
+SourceAIReadonly4086_NotEscape:
+.a16
+.i16
  cmp #4
  bne SourceAIReadonly4086_GrabDispatchNext
  jmp SourceAIReadonly4086_Grab
@@ -95,6 +113,46 @@ SourceAIReadonly4086_Far10:
 .i16
  ; A true FOLLOW+parent needs range/pointer/distance and npc_warp semantics.
  jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_LieAbsent:
+.a16
+.i16
+ ; Pinned ANI_RISEATTACK. rand32 occurs AFTER validanim in ai_check_lie.
+ lda #49
+ jmp SourceAIReadonly4086_AnimationAbsent
+SourceAIReadonly4086_GrabbedAbsent:
+.a16
+.i16
+ ; Pinned ANI_SPECIAL. Earlier predicates are read-only.
+ lda #21
+ jmp SourceAIReadonly4086_AnimationAbsent
+SourceAIReadonly4086_EscapeAbsent:
+.a16
+.i16
+ ; Pinned ANI_SPECIAL2. Earlier inair predicate is read-only.
+ lda #36
+SourceAIReadonly4086_AnimationAbsent:
+.a16
+.i16
+ ; Check the current physical model's mutable cache, not its birth identity.
+ cmp.l SourceModelAnimationCopy4086_Maximum
+ bcc SourceAIReadonly4086_AnimationBounded
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_AnimationBounded:
+.a16
+.i16
+ asl a
+ clc
+ adc.l SourceAI4086_ModelOffset
+ tax
+ lda.l SOURCE_MODEL_ANIMATION_CACHE,x
+ beq SourceAIReadonly4086_AnimationMissing
+ ; Non-null requires real numframes and the conditional executable handler.
+ ; Do not treat presence as a no-op, including inherited/switched handles.
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_AnimationMissing:
+.a16
+.i16
+ jmp SourceAIReadonly4086_False
 SourceAIReadonly4086_Grab:
 .a16
 .i16

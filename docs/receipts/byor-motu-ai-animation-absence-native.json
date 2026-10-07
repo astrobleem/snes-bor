@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_MOTU_AI_ANIMATION_ABSENCE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-ai-animation-absence-authority/report.json",
+      "sha256": "caf15f7fdaff684bc0eb8f3e15233f29881e7b7f2016cd688cef52bc4dcfb08c",
+      "cases": 384
+    },
+    {
+      "path": "out/byor-motu-ai-animation-absence-native/report.json",
+      "sha256": "3be57168ec684cf69ba54e4ca6cecf141a7ec84529ab47269b9b7557f3c46113",
+      "cases": 173
+    },
+    {
+      "path": "out/byor-motu-ai-grab-absence-regression/report.json",
+      "sha256": "09339487b0b6e268953bddfbeff5c6b30656412b1512949e3ef80a355d9cc5bd",
+      "cases": 230
+    },
+    {
+      "path": "out/byor-motu-ai-warp-busy-absence-regression/report.json",
+      "sha256": "bec16d5a584ecff9926d9aae66beade09c34e67578ace8df67dc90c620767207",
+      "cases": 269
+    }
+  ],
+  "policy": "Current mutable model cache null-animation guarantees false for lie/grabbed/escape without RNG/handler effects; any non-null animation remains explicitly unbound",
+  "common_think_dispatch_integrated": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}
