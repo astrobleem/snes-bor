@@ -1,0 +1,34 @@
+{
+  "schema": "BYOR_MOTU_FREEZE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out/byor-motu-freeze-native/report.json",
+  "proof_sha256": "07140ae3a3566ea01d74bc3ef8b30374c34797d0481af783fed26ac80bc58d4a",
+  "rom_sha256": "b7e374bb8e2ac7dbdb23b4a701b1d794c697527e7b296b96de090e1a1246cf28",
+  "authority_sha256": "0ff9f93f4e3e0fd5b037bd539d55107d2f70f08b1630fd7055fd68802c6bf215",
+  "cases": 879,
+  "source_services": [
+    1,
+    3,
+    4
+  ],
+  "new_state_bytes": 5120,
+  "state_begin": "42E000",
+  "state_end_exclusive": "42F400",
+  "scratch_begin": "43BC7E",
+  "scratch_end_exclusive": "43BC90",
+  "bank0_growth": 0,
+  "checks": [
+    "Pinned freeze macro predicate for current self entity",
+    "Entire TYPE_TEXTBOX equality and smartbomber self exclusion",
+    "Personal unsigned deadline comparison",
+    "13 unsigned timer expansions including wrap and conditional freezetime",
+    "Actual update_mark reset",
+    "Full physical state observations and CPU preservation",
+    "Explicit stale result, geometry, count, slot, deadline epoch and timer lease guards",
+    "ROM audit ALL CHECKS PASS"
+  ],
+  "world_owner_integration_bound": false,
+  "constructor_initialization_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
