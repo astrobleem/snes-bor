@@ -1,0 +1,38 @@
+{
+  "schema": "BYOR_MOTU_ATTACK_TIMING_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-timing-native-assembled/report.json",
+      "sha256": "3f4616a04596dc01f42032fdb79fa9979a7a5739a46de7e8ba4c6192991f62de",
+      "cases": 296,
+      "decisions": null
+    },
+    {
+      "path": "out/byor-motu-attack-timer-randf-authority/report.json",
+      "sha256": "10be97f269486a6c4473fc1e3e4459f92ca844ddaf5116314628392622c5811c",
+      "cases": 273,
+      "decisions": 2730000
+    }
+  ],
+  "cache": {
+    "base": "40BD00",
+    "bytes": 192
+  },
+  "entities": {
+    "base": "438800",
+    "stride": 14,
+    "bytes": 1792,
+    "end": "438F00",
+    "marker": "B603"
+  },
+  "source_binary32_scalar_identity_preserved": true,
+  "atomic_publication_and_sibling_sentinel_life_retention": true,
+  "integer_timer_delay_lowering_matches_tested_c_vectors": true,
+  "original_2014_binary_fpu_configuration_proven": false,
+  "actual_birth_and_model_copy_hook_bound": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
