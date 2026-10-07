@@ -1,0 +1,30 @@
+{
+  "schema": "BYOR_MOTU_STAGE_COMPLETION_CONDITION_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out\\byor-motu-stage-completion-native\\report.json",
+  "proof_sha256": "9f097c40a0bbf41aadf93183423dea07166dd560d0bf2b11a618ec252e86d61d",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "completion_block_sha256": "129ff173fa24f3a2c1e86072d978bbc5a7d8d34360e59a91b86f5ce249597c6d",
+  "rom_sha256": "ad6d8418cb6afe4a8f793c5f65cd9002e9f3958cc9ebcd0b31c83cc7da92ac0e",
+  "cases": 272,
+  "scope": "Source stage completion condition after queue end; actual native pool and player-role data, paired with pinned C",
+  "checks": [
+    "Enemies and ENDLEVEL prevent completion",
+    "Bonus levels retain item/obstacle condition",
+    "All four player roles and full-width dead truth",
+    "No added player exists/type filter",
+    "Canonical pointer/token/pool guards",
+    "Entity bytes and CPU context unchanged"
+  ],
+  "bank": 62,
+  "bank0_free_before_nmi": 2,
+  "protected_files_unchanged": 17,
+  "audit": "ALL CHECKS PASS",
+  "nonclaims": [
+    "Real combat-driven enemy removal",
+    "Actual live queue exhaustion or Demo completion",
+    "MOTU gameplay certification"
+  ],
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

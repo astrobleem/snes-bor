@@ -13660,6 +13660,7 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_entity_count.pasm"
 .include "core/vm/vm_source_stage_producer.pasm"
 .include "core/vm/vm_source_scroller_prefix.pasm"
+.include "core/vm/vm_source_stage_completion.pasm"
 .include "core/vm/vm_source_random_float.pasm"
 .include "core/vm/vm_source_air.pasm"
 

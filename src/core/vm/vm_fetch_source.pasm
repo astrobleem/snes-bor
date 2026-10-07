@@ -30,6 +30,8 @@ Vm_FetchSourceInit:
     sta.l SourceStageProducer4086_State
     sta.l SourceScrollerPrefix4086_Ready
     sta.l SourceScrollerPrefix4086_State
+    sta.l SourceStageCompletion4086_Ready
+    sta.l SourceStageCompletion4086_Status
     sta.l VmSourceVars_Ready
     sta.l VmSourceCallback_Ready
     sta.l VmSourceCallback_Active
