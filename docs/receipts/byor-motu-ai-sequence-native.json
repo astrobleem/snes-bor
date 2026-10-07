@@ -1,0 +1,37 @@
+{
+  "schema": "BYOR_MOTU_AI_SEQUENCE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-ai-authority/report.json",
+      "sha256": "4e2280d591fcff45b9b00648523d4be77dda99beb1534e914eca08bc15ee87ce",
+      "cases": 3012
+    },
+    {
+      "path": "out/byor-motu-ai-sequence-native/report.json",
+      "sha256": "2d5e776e5c76bde65448109ffc8f596ad63f173d1d3229d9ef86ce51248c80aa",
+      "cases": 378
+    }
+  ],
+  "checks": [
+    "Literal pinned check_ai differential oracle",
+    "Action precedes think; mutations rechecked before timer/think dispatch",
+    "Unsigned nextthink ordering and time+THINK_SPEED wrap",
+    "Endgame and nextthink outer gate; update mark bit2",
+    "No exists recheck inserted within check_ai",
+    "Full animation pointer-equivalent handle equality, including NULL",
+    "Physical sibling state and CPU preserved",
+    "ROM audit ALL CHECKS PASS; protected17 unchanged"
+  ],
+  "bank0_growth": 0,
+  "new_code_bank": 63,
+  "noaicontrol_storage": "unused current idle-flags DWORD +16; constructor already clears row",
+  "callback_bodies_instrumented": true,
+  "nonclaims": [
+    "Action/think/script/idle callback bodies remain unbound in this sequencing proof",
+    "World service owner not yet integrated",
+    "No moving lossless presentation or actual MOTU candidate",
+    "No real combat or full Demo completion"
+  ],
+  "no_color_reduction": true
+}

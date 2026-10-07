@@ -13678,3 +13678,8 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_clock.pasm"
 
 .include "core/vm/vm_source_player_spawn_height.pasm"
+
+; Additional generic source gameplay owners, outside all presentation reservations.
+.bank 63
+.org $8000
+.include "core/vm/vm_source_ai.pasm"
