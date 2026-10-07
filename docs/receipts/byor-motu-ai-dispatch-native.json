@@ -35,7 +35,7 @@
     "Real spawn action resumes through authored idle frame callback/effects and completes AI sequence",
     "World AI acknowledgement requires both dispatcher completion and source sequence completion",
     "No-callback physical traversal scope excludes instrumentation-only service-5/6 kills",
-    "96 unsupported action/think cases include real player/enemy IDs and full32 IDs",
+    "48 unsupported action/think cases include real player/enemy IDs and full32 IDs",
     "Full DWORD idling cleared by spawn/landing assignments",
     "All17 protected fingerprints unchanged; ROM audit ALL CHECKS PASS"
   ],

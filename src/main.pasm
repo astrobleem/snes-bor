@@ -13692,3 +13692,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_common_drop.pasm"
 
 .include "core/vm/vm_source_ai_run.pasm"
+
+.include "core/vm/vm_source_common_think.pasm"

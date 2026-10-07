@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_MOTU_COMMON_THINK_SEQUENCE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-common-think-authority/report.json",
+      "sha256": "437935019fa347ef86e7c845ed5c019ddee8dd7a9474a650ff3435abe9481765",
+      "cases": 240
+    },
+    {
+      "path": "out/byor-motu-common-think-native/report.json",
+      "sha256": "5445fcd689476009700cdcaa9bd3f46a0bcd69a0409d06aa14226d1b51180715",
+      "cases": 270
+    }
+  ],
+  "checks": [
+    "Literal pinned complete common_think ordered short-circuit oracle",
+    "Native full32 dead and reply truth including high-word-only flags",
+    "Dead tested only at entry; no invented mid-sequence dead recheck",
+    "Mutable current think callback not revalidated after entering its body",
+    "Move return ignored as in literal source",
+    "Complete CPU and physical sibling state and ownership guards",
+    "All17 protected fingerprints unchanged; ROM audit ALL CHECKS PASS"
+  ],
+  "bank0_growth": 0,
+  "handler_bodies_instrumented": true,
+  "nonclaims": [
+    "Common enemy thinker handlers not yet implemented or admitted in generic dispatcher",
+    "Player thinker unbound",
+    "No actual MOTU candidate, real combat, moving lossless rendering or Demo completion"
+  ],
+  "no_color_reduction": true
+}
