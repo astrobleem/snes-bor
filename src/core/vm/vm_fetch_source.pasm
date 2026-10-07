@@ -24,6 +24,8 @@ Vm_FetchSourceInit:
     sta.l VmSourceWorld_Ready
     sta.l SourceStageQueue4086_Ready
     sta.l SourceStageQueue4086_Status
+    sta.l SourceSmartSpawn4086_Ready
+    sta.l SourceSmartSpawn4086_Status
     sta.l VmSourceVars_Ready
     sta.l VmSourceCallback_Ready
     sta.l VmSourceCallback_Active

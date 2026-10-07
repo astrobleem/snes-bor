@@ -4,7 +4,8 @@
 ; Clear transient entity state, preserve token/sort/resources, publish exists/count
 ; before shared script binding. Finish follows model install/bind, before default-init.
 ; Body/name/map identity rows $433800..$4357FF: name48, mapH, palette ownerH,
-; draw flag32, reserved6, leaseH. This does not execute drawmethod or palette uploads.
+; draw flag32, boss32, spawntypeH, leaseH. Reset clears post-spawn fields.
+; This does not execute drawmethod or palette uploads.
 SourceCtorState4086_Ready = $43B848
 SourceCtorState4086_Status = $43B84A
 SourceCtorState4086_Base = $43B84C

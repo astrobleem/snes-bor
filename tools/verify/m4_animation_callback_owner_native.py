@@ -57,6 +57,7 @@ def main():
     p.add_argument('--default-owner',action='store_true',help='Use generic source-order default-init Begin/Continue instead of direct leaf sequencing.')
     p.add_argument('--initial-none-model',help='Authored TYPE_NONE identity without WALK, through default owner and actual IDLE frame zero.')
     p.add_argument('--ctor-owner',action='store_true',help='Execute slot selection and complete generic constructor continuation instead of fixture leaf sequencing.')
+    p.add_argument('--smartspawn',action='store_true',help='Apply source-derived stage properties after the complete constructor; boss music remains an explicit pending service.')
     p.add_argument('--stage-queue-index',type=int,help='Read constructor inputs from an authored stage spawn record; post-constructor overrides remain separate.')
     p.add_argument('--ctor-state',action='store_true',help='Run real reset/setup/model/script body owner before authored default initialization.')
     p.add_argument('--ctor-factors',action='store_true',help='Copy source-derived exact uniform defense/offense factors before model installation.')
@@ -84,6 +85,13 @@ def main():
         model=registry['models'][stage_row['model']]
         if model['declared_type']!='enemy':raise ValueError('STAGE_QUEUE_FIXTURE_ENEMY_INIT_CAPABILITY')
         a.initial_enemy=model['identity']
+    spawn_caps=None;boss_music_present=False
+    if a.smartspawn:
+        if stage_row is None:raise ValueError('SMARTSPAWN_REQUIRES_SOURCE_STAGE_ROW')
+        from source_spawn_capabilities_4086 import derive as spawn_capabilities
+        spawn_caps=spawn_capabilities(source)
+        stage_doc=document(source,stage_queue_report['stages'][stage_row['stage_id']-1]['source_path'])
+        boss_music_present=any(r['directive']=='bossmusic' and r['values'] and r['values'][0] for r in stage_doc['directives'])
     enemy_role=None
     if a.initial_enemy:
         default=next(m['id'] for m in registry['models'] if m['identity']==a.initial_enemy)
@@ -328,6 +336,8 @@ CallbackFixture_EffectsDone:
             asm=asm.replace(needle,' jsl STAGEPREPARE\n bcs CallbackFixture_Bad\n'+needle)
             context_base=0x8000+32*(stage_row['stage_id']-1)
             asm=asm.replace(' ldx #$8000\n ldy #58',f' ldx #{context_base}\n ldy #58')
+    if a.smartspawn:
+        asm=asm.replace('CallbackFixture_ResultPublished:\n.a16\n.i16\n nop','CallbackFixture_ResultPublished:\n.a16\n.i16\n nop\n jsl SMARTSPAWN\n bcs CallbackFixture_Bad\nCallbackFixture_PropertiesPublished:\n.a16\n.i16\n nop')
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,FRAMEBEGIN=sy['SourceUpdateFrame4086_Begin'],
         FRAMEACK=sy['SourceUpdateFrame4086_Ack'],CALLBACKBEGIN=sy['SourceAnimationCallback4086_Begin'],
         CALLBACKRUN=sy['SourceAnimationCallback4086_Run'],CALLBACKREADY=sy['SourceAnimationCallback4086_Ready'],
@@ -344,6 +354,7 @@ CallbackFixture_EffectsDone:
     if a.default_owner:values.update(OWNERBEGIN=sy['SourceDefaultInit4086_Begin'],OWNERCONTINUE=sy['SourceDefaultInit4086_Continue'])
     if a.script_clone:values.update(SCRIPTCLONECLEAR=sy['SourceScriptClone4086_Clear'],SCRIPTCLONEBIND=sy['SourceScriptClone4086_Bind'])
     if a.ctor_owner:values.update(CTOROWNERBEGIN=sy['SourceCtorOwner4086_Begin'],CTOROWNERCONTINUE=sy['SourceCtorOwner4086_Continue'],CTORRESULT=sy['SourceCtorOwner4086_Result'])
+    if a.smartspawn:values['SMARTSPAWN']=sy['SourceSmartSpawn4086_Apply']
     if stage_row:values['STAGEPREPARE']=sy['SourceStageQueue4086_PrepareSpawn']
     if a.ctor_state:values.update(CTORSTATE=sy['SourceCtorState4086_Begin'])
     if a.ctor_factors:values.update(CTORFACTORS=sy['SourceFactors4086_Apply'])
@@ -614,6 +625,11 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
             '\n'.join(" set('"+name+"',"+str(value)+")"for name,value in dict(SourceStageQueue4086_Ready=0xb5d2,SourceStageQueue4086_Status=0,SourceStageQueue4086_Base=locations['stagequeue']&65535,SourceStageQueue4086_Bank=59,SourceStageQueue4086_Bytes=len(queue_table),SourceStageQueue4086_Records=len(queue_rows),SourceStageQueue4086_Stages=len(stage_queue_report['stages']),SourceStageQueue4086_Index=a.stage_queue_index,SourceStageQueue4086_Stage=stage_row['stage_id'],SourceEnvironment4086_Stage=stage_row['stage_id'],SourceEmptyInitEnvironment4086_Stage=stage_row['stage_id'],VmSourceWorld_ScrollAxis=0).items())
         initialinstall+='\n put(sy.VmSourceWorld_AdvanceX,'+str(stage_row['at']*65536)+',4);put(sy.VmSourceWorld_AdvanceY,0,4)\n'
         lua+="emu.addMemoryCallback(function()emu.log('STAGECTORINPUT|'..word(INDEX)..'|'..word(sy.SourceStageQueue4086_Status)..'|'..word(sy.SourceStageQueue4086_Model)..'|'..dw(sy.SourceCtorState4086_X)..'|'..dw(sy.SourceCtorState4086_Z)..'|'..dw(sy.SourceCtorState4086_A)..'|'..dw(sy.SourceCtorState4086_Direction))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
+    if a.smartspawn:
+        cap=spawn_caps['models'][default]
+        initialinstall+='\n'+ '\n'.join(" set('"+name+"',"+str(value)+")"for name,value in dict(SourceSmartSpawn4086_Ready=0xb5d4,SourceSmartSpawn4086_Status=0,SourceSmartSpawn4086_MapModel=default,SourceSmartSpawn4086_MapsLoaded=cap['maps_loaded'],SourceSmartSpawn4086_BossMusic=int(bool(boss_music_present))).items())
+        address=fs['CallbackFixture_PropertiesPublished']
+        lua+=f"emu.addMemoryCallback(function()local name='';for i=0,47 do local ch=emu.read(0x433800+i,mt);if ch==0 then break end;name=name..string.char(ch)end;emu.log('SMARTCTOR|'..word(INDEX)..'|'..word(sy.SourceSmartSpawn4086_Status)..'|'..word(sy.SourceSmartSpawn4086_Players)..'|'..dw(0x414024)..'|'..dw(0x40c03c)..'|'..word(0x433830)..'|'..dw(0x433838)..'|'..word(0x43383c)..'|'..name)end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -708,6 +724,14 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         stage_results=[list(map(int,line.split('STAGECTORINPUT|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'STAGECTORINPUT|'in line]
         x,z,height=stage_row['coords_q16']
         reporter.check('actual source queue row prepares model, original geometry, direction and scrolling advance before complete constructor',stage_results==[[i,2,default,(x+stage_row['at']*65536)&0xffffffff,z&0xffffffff,height&0xffffffff,stage_row['flip']&0xffffffff]for i in range(len(rows))])
+    smart_results=[]
+    if a.smartspawn:
+        from source_smartspawn_4086 import post
+        e=dict(name=ctor_state_report['models'][default]['display_name'],health=registry['models'][default]['maxhealth'],model_health=registry['models'][default]['maxhealth'],map=0,palette=0,boss=0,spawntype=0)
+        trace=post(e,stage_row,1,spawn_caps['models'][default]['maps_loaded'],boss_music_present)
+        smart_results=[line.split('SMARTCTOR|',1)[1].split('|')for line in (folder/'mesen.log').read_text().splitlines()if 'SMARTCTOR|'in line]
+        expected=[[str(i),str(1 if 'BOSS_MUSIC'in trace else 2),'1',str(e['health']&0xffffffff),str(e['model_health']&0xffffffff),str(e['map']),str(e['boss']&0xffffffff),'1',e['name']]for i in range(len(rows))]
+        reporter.check('actual completed authored constructor precedes source alias/health/map/boss properties and explicit music request',smart_results==expected)
     if a.script_clone:reporter.check('constructor script cleanup/binding survives actual authored frame zero with foreign instance intact',clone_results==[[i,2,script_clone_report['models'][default]['initialized_mask'],0,0,99,3]for i in range(len(rows))])
     r=dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(raw).hexdigest(),source_pak_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
@@ -725,7 +749,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     r.update(ctor_owner_bound=a.ctor_owner,ctor_state_bound=a.ctor_state,ctor_factors_bound=a.ctor_factors,ctor_model_bound=a.ctor_model,ctor_media_bindings_bound=False,script_clone_bound=a.script_clone,script_clone_results=clone_results,script_clone_table_sha256=hashlib.sha256(script_clone_table).hexdigest()if script_clone_table else None)
     r.update(default_owner_bound=a.default_owner,default_owner_results=owner_results)
     r.update(initial_enemy=a.initial_enemy,initial_enemy_role=enemy_role,initial_enemy_results=enemy_results,enemy_drop_context_instrumented=bool(a.initial_enemy),full_default_init_bound=False)
-    r.update(stage_queue_index=a.stage_queue_index,stage_queue_row=stage_row,stage_queue_table_sha256=hashlib.sha256(queue_table).hexdigest()if queue_table else None,stage_queue_constructor_inputs_bound=stage_row is not None,stage_queue_post_constructor_properties_bound=False)
+    r.update(stage_queue_index=a.stage_queue_index,stage_queue_row=stage_row,stage_queue_table_sha256=hashlib.sha256(queue_table).hexdigest()if queue_table else None,stage_queue_constructor_inputs_bound=stage_row is not None,stage_queue_post_constructor_properties_bound=a.smartspawn,smartspawn_results=smart_results,smartspawn_music_execution_bound=False)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
 

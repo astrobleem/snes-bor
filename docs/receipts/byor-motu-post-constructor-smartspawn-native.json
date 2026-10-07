@@ -1,0 +1,523 @@
+{
+  "schema": "BYOR_MOTU_POST_CONSTRUCTOR_SMARTSPAWN_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "authority": {
+    "path": "out/byor-motu-smartspawn-authority/report.json",
+    "sha256": "0a897ff7b1d61f1cf86262c6dbc04732247d9a9a3aea3c6867d165ff5523b2e1",
+    "status": "PASS",
+    "cases": 688,
+    "rom_sha256": null
+  },
+  "native_properties": {
+    "path": "out/byor-motu-smartspawn-native/report.json",
+    "sha256": "08f02bafaef96664ea16dbec6fb4e572e0f1265b958a9213a1b31928fdaca959",
+    "status": "PASS",
+    "cases": 696,
+    "rom_sha256": "3721bb0ff3f1675bf2bed6065447c6e6616e6c32c808af8dba5eaca6a62fcbfd"
+  },
+  "native_music_ack": {
+    "path": "out/byor-motu-smartspawn-music-ack-native/report.json",
+    "sha256": "55d2b3b178ed5f7495b60712e9337c1213bdc9b6254c31c5cec32750acefc364",
+    "status": "PASS",
+    "cases": 24,
+    "rom_sha256": "d7eb7be4ad92139367fa5d64f419cb21a9188b98f3fb43170d809076fd2138ae"
+  },
+  "derived_capabilities": {
+    "path": "out/byor-motu-spawn-capabilities/report.json",
+    "sha256": "ee5c8fb35a6cb66acfec982c9d97aa0cd63d4efa595fd08e28f29f53a0cd381a",
+    "status": "DERIVED",
+    "cases": null,
+    "rom_sha256": null
+  },
+  "authored_native_constructors": [
+    {
+      "index": 0,
+      "path": "out/byor-motu-stage-smartspawn-first-native/report.json",
+      "sha256": "e00fbd9594d74b9d1d4ba8617c34b6297c97a9c73b71efecec92ea1501ac8472",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 1,
+      "path": "out/byor-motu-stage-record-1-smartspawn-native/report.json",
+      "sha256": "807c22d8d09cac8ae4a732c05592a6efc16306f87dba4e19b923d06d252a4459",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 3,
+      "path": "out/byor-motu-stage-record-3-smartspawn-native/report.json",
+      "sha256": "9212e39f0376b1994cdb42531c66c327e06710e61edbf6d36c25b3a2a74a14e9",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 4,
+      "path": "out/byor-motu-stage-record-4-smartspawn-native/report.json",
+      "sha256": "cffb5e68df426ff3f95fe219552706ff8210c6c071ecfef87dbe92176f03816d",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 7,
+      "path": "out/byor-motu-stage-record-7-smartspawn-native/report.json",
+      "sha256": "b8688e7e9a258e820500fafedfdc17ee7c62170eec9a666a8dcf173108361d1d",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 8,
+      "path": "out/byor-motu-stage-record-8-smartspawn-native/report.json",
+      "sha256": "c9b2eab7e3b14ba2bddda2646253516d1fe87c375adcba317219ef078b7c4adf",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 11,
+      "path": "out/byor-motu-stage-record-11-smartspawn-native/report.json",
+      "sha256": "2182402468e75697396e005825e169300dbcc9212da535561229171ec59e0e20",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 12,
+      "path": "out/byor-motu-stage-record-12-smartspawn-native/report.json",
+      "sha256": "a797b76d205be7310fa034923eab4a97c7f0709fad8c8117ad1fc313fcfc66f6",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 15,
+      "path": "out/byor-motu-stage-record-15-smartspawn-native/report.json",
+      "sha256": "99f3842c8d6050b6be150a09fab5589ba93a8decf671c8f949aec5d6cdefece3",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 16,
+      "path": "out/byor-motu-stage-record-16-smartspawn-native/report.json",
+      "sha256": "fa42e678874598fb37493b8ca7ac5f0fd0ddf1aa847325ba2f67ea28de5a0377",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 17,
+      "path": "out/byor-motu-stage-record-17-smartspawn-native/report.json",
+      "sha256": "e49c5c198c7ca5a027f46bcdb17e8a5be40a5c07d67c8a3b7cce45ed4caa4ee0",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 19,
+      "path": "out/byor-motu-stage-record-19-smartspawn-native/report.json",
+      "sha256": "0498454c2a5aeecd8962957867a72b930eca89170947f085119f7f8afdb50d1c",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 22,
+      "path": "out/byor-motu-stage-record-22-smartspawn-native/report.json",
+      "sha256": "c47e75e1fb5dc68310de2dcb64d951301ad458932fc6597c1f3f9506e8bd980a",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 23,
+      "path": "out/byor-motu-stage-record-23-smartspawn-native/report.json",
+      "sha256": "6be0058fa959b82f7a7058678df12140fefc8a82a78eb592d32ad59ed7aad01f",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 24,
+      "path": "out/byor-motu-stage-record-24-smartspawn-native/report.json",
+      "sha256": "4115ca162c16dde5366d719ece4a9e3bac4d778476ff7dd61d55eddb6f21008d",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 26,
+      "path": "out/byor-motu-stage-record-26-smartspawn-native/report.json",
+      "sha256": "f3279052036eaf192bae454ac01ff0b7c93309d54fe7038d0c945db478d1d84f",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 27,
+      "path": "out/byor-motu-stage-record-27-smartspawn-native/report.json",
+      "sha256": "8180ded1ba122e80f0876d07840b2fa16d977c49ba5c80d8ab362b51949229d4",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 28,
+      "path": "out/byor-motu-stage-record-28-smartspawn-native/report.json",
+      "sha256": "6fc4204d5137291f09b0576d23d8ba4fbe2447b10eef9330e2b452f9c738d477",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 29,
+      "path": "out/byor-motu-stage-record-29-smartspawn-native/report.json",
+      "sha256": "e39880ead6fe6d03cb66d98860f931158f02aef5436946ddd5948d6ed5c9cc18",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 31,
+      "path": "out/byor-motu-stage-record-31-smartspawn-native/report.json",
+      "sha256": "5ed250d80d8c0b0ee489f28a424ee756cc22ece7cbd0fd30d3f81b0c9d4d47ec",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 14,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 14,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "64cb0392b0be05888f0caf42924fdd15cfd2b42323baaa08fca6f6249df498b0"
+    },
+    {
+      "index": 33,
+      "path": "out/byor-motu-stage-record-33-smartspawn-native/report.json",
+      "sha256": "00a357ada2a983c29c8ddaa0606445330ca494160f1ca6515f30cb4470a67f11",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 8,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 8,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "9c2705d9bf572791bbf8e49e895dd3ef7e4538a8ffa81d859c0af17a40f73368"
+    },
+    {
+      "index": 34,
+      "path": "out/byor-motu-stage-record-34-smartspawn-native/report.json",
+      "sha256": "27650bb4c1a035846818b26f8d289203a65bf8abe29da9ee42d2407ddfa33b5b",
+      "status": "PASS",
+      "cases": [
+        {
+          "f": 0,
+          "direction": 0,
+          "default": 8,
+          "fault": 0
+        },
+        {
+          "f": 0,
+          "direction": 1,
+          "default": 8,
+          "fault": 0
+        }
+      ],
+      "rom_sha256": "c5914d0ef8e97dd5f62517ca4fad4b47c64fcf96fcabdcc292852970acc2b782"
+    }
+  ],
+  "authored_constructor_cases": 44,
+  "source_spawn_records": 22,
+  "model_capabilities": 16,
+  "alternate_palettes": 3,
+  "bank": 62,
+  "bank0_free_before_nmi": 2,
+  "protected_files_unchanged": 17,
+  "rom_audit": "ALL CHECKS PASS",
+  "rom_audit_sha256": "77a990c39578b0bae42e7b4956b2ab1020effbe7753b1232dc698ec739237a5d",
+  "behavior": [
+    "Alias copied only after complete constructor/frame zero",
+    "Health selects MAX(1,count_ents(TYPE_PLAYER)) and updates current and model health",
+    "Unsigned map conversion/clamp matches pinned ent_set_colourmap",
+    "Boss and spawntype assigned after constructor",
+    "Boss music remains explicitly pending until successful service acknowledgement",
+    "No model or stage spawn scripts in the admitted source-derived capability"
+  ],
+  "nonclaims": [
+    "Actual boss music playback",
+    "Physical alternate palette uploads",
+    "Live stage dispatcher or gameplay",
+    "Actual MOTU foreign-profile candidate",
+    "Combat/effect presentation/Demo completion"
+  ],
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
