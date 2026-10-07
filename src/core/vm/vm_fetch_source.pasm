@@ -45,6 +45,12 @@ Vm_FetchSourceInit:
     sta.l SourceTarget4086_OrderReady
     sta.l SourceRandom4086_Ready
     sta.l SourceRandom4086_Busy
+    sta.l SourceCRandom4086_Ready
+    sta.l SourceCRandom4086_Busy
+    sta.l SourceModelAttackPolicy4086_Ready
+    sta.l SourceModelAttackPolicy4086_Status
+    sta.l SourceCollisionFrame4086_Ready
+    sta.l SourceCollisionFrame4086_Status
     sta.l SourceWorldTick4086_Ready
     sta.l SourceWorldTick4086_State
     sta.l SourceWorldTick4086_Pending

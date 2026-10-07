@@ -12,6 +12,7 @@ from source_model_registry import unpack as unpack_models
 from source_birth_templates import unpack as unpack_birth,STRIDE
 from source_birth_core import unpack as unpack_core,STRIDE as CORE_STRIDE
 from source_lifecycle_inputs import unpack as unpack_lifecycle
+from source_model_attack_policy import unpack as unpack_policy
 from source_world_pool import empty_pool,descriptor,POOL_BANK,POOL_BASE,SIDE_BASE
 from script_ir_4086 import parse_script
 from script_bytecode import compile_library
@@ -29,11 +30,16 @@ def main():
     p.add_argument('--ai-state-birth',action='store_true',help='Verify distinct AI row reset before alive publication and preserve sibling/rejected state.')
     p.add_argument('--birth-core',type=Path,help='Paired B4BI physical core/flags/relation augmentation')
     p.add_argument('--lifecycle',type=Path,help='Paired B4LI current-model scalars at physical birth')
+    p.add_argument('--model-attack-policy',type=Path,help='B4AP model blocking and stealth table, installed before alive')
     p.add_argument('--case',action='append',help='Run only these bounded native probe names.')
     p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
     root=Path(__file__).resolve().parents[2];syms=symbols(root/'src/main.sym')
     def c(file,key):return pasm_constant_in(str(root/file),key)
     models=(a.registry/'models.b4mr').read_bytes();rows=unpack_models(models)
+    policytable=a.model_attack_policy.read_bytes()if a.model_attack_policy else b''
+    if policytable:
+        if not a.birth_core or len(unpack_policy(policytable))!=len(rows):raise ValueError('WORLD_BIRTH_ATTACK_POLICY_PAIRED_CORE_REQUIRED')
+        a.ai_state_birth=True
     births=(a.birth_templates/'birth.b4bt').read_bytes();count=unpack_birth(births)
     if count!=len(rows):raise ValueError('BIRTH_REGISTRY_PAIRED_COUNT')
     address=syms['SourceVM_InstructionReservation'];offset=(address>>16)*32768+(address&65535)-32768
@@ -115,6 +121,16 @@ emu.addMemoryCallback(function()
  emu.log('WORLDBIRTHAI|'..slot..'|'..cleared..'|'..word(0x414004+slot*80))
 end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
 '''.replace('BIRTHSLOT',str(syms['SourceBirthCore4086_Slot'])).replace('PUBLISHADDRESS',str(syms['Vm_SourceWorldSpawn__ai_state_published'])))
+    if policytable:
+        with (a.output/'vm_cost.lua').open('a')as f:
+            f.write('''
+emu.addMemoryCallback(function()
+ local slot=word(BIRTHSLOT);local model=word(BIRTHMODEL);local mismatch,head=0,0
+ for j=0,7 do head=head+emu.read(0x42f400+slot*24+j,mt)end
+ for j=0,15 do if emu.read(0x42f408+slot*24+j,mt)~=emu.read(0x40bc00+model*16+j,mt)then mismatch=mismatch+1 end end
+ emu.log('WORLDBIRTHPOLICY|'..slot..'|'..mismatch..'|'..head..'|'..(word(0x414004+slot*80)|(word(0x414006+slot*80)<<16)))
+end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
+'''.replace('BIRTHSLOT',str(syms['SourceBirthCore4086_Slot'])).replace('BIRTHMODEL',str(syms['SourceBirthCore4086_Model'])).replace('PUBLISHADDRESS',str(syms['Vm_SourceWorldSpawn__policy_published'])))
     with session(rom=rom,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=a.output/'mesen.log') as m:
         with patch.object(m,'reset_emulator',return_value=None):startup.cold_to_title(m,reporter)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
@@ -158,6 +174,9 @@ end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
                 if name=='life_sticky':m.write_u16(syms['SourceLifecycle4086_Status'],3)
             m.write_memory('snesMemory',(POOL_BANK<<16)+POOL_BASE,pool.hex())
             if a.ai_state_birth:m.write_memory('snesMemory',0x42f400,bytes([0xa5]*48).hex())
+            if policytable:
+                m.write_memory('snesMemory',0x40bc00,policytable[16:].hex())
+                m.write_u16(syms['SourceModelAttackPolicy4086_Models'],len(rows));m.write_u16(syms['SourceModelAttackPolicy4086_Ready'],0xb5f0)
             m.write_memory('snesMemory',(POOL_BANK<<16)+SIDE_BASE,sides.hex())
             ordered=name in ('reordered_allocated','invalid_order')
             m.write_u16(syms['SourceWorldTick4086_Ready'],0xb4d5 if ordered else 0)
@@ -258,6 +277,7 @@ end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
             if a.ai_state_birth:
                 expected_ai=bytearray([0xa5]*48)
                 if outcome in ('PTR','PTR_FAULT','PTR_KILLED'):expected_ai[born_slot*24:(born_slot+1)*24]=bytes(24)
+                if policytable and outcome in ('PTR','PTR_FAULT','PTR_KILLED'):expected_ai[born_slot*24+8:(born_slot+1)*24]=policytable[16+model_id*16:32+model_id*16]
                 reporter.check(name+' AI birth state resets only the published actor and retains rejected/sibling rows',read_block(m,0x42f400,48)==bytes(expected_ai))
             if name=='reordered_allocated':
                 reporter.check('birth extends the source traversal prefix',startup.u16(m,syms['SourceWorldTick4086_Maximum'])==1)
@@ -291,6 +311,10 @@ end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
         expected_publications=sum(c[3]in ('PTR','PTR_FAULT','PTR_KILLED')for c in cases)+sum(c[0]=='retire_reuse'for c in cases)
         reporter.check('observer proves distinct AI row cleared before exists publication',len(ai_publications)==expected_publications and all(r[1:]==[0,0]for r in ai_publications))
         report.update(ai_before_alive_observer=ai_publications,ai_birth_initialization_proven=True,status='PASS'if all(ok for _,ok in reporter.results)else'FAIL')
+    if policytable:
+        policy_publications=[list(map(int,line.split('WORLDBIRTHPOLICY|',1)[1].split('|')))for line in (a.output/'mesen.log').read_text(errors='replace').splitlines()if 'WORLDBIRTHPOLICY|'in line]
+        reporter.check('observer proves full model policy installed after AI reset and before exists publication',len(policy_publications)==expected_publications and all(r[1:]==[0,0,0]for r in policy_publications))
+        report.update(model_attack_policy_before_alive_observer=policy_publications,model_attack_policy_birth_installation_proven=True,model_attack_policy_table_sha256=hashlib.sha256(policytable).hexdigest(),status='PASS'if all(ok for _,ok in reporter.results)else'FAIL')
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

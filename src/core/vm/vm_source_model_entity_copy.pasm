@@ -181,6 +181,18 @@ SourceModelEntityCopy4086_SpeedPreflight:
 SourceModelEntityCopy4086_SpeedAdmitted:
 .a16
 .i16
+    lda.l SourceModelAttackPolicy4086_Ready
+    beq SourceModelEntityCopy4086_PolicyChecked
+    lda.l SourceModelEntityCopy4086_Slot
+    sta.l SourceModelAttackPolicy4086_Slot
+    lda.l SourceModelEntityCopy4086_Model
+    sta.l SourceModelAttackPolicy4086_Model
+    jsl SourceModelAttackPolicy4086_Check
+    bcc SourceModelEntityCopy4086_PolicyChecked
+    jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_PolicyChecked:
+.a16
+.i16
     lda.l SourceLifecycle4086_Ready
     beq SourceModelEntityCopy4086_LifecycleDone
     lda.l SourceModelEntityCopy4086_Slot
@@ -438,6 +450,14 @@ SourceModelEntityCopy4086_SpeedIdentity:
     lda #$B508
     sta.l $43904C,x
 SourceModelEntityCopy4086_SpeedIdentityDone:
+.a16
+.i16
+    lda.l SourceModelAttackPolicy4086_Ready
+    beq SourceModelEntityCopy4086_PolicyCopied
+    jsl SourceModelAttackPolicy4086_Apply
+    bcc SourceModelEntityCopy4086_PolicyCopied
+    jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_PolicyCopied:
 .a16
 .i16
     lda #1

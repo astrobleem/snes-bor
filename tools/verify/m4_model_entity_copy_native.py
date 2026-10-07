@@ -18,6 +18,7 @@ REQUEST,INDEX,ERROR=0x7ffb80,0x7ffb82,0x7ffb84
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--authority',type=Path,required=True)
     p.add_argument('--lifecycle',type=Path,help='Enable paired current-model scalar installation')
+    p.add_argument('--attack-policy',type=Path,help='Pinned C model attack policy authority report')
     p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     authority=json.loads(a.authority.read_text())
@@ -59,6 +60,10 @@ def main():
         rows.append(dict(base,cache=list(cache),fault=1,bad='speed_domain',after=base['before'],want=base['view']))
     if lifetable:
         for bad in ('life_ready','life_sticky','life_table','life_paired','life_uninitialized'):rows.append(dict(base,fault=1,bad=bad,after=base['before'],want=base['view']))
+    if a.attack_policy:
+        policy=json.loads(a.attack_policy.read_text());assert policy['status']=='PASS'
+        for bad in ('policy_ready','policy_models','policy_pair'):rows.append(dict(base,fault=1,bad=bad,after=base['before'],want=base['view']))
+        for i,c in enumerate(rows):c['policy']=list(struct.pack('<4i',*policy['actual'][i%len(policy['actual'])]))
     sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(a.rom.read_bytes())
     if raw[first:first+32768]!=bytes(32768) or raw[0x7fd8]!=8:raise ValueError('MODEL_ENTITY_PROOF_RESERVED_ROM_OR_BWRAM')
     asm='''.snes
@@ -151,7 +156,7 @@ EntityCopyFixture_Return:
         if isinstance(value,list):return '{'+','.join(luav(v) for v in value)+'}'
         if isinstance(value,dict):return '{'+','.join(k+'='+luav(v) for k,v in value.items())+'}'
         return str(value)
-    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceLifecycle4086_','SourceModelEntityCopy4086_','VmSourceWorld_'))})+'\n'
+    lua='local rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceLifecycle4086_','SourceModelAttackPolicy4086_','SourceModelEntityCopy4086_','VmSourceWorld_'))})+'\n'
     lua+='local lifeenabled='+str(bool(lifetable)).lower()+'\nlocal lifetable='+luav(list(lifetable))+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local cpu={};local start=0;local context_faults=0
@@ -227,6 +232,19 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
     for k,v in dict(INDEX=INDEX,EXPECTFAULT=REQUEST+6,INIT=fs['EntityCopyFixture_Init'],APPLY=sy['SourceModelEntityCopy4086_Apply'],
         AFTER=fs['EntityCopyFixture_After'],RESULT=fs['EntityCopyFixture_Result']).items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
+    if a.attack_policy:
+        setup="""
+ put(sy.SourceModelAttackPolicy4086_Ready,c.bad=='policy_ready'and 0xffff or 0xb5f0);put(sy.SourceModelAttackPolicy4086_Models,c.bad=='policy_models'and 17 or c.bad=='policy_pair'and 3 or 2)
+ for j=0,3071 do emu.write(0x42f400+j,0x5a,mt)end
+ for j=0,31 do emu.write(0x40bc00+j,0xa5,mt)end
+ copy(0x40bc10,c.policy)
+"""
+        lua=lua.replace(" set('Ready',0xb4eb)",setup+" set('Ready',0xb4eb)")
+        check="""
+ for j=0,3071 do local r=j-c.slot*24-8;local expected=c.fault==0 and r>=0 and r<16 and c.policy[r+1]or 0x5a;if emu.read(0x42f400+j,mt)~=expected then mismatch=mismatch+1 end end
+ for j=0,31 do local expected=j<16 and 0xa5 or c.policy[j-15];if emu.read(0x40bc00+j,mt)~=expected then cachefault=cachefault+1 end end
+"""
+        lua=lua.replace(" emu.log('ENTITYCOPYRESULT|",check+" emu.log('ENTITYCOPYRESULT|")
     script=folder/'observer.lua';script.write_text(lua)
     class Observed(McpSession):
         def __enter__(self):
@@ -258,6 +276,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
         source_type_policy='Install new model type now; return original entity type for restoration after source animation initialization.',
         current_model_lifecycle_installation_proven=bool(lifetable),lifecycle_table_sha256=hashlib.sha256(lifetable).hexdigest() if lifetable else None,
         current_model_speed_installation_proven=True,speed_numeric_policy='ACCEPTED_COMPAT_Q16_16',source_float_arithmetic_equivalence=False,
+        model_attack_policy_installed=bool(a.attack_policy),model_attack_policy_authority_sha256=hashlib.sha256(a.attack_policy.read_bytes()).hexdigest()if a.attack_policy else None,
         full_model_switch_bound=False,animation_initialization_bound=False,live_presentation_contention_proven=False,
         motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()

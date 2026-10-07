@@ -248,6 +248,15 @@ Vm_SourceWorldBranch_16:
 Vm_SourceWorldSpawn__copy:
 .a16
 .i16
+    lda.l SourceModelAttackPolicy4086_Ready
+    beq Vm_SourceWorldSpawn__policy_core_optional
+    lda.l SourceBirthCore4086_Ready
+    cmp #$B4F9
+    beq Vm_SourceWorldSpawn__policy_core_optional
+    jmp Vm_SourceWorldSpawn__bad
+Vm_SourceWorldSpawn__policy_core_optional:
+.a16
+.i16
     lda.l SourceBirthCore4086_Ready
     bne Vm_SourceWorldSpawn__core_preflight
     lda.l SourceRetirement4086_Ready
@@ -267,6 +276,18 @@ Vm_SourceWorldSpawn__core_preflight:
     lda.l VmSourceWorld_Model
     sta.l SourceBirthCore4086_Model
     jsl SourceBirthCore4086_Preflight
+    bcc Vm_SourceWorldSpawn__policy_preflight
+    jmp Vm_SourceWorldSpawn__bad
+Vm_SourceWorldSpawn__policy_preflight:
+.a16
+.i16
+    lda.l SourceModelAttackPolicy4086_Ready
+    beq Vm_SourceWorldSpawn__copy_payload
+    lda.l SourceBirthCore4086_Slot
+    sta.l SourceModelAttackPolicy4086_Slot
+    lda.l VmSourceWorld_Model
+    sta.l SourceModelAttackPolicy4086_Model
+    jsl SourceModelAttackPolicy4086_Check
     bcc Vm_SourceWorldSpawn__copy_payload
     jmp Vm_SourceWorldSpawn__bad
 Vm_SourceWorldSpawn__copy_payload:
@@ -388,6 +409,14 @@ Vm_SourceWorldSpawn__core_published:
     bcc Vm_SourceWorldSpawn__ai_state_published
     jmp Vm_SourceWorldSpawn__bad
 Vm_SourceWorldSpawn__ai_state_published:
+.a16
+.i16
+    lda.l SourceModelAttackPolicy4086_Ready
+    beq Vm_SourceWorldSpawn__policy_published
+    jsl SourceModelAttackPolicy4086_Apply
+    bcc Vm_SourceWorldSpawn__policy_published
+    jmp Vm_SourceWorldSpawn__bad
+Vm_SourceWorldSpawn__policy_published:
 .a16
 .i16
     lda.l VmSourceWorld_ViewOffset

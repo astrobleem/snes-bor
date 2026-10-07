@@ -1,5 +1,6 @@
 ; Source entity AI scalars, separate from idle/frame-effect flags.
-; 128 physical rows of 24 bytes: noaicontrol32, running32, remaining 16 bytes reserved.
+; 128 physical rows of 24 bytes: noaicontrol32, running32, nopassiveblock32,
+; blockodds32, modeldata.stealth.detect32, modeldata.stealth.hide32.
 ; Both compiler-owned birth paths clear this row before publishing exists=1.
 ; In particular $43EB10 is reactive, never noaicontrol.
 SOURCE_ENTITY_AI_STATE = $42F400

@@ -114,7 +114,18 @@ SourceCtorModel4086_Guard_7:
  sta.l SourceCtorModel4086_SpeedLo
  lda.l SourceModelEntityCopy4086_Hi
  sta.l SourceCtorModel4086_SpeedHi
-
+ lda.l SourceModelAttackPolicy4086_Ready
+ beq SourceCtorModel4086_PolicyChecked
+ lda.l SourceScriptClone4086_Slot
+ sta.l SourceModelAttackPolicy4086_Slot
+ lda.l SourceScriptClone4086_Model
+ sta.l SourceModelAttackPolicy4086_Model
+ jsl SourceModelAttackPolicy4086_Check
+ bcc SourceCtorModel4086_PolicyChecked
+ jmp SourceCtorModel4086_Bad
+SourceCtorModel4086_PolicyChecked:
+.a16
+.i16
  lda #2
  sta.l SourceCtorModel4086_Status
  ply
@@ -238,6 +249,14 @@ SourceCtorModel4086_Guard_9:
  sta.l $439046,x
  lda #$B508
  sta.l $43904C,x
+ lda.l SourceModelAttackPolicy4086_Ready
+ beq SourceCtorModel4086_PolicyCopied
+ jsl SourceModelAttackPolicy4086_Apply
+ bcc SourceCtorModel4086_PolicyCopied
+ jmp SourceCtorModel4086_Bad
+SourceCtorModel4086_PolicyCopied:
+.a16
+.i16
  lda #2
  sta.l SourceCtorModel4086_Status
  ply

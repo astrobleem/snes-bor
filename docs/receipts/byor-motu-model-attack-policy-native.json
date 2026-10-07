@@ -1,0 +1,50 @@
+{
+  "schema": "BYOR_MOTU_MODEL_ATTACK_POLICY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-model-attack-policy-authority/report.json",
+      "sha256": "2633779e04076a716026ffefe5cb18df8f02c35a38eecd3b03c1055d5846f701",
+      "cases": 201
+    },
+    {
+      "path": "out/byor-motu-model-attack-policy-native/report.json",
+      "sha256": "ea2c4781034fccc4a6ede2a7839d5d7333c73a401bce506baf897e786cf9b8b2",
+      "cases": 262
+    },
+    {
+      "path": "out/byor-motu-model-policy-constructor-native/report.json",
+      "sha256": "e3df22927e90c32ed3b7f93bc588ec744f7a84ac68b704bdf791c8355bff2f5e",
+      "cases": 162
+    },
+    {
+      "path": "out/byor-motu-model-policy-switch-native/report.json",
+      "sha256": "80b77bea92f1d18069052fc247e41810c9fb573016181a58ef24e8ea0886207d",
+      "cases": 480
+    },
+    {
+      "path": "out/byor-motu-model-policy-world-birth-native/report.json",
+      "sha256": "8851f6bd4f951cd41be7026137a8e7f25e7a99b1dd9b672d7d54d8b753666895",
+      "cases": 3
+    }
+  ],
+  "fields": [
+    "nopassiveblock32",
+    "blockodds32",
+    "modeldata.stealth.detect32",
+    "modeldata.stealth.hide32"
+  ],
+  "cache_range": "40BC00..40BCFF",
+  "entity_range": "42F400+slot*24+8..23",
+  "constructor_and_entity_model_copy_integrated": true,
+  "legacy_VM_birth_installation_before_exists_proven": true,
+  "cold_disabled_lease": true,
+  "compiler_table_bytes": 272,
+  "target_metadata_producer_bound": false,
+  "full_model_switch_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}
