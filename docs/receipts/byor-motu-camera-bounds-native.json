@@ -1,0 +1,42 @@
+{
+  "schema": "BYOR_MOTU_CAMERA_BOUNDS_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-camera-authority/report.json",
+      "sha256": "9db9b573bc14dd41218574a0f770133ea62ca6173d9dd26479d86f86bee1d5f1",
+      "cases": 9312,
+      "rom_sha256": null
+    },
+    {
+      "path": "out/byor-motu-camera-bounds-native/report.json",
+      "sha256": "b0356b0b38f700e2069ca3db7df75418a99e6db05cac5e2de510fac506e5289d",
+      "cases": 359,
+      "rom_sha256": "c6b972aa91e0de3110fada268d78852e8e0638fce648eff17eff432ecfaa0b64"
+    }
+  ],
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "scope": "Source horizontal camera oracle and native role boundary collection",
+  "checks": [
+    "Pinned camera control matches original binary32 outputs",
+    "Four actual player role pointers and native coordinate values",
+    "Source role eligibility has no exists/dead/type predicate",
+    "WAIT permits depth camera while holding horizontal camera",
+    "Altitude-adjusted depth camera",
+    "Source end-of-stage progress behavior",
+    "Readonly roles and physical entities; CPU preserved",
+    "Malformed tokens and out-of-domain altitude fail"
+  ],
+  "bank": 62,
+  "bank0_free_before_nmi": 2,
+  "protected_files_unchanged": 17,
+  "audit": "ALL CHECKS PASS",
+  "numeric_policy": "Admitted Q16 coordinate domain; no-player minimum sentinel is unused; subtraction overflow rejects",
+  "nonclaims": [
+    "Native camera movement",
+    "Live moving rendering or combat",
+    "MOTU foreign profile admission or full Demo"
+  ],
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
