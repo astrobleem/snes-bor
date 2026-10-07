@@ -1,0 +1,30 @@
+{
+  "schema": "BYOR_MOTU_ATTACK_PICKER_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-attack-choice-authority/report.json",
+      "sha256": "c98b41812c98935ad8d5610a3394babd4efeef9b7c7606da8129263e4c6b9570",
+      "cases": 852
+    },
+    {
+      "path": "out/byor-motu-attack-picker-native-final/report.json",
+      "sha256": "35989f48fd7fb375940f6c83200ca38a63092c7d8960f87c47cee2d022952560",
+      "cases": 876
+    }
+  ],
+  "source_profile_roles": 15,
+  "choice_capacity": 64,
+  "choice_storage_bytes": 256,
+  "role_directory_bytes": 128,
+  "profile_loader_peak_master_cycles": 28234,
+  "picker_peak_master_cycles": 938958,
+  "timing_includes_runtime_interrupts": true,
+  "whole_game_timing_feasibility_proven": false,
+  "actual_animation_cache_range_energy_weapon_and_rng_bound": true,
+  "testonly_precedes_jump_upper_fallback": true,
+  "positive_frame_domain_required": true,
+  "normal_tryattack_caller_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

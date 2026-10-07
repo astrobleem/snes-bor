@@ -13722,3 +13722,7 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_animation_energy.pasm"
 
 .include "core/vm/vm_source_entity_energy.pasm"
+
+.include "core/vm/vm_source_attack_choice_profile.pasm"
+
+.include "core/vm/vm_source_attack_picker.pasm"

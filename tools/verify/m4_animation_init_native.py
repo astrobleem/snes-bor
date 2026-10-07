@@ -19,7 +19,7 @@ def luav(v):
     if isinstance(v,bool):return str(v).lower()
     if isinstance(v,str):return json.dumps(v)
     if isinstance(v,list):return '{'+','.join(luav(x) for x in v)+'}'
-    if isinstance(v,dict):return '{'+','.join(k+'='+luav(x) for k,x in v.items())+'}'
+    if isinstance(v,dict):return '{'+','.join('['+luav(k)+']='+luav(x) for k,x in v.items())+'}'
     return str(v)
 
 
