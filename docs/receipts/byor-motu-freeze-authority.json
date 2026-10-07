@@ -1,0 +1,21 @@
+{
+  "schema": "BYOR_MOTU_FREEZE_AUTHORITY_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out/byor-motu-freeze-authority/report.json",
+  "proof_sha256": "0ff9f93f4e3e0fd5b037bd539d55107d2f70f08b1630fd7055fd68802c6bf215",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "cases": 576,
+  "macros_sha256": "f8c10ad774e5f96c07ed38831520a76081f3b4ad908af5e8fa36aaf047edc6ad",
+  "timer_declarations_sha256": "50c7c69c99a1f7713df83117717b847cb59c3aed04659e22ca36e8b6978505a6",
+  "findings": [
+    "Entire type equality to TYPE_TEXTBOX 128; no bit-mask substitution",
+    "Textbox freezes other types",
+    "Smartbomber does not freeze itself by the bomber clause",
+    "Final frozen/freezetime clause uses global self, not macro argument",
+    "Deadline comparison is unsigned greater-than, including wrap boundary",
+    "All 13 expanded timers are source u32, positive values increment modulo 2^32",
+    "Freezetime expands only with textbox or smartbomber"
+  ],
+  "native_backend_bound": false,
+  "motu_gameplay_proven": false
+}
