@@ -49,6 +49,7 @@ def main():
     p.add_argument('--birth-core',action='store_true',help='Execute actual B4BI core/flags/relation birth augmentation.')
     p.add_argument('--initial-select',action='store_true',help='Initialize authored player SELECT through real default-choice/ent_set_anim/frame-zero owners.')
     p.add_argument('--initial-jump',action='store_true',help='Run real default choice/action/JUMP frame zero and current makeinv fields, isolated.')
+    p.add_argument('--ai-run',action='store_true',help='execute actual generic AI dispatcher through common_spawn and real authored idle frame, then absent think script')
     p.add_argument('--common-spawn',action='store_true',help='Execute actual common_spawn idle transition through existing non-idle animation; isolated AI action, no world clock commit')
     p.add_argument('--initial-idle',action='store_true',help='Execute generic missing-animation set_idle and actual authored idle frame zero.')
     p.add_argument('--initial-walk',action='store_true',help='Execute generic default walk selection and actual authored walk frame zero.')
@@ -70,6 +71,7 @@ def main():
     p.add_argument('--script-clone',action='store_true',help='Run real constructor method-1 clear/bind before default initialization.')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     if a.common_spawn and (not a.initial_idle or a.default_owner or a.ctor_owner):raise ValueError('COMMON_SPAWN_FIXTURE_REQUIRES_ISOLATED_INITIAL_IDLE')
+    if a.ai_run and(not a.common_spawn or not a.script_clone):raise ValueError('AI_RUN_FRAME_REQUIRES_COMMON_SPAWN_SCRIPT_CLONE')
     owners,code,metadata,dispatch=derive(source);callbacks=pack(owners)
     registry=model_registry(source);models=pack_registry(registry);births=pack_birth(birth_templates(source))
     coretable=pack_core(birth_core(source)) if a.birth_core else b''
@@ -331,7 +333,7 @@ CallbackFixture_EffectsDone:
         start=asm.index(' jsl INITACK',asm.index('CallbackFixture_EffectsDone:'));end=asm.index(' jsl CLOCKCOMMIT',start)
         asm=asm[:start]+" ldx #$8000\n ldy #58\n jsl OWNERCONTINUE\n bcs CallbackFixture_Bad\n cmp #1\n beq CallbackFixture_OwnerFrame\n cmp #0\n bne CallbackFixture_Bad\n"+asm[end:]
     if a.script_clone:
-        if not a.default_owner:raise ValueError('SCRIPT_CLONE_REQUIRES_DEFAULT_OWNER_FIXTURE')
+        if not(a.default_owner or a.ai_run):raise ValueError('SCRIPT_CLONE_REQUIRES_DEFAULT_OR_AI_OWNER_FIXTURE')
         asm=asm.replace('CallbackFixture_Init:\n.a16\n.i16\n nop','CallbackFixture_Init:\n.a16\n.i16\n nop\n jsl SCRIPTCLONECLEAR\n bcs CallbackFixture_Bad\n jsl SCRIPTCLONEBIND\n bcs CallbackFixture_Bad')
     if a.ctor_model:asm=asm.replace(' jsl SCRIPTCLONEBIND',' jsl CTORMODEL\n bcs CallbackFixture_Bad\n jsl SCRIPTCLONEBIND')
     if a.ctor_factors:asm=asm.replace(' jsl CTORMODEL',' jsl CTORFACTORS\n bcs CallbackFixture_Bad\n jsl CTORMODEL')
@@ -358,6 +360,8 @@ CallbackFixture_EffectsDone:
         asm=asm.replace(' jsl INITACK',' jsl COMMONCONTINUE')
         asm=asm.replace(' jsl DEFAULTTAIL\n bcs CallbackFixture_Bad\n','')
         asm=asm.replace(' jsl CLOCKCOMMIT\n bcs CallbackFixture_Bad\n',' nop\n')
+    if a.ai_run:
+        asm=asm.replace(' jsl COMMONBEGIN',' jsl AIRUNBEGIN').replace(' jsl COMMONCONTINUE',' jsl AIRUNCONTINUE')
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,FRAMEBEGIN=sy['SourceUpdateFrame4086_Begin'],
         FRAMEACK=sy['SourceUpdateFrame4086_Ack'],CALLBACKBEGIN=sy['SourceAnimationCallback4086_Begin'],
         CALLBACKRUN=sy['SourceAnimationCallback4086_Run'],CALLBACKREADY=sy['SourceAnimationCallback4086_Ready'],
@@ -367,6 +371,7 @@ CallbackFixture_EffectsDone:
     if a.effects_runner:values.update(EFFECTRUN=sy['SourceFrameEffects4086_Run'],EFFECTACK=sy['SourceFrameEffectPlan4086_Ack'],EFFECTACKWORD=sy['SourceFrameEffectPlan4086_Acknowledged'])
     if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:values.update(DEFAULTBEGIN=sy['SourceDefaultChoice4086_Begin'],STARTFRAME=sy['SourceAnimationInit4086_StartFrame'],INITACK=sy['SourceAnimationInit4086_Ack'])
     if a.initial_jump:values.update(DEFAULTPREPARE=sy['SourceDefaultChoice4086_Prepare'],PLAYERBEGIN=sy['SourceDefaultPlayer4086_BeginAction'],PLAYERINV=sy['SourceDefaultPlayer4086_ApplyInvincibility'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
+    if a.ai_run:values.update(AIRUNBEGIN=sy['SourceAIRun4086_Begin'],AIRUNCONTINUE=sy['SourceAIRun4086_Continue'])
     if a.common_spawn:values.update(COMMONBEGIN=sy['SourceCommonSpawn4086_Begin'],COMMONCONTINUE=sy['SourceCommonSpawn4086_Continue'])
     if a.initial_idle:values.update(IDLEBEGIN=sy['SourceDefaultInit4086_BeginIdle'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.initial_walk:values.update(WALKBEGIN=sy['SourceWalk4086_BeginDefaultOnly'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
@@ -686,6 +691,9 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         initialinstall+='\n'+'\n'.join(" set('"+k+"',"+str(v)+")"for k,v in settings.items())
         initialinstall+='\nput(0x43900c,4,4);put(0x43eb00,3,2);put(0x41f510,0,2);put(0x416804,'+str(previous_animation['handle'])+',2);put(0x414014,'+str(previous_animation['engine_animation_id'])+',4);put(0x414004,1,4)\n'
         lua+="emu.addMemoryCallback(function()emu.log('COMMONSPAWN|'..word(INDEX)..'|'..word(sy.SourceCommonSpawn4086_State)..'|'..dw(0x43900c)..'|'..word(0x43eb00)..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceWorldTick4086_Pending)..'|'..dw(sy.VmSourceWorld_Time))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
+    if a.ai_run:
+        initialinstall+="\nset('SourceAI4086_State',0);set('SourceAI4086_Endgame',0,4);set('SourceAIRun4086_Ready',0xb5e6);set('SourceAIRun4086_State',0);put(0x439000,0,4);put(0x416814,48,4);put(0x43eb10,0,4);put(0x42e024,0,4)\n"
+        lua+="emu.addMemoryCallback(function()emu.log('AIRUNFRAME|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..dw(0x42e024)..'|'..dw(0x416814)..'|'..word(sy.SourceAIRun4086_PendingKind))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -824,8 +832,12 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     r.update(scroller_owner_bound=a.scroller_owner,scroller_no_player_return_only=a.scroller_owner,scroller_results=scroller_results)
     if a.common_spawn:
         common_results=[list(map(int,line.split('COMMONSPAWN|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'COMMONSPAWN|'in line]
-        reporter.check('actual common_spawn clears action and forces authored idle frame zero, without acknowledging whole AI/world service',common_results==[[i,2,0,3,1,1,48]for i in range(len(rows))])
+        reporter.check('actual common_spawn clears action and forces authored idle frame zero, without acknowledging whole AI/world service',common_results==[[i,2,0,3,5 if a.ai_run else 1,1,48]for i in range(len(rows))])
         r.update(common_spawn_bound=True,common_spawn_results=common_results,prior_animation=previous_animation,world_clock_committed=False)
+    if a.ai_run:
+        ai_frame_results=[list(map(int,line.split('AIRUNFRAME|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'AIRUNFRAME|'in line]
+        reporter.check('real check_ai action dispatch, real idle frame and uninitialized think method complete without consuming world clock',ai_frame_results==[[i,2,5,2,48,0]for i in range(len(rows))])
+        r.update(ai_dispatch_frame_bound=True,ai_frame_results=ai_frame_results)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 

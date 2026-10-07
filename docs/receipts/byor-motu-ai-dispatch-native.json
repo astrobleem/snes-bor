@@ -1,0 +1,51 @@
+{
+  "schema": "BYOR_MOTU_AI_DISPATCH_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-world-ai-native/report.json",
+      "sha256": "2c43ea5616b0ba1952b4b95f132c61cabd17c38803e40725c4884db3e098a8a9",
+      "cases": 402
+    },
+    {
+      "path": "out/byor-motu-ai-spawn-frame-native/report.json",
+      "sha256": "12f1421a67d3fb1a073d4527bd46534c5e88ebe18fb0138f232f053620adf511",
+      "cases": 2
+    },
+    {
+      "path": "out/byor-motu-ai-unbound-native/report.json",
+      "sha256": "440aa0ff936cf5750ded19a7ce94ee0dc17bf59da677f42c374c80d9ad333d52",
+      "cases": 48
+    },
+    {
+      "path": "out/byor-motu-common-spawn-wide-native/report.json",
+      "sha256": "0a91e13b07e9ec45464879a2246abae58dd4749fa5271852424f3c3cdc9a4dd9",
+      "cases": 100
+    },
+    {
+      "path": "out/byor-motu-common-drop-wide-native/report.json",
+      "sha256": "4cd022926b4380614ac3b49dca518849720b81a71666b17dd9d46f400421349c",
+      "cases": 309
+    }
+  ],
+  "world_ai_services": 726,
+  "checks": [
+    "Generic check_ai dispatcher executes common_spawn/common_drop/anything_walk identities; other IDs explicitly rejected",
+    "Think method absence derived from validated closed B5SC metadata",
+    "Real spawn action resumes through authored idle frame callback/effects and completes AI sequence",
+    "World AI acknowledgement requires both dispatcher completion and source sequence completion",
+    "No-callback physical traversal scope excludes instrumentation-only service-5/6 kills",
+    "96 unsupported action/think cases include real player/enemy IDs and full32 IDs",
+    "Full DWORD idling cleared by spawn/landing assignments",
+    "All17 protected fingerprints unchanged; ROM audit ALL CHECKS PASS"
+  ],
+  "bank0_growth": 0,
+  "nonclaims": [
+    "Player thinker and common enemy thinker bodies remain unbound and explicitly fault",
+    "World proof uses controlled actors without action/think callbacks",
+    "No moving lossless presentation or actual MOTU candidate",
+    "Animation/attack/health/post-update world services remain instrumented",
+    "No real combat or full Demo completion"
+  ],
+  "no_color_reduction": true
+}

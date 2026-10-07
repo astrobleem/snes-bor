@@ -118,6 +118,7 @@ SourceCommonSpawn4086_Animating:
  tax
  lda #0
  sta.l $43EB00,x
+ sta.l $43EB02,x
  jmp SourceCommonSpawn4086_Done
 SourceCommonSpawn4086_Pending:
 .a16

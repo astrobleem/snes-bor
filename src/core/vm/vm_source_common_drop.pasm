@@ -130,6 +130,8 @@ SourceCommonDrop4086_Land:
  tax
  lda #1
  sta.l $43EB00,x
+ lda #0
+ sta.l $43EB02,x
  lda.l SourceAI4086_Life
  tax
  lda #0

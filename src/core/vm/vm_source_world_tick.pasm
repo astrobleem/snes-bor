@@ -672,6 +672,31 @@ SourceWorldTick4086_AckScriptDone:
 .a16
 .i16
     lda.l SourceWorldTick4086_Phase
+    cmp #6
+    bne SourceWorldTick4086_AckAIDone
+    lda.l SourceAIRun4086_Ready
+    beq SourceWorldTick4086_AckAIDone
+    cmp #$B5E6
+    beq SourceWorldTick4086_AckAILease
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_AckAILease:
+.a16
+.i16
+    lda.l SourceAIRun4086_State
+    cmp #2
+    beq SourceWorldTick4086_AckAIRunDone
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_AckAIRunDone:
+.a16
+.i16
+    lda.l SourceAI4086_State
+    cmp #5
+    beq SourceWorldTick4086_AckAIDone
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_AckAIDone:
+.a16
+.i16
+    lda.l SourceWorldTick4086_Phase
     cmp #1
     beq SourceWorldTick4086_AckFreeze
     cmp #3
@@ -834,6 +859,18 @@ SourceWorldTick4086_IssueLostDone:
     lda #0
     sta.l SourceUpdateScript4086_Status
 SourceWorldTick4086_IssueScriptDone:
+.a16
+.i16
+    lda.l SourceWorldTick4086_Phase
+    cmp #6
+    bne SourceWorldTick4086_IssueAIDone
+    lda.l SourceAIRun4086_Ready
+    cmp #$B5E6
+    bne SourceWorldTick4086_IssueAIDone
+    lda #0
+    sta.l SourceAIRun4086_State
+    sta.l SourceAI4086_State
+SourceWorldTick4086_IssueAIDone:
 .a16
 .i16
     lda.l SourceWorldTick4086_Phase

@@ -12,14 +12,16 @@ def packets(c,state,mapping,count,probe,after=False):
   if p['at']==target:
    data=bytearray(p['data']);struct.pack_into('<I',data,12,probe['y_q16']&0xffffffff);struct.pack_into('<I',data,36,0 if after and probe['compat_expected'][2]else probe['health']&0xffffffff);p['data']=list(data)
   elif p['at']==0x43eb00+mapping[1]*32:
-   data=bytearray(p['data']);struct.pack_into('<H',data,0,probe['compat_expected'][0]if after else 3);p['data']=list(data)
+   data=bytearray(p['data']);struct.pack_into('<I',data,0,probe['idling']if after and probe['compat_air']else 1 if after else probe['idling']);p['data']=list(data)
  return rows
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--authority',type=Path,required=True);p.add_argument('--kill-authority',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  au=json.loads(a.authority.read_text());ka=json.loads(a.kill_authority.read_text());assert au['status']==ka['status']=='PASS'and ka['cases']==144
  cases=[r for r in ka['results']if r['case']['mode']==0 and r['case']['summon']==0 and not r['case']['sub']];rows=[]
- for i,c in enumerate(au['inputs']):
+ wide=[dict(c,idling=0xffff0003)for c in au['inputs'][:42]]
+ for i,c in enumerate([*au['inputs'],*wide]):
+  c=dict(c,idling=c.get('idling',3))
   r=cases[i%len(cases)];mapping,count=([0,127,1,2,3,4],128)if i%2 else(list(range(6)),6);kill=c['compat_expected'][2]
   rows.append(dict(c,kill=kill,before=packets(r['case'],None,mapping,count,c),after=packets(r['case'],r['actual']['state']if kill else None,mapping,count,c,True),count=count,slot=mapping[1],path=0,fault=0,bad=''))
  base=next(c for c in rows if c['kill'])

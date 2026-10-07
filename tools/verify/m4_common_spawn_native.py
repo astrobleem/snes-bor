@@ -9,17 +9,17 @@ from _harness import Reporter
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--authority',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);authority=json.loads(a.authority.read_text());assert authority['status']=='PASS'
  base=dict(time=48,nextthink=48,endgame=0,takeaction=4,think=2,noaicontrol=0,update_mark=0x12340001,animation=3,spawn=3,respawn=4,exists=1,mutation=0,bad='',fault=0)
- rows=[dict(base,slot=s,animating=anim,idling=idle)for s,anim,idle in itertools.product((0,1,63,127),(-1,1),(0,1,3))]
+ rows=[dict(base,slot=s,animating=anim,idling=idle)for s,anim,idle in itertools.product((0,1,63,127),(-1,1),(0,1,3,65536,0xffffffff))]
  for slot in (0,127):
   for bad in ('ready','busy','world','pool','side','count','slot','tick','phase','state','pending','time','self_lease','self_active','self_fault','self_pointer','life','freeze','cache','cache_models','cache_max','cache_bytes','spawn_id','respawn_id','token','model','actionid','actionwide','commonready','idlelease'):
    rows.append(dict(rows[0],slot=slot,bad=bad,fault=1))
  for c in rows:c['expected']=[0,0,0,0,0,c['update_mark'],c['nextthink'],c['think'],c['noaicontrol']&0xffffffff,c['exists'],c['animation'],c['animating']&0xffffffff]
  lua=LUA.replace("set('SourceAI4086_State',0)","set('SourceAI4086_State',1);set('SourceAI4086_Slot',s)")
- lua=lua.replace(" local faults=", " set('SourceCommonSpawn4086_Ready',0xb5e3);set('SourceCommonSpawn4086_State',0);set('SourceIdle4086_Ready',0xb4f3);put(flags,c.idling)\n local faults=")
+ lua=lua.replace(" local faults=", " set('SourceCommonSpawn4086_Ready',0xb5e3);set('SourceCommonSpawn4086_State',0);set('SourceIdle4086_Ready',0xb4f3);put(flags,c.idling,4)\n local faults=")
  lua=lua.replace(" if c.bad=='token'", " if c.bad=='actionid'then put(life+12,99,4)elseif c.bad=='actionwide'then put(life+14,1)elseif c.bad=='commonready'then set('SourceCommonSpawn4086_Ready',0)elseif c.bad=='idlelease'then set('SourceIdle4086_Ready',0)end\n if c.bad=='token'")
  # 'ready' and 'busy' retain checks on parent AI capability and state.
  lua=lua.replace("busy={'SourceAI4086_State',1}","busy={'SourceAI4086_State',2}")
- lua=lua.replace(" if c.fault==0 then", " if c.fault==0 then before[0x43eb00+c.slot*32]=0;before[0x43eb01+c.slot*32]=0;")
+ lua=lua.replace(" if c.fault==0 then", " if c.fault==0 then before[0x43eb00+c.slot*32]=0;before[0x43eb01+c.slot*32]=0;before[0x43eb02+c.slot*32]=0;before[0x43eb03+c.slot*32]=0;")
  lua=lua.replace("word(sy.SourceAI4086_State)..'|'..table.concat(trace,',')", "word(sy.SourceCommonSpawn4086_State)..'|'..table.concat(trace,',')")
  start=lua.index('emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1];local phase=');end=lua.index('emu.addMemoryCallback(function()',start+len('emu.addMemoryCallback(function()'));lua=lua[:start]+lua[end:]
  sy=symbols(Path('src/main.sym'));entry=sy['SourceCommonSpawn4086_Begin']
