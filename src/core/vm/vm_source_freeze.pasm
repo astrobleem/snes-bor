@@ -154,67 +154,7 @@ SourceFreeze4086_ResetMark:
 SourceFreeze4086_CheckFrozen:
 .a16
 .i16
- lda.l SourceWorldTick4086_Slot
- asl a
- asl a
- asl a
- asl a
- asl a
- sta.l SourceFreeze4086_Value
- asl a
- clc
- adc.l SourceFreeze4086_Value
- tax
- lda.l $40C04A,x
- bne SourceFreeze4086_NotTextbox
- lda.l $40C048,x
- cmp #128
- beq SourceFreeze4086_Personal
-SourceFreeze4086_NotTextbox:
-.a16
-.i16
- lda.l $43FD98
- ora.l $43FD9A
- bne SourceFreeze4086_Frozen
- lda.l $43FD94
- ora.l $43FD96
- beq SourceFreeze4086_Personal
- lda.l SourceFreeze4086_ViewOffset
- tax
- lda.l SOURCE_WORLD_POOL,x
- cmp.l $43FD94
- bne SourceFreeze4086_Frozen
- lda.l SOURCE_WORLD_POOL+2,x
- cmp.l $43FD96
- bne SourceFreeze4086_Frozen
-SourceFreeze4086_Personal:
-.a16
-.i16
- lda.l SourceFreeze4086_StateOffset
- tax
- lda.l SOURCE_WORLD_FREEZE,x
- ora.l SOURCE_WORLD_FREEZE+2,x
- beq SourceFreeze4086_NotFrozen
- lda.l SOURCE_WORLD_FREEZE+6,x
- cmp.l VmSourceWorld_Time+2
- bcc SourceFreeze4086_NotFrozen
- bne SourceFreeze4086_Frozen
- lda.l SOURCE_WORLD_FREEZE+4,x
- cmp.l VmSourceWorld_Time
- bcc SourceFreeze4086_NotFrozen
- beq SourceFreeze4086_NotFrozen
-SourceFreeze4086_Frozen:
-.a16
-.i16
- lda #1
- bra SourceFreeze4086_PublishFrozen
-SourceFreeze4086_NotFrozen:
-.a16
-.i16
- lda #0
-SourceFreeze4086_PublishFrozen:
-.a16
-.i16
+ jsr SourceFreeze4086_Predicate
  sta.l SourceWorldTick4086_Frozen
  jmp SourceFreeze4086_Done
 SourceFreeze4086_Expand:
@@ -536,6 +476,196 @@ SourceFreeze4086_BirthDone:
 SourceFreeze4086_BirthBad:
 .a16
 .i16
+ ply
+ plx
+ plp
+ sec
+ rtl
+
+; Private predicate over validated current tick slot; no live state writes.
+SourceFreeze4086_Predicate:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Slot
+ asl a
+ asl a
+ asl a
+ asl a
+ asl a
+ sta.l SourceFreeze4086_Value
+ asl a
+ clc
+ adc.l SourceFreeze4086_Value
+ tax
+ lda.l $40C04A,x
+ bne SourceFreeze4086_Predicate_NotTextbox
+ lda.l $40C048,x
+ cmp #128
+ beq SourceFreeze4086_Predicate_Personal
+SourceFreeze4086_Predicate_NotTextbox:
+.a16
+.i16
+ lda.l $43FD98
+ ora.l $43FD9A
+ bne SourceFreeze4086_Predicate_Frozen
+ lda.l $43FD94
+ ora.l $43FD96
+ beq SourceFreeze4086_Predicate_Personal
+ lda.l SourceFreeze4086_ViewOffset
+ tax
+ lda.l SOURCE_WORLD_POOL,x
+ cmp.l $43FD94
+ bne SourceFreeze4086_Predicate_Frozen
+ lda.l SOURCE_WORLD_POOL+2,x
+ cmp.l $43FD96
+ bne SourceFreeze4086_Predicate_Frozen
+SourceFreeze4086_Predicate_Personal:
+.a16
+.i16
+ lda.l SourceFreeze4086_StateOffset
+ tax
+ lda.l SOURCE_WORLD_FREEZE,x
+ ora.l SOURCE_WORLD_FREEZE+2,x
+ beq SourceFreeze4086_Predicate_NotFrozen
+ lda.l SOURCE_WORLD_FREEZE+6,x
+ cmp.l VmSourceWorld_Time+2
+ bcc SourceFreeze4086_Predicate_NotFrozen
+ bne SourceFreeze4086_Predicate_Frozen
+ lda.l SOURCE_WORLD_FREEZE+4,x
+ cmp.l VmSourceWorld_Time
+ bcc SourceFreeze4086_Predicate_NotFrozen
+ beq SourceFreeze4086_Predicate_NotFrozen
+SourceFreeze4086_Predicate_Frozen:
+.a16
+.i16
+ lda #1
+ bra SourceFreeze4086_Predicate_PublishFrozen
+SourceFreeze4086_Predicate_NotFrozen:
+.a16
+.i16
+ lda #0
+SourceFreeze4086_Predicate_PublishFrozen:
+.a16
+.i16
+ rts
+
+; Readonly query for check_lost before the later frozen service.
+SourceFreeze4086_Query:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l SourceFreeze4086_Ready
+ cmp #$B5DF
+ beq SourceFreeze4086_QueryGuard1
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard1:
+.a16
+.i16
+ lda.l VmSourceWorld_Ready
+ cmp #$B4A3
+ beq SourceFreeze4086_QueryGuard2
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard2:
+.a16
+.i16
+ lda.l VmSourceWorld_PoolBase
+ cmp #$4000
+ beq SourceFreeze4086_QueryGuard3
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard3:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Ready
+ cmp #$B4D5
+ beq SourceFreeze4086_QueryGuard4
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard4:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Pending
+ cmp #1
+ beq SourceFreeze4086_QueryGuard5
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard5:
+.a16
+.i16
+ lda.l SourceWorldTick4086_State
+ cmp #1
+ beq SourceFreeze4086_QueryGuard6
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard6:
+.a16
+.i16
+ lda.l VmSourceWorld_Count
+ bne SourceFreeze4086_QueryGuard7
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard7:
+.a16
+.i16
+ cmp #129
+ bcc SourceFreeze4086_QueryGuard8
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard8:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Slot
+ cmp.l VmSourceWorld_Count
+ bcc SourceFreeze4086_QueryGuard9
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard9:
+.a16
+.i16
+ lda.l VmSourceWorld_Time
+ cmp.l SourceWorldTick4086_TimeLo
+ beq SourceFreeze4086_QueryGuard10
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard10:
+.a16
+.i16
+ lda.l VmSourceWorld_Time+2
+ cmp.l SourceWorldTick4086_TimeHi
+ beq SourceFreeze4086_QueryGuard11
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard11:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Phase
+ cmp #2
+ beq SourceFreeze4086_QueryPhase
+ cmp #3
+ beq SourceFreeze4086_QueryGuard12
+ jmp SourceFreeze4086_QueryBad
+SourceFreeze4086_QueryGuard12:
+.a16
+.i16
+SourceFreeze4086_QueryPhase:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Slot
+ asl a
+ asl a
+ asl a
+ sta.l SourceFreeze4086_Value
+ asl a
+ asl a
+ clc
+ adc.l SourceFreeze4086_Value
+ sta.l SourceFreeze4086_StateOffset
+ asl a
+ sta.l SourceFreeze4086_ViewOffset
+ jsr SourceFreeze4086_Predicate
+ ply
+ plx
+ plp
+ clc
+ rtl
+SourceFreeze4086_QueryBad:
+.a16
+.i16
+ lda #$FFFF
  ply
  plx
  plp

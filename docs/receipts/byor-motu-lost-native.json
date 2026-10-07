@@ -1,0 +1,49 @@
+{
+  "schema": "BYOR_MOTU_LOST_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-lost-wide-authority/report.json",
+      "sha256": "f3da57013e6cd735ff847c331ebb0a31b4491f650d69cc941c2469915ce74f88",
+      "cases": 2602
+    },
+    {
+      "path": "out/byor-motu-lost-native/report.json",
+      "sha256": "afc7c1d6bea7f76ef36b84cef8b4065d26e4d4e7b57428609dabb9e354b2cbdb",
+      "cases": 586
+    },
+    {
+      "path": "out/byor-motu-freeze-query-native/report.json",
+      "sha256": "3a71e4e4a3f61c03531d8baa3c24d42d3101d3efad847031689d976f9ddae2e2",
+      "cases": 588
+    },
+    {
+      "path": "out/byor-motu-world-freeze-query-regression/report.json",
+      "sha256": "2ba86cd14d8a81a6e6d2a29917004bf1d0b3b247ea087576278e6aea6d586342",
+      "cases": 410
+    }
+  ],
+  "numeric_policy": "ACCEPTED_COMPAT Q16 coordinates; signed 64-bit comparisons and exact signed integer offscreenkill; parked Z integer sentinel",
+  "signed_integer_edge_policy": "Measured pinned OpenWatcom int32 wrap for vRes + osk before float comparison; this is not a portable-C guarantee for signed overflow",
+  "checks": [
+    "Literal check_lost under pinned engine authority",
+    "Signed 64-bit source coordinate difference comparisons",
+    "Source parked weapon Z sentinel remains integer 100000",
+    "Extreme pit, pit, lifespan, PLAYER-mask and death/damage decisions",
+    "Actual native countdown decrement or hold, including source zero/infinite semantics",
+    "Readonly freeze query leaves frozen-service result and status intact",
+    "Complete physical actor/role/CPU observers and admission guards",
+    "Focused world service regression after shared predicate refactoring",
+    "ROM audit ALL CHECKS PASS"
+  ],
+  "bank0_growth": 0,
+  "new_lost_scratch_start": "43BC90",
+  "new_lost_scratch_end_exclusive": "43BCF6",
+  "nonclaims": [
+    "Death and damage requests are not executed",
+    "Complete emptyattack/default drop-vector production payload unbound",
+    "Lost decision backend not bound into tick owner yet",
+    "No MOTU candidate, moving lossless rendering, real combat or Demo completion"
+  ],
+  "no_color_reduction": true
+}

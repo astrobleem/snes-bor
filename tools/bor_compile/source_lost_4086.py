@@ -15,6 +15,11 @@ class Action(IntEnum):
     DAMAGE_LIFESPAN = 4
 
 
+def int32(value):
+    """Measured authority compiler wrapping at source signed integer limits."""
+    return ((value + 0x80000000) & 0xffffffff) - 0x80000000
+
+
 def decide(s):
     osk = s['offscreenkill'] or s['default_offscreenkill']
     x, z, y = s['x'], s['z'], s['y']
@@ -22,7 +27,7 @@ def decide(s):
     vertical = s['direction'] in (16, 4)
     offscreen = (ax-x > osk or x-ax-s['hres'] > osk or
                  (not vertical and (ay-z+y > osk or z-y-ay-s['vres'] > osk)) or
-                 (vertical and (z-y < -osk or z-y > s['vres']+osk)))
+                 (vertical and (z-y < int32(-osk) or z-y > int32(s['vres']+osk))))
     life = s['lifespan']
     if (z != 100000 and offscreen) or y < -500:
         return dict(action=int(Action.PLAYER_DIE if s['type'] & 1 else Action.KILL), lifespan=life)

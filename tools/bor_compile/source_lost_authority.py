@@ -33,6 +33,10 @@ def main():
     # Disabled-freeze, exact zero lifespan and infinite lifetime are explicit.
     for life in (-1,0,1,0x7fffffff):
         rows.append(dict(rows[-1],x=80,z=220,y=0,offscreenkill=0,lifespan=life,frozen=0,textbox=0,bomber=0,takedamage=1))
+    for osk in (-0x80000000,-32768,32767,0x7fffffff):
+        for x,z,y,ax,ay in ((32767.5,-32768,0,-32768,32767.5),(-32768,32767.5,-250,32767.5,-32768),(0,100000,-500,0,0)):
+            for direction in (2,4,16,18):
+                rows.append(dict(rows[-1],offscreenkill=osk,x=x,z=z,y=y,advancex=ax,advancey=ay,direction=direction))
     keys=('direction','x','z','y','type','lifespan','offscreenkill','default_offscreenkill','advancex','advancey','hres','vres','takedamage','health','frozen','textbox','bomber','time','freezetime')
     crows=['{'+','.join(str(r[k])+('u'if k in ('time','freezetime')else '')for k in keys)+'}'for r in rows]
     code=r'''#include <stdio.h>

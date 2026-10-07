@@ -13667,6 +13667,7 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_scroller_owner.pasm"
 .include "core/vm/vm_source_velocity.pasm"
 .include "core/vm/vm_source_freeze.pasm"
+.include "core/vm/vm_source_lost.pasm"
 .include "core/vm/vm_source_random_float.pasm"
 .include "core/vm/vm_source_air.pasm"
 
