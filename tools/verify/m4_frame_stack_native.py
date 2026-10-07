@@ -125,7 +125,7 @@ FrameStackFixture_Return:
     for media in [a.rom.with_suffix('.msu'),*a.rom.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
-    lua='local self_context='+str(a.self_context).lower()+'\nlocal rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameStack4086_','SourceUpdateFrame4086_','SourceFrameMotion4086_','SourceAnimationCallback4086_','SourceAnimationInit4086_','SourceModelAnimation4086_','SourceModelTransition4086_','SourceFrameEffectPlan4086_','SourceSelf4086_','SourceVMRun4086_','VmSourceCallback_','VmState_','SourceClock4086_','SourceWorldTick4086_','VmSourceWorld_'))})+'\n'
+    lua='local self_context='+str(a.self_context).lower()+'\nlocal rows='+luav(rows)+'\nlocal sy='+luav({k:v for k,v in sy.items() if k.startswith(('SourceFrameStack4086_','SourceUpdateFrame4086_','SourceFrameMotion4086_','SourceAnimationCallback4086_','SourceAnimationInit4086_','SourceDefaultInit4086_','SourceCtorOwner4086_','SourceModelAnimation4086_','SourceModelTransition4086_','SourceFrameEffectPlan4086_','SourceSelf4086_','SourceVMRun4086_','VmSourceCallback_','VmState_','SourceClock4086_','SourceWorldTick4086_','VmSourceWorld_'))})+'\n'
     lua+=r'''
 local mt=emu.memType.snesMemory;local before={};local cpu={};local start=0;local ctx=0
 local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
@@ -208,7 +208,7 @@ emu.addMemoryCallback(function()
    end
    for i=0,511 do before[row+i]=before[0x7ffb50+i]end
    for i=0,15 do before[tail+i]=before[0x7ffd50+i]end
-   for _,k in ipairs({'SourceUpdateFrame4086_State','SourceUpdateFrame4086_Pending','SourceFrameMotion4086_Status','SourceAnimationCallback4086_State','SourceAnimationInit4086_State','SourceAnimationInit4086_Issued','SourceModelAnimation4086_State','SourceModelTransition4086_State','SourceModelTransition4086_Service','SourceModelTransition4086_Acknowledged','SourceFrameEffectPlan4086_State','SourceFrameEffectPlan4086_Service','SourceFrameEffectPlan4086_Acknowledged'})do expect(sy[k],0)end
+   for _,k in ipairs({'SourceUpdateFrame4086_State','SourceUpdateFrame4086_Pending','SourceFrameMotion4086_Status','SourceAnimationCallback4086_State','SourceAnimationInit4086_State','SourceAnimationInit4086_Issued','SourceDefaultInit4086_Phase','SourceDefaultInit4086_OwnerSlot','SourceDefaultInit4086_Walk','SourceCtorOwner4086_Phase','SourceCtorOwner4086_Model','SourceModelAnimation4086_State','SourceModelTransition4086_State','SourceModelTransition4086_Service','SourceModelTransition4086_Acknowledged','SourceFrameEffectPlan4086_State','SourceFrameEffectPlan4086_Service','SourceFrameEffectPlan4086_Acknowledged'})do expect(sy[k],0)end
    if self_context then expect(sy.SourceSelf4086_Active,0);expect(sy.SourceSelf4086_Fault,0)end
   else
    for i=0,511 do before[0x7ffb50+i]=before[row+i]end

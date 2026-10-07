@@ -1,0 +1,68 @@
+{
+  "schema": "BYOR_4086_CONSTRUCTOR_CONTROL_OWNER_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "evidence": {
+    "player-full-ctor-owner": {
+      "report": "out/byor-motu-player-full-ctor-owner-native/report.json",
+      "sha256": "01431e26bf76acbfe45ecea3170312145c4b6d57702c7d37cb14eec3ec107f22",
+      "cases": 2
+    },
+    "select-full-ctor-owner": {
+      "report": "out/byor-motu-select-full-ctor-owner-native/report.json",
+      "sha256": "75e0ed75dffce9ac222027c597fbabeb8f8a6fafd336238ab81a9675d62bc346",
+      "cases": 2
+    },
+    "knightbot-full-ctor-owner": {
+      "report": "out/byor-motu-knightbot-full-ctor-owner-native/report.json",
+      "sha256": "849302f148b68d96df59c53f83990e03032478cd8d52dfd9a82f681f556f048f",
+      "cases": 2
+    },
+    "skeletor-full-ctor-owner": {
+      "report": "out/byor-motu-skeletor-full-ctor-owner-native/report.json",
+      "sha256": "fdf63d4a794c23c3b8fa33d08795244829559af8c27469db17a9f73dce2e0787",
+      "cases": 2
+    },
+    "none-full-ctor-owner": {
+      "report": "out/byor-motu-none-full-ctor-owner-native/report.json",
+      "sha256": "dbee69fbf9657121224bfbb98be812ef8b4967c9a51dafbbe28ebdd6e40f6b45",
+      "cases": 2
+    },
+    "effect-full-ctor-owner": {
+      "report": "out/byor-motu-effect-full-ctor-owner-native/report.json",
+      "sha256": "b3b60b715989e3aa880ecc7a5eb288bf6efabb5b1e3e48038e6b05c5465b32d2",
+      "cases": 2
+    },
+    "ctor-owner-guards": {
+      "report": "out/byor-motu-ctor-owner-guards-native/report.json",
+      "sha256": "e25afa1f50cba0e482514cb02b71fda1788ef82646c8509cfc4f621b087aa35b",
+      "cases": 242
+    },
+    "ctor-owner-frame-stack": {
+      "report": "out/byor-motu-ctor-owner-frame-stack-native/report.json",
+      "sha256": "ee6d26b48d53ffd9386926c9f5111034971f3e27c2401e5a0dff310e8d8d1b07",
+      "cases": 173
+    }
+  },
+  "code_bank": 62,
+  "bank0_growth": 0,
+  "ticket_addresses": [
+    "7FFCBC",
+    "7FFCBE"
+  ],
+  "ticket_bytes": 4,
+  "ticket_inside_existing_frame_snapshot": true,
+  "policy": "Slot selection, actual no-event retirement when requested, named/script cleanup, independent factors, body/current-model/script setup, actual default-init and completed frame-zero continuation. Child frame contexts clear constructor/default-init controls; Pop restores parent ticket. Begin rejects active VM/callback and pending default-init; Continue checks world/slot/model and actual completed frame prerequisites.",
+  "remaining": [
+    "shared permuted ent_list selection for live world",
+    "constructor return-token publication",
+    "active-script constructor continuation and recursive script context policy",
+    "full event/minion retirement",
+    "live stage/player producer, renderer and combat"
+  ],
+  "audit": "out/byor-motu-ctor-owner-audit.log",
+  "full_constructor_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

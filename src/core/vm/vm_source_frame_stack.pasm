@@ -191,6 +191,11 @@ SourceFrameStack4086_PushSelfDone:
     sta.l SourceAnimationCallback4086_State
     sta.l SourceAnimationInit4086_State
     sta.l SourceAnimationInit4086_Issued
+    sta.l SourceDefaultInit4086_Phase
+    sta.l SourceDefaultInit4086_OwnerSlot
+    sta.l SourceDefaultInit4086_Walk
+    sta.l SourceCtorOwner4086_Phase
+    sta.l SourceCtorOwner4086_Model
     sta.l SourceModelAnimation4086_State
     sta.l SourceModelTransition4086_State
     sta.l SourceModelTransition4086_Service
