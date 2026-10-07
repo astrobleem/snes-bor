@@ -1,0 +1,28 @@
+{
+  "schema": "BYOR_MOTU_AI_GRAB_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-ai-grab-authority/report.json",
+      "sha256": "a8ad3bb2d95b05a24b28e74536d2884e19cf025a51e69bc04f89fcdb3b7a9d54",
+      "cases": 50
+    },
+    {
+      "path": "out/byor-motu-ai-grab-native/report.json",
+      "sha256": "e5f6bb81d9b6d8a447896748290082381b2d19352ce0eedecac7d97a3338d3ed",
+      "cases": 230
+    },
+    {
+      "path": "out/byor-motu-ai-warp-busy-grab-regression/report.json",
+      "sha256": "cd61636100dfef55cbdcd366581a8c05cd8c77d35915a39050922c84e49cbaac",
+      "cases": 269
+    }
+  ],
+  "policy": "Full32 grab and attacking truth; actual common_grab_check null-victim return; linked handler explicitly unbound",
+  "common_think_dispatch_integrated": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files": 17,
+  "audit": "ALL CHECKS PASS",
+  "bank0_growth": 0
+}

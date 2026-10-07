@@ -1,4 +1,4 @@
-; Actual ai_check_warp early-return paths and complete ai_check_busy.
+; Actual warp early predicates, busy, and grab/no-link handler paths.
 ; Full FOLLOW+parent distance/action path explicitly requires another backend.
 ; No source actor-name dispatch; full DWORD idling and physical link truth.
 SourceAIReadonly4086_Ready = $43BD48
@@ -46,6 +46,12 @@ SourceAIReadonly4086_Far4:
 SourceAIReadonly4086_Far5:
 .a16
 .i16
+ cmp #4
+ bne SourceAIReadonly4086_GrabDispatchNext
+ jmp SourceAIReadonly4086_Grab
+SourceAIReadonly4086_GrabDispatchNext:
+.a16
+.i16
  cmp #6
  bne SourceAIReadonly4086_Far6
  jmp SourceAIReadonly4086_Busy
@@ -89,6 +95,54 @@ SourceAIReadonly4086_Far10:
 .i16
  ; A true FOLLOW+parent needs range/pointer/distance and npc_warp semantics.
  jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_Grab:
+.a16
+.i16
+ lda.l SourceModelEntityCopy4086_Ready
+ cmp #$B4EB
+ beq SourceAIReadonly4086_GrabLease
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_GrabLease:
+.a16
+.i16
+ ; Current physical core row, 96 bytes; grabbing +80, attacking +88.
+ lda.l SourceAI4086_Slot
+ asl a
+ asl a
+ asl a
+ asl a
+ asl a
+ pha
+ asl a
+ clc
+ adc 1,s
+ tax
+ pla
+ lda.l $40C050,x
+ ora.l $40C052,x
+ bne SourceAIReadonly4086_GrabActive
+ jmp SourceAIReadonly4086_False
+SourceAIReadonly4086_GrabActive:
+.a16
+.i16
+ lda.l $40C058,x
+ ora.l $40C05A,x
+ beq SourceAIReadonly4086_GrabNotAttacking
+ jmp SourceAIReadonly4086_False
+SourceAIReadonly4086_GrabNotAttacking:
+.a16
+.i16
+ jsr SourceAIReadonly4086_Link
+ ora #0
+ beq SourceAIReadonly4086_GrabNoVictim
+ ; Real linked common_grab_check must execute release/throw/attack services.
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_GrabNoVictim:
+.a16
+.i16
+ ; common_grab_check returns before any mutation when other == NULL.
+ ; ai_check_grab still returns 1, short-circuiting common_think.
+ jmp SourceAIReadonly4086_True
 SourceAIReadonly4086_Busy:
 .a16
 .i16
