@@ -1,0 +1,19 @@
+{
+  "schema": "BYOR_4086_COSTMOVE_AUTHORITY_V1",
+  "status": "PASS",
+  "cases": 2304,
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_source_functions_unmodified": true,
+  "function_sha256": {
+    "check_costmove": "a9358002b7c3bcf95f6675de68301ba06d4556fa510caec3113d0337ee35a6ca",
+    "check_energy": "bc6125a3fdfdbffd2569eae9e0e8fbd9916256bed11afe11d58609beb23ec261",
+    "ent_unlink": "f2ecafca5e8d99be35eaae7045cdd144ab99e5eeccba5f918a882e7ee471502b"
+  },
+  "macro_sha256": "2176ee99c84919ef917f5ab715b3af75c9805ebbabe040c6779d5e2064feeda8",
+  "compared_state_bytes": 184320,
+  "errors": [],
+  "actual_sha256": "0e651370a945d8b0b6e85782624ace1a4dfcb1d2860077a14a166efd4a350f89",
+  "animation_service_instrumented": true,
+  "native_costmove_bound": false,
+  "motu_gameplay_proven": false
+}

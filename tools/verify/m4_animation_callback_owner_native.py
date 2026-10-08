@@ -49,6 +49,8 @@ def main():
     p.add_argument('--frame-owner',action='store_true',help='Use the generic native callback/effects owner; requires effects runner; external sound remains instrumented.')
     p.add_argument('--birth-core',action='store_true',help='Execute actual B4BI core/flags/relation birth augmentation.')
     p.add_argument('--initial-select',action='store_true',help='Initialize authored player SELECT through real default-choice/ent_set_anim/frame-zero owners.')
+    p.add_argument('--costmove-model',help='Execute actual costmove and frame-zero owner for this source identity, in an exclusive instrumented payload lease.')
+    p.add_argument('--costmove-role',default='freespecial4',help='Authored animation role for the costmove continuation proof.')
     p.add_argument('--initial-jump',action='store_true',help='Run real default choice/action/JUMP frame zero and current makeinv fields, isolated.')
     p.add_argument('--ai-run',action='store_true',help='execute actual generic AI dispatcher through common_spawn and real authored idle frame, then absent think script')
     p.add_argument('--common-spawn',action='store_true',help='Execute actual common_spawn idle transition through existing non-idle animation; isolated AI action, no world clock commit')
@@ -79,6 +81,9 @@ def main():
     p.add_argument('--stationary-post',action='store_true',help='checked source-derived stationary post-update after complete NONE constructor; phase owner context supplied')
     p.add_argument('--ctor-altitude-q16',type=int,default=0,help='generic explicit constructor altitude input')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+    if a.costmove_model:
+        if not a.frame_owner or not a.effects_runner:raise ValueError('COSTMOVE_REQUIRES_REAL_FRAME_OWNER')
+        a.initial_select=True
     if a.common_spawn and (not a.initial_idle or a.default_owner or a.ctor_owner):raise ValueError('COMMON_SPAWN_FIXTURE_REQUIRES_ISOLATED_INITIAL_IDLE')
     if a.ai_run and(not a.common_spawn or not a.script_clone):raise ValueError('AI_RUN_FRAME_REQUIRES_COMMON_SPAWN_SCRIPT_CLONE')
     if a.physics_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PHYSICS_BIRTH_REQUIRES_COMPLETE_CONSTRUCTOR')
@@ -98,6 +103,7 @@ def main():
         plan=pack_plan(derive_plan(effects));unpack_plan(plan,frames)
     actor=next(m['id'] for m in registry['models'] if m['identity']=='He_ManB')
     default=next(m['id'] for m in registry['models'] if m['identity']=='He_Man')
+    if a.costmove_model:default=next(m['id'] for m in registry['models'] if m['identity']==a.costmove_model)
     stage_row=None;queue_table=b'';stage_queue_report=None
     if a.stage_queue_index is not None:
         from source_stage_queue_4086 import derive as queue_inputs,pack as queue_pack,unpack as queue_unpack
@@ -148,7 +154,7 @@ def main():
     walk_capability=default_walk_capability(animation_identities(source))if a.initial_walk else None
     if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:
         if not a.effects_runner or a.birth_core:raise ValueError('INITIAL_SELECT_REQUIRES_EFFECTS_RUNNER_WITHOUT_BIRTH_AUGMENTATION')
-        actor=default;animation=next(h for h in compile_source(source)['animation_handles'] if h['model']==registry['models'][default]['identity'] and h['role']==(enemy_role if a.initial_enemy else 'jump'if a.initial_jump else'idle'if a.initial_idle else'walk'if a.initial_walk else'select'))
+        actor=default;animation=next(h for h in compile_source(source)['animation_handles'] if h['model']==registry['models'][default]['identity'] and h['role']==(a.costmove_role if a.costmove_model else enemy_role if a.initial_enemy else 'jump'if a.initial_jump else'idle'if a.initial_idle else'walk'if a.initial_walk else'select'))
         docs={k:document(source,n) for k,(n,_) in source.index.items() if k.endswith('.txt')};structure=discover(source,docs);config=configure(docs[key(structure['models_path'])]['directives'])
         init_report=init_inputs(source);initializers_table=pack_init(init_report);cache=bytearray(16*init_report['maximum_animations']*2)
         for row in init_report['animations']:
@@ -213,6 +219,11 @@ def main():
     if a.effects_runner:
         if raw[59*32768:60*32768]!=bytes(32768):raise ValueError('CALLBACK_PLAN_PRIVATE_BANK')
         raw[59*32768:59*32768+len(plan)]=plan
+    if a.costmove_model:
+        from source_animation_energy_4086 import derive as derive_energy,pack as pack_energy
+        cost_energy=derive_energy(source);cost_energy_table=pack_energy(cost_energy)
+        if raw[58*32768:59*32768]!=bytes(32768):raise ValueError('COSTMOVE_ENERGY_ROM_RESERVATION')
+        raw[58*32768:58*32768+len(cost_energy_table)]=cost_energy_table
     if queue_table:
         if len(plan)+len(queue_table)>32768:raise ValueError('STAGE_QUEUE_PRIVATE_ROM_CAPACITY')
         locations['stagequeue']=(59<<16)+0x8000+len(plan)
@@ -378,6 +389,11 @@ CallbackFixture_AfterScript:
         else:asm=asm.replace(' jsl FRAMEBEGIN',' jsl DEFAULTBEGIN\n bcs CallbackFixture_Bad\n jsl STARTFRAME')
         asm=asm.replace(' jsl CLOCKCOMMIT',' jsl INITACK\n bcs CallbackFixture_Bad\n'+(' jsl PLAYERINV\n bcs CallbackFixture_Bad\n jsl DEFAULTTAIL\n bcs CallbackFixture_Bad\n'if a.initial_jump else'')+(' jsl DEFAULTTAIL\n bcs CallbackFixture_Bad\n'if a.initial_idle or a.initial_walk else'')+' jsl CLOCKCOMMIT')
     if a.initial_none_walk:asm=asm.replace(' jsl WALKBEGIN',' jsl NONEWALKPREP\n bcs CallbackFixture_Bad\n jsl WALKBEGIN')
+    if a.costmove_model:
+        from source_costmove_native import emit as emit_costmove
+        asm=asm.replace(' jsl DEFAULTBEGIN\n bcs CallbackFixture_Bad\n jsl STARTFRAME',' jsl SourceCostMove_Begin\n bcs CallbackFixture_Bad\n lda.l $7FA002\n cmp #3\n bne CallbackFixture_Bad\n jsl STARTFRAME')
+        asm=asm.replace(' jsl INITACK\n bcs CallbackFixture_Bad',' jsl INITACK\n bcs CallbackFixture_Bad\n jsl SourceCostMove_Finish\n bcs CallbackFixture_Bad')
+        asm+=emit_costmove(0x7fa000,0x7fa040,sy)
     if a.initial_enemy:
         if enemy_role=='idle':
             asm=asm.replace(' jsl IDLEBEGIN',' jsl ENEMYPREP\n bcs CallbackFixture_Bad\n cmp #1\n bne CallbackFixture_Bad\n ldx #$8000\n ldy #58\n jsl ENEMYDROP\n bcs CallbackFixture_Bad\n cmp #0\n bne CallbackFixture_Bad\n jsl IDLEBEGIN')
@@ -464,7 +480,7 @@ CallbackFixture_AfterScript:
     raw[first:first+len(fixture)]=fixture
     raw[offset(entry):offset(entry)+5]=b'\x5c'+struct.pack('<I',fs['CallbackFixture_Gate'])[:3]+b'\xea'
     path=folder/'bor.sfc';path.write_bytes(raw)
-    for media in [a.rom.with_suffix('.msu'),*a.rom.parent.glob('bor-*.pcm')]:
+    for media in [a.rom.with_suffix('.msu'),*(a.rom.parent.glob('bor-*.pcm') if not a.costmove_model else ())]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
     pool,sides=empty_pool(128)
@@ -623,6 +639,12 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
     if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:
         initialinstall="\n".join(" set('"+name+"',"+str(value)+")" for name,value in dict(SourceUpdateFrame4086_Animations=len(effects['animations']),SourceModelEntityCopy4086_Ready=0xb4eb,SourceModelEntityCopy4086_Entities=128,SourceModelEntityCopy4086_Models=16,SourceModelAnimationCopy4086_Ready=0xb4e9,SourceModelAnimationCopy4086_Models=16,SourceModelAnimationCopy4086_Maximum=init_report['maximum_animations'],SourceModelAnimationCopy4086_Bytes=len(animation_cache),SourceAnimationInit4086_Ready=0xb4ec,SourceAnimationInit4086_State=0,SourceAnimationInit4086_Base=locations['initializers']&65535,SourceAnimationInit4086_Bank=base>>16,SourceAnimationInit4086_Bytes=len(initializers_table),SourceAnimationInit4086_Handles=len(init_report['animations']),SourceDefaultChoice4086_Ready=0xb4fa,SourceDefaultChoice4086_Status=0,SourceDefaultChoice4086_Slot=0,SourceDefaultChoice4086_Select=1,SourceDefaultChoice4086_TimeLo=48,SourceDefaultChoice4086_TimeHi=0,SourceDefaultChoice4086_Spawn=role_id(config,'spawn'),SourceDefaultChoice4086_Respawn=role_id(config,'respawn'),SourceDefaultChoice4086_Selection=animation['engine_animation_id'],VmSourceWorld_Level=0).items())
         initialinstall+='\n copy(0x43c000,animation_cache);for j=0,12287 do emu.write(0x40c000+j,0,mt)end;put(0x40c048,1,4);put(0x414014,0,4);put(0x416804,0,2)\n'
+        if a.costmove_model:
+            cost_fields=next(an['fields'] for an in cost_energy['animations'] if an['handle']==animation['handle'])
+            cost_settings=dict(SourceAnimationEnergy4086_Ready=0xb5fc,SourceAnimationEnergy4086_Bank=58,SourceAnimationEnergy4086_Bytes=len(cost_energy_table),SourceCheckEnergy4086_Ready=0xb5fa,SourceRetirement4086_Ready=0xb4f8,SourceRetirement4086_Status=0)
+            initialinstall+='\n'+"\n".join(" set('"+n+"',"+str(v)+")" for n,v in cost_settings.items())
+            initialinstall+='\n for j=0,2111 do put(0x7fa000+j,0,1)end;put(0x7fa000,0xb670,2);put(0x7fa006,'+str(animation['engine_animation_id'])+',2);put(0x7fa008,1,4);put(0x40c04c,100,4);put(0x437e04,0,4);put(0x437e10,0xb5fb,2);put(0x437e12,0,2);put(0x40901c,0,4)\n'
+            lua+=f"emu.addMemoryCallback(function()emu.log('COSTMOVECOMPLETE|'..word(INDEX)..'|'..word(0x7fa002)..'|'..dw(0x40c04c)..'|'..dw(0x414024)..'|'..word(sy.SourceAnimationInit4086_State)..'|'..word(sy.SourceUpdateFrame4086_State))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
         lua+=r'''
 emu.addMemoryCallback(function()
  emu.log('CALLBACKSELECTINIT|'..word(INDEX)..'|'..word(sy.SourceDefaultChoice4086_Chosen)..'|'..word(sy.SourceAnimationInit4086_State)..'|'..word(sy.SourceAnimationInit4086_Issued)..'|'..word(0x414014)..'|'..word(0x416804)..'|'..word(sy.SourceUpdateFrame4086_Request))
@@ -784,6 +806,10 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
             lua+=f"emu.addMemoryCallback(function()emu.log('CTORBASE|'..word(INDEX)..'|'..word({sy['SourceAdjustBaseEmpty4086_Status']})..'|'..word({sy['SourceAnimationPhysics4086_Status']}))end,emu.callbackType.exec,{fs['CallbackFixture_PostAfter']},{fs['CallbackFixture_PostAfter']},emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()local time=dw(sy.VmSourceWorld_Time);for _,r in ipairs({{{{0x41f300,(time+1)&0xffffffff}},{{0x416818,(time+1)&0xffffffff}},{{0x42e024,12}}}})do for i=0,3 do post_before[r[1]+i]=(r[2]>>(8*i))&255 end end;local n=0;for a,v in pairs(post_before)do if emu.read(a,mt)~=v then n=n+1 end end;emu.log('CTORPOST|'..word(INDEX)..'|'..n..'|'..word({sy['SourceGravityIdle4086_Status']})..'|'..word({sy['SourceCheckMove4086_Status']})..'|'..dw(0x41400c)..'|'..dw(0x416830)..'|'..dw(0x41682c)..'|'..word(0x41681e)..'|'..dw(0x40c014)..'|'..dw(0x40c024))end,emu.callbackType.exec,{fs['CallbackFixture_PostAfter']},{fs['CallbackFixture_PostAfter']},emu.cpuType.snes,mt)\n"
     lua=lua.replace('FREEZESTATE',str(0xb5df if a.freeze_state else 0))
+    if a.costmove_model:
+        lua=lua.replace("word(sy.SourceDefaultChoice4086_Chosen)..'|'..word(sy.SourceAnimationInit4086_State)","word(sy.SourceAnimationInit4086_Number)..'|'..word(sy.SourceAnimationInit4086_State)")
+        for label in ('SourceCostMove_Finish','SourceCostMove_Fault','SourceCostMove_Complete'):
+            lua+=f"emu.addMemoryCallback(function()emu.log('COSTCONTINUE|{label}|'..word(0x7fa000)..'|'..word(0x7fa002)..'|'..word(0x7fa004)..'|'..word(0x7fa006)..'|'..word(sy.SourceAnimationInit4086_Slot)..'|'..word(sy.SourceAnimationInit4086_Number)..'|'..word(sy.SourceAnimationInit4086_State))end,emu.callbackType.exec,{fs[label]},{fs[label]},emu.cpuType.snes,mt)\n"
     if a.ai_state_birth:
         if not a.ctor_state:raise ValueError('AI_STATE_BIRTH_REQUIRES_CTOR_STATE')
         lua=lua.replace(" set('SourceVMRun4086_Ready',0xb4d7)"," for j=0,47 do put(0x42f400+j,0xff,1)end\n set('SourceVMRun4086_Ready',0xb4d7)")
@@ -831,7 +857,12 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         reporter.check('cold callback owner disabled',startup.u16(m,sy['SourceAnimationCallback4086_Ready'])==0)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('CALLBACK_OWNER_BOOTSTRAP')
-        run_frames_exact(m,12);m.write_u16(REQUEST,0xb4e7)
+        run_frames_exact(m,12)
+        if a.costmove_model:
+            # Explicit isolated payload lease: retire ordinary producers. This
+            # is not the previously proven whole-canvas production handoff.
+            for n in ('StageWater_Enabled','StageWater_Pending','StageFp_BG2Loaded','StageFp_BG2Active','StageFp_BG2DmaPending','StageFp_BG2Booting','StreamScrollFp_ColPending','StreamScrollFp_Enabled'):m.write_u8(sy[n],0)
+        m.write_u16(REQUEST,0xb4e7)
         for _ in range(24):
             run_frames_exact(m,60)
             if startup.u16(m,INDEX)==len(rows) or startup.u16(m,ERROR):break
@@ -855,6 +886,9 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         expected_frame=[[i,1,0,1,0x4000,0x41,1,48,1] if c['fault'] else ([i,2,2,0,0x4000,0x41,1,48,0]if a.common_spawn else [i,2,2,0,0,0,1,48,0]if a.queue_producer else[i,2,2,0,0,0,0,49,0]) for i,c in enumerate(rows)]
         reporter.check('actual frame/effect completion with current self retained and world clock pending'if a.common_spawn else'actual callback birth followed by native captured effect retirement and clock',frame_results==expected_frame)
     if coretable:reporter.check('authored callback publishes exact native birth core and preserves parent role/type',core_results==[[i,0] for i in range(len(rows))])
+    if a.costmove_model:
+        cost_results=[list(map(int,s.split('COSTMOVECOMPLETE|')[1].strip().split('|'))) for s in (folder/'mesen.log').read_text().splitlines() if 'COSTMOVECOMPLETE|' in s]
+        reporter.check('costmove debit and mandatory native callback completion precede success',cost_results==[[i,4,100-cost_fields['cost'],150,2,2] for i in range(len(rows))])
     if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:reporter.check('authored '+(enemy_role.upper()if a.initial_enemy else'JUMP'if a.initial_jump else'IDLE'if a.initial_idle else'WALK'if a.initial_walk else'SELECT')+(' transition completes actual frame zero; world service remains pending'if a.common_spawn else' initialization completes actual frame-zero before clock retirement'),len(select_results)==len(rows)and all(r[0]==i and (a.initial_enemy or a.initial_idle or a.initial_walk or r[1]==(65535 if a.initial_jump else animation['engine_animation_id']))and r[2:]==[2,1,animation['engine_animation_id'],animation['handle'],0]for i,r in enumerate(select_results)))
     if a.initial_jump:reporter.check('real JUMP frame zero and post-callback source makeinv fields',jump_results==[[i,300*65536,2,1,3,5,1,1,848,1]for i in range(len(rows))])
     tail_results=[list(map(int,line.split('CALLBACKTAIL|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKTAIL|'in line]
@@ -924,6 +958,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         combat_proven=False,motu_gameplay_proven=False,no_pcm_copies=True,no_color_reduction=True)
     r.update(native_birth_core=a.birth_core,birth_core_results=core_results)
     r.update(initial_select=a.initial_select,initial_select_results=select_results,initial_jump=a.initial_jump,initial_jump_results=jump_results)
+    if a.costmove_model:r.update(costmove_model=a.costmove_model,costmove_role=a.costmove_role,costmove_results=cost_results,costmove_payload_lease='instrumented exclusive retired producer cache; production canvas handoff certified separately',production_costmove_binding=False)
     r.update(empty_environment_tail_bound=a.initial_jump or a.initial_idle,tail_results=tail_results,initial_idle=a.initial_idle,initial_idle_results=idle_results)
     r.update(default_idle_registry_capability=idle_capability,default_walk_registry_capability=walk_capability,initial_walk=a.initial_walk,initial_walk_results=walk_results,initial_none_walk=a.initial_none_walk,initial_none_walk_results=none_walk_results)
     r.update(initial_none_model=a.initial_none_model,initial_none_model_results=no_walk_results)

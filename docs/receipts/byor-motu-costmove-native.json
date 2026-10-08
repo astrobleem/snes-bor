@@ -1,0 +1,18 @@
+{
+  "schema": "BYOR_4086_COSTMOVE_NATIVE_V1",
+  "status": "PASS",
+  "cases": 195,
+  "guard_cases": 14,
+  "errors": [],
+  "rom_sha256": "4ef57183638994a16a0fde909cfc9d563f329076fa0e03043f536f612e3eb507",
+  "peak_master_clocks": 73578,
+  "source_frame_zero_pending": true,
+  "private_energy_descriptors_instrumented": true,
+  "source_resource_storage_bound": true,
+  "source_unlink_storage_bound": true,
+  "frame_zero_execution_bound": false,
+  "production_player_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
