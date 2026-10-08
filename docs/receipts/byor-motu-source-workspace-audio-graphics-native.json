@@ -1,0 +1,168 @@
+{
+  "schema": "BYOR_SOURCE_CHR_WORKSPACE_AUDIO_GRAPHICS_COMPONENT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-source-workspace-underlay-mix-brr-joint-native/report.json",
+      "sha256": "ac697b8469332a2d5637eba6ac00352c18b94ced04722a6e0755b3b1ce93add0",
+      "report": {
+        "schema": "BYOR_SERIALIZED_GRAPHICS_SOURCE_MIX_BRR_NATIVE_V1",
+        "status": "PASS",
+        "ROM_sha256": "58ca8bd4ca794c71eee88ed2db9d0ff98304a3e22b501f760ca74d8490ae2611",
+        "graphics_component_ROM": "b0f7d8da4f889cb251e5278d4d55b6f52a1c4423ad13475e0d4091f9ab32968e",
+        "audio_component_ROM": "a1e1d96bc364bd8b76920973a112e9fe15590c7da2beb36e3a285aad73d35ac6",
+        "native_bitmap_identity": true,
+        "native_VRAM_identity": true,
+        "PPU_pixel_mismatches": 0,
+        "CGRAM_identity": true,
+        "OAM_identity": true,
+        "CGRAM_HBlank_timing_verified": true,
+        "OBJ_status": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "PCM_identity": true,
+        "BRR_identity": true,
+        "source_Q12_identity": true,
+        "IRAM_restore_trace": [
+          [
+            "0"
+          ]
+        ],
+        "native_event_order_verified": true,
+        "graphics_events": [
+          [
+            "entry",
+            "105912"
+          ],
+          [
+            "done",
+            "214564"
+          ],
+          [
+            "entry",
+            "599264"
+          ],
+          [
+            "done",
+            "724642"
+          ]
+        ],
+        "audio_events": [
+          [
+            "gather_entry",
+            "310410"
+          ],
+          [
+            "gather_done",
+            "502206"
+          ],
+          [
+            "encode_entry",
+            "504182"
+          ],
+          [
+            "encode_done",
+            "596260"
+          ]
+        ],
+        "handoff_events": [
+          [
+            "handoff",
+            "306962"
+          ],
+          [
+            "restore",
+            "596366"
+          ],
+          [
+            "restored",
+            "599214"
+          ]
+        ],
+        "active_source_voices": 12,
+        "output_samples": 192,
+        "audio_output_rate": 11025,
+        "audio_policy": "ACCEPTED_COMPAT mono uniform gain 64 normal pitch",
+        "reload_immutable_workers": true,
+        "source_CHR_workspace_audio": true,
+        "retained_bitmap_identity": true,
+        "audio_BW_write_ranges_verified": true,
+        "audio_buffers": {
+          "PCM": "0x422000",
+          "BRR": "0x422200",
+          "phases": "0x422300"
+        },
+        "borrowed_IRAM_snapshot": {
+          "address": "0030F2",
+          "bytes": 2,
+          "production_owner": "fixture IRAM scratch"
+        },
+        "SPC_transport_bound": false,
+        "continuous_audio_proven": false,
+        "live_actor_source_frame_guard": false,
+        "production_memory_lease": false,
+        "field_deadline_admitted": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "scope": "Graphics phase 0 and VRAM publication, native audio gather/mix/BRR, worker state restoration, graphics phase 1 and complete source PPU scene in one ROM. Explicit source poses, not live gameplay.",
+        "master_clocks": {
+          "gather_mix": 191796,
+          "encode": 92078,
+          "audio_chain": 285850,
+          "complete_handoff": 292252
+        },
+        "milliseconds": {
+          "gather_mix": 8.930185260975906,
+          "encode": 4.28723017403981,
+          "audio_chain": 13.309419679503028,
+          "complete_handoff": 13.607502257037323
+        }
+      }
+    },
+    {
+      "path": "out/byor-motu-audio-workspace-default-identity.json",
+      "sha256": "ebb18ec854af9cd101f9151e63b47cceffb23880bd739f719edbdfb5a831ecbb",
+      "report": {
+        "status": "PASS",
+        "original_native_audio_ROM": "a1e1d96bc364bd8b76920973a112e9fe15590c7da2beb36e3a285aad73d35ac6",
+        "default_gather_worker_byte_identical": true,
+        "default_encoder_worker_byte_identical": true,
+        "output_pointer_bank_crossing_rejected": true,
+        "default_gather_sha256": "7da3c15719cefd4b496cd028cb62dfc70d8a8eb64d995b22ad9f60dc3aab845f",
+        "default_encoder_sha256": "c9f20b6cffa528646748886e4ac7e701b58b7fdf288743ed5817e7cc13bfa2ea"
+      }
+    }
+  ],
+  "source_CHR_workspace": [
+    "420000",
+    "42D800"
+  ],
+  "native_bitmap": [
+    "420000",
+    "421AE0"
+  ],
+  "PCM": [
+    "422000",
+    "422180"
+  ],
+  "BRR": [
+    "422200",
+    "42226C"
+  ],
+  "phase_rows": [
+    "422300",
+    "422330"
+  ],
+  "audio_write_ranges_observed": true,
+  "retained_effect_bitmap_exact": true,
+  "no_color_reduction": true,
+  "production_memory_lease": false,
+  "continuous_audio_transport": false,
+  "motu_gameplay_proven": false,
+  "scope": "Real twelve-source native gather/mix/BRR uses disjoint addresses in the existing source CHR workspace; the 6880-byte effect bitmap remains exact through the native audio job. All audio BW-RAM writes are observed. Production source-CHR owner draining and a lease are not bound. Default generated native workers remain byte-identical to the sealed prior proof."
+}

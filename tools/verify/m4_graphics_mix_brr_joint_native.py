@@ -31,6 +31,7 @@ def main():
  p.add_argument('--audio',type=Path,required=True)
  p.add_argument('--output',type=Path,required=True)
  p.add_argument('--reload-workers',action='store_true')
+ p.add_argument('--source-workspace-audio',action='store_true')
  p.add_argument('--native-actor-index',type=int,default=1)
  p.add_argument('--move-x',type=int,default=-30)
  a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
@@ -46,10 +47,22 @@ def main():
  # Shift immutable audio source and predictor tables to E1..FE. C0..DF
  # remain exactly the graphics image, including SCREEN tables and assets.
  rom[0x210000:0x3f0000]=audio[0x10000:0x1f0000]
+ pcm_address=0x422000 if a.source_workspace_audio else 0x420000;br_address=0x422200 if a.source_workspace_audio else 0x430000;phase_address=0x422300 if a.source_workspace_audio else 0x435000
+ new_audio_entries=None
+ if a.source_workspace_audio and gr['bitmap_bytes']>0x2000:raise ValueError('DISJOINT_SOURCE_BITMAP_WORKSPACE_CAPACITY')
  gather=audio[0x9000:0x9000+ar['gather_worker_bytes']]
+ encoder=audio[0x9800:0x9800+ar['encoder_worker_bytes']]
+ if a.source_workspace_audio:
+  from m4_sound_gather_mix_sa1_native import build as gather_build
+  from m4_brr_filter1_sa1_native import build as encoder_build
+  phases=struct.unpack('<12I',audio[0x2f000:0x2f030]);inputs=[dict(values=list(struct.unpack('<257H',audio[0x20000+i*1024:0x20000+i*1024+514])),initial_Q12=phases[i])for i in range(12)]
+  _,gentries,gather=gather_build(ar['frames'],4096,64,True,expanded_byte_sum=True,unroll=8,input_channels=inputs,packed_mono=True,phase_address=phase_address,output_address=pcm_address)
+  gather=gather[:gentries['done']-0x3500]+bytes.fromhex('5c 00 a0 01')
+  pcm=(a.audio/'mixed.bin').read_bytes();samples=struct.unpack('<'+'h'*ar['frames'],pcm)
+  _,eentries,encoder=encoder_build(samples,True,True,True,worker_base=0x3500,input_bank=0x42,input_offset=pcm_address&65535,output_address=br_address)
+  new_audio_entries=dict(gather_entry=gentries['entry'],gather_done=gentries['done'],encode_entry=eentries['entry'],encode_done=eentries['done'])
  gather=substitute(gather,'bf 00 00 c2','bf 00 00 e2',8)
  gather=substitute(gather,'5c 00 a0 01','5c 00 a9 01',1)
- encoder=audio[0x9800:0x9800+ar['encoder_worker_bytes']]
  for before,after in [('a9 c3 85 24','a9 e3 85 24'),('e2 20 a9 c1','e2 20 a9 e1'),
                        ('a9 de','a9 fe'),('bf 00 00 c3','bf 00 00 e3'),
                        ('85 0a 18 69 d1','85 0a 18 69 f1'),('a5 0a 18 69 c4','a5 0a 18 69 e4'),
@@ -74,7 +87,7 @@ def main():
  if a.reload_workers:enter.emit('af 16 30 00 8f f2 30 00')
  else:
   enter.label('save');enter.emit('bf 00 30 00 9f 00 e8 41 e8 e8');enter.word(0xe0,0x800);enter.branch(0xd0,'save')
- enter.emit('a2 00 00');enter.label('phases');enter.emit('bf 00 f0 e2 9f 00 50 43 e8 e8');enter.word(0xe0,48);enter.branch(0xd0,'phases')
+ enter.emit('a2 00 00');enter.label('phases');enter.emit('bf 00 f0 e2 9f '+phase_address.to_bytes(3,'little').hex(' ')+' e8 e8');enter.word(0xe0,48);enter.branch(0xd0,'phases')
  code_dma(enter,0xa400,len(gather));enter.emit('5c 00 35 00')
  encode=Code(0xa900);code_dma(encode,0xa600,len(encoder));encode.emit('5c 00 35 00')
  restore=Code(0xab00);restore.emit('c2 30 e2 20 a9 00 48 ab 8d 30 22 c2 20 a2 00 00')
@@ -88,20 +101,25 @@ def main():
  rom[0x7fd7]=12;path=out/'proof.sfc';path.write_bytes(rom)
  # Original CGRAM/OAM/PPU observer is retained. Audio output is captured
  # before graphics reclaims its BW-RAM bitmap; no host pixel input is used.
- observer=original_observer+'\nlocal audioStage=0;local audioActive=false;local audioPCM=nil\n'
+ observer=original_observer+'\nlocal audioStage=0;local audioActive=false;local audioPCM=nil;local retainedNative=nil;local audioBadWrites=0\n'
  audio_observer=(a.audio/'observer.lua').read_text()
  points=[]
  for name in ('gather_entry','gather_done','encode_entry','encode_done'):
-  address=int(re.search(r'JOINTBRR\|'+name+r'\|.*?exec,(\d+)',audio_observer).group(1));points.append((name,address))
+  address=new_audio_entries[name]if new_audio_entries else int(re.search(r'JOINTBRR\|'+name+r'\|.*?exec,(\d+)',audio_observer).group(1));points.append((name,address))
  for i,(name,address)in enumerate(points):
-  capture="local bytes={};for j=0,"+str(ar['frames']*2-1)+" do bytes[#bytes+1]=string.format('%02x',emu.read(0x420000+j,emu.memType.sa1Memory))end;emu.log('GRAPHICSAUDIOPCM|'..table.concat(bytes))"if name=='encode_entry'else''
+  capture="local bytes={};for j=0,"+str(ar['frames']*2-1)+" do bytes[#bytes+1]=string.format('%02x',emu.read("+str(pcm_address)+"+j,emu.memType.sa1Memory))end;emu.log('GRAPHICSAUDIOPCM|'..table.concat(bytes))"if name=='encode_entry'else''
   observer+=f"emu.addMemoryCallback(function()if audioActive and audioStage=={i} then audioStage=audioStage+1;emu.log('GRAPHICSAUDIO|{name}|'..emu.getState().masterClock);{capture} end end,emu.callbackType.exec,{address},{address},emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  for name,address in [('handoff',0x01a800),('restore',0x01ab00),('restored',0x010000+restore.base+restore.labels['restored'])]:
   check="local bad=0;for j=0,2047 do if emu.read(0x3000+j,emu.memType.sa1Memory)~=emu.read(0x41e800+j,emu.memType.sa1Memory) then bad=bad+1 end end;emu.log('GRAPHICSRESTORE|'..bad)"if name=='restored'else''
   if a.reload_workers and name=='restored':
    check=f"local bad=0;for j=0,{len(producer)-1} do if emu.read(0x3200+j,emu.memType.sa1Memory)~=emu.read(0x019000+j,emu.memType.sa1Memory) then bad=bad+1 end end;for j=0,{gr['row_worker_IRAM_bytes']-1} do if emu.read(0x3500+j,emu.memType.sa1Memory)~=emu.read(0x019c00+j,emu.memType.sa1Memory) then bad=bad+1 end end;if emu.read(0x3016,emu.memType.sa1Memory)~=0 then bad=bad+1 end;emu.log('GRAPHICSRESTORE|'..bad)"
   activate="audioActive=true;"if name=='handoff'else''
+  if a.source_workspace_audio:
+   if name=='handoff':activate+=f"retainedNative={{}};for j=0,{gr['bitmap_bytes']-1} do retainedNative[j]=emu.read(0x420000+j,emu.memType.sa1Memory)end;"
+   if name=='restored':check+=f"local bad=0;for j=0,{gr['bitmap_bytes']-1} do if retainedNative[j]~=emu.read(0x420000+j,emu.memType.sa1Memory)then bad=bad+1 end end;emu.log('GRAPHICSBITMAPRETAINED|'..bad);emu.log('AUDIOWORKSPACEWRITES|'..audioBadWrites);audioActive=false;"
   observer+=f"emu.addMemoryCallback(function(){activate}emu.log('GRAPHICSHANDOFF|{name}|'..emu.getState().masterClock);{check} end,emu.callbackType.exec,{address},{address},emu.cpuType.sa1,emu.memType.sa1Memory)\n"
+ if a.source_workspace_audio:
+  observer+="emu.addMemoryCallback(function(address,value)if audioActive and not((address>=0x422000 and address<0x422180)or(address>=0x422200 and address<0x42226c)or(address>=0x422300 and address<0x422330)or(address>=0x413ff0 and address<0x413ff4))then audioBadWrites=audioBadWrites+1 end end,emu.callbackType.write,0x400000,0x43ffff,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  lua=out/'observer.lua';lua.write_text(observer)
  class Observed(McpSession):
   def __enter__(self):
@@ -119,8 +137,8 @@ def main():
    vram.append(m.read_memory('SnesVideoRam',high_target,count*64)+m.read_memory('SnesVideoRam',low_target,count*16))
    if phase==0:
     address=0x42d000+a.native_actor_index*4;origin=struct.unpack('<h',m.read_memory('SnesMemory',address,2))[0];m.write_memory('SnesMemory',address,struct.pack('<h',origin+a.move_x).hex());m.write_u16(0x0030f0,1)
-  brr=m.read_memory('SnesMemory',0x430000,ar['frames']//16*9)
-  phases=struct.unpack('<12I',m.read_memory('SnesMemory',0x435000,48))
+  brr=m.read_memory('SnesMemory',br_address,ar['frames']//16*9)
+  phases=struct.unpack('<12I',m.read_memory('SnesMemory',phase_address,48))
   for _ in range(5):run_frames_exact(m,1)
   import shutil
   shot=m.tool('take_screenshot',{'format':'path'});shutil.copyfile(shot['path'],out/'screenshot.png')
@@ -150,12 +168,14 @@ def main():
   pairs=np.stack((high[y:y+h,x:x+w],low[y:y+h,x:x+w]),axis=-1).tobytes();chr_expected.append(selected_tiles(pairs,w,h,mask,False))
  vram_ok=vram==chr_expected
  ok=sequence and restore_trace==[['0']] and bitmap_ok and vram_ok and brr_ok and pcm_ok and phase_ok and pixel_errors==0 and cg_ok and oa_ok and timing_ok and bool(flags)and not any(v&192 for v in flags)
+ retained_ok=not a.source_workspace_audio or events('GRAPHICSBITMAPRETAINED')==[['0']]and events('AUDIOWORKSPACEWRITES')==[['0']]
+ ok=ok and retained_ok
  clocks={name:int(clock)for name,clock in ae};handoff={name:int(clock)for name,clock in he}
  if sequence:
   ordered=int(ge[1][1])<handoff['handoff']<clocks['gather_entry']<clocks['gather_done']<clocks['encode_entry']<clocks['encode_done']<handoff['restore']<handoff['restored']<int(ge[2][1])
   ok=ok and ordered
  else:ordered=False
- report=dict(schema='BYOR_SERIALIZED_GRAPHICS_SOURCE_MIX_BRR_NATIVE_V1',status='PASS'if ok else'FAIL',ROM_sha256=hashlib.sha256(rom).hexdigest(),graphics_component_ROM=gr['ROM_sha256'],audio_component_ROM=ar['rom_sha256'],native_bitmap_identity=bitmap_ok,native_VRAM_identity=vram_ok,PPU_pixel_mismatches=pixel_errors,CGRAM_identity=cg_ok,OAM_identity=oa_ok,CGRAM_HBlank_timing_verified=timing_ok,OBJ_status=flags,PCM_identity=pcm_ok,BRR_identity=brr_ok,source_Q12_identity=phase_ok,IRAM_restore_trace=restore_trace,native_event_order_verified=ordered,graphics_events=ge,audio_events=ae,handoff_events=he,active_source_voices=12,output_samples=ar['frames'],audio_output_rate=11025,audio_policy='ACCEPTED_COMPAT mono uniform gain 64 normal pitch',reload_immutable_workers=a.reload_workers,borrowed_IRAM_snapshot=dict(address='0030F2'if a.reload_workers else'41E800',bytes=2 if a.reload_workers else 2048,production_owner='fixture IRAM scratch'if a.reload_workers else'source VM variable pool'),SPC_transport_bound=False,continuous_audio_proven=False,live_actor_source_frame_guard=False,production_memory_lease=False,field_deadline_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,scope='Graphics phase 0 and VRAM publication, native audio gather/mix/BRR, worker state restoration, graphics phase 1 and complete source PPU scene in one ROM. Explicit source poses, not live gameplay.')
+ report=dict(schema='BYOR_SERIALIZED_GRAPHICS_SOURCE_MIX_BRR_NATIVE_V1',status='PASS'if ok else'FAIL',ROM_sha256=hashlib.sha256(rom).hexdigest(),graphics_component_ROM=gr['ROM_sha256'],audio_component_ROM=ar['rom_sha256'],native_bitmap_identity=bitmap_ok,native_VRAM_identity=vram_ok,PPU_pixel_mismatches=pixel_errors,CGRAM_identity=cg_ok,OAM_identity=oa_ok,CGRAM_HBlank_timing_verified=timing_ok,OBJ_status=flags,PCM_identity=pcm_ok,BRR_identity=brr_ok,source_Q12_identity=phase_ok,IRAM_restore_trace=restore_trace,native_event_order_verified=ordered,graphics_events=ge,audio_events=ae,handoff_events=he,active_source_voices=12,output_samples=ar['frames'],audio_output_rate=11025,audio_policy='ACCEPTED_COMPAT mono uniform gain 64 normal pitch',reload_immutable_workers=a.reload_workers,source_CHR_workspace_audio=a.source_workspace_audio,retained_bitmap_identity=retained_ok,audio_BW_write_ranges_verified=a.source_workspace_audio and events('AUDIOWORKSPACEWRITES')==[['0']],audio_buffers=dict(PCM=hex(pcm_address),BRR=hex(br_address),phases=hex(phase_address)),borrowed_IRAM_snapshot=dict(address='0030F2'if a.reload_workers else'41E800',bytes=2 if a.reload_workers else 2048,production_owner='fixture IRAM scratch'if a.reload_workers else'source VM variable pool'),SPC_transport_bound=False,continuous_audio_proven=False,live_actor_source_frame_guard=False,production_memory_lease=False,field_deadline_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,scope='Graphics phase 0 and VRAM publication, native audio gather/mix/BRR, worker state restoration, graphics phase 1 and complete source PPU scene in one ROM. Explicit source poses, not live gameplay.')
  if sequence:
   costs=dict(gather_mix=clocks['gather_done']-clocks['gather_entry'],encode=clocks['encode_done']-clocks['encode_entry'],audio_chain=clocks['encode_done']-clocks['gather_entry'],complete_handoff=handoff['restored']-handoff['handoff'])
   report.update(master_clocks=costs,milliseconds={k:v/21477.27 for k,v in costs.items()})
