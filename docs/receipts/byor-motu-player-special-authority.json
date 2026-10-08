@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_4086_PLAYER_SPECIAL_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_functions_unmodified": true,
+  "function_sha256": {
+    "check_energy": "bc6125a3fdfdbffd2569eae9e0e8fbd9916256bed11afe11d58609beb23ec261",
+    "ent_unlink": "f2ecafca5e8d99be35eaae7045cdd144ab99e5eeccba5f918a882e7ee471502b",
+    "check_special": "adaff5fa309a3b24483f2bd3a63549751539f7f85486bb150c81b9975f859f37",
+    "player_check_special": "13f58a0ec945c3d9ccc7a992aa1a5f94828a539e4a636fc9adf6f2e0a3d59ac1"
+  },
+  "macro_sha256": "2176ee99c84919ef917f5ab715b3af75c9805ebbabe040c6779d5e2064feeda8",
+  "cases": 4096,
+  "compared_bytes": 933888,
+  "errors": [],
+  "callback_mutation_modes": 5,
+  "exact_service_and_energy_query_order": true,
+  "services_instrumented": true,
+  "native_bound": false,
+  "production_player_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
