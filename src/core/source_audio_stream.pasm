@@ -435,15 +435,31 @@ SourceAudio_PollCompletion:
     lda.l AudioStream_SourceId
     cmp #$ff
     bne SourceAudio_PollCompletion__done
-    lda.l TadPrivate_stream_consumer_started
-    beq SourceAudio_PollCompletion__done
     lda.l PARAMETER1_PORT
+    cmp #$80 ; durable SPC completion: that KON observed ENVX>0 then zero
+    beq SourceAudio_PollCompletion__latched
+    cmp #0
     beq SourceAudio_PollCompletion__zero
     sta.l SourceAudio_EnvelopeSeen
     bra SourceAudio_PollCompletion__done
+SourceAudio_PollCompletion__latched:
+.a8
+.i16
+    ; An old epoch's durable flag can remain until the next actual KON.
+    ; That next first packet resets the flag before its ACK; do not retain
+    ; the flag while this host epoch has not yet received that ACK.
+    lda.l TadPrivate_stream_consumer_started
+    beq SourceAudio_PollCompletion__done
+    lda #1
+    sta.l SourceAudio_EnvelopeSeen
 SourceAudio_PollCompletion__zero:
 .a8
 .i16
+    ; The SPC can start and finish a short source before the asynchronous
+    ; host transfer ACK. Retain ENVX observations before that ACK, but still
+    ; require the acknowledged consumer epoch before retiring any payload.
+    lda.l TadPrivate_stream_consumer_started
+    beq SourceAudio_PollCompletion__done
     lda.l SourceAudio_EnvelopeSeen
     beq SourceAudio_PollCompletion__done
     lda.l TadPrivate_stream_producer_done

@@ -1,0 +1,649 @@
+{
+  "schema": "BYOR_COOPERATIVE_SOURCE_AUDIO_JOB_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-cooperative-world-audio-timed-native/report.json",
+      "sha256": "5245f905fa6367bf38515b467c3f41a3a9906efd8466b60fccb2015dc48f3f32",
+      "report": {
+        "schema": "BYOR_COMPUTED_BRR_PRODUCTION_TRANSPORT_NATIVE_V1",
+        "status": "PASS",
+        "checks": [
+          [
+            "cold reset enters INTRO, not TITLE/PLAYING",
+            true
+          ],
+          [
+            "cold reset is not PLAYING",
+            true
+          ],
+          [
+            "INTRO remains reachable through second scene card",
+            true
+          ],
+          [
+            "INTRO -> TITLE",
+            true
+          ],
+          [
+            "cooperative disabled offer does not park resident world",
+            true
+          ],
+          [
+            "cooperative zero_epoch offer does not park resident world",
+            true
+          ],
+          [
+            "native leaf batch completed",
+            true
+          ],
+          [
+            "generic buffer retires only its admitted generation after DSP completion",
+            true
+          ],
+          [
+            "native produced BRR matches authority before transport",
+            true
+          ],
+          [
+            "native produced source mixture matches pinned C",
+            true
+          ],
+          [
+            "resident actor context and worker mailbox remain byte exact during job",
+            true
+          ],
+          [
+            "cooperative job writes only its typed audio buffers and control",
+            true
+          ],
+          [
+            "cooperative worker releases and resumes real gameplay",
+            true
+          ]
+        ],
+        "proof": {
+          "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+          "status": "PASS",
+          "source_path": "private-proof/computed-twelve-source-buffer",
+          "source_sha256": "081529b6f018a5ca4ef1b1f1b5772902b948d3890cfb8b37582baa8604778fe8",
+          "compiled_brr_sha256": "459b599008259c8e360ef740f06dba5cac7605df07280863c706391a1ccce935",
+          "compiled_brr_bytes": 108,
+          "chunks": 1,
+          "meaningful_byte_mismatches": 0,
+          "padding_byte_mismatches": 0,
+          "observer_peak_chunk_gap": 1,
+          "observed_consumer_underruns": 0,
+          "first_active_field": 2,
+          "last_active_field": 2,
+          "active_fields": 1,
+          "expected_active_fields": 1.0467670182773985,
+          "effective_sample_rate_hz": 11023.4375,
+          "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+          "prefill_chunks": 0,
+          "voice0_srcn": 33,
+          "voice0_pitch": 1411,
+          "voice0_gain": 127,
+          "first_active_acknowledged_chunks": 0,
+          "delayed_host_ack_observation": true,
+          "final_voice0_envelope": 0,
+          "audio_recording_pcm_sha256": "2abc74d0615b794fc82afa7d10ef1dc8ed1dc70a25ff7de9efb2424d03561eba",
+          "audio_recording_file_sha256": "4e5adba33ade0fb0245569489a62cacb7cfef4e0e33d01518042538c729e229d",
+          "dsp_source_block_traversal": {
+            "source_blocks": 12,
+            "observed_blocks": 12,
+            "skipped_blocks": 0,
+            "repeated_blocks": 0,
+            "block_fingerprint_mismatches": 0,
+            "dsp_samples": 484,
+            "endx_sample": 484,
+            "voice_pcm_sha256": "e1eaeec41c45debcb879f0c58a2c402d0da2bd7791065b5abb64cfe3e061eef9",
+            "trace_sha256": "964538995808cbdfbb1cb7507e9e58f70656024b53e85d5beaa7148321168a2d"
+          },
+          "policy": {
+            "policy": "ACCEPTED_COMPAT",
+            "output": "mono 11025 uniform gain 64; native predictive BRR"
+          },
+          "private_runtime_only": true,
+          "legacy_gameplay_paused": false,
+          "sample_exact_recording_proven": false,
+          "concurrent_audio_proven": false,
+          "production_binding_installed": false,
+          "motu_gameplay_proven": false,
+          "no_color_reduction": true
+        },
+        "ROM_sha256": "1c6e5f29fc215fee116e4c1e8cdb48831238d8dd2b60162f685f41153c9ad5a9",
+        "producer_component_ROM": "58ca8bd4ca794c71eee88ed2db9d0ff98304a3e22b501f760ca74d8490ae2611",
+        "native_source_voices": 12,
+        "native_output_samples": 192,
+        "buffer_pointer": "422200",
+        "native_producer_to_production_TAD": true,
+        "generic_computed_buffer_admission": true,
+        "native_transport_tail_zeroed": true,
+        "PCM_media_linked": false,
+        "computed_buffer_control": {
+          "hex": "6cb686403412040000226c000c00010086403412040001009022",
+          "state": 4,
+          "status": 4,
+          "generation": "86403412",
+          "consumer_generation": "86403412"
+        },
+        "cooperative_worker_execution": true,
+        "source_workspace_lease_installed": false,
+        "SA1_worker_replaced_in_private_paused_fixture": false,
+        "continuous_mixing": false,
+        "joint_hybrid_graphics": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "execution_lease_master_clocks": {
+          "acquired": 237133872,
+          "produced": 237478958,
+          "released": 237497464
+        },
+        "staging_and_native_job_ms": 16.067498336613546,
+        "complete_execution_lease_ms": 16.929153472485098,
+        "world_resume": {
+          "state": 0,
+          "worker_fault": "000000",
+          "lease_state": 0,
+          "ack_before": 346,
+          "ack_after": 425
+        }
+      }
+    },
+    {
+      "path": "out/byor-motu-spc-completion-lifecycle-regression/report.json",
+      "sha256": "73d1667ad9b881d543806dee6ca9b1ecb29924a0d1976539fd88a21f50e34d25",
+      "report": {
+        "schema": "BYOR_ASAD_NATIVE_LIFECYCLE_V1",
+        "status": "PASS",
+        "checks": [
+          [
+            "cold reset enters INTRO, not TITLE/PLAYING",
+            true
+          ],
+          [
+            "cold reset is not PLAYING",
+            true
+          ],
+          [
+            "INTRO remains reachable through second scene card",
+            true
+          ],
+          [
+            "INTRO -> TITLE",
+            true
+          ],
+          [
+            "native leaf batch completed",
+            true
+          ],
+          [
+            "first source releases admission after observed DSP END",
+            true
+          ],
+          [
+            "second request admitted by unchanged foreground fixture",
+            true
+          ],
+          [
+            "restart reaches actual DSP END and releases admission",
+            true
+          ],
+          [
+            "both DSP traversals match every source BRR block",
+            true
+          ]
+        ],
+        "endpoints": [
+          {
+            "status": 4,
+            "active": 0,
+            "seen": 1,
+            "env": 0,
+            "requests": 1
+          },
+          {
+            "status": 4,
+            "active": 0,
+            "seen": 1,
+            "env": 0,
+            "requests": 2
+          }
+        ],
+        "proofs": [
+          {
+            "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+            "status": "PASS",
+            "source_path": "data/chars/KnBot/energy.wav",
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "compiled_brr_sha256": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b",
+            "compiled_brr_bytes": 8073,
+            "chunks": 57,
+            "meaningful_byte_mismatches": 0,
+            "padding_byte_mismatches": 0,
+            "observer_peak_chunk_gap": 1,
+            "observed_consumer_underruns": 0,
+            "first_active_field": 15,
+            "last_active_field": 92,
+            "active_fields": 78,
+            "expected_active_fields": 78.24583461623554,
+            "effective_sample_rate_hz": 11023.4375,
+            "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+            "prefill_chunks": 7,
+            "voice0_srcn": 33,
+            "voice0_pitch": 1411,
+            "voice0_gain": 127,
+            "first_active_acknowledged_chunks": 8,
+            "delayed_host_ack_observation": false,
+            "final_voice0_envelope": 0,
+            "audio_recording_pcm_sha256": "d1567d6f715bb98676c3bc60d14d68647bbcac7a042028f92c075b47df44ffc9",
+            "audio_recording_file_sha256": "961eda167d875f2191cf0312f41a23c23b3af2cc9e6c7ce2b97ce0451715d2c6",
+            "dsp_source_block_traversal": {
+              "source_blocks": 897,
+              "observed_blocks": 897,
+              "skipped_blocks": 0,
+              "repeated_blocks": 0,
+              "block_fingerprint_mismatches": 0,
+              "dsp_samples": 41589,
+              "endx_sample": 41589,
+              "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+              "trace_sha256": "3440a75c54586e2cbd410f43d300d4c1b22f4ab1e6c4793af20a88d5fe721706"
+            },
+            "policy": {
+              "tool": "ffmpeg",
+              "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+              "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+              "rate_hz": 11025,
+              "padded_frames": 2
+            },
+            "private_runtime_only": true,
+            "legacy_gameplay_paused": true,
+            "sample_exact_recording_proven": false,
+            "concurrent_audio_proven": false,
+            "production_binding_installed": false,
+            "motu_gameplay_proven": false,
+            "no_color_reduction": true
+          },
+          {
+            "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+            "status": "PASS",
+            "source_path": "data/chars/KnBot/energy.wav",
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "compiled_brr_sha256": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b",
+            "compiled_brr_bytes": 8073,
+            "chunks": 57,
+            "meaningful_byte_mismatches": 0,
+            "padding_byte_mismatches": 0,
+            "observer_peak_chunk_gap": 1,
+            "observed_consumer_underruns": 0,
+            "first_active_field": 14,
+            "last_active_field": 91,
+            "active_fields": 78,
+            "expected_active_fields": 78.24583461623554,
+            "effective_sample_rate_hz": 11023.4375,
+            "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+            "prefill_chunks": 7,
+            "voice0_srcn": 33,
+            "voice0_pitch": 1411,
+            "voice0_gain": 127,
+            "first_active_acknowledged_chunks": 8,
+            "delayed_host_ack_observation": false,
+            "final_voice0_envelope": 0,
+            "audio_recording_pcm_sha256": "4bb7b49d5d0a211efadb78e517d9f639b4dde09896ea1ea4819ef78e6af489a7",
+            "audio_recording_file_sha256": "807f49a6a841d726a76b9a98afcb4300aaefaaeeb4fed8bf6eb455f99c67b9de",
+            "dsp_source_block_traversal": {
+              "source_blocks": 897,
+              "observed_blocks": 897,
+              "skipped_blocks": 0,
+              "repeated_blocks": 0,
+              "block_fingerprint_mismatches": 0,
+              "dsp_samples": 41589,
+              "endx_sample": 41589,
+              "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+              "trace_sha256": "3440a75c54586e2cbd410f43d300d4c1b22f4ab1e6c4793af20a88d5fe721706"
+            },
+            "policy": {
+              "tool": "ffmpeg",
+              "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+              "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+              "rate_hz": 11025,
+              "padded_frames": 2
+            },
+            "private_runtime_only": true,
+            "legacy_gameplay_paused": true,
+            "sample_exact_recording_proven": false,
+            "concurrent_audio_proven": false,
+            "production_binding_installed": false,
+            "motu_gameplay_proven": false,
+            "no_color_reduction": true
+          }
+        ],
+        "rom_sha256": "8cb7f443370635df4906fe90e88866b1173be13c083fa0a28ec4c5f318a1dbdb",
+        "no_emulator_reset_between_streams": true,
+        "no_directory_restoration": true,
+        "no_color_reduction": true,
+        "authored_polyphony_proven": false,
+        "motu_gameplay_proven": false
+      }
+    },
+    {
+      "path": "out/byor-motu-spc-completion-resident-regression/report.json",
+      "sha256": "77530dfbbee0ee8333ac79f4bafaf92b9aa1205e58400f9148d9d4f1f993003d",
+      "report": {
+        "status": "PASS",
+        "rom_sha256": "dcdef2ba085a7f0164453e98915b672e79365da1ad49a075b92d59723ddd8152",
+        "checks": [
+          [
+            "cold reset enters INTRO, not TITLE/PLAYING",
+            true
+          ],
+          [
+            "cold reset is not PLAYING",
+            true
+          ],
+          [
+            "INTRO remains reachable through second scene card",
+            true
+          ],
+          [
+            "INTRO -> TITLE",
+            true
+          ],
+          [
+            "resident effects execute on physical voices7 and6",
+            true
+          ],
+          [
+            "both ordinary SFX voices overlap",
+            true
+          ],
+          [
+            "resident queue does not claim reserved stream voice0",
+            true
+          ]
+        ],
+        "queue_input_instrumented": true,
+        "authored_gameplay_event_proven": false,
+        "motu_gameplay_proven": false,
+        "observation_summary": {
+          "count": 17,
+          "first": {
+            "request": 0,
+            "effect_id": 2,
+            "field": 0,
+            "voices": [
+              {
+                "voice": 6,
+                "volL": -3,
+                "volR": -88,
+                "pitch": 52629,
+                "sampleSrc": 22,
+                "adsr1": 155,
+                "adsr2": 6,
+                "gain": 250,
+                "envelope": 0,
+                "currentOutput": 0
+              },
+              {
+                "voice": 7,
+                "volL": -81,
+                "volR": 99,
+                "pitch": 59960,
+                "sampleSrc": 21,
+                "adsr1": 84,
+                "adsr2": 41,
+                "gain": 71,
+                "envelope": 0,
+                "currentOutput": 0
+              }
+            ],
+            "voice0": {
+              "voice": 0,
+              "volL": 117,
+              "volR": 86,
+              "pitch": 37886,
+              "sampleSrc": 177,
+              "adsr1": 42,
+              "adsr2": 72,
+              "gain": 222,
+              "envelope": 0,
+              "currentOutput": 0
+            }
+          },
+          "last": {
+            "request": 1,
+            "effect_id": 4,
+            "field": 1,
+            "voices": [
+              {
+                "voice": 6,
+                "volL": 24,
+                "volR": 24,
+                "pitch": 1411,
+                "sampleSrc": 4,
+                "adsr1": 0,
+                "adsr2": 6,
+                "gain": 127,
+                "envelope": 127,
+                "currentOutput": -2
+              },
+              {
+                "voice": 7,
+                "volL": 24,
+                "volR": 24,
+                "pitch": 1411,
+                "sampleSrc": 1,
+                "adsr1": 0,
+                "adsr2": 41,
+                "gain": 127,
+                "envelope": 127,
+                "currentOutput": -2
+              }
+            ],
+            "voice0": {
+              "voice": 0,
+              "volL": 117,
+              "volR": 86,
+              "pitch": 37886,
+              "sampleSrc": 177,
+              "adsr1": 42,
+              "adsr2": 72,
+              "gain": 222,
+              "envelope": 0,
+              "currentOutput": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "out/byor-motu-spc-completion-bor-smoke/report.json",
+      "sha256": "68d8aa4a602093f37976081424471ada5211e1fa8bab29aa4bef0c8d9235ef67",
+      "report": {
+        "schema": "BYOR_SHARED_AUDIO_BOR_SMOKE_V1",
+        "status": "PASS",
+        "rom_sha256": "dcdef2ba085a7f0164453e98915b672e79365da1ad49a075b92d59723ddd8152",
+        "checks": [
+          [
+            "cold reset enters INTRO, not TITLE/PLAYING",
+            true
+          ],
+          [
+            "cold reset is not PLAYING",
+            true
+          ],
+          [
+            "INTRO remains reachable through second scene card",
+            true
+          ],
+          [
+            "INTRO -> TITLE",
+            true
+          ],
+          [
+            "source KULA selection and generated selected-set campaign entry zero",
+            true
+          ],
+          [
+            "first stage remains PLAYING through bounded native observation",
+            true
+          ],
+          [
+            "ordinary static source presentation becomes visible with no hard source admission errors",
+            true
+          ],
+          [
+            "idle stream remains unclaimed",
+            true
+          ]
+        ],
+        "player": "KULA",
+        "selected_set": 0,
+        "campaign_id": 3,
+        "visible_oam_entries": 10,
+        "busy_retry_observations": 186,
+        "source_presentation": "existing static OBJ",
+        "full_campaign_regression_run": false,
+        "motu_gameplay_proven": false,
+        "observation_summary": {
+          "count": 188,
+          "first": {
+            "field": 0,
+            "state": 0,
+            "source_calls": 1,
+            "source_error": 0,
+            "actor_errors": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "committed_nmi": 96,
+            "stream_active": 0
+          },
+          "last": {
+            "field": 187,
+            "state": 0,
+            "source_calls": 21,
+            "source_error": 39,
+            "actor_errors": [
+              39,
+              39,
+              0,
+              0,
+              0,
+              0
+            ],
+            "committed_nmi": 282,
+            "stream_active": 0
+          }
+        }
+      }
+    },
+    {
+      "path": "out/byor-motu-spc-completion-patch-reproduction.json",
+      "sha256": "3a15885193b661dedf2123cab30547e46233d36e55649016562f88772f0b89b3",
+      "report": {
+        "status": "PASS",
+        "source_pin": "00215a2e9aaf327d620120a48b47d74f80d5b521",
+        "files": [
+          {
+            "path": "audio-driver/src/audio-driver.asm",
+            "sha256_LF": "408fee18d0bbc18e110a745c793ce936e304c5a510b1f34e3ecc7fa7757576cd"
+          },
+          {
+            "path": "audio-driver/src/common-memmap.inc",
+            "sha256_LF": "746903f83b375dabcc02df07a8c94576dcd4c035465a9bc40afbe073b97d343a"
+          },
+          {
+            "path": "audio-driver/src/io-commands.inc",
+            "sha256_LF": "e6ad0817ac78ee42e7d26a80fae7392d55e39687e1bde5e3ddf9ea4ee0d3511f"
+          },
+          {
+            "path": "crates/compiler/src/driver_constants.rs",
+            "sha256_LF": "6a16d7ec7a88e9c71c4ae0b9816d3a77e802fec920dacef515a10458eeccabf8"
+          }
+        ]
+      }
+    },
+    {
+      "path": "out/byor-motu-cooperative-worker-preservation.json",
+      "sha256": "617579659087d5820bdec2c2a0e9a9a8cd936bfd21655c929fd2f935d71bd436",
+      "report": {
+        "status": "PASS",
+        "protected": 17,
+        "bank_zero_symbol_addresses_unchanged": true,
+        "masked_non_bank_zero_constants": {
+          "SourceAudio_StartTarget": "Tad_StreamStartPreparedSource",
+          "SourceAudio_StartRelay": "Tad_ProcessMaybeStream__return"
+        },
+        "bank_zero_growth_bytes": 0,
+        "changed_bank_zero_bytes": 4,
+        "changes_only_external_relocations": [
+          {
+            "pc": "0x8922",
+            "symbol": "Tad_AudioDriver_SIZE",
+            "old": 3464,
+            "new": 3521
+          },
+          {
+            "pc": "0xac10",
+            "symbol": "Tad_DataTable",
+            "delta": 3,
+            "old": "0x18e32",
+            "new": "0x18e6b"
+          },
+          {
+            "pc": "0xac15",
+            "symbol": "Tad_DataTable",
+            "delta": 0,
+            "old": "0x18e2f",
+            "new": "0x18e68"
+          },
+          {
+            "pc": "0xac1a",
+            "symbol": "Tad_DataTable",
+            "delta": 0,
+            "old": "0x18e2f",
+            "new": "0x18e68"
+          }
+        ],
+        "head": "5406cc844aeebfc0d2b185f9d762c957f36e700a"
+      }
+    }
+  ],
+  "audit": {
+    "path": "out/byor-motu-cooperative-worker-final-audit.log",
+    "sha256": "c1b3bee3162bdaa726927de7374be40f0e50f0d27ae2ec12ec3374b60f9e3f38",
+    "all_checks_pass": true
+  },
+  "SPC_driver": {
+    "bytes": 3521,
+    "sha256": "4c642e7c0f175cd4e85fc717345b9796cb3e2e9df05239c2381ac7d7efd702d7",
+    "state_bytes": 2,
+    "status": "ENVX value during playback; durable 0x80 only after this first-packet KON observes ENVX positive then zero; reset before next KON"
+  },
+  "execution_lease": {
+    "mailbox_start": "412028",
+    "exclusive_end": "412030",
+    "preceding_input_records": [
+      "412020",
+      "412028"
+    ],
+    "following_host_fields": "412100",
+    "worker_boundary": "Worker_NoFault after a complete world pass; mutation-fence value returned unchanged",
+    "compiler_opt_in_only": true,
+    "no_reset": true,
+    "no_stack_replacement": true,
+    "no_whole_world_copy": true
+  },
+  "source_CHR_payload_lease": false,
+  "continuous_mixer": false,
+  "joint_hybrid_graphics": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "scope": "One native twelve-source gather/mix/BRR job runs cooperatively during actual original-BOR PLAYING, produces an immutable typed buffer for the production TAD consumer, retires after DSP completion, and resumes the same resident world. Execution lease is measured; source CHR/palette/VRAM owners and continuous mixing remain unbound. All 17 protected files retain their baseline fingerprints."
+}

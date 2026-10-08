@@ -7,7 +7,7 @@ import wave
 from pathlib import Path
 
 
-def verify(folder, assets, require_dsp_trace=False, report_path=None):
+def verify(folder, assets, require_dsp_trace=False, report_path=None, allow_ack_after_dsp_start=False):
     trace=json.loads((folder/'audio-stream-trace.json').read_text())
     source=trace['source']
     payload=(assets/source['brr_path']).read_bytes()
@@ -29,7 +29,14 @@ def verify(folder, assets, require_dsp_trace=False, report_path=None):
     assert [r['field'] for r in active]==list(range(active[0]['field'],active[-1]['field']+1))
     assert all(r['voice0']['sampleSrc']==33 and r['voice0']['pitch']==1411 and r['voice0']['adsr1']==0 and r['voice0']['gain']==127 for r in active)
     prefill=trace.get('prefill_chunks',7 if trace.get('initial_seven_chunk_prefill')else 0)
-    assert active[0]['chunks_accepted']>=prefill+1
+    # A busy foreground can observe DSP playback before it polls the transfer
+    # ACK. Permit that observation order only with complete native block
+    # traversal evidence below; the acknowledged ring bytes alone do not
+    # prove what the DSP consumed before the delayed host poll.
+    if allow_ack_after_dsp_start:
+        assert require_dsp_trace and (folder/'voice0.raw.trace').is_file()
+    else:
+        assert active[0]['chunks_accepted']>=prefill+1
     # Local Mesen authority: Spc.h's 32000Hz, SnesConsole.cpp's NTSC
     # 21477270Hz and SnesPpu.cpp's 1364-clock lines / odd short line.
     # Frame sampling bounds the observed start/end to two fields.
@@ -84,6 +91,8 @@ def verify(folder, assets, require_dsp_trace=False, report_path=None):
         active_fields=observed_fields,expected_active_fields=expected_fields,
         effective_sample_rate_hz=effective_rate,start_latency_observation='First envelope observation relative to post-request native observer; not source-event exact timing',
         prefill_chunks=prefill,voice0_srcn=33,voice0_pitch=1411,voice0_gain=127,
+        first_active_acknowledged_chunks=active[0]['chunks_accepted'],
+        delayed_host_ack_observation=allow_ack_after_dsp_start,
         final_voice0_envelope=0,audio_recording_pcm_sha256=fingerprint['sha256'],
         audio_recording_file_sha256=hashlib.sha256(wav.read_bytes()).hexdigest(),
         dsp_source_block_traversal=block_proof,

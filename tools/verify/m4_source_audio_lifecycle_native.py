@@ -34,7 +34,7 @@ def main():
     def closeout(m,sy,completed):
         audio_closeout(m,sy,completed)
         first=endpoint(m,sy);endpoints.append(first)
-        r.check('first source releases admission after observed DSP END',first['status']==4 and first['active']==0 and first['seen']>0 and first['env']==0)
+        r.check('first source releases admission after observed DSP END',first['status']==4 and first['active']==0 and first['seen']>0 and first['env']in(0,128))
         if not r.results[-1][1]:return
         # No reset, loader transfer, directory restoration, or voice preemption.
         configurations[1][2](m,sy)
@@ -46,12 +46,12 @@ def main():
         r.check('second request admitted by unchanged foreground fixture',accepted)
         configurations[1][3](m,sy,accepted)
         second=endpoint(m,sy);endpoints.append(second)
-        r.check('restart reaches actual DSP END and releases admission',second['status']==4 and second['active']==0 and second['seen']>0 and second['env']==0 and second['requests']==first['requests']+1)
+        r.check('restart reaches actual DSP END and releases admission',second['status']==4 and second['active']==0 and second['seen']>0 and second['env']in(0,128) and second['requests']==first['requests']+1)
     env={'MESEN_VOICE_CAPTURE_PATH':str(a.output/'voice0.raw'),'MESEN_VOICE_CAPTURE_VOICE':'0','MESEN_VOICE_CAPTURE_ARM_FILE':str(phases[0]/'voice0.raw.arm')}
     raw,log=run_fixture(a.rom,a.output,[dict(sound_index=a.sound_index)],'SourceAudioAssetFixture','SourceAudio_Status',0xb4ad,[], '',r,
         append=ASM.replace('ASSETINDEX',str(a.sound_index)).replace('OTHERINDEX',str(0 if a.sound_index else 16)),
         bindings={'STARTSOURCE':'SourceAudio_Start','REALWAIT':'Tad_StreamWaitFrame','SOURCESTATUS':'SourceAudio_Status','SOURCEINDEX':'SourceAudio_Index'},batch_size=1,frame_limit=200,
-        rom_transform=transform,before_start=before,closeout=closeout,emulator_env=env)
+        rom_transform=transform,before_start=before,closeout=closeout,emulator_env=env,link_pcm=False)
     proofs=[]
     if len(endpoints)==2:
         metadata=json.loads((a.output/'voice0.raw.json').read_text());cut=metadata['kon_sample'];total=metadata['sample_count']

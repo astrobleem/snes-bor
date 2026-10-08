@@ -20,10 +20,10 @@
     "driver_offset": 116,
     "driver_size_before_patch": 3250,
     "driver_sha256_before_patch": "07d4b2ebef36c78ed3afe5a100351a173468bcc80042421e5da3c0865d30c769",
-    "driver_size_after_patch": 3464,
-    "driver_sha256_after_patch": "1b6b9b64bb3b8a54fe0181834361085485cce7f4d923062779b2db503345848a",
-    "audio_data_sha256_after_patch": "31f296a22c5fe808d686bd11cb69d9bc57cbe5d3ade06a49fe365142bc5c91f1",
-    "data_table": "$018E2F",
+    "driver_size_after_patch": 3521,
+    "driver_sha256_after_patch": "4c642e7c0f175cd4e85fc717345b9796cb3e2e9df05239c2381ac7d7efd702d7",
+    "audio_data_sha256_after_patch": "4bdb6fd31547aa0c16041efe37f103d7c95e24f1aed8859ca22e0dbde0d1fa55",
+    "data_table": "$018E68",
     "resident_jump": {
       "source_asset": "DATA\\SOUNDS\\JUMP.WAV",
       "source_pak": "Teenage Mutant Ninja Turtles [v.3.0 Build 4153].pak",
@@ -69,7 +69,7 @@
       ]
     },
     "previous_driver_size": 3449,
-    "previous_driver_sha256": "f63f82881f376e61623996459f37bc7c4c2520a346820481bb965efea90b87c2",
+    "previous_driver_sha256": "1b6b9b64bb3b8a54fe0181834361085485cce7f4d923062779b2db503345848a",
     "loader_and_resident_content_unchanged": true,
     "data_table_offsets_relocated_bytes": 3
   },
@@ -107,27 +107,33 @@
     },
     "stream_lifecycle": {
       "output_port": "CPUIO2",
-      "status": "reserved physical voice0 ENVX",
+      "status": "reserved physical voice0 ENVX with durable completion flag",
       "first_packet_flag": 64,
       "prefill_flag": 128,
       "address_mask": 63,
-      "build_patch_sha256": "24885efe3fde0661be8f2ea3cd32cba987bacaca7322c3531e4820663d0c27b7"
+      "build_patch_sha256": "16cad0df5cc02f755b1039449a504a68e0506b6c831601668c277cbcf6234714",
+      "completed_flag": 128,
+      "SPC_state_bytes": 2
+    },
+    "stream_completion_patch": {
+      "path": "tools/audio/source_stream_completion_spc.patch",
+      "sha256": "4dc9e38591541ca3420d67267d4a84198f640ad156679071187e08c6e58fca34"
     }
   },
   "patched_toolchain": {
     "compiler_path": "out/byor-motu-tad-build/release/tad-compiler.exe",
-    "compiler_sha256": "37f6c00d2dd457111391ec0c1ba59e929d2aea273515b99e38c2f444fd1a1f69",
+    "compiler_sha256": "eb7027071bd32148eef5fc6871813e0e62f5fc3f84b51cd469d4b5c53bee1212",
     "source_files_sha256": {
-      "out/byor-motu-tad-toolchain/audio-driver/src/audio-driver.asm": "f38344402b0cf1a8d09e010333dc33706ee46d48b02b02a1799151b0cee22f8d",
+      "out/byor-motu-tad-toolchain/audio-driver/src/audio-driver.asm": "55bb974cf036a0682402c468c5e6967f91329085cd56f26ad6667c37dc4eff7b",
       "out/byor-motu-tad-toolchain/audio-driver/src/common-memmap.inc": "fde1b0578655f3cccf704a049ef3a5b615f2607fd7cc99ab73714a031bc45f4d",
       "out/byor-motu-tad-toolchain/audio-driver/src/io-commands.inc": "7f2052e024951c799738167ad9dc03e348f243c71875f756d56b39744702722c",
       "out/byor-motu-tad-toolchain/crates/compiler/src/driver_constants.rs": "3de3ee7cf0106d32e072e37a80362fed770e7fc0fd266eb12320a4f41f5460cb"
     },
-    "source_bundle_sha256": "a073e1327b53bd1591d95393be9f21f8f6b9e2b9faa30eb5bd3cd937f62e9a76",
+    "source_bundle_sha256": "e0de017e273ce0a3533d4fdfa7814956b45486499a5d4aa3415c74de38af6093",
     "isolated_checkout": true,
     "build_patch": "tools/audio/source_stream_spc.patch",
     "cargo_command": "cargo build --release -p tad-compiler --target-dir E:/gh/snes-bor/out/byor-motu-tad-build",
-    "build_patch_sha256": "24885efe3fde0661be8f2ea3cd32cba987bacaca7322c3531e4820663d0c27b7",
+    "build_patch_sha256": "16cad0df5cc02f755b1039449a504a68e0506b6c831601668c277cbcf6234714",
     "source_bundle_hash_method": "SHA256 of manifest-order concatenated source SHA256 hex strings"
   },
   "previous_patched_toolchain": {

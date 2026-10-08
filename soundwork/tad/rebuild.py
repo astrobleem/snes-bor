@@ -177,7 +177,7 @@ def verify_patched_toolchain(compiler: Path, baseline: dict) -> None:
         raise SystemExit("FAIL: full reproducible SPC source patch identity mismatch")
 
     patch_identity = baseline.get("patch", {})
-    for patch_name in ("stream_transport_patch", "stream_voice0_patch", "stream_voice0_envelope_patch"):
+    for patch_name in ("stream_transport_patch", "stream_voice0_patch", "stream_voice0_envelope_patch", "stream_completion_patch"):
         stream_patch = patch_identity.get(patch_name)
         if not stream_patch:
             raise SystemExit(f"FAIL: baseline lacks {patch_name} identity")

@@ -14070,3 +14070,6 @@ SourceVM_InstructionReservation:
 
 ; Generic typed completed-buffer audio consumer continues bank 47.
 .include "core/source_computed_audio.pasm"
+
+; Compiler opt-in cooperative SA-1 worker safepoint, also outside bank zero.
+.include "core/source_workspace_sa1.pasm"

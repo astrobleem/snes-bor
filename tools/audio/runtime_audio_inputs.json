@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "inputs_sha256": {
-    "soundwork/tad/build/audio-data.bin": "4c2ff4eb3713c6ce7a511cccc07929fa140425441c659e365db63d6761aefe8f",
-    "soundwork/tad/build/audio-data.s": "a6d49d80f29b1a4e779ee0518f368e2f3701536098a5f645e8e5520bf3797b8b",
+    "soundwork/tad/build/audio-data.bin": "4bdb6fd31547aa0c16041efe37f103d7c95e24f1aed8859ca22e0dbde0d1fa55",
+    "soundwork/tad/build/audio-data.s": "4c31ff520d83c5acfb2f74e3e70f3464824229577397d96e1a2388e289325505",
     "soundwork/tad/build/audio-enums.inc": "34a4ba4f2da1060388aa6f3bc0d2c671c1ed8977e1cb54503ce630c329076390",
-    "soundwork/tad/build/tad_blob_syms.pasm": "ab2d71d082fc8b41123a58b074763fba42e430d665a7935634ba1aeeb5e39f52",
+    "soundwork/tad/build/tad_blob_syms.pasm": "41c9d9305aafaef43658da25266d85f71ce28f208e2a36b64496653c7d3f2075",
     "soundwork/tad/project/02_coin.terrificaudio": "5e5d102833b7d40f6d09e1040f3348373810f50714f42a1d879566ee74fa7722",
     "soundwork/tad/project/mml/00_blank.mml": "0e9a7efd04c96dc964c12454fe2b08b9536261e6640b769c21955a8ec536dc4c",
     "soundwork/tad/project/samples/beat1.wav": "690e6c144dd3e4ef9eb674cb9a1f1d8d987bba4c6ec0338506ca3cb3e1544dbe",

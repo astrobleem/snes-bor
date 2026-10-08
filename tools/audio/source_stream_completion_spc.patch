@@ -1,0 +1,61 @@
+--- a/audio-driver/src/audio-driver.asm
++++ b/audio-driver/src/audio-driver.asm
+@@ -556,6 +556,11 @@
+ 
+     ; Tell the S-CPU the S-SMP is running the audio driver
+     mov DriverIO__MODE_PORT, #DriverIO__MODE_AUDIO_DRIVER
++
++    ; Reset durable stream completion state for this driver epoch.
++    mov A, #0
++    mov STREAM_STATE_ADDR, A
++    mov STREAM_STATE_ADDR+1, A
+ 
+     ; Reset the DSP
+     mov A, #DSP_FLG
+@@ -1764,11 +1769,31 @@
+         bcc NoStl
+             jmp LOADER_ADDR
+     NoStl:
+-    ; Running-driver output CPUIO2 is unused; input parameters are separate.
+-    ; ENVX observes actual END, unlike ENDX which also marks ring END|LOOP.
++    ; Durable CPUIO2=$80 proves ENVX>0 followed by ENVX=0 for this KON.
++    ; Host foreground ACK polling may lag the complete short sound.
++    mov A, STREAM_STATE_ADDR
++    cmp A, #2
++    beq StreamObserve__completed
++    cmp A, #1
++    bne StreamObserve__idle
+     mov DSPADDR, #VxENVX
+     mov A, DSPDATA
++    beq StreamObserve__zero
+     mov CPUIO2, A
++    mov A, #1
++    mov STREAM_STATE_ADDR+1, A
++    bra StreamObserve__done
++StreamObserve__zero:
++    mov A, STREAM_STATE_ADDR+1
++    beq StreamObserve__idle
++    mov A, #2
++    mov STREAM_STATE_ADDR, A
++StreamObserve__completed:
++    mov CPUIO2, #$80
++    bra StreamObserve__done
++StreamObserve__idle:
++    mov CPUIO2, #0
++StreamObserve__done:
+ .endinline
+ 
+ 
+@@ -1911,6 +1936,12 @@
+     inc A
+     mov Y, #$05
+     movw DSPADDR, YA
++    ; Reset only at explicit first-packet KON, never on later ring refills.
++    mov A, #0
++    mov STREAM_STATE_ADDR+1, A
++    mov CPUIO2, A
++    inc A
++    mov STREAM_STATE_ADDR, A
+     mov A, #DSP_KON
+     mov Y, #$01
+     movw DSPADDR, YA

@@ -15,6 +15,10 @@ from m4_projectile_audio_fixture import configure
 from m4_source_audio_native_verify import verify
 from m4_input_controller_native import offset
 from source_frame_audio_rom import pack
+from sa1_workspace_jobs import install_workspace_gate, returning_audio_kernel
+from actor_s5_entity_fixture import symbols
+from _harness import run_frames_exact
+import game_bor_startup_select as startup
 
 
 ASM=r'''
@@ -179,6 +183,8 @@ ComputedAudioBad:
 
 def main():
  p=argparse.ArgumentParser(description=__doc__)
+ p.add_argument('--cooperative-worker',action='store_true')
+ p.add_argument('--spc-driver',type=Path)
  for name in ('rom','producer','audio','output'):p.add_argument('--'+name,type=Path,required=True)
  a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
  producer=(a.producer/'proof.sfc').read_bytes();pr=json.loads((a.producer/'report.json').read_text())
@@ -191,7 +197,7 @@ def main():
  row=dict(sound_index=0,source_path='private-proof/computed-twelve-source-buffer',source_sha256=audio_report['mixed_sha256'],brr_path='expected.brr',brr_sha256=hashlib.sha256(expected).hexdigest(),brr_bytes=len(expected),normalized_sample_rate=11025,normalized_frames=192,audio_adaptation=dict(policy='ACCEPTED_COMPAT',output='mono 11025 uniform gain 64; native predictive BRR'))
  manifest=dict(namespace=[row['source_path']],compiled=[row],source_frame_table_sha256=hashlib.sha256(b'private computed buffer offer').hexdigest())
  (assets/'report.json').write_text(json.dumps(manifest,indent=2)+'\n');packed=out/'expected-descriptor';pack(assets,packed)
- row,audio_transform,audio_before,closeout=configure(out,assets,row['source_path'],isolate=True,prefill=True,generic_rom=packed)
+ row,audio_transform,audio_before,closeout=configure(out,assets,row['source_path'],isolate=not a.cooperative_worker,prefill=True,generic_rom=packed,spc_driver=a.spc_driver)
  # Extract the measured relocated native workers without altering arithmetic.
  gather=producer[0xa400:0xa580];encoder=producer[0xa600:0xa7f1]
  if gather[-4:]!=bytes.fromhex('5c 00 a9 01') or encoder[-4:]!=bytes.fromhex('5c 00 ab 01'):
@@ -199,10 +205,17 @@ def main():
  gather=gather[:-4]+bytes.fromhex('5c 00 90 3b')
  encoder=encoder[:-4]+bytes.fromhex('5c 00 91 3b')
  encoder=encoder.replace(bytes.fromhex('a9 b6 b4 8f f0 3f 41'),bytes.fromhex('ea ea ea ea ea ea ea'))
+ if a.cooperative_worker:
+  gather=returning_audio_kernel(gather)
+  encoder=returning_audio_kernel(encoder,encoder=True)
  finish=Code(0x9100);finish.emit('c2 30 a9 00 00 a2 00 00');finish.label('padding');finish.emit('9f 6c 22 42 e8 e8');finish.word(0xe0,36);finish.branch(0xd0,'padding');finish.emit('a9 ab b4 8f f0 30 00');finish.label('stop');finish.jump('stop');finish=finish.finish()
+ if a.cooperative_worker:
+  finish=finish[:-3]+b'\x6b' # Return through the preserved worker stack.
  glue=Code(0x9000);glue.emit('e2 20 a9 00 48 ab a9 80 8d 30 22 a9 20 8d 0b 22 c2 20 a9 00 88 8d 32 22 e2 20 a9 3b 8d 34 22 c2 20');glue.word(0xa9,len(encoder));glue.emit('8d 38 22 a9 00 35 8d 35 22 5c 00 35 00');glue=glue.finish()
  def transform(raw,sy):
   audio_transform(raw,sy)
+  if a.cooperative_worker:
+   install_workspace_gate(raw,symbols(a.rom.parent/'worker.sym'),sy)
   # Only verified empty ROM windows are used. The descriptor lives below
   # E banks; its unused expected payload remains at E0, outside these tables.
   if any(raw[0x210000:0x3f0000]):raise ValueError('COMPUTED_AUDIO_ROM_TABLE_RESERVATION')
@@ -218,15 +231,31 @@ def main():
   diagnostic=dict(completed=completed,SCPU=m.get_cpu_state('Snes'),SA1=m.get_cpu_state('Sa1'),registers=m.read_memory('SnesMemory',0x2200,0x40).hex(),native_status=m.read_memory('SnesMemory',0x413ff0,10).hex(),IRAM_status=m.read_memory('SnesMemory',0x0030f0,2).hex(),SCPU_trace=m.trace_log(48),SA1_trace=m.trace_log(12,'Sa1'))
   (out/'native-dispatch-diagnostic.json').write_text(json.dumps(diagnostic,indent=2)+'\n');audio_closeout(m,sy,completed)
   control=m.read_memory('SnesMemory',sy['SourceComputedAudio_Ready'],26);(out/'computed-buffer-control.json').write_text(json.dumps(dict(hex=control.hex(),state=int.from_bytes(control[6:8],'little'),status=int.from_bytes(control[20:22],'little'),generation=control[2:6].hex(),consumer_generation=control[16:20].hex()),indent=2)+'\n')
+  if a.cooperative_worker:
+   current=m.read_memory('SnesMemory',0x412004,2)
+   run_frames_exact(m,30)
+   (out/'cooperative-worker.json').write_text(json.dumps(dict(state=int.from_bytes(m.read_memory('SnesMemory',sy['Game_State'],2),'little'),worker_fault=m.read_memory('SnesMemory',0x412008,3).hex(),lease_state=int.from_bytes(m.read_memory('SnesMemory',0x41202e,2),'little'),ack_before=int.from_bytes(current,'little'),ack_after=int.from_bytes(m.read_memory('SnesMemory',0x412004,2),'little')),indent=2)+'\n')
  def before(m,sy):
+  if a.cooperative_worker:run_frames_exact(m,144)
   audio_before(m,sy)
   m.write_u16(REQUEST+6,0)
   m.write_u16(sy['SourceComputedAudio_Ready'],0)
   m.write_u16(sy['SourceComputedAudio_State'],0)
   for name in ('SourceVMRun4086_Ready','SourceVMRun4086_Busy','VmSourceFrame_Pending'):
    m.write_u16(sy[name],0)
-  m.write_u16(sy['Game_State'],3)
-  m.write_memory('SnesMemory',0x413ff2,'0000')
+  if not a.cooperative_worker:
+   m.write_u16(sy['Game_State'],3)
+   m.write_memory('SnesMemory',0x413ff2,'0000')
+  else:
+   if int.from_bytes(m.read_memory('SnesMemory',0x7e175c,2),'little')==0:raise ValueError('COMPUTED_AUDIO_RESIDENT_WORLD_NOT_ACQUIRED')
+   for name,magic,generation in [('disabled',0,0x12344086),('zero_epoch',0xB66D,0)]:
+    m.write_u16(0x412028,magic)
+    m.write_u16(0x41202a,generation&65535);m.write_u16(0x41202c,generation>>16)
+    m.write_u16(0x41202e,1)
+    prior=int.from_bytes(m.read_memory('SnesMemory',0x412004,2),'little')
+    run_frames_exact(m,6)
+    r.check('cooperative '+name+' offer does not park resident world',int.from_bytes(m.read_memory('SnesMemory',0x41202e,2),'little')==1 and int.from_bytes(m.read_memory('SnesMemory',0x412004,2),'little')>prior)
+   m.write_u16(0x412028,0);m.write_u16(0x41202e,0)
  lua=r'''
 emu.addMemoryCallback(function()
  local bytes={};for j=0,107 do bytes[#bytes+1]=string.format('%02x',emu.read(0x422200+j,emu.memType.snesMemory))end
@@ -240,16 +269,89 @@ for name,address in pairs({invalid=COMPUTEDINVALID,produced=COMPUTEDPRODUCED,pub
 end
 '''
  r=Reporter('M4-NATIVE-COMPUTED-BRR-PRODUCTION-TRANSPORT',kind='GATE')
+ asm=ASM
+ if a.cooperative_worker:
+  begin=asm.index(' ; Private ownership replacement')
+  end=asm.index(' rep #$30\n.a16\n.i16\n lda #0\n ldx #0\nComputedAudioClearTail:',begin)
+  asm=asm[:begin]+''' rep #$30
+.a16
+.i16
+ lda #$4086
+ sta.l $41202A
+ lda #$1234
+ sta.l $41202C
+ lda #$B66D
+ sta.l $412028
+ lda #1
+ sta.l $41202E
+ComputedAudioLeaseWait:
+ lda.l $41202E
+ cmp #2
+ bne ComputedAudioLeaseWait
+ComputedAudioLeaseAcquired:
+ nop
+ lda #0
+ sta.l $0034D2
+'''+asm[end:]
+  begin=asm.index(' lda #0\n sta.l $0030F0\n')
+  end=asm.index('ComputedAudioProduced:',begin)
+  asm=asm[:begin]+''' lda #0
+ sta.l $0030F0
+ lda #3
+ sta.l $41202E
+ComputedAudioJobWait:
+ lda.l $41202E
+ cmp #4
+ bne ComputedAudioJobWait
+'''+asm[end:]
+  asm=asm.replace('lda.l $413FF2','lda.l $0034D2')
+  asm=asm.replace('ComputedAudioPublished:\n nop','''ComputedAudioPublished:
+ nop
+ lda #5
+ sta.l $41202E
+ComputedAudioLeaseReleaseWait:
+ lda.l $41202E
+ bne ComputedAudioLeaseReleaseWait
+ComputedAudioLeaseReleased:
+ nop''')
+  # Snapshot only resident actor context and legacy mailbox; source input,
+  # queue and completion counters are separate live protocol owners.
+  lua+='''
+local residentBefore=nil;local jobActive=false;local unexpectedWrites=0
+local function resident()local r={};for a=0x411700,0x411fff do r[#r+1]=emu.read(a,emu.memType.snesMemory)end;for a=0x3025,0x3027 do r[#r+1]=emu.read(a,emu.memType.snesMemory)end;return r end
+emu.addMemoryCallback(function()residentBefore=resident();jobActive=true;emu.log('COOPERATIVE|acquired|'..emu.getState().masterClock)end,emu.callbackType.exec,LEASEACQUIRED,LEASEACQUIRED,emu.cpuType.snes,emu.memType.snesMemory)
+local function writeGuard(address)if jobActive and not((address>=0x422000 and address<0x422180)or(address>=0x422200 and address<0x422290)or(address>=0x422300 and address<0x422330)or(address>=0x41202e and address<0x412030))then unexpectedWrites=unexpectedWrites+1 end end
+for _,cpu in ipairs({emu.cpuType.snes,emu.cpuType.sa1})do emu.addMemoryCallback(writeGuard,emu.callbackType.write,0x400000,0x43ffff,cpu,emu.memType.snesMemory)end
+emu.addMemoryCallback(function()jobActive=false;local after=resident();local n=0;for i,v in ipairs(after)do if v~=residentBefore[i]then n=n+1 end end;emu.log('COOPERATIVE|resident_mismatches|'..n);emu.log('COOPERATIVE|unexpected_BWRAM_writes|'..unexpectedWrites);emu.log('COOPERATIVE|produced|'..emu.getState().masterClock)end,emu.callbackType.exec,COMPUTEDPRODUCED,COMPUTEDPRODUCED,emu.cpuType.snes,emu.memType.snesMemory)
+emu.addMemoryCallback(function()emu.log('COOPERATIVE|released|'..emu.getState().masterClock)end,emu.callbackType.exec,LEASERELEASED,LEASERELEASED,emu.cpuType.snes,emu.memType.snesMemory)
+'''
  env={'MESEN_VOICE_CAPTURE_PATH':str(out/'voice0.raw'),'MESEN_VOICE_CAPTURE_VOICE':'0','MESEN_VOICE_CAPTURE_ARM_FILE':str(out/'voice0.raw.arm')}
- raw,log=run_fixture(a.rom,out,[dict(native_source_voices=12)],'ComputedAudioFixture','SourceAudio_Status',0xb4ad,[],lua,r,append=ASM.replace('WORKERBYTES',str(len(gather))),bindings=dict(STARTCOMPUTED='SourceComputedAudio_Start',OFFERGENERATION='SourceComputedAudio_Generation',OFFEROFFSET='SourceComputedAudio_Offset',OFFERBYTES='SourceComputedAudio_Bytes',OFFERBLOCKS='SourceComputedAudio_Blocks',OFFERCHUNKS='SourceComputedAudio_Chunks',OFFERSTATE='SourceComputedAudio_State',OFFERREADY='SourceComputedAudio_Ready',REALWAIT='Tad_StreamWaitFrame',COMPUTEDINVALID='SourceComputedAudio_Start__invalid'),probes=dict(COMPUTEDPRODUCED='ComputedAudioProduced',PUBLISHED='ComputedAudioPublished',PRIVATEBAD='ComputedAudioBad',WAITBAD='ComputedAudioWaitBad'),batch_size=1,frame_limit=200,rom_transform=transform,before_start=before,closeout=closeout,emulator_env=env,link_pcm=False)
- proof=verify(out,assets,require_dsp_trace=True)
+ probes=dict(COMPUTEDPRODUCED='ComputedAudioProduced',PUBLISHED='ComputedAudioPublished',PRIVATEBAD='ComputedAudioBad',WAITBAD='ComputedAudioWaitBad')
+ if a.cooperative_worker:probes.update(LEASEACQUIRED='ComputedAudioLeaseAcquired',LEASERELEASED='ComputedAudioLeaseReleased')
+ raw,log=run_fixture(a.rom,out,[dict(native_source_voices=12)],'ComputedAudioFixture','SourceAudio_Status',0xb4ad,[],lua,r,append=asm.replace('WORKERBYTES',str(len(gather))),bindings=dict(STARTCOMPUTED='SourceComputedAudio_Start',OFFERGENERATION='SourceComputedAudio_Generation',OFFEROFFSET='SourceComputedAudio_Offset',OFFERBYTES='SourceComputedAudio_Bytes',OFFERBLOCKS='SourceComputedAudio_Blocks',OFFERCHUNKS='SourceComputedAudio_Chunks',OFFERSTATE='SourceComputedAudio_State',OFFERREADY='SourceComputedAudio_Ready',REALWAIT='Tad_StreamWaitFrame',COMPUTEDINVALID='SourceComputedAudio_Start__invalid'),probes=probes,batch_size=1,frame_limit=200,rom_transform=transform,before_start=before,closeout=closeout,emulator_env=env,link_pcm=False)
+ proof=verify(out,assets,require_dsp_trace=True,allow_ack_after_dsp_start=a.cooperative_worker)
  def captured(tag):return [bytes.fromhex(line.split(tag+'|',1)[1])for line in log.splitlines()if tag+'|'in line]
  brr=captured('COMPUTEDBRR');pcm=captured('COMPUTEDPCM')
  control=json.loads((out/'computed-buffer-control.json').read_text())
  r.check('generic buffer retires only its admitted generation after DSP completion',control['state']==4 and control['status']==4 and control['generation']==control['consumer_generation'])
  r.check('native produced BRR matches authority before transport',brr==[expected])
  r.check('native produced source mixture matches pinned C',len(pcm)==1 and hashlib.sha256(pcm[0]).hexdigest()==audio_report['mixed_sha256'])
- result=dict(schema='BYOR_COMPUTED_BRR_PRODUCTION_TRANSPORT_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',checks=r.results,proof=proof,ROM_sha256=hashlib.sha256(raw).hexdigest(),producer_component_ROM=pr['ROM_sha256'],native_source_voices=12,native_output_samples=192,buffer_pointer='422200',native_producer_to_production_TAD=True,generic_computed_buffer_admission=True,native_transport_tail_zeroed=True,PCM_media_linked=False,computed_buffer_control=control,source_workspace_lease_installed=False,SA1_worker_replaced_in_private_paused_fixture=True,continuous_mixing=False,joint_hybrid_graphics=False,motu_gameplay_proven=False,no_color_reduction=True)
+ if a.cooperative_worker:
+  cooperative=json.loads((out/'cooperative-worker.json').read_text())
+  r.check('resident actor context and worker mailbox remain byte exact during job','COOPERATIVE|resident_mismatches|0' in log)
+  r.check('cooperative job writes only its typed audio buffers and control','COOPERATIVE|unexpected_BWRAM_writes|0' in log)
+  r.check('cooperative worker releases and resumes real gameplay',cooperative['lease_state']==0 and cooperative['worker_fault']=='000000' and cooperative['state']==startup.PLAYING and cooperative['ack_after']>cooperative['ack_before'])
+ result=dict(schema='BYOR_COMPUTED_BRR_PRODUCTION_TRANSPORT_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',checks=r.results,proof=proof,ROM_sha256=hashlib.sha256(raw).hexdigest(),producer_component_ROM=pr['ROM_sha256'],native_source_voices=12,native_output_samples=192,buffer_pointer='422200',native_producer_to_production_TAD=True,generic_computed_buffer_admission=True,native_transport_tail_zeroed=True,PCM_media_linked=False,computed_buffer_control=control,cooperative_worker_execution=a.cooperative_worker,source_workspace_lease_installed=False,SA1_worker_replaced_in_private_paused_fixture=not a.cooperative_worker,continuous_mixing=False,joint_hybrid_graphics=False,motu_gameplay_proven=False,no_color_reduction=True)
+ if a.cooperative_worker:
+  clocks={}
+  for line in log.splitlines():
+   if 'COOPERATIVE|' in line:
+    parts=line.split('COOPERATIVE|',1)[1].split('|')
+    if parts[0]in('acquired','produced','released'):clocks[parts[0]]=int(parts[1])
+  result['execution_lease_master_clocks']=clocks
+  result['staging_and_native_job_ms']=(clocks['produced']-clocks['acquired'])/21477.27
+  result['complete_execution_lease_ms']=(clocks['released']-clocks['acquired'])/21477.27
+  result['world_resume']=cooperative
  (out/'report.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))
  if result['status']!='PASS':raise SystemExit(1)
 
