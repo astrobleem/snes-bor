@@ -37,7 +37,7 @@ def residual_lookup(shift,avoid_min=False):
  return bytes(table)
 
 
-def build(samples,busy,predictor_dbr=False,clip_repair=False):
+def build(samples,busy,predictor_dbr=False,clip_repair=False,worker_base=0x3200,input_bank=0xc2):
  raw,_,_=filter0_build(samples,busy);rom=bytearray(raw)
  prediction=[(p if p<16384 else p-32768)+((-(p if p<16384 else p-32768))>>4)for p in range(32768)]
  rom[0x10000:0x20000]=struct.pack('<32768h',*prediction)
@@ -49,16 +49,17 @@ def build(samples,busy,predictor_dbr=False,clip_repair=False):
   residual=[((n if n<8 else n-16)<<shift)>>1 for n in range(16)]
   rom[0x39000+shift*32:0x39020+shift*32]=struct.pack('<16h',*residual)
  rom[0x1e0000:0x1f0000]=bytes(65536)
- c=Code();c.emit('78 18 fb c2 30 a2 ff 37 9a a9 00 30 5b e2 20 a9 ff 8d 2a 22 a9 80 8d 27 22 a9 00 48 ab c2 20')
+ c=Code(worker_base);c.emit('78 18 fb c2 30 a2 ff 37 9a a9 00 30 5b e2 20 a9 ff 8d 2a 22 a9 80 8d 27 22 a9 00 48 ab c2 20')
  c.label('entry');c.emit('a9 00 00 8f f2 3f 41 85 28 85 00 85 04 85 10 85 14 85 18 e2 20 a9 43 85 06 a9 c3 85 24 c2 20')
  c.label('block');c.emit('e2 20 a9 c1 a6 10');c.branch(0xd0,'predictor_bank');c.emit('a9 de');c.label('predictor_bank');c.emit(('48 ab'if predictor_dbr else'85 1a')+' c2 20 a9 00 00 85 08 a5 14 85 12 a9 10 00 85 20')
  predictor='b9 00 00'if predictor_dbr else'b7 18'
- c.label('peak');c.emit('bf 00 00 c2 c9 00 80 6a 85 1c a5 12 29 ff 7f 0a a8 '+predictor+' 85 1e a5 1c 85 12 38 e5 1e')
+ source_load='bf 00 00 '+f'{input_bank:02x}'
+ c.label('peak');c.emit(source_load+' c9 00 80 6a 85 1c a5 12 29 ff 7f 0a a8 '+predictor+' 85 1e a5 1c 85 12 38 e5 1e')
  c.branch(0x10,'absolute');c.emit('49 ff ff 1a');c.label('absolute');c.emit('c5 08');c.branch(0x90,'retain');c.emit('85 08');c.label('retain');c.emit('e8 e8 c6 20');c.branch(0xd0,'peak')
  c.emit('a6 08 e2 20 bf 00 00 c3 85 0a 18 69 d1 a6 10');c.branch(0xd0,'quant_bank');c.emit('a5 0a 18 69 c4');c.label('quant_bank');c.emit('85 02 a5 0a 0a 0a 0a 0a a6 10');c.branch(0xf0,'header');c.emit('09 04');c.label('header');c.emit('87 04 c2 20 e6 04 a5 0a 29 ff 00 0a 0a 0a 0a 0a 18 69 00 90 85 22 a6 10 a9 08 00 85 0c')
  c.label('pair')
  for side in range(2):
-  c.emit('bf 00 00 c2 c9 00 80 6a 85 1c a5 14 29 ff 7f 0a a8 '+predictor+' 85 1e a5 1c 38 e5 1e a8 e2 20 b7 00 85 26')
+  c.emit(source_load+' c9 00 80 6a 85 1c a5 14 29 ff 7f 0a a8 '+predictor+' 85 1e a5 1c 38 e5 1e a8 e2 20 b7 00 85 26')
   if not clip_repair:c.emit('0a 0a 0a 0a 85 0e'if side==0 else'05 0e 87 04')
   c.emit('c2 20')
   if clip_repair:c.emit('a9 00 00 85 2a')

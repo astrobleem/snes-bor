@@ -15,18 +15,23 @@ from _harness import McpSession,MESEN_EXE,_free_tcp_port,run_frames_exact
 from m4_sound_mix_sa1_native import Code,build as kernel_build
 
 
-def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup=0,unroll=1):
+def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup=0,unroll=1,input_channels=None,packed_mono=False):
  if unroll not in(1,4,8)or frames%unroll:raise ValueError('GATHER_UNROLL_DOMAIN')
  if unroll!=1 and not expanded_byte_sum:raise ValueError('GATHER_UNROLL_REQUIRES_FACTORED_BYTES')
  if pcm_dma and expanded_byte_sum:raise ValueError('EXPANDED_BYTE_SUM_DMA_UNBOUND')
+ count=len(input_channels)if input_channels is not None else 12
+ if not 1<=count<=12:raise ValueError('ACTIVE_CHANNEL_COUNT_DOMAIN')
+ if input_channels is not None and(not expanded_byte_sum or period!=4096):raise ValueError('SOURCE_INPUT_REQUIRES_INTEGER_STRIDE_PROJECTION')
+ if packed_mono and not expanded_byte_sum:raise ValueError('PACKED_MONO_REQUIRES_FACTORED_BYTES')
  if 44*4096+(frames+warmup)*period>=257*4096:raise ValueError('GATHER_MIX_SOURCE_COMPLETION_UNBOUND')
  raw,_,_=kernel_build(frames,busy,12,volume,True,True);rom=bytearray(raw)
- for channel in range(12):
-  values=[(i*37+channel*13)&255 for i in range(257)]
+ for channel in range(count):
+  values=input_channels[channel]['values']if input_channels is not None else[(i*37+channel*13)&255 for i in range(257)]
+  if len(values)!=257:raise ValueError('BOUNDED_SOURCE_STRIDE_CACHE_SIZE')
   data=struct.pack('<257H',*values)if expanded_byte_sum else bytes(values)
   stride=1024 if expanded_byte_sum else 512
   rom[0x20000+channel*stride:0x20000+channel*stride+len(data)]=data
- phase=b''.join(struct.pack('<I',channel*4*4096+warmup*period)for channel in range(12));rom[0x1a400:0x1a430]=phase
+ phase=b''.join(struct.pack('<I',input_channels[channel]['initial_Q12']if input_channels is not None else channel*4*4096+warmup*period)for channel in range(count));rom[0x1a400:0x1a430]=phase+bytes(48-len(phase))
  c=Code(0x3500);c.emit('78 18 fb c2 30 a2 ff 37 9a a9 e0 34 5b e2 20 a9 ff 8d 2a 22 a9 80 8d 27 22 a9 00 48 ab c2 20')
  acc_stride=2 if expanded_byte_sum else 4
  c.label('entry');c.emit('a9 00 00 a2 00 00');c.label('clear');c.emit('9d 00 32 e8 e8');c.word(0xe0,frames*acc_stride);c.branch(0xd0,'clear');c.emit('85 06')
@@ -59,17 +64,17 @@ def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup
  else:c.branch(0xf0,'samples_done');c.jump('sample');c.label('samples_done')
  c.emit(('8a'if expanded_byte_sum else'a5 02')+(''if pcm_dma else' 38 e5 04')+(' 4a'if expanded_byte_sum else'')+' 85 0a')
  if q16_fraction:c.emit('a5 00 4a 4a 4a 4a 85 0c a5 0a')
- c.emit('29 0f 00 eb 0a 0a 0a 0a 05 '+('0c'if q16_fraction else'00')+' a6 06 9f 00 50 43 a5 0a 4a 4a 4a 4a 9f 02 50 43 a5 06 18 69 04 00 85 06 c9 30 00')
+ c.emit('29 0f 00 eb 0a 0a 0a 0a 05 '+('0c'if q16_fraction else'00')+' a6 06 9f 00 50 43 a5 0a 4a 4a 4a 4a 9f 02 50 43 a5 06 18 69 04 00 85 06');c.word(0xc9,count*4)
  c.branch(0xf0,'gather_mix_done');c.jump('channel')
  c.label('gather_mix_done');c.emit('a0 00 00')
  c.label('clip')
  if expanded_byte_sum:
-  c.emit('b9 00 32 8d 51 22');c.word(0xa9,volume);c.emit('8d 53 22 ea ea ea ad 06 23 38 e9 00 80 85 0a ad 08 23 e9 01 00')
+  c.emit('b9 00 32 8d 51 22');c.word(0xa9,volume);c.emit('8d 53 22 ea ea ea ad 06 23 38');c.word(0xe9,(count*8192)&65535);c.emit('85 0a ad 08 23');c.word(0xe9,(count*8192)>>16)
  else:c.emit('b9 00 32 38 e9 00 80 85 0a b9 02 32 e9 01 00')
  c.branch(0xf0,'positive');c.emit('c9 ff ff');c.branch(0xf0,'negative');c.branch(0x30,'low');c.emit('a9 ff 7f');c.branch(0x80,'store')
  c.label('low');c.emit('a9 00 80');c.branch(0x80,'store');c.label('positive');c.emit('a5 0a 18 6a');c.branch(0x80,'store');c.label('negative');c.emit('a5 0a 38 6a')
- c.label('store');c.emit('48 98'+(' 0a'if expanded_byte_sum else'')+' aa 68')
- c.emit('9f 00 00 42 9f 02 00 42'+(' c8 c8'if expanded_byte_sum else' c8 c8 c8 c8'));c.word(0xc0,frames*acc_stride);c.branch(0xd0,'clip')
+ c.label('store');c.emit('48 98'+(' 0a'if expanded_byte_sum and not packed_mono else'')+' aa 68')
+ c.emit('9f 00 00 42'+(''if packed_mono else' 9f 02 00 42')+(' c8 c8'if expanded_byte_sum else' c8 c8 c8 c8'));c.word(0xc0,frames*acc_stride);c.branch(0xd0,'clip')
  c.label('done');c.emit('a9 ab b4 8f f0 3f 41');c.label('stop');c.jump('stop');worker=c.finish()
  if 0x3500+len(worker)>(0x36c0 if pcm_dma else 0x37c0):raise ValueError('GATHER_MIX_IRAM_STACK_GAP')
  rom[0x9000:0x9000+len(worker)]=worker

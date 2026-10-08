@@ -71,6 +71,7 @@ def main():
  p.add_argument('--source',type=Path,required=True);p.add_argument('--assets',type=Path,required=True)
  p.add_argument('--engine',type=Path,default=Path('E:/gh/openbor-bcec'))
  p.add_argument('--output',type=Path,required=True);p.add_argument('--frames',type=int,default=16384)
+ p.add_argument('--channel-states',action='store_true',help='Retain actual C final channel state for joint native comparison')
  a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
  if a.frames<=0 or a.frames%16:raise ValueError('BRR_BLOCK_ALIGNMENT')
  raw=subprocess.check_output(['git','-C',str(a.engine),'show',ENGINE_COMMIT+':engine/source/gamelib/soundmix.c']).decode('latin1')
@@ -101,6 +102,9 @@ update_sample((unsigned char*)output,frames*4);
 if(fwrite(output,4,frames,stdout)!=frames)return 7;
 return 0;}
 '''
+ if a.channel_states:
+  before,after=code.rsplit('return 0;}',1)
+  code=before+'for(i=0;i<12;i++){int state[4];state[0]=vchannel[i].active;state[1]=vchannel[i].fp_samplepos;state[2]=vchannel[i].fp_period;state[3]=vchannel[i].samplenum;if(fwrite(state,4,4,stdout)!=4)return 8;}\nreturn 0;}'+after
  (out/'mix.c').write_text(code)
  env=dict(os.environ,WATCOM='C:/WATCOM',INCLUDE='C:/WATCOM/H;C:/WATCOM/H/NT')
  run=subprocess.run(['C:/WATCOM/BINNT/wcl386.exe','-q','-za99','-bt=nt','-op','-fpc','mix.c','-fe=mix.exe'],cwd=out,env=env,capture_output=True,text=True)
@@ -135,7 +139,10 @@ eprintln!("gaussian_overflow={}",sample.test_for_gaussian_overflow_glitch_autolo
   payload=struct.pack('<ii',len(ids),a.frames)
   for index in ids:
    bits,freq,length,pcm=assets[index];payload+=struct.pack('<iii',bits,freq,length)+pcm
-  stereo=subprocess.check_output([str(out/'mix.exe')],input=payload,cwd=out)
+  output=subprocess.check_output([str(out/'mix.exe')],input=payload,cwd=out);states=None
+  if a.channel_states:
+   stereo=output[:a.frames*4];state_values=struct.unpack('<48I',output[a.frames*4:]);states=[dict(slot=i,active=state_values[i*4],Q12_position=state_values[i*4+1],Q12_period=state_values[i*4+2],fixture_sample_index=state_values[i*4+3])for i in range(12)]
+  else:stereo=output
   values=struct.unpack('<'+'h'*(a.frames*2),stereo)
   if values[::2]!=values[1::2]:raise ValueError('MONO_MIX_ASYMMETRY')
   samples=values[::2];mixed=struct.pack('<'+'h'*len(samples),*samples);base=out/name;base.with_suffix('.mixed').write_bytes(mixed)
@@ -150,7 +157,7 @@ eprintln!("gaussian_overflow={}",sample.test_for_gaussian_overflow_glitch_autolo
    reconstructed=struct.unpack('<'+'h'*a.frames,decoded.read_bytes());quality=metrics(samples,reconstructed)
    if quality['gaussian_overflow_minimum_triples']:raise ValueError('DECODED_GAUSSIAN_OVERFLOW:'+mode)
    codecs[mode]=dict(quality,brr_bytes=dest.stat().st_size,brr_sha256=sha(dest.read_bytes()))
-  results.append(dict(name=name,sound_indices=ids,mixed_pcm_sha256=sha(mixed),codecs=codecs))
+  results.append(dict(name=name,sound_indices=ids,mixed_pcm_sha256=sha(mixed),actual_C_final_channels=states,codecs=codecs))
  report=dict(schema='BYOR_MIXED_BRR_QUALITY_V1',status='MEASURED',engine_commit=ENGINE_COMMIT,function_sha256={n:sha(b.encode('latin1'))for n,b in bodies.items()},tad_commit=pin,tad_source_sha256=hashes,source_assets=source_rows,output_rate=11025,frames=a.frames,source_output_rate_policy='ACCEPTED_COMPAT 11025; actual C nearest Q12 sampling and mixer',stress_is_authored_timing=False,source_pcm_copied=False,native_encoding_cost_proven=False,physical_polyphony_proven=False,production_admitted=False,no_color_reduction=True,results=results)
  (out/'report.json').write_text(json.dumps(report,indent=2)+'\n')
  for r in results:print(r['name'],{k:round(v['snr_db'],2)if v['snr_db']is not None else None for k,v in r['codecs'].items()})
