@@ -1,0 +1,50 @@
+{
+  "schema": "BYOR_MOTU_LANDING_VELOCITY_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "native": {
+      "path": "out/byor-motu-landing-velocity-native/report.json",
+      "sha256": "b33be8332081a70a9f5968a64aaea71eb22d5647801d49374246b396a769ffbf"
+    },
+    "source_authority": {
+      "path": "out/byor-motu-landing-bounce-expanded-authority/report.json",
+      "sha256": "a1db2a99a2722881dcca7e88ebecc03f37ef2d8e9cf317e76069a49376d85bc4"
+    },
+    "capability": {
+      "path": "out/byor-motu-landing-velocity-capability/report.json",
+      "sha256": "6ac6ac075744200af898f5eb6399d5e579ace0a3ddc128cdfe7bf8a12a33e823"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-landing-velocity-bor-static-smoke/report.json",
+      "sha256": "b125ac2f3b5be7dff6f255b1642cf6ea699b21883b2d8d9f40f6c2540a4001e5"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-landing-velocity-rom-audit.log",
+      "sha256": "3badf79c7d2105ab18b45d32fcf9d664e6de846b3de70021d13734be8140aa10"
+    }
+  },
+  "native_cases": 2887,
+  "source_c_cases": 2880,
+  "source_requirements_satisfied_for_all_authored_animation_plans": 80,
+  "actual_native_air_precedes_landing": true,
+  "source_snap_falling_horizontal_velocity_bounce_toss_and_level_quake_scalar_native": true,
+  "source_autoland_damage_exclusions_native": true,
+  "necessary_unsupported_bounce_divisors_rejected_before_landing_actor_publish": true,
+  "peak_numeric_error_q16_units": 0.75,
+  "paired_air_landing_master_cycle_min": 43676,
+  "paired_air_landing_master_cycle_peak": 102274,
+  "lease": "B626 at41FFEE; controls41FFEE..41FFF7; AIR scratch remains exclusively owned through whole gravity completion",
+  "compiler_contract": "Immutable matching current model/animation registry with fall_land_dust negative; revoke on model/animation/dust mutation",
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16; arithmetic floor division by4",
+  "bounce_sound_and_rumble_pending": true,
+  "landframe_damage_and_full_gravity_retirement_pending": true,
+  "camera_quake_presentation_bound": false,
+  "gameplay_service_rate_proven": false,
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

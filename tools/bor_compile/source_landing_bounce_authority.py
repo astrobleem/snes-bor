@@ -22,6 +22,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--engine', type=Path, default=Path('E:/gh/openbor-bcec'))
+    p.add_argument('--zero-velocity', action='store_true', help='Include falling-at-base zero-velocity predicate boundary')
     a = p.parse_args(); folder = a.output.resolve(); folder.mkdir(parents=True, exist_ok=True)
     def git(path):
         return subprocess.check_output(['git','-C',str(a.engine),'show',ENGINE_COMMIT+':'+path]).decode('latin1')
@@ -43,7 +44,7 @@ def main():
     code = pre + '\nint autoland;\nfloat diff(float,float);int inair(entity*);void toss(entity*,float);void adjust_base(entity*,entity**);\n' + macro + '\n' + '\n'.join(bodies.values())
     inputs=[]; expected=[]
     for factor, velocity, modelbounce, damage, auto, typ, noquake, frame in itertools.product(
-            (0.,4.,-2.,1.5), (-1.,-1.5,-1.5000152587890625,-6.), (0,1),
+            (0.,4.,-2.,1.5), ((0.,) if a.zero_velocity else ()) + (-1.,-1.5,-1.5000152587890625,-6.), (0,1),
             (0,-1,-2), (0,1), (1,2), (0,1), ((0,0),(40,0),(0,1))):
         c=dict(factor=factor,velocity=velocity,modelbounce=modelbounce,damage=damage,
                autoland=auto,type=typ,noquake=noquake,frame_base=frame[0],frame_y=frame[1])

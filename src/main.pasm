@@ -14043,3 +14043,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_entity_toss.pasm"
 
 .include "core/vm/vm_source_landing_plan.pasm"
+
+.include "core/vm/vm_source_landing_velocity.pasm"

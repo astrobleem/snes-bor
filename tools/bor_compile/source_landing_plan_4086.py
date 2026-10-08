@@ -31,9 +31,17 @@ def derive(source):
                           animation=animation['role'],animation_bounce=animation['bounce'],model_bounce=model['fields']['bounce'],
                           fall_land_dust=cores[model['identity']]['fields']['dust.fall_land'],
                           noquake=noquake(doc['directives']),source_sha256=doc['sha256']))
+        plan=plans[-1]
+        failures=[]
+        if plan['fall_land_dust']>=0:failures.append('FALL_LAND_DUST_CONTINUATION_REQUIRED')
+        if plan['model_bounce'] and plan['animation_bounce'] not in (0.,4.):
+            failures.append('OTHER_BOUNCE_DIVISION_BACKEND_REQUIRED')
+        plan.update(native_velocity_requirements_satisfied=not failures,failures=failures,
+                    capability='SOURCE_LANDING_VELOCITY_ZERO_OR_FOUR'if not failures else'OTHER_LANDING_VELOCITY_BACKEND_REQUIRED')
     return dict(schema='BYOR_4086_LANDING_PLAN_V1',engine_commit=ENGINE_COMMIT,plans=plans,
                 immutable_registry_requires_revocation_on_model_or_animation_mutation=True,
                 no_fall_land_dust_registry_requirements_satisfied=all(p['fall_land_dust']<0 for p in plans),
+                native_velocity_registry_requirements_satisfied=all(p['native_velocity_requirements_satisfied']for p in plans),
                 native_landing_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
 
 

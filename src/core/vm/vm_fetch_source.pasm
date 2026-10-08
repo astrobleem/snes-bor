@@ -54,6 +54,8 @@ Vm_FetchSourceInit:
     sta.l SourceEntityToss4086_Status
     sta.l SourceLandingPlan4086_Ready
     sta.l SourceLandingPlan4086_Status
+    sta.l SourceLandingVelocity4086_Ready
+    sta.l SourceLandingVelocity4086_Status
     sta.l SourceGravityAir4086_StageReady
     sta.l SourceGravityAir4086_ZeroProfileReady
     sta.l SourcePostStationary4086_Ready
