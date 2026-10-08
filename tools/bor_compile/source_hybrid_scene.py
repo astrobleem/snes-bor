@@ -38,7 +38,8 @@ def capture(source,stage,scene):
     return canvas,metadata,draws
 
 
-def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assignment_cache=None,palette_seed=None):
+def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assignment_cache=None,palette_seed=None,fixed_background_policy='whole_frame'):
+    if fixed_background_policy not in ('whole_frame','scanline_live'):raise ValueError('HYBRID_FIXED_BACKGROUND_POLICY')
     if not 1<=banks<=7:raise ValueError('HYBRID_OBJ_BANK_COUNT')
     first_bank=7-banks if first_bank is None else first_bank
     if not 0<=first_bank<=7-banks:raise ValueError('HYBRID_OBJ_BANK_RANGE')
@@ -89,7 +90,8 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
         bg_canvas_sha256=hashlib.sha256(bg.astype('<u2').tobytes()).hexdigest(),
         layer_pixel_identity_verified=True,obj_assignment=public,
         no_color_reduction=True,native_admitted=False,motu_gameplay_proven=False,static_obj_assignment_sha256=assignment_key,
-        scope='Explicit poses, camera zero, no HUD/shadow/quake; assumed Mode4 BG1 high above OBJ priority2, low below it; native priority and full publication budget unproven')
+        camera=list(scene.get('camera',[0,0])),
+        scope='Explicit source poses and horizontal camera, no HUD/shadow/quake; assumed Mode4 BG1 high above OBJ priority2, low below it; this context native priority and full publication budget unproven')
     if 'pieces' not in allocated:return result,None
     expanded=allocated['pieces'];assignment=allocated['assignment']
     palettes=[sorted({c for p,b in zip(expanded,assignment) if b==bank for c in p['rows'][0]}) for bank in obj_banks]
@@ -98,7 +100,8 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
     slivers=[sum((p['width']+7)//8 for p in expanded if p['y']<=y<p['y']+p['height']) for y in range(224)]
     result.update(obj_geometry=dict(oam_entries=len(expanded),peak_sprites=max(live),peak_slivers=max(slivers)),
                   obj_static_palettes=palettes,obj_piece_banks=assignment,obj_pieces=expanded)
-    high,low,low_palette=split_pixels(bg,(0,1,1));fixed=sorted(set(map(int,split_pixels(base,(0,1,1))[0].flat)))
+    high,low,low_palette=split_pixels(bg,(0,1,1));base_high=split_pixels(base,(0,1,1))[0]
+    fixed=sorted(set(map(int,base_high.flat)));baseline_colors=len(fixed)
     aliases={}
     obj_palette_words=[]
     for bank,colors in zip(obj_banks,palettes):
@@ -107,6 +110,17 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
             if color in high:aliases.setdefault(color,slot)
     # A BG high component may use an OBJ-owned entry only when the complete
     # RGB555 word is identical. Never mask or alter the OBJ word to obtain it.
+    if fixed_background_policy=='scanline_live':
+        # Keep a few persistent colours in the isolated OBJ transparent words;
+        # schedule the rest of the complete BG scanline set with liveness.
+        # Whole-frame BG colours need not occupy slots on every scanline.
+        colors,counts=np.unique(base_high,return_counts=True)
+        order=sorted(zip(map(int,colors),map(int,counts)),key=lambda v:(-v[1],v[0]))
+        fixed=sorted([c for c,n in order if c not in aliases][:len(result['bg_owned_obj_transparent_entries'])])
+    result.update(fixed_background_policy=fixed_background_policy,baseline_bg_high_colors=baseline_colors,
+                  background_palette_capability='RASTER_BG_SCANLINE_LIVENESS'if fixed_background_policy=='scanline_live'else'STATIC_BG_PREFIX_RASTER_EFFECT',
+                  ordinary_actor_palette_capability='STATIC_OBJ_PALETTE',
+                  low_component_bits=[0,1,1],low_component_palette=low_palette)
     fixed_free=[c for c in fixed if c not in aliases]
     reserved=set(result['obj_palette_cgram_reserved'])
     # OBJ transparency is selected by pixel index zero, independent of that
@@ -207,7 +221,7 @@ def main():
             (a.output/(name+'.bin')).write_bytes(value.tobytes())
     (a.output/'report.json').write_text(json.dumps(r,indent=2)+'\n')
     print(json.dumps({k:r.get(k) for k in ('obj_assignment','obj_geometry','promoted_tiles','bg_high_palette_capacity','fixed_bg_colors','dynamic_bg_slots')}))
-    print(json.dumps({k:v for k,v in r.get('bg_schedule',{}).items() if k not in ('trace','initial')}))
+    print(json.dumps({k:v for k,v in r.get('bg_schedule',{}).items() if not isinstance(v,(list,dict))}))
 
 
 if __name__=='__main__':main()

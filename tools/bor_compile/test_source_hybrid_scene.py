@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 from pathlib import Path
 import unittest
 import numpy as np
@@ -7,6 +8,28 @@ from source_hybrid_scene import derive
 
 
 class HybridScene(unittest.TestCase):
+    def test_live_background_palette_replays_every_scrolled_source_pixel(self):
+        root=Path(__file__).resolve().parents[2]
+        scene=deepcopy(json.loads((root/'docs/receipts/byor-motu-hybrid-source-pose-native.json').read_text())['source_scene'])
+        scene['camera']=[1500,0]
+        for actor in scene['actors']:actor['position'][0]+=1500
+        r,a=derive(Source(root/'Masters of the Universe [v.3.0 Build 4086].pak'),
+                   'data/levels/guile2.txt',scene,3,20,fixed_background_policy='scanline_live')
+        self.assertIsNotNone(a)
+        self.assertEqual(r['background_palette_capability'],'RASTER_BG_SCANLINE_LIVENESS')
+        self.assertEqual(r['ordinary_actor_palette_capability'],'STATIC_OBJ_PALETTE')
+        self.assertEqual(r['fixed_bg_colors'],3)
+        self.assertLessEqual(r['bg_schedule']['peak_bytes'],30)
+        palette=np.zeros(256,dtype=np.uint16);palette[:4]=r['low_component_palette']
+        for entry in r['bg_schedule']['initial']:palette[entry['slot']]=entry['color']or 0
+        reserved=set(r['obj_palette_cgram_reserved']);updates={v['scanline']:v for v in r['bg_schedule']['trace']}
+        for y in range(224):
+            if y in updates:
+                entry=updates[y];slots=list(range(entry['cgram_start'],entry['cgram_start']+len(entry['values'])))
+                self.assertFalse(set(slots)&reserved)
+                palette[slots]=[c or 0 for c in entry['values']]
+            self.assertTrue(np.array_equal(palette[a['high'][y]]+palette[a['low'][y]],a['bg'][y]))
+
     def test_palette_ownership_and_decoded_obj_geometry_preserve_source_pixels(self):
         root=Path(__file__).resolve().parents[2]
         scene=json.loads((root/'docs/receipts/byor-motu-hybrid-source-pose-native.json').read_text())['source_scene']

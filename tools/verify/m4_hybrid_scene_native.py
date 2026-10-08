@@ -29,7 +29,7 @@ def prepare(folder):
         trace.append(dict(scanline=y,updates=events));bursts.append(dict(scanline=y,start_slot=start-3))
     span=r['bg_schedule']['span']
     report=dict(bg_mode=4,low_bpp=2,high_palette_start=4,high_opaque_capacity=236,
-        low_chr_vram_base=49152,low_component_palette=[0,32,1024,1056],span=span,
+        low_chr_vram_base=49152,low_component_palette=r.get('low_component_palette',[0,32,1024,1056]),span=span,
         trace=trace,contiguous_bursts=bursts,peak_hblank_colors_written=span,native_obj_entries=r['native_obj_entries'])
     path=out/'report.json';path.write_text(json.dumps(report,indent=2)+'\n')
     return r,report,path,out
@@ -40,6 +40,7 @@ def main():
     p.add_argument('--output',type=Path,required=True);p.add_argument('--timer',type=int,default=160)
     p.add_argument('--static-residency',type=Path,help='Use a verified retained/subdivided ordinary OBJ atlas')
     p.add_argument('--share-low-offset-map',action='store_true')
+    p.add_argument('--resident-bg-tiles',action='store_true',help='Use the verified static residency HIGH/LOW CHR and maps')
     a=p.parse_args();folder=a.assets.resolve();output=a.output.resolve();output.mkdir(parents=True,exist_ok=True)
     source,report,path,inputs=prepare(folder);compiler=bg.compile_rom
     promoted=np.fromfile(folder/'promoted.bin',dtype=np.bool_).reshape(28,32)
@@ -53,10 +54,28 @@ def main():
         if residency['static_obj_subdivision']:
             high_base=0;high_tile_offset=64;obsel=0
         path.write_text(json.dumps(report,indent=2)+'\n')
+    cache_assets=None
+    if a.resident_bg_tiles:
+        if not a.static_residency or not a.share_low_offset_map:raise ValueError('HYBRID_RESIDENT_BG_REQUIRES_STATIC_RESIDENCY_AND_LOW_ALIAS')
+        cache_assets=inputs/'resident-bg';cache_assets.mkdir(exist_ok=True)
+        # *-tiles.chr is the source tile vocabulary, not a physical VRAM image.
+        # Replay the first boot assignment into the actual sparse slot array.
+        for plane,stride in [('high',64),('low',16)]:
+            vocabulary=(a.static_residency/(plane+'-tiles.chr')).read_bytes()
+            plan=residency[plane];resident=bytearray(plan['slot_extent']*stride)
+            for write in plan['frames'][0]['writes']:
+                if write['phase']!='BOOT':raise ValueError('HYBRID_RESIDENT_BG_BOOT_PHASE')
+                slot,tile=write['slot'],write['tile'];data=vocabulary[tile*stride:(tile+1)*stride]
+                if len(data)!=stride:raise ValueError('HYBRID_RESIDENT_BG_TILE_VOCABULARY')
+                resident[slot*stride:(slot+1)*stride]=data
+            (cache_assets/(plane+'.chr')).write_bytes(resident)
+        for target,name in [('0-high.map','00-high.map'),('0-low.map','00-low.map')]:
+            (cache_assets/target).write_bytes((a.static_residency/name).read_bytes())
+        (cache_assets/'layout.json').write_text(json.dumps(dict(low_chr_vram_base=residency['allocation']['low_chr'][0]))+'\n')
     def compile_hybrid(r,assets,timer,**kwargs):
         if a.share_low_offset_map:kwargs['offset_alias']='low'
         return compiler(r,assets,timer,high_base=high_base,high_tile_offset=high_tile_offset,obj_obsel=obsel,
-            priority_mask=promoted,obj_chr=chr_data,oam=oam,**kwargs)
+            priority_mask=promoted,obj_chr=chr_data,oam=oam,cache_assets=cache_assets,**kwargs)
     class ObservedHybrid(McpSession):
         def __enter__(self):
             lua=output/'observer.lua'
@@ -81,7 +100,10 @@ emu.addEventCallback(function() if shown then emu.log('HYBRIDFLAGS|'..emu.read(0
         promoted_tiles=source['promoted_tiles'],fully_bg_occluded_obj_entries=source['fully_bg_occluded_obj_entries'],
         source_rgb555_sha256=source['source_rgb555_sha256'],source_scene=source['scene'],
         no_color_reduction=True,scope='Native explicit hybrid pose, source-sized graphics, exact SCREEN already compiled; no live world, moving underlay generation, audio or Demo certification')
-    if residency:result['static_obj_subdivision']=residency['static_obj_subdivision']
+    if residency:
+        result['static_obj_subdivision']=residency['static_obj_subdivision']
+        result['resident_bg_tiles']=a.resident_bg_tiles
+        result['residency_allocation']=residency['allocation']
     result['pass']=result['pass'] and result['oam_observer_verified'] and bool(flags) and not result['obj_overflow_samples']
     (output/'result.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({k:result[k] for k in ('pass','pixel_mismatches','oam_observer_verified','obj_overflow_samples','ppu_obj_status')}))

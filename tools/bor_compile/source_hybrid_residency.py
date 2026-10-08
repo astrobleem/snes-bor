@@ -126,7 +126,10 @@ def main():
     if a.subdivide_static_obj:
         atlas,oam,subdivision=subdivide_static_obj(atlas,oam,entries);entries=subdivision['entries']
     high_start=4096 if subdivision else 8192
-    if not 1<=a.low_slots<=640:raise ValueError('HYBRID_LOW_TILE_CAPACITY')
+    # Mode4 BG2 has 2bpp tiles (16 bytes). Its C000 base can extend to F000,
+    # where the BG1 map begins. Reserve only the requested span; HIGH reuses
+    # the remaining aligned tail. The former 640 was a fixture allocation.
+    if not 1<=a.low_slots<=(61440-49152)//16:raise ValueError('HYBRID_LOW_TILE_CAPACITY')
     low_end=49152+a.low_slots*16
     high_capacity=(49152-high_start)//64
     high_slots=list(range(high_capacity))

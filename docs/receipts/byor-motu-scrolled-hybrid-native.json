@@ -1,0 +1,614 @@
+{
+  "schema": "BYOR_MOTU_SCROLLED_HYBRID_CONTEXT_NATIVE_V1",
+  "status": "PASS",
+  "contexts": [
+    {
+      "label": "camera-100",
+      "scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              198,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              180,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              300,
+              220,
+              0
+            ],
+            "order": 1
+          }
+        ],
+        "camera": [
+          100,
+          0
+        ]
+      },
+      "source_rgb555_sha256": "5b46c55d5d98e191b5fa4bfff16c2891d4d4bf204ccac7efb507892f9122d63d",
+      "compiler_report": "out/byor-motu-scrolled-hybrid-context/camera-100/report.json",
+      "compiler_report_sha256": "251dad9dd24356a701aa3d6442dda79db662a62abcbcb8aaa718686c90887d79",
+      "native_result": "out/byor-motu-scrolled-hybrid-native/camera-100-resident-v2/result.json",
+      "native_result_sha256": "a38d4ddde99c2a4299e8cabc09aaec290f76878942d4c2f86410fcb1845eed99",
+      "rom_sha256": "a77654be088a0fcf35855cb90de1c1f5f9484344361a6c4c00e3e2d528d5cbb8",
+      "schedule_sha256": "824b2f10ed393f2606c432b43024faff1f1c5ef863dea5b24e81bf4300cf2b63",
+      "background_policy": "whole_frame",
+      "baseline_high_colors": 64,
+      "persistent_bg_colors": 64,
+      "dynamic_bg_slots": 127,
+      "peak_scheduled_palette_words": 15,
+      "peak_scheduled_palette_bytes": 30,
+      "resources": {
+        "bg_mode": 4,
+        "high_chr_bytes": 57344,
+        "high_chr_base": 0,
+        "high_chr_start": 4096,
+        "high_tile_offset": 64,
+        "obj_obsel": 0,
+        "low_chr_bytes": 10496,
+        "low_chr_base": 49152,
+        "offset_tilemap_base": 63488,
+        "offset_map_aliases_bg1": false,
+        "offset_map_aliases_bg2": true,
+        "hdma_channels": [
+          0
+        ],
+        "irq_enabled": true,
+        "timer_dots": 160,
+        "irq_entry_prg_offset": 33792,
+        "irq_exit_prg_offset": 33827,
+        "code_bank": 1,
+        "oam_entries": 55,
+        "obj_chr_bytes": 4096,
+        "per_field_palette_restore_bytes": 472,
+        "peak_palette_updates": 15,
+        "source_color_bits_preserved": 15,
+        "spc_protocol_proven": false,
+        "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+        "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd"
+      },
+      "native_obj_subdivision": {
+        "entries": 55,
+        "large_entries": 17,
+        "small_entries": 38,
+        "peak_sprites": 9,
+        "peak_slivers": 13,
+        "occupied_tiles": 106,
+        "obsel": 0
+      },
+      "pixel_mismatches": 0,
+      "cgram_observer_verified": true,
+      "oam_observer_verified": true,
+      "obj_overflow_samples": 0,
+      "active_cgram_window_samples": 0,
+      "first_cgram_data_hclock_range": [
+        1112,
+        1204
+      ],
+      "last_cgram_data_hclock_range": [
+        28,
+        72
+      ],
+      "peak_irq_service_master_clocks": 676
+    },
+    {
+      "label": "camera-500",
+      "scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              598,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              580,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              700,
+              220,
+              0
+            ],
+            "order": 1
+          }
+        ],
+        "camera": [
+          500,
+          0
+        ]
+      },
+      "source_rgb555_sha256": "93a1524b9fa0bfb9f686aab8971f01cd3d6b684ad83804a2f2550a6b046d07aa",
+      "compiler_report": "out/byor-motu-scrolled-hybrid-context-v2/camera-500/report.json",
+      "compiler_report_sha256": "18cdc4e288093e75d0808a8eb00a106c2114c7d4f2f0c03720813928a261b144",
+      "native_result": "out/byor-motu-scrolled-hybrid-native/camera-500/native/result.json",
+      "native_result_sha256": "36e54321fe94326676ce4d1e9b1d47c7e48c60871559015bbef234475f21a40c",
+      "rom_sha256": "6c38d1d9bbd966a816a9e7cc5a4728b8dfa7ec2e9ac0d49f94ecd4eb9757ab10",
+      "schedule_sha256": "e2edf33e64df12f544c9ea1e1d7aac0e4aac36c4895defd8a891b17ca31cfdcd",
+      "background_policy": "whole_frame",
+      "baseline_high_colors": 45,
+      "persistent_bg_colors": 45,
+      "dynamic_bg_slots": 146,
+      "peak_scheduled_palette_words": 15,
+      "peak_scheduled_palette_bytes": 30,
+      "resources": {
+        "bg_mode": 4,
+        "high_chr_bytes": 53248,
+        "high_chr_base": 8192,
+        "high_chr_start": 8192,
+        "high_tile_offset": 0,
+        "obj_obsel": 192,
+        "low_chr_bytes": 8256,
+        "low_chr_base": 49152,
+        "offset_tilemap_base": 63488,
+        "offset_map_aliases_bg1": false,
+        "offset_map_aliases_bg2": true,
+        "hdma_channels": [
+          0
+        ],
+        "irq_enabled": true,
+        "timer_dots": 160,
+        "irq_entry_prg_offset": 33792,
+        "irq_exit_prg_offset": 33827,
+        "code_bank": 1,
+        "oam_entries": 29,
+        "obj_chr_bytes": 8192,
+        "per_field_palette_restore_bytes": 472,
+        "peak_palette_updates": 15,
+        "source_color_bits_preserved": 15,
+        "spc_protocol_proven": false,
+        "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+        "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd"
+      },
+      "native_obj_subdivision": null,
+      "pixel_mismatches": 0,
+      "cgram_observer_verified": true,
+      "oam_observer_verified": true,
+      "obj_overflow_samples": 0,
+      "active_cgram_window_samples": 0,
+      "first_cgram_data_hclock_range": [
+        1112,
+        1204
+      ],
+      "last_cgram_data_hclock_range": [
+        28,
+        72
+      ],
+      "peak_irq_service_master_clocks": 676
+    },
+    {
+      "label": "camera-1500",
+      "scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              1598,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              1580,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              1700,
+              220,
+              0
+            ],
+            "order": 1
+          }
+        ],
+        "camera": [
+          1500,
+          0
+        ]
+      },
+      "source_rgb555_sha256": "7d69e570577894703e7f383c3207d139912cd65ca992160c29898ea1e54f9208",
+      "compiler_report": "out/byor-motu-camera1500-live-background/camera-1500/report.json",
+      "compiler_report_sha256": "fbfb08cb7f7ac00305e042b49542325b892e6984f64ff841698af9c9c03ffa8e",
+      "native_result": "out/byor-motu-scrolled-hybrid-native/camera-1500-live-background/result.json",
+      "native_result_sha256": "3ef55a67ffa6471174d034800133064359788ce3c552de985def1c640f8272f0",
+      "rom_sha256": "1a0384418a8d4dedd47723537950d80e5614706b0c9386cdc5755ebe5e392f85",
+      "schedule_sha256": "aa6d5625fbfe7cf89c48ebdee34edd38fb1f99bfab1db5129a251b0130d695be",
+      "background_policy": "scanline_live",
+      "baseline_high_colors": 90,
+      "persistent_bg_colors": 3,
+      "dynamic_bg_slots": 188,
+      "peak_scheduled_palette_words": 15,
+      "peak_scheduled_palette_bytes": 30,
+      "resources": {
+        "bg_mode": 4,
+        "high_chr_bytes": 57344,
+        "high_chr_base": 0,
+        "high_chr_start": 4096,
+        "high_tile_offset": 64,
+        "obj_obsel": 0,
+        "low_chr_bytes": 9408,
+        "low_chr_base": 49152,
+        "offset_tilemap_base": 63488,
+        "offset_map_aliases_bg1": false,
+        "offset_map_aliases_bg2": true,
+        "hdma_channels": [
+          0
+        ],
+        "irq_enabled": true,
+        "timer_dots": 160,
+        "irq_entry_prg_offset": 33792,
+        "irq_exit_prg_offset": 33827,
+        "code_bank": 1,
+        "oam_entries": 60,
+        "obj_chr_bytes": 4096,
+        "per_field_palette_restore_bytes": 472,
+        "peak_palette_updates": 15,
+        "source_color_bits_preserved": 15,
+        "spc_protocol_proven": false,
+        "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+        "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd"
+      },
+      "native_obj_subdivision": {
+        "entries": 60,
+        "large_entries": 19,
+        "small_entries": 41,
+        "peak_sprites": 9,
+        "peak_slivers": 13,
+        "occupied_tiles": 117,
+        "obsel": 0
+      },
+      "pixel_mismatches": 0,
+      "cgram_observer_verified": true,
+      "oam_observer_verified": true,
+      "obj_overflow_samples": 0,
+      "active_cgram_window_samples": 0,
+      "first_cgram_data_hclock_range": [
+        1112,
+        1204
+      ],
+      "last_cgram_data_hclock_range": [
+        28,
+        72
+      ],
+      "peak_irq_service_master_clocks": 676
+    },
+    {
+      "label": "camera-2224",
+      "scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              2322,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              2304,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              2424,
+              220,
+              0
+            ],
+            "order": 1
+          }
+        ],
+        "camera": [
+          2224,
+          0
+        ]
+      },
+      "source_rgb555_sha256": "c0e4c0a5ce3baa72c9fd98bbe12f9d731ab1f6348558af765bbd25c432462e3c",
+      "compiler_report": "out/byor-motu-camera2224-live-background/camera-2224/report.json",
+      "compiler_report_sha256": "4ec32752ebd53668f55f2faec07e134d6e0d95e4f55abe674eb2c372fd02f946",
+      "native_result": "out/byor-motu-scrolled-hybrid-native/camera-2224-live-background/native/result.json",
+      "native_result_sha256": "1d8e0f9eb44c275ebc3e695e71abf276ceafe948d342cc27fb80fee425eaa651",
+      "rom_sha256": "da5a6c49ecfe50cbf27e48fcfed29bb4040fee40f3acf3a43a4cf7c1f3031075",
+      "schedule_sha256": "ae4b3f4891c131e1c1b7f055cae97133fac62ce5bc894448891a12cf1fa3191e",
+      "background_policy": "scanline_live",
+      "baseline_high_colors": 93,
+      "persistent_bg_colors": 3,
+      "dynamic_bg_slots": 188,
+      "peak_scheduled_palette_words": 15,
+      "peak_scheduled_palette_bytes": 30,
+      "resources": {
+        "bg_mode": 4,
+        "high_chr_bytes": 57344,
+        "high_chr_base": 0,
+        "high_chr_start": 4096,
+        "high_tile_offset": 64,
+        "obj_obsel": 0,
+        "low_chr_bytes": 10368,
+        "low_chr_base": 49152,
+        "offset_tilemap_base": 63488,
+        "offset_map_aliases_bg1": false,
+        "offset_map_aliases_bg2": true,
+        "hdma_channels": [
+          0
+        ],
+        "irq_enabled": true,
+        "timer_dots": 160,
+        "irq_entry_prg_offset": 33792,
+        "irq_exit_prg_offset": 33827,
+        "code_bank": 1,
+        "oam_entries": 56,
+        "obj_chr_bytes": 4096,
+        "per_field_palette_restore_bytes": 472,
+        "peak_palette_updates": 15,
+        "source_color_bits_preserved": 15,
+        "spc_protocol_proven": false,
+        "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+        "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd"
+      },
+      "native_obj_subdivision": {
+        "entries": 56,
+        "large_entries": 17,
+        "small_entries": 39,
+        "peak_sprites": 9,
+        "peak_slivers": 12,
+        "occupied_tiles": 107,
+        "obsel": 0
+      },
+      "pixel_mismatches": 0,
+      "cgram_observer_verified": true,
+      "oam_observer_verified": true,
+      "obj_overflow_samples": 0,
+      "active_cgram_window_samples": 0,
+      "first_cgram_data_hclock_range": [
+        1112,
+        1204
+      ],
+      "last_cgram_data_hclock_range": [
+        28,
+        72
+      ],
+      "peak_irq_service_master_clocks": 676
+    },
+    {
+      "label": "primary-player",
+      "scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit primary He_Man freespecial4 frame6 + HBreath peak11 + Knightbot idle0; reachability/timing is not inferred.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              98,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_Man",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              80,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              200,
+              220,
+              0
+            ],
+            "order": 1
+          }
+        ],
+        "camera": [
+          0,
+          0
+        ]
+      },
+      "source_rgb555_sha256": "d4430001c69c525824d5eac4e7b1b99e54ac8ece221d63b5c209d7a1970cc3ff",
+      "compiler_report": "out/byor-motu-scrolled-hybrid-context-v2/primary-player/report.json",
+      "compiler_report_sha256": "330cc28f2382153ac9ea52f9f4a581a97604b8291ed79b533af0a046a8d5cfe2",
+      "native_result": "out/byor-motu-scrolled-hybrid-native/primary-player/result.json",
+      "native_result_sha256": "c4d1b21d81b2af183f235975bb1b12a038cf4b204bb6a17bd7162ac5ea76eae7",
+      "rom_sha256": "633f5f05bb27b561ef8202ffcc5139dc52c8c0b28b81e7bf1ae87885d03f12fe",
+      "schedule_sha256": "c6aad2b71703006d1ac0dc7efcbde6a83eb9e4d637cea7e974d8cd0428737aa5",
+      "background_policy": "whole_frame",
+      "baseline_high_colors": 58,
+      "persistent_bg_colors": 58,
+      "dynamic_bg_slots": 133,
+      "peak_scheduled_palette_words": 15,
+      "peak_scheduled_palette_bytes": 30,
+      "resources": {
+        "bg_mode": 4,
+        "high_chr_bytes": 39360,
+        "high_chr_base": 8192,
+        "high_chr_start": 8192,
+        "high_tile_offset": 0,
+        "obj_obsel": 192,
+        "low_chr_bytes": 9184,
+        "low_chr_base": 49152,
+        "offset_tilemap_base": 59392,
+        "offset_map_aliases_bg1": false,
+        "offset_map_aliases_bg2": false,
+        "hdma_channels": [
+          0
+        ],
+        "irq_enabled": true,
+        "timer_dots": 160,
+        "irq_entry_prg_offset": 33792,
+        "irq_exit_prg_offset": 33827,
+        "code_bank": 1,
+        "oam_entries": 24,
+        "obj_chr_bytes": 6144,
+        "per_field_palette_restore_bytes": 472,
+        "peak_palette_updates": 15,
+        "source_color_bits_preserved": 15,
+        "spc_protocol_proven": false,
+        "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+        "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd"
+      },
+      "native_obj_subdivision": null,
+      "pixel_mismatches": 0,
+      "cgram_observer_verified": true,
+      "oam_observer_verified": true,
+      "obj_overflow_samples": 0,
+      "active_cgram_window_samples": 0,
+      "first_cgram_data_hclock_range": [
+        1112,
+        1204
+      ],
+      "last_cgram_data_hclock_range": [
+        28,
+        72
+      ],
+      "peak_irq_service_master_clocks": 676
+    }
+  ],
+  "palette_policy_selection": "Generic explicit-context compiler tries static whole-frame BG prefix then source-derived scanline liveness. No model-name dispatch. Ordinary actor palettes remain STATIC_OBJ_PALETTE.",
+  "vram_policy": "LOW at C000 can use up to 768 2bpp tiles before BG1 map at F000; allocate actual required LOW count. HIGH reuses aligned remaining tail. Generic OBJ subdivision may reclaim the first 4096 bytes while retaining source pixels.",
+  "camera1500_prefix_attempts": [
+    {
+      "policy": "whole_frame",
+      "span": 15,
+      "status": "CONTIGUOUS_HEURISTIC_LIMIT"
+    },
+    {
+      "policy": "whole_frame",
+      "span": 16,
+      "status": "CONTIGUOUS_HEURISTIC_LIMIT"
+    },
+    {
+      "policy": "whole_frame",
+      "span": 17,
+      "status": "CONTIGUOUS_HEURISTIC_LIMIT"
+    },
+    {
+      "policy": "scanline_live",
+      "span": 15,
+      "status": "CONTIGUOUS_BURST_SCHEDULE_PROVEN"
+    }
+  ],
+  "total_distinct_context_pixels_verified": 286720,
+  "native_frames_per_context": "bounded isolated fields; fresh ROM boot per context",
+  "source_alpha_policy": "Exact pinned SCREEN composition in RGB8 before RGB555; BG1/BG2 disjoint-component addition; no opaque substitution",
+  "native_transition_proven": false,
+  "production_audio_contention_proven": false,
+  "live_compositor_proven": false,
+  "authored_reachability_proven": false,
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
