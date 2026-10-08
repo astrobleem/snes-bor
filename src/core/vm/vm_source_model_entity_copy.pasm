@@ -225,6 +225,17 @@ SourceModelEntityCopy4086_BodyChecked:
 SourceModelEntityCopy4086_OffscreenCopied:
 .a16
 .i16
+ lda.l SourceDeathFields4086_Ready
+ beq SourceModelEntityCopy4086_DeathChecked
+ lda.l SourceModelEntityCopy4086_Model
+ tax
+ lda.l SourceModelEntityCopy4086_Slot
+ jsl SourceDeathFields4086_Preflight
+ bcc SourceModelEntityCopy4086_DeathChecked
+ jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_DeathChecked:
+.a16
+.i16
     lda.l SourceLifecycle4086_Ready
     beq SourceModelEntityCopy4086_LifecycleDone
     lda.l SourceModelEntityCopy4086_Slot
@@ -521,6 +532,17 @@ SourceModelEntityCopy4086_BodyCopied:
  bcc SourceModelEntityCopy4086_OffscreenApplied
  jmp SourceModelEntityCopy4086_Bad
 SourceModelEntityCopy4086_OffscreenApplied:
+.a16
+.i16
+ lda.l SourceDeathFields4086_Ready
+ beq SourceModelEntityCopy4086_DeathCopied
+ lda.l SourceModelEntityCopy4086_Model
+ tax
+ lda.l SourceModelEntityCopy4086_Slot
+ jsl SourceDeathFields4086_Copy
+ bcc SourceModelEntityCopy4086_DeathCopied
+ jmp SourceModelEntityCopy4086_Bad
+SourceModelEntityCopy4086_DeathCopied:
 .a16
 .i16
     lda #1

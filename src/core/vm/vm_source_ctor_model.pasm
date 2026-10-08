@@ -157,6 +157,17 @@ SourceCtorModel4086_BodyChecked:
 SourceCtorModel4086_OffscreenBodyChecked:
 .a16
 .i16
+ lda.l SourceDeathFields4086_Ready
+ beq SourceCtorModel4086_DeathChecked
+ lda.l SourceScriptClone4086_Model
+ tax
+ lda.l SourceScriptClone4086_Slot
+ jsl SourceDeathFields4086_Preflight
+ bcc SourceCtorModel4086_DeathChecked
+ jmp SourceCtorModel4086_Bad
+SourceCtorModel4086_DeathChecked:
+.a16
+.i16
  lda #2
  sta.l SourceCtorModel4086_Status
  ply
@@ -317,6 +328,17 @@ SourceCtorModel4086_BodyCopied:
  bcc SourceCtorModel4086_OffscreenBodyCopied
  jmp SourceCtorModel4086_Bad
 SourceCtorModel4086_OffscreenBodyCopied:
+.a16
+.i16
+ lda.l SourceDeathFields4086_Ready
+ beq SourceCtorModel4086_DeathCopied
+ lda.l SourceScriptClone4086_Model
+ tax
+ lda.l SourceScriptClone4086_Slot
+ jsl SourceDeathFields4086_Birth
+ bcc SourceCtorModel4086_DeathCopied
+ jmp SourceCtorModel4086_Bad
+SourceCtorModel4086_DeathCopied:
 .a16
 .i16
  lda #2

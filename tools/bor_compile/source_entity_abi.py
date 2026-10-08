@@ -31,15 +31,25 @@ def record(token, values, *, alive=True):
     return bytes(payload)
 
 
-def source_record(token, values, *, exists=1):
+def source_record(token, values, *, exists=1, death_fields=None):
     if not isinstance(exists,int) or not -0x80000000 <= exists <= 0x7fffffff:
         raise ValueError('ENTITY_SOURCE_EXISTS_SIGNED32_REQUIRED')
     payload=bytearray(record(token,values,alive=bool(exists)))
     struct.pack_into('<I',payload,4,exists & 0xffffffff)
+    if death_fields is not None:
+        if set(death_fields)!={'score','diesound'}:
+            raise ValueError('ENTITY_DEATH_FIELDS_INCOMPLETE')
+        for offset,name in ((72,'score'),(76,'diesound')):
+            value=death_fields[name]
+            if not isinstance(value,int)or not -0x80000000<=value<=0x7fffffff:
+                raise ValueError('ENTITY_DEATH_FIELD_SIGNED32_REQUIRED:'+name)
+            struct.pack_into('<i',payload,offset,value)
     return bytes(payload)
 
 
-def view(address, records, *, source_exists=False):
+def view(address, records, *, source_exists=False, death_fields=False):
+    if death_fields and not source_exists:
+        raise ValueError('ENTITY_DEATH_FIELDS_REQUIRE_SOURCE_EXISTS')
     if address >> 16 not in (0x7e, 0x7f):
         raise ValueError('ENTITY_VIEW_WRAM_REQUIRED')
     if not 0 < len(records) <= MAX_RECORDS:
@@ -53,7 +63,7 @@ def view(address, records, *, source_exists=False):
         token, alive, reserved = struct.unpack_from('<IHH', item)
         if not token or (not source_exists and (alive not in (0, 1) or reserved)):
             raise ValueError('ENTITY_VIEW_HEADER_INVALID')
-        if item[72:] != bytes(8):
+        if not death_fields and item[72:] != bytes(8):
             raise ValueError('ENTITY_VIEW_RESERVED_TAIL_INVALID')
         for i, (_, kind) in enumerate(PROPERTIES):
             if item[8 + i*8:12 + i*8] != bytes((kind, 0, 0, 0)):

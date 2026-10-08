@@ -14064,3 +14064,4 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_landing_callback.pasm"
 .include "core/vm/vm_source_landing_score.pasm"
 .include "core/vm/vm_source_landing_invincible.pasm"
+.include "core/vm/vm_source_death_fields.pasm"

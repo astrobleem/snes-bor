@@ -340,6 +340,17 @@ SourceBirthCore4086_AutokillMovementPreflightOk:
 SourceBirthCore4086_OffscreenAutokillMovementPreflightOk:
 .a16
 .i16
+ lda.l SourceDeathFields4086_Ready
+ beq SourceBirthCore4086_DeathChecked
+ lda.l SourceBirthCore4086_Model
+ tax
+ lda.l SourceBirthCore4086_Slot
+ jsl SourceDeathFields4086_Preflight
+ bcc SourceBirthCore4086_DeathChecked
+ jmp SourceBirthCore4086_Bad
+SourceBirthCore4086_DeathChecked:
+.a16
+.i16
  lda.l SourceLifecycle4086_Ready
  beq SourceBirthCore4086_Good
  lda.l SourceBirthCore4086_Slot
@@ -517,6 +528,17 @@ SourceBirthCore4086_AutokillMovementBirthDone:
  bcc SourceBirthCore4086_OffscreenAutokillMovementBirthDone
  jmp SourceBirthCore4086_Bad
 SourceBirthCore4086_OffscreenAutokillMovementBirthDone:
+.a16
+.i16
+ lda.l SourceDeathFields4086_Ready
+ beq SourceBirthCore4086_DeathCopied
+ lda.l SourceBirthCore4086_Model
+ tax
+ lda.l SourceBirthCore4086_Slot
+ jsl SourceDeathFields4086_Birth
+ bcc SourceBirthCore4086_DeathCopied
+ jmp SourceBirthCore4086_Bad
+SourceBirthCore4086_DeathCopied:
 .a16
 .i16
  lda.l SOURCE_RETIREMENT_ROLES

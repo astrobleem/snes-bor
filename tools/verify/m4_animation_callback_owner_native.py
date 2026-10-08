@@ -74,6 +74,7 @@ def main():
     p.add_argument('--physics-state-birth',action='store_true',help='native physics row reset before exists publication; requires complete constructor')
     p.add_argument('--damage-state-birth',action='store_true',help='native exact damage state after source model copy and before constructor script/default callbacks')
     p.add_argument('--damage-effects-state-birth',action='store_true',help='native source projectile/staydown/guard state after fresh model copy')
+    p.add_argument('--death-fields-birth',action='store_true',help='copy actual source score/current cached diesound and calloc item before constructor callbacks')
     p.add_argument('--adjust-base-empty',action='store_true',help='execute source empty-world base adjustment through stationary post, using actual current-frame lookup')
     p.add_argument('--stationary-post',action='store_true',help='checked source-derived stationary post-update after complete NONE constructor; phase owner context supplied')
     p.add_argument('--ctor-altitude-q16',type=int,default=0,help='generic explicit constructor altitude input')
@@ -83,6 +84,7 @@ def main():
     if a.physics_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PHYSICS_BIRTH_REQUIRES_COMPLETE_CONSTRUCTOR')
     if a.damage_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('DAMAGE_BIRTH_REQUIRES_COMPLETE_CONSTRUCTOR')
     if a.damage_effects_state_birth and not(a.ctor_owner and a.ctor_state and a.ctor_model):raise ValueError('DAMAGE_EFFECTS_BIRTH_REQUIRES_COMPLETE_MODEL_CONSTRUCTOR')
+    if a.death_fields_birth and not(a.ctor_owner and a.ctor_state and a.ctor_model):raise ValueError('DEATH_FIELDS_BIRTH_REQUIRES_COMPLETE_MODEL_CONSTRUCTOR')
     if a.adjust_base_empty and not(a.stationary_post and a.physics_state_birth):raise ValueError('ADJUST_BASE_EMPTY_REQUIRES_STATIONARY_POST_AND_PHYSICS_STATE')
     if a.stationary_post and not(a.initial_none_model and a.ctor_owner and a.ctor_state and a.ctor_model and a.ctor_factors and a.script_clone and a.freeze_state and a.default_owner):raise ValueError('STATIONARY_POST_REQUIRES_COMPLETE_NONE_SOURCE_CONSTRUCTOR')
     owners,code,metadata,dispatch=derive(source);callbacks=pack(owners)
@@ -198,6 +200,14 @@ def main():
         from source_damage_inputs_4086 import derive as damage_inputs,pack as pack_damage_inputs,unpack as unpack_damage_inputs
         damage_inputs_report=damage_inputs(source);damage_inputs_table=pack_damage_inputs(damage_inputs_report);unpack_damage_inputs(damage_inputs_table)
         locations['damageinputs']=base+cursor;raw[at+cursor:at+cursor+len(damage_inputs_table)]=damage_inputs_table;cursor+=len(damage_inputs_table)
+    if a.death_fields_birth:
+        from source_death_fields_4086 import derive as death_inputs,pack as pack_death
+        from source_sound_namespace_4086 import derive as sound_inputs
+        death_report=death_inputs(source);death_table=pack_death(death_report);locations['deathfields']=base+cursor;raw[at+cursor:at+cursor+len(death_table)]=death_table;cursor+=len(death_table)
+        sounds=sound_inputs(source)
+        for m in sounds['models']:
+            binding=m['bindings'].get('diesound')
+            if binding is not None:struct.pack_into('<i',ctor_cache,m['id']*160+76,binding['sound_index'])
     if cursor>32768:raise ValueError('CALLBACK_NATIVE_IMMUTABLE_BANK_CAPACITY')
     raw[60*32768:60*32768+len(frames)]=frames
     if a.effects_runner:
@@ -758,6 +768,12 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         address=sy['SourceCtorState4086_DamageEffectsBirthDone']
         lua+=f"emu.addMemoryCallback(function()emu.log('CTORTOEXPLODE|'..word(INDEX)..'|'..dw(0x7efd00)..'|'..dw(0x7efd04)..'|'..dw(0x414004))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()local n=0;local wanted={{}};for j=0,23 do wanted[j]=0 end;for j=0,3 do wanted[16+j]=({guard}>>(8*j))&255 end;wanted[20]=0x2f;wanted[21]=0xb6;wanted[22]={default};for j=0,23 do if emu.read(0x7ef100+j,mt)~=wanted[j]then n=n+1 end end;local other=0;for j=0,23 do other=other+emu.read(0x7ef118+j,mt)end;emu.log('CTORDAMAGEEFFECT|'..word(INDEX)..'|'..n..'|'..other..'|'..dw(0x414004))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
+    if a.death_fields_birth:
+        settings=dict(SourceDeathFields4086_Ready=0xb638,SourceDeathFields4086_Base=locations['deathfields']&65535,SourceDeathFields4086_Bank=base>>16,SourceDeathFields4086_Bytes=len(death_table),SourceDeathFields4086_Models=16)
+        initialinstall+='\n'+'\n'.join(" set('"+k+"',"+str(v)+")"for k,v in settings.items())+'\n'
+        initialinstall+='\n for j=0,7 do emu.write(0x414048+j,165,mt);emu.write(0x414098+j,165,mt);emu.write(0x409038+j,165,mt);emu.write(0x409078+j,165,mt)end\n'
+        address=sy['SourceCtorModel4086_DeathCopied']
+        lua+=f"emu.addMemoryCallback(function()emu.log('CTORDEATHFIELDS|'..word(INDEX)..'|'..dw(0x414048)..'|'..dw(0x41404c)..'|'..word(0x409038)..'|'..word(0x40903a)..'|'..dw(0x40903c)..'|'..dw(0x414098)..'|'..dw(0x409078))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     if a.stationary_post:
         settings=dict(SourcePostStationary4086_Ready=0xb61a,SourcePostStationary4086_Status=0,SourcePostStationary4086_Slot=0,SourceGravityIdle4086_Ready=0xb619,SourceGravityIdle4086_Status=0,SourceCheckMove4086_Ready=0xb617,SourceCheckMove4086_Status=0,SourceWorldTick4086_Ready=0xb4d5,SourceWorldTick4086_State=2,SourceWorldTick4086_Pending=1,SourceWorldTick4086_Phase=11,SourceWorldTick4086_Slot=0,SourceWorldTick4086_Fault=0)
         if a.adjust_base_empty:
@@ -955,6 +971,12 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         reporter.check('native projectile/staydown/guard state follows actual constructor model copy before script/default callbacks and preserves sibling',damage_effect_results==[[i,0,3960,1]for i in range(len(rows))])
         r.update(native_damage_effect_state_birth_bound=True,damage_effect_birth_results=damage_effect_results,damage_inputs_table_sha256=hashlib.sha256(damage_inputs_table).hexdigest(),native_damage_callback_bound=False)
         r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
+    if a.death_fields_birth:
+        death_results=[list(map(int,line.split('CTORDEATHFIELDS|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORDEATHFIELDS|'in line]
+        score=death_report['models'][default]['score']&0xffffffff;diesound=struct.unpack_from('<I',ctor_cache,default*160+76)[0]
+        reporter.check('actual constructor copies source score/current cached diesound, owns death extension and clears item before callbacks while preserving sibling',death_results==[[i,score,diesound,default,0xb638,0,0xa5a5a5a5,0xa5a5a5a5]for i in range(len(rows))])
+        r.update(native_death_fields_birth_bound=True,death_fields_birth_results=death_results,death_fields_table_sha256=hashlib.sha256(death_table).hexdigest(),native_death_callback_bound=False)
+        r['status']='PASS'if all(ok for _,ok in reporter.results)else'FAIL'
     if a.ai_state_birth:
         ai_birth_results=[list(map(int,line.split('CTORAI|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORAI|'in line]
         reporter.check('real constructor clears all 24 stale AI bytes before exists publication and preserves sibling row',ai_birth_results==[[i,0,0,6120,0]for i in range(len(rows))])
