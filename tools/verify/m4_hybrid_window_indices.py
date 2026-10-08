@@ -11,12 +11,12 @@ from source_hybrid_scene import derive
 from m4_sound_mix_sa1_native import Code
 
 
-def compile_contexts(source,stage,poses,window,out,direct=False,persistent_actor_high=False):
+def compile_contexts(source,stage,poses,window,out,direct=False,persistent_actor_high=False,promote_whole_window=True):
  x,y,w,h=window;maps=bytearray();pointers=bytearray();expected=[];decoders=[];reports=[];unique={};assignment_cache={}
  words=np.arange(32768,dtype=np.uint16)
  keys=(words&31)|((words&0x3c0)>>1)|((words&0x7800)>>2)
  for phase,pose in enumerate(poses):
-  r,a=derive(source,stage,pose,3,promoted_windows=[window],persistent_actor_high=persistent_actor_high,
+  r,a=derive(source,stage,pose,3,promoted_windows=[window]if promote_whole_window else[],persistent_actor_high=persistent_actor_high,
    fixed_background_policy='scanline_live'if persistent_actor_high else'whole_frame',
    retain_full_actor_art=persistent_actor_high,assignment_cache=assignment_cache)
   if a is None:raise ValueError('COMPILED_WINDOW_PALETTE_CONTEXT_UNPROVEN')

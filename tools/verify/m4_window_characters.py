@@ -78,10 +78,11 @@ def sparse_bitmap_tables(w,h):
  return offset.astype('<u2').tobytes(),shifted+masks
 
 
-def type1_service(w,h,high_target=0,low_target=0x4000):
+def type1_service(w,h,high_target=0,low_target=0x4000,tile_count=None):
  """Forced-blank S-CPU service; exclusively reads BW-RAM through CHR DMA."""
  from sa1_character_conversion import type1_descriptor
- descriptors=[type1_descriptor(0x420000,8,1,w*h//64,high_target),type1_descriptor(0x420000+w*h,2,1,w*h//64,low_target)]
+ count=tile_count if tile_count is not None else w*h//64
+ descriptors=[type1_descriptor(0x420000,8,1,count,high_target),type1_descriptor(0x420000+count*64,2,1,count,low_target)]
  c=Code(0xc000);c.emit('08 da 5a 8b e2 20 a9 00 48 ab af f0 3f 41 c9 a1');c.branch(0xf0,'ready');c.emit('c9 ab');c.branch(0xf0,'ready');c.jump('exit');c.label('ready');c.emit('cd 00 00');c.branch(0xd0,'fresh');c.jump('exit');c.label('fresh');c.emit('8d 00 00 a9 80 8d 15 21')
  for i,d in enumerate(descriptors):
   for address,value in((0x2231,d['cdma']),(0x2232,d['source']&255),(0x2233,(d['source']>>8)&255),(0x2234,d['source']>>16),(0x2235,d['iram']&255),(0x2236,d['iram']>>8)):

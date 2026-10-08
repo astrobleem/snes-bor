@@ -12,23 +12,24 @@ from m4_hybrid_scene_native import prepare
 from m4_bg_components_native import compile_rom
 
 
-def atlas(folder,window):
+def atlas(folder,window,compact_effect_tiles=False):
  x,y,w,h=window;cache=folder/'native-window-atlas';cache.mkdir(exist_ok=True)
  high_start=max(4096,(((folder/'obj_chr.bin').stat().st_size+4095)//4096)*4096)
+ promoted=np.fromfile(folder/'promoted.bin',np.bool_).reshape(28,32)
+ positions={(xx,yy):i for i,(xx,yy)in enumerate((xx,yy)for yy in range(y,y+h,8)for xx in range(x,x+w,8)if not compact_effect_tiles or promoted[yy//8,xx//8])}
  counts=[]
  for plane,bpp in(('high',8),('low',2)):
   pixels=np.fromfile(folder/(plane+'.bin'),np.uint8).reshape(224,256)
-  data=bytearray(w*h*bpp//8);vocabulary={};tilemap=np.zeros((32,32),dtype='<u2')
+  data=bytearray(len(positions)*bpp*8);vocabulary={};tilemap=np.zeros((32,32),dtype='<u2')
   for yy in range(0,224,8):
    for xx in range(0,256,8):
-    if x<=xx<x+w and y<=yy<y+h:number=((yy-y)//8)*(w//8)+(xx-x)//8
+    if(xx,yy)in positions:number=positions[xx,yy]
     else:
      raw=encode(pixels[yy:yy+8,xx:xx+8],bpp)
      if raw not in vocabulary:vocabulary[raw]=len(data)//(bpp*8);data.extend(raw)
      number=vocabulary[raw]
     tilemap[yy//8,xx//8]=number
   if plane=='high':
-   promoted=np.fromfile(folder/'promoted.bin',np.bool_).reshape(28,32)
    tilemap[:28]|=promoted.astype(np.uint16)*0x2000
   (cache/(plane+'.chr')).write_bytes(data);(cache/('0-'+plane+'.map')).write_bytes(tilemap.tobytes());counts.append(len(data)//(bpp*8))
  if 49152+counts[1]*16>61440:raise ValueError('NATIVE_WINDOW_PPU_LOW_VRAM_LIMIT')
@@ -67,8 +68,8 @@ def relocate_code(raw,old_base,new_base,hook=b'',wide=True):
  return bytes(out)
 
 
-def compile_boot(folder,window):
- source,report,path,inputs=prepare(folder);cache,counts,high_start=atlas(folder,window)
+def compile_boot(folder,window,compact_effect_tiles=False):
+ source,report,path,inputs=prepare(folder);cache,counts,high_start=atlas(folder,window,compact_effect_tiles)
  rom,trace,resources=compile_rom(report,inputs,160,cache_assets=cache,offset_alias='low',
      high_base=0,high_tile_offset=high_start//64,obj_chr=(folder/'obj_chr.bin').read_bytes(),oam=(folder/'oam.bin').read_bytes())
  tail=rom[0x8000:0x8400];code=tail[:tail.index(bytes([255])*32)]
@@ -77,5 +78,5 @@ def compile_boot(folder,window):
  irq=rom[0x8400:resources['irq_exit_prg_offset']+1]
  irq=relocate_code(irq,0x8400,0xe000,wide=False)
  resources.update(irq_entry_prg_offset=0xe000,irq_exit_prg_offset=0xe000+len(irq)-1,native_window_tile_counts=counts,native_window_HIGH_VRAM=high_start,native_window_LOW_VRAM=49152,
-     native_window_placeholder_bytes=window[2]*window[3]*10//8,static_data_bank_offset=18)
+     native_window_placeholder_bytes=int(np.fromfile(folder/'promoted.bin',np.bool_).reshape(28,32)[window[1]//8:(window[1]+window[3])//8,window[0]//8:(window[0]+window[2])//8].sum())*80 if compact_effect_tiles else window[2]*window[3]*10//8,static_data_bank_offset=18)
  return dict(code=code,irq=irq,data=rom[0x10000:0x40000],resources=resources,trace=trace,expected=(folder/'expected.bin').read_bytes())

@@ -51,9 +51,14 @@ def compile_inputs(source,stage,scene,catalog,tile_aligned=False):
  return background[0],bytes(descriptors),bytes(pixels),bytes(origins),actors,(wx,wy,w,h)
 
 
-def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None,colour_canvas_second=None,colour_pixels_second=None,force_stage_reload=False):
+def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None,colour_canvas_second=None,colour_pixels_second=None,force_stage_reload=False,bitmap_row_target=None,bitmap_baselines=None,bitmap_actor_indices=None,notify_cpu=False,bitmap_tile_count=None):
+ bitmap_bytes=(bitmap_tile_count if bitmap_tile_count is not None else w*h//64)*80
  rom,_,_=base.build(np.zeros((3,2),dtype=np.uint16),True,iram=True);rom=bytearray(rom)+bytearray([255])*(1048576-len(rom))
  for at,data in((0x20000,descriptors),(0x30000,origins),(0x40000,background),(0x50000,pixels)):rom[at:at+len(data)]=data
+ if bitmap_row_target is not None:
+  if retain_stage or colour_canvas is not None or len(bitmap_baselines)!=bitmap_bytes*2 or len(bitmap_actor_indices)!=len(pixels):raise ValueError('DIRECT_BITMAP_SOURCE_CONTRACT')
+  rom[0xd0000:0xd0000+len(bitmap_baselines)]=bitmap_baselines
+  rom[0x90000:0x90000+len(bitmap_actor_indices)]=bitmap_actor_indices
  if colour_canvas is not None:
   if len(colour_canvas)!=len(background)or len(colour_pixels)!=len(pixels):raise ValueError('WHOLE_TILE_COLOUR_SOURCE_CAPACITY')
   rom[0x80000:0x80000+len(colour_canvas)]=colour_canvas;rom[0x90000:0x90000+len(colour_pixels)]=colour_pixels
@@ -68,6 +73,8 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
  if expected_context_epoch is not None:
   c.emit('af 00 d1 42');c.word(0xc9,expected_context_epoch&65535);c.branch(0xf0,'epoch_low_valid');c.jump('epoch_fault');c.label('epoch_low_valid');c.emit('af 02 d1 42');c.word(0xc9,expected_context_epoch>>16);c.branch(0xf0,'epoch_valid');c.jump('epoch_fault');c.label('epoch_valid')
  c.emit('64 04 64 12 64 14 e2 20 a9 84 8f 30 22 00 a9 20 8f 0b 22 00 a9 c4 8f 34 22 00 c2 20')
+ if bitmap_row_target is not None:
+  c.emit('e2 20 a9 cd 8f 34 22 00 c2 20 a5 16');c.branch(0xf0,'bitmap_first');c.word(0xa9,bitmap_bytes);c.branch(0x80,'bitmap_source');c.label('bitmap_first');c.emit('a9 00 00');c.label('bitmap_source');c.emit('8f 32 22 00 a9 00 00 8f 35 22 00');c.word(0xa9,bitmap_bytes);c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20');c.jump('stage_ready')
  if retain_stage and not force_stage_reload:c.emit('a5 16');c.branch(0xd0,'restore')
  c.emit('a9 00 00 8f 32 22 00 8f 35 22 00');c.word(0xa9,len(background));c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20')
  if retain_stage and not force_stage_reload:
@@ -79,11 +86,14 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
    c.emit('a5 16');c.branch(0xf0,'colour_first');c.word(0xa9,len(colour_canvas));c.branch(0x80,'colour_source');c.label('colour_first');c.emit('a9 00 00');c.label('colour_source')
   else:c.emit('a9 00 00')
   c.emit('8f 32 22 00 a9 00 70 8f 35 22 00');c.word(0xa9,len(colour_canvas));c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20')
+ c.label('stage_ready')
  c.label('span');c.emit('a6 04 bf 00 00 c2 85 00 bf 02 00 c2 85 02 bf 04 00 c2 85 08 bf 08 00 c2 85 0c e2 20 bf 0a 00 c2 85 0e c2 20 bf 06 00 c2 aa bd 02 d0 18 65 00')
  c.branch(0x10,'row_nonnegative');c.jump('next');c.label('row_nonnegative');c.word(0xc9,h);c.branch(0x90,'row_visible');c.jump('next');c.label('row_visible');c.emit('85 00 bd 00 d0 18 65 02');c.branch(0x10,'left_nonnegative')
  c.emit('49 ff ff 1a c5 08');c.branch(0x90,'left_clipped');c.jump('next');c.label('left_clipped');c.emit('85 0a a5 08 38 e5 0a 85 08 a5 0a 0a 18 65 0c 85 0c');c.branch(0x90,'pointer_no_carry');c.emit('e2 20 e6 0e c2 20');c.label('pointer_no_carry');c.emit('a9 00 00')
  c.label('left_nonnegative');c.word(0xc9,w);c.branch(0x90,'left_visible');c.jump('next');c.label('left_visible');c.emit('85 02');c.word(0xa9,w);c.emit('38 e5 02 c5 08');c.branch(0xb0,'width_ready');c.emit('85 08');c.label('width_ready')
- c.emit('e2 20 a9 00 8f 50 22 00 c2 20 a5 00 8f 51 22 00');c.word(0xa9,w);c.emit('8f 53 22 00 ea ea ea af 06 23 00 18 65 02 0a 85 1a 8f 35 22 00 a5 0c 8f 32 22 00 a5 08 18 65 14 85 14 a5 08 0a 8f 38 22 00 e2 20 a5 0e 8f 34 22 00 a9 02 8f 37 22 00 c2 20 e6 12')
+ c.emit('e2 20 a9 00 8f 50 22 00 c2 20 a5 00 8f 51 22 00');c.word(0xa9,w);c.emit('8f 53 22 00 ea ea ea af 06 23 00 18 65 02 0a 85 1a')
+ if bitmap_row_target is not None:c.emit('22 '+bitmap_row_target.to_bytes(3,'little').hex(' ')+' a5 08 18 65 14 85 14 e6 12')
+ else:c.emit('8f 35 22 00 a5 0c 8f 32 22 00 a5 08 18 65 14 85 14 a5 08 0a 8f 38 22 00 e2 20 a5 0e 8f 34 22 00 a9 02 8f 37 22 00 c2 20 e6 12')
  # Normal DMA advances its source address and drains its transfer counter.
  # The RGB555 transfer must reload both, rather than reuse the ID DMA state.
  if colour_canvas is not None:
@@ -95,8 +105,13 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
  if retain_stage:c.emit('a6 18 a5 1a 9d 00 60 a5 08 0a 9d 02 60 e8 e8 e8 e8 86 18')
  c.label('next');c.emit('a5 04 18 69 10 00 85 04');c.word(0xc9,len(descriptors));c.branch(0xf0,'done');c.jump('span')
  c.label('done');c.emit('a5 12 8f f6 3f 41 a5 14 8f f8 3f 41')
+ if bitmap_row_target is not None:c.emit('e2 20 a9 b0 8f 30 22 00 c2 20')
  if shader_target is not None:c.emit('5c '+shader_target.to_bytes(3,'little').hex(' '))
- c.emit('a5 16');c.branch(0xd0,'final');c.emit('a9 a1 b4 8f f0 3f 41');c.label('wait');c.emit('af f4 3f 41 c9 01 00');c.branch(0xd0,'wait');c.emit('e6 16');c.jump('entry');c.label('final');c.emit('a9 ab b4 8f f0 3f 41');c.label('stop');c.jump('stop')
+ c.emit('a5 16');c.branch(0xd0,'final');c.emit('a9 a1 b4 8f f0 3f 41')
+ if notify_cpu:c.emit('e2 20 a9 80 8f 09 22 00 c2 20')
+ c.label('wait');c.emit(('af f0 30 00'if bitmap_row_target is not None else'af f4 3f 41')+' c9 01 00');c.branch(0xd0,'wait');c.emit('e6 16');c.jump('entry');c.label('final');c.emit('a9 ab b4 8f f0 3f 41')
+ if notify_cpu:c.emit('e2 20 a9 80 8f 09 22 00 c2 20')
+ c.label('stop');c.jump('stop')
  if expected_context_epoch is not None:c.label('epoch_fault');c.emit('a9 e1 b4 8f f0 3f 41');c.jump('stop')
  worker=c.finish()
  if c.base+len(worker)>0x3700:raise ValueError('UNDERLAY_SPAN_IRAM_CAPACITY')

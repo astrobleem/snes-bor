@@ -1,0 +1,828 @@
+{
+  "schema": "BYOR_DIRECT_EFFECT_TILE_COMPONENT_PROOF_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "folder": "out\\byor-motu-direct-screen-bitmaps-native",
+      "report": {
+        "schema": "BYOR_DIRECT_SCREEN_BITMAP_NATIVE_V1",
+        "status": "PASS",
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "ROM_sha256": "00fa71b326f14f548e987e99ce547773fa3c30af534e43888a82834889ff2ba8",
+        "producer_IRAM_bytes": 446,
+        "row_worker_IRAM_bytes": 198,
+        "bitmap_byte_mismatches": [
+          0,
+          0
+        ],
+        "VRAM_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_span_and_pixel_counts": [
+          [
+            101,
+            1642
+          ],
+          [
+            108,
+            2434
+          ]
+        ],
+        "write_and_DMA_bounds": [
+          [
+            3284,
+            0,
+            1,
+            14400,
+            0
+          ],
+          [
+            4868,
+            0,
+            1,
+            14400,
+            0
+          ]
+        ],
+        "expected_write_and_DMA_bounds": [
+          [
+            3284,
+            0,
+            1,
+            14400,
+            0
+          ],
+          [
+            4868,
+            0,
+            1,
+            14400,
+            0
+          ]
+        ],
+        "master_clocks": [
+          889956,
+          1240024
+        ],
+        "milliseconds": [
+          41.43711002376,
+          57.7365745273957
+        ],
+        "native_bitmap_sha256": [
+          "5bbf5f0d66d9f4503c3f08bd5270643a4ed5c303b7c179e7f62e57c026c7ce52",
+          "33533b0c707fb37019abf0675b2f2d486b25df53f803eb4ca13f4ea1030e8626"
+        ],
+        "no_color_reduction": true,
+        "alpha_policy": "Exact source RGB8 SCREEN before RGB555 conversion",
+        "intermediate_underlay_canvas": false,
+        "intermediate_full_index_canvas": false,
+        "source_actor_index_atlas_identical": true,
+        "CHR_publication": true,
+        "native_PPU_scene": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native signed clipped source spans directly draw exact SCREEN or opaque indices into compiler stage-baseline bitmaps, then type1 VRAM conversion. Two explicit poses, fixed source art/camera/context; no live world or production deadline admission."
+      },
+      "hashes": {
+        "report.json": "a82474cc1461166434964a902bf62219f9943fb1c695f8eafb058fa59d7955e3",
+        "proof.sfc": "00fa71b326f14f548e987e99ce547773fa3c30af534e43888a82834889ff2ba8"
+      }
+    },
+    {
+      "folder": "out\\byor-motu-direct-screen-bitmaps-idle-native",
+      "report": {
+        "schema": "BYOR_DIRECT_SCREEN_BITMAP_NATIVE_V1",
+        "status": "PASS",
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "ROM_sha256": "53516bcd77a16248747be008ae530997f7d24788e8c89c5b84ee74863f28b579",
+        "producer_IRAM_bytes": 466,
+        "row_worker_IRAM_bytes": 198,
+        "bitmap_byte_mismatches": [
+          0,
+          0
+        ],
+        "VRAM_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_span_and_pixel_counts": [
+          [
+            101,
+            1642
+          ],
+          [
+            108,
+            2434
+          ]
+        ],
+        "write_and_DMA_bounds": [
+          [
+            3284,
+            0,
+            1,
+            14400,
+            0
+          ],
+          [
+            4868,
+            0,
+            1,
+            14400,
+            0
+          ]
+        ],
+        "expected_write_and_DMA_bounds": [
+          [
+            3284,
+            0,
+            1,
+            14400,
+            0
+          ],
+          [
+            4868,
+            0,
+            1,
+            14400,
+            0
+          ]
+        ],
+        "master_clocks": [
+          896054,
+          1251962
+        ],
+        "milliseconds": [
+          41.7210381021424,
+          58.29241798422239
+        ],
+        "native_bitmap_sha256": [
+          "5bbf5f0d66d9f4503c3f08bd5270643a4ed5c303b7c179e7f62e57c026c7ce52",
+          "33533b0c707fb37019abf0675b2f2d486b25df53f803eb4ca13f4ea1030e8626"
+        ],
+        "no_color_reduction": true,
+        "alpha_policy": "Exact source RGB8 SCREEN before RGB555 conversion",
+        "SCPU_WAI_during_source_job": true,
+        "source_job_completion_IRQ": true,
+        "production_CPU_contention_admitted": false,
+        "intermediate_underlay_canvas": false,
+        "intermediate_full_index_canvas": false,
+        "source_actor_index_atlas_identical": true,
+        "CHR_publication": true,
+        "native_PPU_scene": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native signed clipped source spans directly draw exact SCREEN or opaque indices into compiler stage-baseline bitmaps, then type1 VRAM conversion. Two explicit poses, fixed source art/camera/context; no live world or production deadline admission."
+      },
+      "hashes": {
+        "report.json": "4bdf1cce1f5dd52042a10a75d6d1afe322e77416f467857804a5ac30f7831b1e",
+        "proof.sfc": "53516bcd77a16248747be008ae530997f7d24788e8c89c5b84ee74863f28b579"
+      }
+    },
+    {
+      "folder": "out\\byor-motu-direct-effect-tiles-native",
+      "report": {
+        "schema": "BYOR_DIRECT_SCREEN_BITMAP_NATIVE_V1",
+        "status": "PASS",
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "ROM_sha256": "4a6a050cb271df393f735d09b54bc85615c0865eda0d1b0d28f85f02ce201be7",
+        "producer_IRAM_bytes": 446,
+        "row_worker_IRAM_bytes": 215,
+        "bitmap_byte_mismatches": [
+          0,
+          0
+        ],
+        "VRAM_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_span_and_pixel_counts": [
+          [
+            101,
+            1642
+          ],
+          [
+            108,
+            2434
+          ]
+        ],
+        "write_and_DMA_bounds": [
+          [
+            844,
+            0,
+            1,
+            6880,
+            0
+          ],
+          [
+            3260,
+            0,
+            1,
+            6880,
+            0
+          ]
+        ],
+        "expected_write_and_DMA_bounds": [
+          [
+            844,
+            0,
+            1,
+            6880,
+            0
+          ],
+          [
+            3260,
+            0,
+            1,
+            6880,
+            0
+          ]
+        ],
+        "source_effect_tile_mask": true,
+        "promoted_native_window_tiles": 86,
+        "bitmap_bytes": 6880,
+        "actor_pixels_in_promoted_tiles": [
+          422,
+          1630
+        ],
+        "master_clocks": [
+          495230,
+          1021058
+        ],
+        "milliseconds": [
+          23.05833097037007,
+          47.54133090471927
+        ],
+        "native_bitmap_sha256": [
+          "68c7861e4af75225f0d1b145aa1ccc8ac4b6da50157c442f574b7473b987436d",
+          "8c6a21a9b76763026299056be7de67cfb1ef38ba342a4df365bbe191595c9248"
+        ],
+        "no_color_reduction": true,
+        "alpha_policy": "Exact source RGB8 SCREEN before RGB555 conversion",
+        "SCPU_WAI_during_source_job": false,
+        "source_job_completion_IRQ": false,
+        "production_CPU_contention_admitted": false,
+        "intermediate_underlay_canvas": false,
+        "intermediate_full_index_canvas": false,
+        "source_actor_index_atlas_identical": true,
+        "CHR_publication": true,
+        "native_PPU_scene": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native signed clipped source spans directly draw exact SCREEN or opaque indices into compiler stage-baseline bitmaps, then type1 VRAM conversion. Two explicit poses, fixed source art/camera/context; no live world or production deadline admission."
+      },
+      "hashes": {
+        "report.json": "bc54aeaa9d9297452ae968bead4567a3d6f78ad7c0ad246c20f6ebc6b3b1788c",
+        "proof.sfc": "4a6a050cb271df393f735d09b54bc85615c0865eda0d1b0d28f85f02ce201be7"
+      }
+    },
+    {
+      "folder": "out\\byor-motu-direct-effect-tiles-ppu-native",
+      "report": {
+        "schema": "BYOR_DIRECT_SCREEN_BITMAP_NATIVE_V1",
+        "status": "PASS",
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "ROM_sha256": "2ed3bd6b19c7f31e492a19503497a08914c13ac743d6a2345d6a1e104ef09e08",
+        "producer_IRAM_bytes": 446,
+        "row_worker_IRAM_bytes": 215,
+        "bitmap_byte_mismatches": [
+          0,
+          0
+        ],
+        "VRAM_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_span_and_pixel_counts": [
+          [
+            101,
+            1642
+          ],
+          [
+            108,
+            2434
+          ]
+        ],
+        "write_and_DMA_bounds": [
+          [
+            844,
+            0,
+            1,
+            6880,
+            0
+          ],
+          [
+            3260,
+            0,
+            1,
+            6880,
+            0
+          ]
+        ],
+        "expected_write_and_DMA_bounds": [
+          [
+            844,
+            0,
+            1,
+            6880,
+            0
+          ],
+          [
+            3260,
+            0,
+            1,
+            6880,
+            0
+          ]
+        ],
+        "source_effect_tile_mask": true,
+        "promoted_native_window_tiles": 86,
+        "bitmap_bytes": 6880,
+        "actor_pixels_in_promoted_tiles": [
+          422,
+          1630
+        ],
+        "master_clocks": [
+          495240,
+          1021958
+        ],
+        "milliseconds": [
+          23.058796578894803,
+          47.58323567194527
+        ],
+        "native_bitmap_sha256": [
+          "68c7861e4af75225f0d1b145aa1ccc8ac4b6da50157c442f574b7473b987436d",
+          "8c6a21a9b76763026299056be7de67cfb1ef38ba342a4df365bbe191595c9248"
+        ],
+        "no_color_reduction": true,
+        "alpha_policy": "Exact source RGB8 SCREEN before RGB555 conversion",
+        "SCPU_WAI_during_source_job": false,
+        "source_job_completion_IRQ": false,
+        "production_CPU_contention_admitted": false,
+        "intermediate_underlay_canvas": false,
+        "intermediate_full_index_canvas": false,
+        "source_actor_index_atlas_identical": true,
+        "CHR_publication": true,
+        "native_PPU_scene": true,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native signed clipped source spans directly draw exact SCREEN or opaque indices into compiler stage-baseline bitmaps, then type1 VRAM conversion. Two explicit poses, fixed source art/camera/context; no live world or production deadline admission.",
+        "PPU_pixel_mismatches": 0,
+        "CGRAM_observer_verified": true,
+        "OAM_observer_verified": true,
+        "CGRAM_HBlank_timing_verified": true,
+        "OBJ_status": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "PPU_resources": {
+          "bg_mode": 4,
+          "high_chr_bytes": 40640,
+          "high_chr_base": 0,
+          "high_chr_start": 8192,
+          "high_tile_offset": 128,
+          "obj_obsel": 192,
+          "low_chr_bytes": 9520,
+          "low_chr_base": 49152,
+          "offset_tilemap_base": 63488,
+          "offset_map_aliases_bg1": false,
+          "offset_map_aliases_bg2": true,
+          "hdma_channels": [
+            0
+          ],
+          "irq_enabled": true,
+          "timer_dots": 160,
+          "irq_entry_prg_offset": 57344,
+          "irq_exit_prg_offset": 57379,
+          "code_bank": 1,
+          "oam_entries": 20,
+          "obj_chr_bytes": 6144,
+          "per_field_palette_restore_bytes": 472,
+          "peak_palette_updates": 15,
+          "source_color_bits_preserved": 15,
+          "spc_protocol_proven": false,
+          "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+          "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd",
+          "native_window_tile_counts": [
+            635,
+            595
+          ],
+          "native_window_HIGH_VRAM": 8192,
+          "native_window_LOW_VRAM": 49152,
+          "native_window_placeholder_bytes": 6880,
+          "static_data_bank_offset": 18
+        }
+      },
+      "hashes": {
+        "report.json": "6bdfa4437f77b6e7a1f8172e3c3de7bf805ce5de030cb57abc4fac3ce0be90c3",
+        "proof.sfc": "2ed3bd6b19c7f31e492a19503497a08914c13ac743d6a2345d6a1e104ef09e08"
+      }
+    },
+    {
+      "folder": "out\\byor-motu-direct-effect-tiles-color-peak-native",
+      "report": {
+        "schema": "BYOR_DIRECT_SCREEN_BITMAP_NATIVE_V1",
+        "status": "PASS",
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "ROM_sha256": "9e0ee3f81bec3cf20468fb8ed404283fbfd3317e3a37a8e05af6845ec2e13e43",
+        "producer_IRAM_bytes": 446,
+        "row_worker_IRAM_bytes": 215,
+        "bitmap_byte_mismatches": [
+          0,
+          0
+        ],
+        "VRAM_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_span_and_pixel_counts": [
+          [
+            101,
+            1642
+          ],
+          [
+            28,
+            182
+          ]
+        ],
+        "write_and_DMA_bounds": [
+          [
+            690,
+            0,
+            1,
+            4640,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            4640,
+            0
+          ]
+        ],
+        "expected_write_and_DMA_bounds": [
+          [
+            690,
+            0,
+            1,
+            4640,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            4640,
+            0
+          ]
+        ],
+        "source_effect_tile_mask": true,
+        "promoted_native_window_tiles": 58,
+        "bitmap_bytes": 4640,
+        "actor_pixels_in_promoted_tiles": [
+          345,
+          0
+        ],
+        "master_clocks": [
+          458914,
+          127490
+        ],
+        "milliseconds": [
+          21.367427051948408,
+          5.936043081825576
+        ],
+        "native_bitmap_sha256": [
+          "629eddea1f07c694a2358492767db7efb4e88b260863ea15446efdc08eb7a119",
+          "ac4e011b77351217bd7a8d65434be3adc914d371d4510b95ad29011c7ff5dc33"
+        ],
+        "no_color_reduction": true,
+        "alpha_policy": "Exact source RGB8 SCREEN before RGB555 conversion",
+        "SCPU_WAI_during_source_job": false,
+        "source_job_completion_IRQ": false,
+        "production_CPU_contention_admitted": false,
+        "intermediate_underlay_canvas": false,
+        "intermediate_full_index_canvas": false,
+        "source_actor_index_atlas_identical": true,
+        "CHR_publication": true,
+        "native_PPU_scene": true,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native signed clipped source spans directly draw exact SCREEN or opaque indices into compiler stage-baseline bitmaps, then type1 VRAM conversion. Two explicit poses, fixed source art/camera/context; no live world or production deadline admission.",
+        "PPU_pixel_mismatches": 0,
+        "CGRAM_observer_verified": true,
+        "OAM_observer_verified": true,
+        "CGRAM_HBlank_timing_verified": true,
+        "OBJ_status": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "PPU_resources": {
+          "bg_mode": 4,
+          "high_chr_bytes": 39424,
+          "high_chr_base": 0,
+          "high_chr_start": 8192,
+          "high_tile_offset": 128,
+          "obj_obsel": 192,
+          "low_chr_bytes": 9184,
+          "low_chr_base": 49152,
+          "offset_tilemap_base": 63488,
+          "offset_map_aliases_bg1": false,
+          "offset_map_aliases_bg2": true,
+          "hdma_channels": [
+            0
+          ],
+          "irq_enabled": true,
+          "timer_dots": 160,
+          "irq_entry_prg_offset": 57344,
+          "irq_exit_prg_offset": 57379,
+          "code_bank": 1,
+          "oam_entries": 30,
+          "obj_chr_bytes": 8192,
+          "per_field_palette_restore_bytes": 472,
+          "peak_palette_updates": 15,
+          "source_color_bits_preserved": 15,
+          "spc_protocol_proven": false,
+          "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+          "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd",
+          "native_window_tile_counts": [
+            616,
+            574
+          ],
+          "native_window_HIGH_VRAM": 8192,
+          "native_window_LOW_VRAM": 49152,
+          "native_window_placeholder_bytes": 4640,
+          "static_data_bank_offset": 18
+        }
+      },
+      "hashes": {
+        "report.json": "1b18e173144b7dc76d0152d7943e81ed67e83dc88b65f116c2e67656061614b6",
+        "proof.sfc": "9e0ee3f81bec3cf20468fb8ed404283fbfd3317e3a37a8e05af6845ec2e13e43"
+      }
+    }
+  ],
+  "no_color_reduction": true,
+  "focused_shared_visual_tests": "5 tests PASS",
+  "protected_tracked_files": 17,
+  "bank_zero_growth_bytes": 0,
+  "authored_timing_authority": {
+    "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "player_source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+    "effect_source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+    "player_frames": [
+      {
+        "index": 0,
+        "declaration": {
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+          "line": 222,
+          "directive": "frame",
+          "values": [
+            "data/chars/he-man/barehand/breath1.png"
+          ]
+        },
+        "delay_centiseconds": 6,
+        "delay_ticks": 12,
+        "start_tick": 0,
+        "offset": [
+          96,
+          176
+        ],
+        "bbox": [
+          73,
+          68,
+          37,
+          108
+        ],
+        "sound": null
+      },
+      {
+        "index": 1,
+        "declaration": {
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+          "line": 223,
+          "directive": "frame",
+          "values": [
+            "data/chars/he-man/barehand/breath2.png"
+          ]
+        },
+        "delay_centiseconds": 6,
+        "delay_ticks": 12,
+        "start_tick": 12,
+        "offset": [
+          96,
+          176
+        ],
+        "bbox": [
+          73,
+          68,
+          37,
+          108
+        ],
+        "sound": null
+      },
+      {
+        "index": 2,
+        "declaration": {
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+          "line": 224,
+          "directive": "frame",
+          "values": [
+            "data/chars/he-man/barehand/breath3.png"
+          ]
+        },
+        "delay_centiseconds": 6,
+        "delay_ticks": 12,
+        "start_tick": 24,
+        "offset": [
+          96,
+          176
+        ],
+        "bbox": [
+          73,
+          68,
+          37,
+          108
+        ],
+        "sound": null
+      },
+      {
+        "index": 3,
+        "declaration": {
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+          "line": 225,
+          "directive": "frame",
+          "values": [
+            "data/chars/he-man/barehand/breath4.png"
+          ]
+        },
+        "delay_centiseconds": 6,
+        "delay_ticks": 12,
+        "start_tick": 36,
+        "offset": [
+          96,
+          176
+        ],
+        "bbox": [
+          73,
+          68,
+          37,
+          108
+        ],
+        "sound": null
+      },
+      {
+        "index": 4,
+        "declaration": {
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+          "line": 230,
+          "directive": "frame",
+          "values": [
+            "data/chars/he-man/barehand/breath5.png"
+          ]
+        },
+        "delay_centiseconds": 6,
+        "delay_ticks": 12,
+        "start_tick": 48,
+        "offset": [
+          96,
+          176
+        ],
+        "bbox": [
+          84,
+          77,
+          37,
+          99
+        ],
+        "sound": {
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+          "line": 228,
+          "directive": "sound",
+          "values": [
+            "data/chars/he-man/iceb.wav"
+          ]
+        }
+      },
+      {
+        "index": 5,
+        "declaration": {
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+          "line": 231,
+          "directive": "frame",
+          "values": [
+            "data/chars/he-man/barehand/breath6.png"
+          ]
+        },
+        "delay_centiseconds": 6,
+        "delay_ticks": 12,
+        "start_tick": 60,
+        "offset": [
+          96,
+          176
+        ],
+        "bbox": [
+          84,
+          77,
+          37,
+          99
+        ],
+        "sound": null
+      },
+      {
+        "index": 6,
+        "declaration": {
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+          "line": 233,
+          "directive": "frame",
+          "values": [
+            "data/chars/he-man/barehand/breath7.png"
+          ]
+        },
+        "delay_centiseconds": 120,
+        "delay_ticks": 240,
+        "start_tick": 72,
+        "offset": [
+          96,
+          176
+        ],
+        "bbox": [
+          84,
+          77,
+          37,
+          99
+        ],
+        "sound": null
+      }
+    ],
+    "player_events": [
+      {
+        "frame_index": 4,
+        "declaration": {
+          "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+          "line": 227,
+          "directive": "@cmd",
+          "values": [
+            "spawn01",
+            "\"HBreath\"",
+            "18",
+            "93",
+            "0"
+          ]
+        },
+        "function": "spawn01",
+        "arguments": [
+          "\"HBreath\"",
+          "18",
+          "93",
+          "0"
+        ],
+        "runtime_lowered": false,
+        "start_tick": 48
+      }
+    ],
+    "effect_animation_ticks_including_empty_final_frame": 240,
+    "player_input_busy_gate_authority": "player_think: !idling && !animation idle[animpos] skips ordinary movement; common_attack_proc waits for animating",
+    "damage_motion_excluded": false,
+    "constant_relative_player_pose_proven_for_live_world": false
+  },
+  "joint_audio_proven": false,
+  "production_memory_lease": false,
+  "motu_gameplay_proven": false
+}
