@@ -77,6 +77,7 @@ def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--engine',type=Path,default=Path('E:/gh/openbor-bcec'))
  p.add_argument('--output',type=Path,required=True)
  p.add_argument('--empty-damage-scripts',action='store_true',help='Execute both actual script dispatchers with uninitialized source script instances.')
+ p.add_argument('--weaploss',type=int,choices=(0,1,2,3),default=0)
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  raw=subprocess.check_output(['git','-C',str(a.engine),'show',ENGINE_COMMIT+':engine/openbor.c']).decode('latin1')
  names=('checkgrab','checkdamageflip','checkdamagedrop','checkmpadd','checkhitscore','checkdamage','checkdeath','common_takedamage','player_takedamage','arrow_takedamage')
@@ -128,6 +129,7 @@ printf("%d,%d,%d,%d|",script_force,script_type,score_total,rumble_last);
 for(j=0;j<ne;j++)printf("%s%d",j?",":"",events[j]);puts("");
  }return 0;}'''
  if a.empty_damage_scripts:code=code.replace('victim.exists=1;','victim.scripts=&script_set;victim.exists=1;')
+ code=code.replace('victim.exists=1;','victim.modeldata.weaploss[0]='+str(a.weaploss)+';victim.exists=1;')
  (a.output/'callback.c').write_text(code+'\n')
  env=dict(os.environ,WATCOM='C:/WATCOM',INCLUDE='C:/WATCOM/H;C:/WATCOM/H/NT')
  build=subprocess.run(['C:/WATCOM/BINNT/wcl386.exe','-q','-za99','-bt=nt','-op','-fpc','callback.c','-fe=callback.exe'],cwd=a.output,env=env,capture_output=True,text=True)
@@ -143,7 +145,7 @@ for(j=0;j<ne;j++)printf("%s%d",j?",":"",events[j]);puts("");
   if death_script and r['invincible']==2:health=1
   if death_script and r['invincible']==3:health=300
   dead=int(health<=0);arrow=r['callback']==2
-  trace=[2]+([]if r['guardbreak']else[3])
+  trace=([2]if a.weaploss==0 else [])+([]if r['guardbreak']else[3])
   if r['opponent']==2:trace.extend([7,8])
   elif r['opponent']in(1,3):trace.append(7)
   if not a.empty_damage_scripts:
@@ -161,6 +163,7 @@ for(j=0;j<ne;j++)printf("%s%d",j?",":"",events[j]);puts("");
   source_attack_type_land=16,source_positive_self_landing_early_return=True,
   source_checkgrab_self_no_op_proven=True,source_checkdamageflip_self_no_op_proven=True,
   actual_empty_damage_script_dispatchers_proven=a.empty_damage_scripts,
+  source_weaploss=a.weaploss,
   damage_script_execution_service_instrumented=not a.empty_damage_scripts,
   effect_weapon_script_score_rumble_services_instrumented=True,native_handler_backend_proven=False,motu_gameplay_proven=False,no_color_reduction=True)
  (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n')

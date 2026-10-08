@@ -120,6 +120,9 @@ LeafFixture_Return:
     for media in [rom_path.with_suffix('.msu'),*rom_path.parent.glob('bor-*.pcm')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
+    # Install new damage controls before the fixture's Lua callbacks.
+    extra={k:v for k,v in sy.items() if k.startswith(('SourceLandingCallback4086_','SourceLandingEffects4086_','SourceDamageState4086_','SourceDropWeapon4086_'))}
+    lua='local damageSymbols='+luav(extra)+'\nfor k,v in pairs(damageSymbols)do sy[k]=v end\n'+lua
     if 'SourceRetirement4086_Ready' in sy:
         lua='emu.addMemoryCallback(function() emu.write('+str(sy['SourceRetirement4086_Ready'])+',0,emu.memType.snesMemory); emu.write('+str(sy['SourceRetirement4086_Ready']+1)+',0,emu.memType.snesMemory) end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,emu.memType.snesMemory)\n'+lua
     if 'SourceLifecycle4086_Ready' in sy:

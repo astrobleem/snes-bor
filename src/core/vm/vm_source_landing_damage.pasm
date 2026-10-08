@@ -154,6 +154,27 @@ SourceLandingDamage4086_HasForce:
  lda.l $439008,x
  ora.l $43900A,x
  beq SourceLandingDamage4086_NullCallback
+ lda.l SourceLandingCallback4086_Ready
+ beq SourceLandingDamage4086_CallbackUnbound
+ cmp #$B636
+ beq SourceLandingDamage4086_CallbackBound
+ jmp SourceLandingDamage4086_Bad
+SourceLandingDamage4086_CallbackBound:
+.a16
+.i16
+ jsl SourceLandingCallback4086_Execute
+ bcc SourceLandingDamage4086_CallbackProgress
+ jmp SourceLandingDamage4086_Bad
+SourceLandingDamage4086_CallbackProgress:
+.a16
+.i16
+ lda.l SourceLandingCallback4086_Status
+ cmp #2
+ bne SourceLandingDamage4086_CallbackUnbound
+ jmp SourceLandingDamage4086_Complete
+SourceLandingDamage4086_CallbackUnbound:
+.a16
+.i16
  lda #1
  jmp SourceLandingDamage4086_Pending
 SourceLandingDamage4086_NullCallback:

@@ -14061,3 +14061,4 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_landing_effects.pasm"
 .include "core/vm/vm_source_score.pasm"
 .include "core/vm/vm_source_drop_weapon.pasm"
+.include "core/vm/vm_source_landing_callback.pasm"
