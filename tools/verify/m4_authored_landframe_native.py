@@ -59,6 +59,8 @@ AuthoredLandingFixture_Bad:
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',type=Path,required=True)
     p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--bounce-audio-assets',type=Path);p.add_argument('--bounce-audio-packed',type=Path)
+    p.add_argument('--sound-namespace',type=Path)
     a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     co,code,metadata,dispatch=callbacks(source);co_bytes=pack_callbacks(co)
     models=registry(source);model_bytes=pack_registry(models);birth_bytes=pack_births(births(source))
@@ -86,6 +88,20 @@ def main():
                     time=48,toss=0,falling=1,hithead=1,gravity=0,minfall=-6*65536,maxtoss=100*65536,
                     subject=0,damage=0,autoland=0,noquake=0,fault=0,bounced=0,
                     expected=[0,0,0,0,0,49,12,11]))
+    audio_row=None;audio_transform=None;audio_before=None;audio_closeout=None;audio_env=None;audio_proof=None
+    frame_bank=60
+    if a.bounce_audio_assets:
+        from source_sound_namespace_4086 import derive as sound_namespace
+        from m4_projectile_audio_fixture import configure
+        sound_report=json.loads(a.sound_namespace.read_text());assert sound_report==sound_namespace(source)
+        assert sound_report['controller_rumble_source']['native_no_op_is_source_equivalent']
+        sound=sound_report['specials']['SAMPLE_FALL'];assert sound['sound_index']>=0
+        plan_by_handle={r['handle']:r for r in landing(source)['plans']}
+        selected=next(r for r in rows if r['direction']==1 and r['slot']==0 and plan_by_handle[r['handle']]['animation_bounce']==4 and plan_by_handle[r['handle']]['model_bounce'])
+        rows=[dict(selected,vy=-6*65536,bounced=1,expected=[32768,98304,24576,-12288,0,49,12,4])]
+        frame_bank=40 # Immutable FE must not alias the ASAD descriptor at 3C:C000.
+        audio_row,audio_transform,audio_before,audio_closeout=configure(a.output,a.bounce_audio_assets.resolve(),sound['source_path'],isolate=True,prefill=True,generic_rom=a.bounce_audio_packed.resolve())
+        audio_env={'MESEN_VOICE_CAPTURE_PATH':str(a.output/'voice0.raw'),'MESEN_VOICE_CAPTURE_VOICE':'0','MESEN_VOICE_CAPTURE_ARM_FILE':str(a.output/'voice0.raw.arm')}
     lua=BASE_LUA[:BASE_LUA.index("emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1]\n if c.landing_bad")]
     lua=lua.replace('TABLEBYTES',str(len(ph))).replace('PLANBYTES',str(len(lp))).replace('PLANCOUNT','80')
     lua=lua.replace("set('SourceAnimationPhysics4086_Animations',6)","set('SourceAnimationPhysics4086_Animations',80)")
@@ -94,7 +110,7 @@ def main():
     controls=dict(SourcePostAir4086_Ready=0xb628,SourcePostAir4086_State=0,SourcePostAir4086_Service=0,
         SourcePostStationary4086_Ready=0,SourceCheckMove4086_Ready=0xb617,SourceCheckMove4086_Status=0,
         SourceUpdateFrame4086_State=0,SourceUpdateFrame4086_Pending=0,SourceUpdateFrame4086_Fault=0,
-        SourceUpdateFrame4086_Base=0x8000,SourceUpdateFrame4086_Bank=60,SourceUpdateFrame4086_Bytes=len(fe),
+        SourceUpdateFrame4086_Base=0x8000,SourceUpdateFrame4086_Bank=frame_bank,SourceUpdateFrame4086_Bytes=len(fe),
         SourceFrameEffectPlan4086_Ready=0xb4f2,SourceFrameEffectPlan4086_State=0,SourceFrameEffectPlan4086_Service=0,
         SourceFrameEffectPlan4086_Acknowledged=0,SourceFrameEffectPlan4086_Base=0x8000,SourceFrameEffectPlan4086_Bank=59,
         SourceFrameEffectPlan4086_Bytes=len(ep),SourceFrameEffectPlan4086_Animations=80,
@@ -115,6 +131,9 @@ def main():
         VmNativeVariant_ContextValid=0,SourceClock4086_Ready=0,SourceAnimationInit4086_Ready=0,
         SourceModelAnimation4086_Ready=0,SourceModelTransition4086_Ready=0,SourceFrameStack4086_Ready=0,
         SourceRetirement4086_Ready=0,SourceBirthCore4086_Ready=0)
+    if a.bounce_audio_assets:
+        controls.update(SourceBounceEffects4086_Ready=0xb62c,SourceBounceEffects4086_State=0,
+            SourceBounceEffects4086_SampleFall=sound['sound_index'],SourceBounceEffects4086_NoRumbleReady=0xb62d)
     install='\n'+''.join(" set('"+k+"',"+str(v)+');\n'for k,v in controls.items())
     install+=r'''
  for i,v in ipairs(metadata)do emu.write(sy.VmCode_Wram+i-1,v,mt)end
@@ -148,15 +167,22 @@ def main():
     lua='local metadata={'+','.join(map(str,metadata))+'}\nlocal vars_descriptor={'+','.join(map(str,descriptor(0x414000,count=384)))+'}\n'+lua
     reporter=Reporter('M4-AUTHORED-LANDFRAME',kind='GATE')
     raw,log=run_fixture(a.rom,a.output,rows,'AuthoredLandingFixture_Run','SourcePostAir4086_Ready',0xb628,
-        [(38,0,bundle),(58,0,ph),(59,0,ep),(59,0x7000,lp),(60,0,fe)],lua,reporter,append=ASM,
-        bindings=dict(POSTBEGIN='SourcePostAir4086_Begin',POSTCONTINUE='SourcePostAir4086_Continue',WORLDACK='SourceWorldTick4086_Ack'))
+        [(38,0,bundle),(58,0,ph),(59,0,ep),(59,0x7000,lp),(frame_bank,0,fe)],lua,reporter,append=ASM,
+        bindings=dict(POSTBEGIN='SourcePostAir4086_Begin',POSTCONTINUE='SourcePostAir4086_Continue',WORLDACK='SourceWorldTick4086_Ack'),
+        rom_transform=audio_transform,before_start=audio_before,closeout=audio_closeout,emulator_env=audio_env)
     actual=[list(map(int,l.split('AUTHOREDLAND|',1)[1].split('|')))for l in log.splitlines()if 'AUTHOREDLAND|'in l]
     expected=[[i,0,0,2,2,0,2,2,3,0,0,0,0,0,0,0]for i in range(len(rows))]
     reporter.check('all authored LAND identities run actual callback/effects and native POST before world Ack, preserving unrelated bytes and CPU',actual==expected)
-    report=dict(schema='BYOR_4086_AUTHORED_LANDFRAME_NATIVE_V1',status='PASS'if actual==expected else'FAIL',cases=len(rows),
+    if a.bounce_audio_assets:
+        from m4_source_audio_native_verify import verify
+        audio_proof=verify(a.output,a.bounce_audio_assets.resolve(),require_dsp_trace=True)
+        reporter.check('real source bounce sound follows native velocity and precedes authored landframe; every BRR block reaches DSP',audio_proof['status']=='PASS')
+    report=dict(schema='BYOR_4086_AUTHORED_LANDFRAME_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',cases=len(rows),
         inputs=rows,actual=actual,expected=expected,source_sha256=hashlib.sha256(a.source.read_bytes()).hexdigest(),
         rom_sha256=hashlib.sha256(raw).hexdigest(),compiled_tables_sha256={k:hashlib.sha256(v).hexdigest()for k,v in dict(callbacks=co_bytes,code=code,metadata=metadata,dispatch=dispatch,frames=fe,effects=ep,physics=ph,landing=lp).items()},
         native_authored_landing_scripts_proven=actual==expected,controlled_landing_inputs=True,
+        native_bounce_and_source_sound_and_authored_landframe=a.bounce_audio_assets is not None and actual==expected,
+        bounce_audio_proof=audio_proof,pinned_sdl_rumble_body_empty=bool(a.bounce_audio_assets),
         actual_full_world_traversal_proven=False,motu_gameplay_proven=False,no_color_reduction=True)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 

@@ -1,0 +1,80 @@
+{
+  "schema": "BYOR_MOTU_BOUNCE_SOUND_NATIVE_V1",
+  "status": "PASS",
+  "evidence": {
+    "namespace": {
+      "path": "out/byor-motu-unified-sound-namespace.json",
+      "sha256": "0cfca71fd70911994099dda34f5dd19b5363dbd2901bfa801fecc989b4414e44"
+    },
+    "audio_assets": {
+      "path": "out/byor-motu-unified-source-audio/report.json",
+      "sha256": "cc92006b7c29745ffd6b04da870b0ee3ebd36c077101886d4d9f4a0000a3335e"
+    },
+    "audio_verification": {
+      "path": "out/byor-motu-unified-source-audio/verification.json",
+      "sha256": "0e601e974b2d566dcf8ae664d282f218389ed77e23fdb5f68e4eaa0b754e50af"
+    },
+    "audio_rom": {
+      "path": "out/byor-motu-unified-source-audio-rom/report.json",
+      "sha256": "1f3605361c29772997c03b115f3df6e0f7c84dfa274a550e3bb450abbebff921"
+    },
+    "fall_lifecycle": {
+      "path": "out/byor-motu-unified-fall-audio-lifecycle-native/report.json",
+      "sha256": "6bd3ee03a950db3c327294061e8e418264bbc60eb39445d37c62064ceaa9f2a7"
+    },
+    "authored_bounce": {
+      "path": "out/byor-motu-authored-bounce-audio-native/report.json",
+      "sha256": "70826a3c28ab0358e38e9c838358bf7139a5b1c1705bb5236ad2508ded05e0d7"
+    },
+    "guards": {
+      "path": "out/byor-motu-bounce-effects-guard-native/report.json",
+      "sha256": "8d1ee1cf13af6cfabb8e7b6b6db0749789025b155efd3314324f306baf6ad727"
+    },
+    "ordinary_landing": {
+      "path": "out/byor-motu-bounce-static-landframe-native/report.json",
+      "sha256": "43c8a8502d0eedfca50b80cd77d36d7d99514b84f3839a75d03e7e83503e0307"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-bounce-effects-bor-static-smoke/report.json",
+      "sha256": "44edf60261eb21bdf785d634bba23b4767238d3bae4f6efb6e06c6c1261d5723"
+    },
+    "audit": {
+      "path": "out/byor-motu-bounce-effects-rom-audit.log",
+      "sha256": "b26eed0cf83bbead85cc28a4f3123911505363cd26fe78b8274ada5e5011c42d"
+    }
+  },
+  "source_sound_count": 30,
+  "original_frame_sound_prefix": 17,
+  "original_frame_sound_indices_unchanged": true,
+  "sample_fall_index": 21,
+  "missing_special_samples": [
+    "SAMPLE_GO",
+    "SAMPLE_TIMEOVER",
+    "SAMPLE_BIKE"
+  ],
+  "missing_sample_binding": -1,
+  "missing_special_loader_does_not_abort_source_startup": true,
+  "authored_bounce_cases": 1,
+  "native_guard_cases": 36,
+  "ordinary_landing_cases": 30,
+  "authored_bounce_observer": "actual AIR, velocity, source sound admission, authored landframe script/effects, gravity commit, movement and WorldAck",
+  "dsp_brr_blocks_observed": 374,
+  "dsp_skipped_blocks": 0,
+  "dsp_repeated_blocks": 0,
+  "dsp_fingerprint_mismatches": 0,
+  "dsp_samples_observed": 17297,
+  "controller_policy": "pinned engine/sdl/control.c control_rumble body is empty; equivalent native no-op",
+  "sound_start_policy": "asynchronous source service; busy retains POST lease and requires continuation",
+  "busy_guard_instrumented": true,
+  "authored_concurrent_audio_timing_proven": false,
+  "audio_policy": "ACCEPTED_COMPAT mono PCM_u8/11025Hz then TAD BRR, complete source duration",
+  "fixture_frame_table_bank": 40,
+  "fixture_bank_empty_bytes_verified": true,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "no_pcm_copies": true,
+  "no_color_reduction": true,
+  "foreign_profile_admitted": false,
+  "full_dynamic_world_traversal_proven": false,
+  "motu_gameplay_proven": false
+}

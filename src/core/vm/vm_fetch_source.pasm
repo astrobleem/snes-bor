@@ -45,6 +45,9 @@ Vm_FetchSourceInit:
     sta.l SourceArrowMove4086_Status
     sta.l SourcePhysicsState4086_Ready
     sta.l SourceDamageState4086_Ready
+    sta.l SourceBounceEffects4086_Ready
+    sta.l SourceBounceEffects4086_State
+    sta.l SourceBounceEffects4086_NoRumbleReady
     sta.l SourceAnimationPhysics4086_Ready
     sta.l SourceAnimationPhysics4086_Status
     sta.l SourceAdjustBaseEmpty4086_Ready

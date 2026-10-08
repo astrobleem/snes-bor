@@ -100,8 +100,9 @@ SourceGravityLanding4086_BounceEffects:
 .i16
  lda #3
  sta.l SourceGravityLanding4086_Service
- lda #$8103
- jmp SourceGravityLanding4086_Pending
+ lda #1
+ sta.l SourceGravityLanding4086_State
+ jmp SourceGravityLanding4086_BouncePending
 SourceGravityLanding4086_VelocityComplete:
 .a16
 .i16
@@ -220,6 +221,32 @@ SourceGravityLanding4086_DamagePending:
 .i16
  jmp SourceGravityLanding4086_LiveDamage
 SourceGravityLanding4086_BouncePending:
+.a16
+.i16
+ lda.l SourceBounceEffects4086_Ready
+ beq SourceGravityLanding4086_BounceUnbound
+ cmp #$B62C
+ beq SourceGravityLanding4086_BounceBound
+ jmp SourceGravityLanding4086_Bad
+SourceGravityLanding4086_BounceBound:
+.a16
+.i16
+ jsl SourceBounceEffects4086_Execute
+ bcc SourceGravityLanding4086_BounceProgress
+ jmp SourceGravityLanding4086_Bad
+SourceGravityLanding4086_BounceProgress:
+.a16
+.i16
+ cmp #0
+ beq SourceGravityLanding4086_BounceDone
+ jmp SourceGravityLanding4086_Return
+SourceGravityLanding4086_BounceDone:
+.a16
+.i16
+ lda #0
+ sta.l SourceGravityLanding4086_Service
+ jmp SourceGravityLanding4086_VelocityComplete
+SourceGravityLanding4086_BounceUnbound:
 .a16
 .i16
  lda #$8103

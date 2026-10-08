@@ -8,7 +8,12 @@ from source_frame_effects_4086 import derive,pack,unpack
 def verify(source,folder):
     report=json.loads((folder/'report.json').read_text());table=pack(derive(source))
     assert report['source_frame_table_sha256']==hashlib.sha256(table).hexdigest()
-    assert report['namespace']==unpack(table)['media']
+    if 'sound_namespace'in report:
+        from source_sound_namespace_4086 import derive as sound_namespace
+        expected_namespace=sound_namespace(source)
+        assert report['sound_namespace']==expected_namespace
+        assert report['namespace']==expected_namespace['namespace']
+    else:assert report['namespace']==unpack(table)['media']
     rows=[]
     for row in report['compiled']:
         assert key(report['namespace'][row['sound_index']])==key(row['source_path'])

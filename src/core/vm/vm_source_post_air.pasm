@@ -168,6 +168,7 @@ SourcePostAir4086_MoveFresh:
  sta.l SourceGravityLanding4086_Service
  sta.l SourceLandingDamage4086_Status
  sta.l SourceLandingKill4086_Status
+ sta.l SourceBounceEffects4086_State
  sta.l SourceCheckMove4086_Status
  lda.l SourcePostAir4086_Slot
  sta.l SourceLandingVelocity4086_Slot
