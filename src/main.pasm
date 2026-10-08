@@ -14067,3 +14067,6 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_death_fields.pasm"
 .include "core/vm/vm_source_landing_death.pasm"
 .include "core/vm/vm_source_sound_channels.pasm"
+
+; Generic typed completed-buffer audio consumer continues bank 47.
+.include "core/source_computed_audio.pasm"

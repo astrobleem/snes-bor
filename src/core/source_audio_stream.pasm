@@ -456,6 +456,7 @@ SourceAudio_PollCompletion__zero:
 .a16
     lda #4 ; actual DSP completion; retain namespace identity
     sta.l SourceAudio_Status
+    jsl SourceComputedAudio_OnCompleted
     sep #$20
 .a8
 SourceAudio_PollCompletion__done:

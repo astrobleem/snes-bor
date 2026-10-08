@@ -1,0 +1,514 @@
+{
+  "schema": "BYOR_TYPED_COMPUTED_AUDIO_CONSUMER_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-generic-computed-buffer-zero-tail-native/report.json",
+      "sha256": "8ab7b84f5f11184db6f0b1d0e017216b4b3a8cd1bc3470fb1f9165b071d86788",
+      "report": {
+        "schema": "BYOR_COMPUTED_BRR_PRODUCTION_TRANSPORT_NATIVE_V1",
+        "status": "PASS",
+        "checks": [
+          [
+            "cold reset enters INTRO, not TITLE/PLAYING",
+            true
+          ],
+          [
+            "cold reset is not PLAYING",
+            true
+          ],
+          [
+            "INTRO remains reachable through second scene card",
+            true
+          ],
+          [
+            "INTRO -> TITLE",
+            true
+          ],
+          [
+            "native leaf batch completed",
+            true
+          ],
+          [
+            "generic buffer retires only its admitted generation after DSP completion",
+            true
+          ],
+          [
+            "native produced BRR matches authority before transport",
+            true
+          ],
+          [
+            "native produced source mixture matches pinned C",
+            true
+          ]
+        ],
+        "proof": {
+          "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+          "status": "PASS",
+          "source_path": "private-proof/computed-twelve-source-buffer",
+          "source_sha256": "081529b6f018a5ca4ef1b1f1b5772902b948d3890cfb8b37582baa8604778fe8",
+          "compiled_brr_sha256": "459b599008259c8e360ef740f06dba5cac7605df07280863c706391a1ccce935",
+          "compiled_brr_bytes": 108,
+          "chunks": 1,
+          "meaningful_byte_mismatches": 0,
+          "padding_byte_mismatches": 0,
+          "observer_peak_chunk_gap": 1,
+          "observed_consumer_underruns": 0,
+          "first_active_field": 10,
+          "last_active_field": 10,
+          "active_fields": 1,
+          "expected_active_fields": 1.0467670182773985,
+          "effective_sample_rate_hz": 11023.4375,
+          "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+          "prefill_chunks": 0,
+          "voice0_srcn": 33,
+          "voice0_pitch": 1411,
+          "voice0_gain": 127,
+          "final_voice0_envelope": 0,
+          "audio_recording_pcm_sha256": "b6d2868dc1a3529e40d893d8c9966981379870d6d69ddf729c0339d696ee95de",
+          "audio_recording_file_sha256": "a92271284d08b2ee4eda26604fa1d49e24863f81650c4e2a33a661a7192b941d",
+          "dsp_source_block_traversal": {
+            "source_blocks": 12,
+            "observed_blocks": 12,
+            "skipped_blocks": 0,
+            "repeated_blocks": 0,
+            "block_fingerprint_mismatches": 0,
+            "dsp_samples": 484,
+            "endx_sample": 484,
+            "voice_pcm_sha256": "e1eaeec41c45debcb879f0c58a2c402d0da2bd7791065b5abb64cfe3e061eef9",
+            "trace_sha256": "964538995808cbdfbb1cb7507e9e58f70656024b53e85d5beaa7148321168a2d"
+          },
+          "policy": {
+            "policy": "ACCEPTED_COMPAT",
+            "output": "mono 11025 uniform gain 64; native predictive BRR"
+          },
+          "private_runtime_only": true,
+          "legacy_gameplay_paused": true,
+          "sample_exact_recording_proven": false,
+          "concurrent_audio_proven": false,
+          "production_binding_installed": false,
+          "motu_gameplay_proven": false,
+          "no_color_reduction": true
+        },
+        "ROM_sha256": "db0a165286c96e388cc78142940f11fc32f189227c0b1cf8aef5ea2dc9d54802",
+        "producer_component_ROM": "58ca8bd4ca794c71eee88ed2db9d0ff98304a3e22b501f760ca74d8490ae2611",
+        "native_source_voices": 12,
+        "native_output_samples": 192,
+        "buffer_pointer": "422200",
+        "native_producer_to_production_TAD": true,
+        "generic_computed_buffer_admission": true,
+        "native_transport_tail_zeroed": true,
+        "PCM_media_linked": false,
+        "computed_buffer_control": {
+          "hex": "6cb686403412040000226c000c00010086403412040001009022",
+          "state": 4,
+          "status": 4,
+          "generation": "86403412",
+          "consumer_generation": "86403412"
+        },
+        "source_workspace_lease_installed": false,
+        "SA1_worker_replaced_in_private_paused_fixture": true,
+        "continuous_mixing": false,
+        "joint_hybrid_graphics": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out/byor-motu-computed-buffer-rejections-native/report.json",
+      "sha256": "4431cbc52ebc3270c559aaaabd9e1223b6ab0146f399bda6c93aad445d735912",
+      "report": {
+        "schema": "BYOR_COMPUTED_BUFFER_NATIVE_REJECTIONS_V1",
+        "status": "PASS",
+        "cases": [
+          {
+            "name": "disabled",
+            "expected_status": 2
+          },
+          {
+            "name": "writing",
+            "expected_status": 2
+          },
+          {
+            "name": "already_consuming",
+            "expected_status": 2
+          },
+          {
+            "name": "zero_generation",
+            "expected_status": 2
+          },
+          {
+            "name": "stale_low",
+            "expected_status": 2
+          },
+          {
+            "name": "stale_high",
+            "expected_status": 2
+          },
+          {
+            "name": "zero_blocks",
+            "expected_status": 2
+          },
+          {
+            "name": "too_many_blocks",
+            "expected_status": 2
+          },
+          {
+            "name": "wrong_length",
+            "expected_status": 2
+          },
+          {
+            "name": "meaningful_extent",
+            "expected_status": 2
+          },
+          {
+            "name": "padded_extent",
+            "expected_status": 2
+          },
+          {
+            "name": "zero_chunks",
+            "expected_status": 2
+          },
+          {
+            "name": "too_many_chunks",
+            "expected_status": 2
+          },
+          {
+            "name": "wrong_chunk_count",
+            "expected_status": 2
+          },
+          {
+            "name": "intermediate_end",
+            "expected_status": 2
+          },
+          {
+            "name": "final_loop",
+            "expected_status": 2
+          },
+          {
+            "name": "nonzero_padding",
+            "expected_status": 2
+          },
+          {
+            "name": "busy",
+            "expected_status": 3
+          }
+        ],
+        "checks": [
+          [
+            "cold reset enters INTRO, not TITLE/PLAYING",
+            true
+          ],
+          [
+            "cold reset is not PLAYING",
+            true
+          ],
+          [
+            "INTRO remains reachable through second scene card",
+            true
+          ],
+          [
+            "INTRO -> TITLE",
+            true
+          ],
+          [
+            "native leaf batch completed",
+            true
+          ],
+          [
+            "all stale and malformed native cases execute in order",
+            true
+          ],
+          [
+            "rejected offers do not activate the reserved DSP voice",
+            true
+          ]
+        ],
+        "ROM_sha256": "c36f53496948024b000d1dc200d4b23ece193b08f45cc9e138795830699cac71",
+        "active_identity_preserved": true,
+        "consumer_generation_preserved": true,
+        "no_color_reduction": true,
+        "production_workspace_lease": false,
+        "motu_gameplay_proven": false,
+        "PCM_media_linked": false,
+        "scope": "Private paused native rejection cases with compiler-owned payload. Actual consumer code rejects each offer without changing active source identity, admitted generation or stream state."
+      }
+    },
+    {
+      "path": "out/byor-motu-computed-buffer-bor-smoke/report.json",
+      "sha256": "1c874b8848c49a11a696cd0ecd37bb50f3ab31602e5c562af5ab8d6f9dd5fd32",
+      "report": {
+        "schema": "BYOR_SHARED_AUDIO_BOR_SMOKE_V1",
+        "status": "PASS",
+        "rom_sha256": "7113355aabe5e771f3a8b5085ac96e292a4abf93cf5db598745326fb92ec289b",
+        "checks": [
+          [
+            "cold reset enters INTRO, not TITLE/PLAYING",
+            true
+          ],
+          [
+            "cold reset is not PLAYING",
+            true
+          ],
+          [
+            "INTRO remains reachable through second scene card",
+            true
+          ],
+          [
+            "INTRO -> TITLE",
+            true
+          ],
+          [
+            "source KULA selection and generated selected-set campaign entry zero",
+            true
+          ],
+          [
+            "first stage remains PLAYING through bounded native observation",
+            true
+          ],
+          [
+            "ordinary static source presentation becomes visible with no hard source admission errors",
+            true
+          ],
+          [
+            "idle stream remains unclaimed",
+            true
+          ]
+        ],
+        "player": "KULA",
+        "selected_set": 0,
+        "campaign_id": 3,
+        "visible_oam_entries": 10,
+        "busy_retry_observations": 192,
+        "source_presentation": "existing static OBJ",
+        "full_campaign_regression_run": false,
+        "motu_gameplay_proven": false,
+        "bounded_observation_summary": {
+          "count": 218,
+          "first": {
+            "field": 0,
+            "state": 0,
+            "source_calls": 0,
+            "source_error": 0,
+            "actor_errors": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "committed_nmi": 97,
+            "stream_active": 0
+          },
+          "last": {
+            "field": 217,
+            "state": 0,
+            "source_calls": 24,
+            "source_error": 39,
+            "actor_errors": [
+              39,
+              39,
+              0,
+              0,
+              0,
+              0
+            ],
+            "committed_nmi": 313,
+            "stream_active": 0
+          }
+        }
+      }
+    },
+    {
+      "path": "out/byor-motu-hardlink-slot-reclamation.json",
+      "sha256": "f7d45eb1c4856ce297bb9b2af2e33975b2e5da2d55271e8f01c78f40f7a64188",
+      "report": {
+        "status": "PASS",
+        "purpose": "Release hardlink slots for one native proof",
+        "paths": [
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-1.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-1.pcm",
+            "file_id": "0x000000000000000000080000000d744d",
+            "length": 27454952
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-10.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-10.pcm",
+            "file_id": "0x000000000000000000020000000148de",
+            "length": 16511112
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-11.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-11.pcm",
+            "file_id": "0x000000000000000000020000000148df",
+            "length": 85409288
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-12.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-12.pcm",
+            "file_id": "0x000000000000000000020000000148e0",
+            "length": 58233864
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-13.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-13.pcm",
+            "file_id": "0x000000000000000000020000000148e1",
+            "length": 72817928
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-14.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-14.pcm",
+            "file_id": "0x00000000000000000004000000013b62",
+            "length": 14741144
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-15.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-15.pcm",
+            "file_id": "0x00000000000000000003000000014e39",
+            "length": 34435592
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-16.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-16.pcm",
+            "file_id": "0x0000000000000000000300000001374d",
+            "length": 46840328
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-17.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-17.pcm",
+            "file_id": "0x00000000000000000003000000013980",
+            "length": 5248664
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-18.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-18.pcm",
+            "file_id": "0x00000000000000000003000000013981",
+            "length": 7811000
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-19.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-19.pcm",
+            "file_id": "0x00000000000000000003000000013982",
+            "length": 6749512
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-2.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-2.pcm",
+            "file_id": "0x000000000000000000050000000148d6",
+            "length": 42435080
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-20.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-20.pcm",
+            "file_id": "0x00000000000000000003000000014161",
+            "length": 5493496
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-21.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-21.pcm",
+            "file_id": "0x00000000000000000003000000014162",
+            "length": 16739128
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-22.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-22.pcm",
+            "file_id": "0x000000000000000000170000000141f5",
+            "length": 8575864
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-23.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-23.pcm",
+            "file_id": "0x000000000000000000030000000144c6",
+            "length": 13171272
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-24.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-24.pcm",
+            "file_id": "0x00000000000000000008000000014561",
+            "length": 10285768
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-25.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-25.pcm",
+            "file_id": "0x0000000000000000000300000001818d",
+            "length": 14289976
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-26.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-26.pcm",
+            "file_id": "0x0000000000000000000f0000000104bb",
+            "length": 12847160
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-3.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-3.pcm",
+            "file_id": "0x000000000000000000020000000148d7",
+            "length": 1556904
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-4.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-4.pcm",
+            "file_id": "0x000000000000000000020000000148d8",
+            "length": 68091912
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-5.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-5.pcm",
+            "file_id": "0x000000000000000000020000000148d9",
+            "length": 17154056
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-6.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-6.pcm",
+            "file_id": "0x000000000000000000020000000148da",
+            "length": 61263368
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-7.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-7.pcm",
+            "file_id": "0x000000000000000000020000000148db",
+            "length": 25718024
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-8.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-8.pcm",
+            "file_id": "0x000000000000000000020000000148dc",
+            "length": 627720
+          },
+          {
+            "path": "E:\\gh\\snes-bor\\out\\byor-motu-computed-brr-production-transport-native\\bor-9.pcm",
+            "canonical": "E:\\gh\\snes-bor\\out\\byor-motu-vm-regression\\bor-9.pcm",
+            "file_id": "0x000000000000000000020000000148dd",
+            "length": 59682824
+          }
+        ],
+        "canonical_identity_preserved": true,
+        "free_before": 101342031872,
+        "free_after": 101342031872,
+        "measured_free_delta": 0,
+        "PCM_copied": false
+      }
+    }
+  ],
+  "allocation": {
+    "start": "7FBFC0",
+    "exclusive_end": "7FBFDA",
+    "preceding_authority": "SOURCE_PLAYER_STATS_END=7FBFC0",
+    "following_authority": "VmSlots_Wram=7FC000",
+    "code_bank": 47,
+    "bank_zero_growth_bytes": 0
+  },
+  "audit": {
+    "path": "out/byor-motu-computed-buffer-audit.log",
+    "sha256": "9fea39bf955132fd32bbaa361dcf7cfc29e8a553a53a7e2361dcb2d6087cc0ed",
+    "all_checks_pass": true
+  },
+  "production_workspace_lease": false,
+  "continuous_mixing": false,
+  "joint_hybrid_graphics": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "scope": "Generic completed-buffer consumer validates epoch, padded physical extent, packet shape and BRR END policy; admits actual SA-1 generated BRR through production TAD and retires the matching epoch only after native DSP completion. The caller must acquire and retain an exclusive CHR workspace; no live producer currently publishes this offer."
+}

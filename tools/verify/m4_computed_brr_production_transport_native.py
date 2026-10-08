@@ -133,20 +133,26 @@ ComputedAudioProduced:
  lda.l $413FF2
  cmp #$DEAD
  beq ComputedAudioBad
- lda #0
- jsl STARTSOURCE
- bcs ComputedAudioBad
- ; StartSource resets transport but performs no source read. The private
- ; typed offer then selects the completed, immutable native BRR buffer.
+ lda #$4086
+ sta.l OFFERGENERATION
+ lda #$1234
+ sta.l OFFERGENERATION+2
  lda #$2200
- sta.l SOURCEBASE
- sep #$20
-.a8
- lda #$42
- sta.l SOURCEBANK
- rep #$30
-.a16
-.i16
+ sta.l OFFEROFFSET
+ lda #108
+ sta.l OFFERBYTES
+ lda #12
+ sta.l OFFERBLOCKS
+ lda #1
+ sta.l OFFERCHUNKS
+ lda #2
+ sta.l OFFERSTATE
+ lda #$B66C
+ sta.l OFFERREADY
+ lda #$4086
+ ldx #$1234
+ jsl STARTCOMPUTED
+ bcs ComputedAudioBad
 ComputedAudioPublished:
  nop
  plb
@@ -191,8 +197,9 @@ def main():
  if gather[-4:]!=bytes.fromhex('5c 00 a9 01') or encoder[-4:]!=bytes.fromhex('5c 00 ab 01'):
   raise ValueError('COMPUTED_AUDIO_WORKER_LAYOUT')
  gather=gather[:-4]+bytes.fromhex('5c 00 90 3b')
- encoder=encoder[:-4]+bytes([0x4c])+struct.pack('<H',0x3500+len(encoder)-4)
- encoder=encoder.replace(bytes.fromhex('a9 b6 b4 8f f0 3f 41'),bytes.fromhex('a9 ab b4 8f f0 30 00'))
+ encoder=encoder[:-4]+bytes.fromhex('5c 00 91 3b')
+ encoder=encoder.replace(bytes.fromhex('a9 b6 b4 8f f0 3f 41'),bytes.fromhex('ea ea ea ea ea ea ea'))
+ finish=Code(0x9100);finish.emit('c2 30 a9 00 00 a2 00 00');finish.label('padding');finish.emit('9f 6c 22 42 e8 e8');finish.word(0xe0,36);finish.branch(0xd0,'padding');finish.emit('a9 ab b4 8f f0 30 00');finish.label('stop');finish.jump('stop');finish=finish.finish()
  glue=Code(0x9000);glue.emit('e2 20 a9 00 48 ab a9 80 8d 30 22 a9 20 8d 0b 22 c2 20 a9 00 88 8d 32 22 e2 20 a9 3b 8d 34 22 c2 20');glue.word(0xa9,len(encoder));glue.emit('8d 38 22 a9 00 35 8d 35 22 5c 00 35 00');glue=glue.finish()
  def transform(raw,sy):
   audio_transform(raw,sy)
@@ -200,7 +207,7 @@ def main():
   # E banks; its unused expected payload remains at E0, outside these tables.
   if any(raw[0x210000:0x3f0000]):raise ValueError('COMPUTED_AUDIO_ROM_TABLE_RESERVATION')
   raw[0x210000:0x3f0000]=producer[0x210000:0x3f0000]
-  for address,data in ((59*32768,gather),(59*32768+0x800,encoder),(59*32768+0x1000,glue)):
+  for address,data in ((59*32768,gather),(59*32768+0x800,encoder),(59*32768+0x1000,glue),(59*32768+0x1100,finish)):
    if any(raw[address:address+len(data)]):raise ValueError('COMPUTED_AUDIO_ROM_WORKER_RESERVATION')
    raw[address:address+len(data)]=data
   at=offset(sy['Core_Nmi_WaitFrame'])
@@ -210,9 +217,12 @@ def main():
  def closeout(m,sy,completed):
   diagnostic=dict(completed=completed,SCPU=m.get_cpu_state('Snes'),SA1=m.get_cpu_state('Sa1'),registers=m.read_memory('SnesMemory',0x2200,0x40).hex(),native_status=m.read_memory('SnesMemory',0x413ff0,10).hex(),IRAM_status=m.read_memory('SnesMemory',0x0030f0,2).hex(),SCPU_trace=m.trace_log(48),SA1_trace=m.trace_log(12,'Sa1'))
   (out/'native-dispatch-diagnostic.json').write_text(json.dumps(diagnostic,indent=2)+'\n');audio_closeout(m,sy,completed)
+  control=m.read_memory('SnesMemory',sy['SourceComputedAudio_Ready'],26);(out/'computed-buffer-control.json').write_text(json.dumps(dict(hex=control.hex(),state=int.from_bytes(control[6:8],'little'),status=int.from_bytes(control[20:22],'little'),generation=control[2:6].hex(),consumer_generation=control[16:20].hex()),indent=2)+'\n')
  def before(m,sy):
   audio_before(m,sy)
   m.write_u16(REQUEST+6,0)
+  m.write_u16(sy['SourceComputedAudio_Ready'],0)
+  m.write_u16(sy['SourceComputedAudio_State'],0)
   for name in ('SourceVMRun4086_Ready','SourceVMRun4086_Busy','VmSourceFrame_Pending'):
    m.write_u16(sy[name],0)
   m.write_u16(sy['Game_State'],3)
@@ -223,20 +233,23 @@ emu.addMemoryCallback(function()
  emu.log('COMPUTEDBRR|'..table.concat(bytes))
  local pcm={};for j=0,383 do pcm[#pcm+1]=string.format('%02x',emu.read(0x422000+j,emu.memType.snesMemory))end
  emu.log('COMPUTEDPCM|'..table.concat(pcm))
+ local tail={};for j=108,143 do tail[#tail+1]=string.format('%02x',emu.read(0x422200+j,emu.memType.snesMemory))end;emu.log('COMPUTEDTAIL|'..table.concat(tail))
 end,emu.callbackType.exec,COMPUTEDPRODUCED,COMPUTEDPRODUCED,emu.cpuType.snes,emu.memType.snesMemory)
-for name,address in pairs({produced=COMPUTEDPRODUCED,published=PUBLISHED,bad=PRIVATEBAD,waitbad=WAITBAD,leafafter=AFTER})do
+for name,address in pairs({invalid=COMPUTEDINVALID,produced=COMPUTEDPRODUCED,published=PUBLISHED,bad=PRIVATEBAD,waitbad=WAITBAD,leafafter=AFTER})do
  emu.addMemoryCallback(function()local state=emu.getState();emu.log('COMPUTEDRETURN|'..name..'|'..tostring(state['cpu.ps'])..'|'..tostring(state['cpu.a']))end,emu.callbackType.exec,address,address,emu.cpuType.snes,emu.memType.snesMemory)
 end
 '''
  r=Reporter('M4-NATIVE-COMPUTED-BRR-PRODUCTION-TRANSPORT',kind='GATE')
  env={'MESEN_VOICE_CAPTURE_PATH':str(out/'voice0.raw'),'MESEN_VOICE_CAPTURE_VOICE':'0','MESEN_VOICE_CAPTURE_ARM_FILE':str(out/'voice0.raw.arm')}
- raw,log=run_fixture(a.rom,out,[dict(native_source_voices=12)],'ComputedAudioFixture','SourceAudio_Status',0xb4ad,[],lua,r,append=ASM.replace('WORKERBYTES',str(len(gather))),bindings=dict(STARTSOURCE='SourceAudio_Start',SOURCEBASE='SourceAudio_BaseLo',SOURCEBANK='SourceAudio_BaseBank',REALWAIT='Tad_StreamWaitFrame'),probes=dict(COMPUTEDPRODUCED='ComputedAudioProduced',PUBLISHED='ComputedAudioPublished',PRIVATEBAD='ComputedAudioBad',WAITBAD='ComputedAudioWaitBad'),batch_size=1,frame_limit=200,rom_transform=transform,before_start=before,closeout=closeout,emulator_env=env)
+ raw,log=run_fixture(a.rom,out,[dict(native_source_voices=12)],'ComputedAudioFixture','SourceAudio_Status',0xb4ad,[],lua,r,append=ASM.replace('WORKERBYTES',str(len(gather))),bindings=dict(STARTCOMPUTED='SourceComputedAudio_Start',OFFERGENERATION='SourceComputedAudio_Generation',OFFEROFFSET='SourceComputedAudio_Offset',OFFERBYTES='SourceComputedAudio_Bytes',OFFERBLOCKS='SourceComputedAudio_Blocks',OFFERCHUNKS='SourceComputedAudio_Chunks',OFFERSTATE='SourceComputedAudio_State',OFFERREADY='SourceComputedAudio_Ready',REALWAIT='Tad_StreamWaitFrame',COMPUTEDINVALID='SourceComputedAudio_Start__invalid'),probes=dict(COMPUTEDPRODUCED='ComputedAudioProduced',PUBLISHED='ComputedAudioPublished',PRIVATEBAD='ComputedAudioBad',WAITBAD='ComputedAudioWaitBad'),batch_size=1,frame_limit=200,rom_transform=transform,before_start=before,closeout=closeout,emulator_env=env,link_pcm=False)
  proof=verify(out,assets,require_dsp_trace=True)
  def captured(tag):return [bytes.fromhex(line.split(tag+'|',1)[1])for line in log.splitlines()if tag+'|'in line]
  brr=captured('COMPUTEDBRR');pcm=captured('COMPUTEDPCM')
+ control=json.loads((out/'computed-buffer-control.json').read_text())
+ r.check('generic buffer retires only its admitted generation after DSP completion',control['state']==4 and control['status']==4 and control['generation']==control['consumer_generation'])
  r.check('native produced BRR matches authority before transport',brr==[expected])
  r.check('native produced source mixture matches pinned C',len(pcm)==1 and hashlib.sha256(pcm[0]).hexdigest()==audio_report['mixed_sha256'])
- result=dict(schema='BYOR_COMPUTED_BRR_PRODUCTION_TRANSPORT_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',checks=r.results,proof=proof,ROM_sha256=hashlib.sha256(raw).hexdigest(),producer_component_ROM=pr['ROM_sha256'],native_source_voices=12,native_output_samples=192,buffer_pointer='422200',native_producer_to_production_TAD=True,source_workspace_lease_installed=False,SA1_worker_replaced_in_private_paused_fixture=True,continuous_mixing=False,joint_hybrid_graphics=False,motu_gameplay_proven=False,no_color_reduction=True)
+ result=dict(schema='BYOR_COMPUTED_BRR_PRODUCTION_TRANSPORT_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',checks=r.results,proof=proof,ROM_sha256=hashlib.sha256(raw).hexdigest(),producer_component_ROM=pr['ROM_sha256'],native_source_voices=12,native_output_samples=192,buffer_pointer='422200',native_producer_to_production_TAD=True,generic_computed_buffer_admission=True,native_transport_tail_zeroed=True,PCM_media_linked=False,computed_buffer_control=control,source_workspace_lease_installed=False,SA1_worker_replaced_in_private_paused_fixture=True,continuous_mixing=False,joint_hybrid_graphics=False,motu_gameplay_proven=False,no_color_reduction=True)
  (out/'report.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))
  if result['status']!='PASS':raise SystemExit(1)
 
