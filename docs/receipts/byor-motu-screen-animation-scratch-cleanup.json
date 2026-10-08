@@ -1,0 +1,200 @@
+{
+  "status": "OWNED_REPRODUCIBLE_ANIMATION_ROM_SCRATCH_REMOVED",
+  "files": [
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-00\\proof.sfc",
+      "sha256": "e5972142eb8f2cea8de98fd015cb1ea9ecd12c736ab02839d67fea38b6631027",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-01\\proof.sfc",
+      "sha256": "51755a7211d55de451d8ca873140da458bd74105f219b6f8dc1ff7263e0abe8c",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-02\\proof.sfc",
+      "sha256": "b24361d8cdb4302caa9796b86fd05395418426c8532ff1da8af7034f8ed56cd1",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-03\\proof.sfc",
+      "sha256": "1413b2bc1129958a11d15054209555b5bf3570742b8e85eb9de16bcea0c7fb18",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-04\\proof.sfc",
+      "sha256": "b9aee1b36839923e85eb1bb21d40cbcb7d612a0b0a1a349e143bf64c7aea3d85",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-05\\proof.sfc",
+      "sha256": "db5072a42a11d68c1fa1a979173118cbac683f9d6890863cd97cfa78e3228c09",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-06\\proof.sfc",
+      "sha256": "f3f3501340c0fdff1033b54cd9c6462ccc98b7ef6708cfb9d57545ae352e2272",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-07\\proof.sfc",
+      "sha256": "9bd865eec0eec7c7100096c81a76331443ccf3065adef9ac684e0ab3f8cfd3d2",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-08\\proof.sfc",
+      "sha256": "55a70f02bbde9b90e72f96cde853d75e2207b1c763cb190b80f25bf6ebf5cb82",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-09\\proof.sfc",
+      "sha256": "5de01347104bda7d91d274395d8d41eb80af26bd910fceb14b42e0330e541403",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-10\\proof.sfc",
+      "sha256": "4f91d8c69fbb0d728777093790ef87fb30fb99946722e5056ef9c8a402573cdb",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-12\\proof.sfc",
+      "sha256": "dd8863ea04de6d2e81d8f45a260543dfe230179fc6c3685b60d262572d21f955",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-13\\proof.sfc",
+      "sha256": "b08eb7b3cfa8aaeb8b9cd08d1aa0f9e4678b3acd5deb56cbf83941b10da98ed6",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-14\\proof.sfc",
+      "sha256": "6e00f38b1c2de8886d20c98d41a6e99c179aabcf0fef900ba15552e11c20d6ce",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-15\\proof.sfc",
+      "sha256": "7a71bb2add16a3b11d3a487657f8c6b50167a89e430e25239f80b539c4228666",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-16\\proof.sfc",
+      "sha256": "3167db744113eb92f238421f3f7e96f0c7a6e1bca7f73ff03d4e7ce1e85b68a9",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-17\\proof.sfc",
+      "sha256": "a5d8d718f33a3650307261cd7eecd62d9452816f6d83b132fbce5466059b977b",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-18\\proof.sfc",
+      "sha256": "362b89753af383556cabdfeaeb633e9f96c874b56e03ee292611784281aacfd4",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-19\\proof.sfc",
+      "sha256": "345cbcf6a9fd10ac4695c0ac5026e14cfab8f6fab8d2f66c5d3ccba71f608233",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-20\\proof.sfc",
+      "sha256": "a5fe3c416727542fb117bc2c0f1a011df3a179587595eea4972abc444918d211",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-21\\proof.sfc",
+      "sha256": "ee6f59981546ea8d73ad0a79ba886d8235d3cd9fe1b7c5c01e9fa2f808bd5d15",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-22\\proof.sfc",
+      "sha256": "be1f8d9af09c6e93daa1d01d312cd299e3c722d836c3f23f4faf8d5675454fc8",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-24\\proof.sfc",
+      "sha256": "a65f37d1b7a9c1b795cf82b9d704504ca73f0c9aa97078d02da62bfb9d4cb0f5",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-25\\proof.sfc",
+      "sha256": "7a8c172d17351580a64fd956c5f1b347c30f5787e1e17049a129b5f9aa592ca7",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-26\\proof.sfc",
+      "sha256": "3e77f18fd0c8ecb57c8d5bbdca1b048f6947664fa05fa075e6bc292e47f02db9",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-27\\proof.sfc",
+      "sha256": "1be3e9385995e4016e9d5995c7131514c3a1714e9b8ccdaad7bc7bd3b8925f0d",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-28\\proof.sfc",
+      "sha256": "3737382259df3b35106f67b1b33c470b9f4f67226405a4465e6db4b9dbcde886",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-29\\proof.sfc",
+      "sha256": "436a51003d979da50a28e559504617a0a193631cec135e2991a507bc11a6212d",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-30\\proof.sfc",
+      "sha256": "661dc80730d21052cfd8bdb191a91faeb19308d48d203b95a4c64192feb10e75",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-31\\proof.sfc",
+      "sha256": "2926b2af8792febdd4c7e77187f079c20fbaa5294bc61e98fbbbbfe03441701c",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-32\\proof.sfc",
+      "sha256": "3f69cedfd778aa0793d8212b7e7edfb68bac735a071db8e395183da235a6b6be",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-33\\proof.sfc",
+      "sha256": "6b7915009299b7c77ce620b0055ed77516d13778bb5f553ef0f74b2ba7735e43",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-34\\proof.sfc",
+      "sha256": "170390723a6962f0446d996f929887c7b95f370587e8dddee4de6cecc14bf458",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-35\\proof.sfc",
+      "sha256": "8931f0f71050909558e90832bf86c71c37c59a2581f7123da49f508a6df5596e",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-36\\proof.sfc",
+      "sha256": "0ccf28dd5e69f3b0cf823a5e069db9870d06a7fee10e35a729edfca40229f18c",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-37\\proof.sfc",
+      "sha256": "2efe38dacd14941869aea5f885d408bad5bc6fb575ed400c150d0856058b2ab5",
+      "bytes": 2097152
+    },
+    {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-screen-animation-cost-native\\frame-38\\proof.sfc",
+      "sha256": "43fe6de5b176b9660e93c097e5b94a1d806cd8cd9d2e15d21d53b41a73d0282a",
+      "bytes": 2097152
+    }
+  ],
+  "apparent_bytes": 77594624.0,
+  "E_free_before": 101598892032,
+  "E_free_after": 101676486656,
+  "measured_free_delta": 77594624,
+  "retained_frames": [
+    11,
+    23
+  ],
+  "observer_logs_and_source_reports_retained": true,
+  "PCM_files_touched": 0
+}

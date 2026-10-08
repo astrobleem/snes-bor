@@ -64,7 +64,7 @@ def shader(descriptors,columns,return_entry,typed_underlay=False,worker_base=0x3
 
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--stage',required=True);p.add_argument('--scene',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--move-actor-index',type=int,default=1);p.add_argument('--move-x',type=int,default=-30);p.add_argument('--retain-stage',action='store_true');p.add_argument('--typed-underlay',action='store_true');p.add_argument('--background-corrections',action='store_true');p.add_argument('--adaptive-shader',action='store_true');a=p.parse_args();a.background_corrections|=a.adaptive_shader;a.typed_underlay|=a.background_corrections;a.retain_stage|=a.background_corrections;out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--stage',required=True);p.add_argument('--scene',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--move-actor-index',type=int,default=1);p.add_argument('--move-x',type=int,default=-30);p.add_argument('--retain-stage',action='store_true');p.add_argument('--typed-underlay',action='store_true');p.add_argument('--background-corrections',action='store_true');p.add_argument('--adaptive-shader',action='store_true');p.add_argument('--invalidate-context',choices=('low','high'));a=p.parse_args();a.background_corrections|=a.adaptive_shader;a.typed_underlay|=a.background_corrections;a.retain_stage|=a.background_corrections;out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
  source=Source(a.source);catalog=derive(source);scene=json.loads(a.scene.read_text());bg,span_desc,pixels,origins,actors,window=compile_inputs(source,a.stage,scene,catalog);wx,wy,w,h=window
  di={tuple(c):i for i,c in enumerate(catalog['destinations'])};pairs,metadata=source_capture.capture(source,a.stage,scene);samples=pairs.reshape(-1,3,2);effect=next(e for e in catalog['effects']if all(tuple(map(int,c))in e['colors']for c in samples[:,:,0]));si={tuple(c):i for i,c in enumerate(effect['colors'])};table=matrix(effect['colors'],catalog['destinations']);source_ids=[si[tuple(map(int,c))]for c in samples[:,:,0]]
  plane,addresses=capture_plane(source,a.stage,scene,di);vw=scene.get('viewport',[256,224])[0];relative=((addresses//2//vw-wy)*w+(addresses//2%vw-wx))*2
@@ -83,7 +83,10 @@ def main():
  moving=[i for i,v in enumerate(actors)if v[4]['kind'].split(':',1)[1].casefold()==scene['actors'][a.move_actor_index]['model'].casefold()]
  if len(moving)!=1:raise ValueError('JOINT_MOVING_ACTOR_DOMAIN')
  for data in(bg,pixels):validate_opaque_identities(data,effect['columns'])
- rom,entries,span_worker=underlay_build(bg,span_desc,pixels,origins,w,h,a.retain_stage,0x3500);rom=bytearray(rom)+bytearray([255])*1048576;screen_worker,screen_entries=shader(desc,effect['columns'],entries['entry'],a.typed_underlay)
+ immutable_layers=[{k:v for k,v in layer.items()if k not in ('position','visible_source_pixels')}for layer in metadata['layers']]
+ immutable_context=dict(layers=immutable_layers,window=list(window),stage=metadata['stage'],stage_sha256=metadata['stage_sha256'],camera=scene.get('camera',[0,0]),viewport=scene.get('viewport',[256,224]))
+ context_digest=hashlib.sha256(bg+span_desc+pixels+coordinates+desc+table.tobytes()+json.dumps(immutable_context,sort_keys=True).encode()).digest();context_epoch=int.from_bytes(context_digest[:4],'little')
+ rom,entries,span_worker=underlay_build(bg,span_desc,pixels,origins,w,h,a.retain_stage,0x3500,context_epoch);rom=bytearray(rom)+bytearray([255])*1048576;screen_worker,screen_entries=shader(desc,effect['columns'],entries['entry'],a.typed_underlay)
  correction_map=None;baseline=None;expected_corrections=[]
  if a.background_corrections:
   correction_map=bytearray(struct.pack('<HI',65535,0)*(w*h));bg_ids=np.frombuffer(bg,dtype='<u2')
@@ -110,7 +113,7 @@ def main():
  observer+=f"emu.addMemoryCallback(function(a,v)regs[a]=v;if a==0x2237 and regs[0x2230]==0x84 then local dst=(regs[0x2235] or 0)+(regs[0x2236] or 0)*256+v*65536;local n=(regs[0x2238] or 0)+(regs[0x2239] or 0)*256;if n==0 then n=65536 end;transfers=transfers+1;bytes=bytes+n;local first=screenStage and 0x27000 or 0x20000;local last=screenStage and {0x27000+len(expected[0])} or {0x20000+w*h*2};if dst<first or dst+n>last then dmaBad=dmaBad+1 end end end,emu.callbackType.write,0x2230,0x2239,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  observer+=f"emu.addMemoryCallback(function(a,v)pixels=pixels+1;if a>={0x427000+len(expected[0])} then pixelBad=pixelBad+1 end end,emu.callbackType.write,0x427000,0x42ffff,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  for n,v in all_entries.items():
-  extra='screenStage=false;transfers=0;bytes=0;dmaBad=0'if n=='underlay_entry'else"emu.log('JOINTDMA|'..transfers..'|'..bytes..'|'..dmaBad)"if n=='underlay_done'else'screenStage=true;transfers=0;bytes=0;dmaBad=0;pixels=0;pixelBad=0'if n=='shader_entry'else"emu.log('JOINTPIXELS|'..pixels..'|'..pixelBad);emu.log('SCREENBASE|'..transfers..'|'..bytes..'|'..dmaBad)"if n=='shader_done'else''
+  extra='screenStage=false;transfers=0;bytes=0;dmaBad=0'if n=='underlay_entry'else"emu.log('JOINTDMA|'..transfers..'|'..bytes..'|'..dmaBad)"if n=='underlay_done'else'screenStage=true;transfers=0;bytes=0;dmaBad=0;pixels=0;pixelBad=0'if n=='shader_entry'else"emu.log('JOINTPIXELS|'..pixels..'|'..pixelBad);emu.log('SCREENBASE|'..transfers..'|'..bytes..'|'..dmaBad)"if n=='shader_done'else"emu.log('EPOCHFAULTDMA|'..transfers..'|'..bytes..'|'..dmaBad)"if n=='underlay_epoch_fault'else''
   observer+=f"emu.addMemoryCallback(function()local s=emu.getState();emu.log('JOINTSCREEN|{n}|'..s.masterClock);{extra};end,emu.callbackType.exec,{v},{v},emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  if a.adaptive_shader:
   v=full_entries['done'];observer+=f"emu.addMemoryCallback(function()local s=emu.getState();emu.log('JOINTSCREEN|shader_done|'..s.masterClock);emu.log('JOINTPIXELS|'..pixels..'|'..pixelBad);emu.log('SCREENBASE|'..transfers..'|'..bytes..'|'..dmaBad);end,emu.callbackType.exec,{v},{v},emu.cpuType.sa1,emu.memType.sa1Memory)\n"
@@ -125,32 +128,39 @@ def main():
   for phase,target in enumerate((b'\xa1\xb4',b'\xab\xb4')):
    for _ in range(60):
     run_frames_exact(m,1);marker=m.read_memory('SnesMemory',0x413ff0,2)
-    if marker in(target,b'\xae\xb4'):break
+    if marker in(target,b'\xae\xb4',b'\xe1\xb4'):break
+   if marker==b'\xe1\xb4' and a.invalidate_context and phase==1:break
    if marker!=target:raise ValueError('JOINT_NATIVE_SCREEN_COMPLETION')
    actual.append(m.read_memory('SnesMemory',0x427000,len(expected[phase])));actual_underlays.append(m.read_memory('SnesMemory',0x420000,len(underlays[phase])))
    counts.append(struct.unpack('<HH',m.read_memory('SnesMemory',0x413ff6,4)))
    if a.background_corrections:correction_counts.append(int.from_bytes(m.read_memory('SnesMemory',0x413ffa,2),'little'))
    if a.adaptive_shader:selected_paths.append(int.from_bytes(m.read_memory('SnesMemory',0x413ffc,2),'little'))
    if phase==0:
-    offset=moving[0]*4;x=struct.unpack_from('<h',origins,offset)[0]+a.move_x;m.write_memory('SnesMemory',0x425000+offset,struct.pack('<h',x).hex());m.write_u16(0x413ff4,1)
- events=[v.split('JOINTSCREEN|',1)[1].split('|')for v in(out/'mesen.log').read_text().splitlines()if'JOINTSCREEN|'in v];names=['underlay_entry','underlay_done','shader_entry','shader_done']*2;clocks=[int(events[i+3][1])-int(events[i][1])for i in(0,4)]if[v[0]for v in events]==names else None;ok=actual==expected and actual_underlays==underlays and clocks is not None
+    offset=moving[0]*4;x=struct.unpack_from('<h',origins,offset)[0]+a.move_x;m.write_memory('SnesMemory',0x425000+offset,struct.pack('<h',x).hex())
+    if a.invalidate_context:
+     half=(context_epoch>>16)if a.invalidate_context=='high'else(context_epoch&65535);m.write_memory('SnesMemory',0x425100+(2 if a.invalidate_context=='high'else 0),struct.pack('<H',half^1).hex())
+    m.write_u16(0x413ff4,1)
+ events=[v.split('JOINTSCREEN|',1)[1].split('|')for v in(out/'mesen.log').read_text().splitlines()if'JOINTSCREEN|'in v];one_names=['underlay_entry','underlay_done','shader_entry','shader_done'];names=one_names+['underlay_entry','underlay_epoch_fault']if a.invalidate_context else one_names*2;clocks=[int(events[i+3][1])-int(events[i][1])for i in((0,)if a.invalidate_context else(0,4))]if[v[0]for v in events]==names else None;ok=actual==expected[:len(actual)] and actual_underlays==underlays[:len(actual_underlays)] and clocks is not None and (not a.invalidate_context or marker==b'\xe1\xb4'and len(actual)==1)
  report=dict(schema='BYOR_NATIVE_UNDERLAY_SCREEN_JOINT_V1',status='PASS'if ok else'FAIL',opaque_pixels=len(order),underlay_pixels=w*h,RGB555_byte_mismatches=[sum(x!=y for x,y in zip(v,e))for v,e in zip(actual,expected)],underlay_RGB8_identity_byte_mismatches=[sum(x!=y for x,y in zip(v,e))for v,e in zip(actual_underlays,underlays)],master_clocks=clocks,milliseconds=[v/21477.27 for v in clocks]if clocks else None,job_events=events,underlay_worker_IRAM_bytes=len(span_worker),shader_worker_IRAM_bytes=len(screen_worker),retained_stage_window=a.retain_stage,rom_sha256=hashlib.sha256(rom).hexdigest(),table_sha256=hashlib.sha256(table.tobytes()).hexdigest(),source_layers=metadata['layers'],no_color_reduction=True,host_supplied_pixel_inputs=False,native_opaque_actor_composition=True,native_SCREEN_shading=True,native_camera_bound=False,native_palette_allocation=False,CHR_publication=False,joint_audio_proven=False,production_memory_lease=False,motu_gameplay_proven=False,scope='Native clipped opaque spans produce underlay identities consumed directly by native exact RGB8 SCREEN shading. Two mutable actor origins, fixed stage/camera/source frame/layer order. No host pixel input between stages. No palette allocation, CHR publication, live VM, production lease or joint audio deadline admission.')
  for phase,data in enumerate(actual):(out/('effect-%d.rgb555'%phase)).write_bytes(data)
  lines=(out/'mesen.log').read_text().splitlines();traces={label:[[int(n)for n in v.split(label+'|',1)[1].split('|')]for v in lines if label+'|'in v]for label in('JOINTDMA','JOINTPIXELS','SCREENBASE')}
  expected_dma=[[values[0]+(counts[i-1][0]if a.retain_stage and i else 1),(2*counts[i-1][1]if a.retain_stage and i else len(bg))+2*values[1],0]for i,values in enumerate(counts)]
  expected_pixel_writes=[[2*n,0]for n in expected_corrections]if a.background_corrections else[[len(v),0]for v in expected]
  expected_baseline_dma=[[1,len(v),0]for v in expected]if a.background_corrections else[[0,0,0]]*2
- active_expected_corrections=list(expected_corrections)
+ active_expected_corrections=list(expected_corrections[:len(actual)])
  if a.adaptive_shader:
   expected_paths=[int(values[1]>=max(1,len(order)//2))for values in counts]
   for i,path in enumerate(expected_paths):
    if path:expected_pixel_writes[i]=[len(expected[i]),0];expected_baseline_dma[i]=[0,0,0];active_expected_corrections[i]=0
  else:expected_paths=[]
- observer_ok=traces['JOINTDMA']==expected_dma and traces['JOINTPIXELS']==expected_pixel_writes and traces['SCREENBASE']==expected_baseline_dma and (not a.background_corrections or correction_counts==active_expected_corrections) and selected_paths==expected_paths
+ observer_ok=traces['JOINTDMA']==expected_dma and traces['JOINTPIXELS']==expected_pixel_writes[:len(actual)] and traces['SCREENBASE']==expected_baseline_dma[:len(actual)] and (not a.background_corrections or correction_counts==active_expected_corrections) and selected_paths==expected_paths
  report.update(observer_traces=traces,expected_DMA_trace=expected_dma,native_DMA_and_shader_output_bounds_proven=observer_ok,compiled_geometry_sha256=hashlib.sha256(coordinates).hexdigest(),compiled_group_descriptors_sha256=hashlib.sha256(desc).hexdigest(),output_sha256=[hashlib.sha256(v).hexdigest()for v in actual])
  report.update(compiler_opaque_RGB8_identity_contract_checked=True,typed_underlay=a.typed_underlay,per_pixel_destination_guards=not a.typed_underlay,identity_producer='Immutable compiler-checked ROM stage/spans; native clipped copies and restores only',arbitrary_underlay_writes_supported=False)
  report.update(precompiled_background_SCREEN=a.background_corrections,native_actor_correction_counts=correction_counts,expected_actor_correction_counts=expected_corrections,correction_map_ROM_bytes=len(correction_map)if correction_map is not None else 0,background_SCREEN_ROM_bytes=len(baseline)if baseline is not None else 0,background_SCREEN_sha256=hashlib.sha256(baseline).hexdigest()if baseline is not None else None,background_epoch_unchanged_required=a.background_corrections,native_baseline_rebuild_bound=False)
  report.update(adaptive_shader=a.adaptive_shader,native_selected_paths=selected_paths,path_legend={'0':'compiled background plus native actor corrections','1':'full typed SCREEN shader'},adaptive_actor_pixel_threshold=max(1,len(order)//2)if a.adaptive_shader else None,full_fallback_IRAM_bytes=len(full_worker)if full_worker else 0,adaptive_policy_optimal=False,correction_map_sha256=hashlib.sha256(correction_map).hexdigest()if correction_map is not None else None)
+ fault_dma=[[int(n)for n in v.split('EPOCHFAULTDMA|',1)[1].split('|')]for v in lines if'EPOCHFAULTDMA|'in v]
+ report.update(compiled_context_epoch=context_epoch,compiled_context_digest=context_digest.hex(),native_context_epoch_admission=True,native_context_owner_bound=False,invalidated_context_half=a.invalidate_context,context_rejection_DMA_trace=fault_dma,proof_kind='EXPECTED_CONTEXT_REJECTION'if a.invalidate_context else'EXACT_NATIVE_PRODUCER_CHAIN')
+ if a.invalidate_context and fault_dma!=[[0,0,0]]:ok=False;report['status']='FAIL'
  if not observer_ok:ok=False;report['status']='FAIL'
  (out/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({k:v for k,v in report.items()if k!='source_layers'}))
  if not ok:raise SystemExit(1)
