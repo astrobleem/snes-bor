@@ -327,7 +327,7 @@ WorldTickFixture_VelocityDone:
     if a.ai_backend:
         asm=asm.replace('WorldTickFixture_Ack:\n.a16\n.i16\n', 'WorldTickFixture_Ack:\n.a16\n.i16\n    lda.l PHASE\n    cmp #6\n    bne WorldTickFixture_AIDone\n    jsl ACK\n    bcs WorldTickFixture_AIEarlyAckRejected\n    jmp WorldTickFixture_PendingFault\nWorldTickFixture_AIEarlyAckRejected:\n.a16\n.i16\n    lda #0\n    sta.l AIOWNERFAULT\n    jsl AIBACKEND\n    bcs WorldTickFixture_PendingFault\n    cmp #0\n    bne WorldTickFixture_PendingFault\nWorldTickFixture_AIObserved:\n.a16\n.i16\n    nop\nWorldTickFixture_AIDone:\n.a16\n.i16\n')
     if a.stationary_post_backend:
-        asm=asm.replace('WorldTickFixture_Ack:\n.a16\n.i16\n','WorldTickFixture_Ack:\n.a16\n.i16\n    lda.l PHASE\n    cmp #11\n    bne WorldTickFixture_PostDone\nWorldTickFixture_PostBefore:\n.a16\n.i16\n    nop\n    jsl POSTSTATIONARY\n    bcs WorldTickFixture_PendingFault\nWorldTickFixture_PostObserved:\n.a16\n.i16\n    nop\nWorldTickFixture_PostDone:\n.a16\n.i16\n')
+        asm=asm.replace('WorldTickFixture_Ack:\n.a16\n.i16\n','WorldTickFixture_Ack:\n.a16\n.i16\n    lda.l PHASE\n    cmp #11\n    bne WorldTickFixture_PostDone\nWorldTickFixture_PostBefore:\n.a16\n.i16\n    nop\n    jsl ACK\n    bcs WorldTickFixture_PostEarlyAckRejected\n    jmp WorldTickFixture_PendingFault\nWorldTickFixture_PostEarlyAckRejected:\n.a16\n.i16\n    lda #0\n    sta.l POSTOWNERFAULT\n    jsl POSTSTATIONARY\n    bcs WorldTickFixture_PendingFault\nWorldTickFixture_PostObserved:\n.a16\n.i16\n    nop\nWorldTickFixture_PostDone:\n.a16\n.i16\n')
     replacements=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,CASES=len(rows),RESUME=entry+5,
         BEGIN=sy['SourceWorldTick4086_Begin'],POLL=sy['SourceWorldTick4086_Poll'],
         ACK=sy['SourceWorldTick4086_Ack'],COMMIT=sy['SourceWorldTick4086_Commit'],
@@ -336,7 +336,7 @@ WorldTickFixture_VelocityDone:
     replacements.update(CLOCKCOMMIT=sy['SourceClock4086_Commit'],CLOCKFAULT=sy['SourceClock4086_Fault'],
                         FAULTINDEX=FAULT_INDEX,VMSTATUS=sy['VmState_Status'],SCRIPTENABLED=int(callback is not None),
                         SCRIPTCALL=sy['SourceVMRun4086_Call'],SCRIPTREADY=sy['SourceVMRun4086_Ready'])
-    if a.stationary_post_backend:replacements['POSTSTATIONARY']=sy['SourcePostStationary4086_Execute']
+    if a.stationary_post_backend:replacements.update(POSTSTATIONARY=sy['SourcePostStationary4086_Execute'],POSTOWNERFAULT=sy['SourceWorldTick4086_Fault'])
     if a.ai_backend:replacements.update(AIBACKEND=sy['SourceAIRun4086_Begin'],AIOWNERFAULT=sy['SourceWorldTick4086_Fault'])
     if a.update_method_source:
         replacements.update(UPDATEMETHOD=sy['SourceUpdateScript4086_Execute'],UPDATEMETHODOWNERFAULT=sy['SourceWorldTick4086_Fault'])
@@ -560,10 +560,11 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
         lua+=f"emu.addMemoryCallback(function()local s=word(sy.SourceWorldTick4086_Slot);emu.log('WORLDTICKCOMMON|'..word(INDEX)..'|'..s..'|'..word(sy.SourceCommonRun4086_State)..'|'..word(sy.SourceCommonThink4086_State)..'|'..dw(0x416814+s*64))end,emu.callbackType.exec,{fs['WorldTickFixture_AIObserved']},{fs['WorldTickFixture_AIObserved']},emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()local s=word(sy.SourceAI4086_Slot);emu.log('COMMONAIFAULT|'..word(INDEX)..'|'..s..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceCommonRun4086_State)..'|'..word(sy.SourceCommonThink4086_State)..'|'..word({sy['SourceAIReadonly4086_Status']})..'|'..dw(0x41400c+s*80)..'|'..dw(0x416830+s*64)..'|'..word(0x416800+s*64)..'|'..dw(0x40902c+s*64)..'|'..word({sy['SourceScriptClone4086_Status']}))end,emu.callbackType.exec,{sy['SourceAIRun4086_Bad']},{sy['SourceAIRun4086_Bad']},emu.cpuType.snes,mt)\n"
     if a.stationary_post_backend:
-        settings=dict(SourceSelf4086_Ready=0xb4f6,SourceSelf4086_Active=0,SourceSelf4086_Fault=0,SourceGravityIdle4086_Ready=0xb619,SourceGravityIdle4086_Status=0,SourceCheckMove4086_Ready=0xb617,SourceCheckMove4086_Status=0,SourceModelEntityCopy4086_Ready=0xb4eb,SourceModelEntityCopy4086_Models=1,VmSourceWorld_TemplateCount=1,SourceEmptyInitEnvironment4086_Status=0,SourceEmptyInitEnvironment4086_Ready=0xb504,SourceEmptyInitEnvironment4086_Models=1,SourceEmptyInitEnvironment4086_Stage=1,SourceEnvironment4086_Ready=0xb4d1,SourceEnvironment4086_Stage=1,SourceEnvironment4086_WallCount=0)
+        settings=dict(SourcePostStationary4086_Ready=0xb61a,SourcePostStationary4086_Status=0,SourcePostStationary4086_Slot=0,SourceSelf4086_Ready=0xb4f6,SourceSelf4086_Active=0,SourceSelf4086_Fault=0,SourceGravityIdle4086_Ready=0xb619,SourceGravityIdle4086_Status=0,SourceCheckMove4086_Ready=0xb617,SourceCheckMove4086_Status=0,SourceModelEntityCopy4086_Ready=0xb4eb,SourceModelEntityCopy4086_Models=1,VmSourceWorld_TemplateCount=1,SourceEmptyInitEnvironment4086_Status=0,SourceEmptyInitEnvironment4086_Ready=0xb504,SourceEmptyInitEnvironment4086_Models=1,SourceEmptyInitEnvironment4086_Stage=1,SourceEnvironment4086_Ready=0xb4d1,SourceEnvironment4086_Stage=1,SourceEnvironment4086_WallCount=0)
         velocity_init+='\n'.join(f'put({sy[k]},{v},2)'for k,v in settings.items())+'\n'
         velocity_init+=f'put({sy["SourceSelf4086_GlobalLow"]},0,4)\nput({sy["SourceModelEntityCopy4086_Entities"]},c.n,2)\nput({sy["VmSourceWorld_Level"]},1,2)\n'
         velocity_init+='for s=0,c.n-1 do local v=0x414000+s*80;put(v,v,4);put(v+4,bit(c.alive,s),4);put(v+8,2,4);put(v+12,93*65536,4);put(v+48,2,4);put(v+52,80*65536,4);put(v+56,2,4);put(v+60,220*65536,4);put(0x416800+s*64,0,2);put(0x416818+s*64,0,4);put(0x41682c+s*64,0,4);put(0x416830+s*64,0,4);put(0x439004+s*80,0,4);put(0x439048+s*80,0,2);put(0x43904a+s*80,0xb4fb,2);put(0x40c014+s*96,0,4);put(0x40c024+s*96,1,4);put(0x40c048+s*96,0,4);put(0x41f300+s*4,0,4)end\n'
+        lua+=f"emu.addMemoryCallback(function()emu.log('WORLDTICKPOSTEARLYACK|'..word(INDEX)..'|'..word(sy.SourceWorldTick4086_Slot)..'|'..word(sy.SourceWorldTick4086_Fault)..'|'..word({sy['SourcePostStationary4086_Status']})..'|'..word({sy['SourcePostStationary4086_Slot']}))end,emu.callbackType.exec,{fs['WorldTickFixture_PostEarlyAckRejected']},{fs['WorldTickFixture_PostEarlyAckRejected']},emu.cpuType.snes,mt)\n"
         lua+=f"local post_old=0;emu.addMemoryCallback(function()post_old=dw(sy.SourceSelf4086_GlobalLow)end,emu.callbackType.exec,{fs['WorldTickFixture_PostBefore']},{fs['WorldTickFixture_PostBefore']},emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()local s=word(sy.SourceWorldTick4086_Slot);emu.log('WORLDTICKPOST|'..word(INDEX)..'|'..s..'|'..word(sy.SourceWorldTick4086_State)..'|'..post_old..'|'..dw(sy.SourceSelf4086_GlobalLow)..'|'..word({sy['SourceGravityIdle4086_Status']})..'|'..word({sy['SourceCheckMove4086_Status']})..'|'..dw(0x42e024+s*40)..'|'..dw(0x414034+s*80)..'|'..dw(0x41403c+s*80))end,emu.callbackType.exec,{fs['WorldTickFixture_PostObserved']},{fs['WorldTickFixture_PostObserved']},emu.cpuType.snes,mt)\n"
     lua=lua.replace('SCRIPTDEFINITIONS',script_definitions).replace('SCRIPTINIT',velocity_init+script_init).replace('SCRIPTPREPARE',script_prepare)
@@ -571,7 +572,7 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
         FAULTINDEX=FAULT_INDEX,FAULTINIT=fs['WorldTickFixture_FaultInit'],FAULTOBSERVE=fs['WorldTickFixture_FaultObserved']).items():
         lua=re.sub(r'\b'+key+r'\b',str(value),lua)
     lua+=f"emu.addMemoryCallback(function()emu.log('WORLDTICKOWNERFAULT|'..word({INDEX})..'|'..word(sy.SourceWorldTick4086_Phase)..'|'..word(sy.SourceWorldTick4086_Fault)..'|'..word(sy.SourceClock4086_Fault))end,emu.callbackType.exec,{fs['WorldTickFixture_Fault']},{fs['WorldTickFixture_Fault']},emu.cpuType.snes,mt)\n"
-    lua+=f"emu.addMemoryCallback(function()put({sy['SourceAIRun4086_Ready']},0,2);put({sy['SourceUpdateScript4086_Ready']},0,2);put({sy['SourceFreeze4086_Ready']},0,2);put({sy['SourceLost4086_Ready']},0,2);put({sy['SourceSelf4086_Ready']},0,2)end,emu.callbackType.exec,{fs['WorldTickFixture_FaultInit']},{fs['WorldTickFixture_FaultInit']},emu.cpuType.snes,mt)\n"
+    lua+=f"emu.addMemoryCallback(function()put({sy['SourcePostStationary4086_Ready']},0,2);put({sy['SourceAIRun4086_Ready']},0,2);put({sy['SourceUpdateScript4086_Ready']},0,2);put({sy['SourceFreeze4086_Ready']},0,2);put({sy['SourceLost4086_Ready']},0,2);put({sy['SourceSelf4086_Ready']},0,2)end,emu.callbackType.exec,{fs['WorldTickFixture_FaultInit']},{fs['WorldTickFixture_FaultInit']},emu.cpuType.snes,mt)\n"
     script=folder/'world_tick.lua';script.write_text(lua)
     class Observed(McpSession):
         def __enter__(self):
@@ -649,10 +650,12 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
             bool(script_results) and all(r[5]==0 for r in script_results) and script_results[-1][7]>0)
         reporter.check('toss altitude and tick timestamp are source-derived',
             all(r[8]==a.script_toss_count*32768 and r[9]==(((rows[r[0]]['time']+1)&0xffffffff) if a.script_toss_count else 0) for r in script_results))
-    post_results=[]
+    post_results=[];post_early_ack_results=[]
     if a.stationary_post_backend:
         post_results=[list(map(int,l.split('WORLDTICKPOST|',1)[1].split('|')))for l in (folder/'mesen.log').read_text().splitlines()if'WORLDTICKPOST|'in l]
         wanted=[[i,slot]for i,r in enumerate(actual)for phase,slot in r['events']if phase==11]
+        post_early_ack_results=[list(map(int,l.split('WORLDTICKPOSTEARLYACK|',1)[1].split('|')))for l in (folder/'mesen.log').read_text().splitlines()if'WORLDTICKPOSTEARLYACK|'in l]
+        reporter.check('enabled post capability rejects every early Ack for the current physical slot',post_early_ack_results==[[i,slot,1,0,slot]for i,slot in wanted])
         reporter.check('actual arrange_ents emits state-2 post requests; gravity/movement complete before Ack and retained self is restored',len(post_results)==len(wanted)and bool(wanted)and all(v[:2]==e and v[2]==2 and v[3]==v[4]and v[5:7]==[2,2]and v[7]&12==12 for v,e in zip(post_results,wanted)))
         reporter.check('post movement consumes actual service-10 accumulation including reordered/fresh actors',all(v[8:]==[80*65536+((v[1]+1)*32768 if [10,v[1]]in actual[v[0]]['events']else 0),220*65536-((v[1]+1)*32768 if [10,v[1]]in actual[v[0]]['events']else 0)]for v in post_results))
     report=dict(schema='BYOR_4086_WORLD_TICK_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
@@ -660,7 +663,7 @@ end,emu.callbackType.exec,{fs['WorldTickFixture_VelocityObserved']},{fs['WorldTi
         cases=len(rows),events=sum(len(r['events']) for r in actual),comparisons=comparisons,
         rejections=faults,early_direct_clock_commit_rejections=len(rows),
         ai_backend=a.ai_backend,ai_results=ai_results,common_enemy_air=a.common_enemy_air,common_enemy_descriptor=enemy_descriptor,common_enemy_results=common_enemy_results,common_enemy_styles_controlled_normal=a.common_enemy_air,common_enemy_coordinates_held_airborne=a.common_enemy_air,common_enemy_animation_cache_sha256=hashlib.sha256(animation_cache).hexdigest()if a.common_enemy_air else None,update_method_descriptor=update_descriptor,update_method_results=update_method_results,callback=callback,script_results=script_results,velocity_backend=a.velocity_backend,velocity_results=velocity_results,clear_results=clear_results,freeze_backend=a.freeze_backend,freeze_results=freeze_results,lost_backend=a.lost_backend,lost_results=lost_results,
-        stationary_post_backend=a.stationary_post_backend,post_results=post_results,stationary_binding_contract='falling=0; no binding/platform mutation; no active gravity or landing'if a.stationary_post_backend else None,bank0_growth=0,live_gameplay_handlers_bound=False,motu_gameplay_proven=False)
+        stationary_post_backend=a.stationary_post_backend,post_results=post_results,post_early_ack_results=post_early_ack_results,stationary_binding_contract='falling=0; no binding/platform mutation; no active gravity or landing'if a.stationary_post_backend else None,bank0_growth=0,live_gameplay_handlers_bound=False,motu_gameplay_proven=False)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

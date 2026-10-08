@@ -1,0 +1,50 @@
+{
+  "schema": "BYOR_MOTU_STATIONARY_POST_COMPLETION_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "lease": "B61A at40BFF8; Status40BFFA; current physical slot40BFFC",
+  "evidence": {
+    "leaf": {
+      "path": "out/byor-motu-post-completion-leaf-native/report.json",
+      "sha256": "1a1346fce027a2c2bf863e5b3414d0f3e10ee0d55881977e8f051f7ec947e901"
+    },
+    "world": {
+      "path": "out/byor-motu-post-completion-world-native/report.json",
+      "sha256": "8a958cb071ee74a31e814bdebcb5f2d37a7f82c75442ce2aa789e5455b37055e"
+    },
+    "constructor": {
+      "path": "out/byor-motu-source-hbreath-post-completion-native/report.json",
+      "sha256": "efc7e111a94e1bb307a0735aea6418640c7e8547bc32944bfd2007fe0fcea2c5"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-post-completion-bor-static-smoke/report.json",
+      "sha256": "c9b559bfc624a92c4a8b697775597861d71b9c8abb946d430721c6441f479de5"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-post-completion-rom-audit.log",
+      "sha256": "b5a29e922d2f6a4c8bf9509c494b472bdab709522ff1c9292f9a1105c3e7c518"
+    },
+    "capability": {
+      "path": "out/byor-motu-stationary-gravity-capability/report.json",
+      "sha256": "cbc5db7079d768898c65c1277d5e16bc2a089becd7bc2a5be90278f5dee51158"
+    }
+  },
+  "native_leaf_cases": 401,
+  "owner_cases": 154,
+  "owner_events": 4303,
+  "early_post_ack_rejections": 157,
+  "completed_post_requests": 157,
+  "post_issue_resets_only_valid_completed_or_idle_lease": true,
+  "stale_slot_or_incomplete_or_faulted_or_unknown_enabled_capability_ack_rejected": true,
+  "cold_reset_disables_lease": true,
+  "code_bank": 47,
+  "world_owner_relocated_from_bank": 28,
+  "reason_for_relocation": "new completion calls exceeded bank28 suffix by13bytes; relocation preserves reserved insertion bank29",
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "final_rom_sha256": "aed0947788877660f076b2bac318258b4913c082ec59a6a261e94f33bbedc213",
+  "foreign_profile_admitted": false,
+  "active_gravity_or_landing_proven": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

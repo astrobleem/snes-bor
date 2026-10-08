@@ -16,7 +16,7 @@
       "sha256": "9e2a66b93976ad727dccb1e9fc57d0386f7f9d229bd3962e08b99d5c141873fe"
     },
     "capability": {
-      "path": "out/byor-motu-stationary-gravity-capability/report.json",
+      "path": "out/byor-motu-stationary-gravity-capability/pre-completion-report.json",
       "sha256": "8055b10132ef3cc56d41a4ffc80e0b43697fe9437a3fee1a4be8efe49b16ba8f"
     },
     "hover": {

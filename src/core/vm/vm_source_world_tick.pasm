@@ -750,6 +750,12 @@ SourceWorldTick4086_AckVelocityLease:
 SourceWorldTick4086_AckVelocityDone:
 .a16
 .i16
+    jsl SourcePostStationary4086_CheckAck
+    bcc SourceWorldTick4086_PostAckGood
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_PostAckGood:
+.a16
+.i16
     lda.l VmState_Status
     and #$00FF
     cmp #VMSTAT_RUNNING
@@ -843,6 +849,12 @@ SourceWorldTick4086_Branch_69:
     jmp SourceWorldTick4086_Ok
 
 SourceWorldTick4086_Issue:
+.a16
+.i16
+    jsl SourcePostStationary4086_Issue
+    bcc SourceWorldTick4086_PostIssueGood
+    jmp SourceWorldTick4086_Bad
+SourceWorldTick4086_PostIssueGood:
 .a16
 .i16
     sta.l SourceWorldTick4086_Phase

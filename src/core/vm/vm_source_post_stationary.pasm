@@ -1,3 +1,6 @@
+SourcePostStationary4086_Ready = $40BFF8
+SourcePostStationary4086_Status = $40BFFA
+SourcePostStationary4086_Slot = $40BFFC
 ; Closed stationary/no-binding post-update capability.
 ; Caller supplies B618/B619 gravity and B617 movement leases. No callbacks/yields.
 ; Saves the arranger's retained self, binds explicit e, runs gravity then move,
@@ -9,6 +12,26 @@ SourcePostStationary4086_Execute:
  rep #$38
  phx
  phy
+ lda.l SourcePostStationary4086_Ready
+ cmp #$B61A
+ beq SourcePostStationary4086_LeaseReady
+ jmp SourcePostStationary4086_Bad
+SourcePostStationary4086_LeaseReady:
+.a16
+.i16
+ lda.l SourcePostStationary4086_Status
+ beq SourcePostStationary4086_LeaseIdle
+ jmp SourcePostStationary4086_Bad
+SourcePostStationary4086_LeaseIdle:
+.a16
+.i16
+ lda.l SourcePostStationary4086_Slot
+ cmp.l SourceWorldTick4086_Slot
+ beq SourcePostStationary4086_LeaseSlot
+ jmp SourcePostStationary4086_Bad
+SourcePostStationary4086_LeaseSlot:
+.a16
+.i16
  lda.l SourceWorldTick4086_State
  cmp #2
  beq SourcePostStationary4086_StateGood
@@ -173,6 +196,8 @@ SourcePostStationary4086_SourceCheckMove4086Ready:
  sta.l SourceSelf4086_GlobalLow
  pla
  sta.l SourceSelf4086_GlobalHigh
+ lda #2
+ sta.l SourcePostStationary4086_Status
  ply
  plx
  plp
@@ -188,8 +213,76 @@ SourcePostStationary4086_RestoreBad:
 SourcePostStationary4086_Bad:
 .a16
 .i16
+ lda #3
+ sta.l SourcePostStationary4086_Status
  ply
  plx
+ plp
+ sec
+ rtl
+
+; A=service to issue, preserved. Disabled capability leaves static paths alone.
+SourcePostStationary4086_Issue:
+.a16
+.i16
+ php
+ rep #$38
+ pha
+ cmp #11
+ bne SourcePostStationary4086_ControlGood
+ lda.l SourcePostStationary4086_Ready
+ beq SourcePostStationary4086_ControlGood
+ cmp #$B61A
+ bne SourcePostStationary4086_ControlBad
+ lda.l SourcePostStationary4086_Status
+ cmp #0
+ beq SourcePostStationary4086_IssueValid
+ cmp #2
+ bne SourcePostStationary4086_ControlBad
+SourcePostStationary4086_IssueValid:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Slot
+ sta.l SourcePostStationary4086_Slot
+ lda #0
+ sta.l SourcePostStationary4086_Status
+ bra SourcePostStationary4086_ControlGood
+SourcePostStationary4086_CheckAck:
+.a16
+.i16
+ php
+ rep #$38
+ pha
+ lda.l SourceWorldTick4086_Phase
+ cmp #11
+ bne SourcePostStationary4086_ControlGood
+ lda.l SourcePostStationary4086_Ready
+ beq SourcePostStationary4086_ControlGood
+ cmp #$B61A
+ bne SourcePostStationary4086_ControlBad
+ lda.l SourcePostStationary4086_Status
+ cmp #2
+ bne SourcePostStationary4086_ControlBad
+ lda.l SourcePostStationary4086_Slot
+ cmp.l SourceWorldTick4086_Slot
+ bne SourcePostStationary4086_ControlBad
+ lda.l SourceGravityIdle4086_Status
+ cmp #2
+ bne SourcePostStationary4086_ControlBad
+ lda.l SourceCheckMove4086_Status
+ cmp #2
+ bne SourcePostStationary4086_ControlBad
+SourcePostStationary4086_ControlGood:
+.a16
+.i16
+ pla
+ plp
+ clc
+ rtl
+SourcePostStationary4086_ControlBad:
+.a16
+.i16
+ pla
  plp
  sec
  rtl

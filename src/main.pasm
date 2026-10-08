@@ -13845,7 +13845,6 @@ SourceVM_ConstantReservation:
 .org $F000
 .include "core/vm/vm_source_target.pasm"
 .include "core/vm/vm_source_random.pasm"
-.include "core/vm/vm_source_world_tick.pasm"
 .include "core/vm/vm_source_run_call.pasm"
 .include "core/vm/vm_source_toss.pasm"
 .include "core/vm/vm_source_kill.pasm"
@@ -14029,3 +14028,6 @@ SourceVM_InstructionReservation:
 .bank 47
 .org $8000
 .include "core/vm/vm_source_post_stationary.pasm"
+
+; World owner uses only internal short calls; relocated for explicit post gate.
+.include "core/vm/vm_source_world_tick.pasm"

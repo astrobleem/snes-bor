@@ -1427,3 +1427,27 @@ no_adjust_base=1. The fixture supplies phase-owner control words, not actor fiel
 for advancement. Real source-world installation, moving presentation and full
 Demo gameplay remain unproven. See
 `docs/receipts/byor-motu-source-stationary-constructor-post-native.json`.
+
+
+### Post-update completion lease and reserved-bank protection
+
+B61A now binds each enabled stationary POST request to its physical slot.
+Native Issue starts a fresh request only from idle or completed status, and
+native Ack requires completed status for that slot plus both subservice
+completions. Hard faults stay rejected. The cold source fetch disables the
+lease. The owner proof records 157 actual early Ack rejections, then 157
+completed requests, across 154 traversals and 4,303 events. The leaf proof
+passes 401 cases including wrong/stale slot, unknown/disabled execution lease,
+completed/faulted request status and self restoration. The HBreath full source
+constructor/frame-zero/post proof and original BOR first-stage/static-OBJ smoke
+both pass on the resulting image; all ROM audits pass.
+
+The new owner calls initially exceeded the bank-28 suffix by 13 bytes. The
+linker rejected occupation of reserved insertion bank 29. The world owner now
+lives with its post capability in measured empty bank 47, uses only internal
+short calls and external long calls, and leaves bank 29 reserved. Bank 0 has
+zero growth and its only differences are external call relocations. All 17
+protected tracked files remain intact. This strengthens the closed stationary
+capability, not active gravity/landing, actual live moving presentation or MOTU
+Demo completion. Evidence:
+`docs/receipts/byor-motu-stationary-post-completion-native.json`.

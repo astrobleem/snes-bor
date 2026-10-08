@@ -29,7 +29,7 @@ def derive(source):
         limits=s['physics'];stages.append(dict(source_path=s['source_path'],source_sha256=s['source_sha256'],physics=limits,
             zero_vertical_velocity_retained=limits['maxfallspeed']<=0<=limits['maxtossspeed']))
     return dict(schema='BYOR_SOURCE_STATIONARY_GRAVITY_CAPABILITY_V1',engine_commit=ENGINE_COMMIT,models=models,stages=stages,
-        native_entry='SourceGravityIdle4086_Execute',post_update_entry='SourcePostStationary4086_Execute',post_owner_state=2,post_owner_phase=11,native_lease='B619; B618 keeps the stricter altitude==base branch',
+        native_entry='SourceGravityIdle4086_Execute',post_update_entry='SourcePostStationary4086_Execute',post_owner_state=2,post_owner_phase=11,post_lease='B61A; native Issue binds current physical slot; Ack requires completed status2',native_lease='B619; B618 keeps the stricter altitude==base branch',
         caller_requirements=['complete source constructor and current model/frame identity','B504 immutable no-platform registry plus current B4D1 stage','stage fall/toss limits cover zero and remain immutable','compiler-closed falling=0 and no binding mutation capability','invalidate on dropframe/WALKOFF, physics, registry or instance-policy mutation','native checks positive no_adjust_base, zero vertical velocity, typed altitude/base and nonlanding Q16 difference'],
         numeric_policy='ACCEPTED_COMPAT_Q16_16; nonlanding difference >=6554 represents pinned inair threshold >=0.1',
         alpha_and_presentation_selected_separately=True,production_world_installer_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
