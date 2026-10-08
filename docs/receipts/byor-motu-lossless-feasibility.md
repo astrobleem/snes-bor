@@ -1413,3 +1413,17 @@ full gravity/landing/gameplay claim follows from this proof.
 
 Evidence: `docs/receipts/byor-motu-stationary-post-gravity-native.json`.
 No color reduction, PCM copying, bank-0 growth or unrelated-worktree changes.
+
+
+The full source constructor/default-init/IDLE frame-zero proof now feeds the
+stationary post service for both HBreath and HWWind, in both directions. Source
+cached-model copy, factors, script binding, birth freeze reset, alpha identity
+and stable-pointer publication remain checked. Altitude 93 is an explicit
+constructor caller input, matching the separate authored HBreath spawn proof;
+this fixture does not execute that parent spawn request. Post advancement writes
+only its expected clocks/marks, retains source A/base/VY, and preserves siblings
+and self. HBreath retains A=93/base=0/VY=0, alpha=1, subjectgravity=0 and
+no_adjust_base=1. The fixture supplies phase-owner control words, not actor fields
+for advancement. Real source-world installation, moving presentation and full
+Demo gameplay remain unproven. See
+`docs/receipts/byor-motu-source-stationary-constructor-post-native.json`.

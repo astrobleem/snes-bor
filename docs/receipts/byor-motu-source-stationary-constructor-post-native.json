@@ -1,0 +1,82 @@
+{
+  "schema": "BYOR_MOTU_SOURCE_STATIONARY_CONSTRUCTOR_POST_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "hbreath": {
+      "path": "out/byor-motu-source-hbreath-post-native/report.json",
+      "sha256": "1f00dc9173e6971ba3f0eae2a0bc520c224cbbc9897705b991a61041f31ce83a"
+    },
+    "hwwind": {
+      "path": "out/byor-motu-source-hwwind-post-native/report.json",
+      "sha256": "c3f446441687a5125ff586578548f58d0c87dc3db334641dabd66b15e109d33a"
+    }
+  },
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "observations": {
+    "hbreath": [
+      [
+        0,
+        0,
+        2,
+        2,
+        6094848,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      [
+        1,
+        0,
+        2,
+        2,
+        6094848,
+        0,
+        0,
+        1,
+        0,
+        1
+      ]
+    ],
+    "hwwind": [
+      [
+        0,
+        0,
+        2,
+        2,
+        6094848,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      [
+        1,
+        0,
+        2,
+        2,
+        6094848,
+        0,
+        0,
+        1,
+        0,
+        1
+      ]
+    ]
+  },
+  "constructor_altitude": 93,
+  "altitude_input_scope": "explicit constructor caller input; matches prior HBreath authored spawn proof; this fixture does not execute that parent spawn request",
+  "actual_model_and_constructor_and_idle_frame_zero_bound": true,
+  "source_model_selection_from_requirements": true,
+  "actor_fields_injected_for_post_advancement": false,
+  "phase_owner_context_supplied": true,
+  "real_world_traversal_in_this_fixture": false,
+  "source_alpha_identity_retained": true,
+  "live_effect_presentation_bound": false,
+  "active_gravity_or_landing_proven": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

@@ -70,9 +70,12 @@ def main():
     p.add_argument('--ctor-factors',action='store_true',help='Copy source-derived exact uniform defense/offense factors before model installation.')
     p.add_argument('--ctor-model',action='store_true',help='Install fresh fields from the current shared cached model before script bind.')
     p.add_argument('--script-clone',action='store_true',help='Run real constructor method-1 clear/bind before default initialization.')
+    p.add_argument('--stationary-post',action='store_true',help='checked source-derived stationary post-update after complete NONE constructor; phase owner context supplied')
+    p.add_argument('--ctor-altitude-q16',type=int,default=0,help='generic explicit constructor altitude input')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     if a.common_spawn and (not a.initial_idle or a.default_owner or a.ctor_owner):raise ValueError('COMMON_SPAWN_FIXTURE_REQUIRES_ISOLATED_INITIAL_IDLE')
     if a.ai_run and(not a.common_spawn or not a.script_clone):raise ValueError('AI_RUN_FRAME_REQUIRES_COMMON_SPAWN_SCRIPT_CLONE')
+    if a.stationary_post and not(a.initial_none_model and a.ctor_owner and a.ctor_state and a.ctor_model and a.ctor_factors and a.script_clone and a.freeze_state and a.default_owner):raise ValueError('STATIONARY_POST_REQUIRES_COMPLETE_NONE_SOURCE_CONSTRUCTOR')
     owners,code,metadata,dispatch=derive(source);callbacks=pack(owners)
     registry=model_registry(source);models=pack_registry(registry);births=pack_birth(birth_templates(source))
     coretable=pack_core(birth_core(source)) if a.birth_core else b''
@@ -118,6 +121,10 @@ def main():
         if any(h['model']==a.initial_none_model and h['role']=='walk'for h in compile_source(source)['animation_handles']):raise ValueError('INITIAL_NONE_HAS_WALK')
         if not a.default_owner:raise ValueError('INITIAL_NONE_REQUIRES_DEFAULT_OWNER')
         a.initial_idle=True
+    if a.stationary_post:
+        from source_stationary_gravity_capability import derive as stationary_capability
+        cap=stationary_capability(source)
+        if not cap['models'][default]['non_gravitating_hover_requirements']:raise ValueError('SOURCE_NON_GRAVITATING_HOVER_CAPABILITY_REQUIRED')
     if a.initial_none_walk:default=actor
     breath=next(m['id'] for m in registry['models'] if m['identity']=='HBreath')
     animation=next(h for h in compile_source(source)['animation_handles'] if h['model']=='He_ManB' and h['role']=='freespecial4')
@@ -350,6 +357,8 @@ CallbackFixture_EffectsDone:
             asm=asm.replace(needle,' jsl STAGEPREPARE\n bcs CallbackFixture_Bad\n'+needle)
             context_base=0x8000+32*(stage_row['stage_id']-1)
             asm=asm.replace(' ldx #$8000\n ldy #58',f' ldx #{context_base}\n ldy #58')
+    if a.stationary_post:
+        asm=asm.replace('CallbackFixture_ResultPublished:\n.a16\n.i16\n nop','CallbackFixture_ResultPublished:\n.a16\n.i16\n nop\nCallbackFixture_PostBefore:\n.a16\n.i16\n nop\n jsl POSTSTATIONARY\n bcs CallbackFixture_Bad\nCallbackFixture_PostAfter:\n.a16\n.i16\n nop')
     if a.smartspawn:
         asm=asm.replace('CallbackFixture_ResultPublished:\n.a16\n.i16\n nop','CallbackFixture_ResultPublished:\n.a16\n.i16\n nop\n jsl SMARTSPAWN\n bcs CallbackFixture_Bad\nCallbackFixture_PropertiesPublished:\n.a16\n.i16\n nop')
     if a.queue_producer:
@@ -380,6 +389,7 @@ CallbackFixture_EffectsDone:
     if a.initial_enemy:values.update(ENEMYPREP=sy['SourceDefaultEnemy4086_PrepareNormal'],ENEMYDROP=sy['SourceDefaultEnemy4086_BeginHorizontalDrop'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.default_owner:values.update(OWNERBEGIN=sy['SourceDefaultInit4086_Begin'],OWNERCONTINUE=sy['SourceDefaultInit4086_Continue'])
     if a.script_clone:values.update(SCRIPTCLONECLEAR=sy['SourceScriptClone4086_Clear'],SCRIPTCLONEBIND=sy['SourceScriptClone4086_Bind'])
+    if a.stationary_post:values['POSTSTATIONARY']=sy['SourcePostStationary4086_Execute']
     if a.ctor_owner:values.update(CTOROWNERBEGIN=sy['SourceCtorOwner4086_Begin'],CTOROWNERCONTINUE=sy['SourceCtorOwner4086_Continue'],CTORRESULT=sy['SourceCtorOwner4086_Result'])
     if a.queue_producer:values.update(QUEUENEXT=sy['SourceStageProducer4086_Next'],QUEUEACK=sy['SourceStageProducer4086_AckSpawn'],MUSICSTATUS=sy['SourceSmartSpawn4086_Status'],MUSICACK=sy['SourceSmartSpawn4086_AckMusic'])
     if a.scroller_owner:values.update(QUEUENEXT=sy['SourceScrollerOwner4086_Begin'],QUEUEACK=sy['SourceScrollerOwner4086_Continue'])
@@ -643,7 +653,7 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
     if a.ctor_state:
         initialinstall+='\n'+\
             '\n'.join(" set('"+name+"',"+str(value)+")"for name,value in dict(SourceCtorState4086_Ready=0xb5c2,SourceCtorState4086_Status=0,SourceCtorState4086_Base=locations['ctorstate']&65535,SourceCtorState4086_Bank=base>>16,SourceCtorState4086_Bytes=len(ctor_state_table),SourceCtorState4086_Models=16,SourceCtorState4086_NoHit=0,SourceCtorState4086_SavedMode=0,SourceWorldTick4086_Maximum=0).items())
-        initialinstall+="\n put(0x414004,0,4);put(0x43fd80,0,4);put(sy.SourceCtorState4086_X,dw(0x414034),4);put(sy.SourceCtorState4086_Z,dw(0x41403c),4);put(sy.SourceCtorState4086_A,0,4);put(sy.SourceCtorState4086_Direction,c.direction,4);put(sy.SourceCtorState4086_Time,48,4);put(sy.SourceCtorState4086_Player,0,4)\n"
+        initialinstall+="\n put(0x414004,0,4);put(0x43fd80,0,4);put(sy.SourceCtorState4086_X,dw(0x414034),4);put(sy.SourceCtorState4086_Z,dw(0x41403c),4);put(sy.SourceCtorState4086_A,"+str(a.ctor_altitude_q16)+",4);put(sy.SourceCtorState4086_Direction,c.direction,4);put(sy.SourceCtorState4086_Time,48,4);put(sy.SourceCtorState4086_Player,0,4)\n"
         lua+="emu.addMemoryCallback(function()local name='';for j=0,47 do local ch=emu.read(0x433800+j,mt);if ch==0 then break end;name=name..string.char(ch)end;emu.log('CTORSTATEOWNER|'..word(INDEX)..'|'..word(sy.SourceCtorState4086_Status)..'|'..dw(0x41680c)..'|'..dw(0x416810)..'|'..word(0x41681e)..'|'..word(0x433830)..'|'..word(0x433832)..'|'..name)end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
     if a.ctor_owner:
         initialinstall+="\n set('SourceTarget4086_OrderReady',0xb4d3);for i=0,127 do put(0x41f200+i*2,i,2)end\n"
@@ -683,6 +693,11 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
             lua+=f"emu.addMemoryCallback(function()emu.log('SCROLLERCTOR|'..word(INDEX)..'|'..word(sy.SourceScrollerOwner4086_State)..'|'..word(sy.SourceScrollerPrefix4086_State)..'|'..word(sy.SourceWait4086_Status)..'|'..word(sy.SourceCameraMotion4086_Status))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
         address=fs['CallbackFixture_InstrumentMusicService']
         lua+=f"emu.addMemoryCallback(function()emu.log('QUEUE_MUSIC_SERVICE_INSTRUMENTED|'..word(INDEX))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
+    if a.stationary_post:
+        settings=dict(SourceGravityIdle4086_Ready=0xb619,SourceGravityIdle4086_Status=0,SourceCheckMove4086_Ready=0xb617,SourceCheckMove4086_Status=0,SourceWorldTick4086_Ready=0xb4d5,SourceWorldTick4086_State=2,SourceWorldTick4086_Pending=1,SourceWorldTick4086_Phase=11,SourceWorldTick4086_Slot=0,SourceWorldTick4086_Fault=0)
+        install=';'.join(f'set("{k}",{v})'for k,v in settings.items())
+        lua+=f"local post_before={{}};emu.addMemoryCallback(function(){install};set('SourceWorldTick4086_TimeLo',dw(sy.VmSourceWorld_Time),4);post_before={{}};for _,r in ipairs({{{{0x414000,18432}},{{0x41f300,512}},{{0x41f500,2560}},{{0x42e000,5120}},{{0x439000,10240}},{{0x40c000,12288}},{{sy.SourceSelf4086_GlobalLow,4}}}})do for i=0,r[2]-1 do post_before[r[1]+i]=emu.read(r[1]+i,mt)end end end,emu.callbackType.exec,{fs['CallbackFixture_PostBefore']},{fs['CallbackFixture_PostBefore']},emu.cpuType.snes,mt)\n"
+        lua+=f"emu.addMemoryCallback(function()local time=dw(sy.VmSourceWorld_Time);for _,r in ipairs({{{{0x41f300,(time+1)&0xffffffff}},{{0x416818,(time+1)&0xffffffff}},{{0x42e024,12}}}})do for i=0,3 do post_before[r[1]+i]=(r[2]>>(8*i))&255 end end;local n=0;for a,v in pairs(post_before)do if emu.read(a,mt)~=v then n=n+1 end end;emu.log('CTORPOST|'..word(INDEX)..'|'..n..'|'..word({sy['SourceGravityIdle4086_Status']})..'|'..word({sy['SourceCheckMove4086_Status']})..'|'..dw(0x41400c)..'|'..dw(0x416830)..'|'..dw(0x41682c)..'|'..word(0x41681e)..'|'..dw(0x40c014)..'|'..dw(0x40c024))end,emu.callbackType.exec,{fs['CallbackFixture_PostAfter']},{fs['CallbackFixture_PostAfter']},emu.cpuType.snes,mt)\n"
     lua=lua.replace('FREEZESTATE',str(0xb5df if a.freeze_state else 0))
     if a.ai_state_birth:
         if not a.ctor_state:raise ValueError('AI_STATE_BIRTH_REQUIRES_CTOR_STATE')
@@ -844,6 +859,11 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         ai_frame_results=[list(map(int,line.split('AIRUNFRAME|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'AIRUNFRAME|'in line]
         reporter.check('real check_ai action dispatch, real idle frame and uninitialized think method complete without consuming world clock',ai_frame_results==[[i,2,5,2,48,0]for i in range(len(rows))])
         r.update(ai_dispatch_frame_bound=True,ai_frame_results=ai_frame_results)
+    if a.stationary_post:
+        ctor_post_results=[list(map(int,line.split('CTORPOST|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORPOST|'in line]
+        cm=model_core_inputs(source)['models'][default]['fields']
+        reporter.check('actual source NONE constructor/frame-zero feeds stationary post without actor-field advancement injection',len(ctor_post_results)==len(rows)and all(v[0]==i and v[1:5]==[0,2,2,a.ctor_altitude_q16]and v[6:]==[0,ctor_state_report['models'][default]['alpha'],max(0,cm['subject_to_gravity']),1 if cm['no_adjust_base']<0 else cm['no_adjust_base']]for i,v in enumerate(ctor_post_results)))
+        r.update(source_stationary_constructor_post_bound=True,stationary_post_results=ctor_post_results,stationary_post_owner_context_supplied=True,stationary_post_world_traversal_proven=False,constructor_altitude_q16=a.ctor_altitude_q16)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     if a.ai_state_birth:
         ai_birth_results=[list(map(int,line.split('CTORAI|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORAI|'in line]
