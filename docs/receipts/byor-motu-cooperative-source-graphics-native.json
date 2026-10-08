@@ -1,0 +1,114 @@
+{
+  "schema": "BYOR_COOPERATIVE_SOURCE_GRAPHICS_NATIVE_V1",
+  "status": "PASS",
+  "checks": [
+    [
+      "cold reset enters INTRO, not TITLE/PLAYING",
+      true
+    ],
+    [
+      "cold reset is not PLAYING",
+      true
+    ],
+    [
+      "INTRO remains reachable through second scene card",
+      true
+    ],
+    [
+      "INTRO -> TITLE",
+      true
+    ],
+    [
+      "native leaf batch completed",
+      true
+    ],
+    [
+      "both native source bitmap identities exact",
+      true
+    ],
+    [
+      "six acquired produced released event sequences measured",
+      true
+    ],
+    [
+      "invalid epoch origin and frame token rejected before bitmap mutation",
+      true
+    ],
+    [
+      "test-only row fault entry unwinds producer and returns explicit failure",
+      true
+    ],
+    [
+      "resident context and legacy mailbox unchanged",
+      true
+    ],
+    [
+      "native writes remain in owned graphics inputs and output",
+      true
+    ],
+    [
+      "resident world resumes without a fault",
+      true
+    ]
+  ],
+  "ROM_sha256": "e880d64ae1d32aa17dd57123a7f8d5c702bf370cc4bdeb8729faa2c0aefb4d3d",
+  "graphics_component_ROM": "b0f7d8da4f889cb251e5278d4d55b6f52a1c4423ad13475e0d4091f9ab32968e",
+  "bitmap_sha256": [
+    "68c7861e4af75225f0d1b145aa1ccc8ac4b6da50157c442f574b7473b987436d",
+    "893eafe85fb3ca631cb214731dc27dcd7e3bd9f1247ed245937e9906b0671794",
+    "893eafe85fb3ca631cb214731dc27dcd7e3bd9f1247ed245937e9906b0671794",
+    "893eafe85fb3ca631cb214731dc27dcd7e3bd9f1247ed245937e9906b0671794",
+    "893eafe85fb3ca631cb214731dc27dcd7e3bd9f1247ed245937e9906b0671794",
+    "68c7861e4af75225f0d1b145aa1ccc8ac4b6da50157c442f574b7473b987436d"
+  ],
+  "native_status": [
+    "abb432f042340a006b00",
+    "abb432f042340a00bc00",
+    "e1b432f042340a00bc00",
+    "a3b432f042340a00bc00",
+    "a3b432f042340a00bc00",
+    "aeb432f042340a00bc00"
+  ],
+  "world": {
+    "ack_before": 266,
+    "ack_after": 359,
+    "state": 0,
+    "fault": "000000",
+    "lease": 0
+  },
+  "producer_bytes": 512,
+  "row_bytes": 230,
+  "origin_bytes": 8,
+  "live_source_camera_binding": false,
+  "PPU_publication_proven": false,
+  "production_payload_lease": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "timings": [
+    {
+      "staging_and_job_master_clocks": 176758,
+      "lease_master_clocks": 177476
+    },
+    {
+      "staging_and_job_master_clocks": 193586,
+      "lease_master_clocks": 194264
+    },
+    {
+      "staging_and_job_master_clocks": 65834,
+      "lease_master_clocks": 66488
+    },
+    {
+      "staging_and_job_master_clocks": 65968,
+      "lease_master_clocks": 66692
+    },
+    {
+      "staging_and_job_master_clocks": 65968,
+      "lease_master_clocks": 66692
+    },
+    {
+      "staging_and_job_master_clocks": 133866,
+      "lease_master_clocks": 134550
+    }
+  ],
+  "row_fault_test_policy": "test-only row entry JMP to existing palette failure handler; not a palette capacity proof"
+}

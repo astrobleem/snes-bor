@@ -48,3 +48,48 @@ def entry_trampoline(target):
     if not 0x003200 <= target < 0x0037c0:
         raise ValueError('WORKSPACE_JOB_ENTRY_RANGE')
     return b'\x5c' + target.to_bytes(3, 'little')
+
+
+def returning_graphics_kernel(kernel, entries):
+    """Adapt a sealed two-pose producer to one returning job per caller epoch.
+
+    Keep instruction addresses for existing branches. The caller owns phase
+    at $3416 and immutable context inputs; every completed bitmap is separate
+    from publication. Scratch and diagnostics avoid the resident mailbox and
+    source tick ring. This adapter does not bind a live camera/frame owner.
+    """
+    code = bytearray(returning_audio_kernel(kernel))
+    dp = bytes.fromhex('a9 00 30 5b')
+    phase = bytes.fromhex('a9 00 00 85 16 85 18')
+    if code.count(dp) != 1 or code.count(phase) != 1:
+        raise ValueError('WORKSPACE_GRAPHICS_BOOTSTRAP_LAYOUT')
+    code = code.replace(dp, bytes.fromhex('a9 00 34 5b'))
+    code = code.replace(phase, bytes.fromhex('ea ea ea ea ea 64 18'))
+    for low in (0xf4, 0xf6, 0xf8):
+        code = code.replace(bytes((0x8f, low, 0x3f, 0x41)),
+                            bytes((0x8f, low - 0x20, 0x34, 0x00)))
+    done = entries['done'] - 0x3200
+    first_fault = min(entries[n] - 0x3200 for n in ('epoch_fault', 'fixed_actor_fault'))
+    if code[done:done + 2] != bytes.fromhex('a5 12'):
+        raise ValueError('WORKSPACE_GRAPHICS_COMPLETION_LAYOUT')
+    finish = bytes.fromhex('a5 12 8f d6 34 00 a5 14 8f d8 34 00 e2 20 a9 00 8f 30 22 00 c2 20 a9 ab b4 8f d0 34 00 18 6b')
+    if done + len(finish) > first_fault:
+        raise ValueError('WORKSPACE_GRAPHICS_RETURN_CAPACITY')
+    code[done:first_fault] = finish + b'\xea' * (first_fault - done - len(finish))
+    for name in ('epoch_fault', 'fixed_actor_fault'):
+        at = entries[name] - 0x3200
+        if code[at] != 0xa9 or code[at + 3:at + 7] != bytes.fromhex('8f d0 34 00') or code[at + 7] != 0x4c:
+            raise ValueError('WORKSPACE_GRAPHICS_FAULT_LAYOUT')
+        code[at + 7:at + 10] = bytes.fromhex('38 6b ea')
+    return bytes(code)
+
+
+def returning_graphics_row(kernel):
+    """Palette admission failure aborts its sole producer JSL before publication."""
+    marker = bytes.fromhex('a9 ae b4 8f f0 3f 41')
+    at = kernel.find(marker)
+    if at < 0 or kernel.count(marker) != 1 or kernel[at + 7] != 0x4c:
+        raise ValueError('WORKSPACE_GRAPHICS_ROW_FAULT_LAYOUT')
+    # Discard exactly the row's three-byte JSL return. RTL then returns to
+    # the cooperative executor, which owns the producer's outer call frame.
+    return kernel[:at] + bytes.fromhex('a9 ae b4 8f d0 34 00 e2 20 a9 00 8f 30 22 00 c2 20 3b 18 69 03 00 1b 38 6b')
