@@ -32,14 +32,14 @@ PREAMBLE=r'''
 #define WEAPLOSS_TYPE_ANY 0
 #define WEAPLOSS_TYPE_KNOCKDOWN 1
 #define WEAPLOSS_TYPE_DEATH 2
-#define PIT_DEPTH -1000
+#define PIT_DEPTH -250
 #define GAME_SPEED 200
 #define GRAB_STALL 160
 typedef struct entity entity;
 typedef struct {float x,z,y;} Vec;
 typedef struct {int attack_force,attack_type,attack_drop,no_pain,no_kill,no_block,guardcost,jugglecost,pause_add,grab,damage_on_landing,force_direction;float grab_distance;Vec dropv;} s_attack;
 typedef struct {int type,health,mp,mprate,nopain,noflip,animal,escapehits,falldie,diesound,score,multiple,weaploss[3];float knockdowncount;struct{int max,current;}guardpoints;int subject_to_wall,subject_to_platform,subject_to_hole,subject_to_gravity,no_adjust_base;} Model;
-struct entity {Model modeldata;Vec position,velocity;float offense_factors[20];struct{float factor,knockdown,pain;}defense[20];int exists,dead,toexplode,drop,frozen,damagetype,health,mp,damage_on_landing,direction,invincible,playerindex,nograb,idling,boss,itemplayer_count,multiple,escapecount;float knockdowncount,lifespancountdown;unsigned knockdowntime,stalltime,releasetime;entity *opponent,*grabbing,*item;void(*takeaction)(void);};
+struct entity {Model modeldata;Vec position,velocity;float offense_factors[20];struct{float factor,knockdown,pain;}defense[20];int exists,dead,toexplode,drop,frozen,damagetype,health,mp,damage_on_landing,direction,invincible,playerindex,nograb,idling,boss,itemplayer_count,multiple,escapecount,lifespancountdown;float knockdowncount;unsigned knockdowntime,stalltime,releasetime;entity *opponent,*grabbing,*item;void(*takeaction)(void);};
 entity victim,opponent,*self;struct{int nohurt,bosses;}lev,*level=&lev;
 int healthcheat,max_attack_types=20,magic_type=0,level_completed;
 unsigned time=48;struct{int effectvol;}savedata;

@@ -38,6 +38,7 @@ INSTALL=r'''
  set('SourceSelf4086_GlobalLow',0,4);set('SourceUpdateFrame4086_State',0);set('SourceUpdateFrame4086_Pending',0);set('SourceUpdateFrame4086_Fault',0)
  put(aux,0,4);put(aux+4,0,4);put(aux+16,0);put(life+4,0,4);put(life+8,c.callback,4);put(life+16,0,4);put(life+20,0,4)
  put(life+64,0x40400000,4)
+ put(life+24,c.invincible,4);put(side+16,0,4)
  put(core+72,c.callback==1 and 1 or 2,4)
  put(core,2,4);put(view+40,1);put(view+42,0);put(view+44,0,4)
  put(view+48,2);put(view+50,0);put(view+52,10*65536,4);put(view+56,2);put(view+58,0);put(view+60,20*65536,4);put(side+24,48,4)
@@ -57,7 +58,7 @@ INSTALL=r'''
 
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--authority',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--score-body',action='store_true');p.add_argument('--guards',action='store_true');a=p.parse_args()
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--authority',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--score-body',action='store_true');p.add_argument('--guards',action='store_true');p.add_argument('--invincible',action='store_true');a=p.parse_args()
  a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  authority=json.loads(a.authority.read_text());assert authority['status']=='PASS'and authority['source_weaploss']==3 and authority['actual_empty_damage_script_dispatchers_proven']
  if a.score_body:assert authority['actual_addscore_and_SDL_rumble_bodies_proven']
@@ -68,10 +69,11 @@ def main():
  tables=[pack_damage(dict(models=[dict(id=i,fields=dict(animal=0,nodrop=0,guardpoints=g if i==0 else 0))for i in range(16)]))for g in(0,1)]
  rows=[]
  for index,(c,state)in enumerate(zip(authority['inputs'],authority['actual'])):
-  if (c['opponent']!=0 and not a.score_body)or c['invincible']!=0 or state['state'][2]!=0:continue
+  if (c['opponent']!=0 and not a.score_body)or (c['invincible']==0 if a.invincible else c['invincible']!=0)or state['state'][2]!=0:continue
+  if a.invincible and (c['guardbreak']or(c['callback']==1 and c['cheat'])or c['health']>c['force']):continue
   for slot in(0,63,127):
    rows.append(dict(slot=slot,handle=1,a=0,base=0,altbase=0,vy=-65536,noadjust=1,hole=1,wall=1,platform=1,freeze=0,mark=0,time=48,toss=0,falling=1,hithead=1,gravity=0,minfall=-6*65536,maxtoss=100*65536,subject=0,
-    damage=c['force'],dead=0,health=c['health'],callback=(10,1,8)[c['callback']],cheat=c['cheat'],guardbreak=c['guardbreak'],opponent=c['opponent'],score_after=state['parameters'][2],health_after=state['state'][1],return_value=state['state'][0],autoland=0,noquake=0,fault=0,bounced=0,pending=0,authority_case=index,expected=[0,0,0,0,0,49,12,11]))
+    damage=c['force'],dead=0,health=c['health'],invincible=c['invincible'],callback=(10,1,8)[c['callback']],cheat=c['cheat'],guardbreak=c['guardbreak'],opponent=c['opponent'],score_after=state['parameters'][2],health_after=state['state'][1],return_value=state['state'][0],autoland=0,noquake=0,fault=0,bounced=0,pending=0,authority_case=index,expected=[0,0,0,0,0,49,12,11]))
  if a.guards:
   seed=next(r for r in rows if r['health']==100 and r['damage']==7 and r['callback']==10 and r['guardbreak']==0 and r['opponent']==0)
   rows=[]

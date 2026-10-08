@@ -505,7 +505,7 @@ SourceLandingCallback4086_ComputeHealth:
  sbc.l SourceLandingCallback4086_Force+2
  sta.l SourceLandingCallback4086_Result+2
  bpl SourceLandingCallback4086_ResultNonnegative
- jmp SourceLandingCallback4086_Required
+ jmp SourceLandingCallback4086_LethalPolicy
 SourceLandingCallback4086_ResultNonnegative:
 .a16
 .i16
@@ -528,6 +528,17 @@ SourceLandingCallback4086_CheckNonlethal:
  lda.l SourceLandingCallback4086_Result
  ora.l SourceLandingCallback4086_Result+2
  bne SourceLandingCallback4086_BeginServices
+SourceLandingCallback4086_LethalPolicy:
+.a16
+.i16
+ jsr SourceLandingCallback4086_ResolveInvincible
+ bcc SourceLandingCallback4086_InvincibleResult
+ jmp SourceLandingCallback4086_Bad
+SourceLandingCallback4086_InvincibleResult:
+.a16
+.i16
+ cmp #0
+ beq SourceLandingCallback4086_BeginServices
  jmp SourceLandingCallback4086_Required
 SourceLandingCallback4086_BeginServices:
 .a16
