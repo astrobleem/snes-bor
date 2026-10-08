@@ -1,0 +1,18 @@
+{
+  "schema": "BYOR_4086_PLAYER_GROUND_NATIVE_V1",
+  "status": "PASS",
+  "cases": 2653,
+  "guards": 7,
+  "errors": [],
+  "observed_cases": 2653,
+  "rom_sha256": "99467ceefd0e80272aba9e7bda0d41ff1229624c7da958708f3342b5d8035293",
+  "peak_master_clocks": 33524,
+  "snapshot_abi_bytes": 128,
+  "velocity_abi": "finite exactly representable Q16; fractional half-slot operands reject",
+  "services_instrumented": true,
+  "canonical_actor_storage_bound": false,
+  "production_player_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
