@@ -5,7 +5,7 @@ import unittest
 
 from PIL import Image
 from compiler import Source
-from source_palette import read_palette,model_palettes
+from source_palette import read_palette,model_palettes,select_model_palette
 from source_profile import document,discover
 
 
@@ -31,6 +31,15 @@ class SourcePaletteTests(unittest.TestCase):
             self.assertEqual(result['base']['inference'],'first frame of first animation')
             self.assertNotEqual(result['base']['colors_sha256'],result['alternates'][0]['colors_sha256'])
             self.assertFalse((root/'data/pal.act').exists())
+
+    def test_source_unsigned_map_selection(self):
+        base=dict(source_path='base');alternate=dict(map=1,source_path='alt')
+        palettes=dict(base=base,alternates=[alternate])
+        self.assertEqual(select_model_palette(palettes,1),(alternate,1))
+        for index in [0,-1,-2147483648,2,4294967295]:
+            self.assertEqual(select_model_palette(palettes,index),(base,0))
+        with self.assertRaisesRegex(ValueError,'MODEL_PALETTE_MAP_UINT32_DOMAIN'):
+            select_model_palette(palettes,4294967296)
 
     def test_act_extent_fails_before_palette_substitution(self):
         with tempfile.TemporaryDirectory() as temp:

@@ -1,0 +1,347 @@
+{
+  "schema": "BYOR_SOURCE_SCROLLED_CONTEXT_V1",
+  "status": "OFFLINE_SOURCE_POSITION_AND_PALETTE_SELECTION_PROVEN",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "engine_source_sha256": "fa319b01a0cd47dea0921e31eaa3532f614716c72ae3a780c5e2675bdcb0703a",
+  "draw_scrolled_bg_function_sha256": "67caa4e7e8d46f01ed9d30f7748a7dbb0066c7a46bc8e7ccf7fa4022be61db3d",
+  "compiled_c_authority_cases": 48,
+  "authority_report_sha256": "beb4b357612394ac01c1088a65574b69f0cd179c638966632cc90e8fd41e1a63",
+  "native_evidence": null,
+  "zero_camera_frozen_pixel_mismatches": 0,
+  "contexts": [
+    {
+      "camera": 0,
+      "source_scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              98,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              80,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              200,
+              220,
+              0
+            ],
+            "order": 1
+          }
+        ],
+        "camera": [
+          0,
+          0
+        ]
+      },
+      "rgb555_sha256": "3bdbe16fdd7c8330dcae28c9da1f68dfa7d0caa7dc80aafa9970140243e7874d",
+      "visible_layer_count": 6,
+      "alpha_source_dimensions": [
+        [
+          110,
+          90
+        ]
+      ]
+    },
+    {
+      "camera": 100,
+      "source_scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              198,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              180,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              300,
+              220,
+              0
+            ],
+            "order": 1
+          }
+        ],
+        "camera": [
+          100,
+          0
+        ]
+      },
+      "rgb555_sha256": "5b46c55d5d98e191b5fa4bfff16c2891d4d4bf204ccac7efb507892f9122d63d",
+      "visible_layer_count": 7,
+      "alpha_source_dimensions": [
+        [
+          110,
+          90
+        ]
+      ]
+    },
+    {
+      "camera": 500,
+      "source_scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              598,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              580,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              700,
+              220,
+              0
+            ],
+            "order": 1
+          }
+        ],
+        "camera": [
+          500,
+          0
+        ]
+      },
+      "rgb555_sha256": "93a1524b9fa0bfb9f686aab8971f01cd3d6b684ad83804a2f2550a6b046d07aa",
+      "visible_layer_count": 7,
+      "alpha_source_dimensions": [
+        [
+          110,
+          90
+        ]
+      ]
+    },
+    {
+      "camera": 1500,
+      "source_scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              1598,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              1580,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              1700,
+              220,
+              0
+            ],
+            "order": 1
+          }
+        ],
+        "camera": [
+          1500,
+          0
+        ]
+      },
+      "rgb555_sha256": "7d69e570577894703e7f383c3207d139912cd65ca992160c29898ea1e54f9208",
+      "visible_layer_count": 10,
+      "alpha_source_dimensions": [
+        [
+          110,
+          90
+        ]
+      ]
+    },
+    {
+      "camera": 2224,
+      "source_scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              2322,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              2304,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              2424,
+              220,
+              0
+            ],
+            "order": 1
+          }
+        ],
+        "camera": [
+          2224,
+          0
+        ]
+      },
+      "rgb555_sha256": "c0e4c0a5ce3baa72c9fd98bbe12f9d731ab1f6348558af765bbd25c432462e3c",
+      "visible_layer_count": 10,
+      "alpha_source_dimensions": [
+        [
+          110,
+          90
+        ]
+      ]
+    }
+  ],
+  "authored_alternate_map_sample": {
+    "requested_map": 1,
+    "selected_palette": {
+      "kind": "actor:KnightBot",
+      "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+      "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+      "source_dimensions": [
+        50,
+        50
+      ],
+      "position": [
+        173,
+        172
+      ],
+      "alpha": 0,
+      "visible_source_pixels": 1078,
+      "source_flip": false,
+      "requested_map": 1,
+      "selected_map": 1,
+      "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBLINK.PNG",
+      "palette_asset_sha256": "ec94fcc82b0f3c20f4b044e746487dabb62954c48d46fe9d705eeab8f9373d46"
+    },
+    "changed_visible_rgb555_pixels": 876
+  },
+  "no_color_reduction": true,
+  "live_camera_owner_bound": false,
+  "world_geometry_gathering_bound": false,
+  "motu_gameplay_proven": false,
+  "scope": "Supplied source poses at horizontal cameras, plain source legacy layers and entity map selection. No HUD, shadows, quake, water, arbitrary bg/fglayer parameters, frame drawmethod overrides or authored reachability admission."
+}

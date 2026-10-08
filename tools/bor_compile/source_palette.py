@@ -51,3 +51,17 @@ def model_palettes(source, model):
         alternates.append(dict(map=index, declaration=row, **read_palette(source,row['values'][0])))
     return dict(policy='SOURCE_MODEL_INDEXED',base=base,alternates=alternates,
                 semantics_reference='https://chronocrash.com/obor/wiki/palette/')
+
+
+def select_model_palette(palettes,requested_map=0):
+    """Pinned ent_set_colourmap unsigned index policy, for plain draw methods.
+
+    Out-of-range requests select the declared model base palette, exactly as
+    the engine does. This is not nearest-color remapping or a legacy palette.
+    Animation drawmethod remaps/globalmap remain separate requirements.
+    """
+    if not isinstance(requested_map,int) or not -2147483648<=requested_map<=4294967295:
+        raise ValueError('MODEL_PALETTE_MAP_UINT32_DOMAIN')
+    unsigned=requested_map&0xffffffff
+    selected=unsigned if 1<=unsigned<=len(palettes['alternates'])else 0
+    return (palettes['alternates'][selected-1]if selected else palettes['base']),selected

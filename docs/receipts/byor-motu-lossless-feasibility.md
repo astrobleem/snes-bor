@@ -1316,3 +1316,23 @@ constraint, not a measured transfer certificate. The new generic solver
 constraint accounts for per-bank adjacent unions and reports that it does not
 prove a complete slot schedule. The lossless BG path remains under continued
 engineering. No color reduction is applied.
+
+
+The offline source compositor now admits horizontal camera positions instead
+of camera zero only. `byor-motu-scrolled-source-context.json` records cameras
+0, 100, 500, 1500 and 2224. Legacy background repeat normalization, panel
+clipping, foreground parallax and each foreground layer's own width follow
+the pinned load_layer/load_level/draw_scrolled_bg authority. The positioning
+helper matches 48 compiled-C draw_scrolled_bg cases, including signed C
+remainders, fractional camera inputs and mixed 350/700-pixel foregrounds.
+Entity camera coordinates truncate through the source integer screen offsets.
+The camera-zero result matches the frozen native peak frame in all 57,344
+pixels, so existing matched native evidence remains valid for that context.
+
+Explicit actor map selection uses the declared source alternate palette, with
+the engine's unsigned out-of-range-to-base policy. The supplied Knightbot map-1
+pose changes visible RGB555 pixels and retains its actual palette asset hash.
+Additional layer parameters, vertical scrolling, water and quake still fail
+explicitly. These are offline source composition capabilities; a live camera
+owner, world geometry gathering and native changed-context publication remain
+pending. No color reduction is applied.
