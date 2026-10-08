@@ -1,0 +1,55 @@
+{
+  "schema": "BYOR_MOTU_LANDING_PLAN_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "plans": {
+      "path": "out/byor-motu-landing-plan/report.json",
+      "sha256": "8db07027acff69e7c049f6f88ef207c1f8c75bbe884419ad0fa269771f94f872"
+    },
+    "table": {
+      "path": "out/byor-motu-landing-plan/report.b4lp",
+      "sha256": "92af3e3cfeb109aaceb3cafb11168d367391205411dccdb6ce42f81c062cb38b"
+    },
+    "native": {
+      "path": "out/byor-motu-landing-plan-query-native/report.json",
+      "sha256": "8044b1b41795d99ff09a6b694952441e83bacaac48c98842ddb425b88d0e99ae"
+    },
+    "authority": {
+      "path": "out/byor-motu-landing-plan-authority/report.json",
+      "sha256": "4efb0f8ccb51c33e0172d82e5f8b348b5ddaa9113bd4e9b72333d72de4e9ec37"
+    },
+    "model_bounce_authority": {
+      "path": "out/byor-motu-model-physics-authority/report.json",
+      "sha256": "65f10f477d2ecdd0e557754ae8278e675befa76a443f3f3df6171ab61422fe57"
+    },
+    "animation_bounce_authority": {
+      "path": "out/byor-motu-animation-bounce-authority/report.json",
+      "sha256": "6c20601d2706a220b0eb5881daf68fbce4f6586d33b6cb681fa0c8087b852481"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-landing-plan-bor-static-smoke/report.json",
+      "sha256": "b9c0842e2332e9176f443d4ec8d16caefda7df034c9892140334791fb2e8f1df"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-landing-plan-rom-audit.log",
+      "sha256": "d8a4e981e1dcaf6fbf29a97f2b0ac2776bf96b5166e49954fb25d6bd37944fba"
+    }
+  },
+  "native_cases": 109,
+  "source_noquake_loader_cases": 641,
+  "authored_plan_rows": 80,
+  "compiled_bytes": 1296,
+  "exact_animation_model_join": true,
+  "binary32_bounce_identity_preserved": true,
+  "no_fall_land_dust_registry_requirements_satisfied": true,
+  "lease": "B625 immutable B4LP at41FFC2; controls/scratch41FFC2..41FFED",
+  "mutation_policy": "Revoke on model physics, animation bounce, dust, or registry mutations",
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "native_landing_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

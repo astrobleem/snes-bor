@@ -14041,3 +14041,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_gravity_air.pasm"
 
 .include "core/vm/vm_source_entity_toss.pasm"
+
+.include "core/vm/vm_source_landing_plan.pasm"
