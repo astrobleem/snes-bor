@@ -77,7 +77,8 @@ def shader(descriptors,columns,return_entry,typed_underlay=False,worker_base=0x3
 
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--stage',required=True);p.add_argument('--scene',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--move-actor-index',type=int,default=1);p.add_argument('--move-x',type=int,default=-30);p.add_argument('--retain-stage',action='store_true');p.add_argument('--typed-underlay',action='store_true');p.add_argument('--background-corrections',action='store_true');p.add_argument('--adaptive-shader',action='store_true');p.add_argument('--invalidate-context',choices=('low','high'));p.add_argument('--whole-tile-canvas',action='store_true');p.add_argument('--palette-indices',action='store_true');p.add_argument('--direct-palette-lookup',action='store_true');a=p.parse_args();a.palette_indices|=a.direct_palette_lookup;a.whole_tile_canvas|=a.palette_indices;a.background_corrections|=a.whole_tile_canvas;a.background_corrections|=a.adaptive_shader;a.typed_underlay|=a.background_corrections;a.retain_stage|=a.background_corrections;out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--stage',required=True);p.add_argument('--scene',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--move-actor-index',type=int,default=1);p.add_argument('--move-x',type=int,default=-30);p.add_argument('--retain-stage',action='store_true');p.add_argument('--typed-underlay',action='store_true');p.add_argument('--background-corrections',action='store_true');p.add_argument('--adaptive-shader',action='store_true');p.add_argument('--invalidate-context',choices=('low','high'));p.add_argument('--whole-tile-canvas',action='store_true');p.add_argument('--palette-indices',action='store_true');p.add_argument('--direct-palette-lookup',action='store_true');p.add_argument('--sparse-palette-indices',action='store_true');p.add_argument('--bitmap-palette-indices',action='store_true');p.add_argument('--iram-bitmap-indices',action='store_true');a=p.parse_args();a.bitmap_palette_indices|=a.iram_bitmap_indices;a.sparse_palette_indices|=a.bitmap_palette_indices;a.direct_palette_lookup|=a.sparse_palette_indices;a.palette_indices|=a.direct_palette_lookup;a.whole_tile_canvas|=a.palette_indices;a.background_corrections|=a.whole_tile_canvas;a.background_corrections|=a.adaptive_shader;a.typed_underlay|=a.background_corrections;a.retain_stage|=a.background_corrections;out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
+ if a.sparse_palette_indices and a.adaptive_shader:raise ValueError('SPARSE_INDEX_PIPELINE_REQUIRES_ACTOR_CORRECTIONS')
  source=Source(a.source);catalog=derive(source);scene=json.loads(a.scene.read_text());bg,span_desc,pixels,origins,actors,window=compile_inputs(source,a.stage,scene,catalog,a.whole_tile_canvas);wx,wy,w,h=window
  di={tuple(c):i for i,c in enumerate(catalog['destinations'])};pairs,metadata=source_capture.capture(source,a.stage,scene);samples=pairs.reshape(-1,3,2);effect=next(e for e in catalog['effects']if all(tuple(map(int,c))in e['colors']for c in samples[:,:,0]));si={tuple(c):i for i,c in enumerate(effect['colors'])};table=matrix(effect['colors'],catalog['destinations']);source_ids=[si[tuple(map(int,c))]for c in samples[:,:,0]]
  plane,addresses=capture_plane(source,a.stage,scene,di);vw=scene.get('viewport',[256,224])[0];relative=((addresses//2//vw-wy)*w+(addresses//2%vw-wx))*2
@@ -110,7 +111,13 @@ def main():
  immutable_layers=[{k:v for k,v in layer.items()if k not in ('position','visible_source_pixels')}for layer in metadata['layers']]
  immutable_context=dict(layers=immutable_layers,window=list(window),stage=metadata['stage'],stage_sha256=metadata['stage_sha256'],camera=scene.get('camera',[0,0]),viewport=scene.get('viewport',[256,224]))
  context_digest=hashlib.sha256(bg+span_desc+pixels+coordinates+desc+table.tobytes()+json.dumps(immutable_context,sort_keys=True).encode()).digest();context_epoch=int.from_bytes(context_digest[:4],'little')
- rom,entries,span_worker=underlay_build(bg,span_desc,pixels,origins,w,h,a.retain_stage,0x3500,context_epoch,colour_canvas,colour_pixels);rom=bytearray(rom)+bytearray([255])*1048576;screen_worker,screen_entries=shader(desc,effect['columns'],entries['entry'],a.typed_underlay)
+ index_data=None;colour_canvas_second=None
+ if a.palette_indices:
+  from m4_hybrid_window_indices import compile_contexts,prefill
+  index_data=compile_contexts(source,a.stage,poses,window,out,a.direct_palette_lookup)
+  if a.sparse_palette_indices:
+   colour_canvas,colour_canvas_second=prefill(index_data[0],index_data[1],colour_canvas,w,h)
+ rom,entries,span_worker=underlay_build(bg,span_desc,pixels,origins,w,h,a.retain_stage,0x3500,context_epoch,colour_canvas,colour_pixels,colour_canvas_second);rom=bytearray(rom)+bytearray([255])*1048576;screen_worker,screen_entries=shader(desc,effect['columns'],entries['entry'],a.typed_underlay)
  if len(span_worker)>0x300:raise ValueError('UNDERLAY_SHADER_IRAM_CODE_OVERLAP')
  correction_map=None;baseline=None;expected_corrections=[]
  if a.background_corrections:
@@ -134,18 +141,32 @@ def main():
  index_worker=None;index_entries={};index_expected=[];index_decoders=[];palette_reports=[]
  if a.palette_indices:
   from m4_hybrid_window_indices import compile_contexts,kernel
-  index_maps,index_pointers,index_expected,index_decoders,palette_reports=compile_contexts(source,a.stage,poses,window,out,a.direct_palette_lookup)
-  index_worker,index_entries=kernel(w,h,entries['entry'],a.direct_palette_lookup);rom.extend(bytes([255])*((8388608 if a.direct_palette_lookup else 4194304)-len(rom)))
+  index_maps,index_pointers,index_expected,index_decoders,palette_reports=index_data
+  if a.sparse_palette_indices:
+   from m4_hybrid_window_indices import sparse_kernel
+   if a.bitmap_palette_indices:
+    from m4_hybrid_window_indices import bitmap_kernel
+    sparse_worker,index_entries=bitmap_kernel(w,h,entries['entry'],a.iram_bitmap_indices)
+   else:sparse_worker,index_entries=sparse_kernel(w,h,entries['entry'])
+   index_worker=bytes.fromhex('bf 00 00 e0 6b')
+  else:index_worker,index_entries=kernel(w,h,entries['entry'],a.direct_palette_lookup)
+  rom.extend(bytes([255])*((8388608 if a.direct_palette_lookup else 4194304)-len(rom)))
   rom[0x200000:0x200000+len(index_maps)]=index_maps;rom[0x38000:0x38000+len(index_pointers)]=index_pointers;rom[0x9e00:0x9e00+len(index_worker)]=index_worker
   if a.direct_palette_lookup:
    words=np.arange(32768,dtype=np.uint16);rom[0x1f0000:0x1f8000]=(((words>>5)&1)|(((words>>10)&1)<<1)).astype(np.uint8).tobytes()
+  if a.sparse_palette_indices:
+   rom[0xa000:0xa000+len(sparse_worker)]=sparse_worker;rom[0x1f8000:0x1f8010]=struct.pack('<8H',*(1<<i for i in range(8)))
+   if a.bitmap_palette_indices:
+    masks=[(((1<<length)-1)<<start)&255 if length<=8-start else 0 for start in range(8)for length in range(16)]
+    rom[0x1f8100:0x1f8200]=struct.pack('<128H',*masks);rom[0x1f8200:0x1f8210]=struct.pack('<8H',*((1<<i)-1 for i in range(8)))
   # Preserve the correction count before handing the completed canvas over.
-  at=0x9c00+screen_entries['done']-0x3500+(6 if a.background_corrections else 0);rom[at:at+4]=bytes.fromhex('5c 00 37 00')
+  at=0x9c00+screen_entries['done']-0x3500+(6 if a.background_corrections else 0);rom[at:at+4]=bytes.fromhex('5c 40 30 00'if a.iram_bitmap_indices else('5c 00 a0 01'if a.sparse_palette_indices else'5c 00 37 00'))
   if full_entries:
-   at=0x9d00+full_entries['done']-0x3600;rom[at:at+4]=bytes.fromhex('5c 00 37 00')
+   at=0x9d00+full_entries['done']-0x3600;rom[at:at+4]=bytes.fromhex('5c 40 30 00'if a.iram_bitmap_indices else('5c 00 a0 01'if a.sparse_palette_indices else'5c 00 37 00'))
  main=bytearray(rom[0x8000:0x8400]);main=main[:main.index(bytes([255])*32)];extra=bytes.fromhex('e2 20 a2 00 00 bf 00 9c 01 9f 00 35 00 e8 e0')+struct.pack('<H',len(screen_worker))+bytes.fromhex('d0 f2')
  if a.adaptive_shader:extra+=bytes.fromhex('e2 20 a2 00 00 bf 00 9d 01 9f 00 36 00 e8 e0')+struct.pack('<H',len(full_worker))+bytes.fromhex('d0 f2')
  if index_worker:extra+=bytes.fromhex(('a9 00 8f e8 3f 41 8f e9 3f 41 'if a.direct_palette_lookup else'')+'e2 20 a2 00 00 bf 00 9e 01 9f 00 37 00 e8 e0')+struct.pack('<H',len(index_worker))+bytes.fromhex('d0 f2')
+ if a.iram_bitmap_indices:extra+=bytes.fromhex('e2 20 a2 00 00 bf 00 a0 01 9f 40 30 00 e8 e0')+struct.pack('<H',len(sparse_worker))+bytes.fromhex('d0 f2')
  main[-2:]=struct.pack('<H',struct.unpack('<H',main[-2:])[0]+len(extra));at=main.index(bytes.fromhex('bf 00 90 01'))-3;main[at:at]=extra
  if a.direct_palette_lookup:
   # MMC bank registers belong to S-CPU. SA-1 requests and waits for an ACK;
@@ -166,7 +187,7 @@ def main():
   observer+="emu.addMemoryCallback(function(a,v)emu.log('WINDOWMMC|'..v..'|'..emu.read(0x413fe8,emu.memType.snesMemory))end,emu.callbackType.write,0x2222,0x2222,emu.cpuType.snes,emu.memType.snesMemory)\n"
  if index_worker:
   observer+='local indexStage=false;local indexWrites=0;local indexBad=0\n'
-  observer+=f"emu.addMemoryCallback(function(a,v)if indexStage then indexWrites=indexWrites+1;if a>={0x427000+w*h*2} then indexBad=indexBad+1 end end end,emu.callbackType.write,0x427000,0x42ffff,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
+  observer+=f"emu.addMemoryCallback(function(a,v)if indexStage and not ({'true'if a.sparse_palette_indices else'false'} and a>=0x42d200 and a<0x42d200+{(w*h+7)//8+2}) then indexWrites=indexWrites+1;if a>={0x427000+w*h*2} then indexBad=indexBad+1 end end end,emu.callbackType.write,0x427000,0x42ffff,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
   for n in('phase','done'):
    v=index_entries[n];observer+=f"emu.addMemoryCallback(function()emu.log('WINDOWINDEX|{n}|'..emu.getState().masterClock);"+('indexStage=true;indexWrites=0;indexBad=0;'if n=='phase'else"emu.log('WINDOWWRITES|'..indexWrites..'|'..indexBad);indexStage=false;")+f"end,emu.callbackType.exec,{v},{v},emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  lua.write_text(observer)
@@ -175,7 +196,7 @@ def main():
    import mesen_mcp.session as module
    def launch(argv,**kwargs):return subprocess.Popen([*argv,str(lua)],**kwargs)
    with patch.object(module,'subprocess',SimpleNamespace(Popen=launch,DEVNULL=subprocess.DEVNULL,PIPE=subprocess.PIPE)):return super().__enter__()
- actual_indices=[];actual=[];actual_underlays=[];counts=[];correction_counts=[];selected_paths=[]
+ converted_counts=[];actual_indices=[];actual=[];actual_underlays=[];counts=[];correction_counts=[];selected_paths=[]
  with Observed(rom=path,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=out/'mesen.log')as m:
   for phase,target in enumerate((b'\xa1\xb4',b'\xab\xb4')):
    for _ in range(60):
@@ -184,6 +205,7 @@ def main():
    if marker==b'\xe1\xb4' and a.invalidate_context and phase==1:break
    if marker!=target:raise ValueError('JOINT_NATIVE_SCREEN_COMPLETION:'+marker.hex()+':'+m.read_memory('SnesMemory',0x413fea,4).hex())
    actual.append(m.read_memory('SnesMemory',0x427000,len(expected[phase])));actual_underlays.append(m.read_memory('SnesMemory',0x420000,len(underlays[phase])))
+   if a.sparse_palette_indices:converted_counts.append(int.from_bytes(m.read_memory('SnesMemory',0x413fe6,2),'little'))
    if index_worker:
     from m4_hybrid_window_indices import decode
     actual_indices.append(actual[-1]);actual[-1]=decode(actual[-1],index_decoders[phase],w,h)
@@ -229,8 +251,15 @@ def main():
    for offset in range(3,len(index_pointers),4):
     value=index_pointers[offset]
     if not mmc_expected or value!=mmc_expected[-1][0]:mmc_expected.append([value,value])
-  index_ok=mmc_trace==mmc_expected and actual_indices==index_expected[:len(actual_indices)] and index_writes==[[w*h*2,0]]*len(actual_indices)
-  report.update(native_palette_index_conversion=True,native_SCPU_MMC_trace=mmc_trace,expected_SCPU_MMC_trace=mmc_expected,direct_palette_lookup=a.direct_palette_lookup,native_palette_index_identity_verified=index_ok,palette_index_kernel_bytes=len(index_worker),palette_lookup_ROM_bytes=len(index_maps),palette_index_master_clocks=index_clocks,palette_index_milliseconds=[v/21477.27 for v in index_clocks],palette_index_write_trace=index_writes,compiled_palette_peak_CGRAM_bytes=[v['bg_schedule']['peak_bytes']for v in palette_reports],palette_context_choice='Two explicit fixture poses; live source ownership and selection unbound',native_palette_allocation=False)
+  if a.sparse_palette_indices:
+   from m4_hybrid_window_indices import sparse_trace
+   span_mmc_expected,expected_converted_counts=sparse_trace(span_desc,origins,moving[0],a.move_x,index_pointers,w,h)
+   if not a.bitmap_palette_indices:mmc_expected=span_mmc_expected
+   mmc_ok=mmc_trace==mmc_expected and converted_counts==expected_converted_counts
+   write_expected=[[n*2,0]for n in converted_counts]
+  else:mmc_ok=mmc_trace==mmc_expected;write_expected=[[w*h*2,0]]*len(actual_indices)
+  index_ok=mmc_ok and actual_indices==index_expected[:len(actual_indices)] and index_writes==write_expected
+  report.update(native_palette_index_conversion=True,sparse_palette_indices=a.sparse_palette_indices,bitmap_palette_indices=a.bitmap_palette_indices,iram_bitmap_indices=a.iram_bitmap_indices,native_unique_converted_pixels=converted_counts,native_SCPU_MMC_trace=mmc_trace,expected_SCPU_MMC_trace=mmc_expected,direct_palette_lookup=a.direct_palette_lookup,native_palette_index_identity_verified=index_ok,palette_index_kernel_bytes=len(index_worker),palette_index_ROM_worker_bytes=len(sparse_worker)if a.sparse_palette_indices else 0,palette_lookup_ROM_bytes=len(index_maps),palette_index_master_clocks=index_clocks,palette_index_milliseconds=[v/21477.27 for v in index_clocks],palette_index_write_trace=index_writes,compiled_palette_peak_CGRAM_bytes=[v['bg_schedule']['peak_bytes']for v in palette_reports],palette_context_choice='Two explicit fixture poses; live source ownership and selection unbound',native_palette_allocation=False)
   for i,data in enumerate(actual_indices):(out/('window-%d.high-low-indices'%i)).write_bytes(data)
   if not index_ok:ok=False;report['status']='FAIL'
  if a.invalidate_context and fault_dma!=[[0,0,0]]:ok=False;report['status']='FAIL'

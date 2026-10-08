@@ -51,12 +51,15 @@ def compile_inputs(source,stage,scene,catalog,tile_aligned=False):
  return background[0],bytes(descriptors),bytes(pixels),bytes(origins),actors,(wx,wy,w,h)
 
 
-def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None):
+def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None,colour_canvas_second=None):
  rom,_,_=base.build(np.zeros((3,2),dtype=np.uint16),True,iram=True);rom=bytearray(rom)+bytearray([255])*(1048576-len(rom))
  for at,data in((0x20000,descriptors),(0x30000,origins),(0x40000,background),(0x50000,pixels)):rom[at:at+len(data)]=data
  if colour_canvas is not None:
   if len(colour_canvas)!=len(background)or len(colour_pixels)!=len(pixels):raise ValueError('WHOLE_TILE_COLOUR_SOURCE_CAPACITY')
   rom[0x80000:0x80000+len(colour_canvas)]=colour_canvas;rom[0x90000:0x90000+len(colour_pixels)]=colour_pixels
+  if colour_canvas_second is not None:
+   if len(colour_canvas_second)!=len(colour_canvas)or len(colour_canvas)*2>65536:raise ValueError('COLOUR_BASELINE_CONTEXT_CAPACITY')
+   rom[0x80000+len(colour_canvas):0x80000+len(colour_canvas)*2]=colour_canvas_second
  c=Code(0x3200);c.emit('78 18 fb c2 30 a2 ff 37 9a a9 00 30 5b e2 20 a9 ff 8d 2a 22 a9 80 8d 27 22 a9 42 48 ab c2 20 a9 00 00 85 16 85 18 8f f4 3f 41')
  c.label('entry');c.emit('e2 20 a9 42 48 ab c2 20')
  if expected_context_epoch is not None:
@@ -67,7 +70,11 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
  if retain_stage:
   c.jump('restored');c.label('restore');c.emit('a2 00 00 a5 18');c.branch(0xf0,'restored');c.label('restore_span');c.emit('bd 00 60 8f 32 22 00 8f 35 22 00 bd 02 60 8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20 e8 e8 e8 e8 e4 18');c.branch(0xd0,'restore_span');c.label('restored');c.emit('64 18')
  if colour_canvas is not None:
-  c.emit('e2 20 a9 c8 8f 34 22 00 c2 20 a9 00 00 8f 32 22 00 a9 00 70 8f 35 22 00');c.word(0xa9,len(colour_canvas));c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20')
+  c.emit('e2 20 a9 c8 8f 34 22 00 c2 20')
+  if colour_canvas_second is not None:
+   c.emit('a5 16');c.branch(0xf0,'colour_first');c.word(0xa9,len(colour_canvas));c.branch(0x80,'colour_source');c.label('colour_first');c.emit('a9 00 00');c.label('colour_source')
+  else:c.emit('a9 00 00')
+  c.emit('8f 32 22 00 a9 00 70 8f 35 22 00');c.word(0xa9,len(colour_canvas));c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20')
  c.label('span');c.emit('a6 04 bf 00 00 c2 85 00 bf 02 00 c2 85 02 bf 04 00 c2 85 08 bf 08 00 c2 85 0c e2 20 bf 0a 00 c2 85 0e c2 20 bf 06 00 c2 aa bd 02 d0 18 65 00')
  c.branch(0x10,'row_nonnegative');c.jump('next');c.label('row_nonnegative');c.word(0xc9,h);c.branch(0x90,'row_visible');c.jump('next');c.label('row_visible');c.emit('85 00 bd 00 d0 18 65 02');c.branch(0x10,'left_nonnegative')
  c.emit('49 ff ff 1a c5 08');c.branch(0x90,'left_clipped');c.jump('next');c.label('left_clipped');c.emit('85 0a a5 08 38 e5 0a 85 08 a5 0a 0a 18 65 0c 85 0c');c.branch(0x90,'pointer_no_carry');c.emit('e2 20 e6 0e c2 20');c.label('pointer_no_carry');c.emit('a9 00 00')
