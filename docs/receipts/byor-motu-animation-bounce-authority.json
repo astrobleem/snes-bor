@@ -1,0 +1,27 @@
+{
+  "schema": "BYOR_MOTU_ANIMATION_BOUNCE_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "authority": {
+      "path": "out/byor-motu-animation-bounce-authority/report.json",
+      "sha256": "6c20601d2706a220b0eb5881daf68fbce4f6586d33b6cb681fa0c8087b852481"
+    },
+    "inputs": {
+      "path": "out/byor-motu-animation-bounce/report.json",
+      "sha256": "c3c914cfb9b18c1922286d20b2b54b4666aa778bd0c2726e3ca016704376fbd3"
+    },
+    "compiled": {
+      "path": "out/byor-motu-animation-bounce/report.b4ab",
+      "sha256": "881a5e61738adceabf4af8e1f2fc659a05880436ddd9ee4747bb80ae08af94ae"
+    }
+  },
+  "source_loader_cases": 612,
+  "authored_animations": 80,
+  "compiled_bytes": 656,
+  "source_role_loader_and_bouncefactor_bodies_unmodified": true,
+  "default_policy": "Pinned translate_ani_id gives FALL-family/SHOCK/BURN bounce4; other roles retain calloc0; final BOUNCEFACTOR overrides",
+  "native_bounce_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
