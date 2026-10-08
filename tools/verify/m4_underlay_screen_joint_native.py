@@ -77,7 +77,7 @@ def shader(descriptors,columns,return_entry,typed_underlay=False,worker_base=0x3
 
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--stage',required=True);p.add_argument('--scene',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--move-actor-index',type=int,default=1);p.add_argument('--move-x',type=int,default=-30);p.add_argument('--retain-stage',action='store_true');p.add_argument('--typed-underlay',action='store_true');p.add_argument('--background-corrections',action='store_true');p.add_argument('--adaptive-shader',action='store_true');p.add_argument('--invalidate-context',choices=('low','high'));p.add_argument('--whole-tile-canvas',action='store_true');p.add_argument('--palette-indices',action='store_true');p.add_argument('--direct-palette-lookup',action='store_true');p.add_argument('--sparse-palette-indices',action='store_true');p.add_argument('--bitmap-palette-indices',action='store_true');p.add_argument('--iram-bitmap-indices',action='store_true');p.add_argument('--fused-screen-indices',action='store_true');p.add_argument('--invalidate-fused-palette',action='store_true');p.add_argument('--native-characters',action='store_true');p.add_argument('--iram-native-characters',action='store_true');p.add_argument('--native-bitmaps',action='store_true');p.add_argument('--type1-vram',action='store_true');a=p.parse_args();a.native_bitmaps|=a.type1_vram;a.iram_native_characters|=a.native_bitmaps;a.bitmap_palette_indices|=a.iram_bitmap_indices;a.sparse_palette_indices|=a.bitmap_palette_indices;a.direct_palette_lookup|=a.sparse_palette_indices;a.native_characters|=a.iram_native_characters;a.fused_screen_indices|=a.invalidate_fused_palette or a.native_characters;a.palette_indices|=a.direct_palette_lookup or a.fused_screen_indices;a.whole_tile_canvas|=a.palette_indices;a.background_corrections|=a.whole_tile_canvas;a.background_corrections|=a.adaptive_shader;a.typed_underlay|=a.background_corrections;a.retain_stage|=a.background_corrections;out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--stage',required=True);p.add_argument('--scene',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--move-actor-index',type=int,default=1);p.add_argument('--move-x',type=int,default=-30);p.add_argument('--retain-stage',action='store_true');p.add_argument('--typed-underlay',action='store_true');p.add_argument('--background-corrections',action='store_true');p.add_argument('--adaptive-shader',action='store_true');p.add_argument('--invalidate-context',choices=('low','high'));p.add_argument('--whole-tile-canvas',action='store_true');p.add_argument('--palette-indices',action='store_true');p.add_argument('--direct-palette-lookup',action='store_true');p.add_argument('--sparse-palette-indices',action='store_true');p.add_argument('--bitmap-palette-indices',action='store_true');p.add_argument('--iram-bitmap-indices',action='store_true');p.add_argument('--fused-screen-indices',action='store_true');p.add_argument('--invalidate-fused-palette',action='store_true');p.add_argument('--native-characters',action='store_true');p.add_argument('--iram-native-characters',action='store_true');p.add_argument('--native-bitmaps',action='store_true');p.add_argument('--type1-vram',action='store_true');p.add_argument('--ppu-scene',action='store_true');a=p.parse_args();a.type1_vram|=a.ppu_scene;a.native_bitmaps|=a.type1_vram;a.iram_native_characters|=a.native_bitmaps;a.bitmap_palette_indices|=a.iram_bitmap_indices;a.sparse_palette_indices|=a.bitmap_palette_indices;a.direct_palette_lookup|=a.sparse_palette_indices;a.native_characters|=a.iram_native_characters;a.fused_screen_indices|=a.invalidate_fused_palette or a.native_characters;a.palette_indices|=a.direct_palette_lookup or a.fused_screen_indices;a.whole_tile_canvas|=a.palette_indices;a.background_corrections|=a.whole_tile_canvas;a.background_corrections|=a.adaptive_shader;a.typed_underlay|=a.background_corrections;a.retain_stage|=a.background_corrections;out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
  if a.fused_screen_indices and(a.adaptive_shader or a.direct_palette_lookup):raise ValueError('FUSED_PRESENTATION_USES_COMPILED_PERSISTENT_ACTOR_INDICES')
  if a.sparse_palette_indices and a.adaptive_shader:raise ValueError('SPARSE_INDEX_PIPELINE_REQUIRES_ACTOR_CORRECTIONS')
  source=Source(a.source);catalog=derive(source);scene=json.loads(a.scene.read_text());bg,span_desc,pixels,origins,actors,window=compile_inputs(source,a.stage,scene,catalog,a.whole_tile_canvas);wx,wy,w,h=window
@@ -202,12 +202,18 @@ def main():
   # MMC bank registers belong to S-CPU. SA-1 requests and waits for an ACK;
   # it cannot change $2222 itself. The native cost includes this service.
   main[-7:-7]=bytes.fromhex('af e8 3f 41 f0 0d 8d 22 22 8f e9 3f 41 a9 00 8f e8 3f 41')
- vram_entries={};vram_descriptors=[]
+ vram_entries={};vram_descriptors=[];ppu_high_start=max(4096,(((out/"palette-context-1/obj_chr.bin").stat().st_size+4095)//4096)*4096)if a.ppu_scene else 0
  if a.type1_vram:
   from m4_window_characters import type1_service
-  service,vram_entries,vram_descriptors=type1_service(w,h);rom[0xc000:0xc000+len(service)]=service
+  service,vram_entries,vram_descriptors=type1_service(w,h,ppu_high_start if a.ppu_scene else 0,49152 if a.ppu_scene else 0x4000);rom[0xc000:0xc000+len(service)]=service
   main[-7:-7]=bytes.fromhex('22 00 c0 01')
   main[11:11]=bytes.fromhex('9c 00 00 9c 02 00 9c f0 30 9c f1 30');main[-2:]=struct.pack('<H',struct.unpack('<H',main[-2:])[0]+12)
+ ppu_boot=None
+ if a.ppu_scene:
+  from m4_native_window_ppu import compile_boot
+  ppu_boot=compile_boot(out/'palette-context-1',window)
+  rom[0xa0000:0xd0000]=ppu_boot['data'];rom[0xd000:0xd000+len(ppu_boot['code'])]=ppu_boot['code'];rom[0xe000:0xe000+len(ppu_boot['irq'])]=ppu_boot['irq'];rom[0x100:0x104]=bytes.fromhex('5c 00 e0 01');rom[0x7fee:0x7ff0]=struct.pack('<H',0x8100)
+  main[-3:-3]=bytes.fromhex('ad 02 00 c9 02 d0 04 5c 00 d0 01')
  rom[0x8000:0x8400]=main+bytes([255])*(1024-len(main));rom[0x7fd7]=13 if a.direct_palette_lookup else(12 if index_worker else 11)
  if a.invalidate_fused_palette:rom[0x100000:0x100000+len(fused_tables)]=bytes(len(fused_tables))
  path=out/'proof.sfc';path.write_bytes(rom);lua=out/'observer.lua';all_entries={**{'underlay_'+k:v for k,v in entries.items()},**{'shader_'+k:v for k,v in screen_entries.items()}}
@@ -247,13 +253,17 @@ def main():
   observer+="emu.addMemoryCallback(function(a,v)if a==0x2236 then type1Active=true elseif a==0x2231 and(v&128)~=0 then type1Active=false end end,emu.callbackType.write,0x2231,0x2236,emu.cpuType.snes,emu.memType.snesMemory)\n"
   observer+=f"emu.addMemoryCallback(function(a,v)if type1Active then type1Reads=type1Reads+1;if not(a>=0x420000 and a<{0x420000+w*h*10//8})then type1BadReads=type1BadReads+1 end end end,emu.callbackType.read,0x400000,0x43ffff,emu.cpuType.snes,emu.memType.snesMemory)\n"
   observer+="emu.addMemoryCallback(function(a,v)if type1Active then type1Sa1Reads=type1Sa1Reads+1 end end,emu.callbackType.read,0x400000,0x43ffff,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
-  observer+="emu.addMemoryCallback(function(a,v)emu.log('TYPE1REG|'..a..'|'..v)end,emu.callbackType.write,0x4370,0x4376,emu.cpuType.snes,emu.memType.snesMemory)\n"
-  observer+="emu.addMemoryCallback(function(a,v)emu.log('TYPE1DMA|'..v)end,emu.callbackType.write,0x420b,0x420b,emu.cpuType.snes,emu.memType.snesMemory)\n"
-  observer+="emu.addMemoryCallback(function(a,v)emu.log('TYPE1CORRUPT|'..a..'|'..v)end,emu.callbackType.write,0x42d100,0x42d103,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  for n,v in vram_entries.items():
   if n=='dma0':observer+=f"emu.addMemoryCallback(function()type1Reads=0;type1BadReads=0;type1Sa1Reads=0 end,emu.callbackType.exec,{v},{v},emu.cpuType.snes,emu.memType.snesMemory)\n"
   if n=='done1':observer+=f"emu.addMemoryCallback(function()emu.log('TYPE1READS|'..type1Reads..'|'..type1BadReads..'|'..type1Sa1Reads)end,emu.callbackType.exec,{v},{v},emu.cpuType.snes,emu.memType.snesMemory)\n"
   observer+=f"emu.addMemoryCallback(function()emu.log('CHRV RAM|{n}|'..emu.getState().masterClock)end,emu.callbackType.exec,{v},{v},emu.cpuType.snes,emu.memType.snesMemory)\n"
+ if a.ppu_scene:
+  observer+="local ppuActive=false;local ppuFrames=0;local ppuRestore=false;local ppuRows={};local ppuOam={};local ppuClocks={};local ppuFlags={}\n"
+  observer+="emu.addMemoryCallback(function(a,v)ppuRestore=v==1 end,emu.callbackType.write,0,0,emu.cpuType.snes,emu.memType.snesMemory)\n"
+  observer+="emu.addMemoryCallback(function(a,v)if v==15 then ppuActive=true end end,emu.callbackType.write,0x2100,0x2100,emu.cpuType.snes,emu.memType.snesMemory)\n"
+  observer+="emu.addMemoryCallback(function(a,v)if ppuActive and ppuFrames==1 and not ppuRestore then ppuRows[#ppuRows+1]=string.format('%04x:%02x',a,v);if #ppuRows%31==2 or #ppuRows%31==0 then local state=emu.getState();ppuClocks[#ppuClocks+1]=(state.masterClock+4*(state['ppu.frameCount']//2))%1364 end end end,emu.callbackType.write,0x2121,0x2122,emu.cpuType.snes,emu.memType.snesMemory)\n"
+  observer+="emu.addMemoryCallback(function(a,v)ppuOam[#ppuOam+1]=string.format('%02x',v)end,emu.callbackType.write,0x2104,0x2104,emu.cpuType.snes,emu.memType.snesMemory)\n"
+  observer+="emu.addEventCallback(function()if ppuActive then ppuFrames=ppuFrames+1;emu.log('NATIVEPPUFLAGS|'..emu.read(0x213e,emu.memType.snesMemory));if ppuFrames==2 then emu.log('NATIVEPPUCGRAM|'..table.concat(ppuRows,','));emu.log('NATIVEPPUOAM|'..table.concat(ppuOam,''));emu.log('NATIVEPPUCLOCKS|'..table.concat(ppuClocks,','))end end end,emu.eventType.endFrame)\n"
  lua.write_text(observer)
  class Observed(McpSession):
   def __enter__(self):
@@ -265,7 +275,7 @@ def main():
   for phase,target in enumerate((b'\xa1\xb4',b'\xab\xb4')):
    for _ in range(60):
     run_frames_exact(m,1)
-    if a.type1_vram and m.read_memory('SnesMemory',0x7e0002,1)!=bytes([phase+1]):continue
+    if a.type1_vram and(m.read_memory('SnesMemory',0x7e0002,1)!=bytes([phase+1])or a.ppu_scene and phase==1 and m.read_memory('SnesMemory',0x7e0003,1)!=b'\x01'):continue
     marker=m.read_memory('SnesMemory',0x413ff0,2)
     if marker in(target,b'\xae\xb4',b'\xe1\xb4'):break
    if marker==b'\xe1\xb4' and a.invalidate_context and phase==1:break
@@ -273,7 +283,7 @@ def main():
    if marker!=target:raise ValueError('JOINT_NATIVE_SCREEN_COMPLETION:'+marker.hex()+':'+m.read_memory('SnesMemory',0x413fea,4).hex())
    actual.append(m.read_memory('SnesMemory',0x427000,len(expected[phase])));actual_underlays.append(m.read_memory('SnesMemory',0x420000,len(underlays[phase])))if not a.native_characters else None
    if a.native_characters:native_chr.append(m.read_memory('SnesMemory',0x420000,w*h*10//8))
-   if a.type1_vram:native_vram.append(m.read_memory('SnesVideoRam',0,w*h)+m.read_memory('SnesVideoRam',0x4000,w*h//4))
+   if a.type1_vram:native_vram.append(m.read_memory('SnesVideoRam',ppu_high_start if a.ppu_scene else 0,w*h)+m.read_memory('SnesVideoRam',49152 if a.ppu_scene else 0x4000,w*h//4))
    if a.sparse_palette_indices:converted_counts.append(int.from_bytes(m.read_memory('SnesMemory',0x413fe6,2),'little'))
    if index_worker or a.fused_screen_indices:
     if a.fused_screen_indices:index_decoders=index_data[3];index_expected=index_data[2];palette_reports=index_data[4]
@@ -287,6 +297,10 @@ def main():
     if a.invalidate_context:
      half=(context_epoch>>16)if a.invalidate_context=='high'else(context_epoch&65535);m.write_memory('SnesMemory',0x42d100+(2 if a.invalidate_context=='high'else 0),struct.pack('<H',half^1).hex())
     m.write_u16(0x0030f0 if a.type1_vram else 0x413ff4,1)
+  if a.ppu_scene:
+   import shutil
+   for _ in range(5):run_frames_exact(m,1)
+   shot=m.tool('take_screenshot',{'format':'path'});shutil.copyfile(shot['path'],out/'screenshot.png')
   if a.type1_vram:(out/'type1-cpu-state.json').write_text(json.dumps(dict(snes=m.get_cpu_state(),sa1=m.get_cpu_state('Sa1')),indent=2))
  if a.invalidate_fused_palette:
   log=(out/'mesen.log').read_text();fault_writes=[[int(n)for n in v.split('JOINTPIXELS|',1)[1].split('|')]for v in log.splitlines()if'JOINTPIXELS|'in v]
@@ -366,10 +380,24 @@ def main():
   vram_events=[v.split('CHRV RAM|',1)[1].split('|')for v in lines if'CHRV RAM|'in v]
   vram_clocks=[int(vram_events[i+1][1])-int(vram_events[i][1])for i in range(0,len(vram_events),2)]
   type1_reads=[[int(n)for n in v.split('TYPE1READS|',1)[1].split('|')]for v in lines if'TYPE1READS|'in v]
-  type1_read_expected=[[w*h*10//8,0,0]]*2
-  vram_ok=native_vram==vram_expected and type1_reads==type1_read_expected and len(vram_clocks)==4 and all(v>=d['bytes']*8 for v,d in zip(vram_clocks,vram_descriptors*2)) and[v[0]for v in vram_events]==['dma0','done0','dma1','done1']*2
+  type1_read_expected=[[w*h*10//8,0,0]]*(3 if a.ppu_scene else 2)
+  vram_ok=native_vram==vram_expected and type1_reads==type1_read_expected and len(vram_clocks)==(6 if a.ppu_scene else 4) and all(v>=d['bytes']*8 for v,d in zip(vram_clocks,vram_descriptors*(3 if a.ppu_scene else 2))) and[v[0]for v in vram_events]==['dma0','done0','dma1','done1']*(3 if a.ppu_scene else 2)
   report.update(type1_exclusive_BWRAM_read_trace=type1_reads,type1_expected_exclusive_BWRAM_read_trace=type1_read_expected,scope='Two explicit poses: native opaque spans, exact SCREEN, palette indices, bitmap serialization and forced-blank CHR delivery. No PPU scene, live context, audio deadline or production memory lease.',forced_blank_native_CHR_publication=vram_ok,CHR_publication=vram_ok,type1_vram_descriptors=vram_descriptors,type1_vram_master_clocks=vram_clocks,type1_vram_byte_mismatches=[sum(a!=b for a,b in zip(v,e))for v,e in zip(native_vram,vram_expected)],type1_VBlank_deadline_admitted=False)
   if not vram_ok:ok=False;report['status']='FAIL'
+ if a.ppu_scene:
+  from PIL import Image
+  pixels=np.asarray(Image.open(out/'screenshot.png').convert('RGB'),dtype=np.uint16)
+  rendered=(pixels[:,:,0]>>3)|((pixels[:,:,1]>>3)<<5)|((pixels[:,:,2]>>3)<<10)
+  expected_ppu=np.frombuffer(ppu_boot['expected'],dtype='<u2').reshape(224,256)
+  cg=[v.split('NATIVEPPUCGRAM|',1)[1].split(',')for v in lines if'NATIVEPPUCGRAM|'in v]
+  oam=[v.split('NATIVEPPUOAM|',1)[1]for v in lines if'NATIVEPPUOAM|'in v]
+  flags=[int(v.split('NATIVEPPUFLAGS|',1)[1])for v in lines if'NATIVEPPUFLAGS|'in v]
+  ppu_clocks=[[int(n)for n in v.split('NATIVEPPUCLOCKS|',1)[1].split(',')]for v in lines if'NATIVEPPUCLOCKS|'in v]
+  ppu_timing_ok=len(ppu_clocks)==1 and len(ppu_clocks[0])==448 and not any(88<=v<1096 for v in ppu_clocks[0])
+  (out/'ppu-observer.json').write_text(json.dumps(dict(CGRAM=cg,OAM=oam,OBJ_flags=flags,CGRAM_first_last_hclocks=ppu_clocks),indent=2)+'\n')
+  ppu_ok=rendered.shape==expected_ppu.shape and np.array_equal(rendered,expected_ppu)and cg==[ppu_boot['trace']]and oam==[(out/'palette-context-1/oam.bin').read_bytes().hex()]and bool(flags)and not any(v&192 for v in flags)and ppu_timing_ok
+  report.update(native_PPU_CGRAM_HBlank_timing_verified=ppu_timing_ok,native_PPU_CGRAM_hclock_range=[min(ppu_clocks[0]),max(ppu_clocks[0])]if ppu_clocks else None,scope='Native opaque composition through exact SCREEN, palette indices, type1 CHR DMA and PPU presentation for two explicit poses. Static surroundings and offline palette schedules; no live context, joint audio deadline or production memory lease.',native_PPU_scene_pixel_identity=ppu_ok,native_PPU_pixel_mismatches=int(np.count_nonzero(rendered!=expected_ppu))if rendered.shape==expected_ppu.shape else None,native_PPU_CGRAM_observer_verified=cg==[ppu_boot['trace']],native_PPU_OAM_observer_verified=oam==[(out/'palette-context-1/oam.bin').read_bytes().hex()],native_PPU_OBJ_flags=flags,native_PPU_resources=ppu_boot['resources'],native_window_static_placeholder_overwritten=True,motu_gameplay_proven=False)
+  if not ppu_ok:ok=False;report['status']='FAIL'
  if a.invalidate_context and fault_dma!=[[0,0,0]]:ok=False;report['status']='FAIL'
  if not observer_ok:ok=False;report['status']='FAIL'
  (out/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({k:v for k,v in report.items()if k!='source_layers'}))

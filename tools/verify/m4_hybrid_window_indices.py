@@ -22,6 +22,9 @@ def compile_contexts(source,stage,poses,window,out,direct=False,persistent_actor
   if a is None:raise ValueError('COMPILED_WINDOW_PALETTE_CONTEXT_UNPROVEN')
   folder=out/('palette-context-%d'%phase);folder.mkdir(exist_ok=True)
   (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n')
+  for name in ('high','low','expected','promoted','obj_chr','oam'):
+   value=a[name].astype('<u2')if name=='expected'else a[name]
+   (folder/(name+'.bin')).write_bytes(value.tobytes())
   state=[0]*256
   for v in r['bg_schedule']['initial']:state[v['slot']]=v['color'] or 0
   updates={v['scanline']:v for v in r['bg_schedule']['trace']};rows=[]
