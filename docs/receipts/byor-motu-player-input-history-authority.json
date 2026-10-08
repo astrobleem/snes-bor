@@ -1,0 +1,24 @@
+{
+  "schema": "BYOR_4086_PLAYER_INPUT_HISTORY_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "constants": {
+    "MAX_PLAYERS": 4,
+    "MAX_SPECIAL_INPUTS": 27,
+    "GAME_SPEED": 200
+  },
+  "cases": 5184,
+  "full_record_bytes_compared": 1389312,
+  "literal_function_sha256": {
+    "inputrefresh": "3cd52712488307a2183f12123ec7dc032dec3a1e95cee753d98d455bf0f91108",
+    "match_combo": "7266d731ab59675a5cabbe54dcb4e76cf973fb4e979fbdb105d7b029b22073c7"
+  },
+  "header_sha256": "3d54f4d40f76c0e51fc30617c5dedd968ab57168a063cd349dc104ae5fc8756b",
+  "actual_sha256": "d7880ee50080cee8927bbc3dbb3620b162d3e3f1187fae554a2c82cbdba8430d",
+  "expected_sha256": "d7880ee50080cee8927bbc3dbb3620b162d3e3f1187fae554a2c82cbdba8430d",
+  "controller_update_instrumented": true,
+  "player_think_bound": false,
+  "check_combo_energy_and_cost_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
