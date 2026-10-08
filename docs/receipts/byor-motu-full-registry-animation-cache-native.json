@@ -1,0 +1,22 @@
+{
+  "schema": "BYOR_4086_FULL_REGISTRY_ANIMATION_CACHE_NATIVE_V1",
+  "status": "PASS",
+  "cases": 267,
+  "models": 16,
+  "maximum_source_animation_ids": 168,
+  "highest_authored_animation_id": 163,
+  "cache_bytes": 5376,
+  "shared_state_cache_ceiling": 5632,
+  "remaining_bytes": 256,
+  "cache_sha256": "210fd17b54d40ff57a027e83974c8009ac768a15727ee7cca1ac9b216b50e466",
+  "frame_table_sha256": "b02003ab0b0bde907ac928795e9767f723563aa02c3986d75a033ef0f38f4608",
+  "rom_sha256": "dcf4c2a588f63dccfb46ad56ed5aeb7e7c804430023fe32fac3f6588935219a6",
+  "errors": [],
+  "peak_master_clocks": 310906,
+  "full_registry_cache_fits": true,
+  "weapon_dependencies_source_derived": true,
+  "actual_model_switch_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
