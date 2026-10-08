@@ -51,7 +51,9 @@ def compile_inputs(source,stage,scene,catalog,tile_aligned=False):
  return background[0],bytes(descriptors),bytes(pixels),bytes(origins),actors,(wx,wy,w,h)
 
 
-def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None,colour_canvas_second=None,colour_pixels_second=None,force_stage_reload=False,bitmap_row_target=None,bitmap_baselines=None,bitmap_actor_indices=None,notify_cpu=False,bitmap_tile_count=None,fixed_actor_origin=None):
+def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None,colour_canvas_second=None,colour_pixels_second=None,force_stage_reload=False,bitmap_row_target=None,bitmap_baselines=None,bitmap_actor_indices=None,notify_cpu=False,bitmap_tile_count=None,fixed_actor_origin=None,fixed_actor_frame=None,fixed_frame_input_override=None):
+ if fixed_actor_frame is not None and(fixed_actor_origin is None or fixed_actor_frame[0]!=fixed_actor_origin[0]):raise ValueError('FIXED_FRAME_REQUIRES_MATCHING_GUARDED_ACTOR')
+ if fixed_frame_input_override is not None and fixed_actor_frame is None:raise ValueError('FIXED_FRAME_OVERRIDE_REQUIRES_CONTRACT')
  bitmap_bytes=(bitmap_tile_count if bitmap_tile_count is not None else w*h//64)*80
  rom,_,_=base.build(np.zeros((3,2),dtype=np.uint16),True,iram=True);rom=bytearray(rom)+bytearray([255])*(1048576-len(rom))
  for at,data in((0x20000,descriptors),(0x30000,origins),(0x40000,background),(0x50000,pixels)):rom[at:at+len(data)]=data
@@ -72,6 +74,10 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
  c.label('entry');c.emit('e2 20 a9 42 48 ab c2 20')
  if expected_context_epoch is not None:
   c.emit('af 00 d1 42');c.word(0xc9,expected_context_epoch&65535);c.branch(0xf0,'epoch_low_valid');c.jump('epoch_fault');c.label('epoch_low_valid');c.emit('af 02 d1 42');c.word(0xc9,expected_context_epoch>>16);c.branch(0xf0,'epoch_valid');c.jump('epoch_fault');c.label('epoch_valid')
+ if fixed_actor_frame is not None:
+  actor,frame_epoch=fixed_actor_frame
+  for half in range(2):
+   c.emit('af '+(0x42d104+actor*4+half*2).to_bytes(3,'little').hex(' '));c.word(0xc9,(frame_epoch>>(half*16))&65535);c.branch(0xf0,'fixed_frame_half_%d'%half);c.jump('fixed_actor_fault');c.label('fixed_frame_half_%d'%half)
  if fixed_actor_origin is not None:
   actor,fx,fy=fixed_actor_origin
   if bitmap_row_target is None or actor!=0:raise ValueError('FIXED_UNDERLAY_REQUIRES_LOWEST_NATIVE_ACTOR')
@@ -127,6 +133,10 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
  rom[0x9000:0x9000+len(worker)]=worker;main=bytearray(rom[0x8000:0x8400]);main=main[:main.index(bytes([255])*32)];needle=bytes.fromhex('bf 00 90 01 9f 00 32 00 e8 e0');at=main.index(needle)+len(needle);main[at:at+2]=struct.pack('<H',len(worker))
  extra=bytes.fromhex('c2 20 a2 00 00 bf 00 00 c3 9f 00 d0 42 e8 e8 e0')+struct.pack('<H',len(origins))+bytes.fromhex('d0 f1 e2 20')
  if expected_context_epoch is not None:extra+=bytes.fromhex('c2 20 a9')+struct.pack('<H',expected_context_epoch&65535)+bytes.fromhex('8f 00 d1 42 a9')+struct.pack('<H',expected_context_epoch>>16)+bytes.fromhex('8f 02 d1 42 e2 20')
+ if fixed_actor_frame is not None:
+  actor,frame_epoch=fixed_actor_frame
+  if fixed_frame_input_override is not None:frame_epoch=fixed_frame_input_override
+  extra+=bytes.fromhex('c2 20 a9')+struct.pack('<H',frame_epoch&65535)+bytes.fromhex('8f')+(0x42d104+actor*4).to_bytes(3,'little')+bytes.fromhex('a9')+struct.pack('<H',frame_epoch>>16)+bytes.fromhex('8f')+(0x42d106+actor*4).to_bytes(3,'little')+bytes.fromhex('e2 20')
  if main[-3]!=0x4c:raise ValueError('UNDERLAY_SPAN_HOST_LAYOUT')
  main[-2:]=struct.pack('<H',struct.unpack('<H',main[-2:])[0]+len(extra));at=main.index(needle)-3;main[at:at]=extra;rom[0x8000:0x8400]=main+bytes([255])*(1024-len(main));rom[0x7fd7]=10
  names=['entry','done']+(['epoch_fault']if expected_context_epoch is not None else[])+(['fixed_actor_fault']if fixed_actor_origin is not None else[])

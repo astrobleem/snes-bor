@@ -69,12 +69,17 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
  baseline=b''.join(selected_tiles(v,w,h,mask)for v in canvases)
  worker,row_entries=row_kernel(w,h,tile_count if a.effect_tile_direct else None)
  fixed_origin=(a.fixed_underlay_actor,*struct.unpack_from('<hh',origins,a.fixed_underlay_actor*4))if a.fixed_underlay_actor is not None else None
+ frame_contract=None;frame_identity=None
+ if fixed_origin is not None:
+  layer=actors[fixed_origin[0]][4];frame_identity={k:layer[k]for k in('kind','path','sha256','source_dimensions','source_flip','selected_map','palette_source_path','palette_asset_sha256')if k in layer}
+  frame_hash=hashlib.sha256(json.dumps(frame_identity,sort_keys=True).encode()).hexdigest();frame_contract=(fixed_origin[0],int.from_bytes(bytes.fromhex(frame_hash)[:4],'little'))
+ if a.invalidate_fixed_underlay_frame and frame_contract is None:raise ValueError('FIXED_FRAME_NEGATIVE_REQUIRES_GUARDED_ACTOR')
  rom,entries,producer=build(bg,descriptors,pixels,origins,w,h,expected_context_epoch=epoch,
-     bitmap_row_target=0x3500,bitmap_baselines=baseline,bitmap_actor_indices=actor_indices[0],notify_cpu=a.idle_direct_cpu,bitmap_tile_count=tile_count,fixed_actor_origin=fixed_origin)
+     bitmap_row_target=0x3500,bitmap_baselines=baseline,bitmap_actor_indices=actor_indices[0],notify_cpu=a.idle_direct_cpu,bitmap_tile_count=tile_count,fixed_actor_origin=fixed_origin,fixed_actor_frame=frame_contract,fixed_frame_input_override=(frame_contract[1]^1)if a.invalidate_fixed_underlay_frame else None)
  rom=bytearray(rom)+bytearray([255])*1048576
- if a.invalidate_fixed_underlay:
+ if a.invalidate_fixed_underlay or a.invalidate_fixed_underlay_frame:
   if fixed_origin is None:raise ValueError('FIXED_UNDERLAY_NEGATIVE_REQUIRES_GUARDED_ACTOR')
-  rom[0x30000+fixed_origin[0]*4]^=1
+  if a.invalidate_fixed_underlay:rom[0x30000+fixed_origin[0]*4]^=1
  rom[0x9c00:0x9c00+len(worker)]=worker
  for at,data in((0x60000,maps[0]),(0x70000,maps[1]),(0x100000,tables)):
   rom[at:at+len(data)]=data
@@ -121,13 +126,13 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
   for phase,target in enumerate((b'\xa1\xb4',b'\xab\xb4')):
    for _ in range(60):
     run_frames_exact(m,1)
-    if a.invalidate_fixed_underlay:
+    if a.invalidate_fixed_underlay or a.invalidate_fixed_underlay_frame:
      marker=m.read_memory('SnesMemory',0x413ff0,2)
      if marker==b'\xa3\xb4':break
     if m.read_memory('SnesMemory',0x7e0002,1)!=bytes([phase+1])or ppu_boot and phase==1 and m.read_memory('SnesMemory',0x7e0003,1)!=b'\x01':continue
     marker=m.read_memory('SnesMemory',0x413ff0,2)
     if marker==target:break
-   if a.invalidate_fixed_underlay and marker==b'\xa3\xb4':break
+   if (a.invalidate_fixed_underlay or a.invalidate_fixed_underlay_frame)and marker==b'\xa3\xb4':break
    if marker!=target:raise ValueError('DIRECT_BITMAP_NATIVE_COMPLETION:'+marker.hex())
    actual.append(m.read_memory('SnesMemory',0x420000,bitmap_bytes));vram.append(m.read_memory('SnesVideoRam',high_target,high_bytes)+m.read_memory('SnesVideoRam',low_target,low_bytes));counts.append(struct.unpack('<HH',m.read_memory('SnesMemory',0x413ff6,4)))
    if phase==0:
@@ -137,9 +142,9 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
    for _ in range(5):run_frames_exact(m,1)
    shot=m.tool('take_screenshot',{'format':'path'});shutil.copyfile(shot['path'],out/'screenshot.png')
  log=(out/'mesen.log').read_text().splitlines();jobs=[v.split('DIRECTJOB|',1)[1].split('|')for v in log if'DIRECTJOB|'in v];bounds=[[int(n)for n in v.split('DIRECTBOUNDS|',1)[1].split('|')]for v in log if'DIRECTBOUNDS|'in v]
- if a.invalidate_fixed_underlay:
+ if a.invalidate_fixed_underlay or a.invalidate_fixed_underlay_frame:
   ok=marker==b'\xa3\xb4'and bounds==[[0,0,0,0,0]]and[v[0]for v in jobs]==['entry','fixed_actor_fault']
-  report=dict(schema='BYOR_FIXED_UNDERLAY_NATIVE_REJECTION_V1',status='PASS'if ok else'FAIL',marker=marker.hex(),native_write_and_DMA_trace=bounds,native_job_events=jobs,fixed_actor_origin=fixed_origin,ROM_sha256=hashlib.sha256(rom).hexdigest(),no_color_reduction=True,frame_identity_proven=False,motu_gameplay_proven=False,production_memory_lease=False)
+  report=dict(schema='BYOR_FIXED_UNDERLAY_NATIVE_REJECTION_V1',status='PASS'if ok else'FAIL',marker=marker.hex(),native_write_and_DMA_trace=bounds,native_job_events=jobs,fixed_actor_origin=fixed_origin,fixed_actor_frame_contract=frame_contract,fixed_actor_source_identity=frame_identity,rejected_input='frame'if a.invalidate_fixed_underlay_frame else'origin',ROM_sha256=hashlib.sha256(rom).hexdigest(),no_color_reduction=True,frame_identity_proven=False,motu_gameplay_proven=False,production_memory_lease=False)
   (out/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))
   if not ok:raise SystemExit(1)
   return
@@ -155,7 +160,7 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
      bitmap_byte_mismatches=[sum(a!=b for a,b in zip(v,e))for v,e in zip(actual,expected)],VRAM_byte_mismatches=[sum(a!=b for a,b in zip(v,e))for v,e in zip(vram,packed)],
      native_span_and_pixel_counts=counts,write_and_DMA_bounds=bounds,expected_write_and_DMA_bounds=expected_bounds,
      source_effect_tile_mask=a.effect_tile_direct,promoted_native_window_tiles=tile_count,bitmap_bytes=bitmap_bytes,actor_pixels_in_promoted_tiles=masked_counts,
-     fixed_underlay_actor=a.fixed_underlay_actor,fixed_underlay_native_origin_guard=fixed_origin,fixed_underlay_source_frame_immutable_in_ROM=fixed_origin is not None,live_actor_source_frame_guard=False,
+     fixed_underlay_actor=a.fixed_underlay_actor,fixed_underlay_native_origin_guard=fixed_origin,fixed_underlay_source_frame_immutable_in_ROM=fixed_origin is not None,fixed_underlay_native_frame_guard=frame_contract,fixed_underlay_source_identity=frame_identity,live_actor_source_frame_guard=False,
      master_clocks=clocks,milliseconds=[v/21477.27 for v in clocks]if clocks else None,native_bitmap_sha256=[hashlib.sha256(v).hexdigest()for v in actual],
      no_color_reduction=True,alpha_policy='Exact source RGB8 SCREEN before RGB555 conversion',
      SCPU_WAI_during_source_job=a.idle_direct_cpu,source_job_completion_IRQ=a.idle_direct_cpu,production_CPU_contention_admitted=False,
