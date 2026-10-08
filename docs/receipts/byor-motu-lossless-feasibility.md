@@ -1376,3 +1376,40 @@ The bank solver initially reached a 90-second limit, which is not hardware infea
 The unmodified pinned check_gravity and adjust_base bodies pass 852 compiled-C cases under a sticky-base, empty-platform service policy. The native B618 capability passes 192 real source-row, timer-wrap, update-mark, freeze, CPU-preservation and admission-fault cases. It requires a compiler-closed zero-falling/no-binding policy and checks the actual typed altitude equals base, zero vertical velocity and positive no_adjust_base. Unsupported moving-air and landing behavior remains explicit.
 
 The real authored ShockBall constructor and due arrow thinker then pass this gravity backend before check_move in both directions. Base/altitude remain 34, toss_time and nextmove become 146, update marks progress 2 to 10 to 14, and X advances 80 to 78.5/81.5. Each direction independently verifies all 897 source sound DSP BRR blocks. No child actor fields are injected for tick advancement. This does not acknowledge the complete source phase11 service, integrate active airborne motion or landings, or certify live combat. Evidence: byor-motu-inactive-air-gravity-native.json. New code remains outside bank0; the protected worktree fingerprint and ROM width audit pass.
+
+
+### Checked non-gravitating hover and actual arranger post-update
+
+The pinned binary32 airborne integration now passes 6,912 compiled-C cases,
+including source antigravity factors, animation antigrav, source clamps, timers,
+freeze and onmovea event counts. This is authority evidence, not native active
+physics or landing certification. Global/stage physics parsing passes 256
+unmodified compiled-C cases. Global GRAVITY is unscaled; stage gravity divides by
+100 and fall/toss limits divide by 10. Both actual MOTU stages inherit gravity
+-0.1f, minimum fall -6 and maximum toss 100 and declare no wall/hole/basemap.
+
+B619 extends the existing B618 stationary branch to source-derived non-gravitating
+hover. Positive no_adjust_base, zero vertical velocity and typed nonlanding
+altitude/base are checked natively. Source requirements select HBreath, HWWind
+and SkGeyserT without actor-name logic. Source alpha remains separately selected
+SCREEN; this capability never changes source pixels or colors.
+
+The real arranger emits POST_UPDATE in state 2, not the state 1 used by earlier
+isolated fixtures. Gravity and movement now admit state 2/phase 11, and freeze
+queries admit state 2 only for phase 11. Native hover, idle and movement tests
+pass 216, 384 and 444 cases respectively across both contexts.
+
+The generic SourcePostStationary4086_Execute lives in measured empty bank 47.
+It validates the retained global self, saves it, binds explicit e, invokes
+stationary gravity then check_move, and restores self on success and both
+subservice failure exits. Completed subservice statuses may begin a checked new
+request; hard fault statuses remain rejected. Its 396 native cases preserve
+siblings and CPU context. The real owner proof passes 154 traversals, 4,303
+service events and the actual post requests, including reorder/fresh-actor
+handling, native movement accumulation, acknowledgement and clock commit.
+Other gameplay services remain instrumented and falling/binding are a closed
+compiler contract. No actual source effect constructor-to-world installer or
+full gravity/landing/gameplay claim follows from this proof.
+
+Evidence: `docs/receipts/byor-motu-stationary-post-gravity-native.json`.
+No color reduction, PCM copying, bank-0 growth or unrelated-worktree changes.

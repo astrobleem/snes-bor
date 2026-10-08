@@ -1,6 +1,8 @@
 ; Pinned inactive-air check_gravity, sticky base and empty platform world.
 ; B618 compiler contract: falling=0, no binding/platform mutation capability.
-; Actual typed altitude==base, zero vertical velocity and no_adjust_base>0
+; B619 additionally admits non-gravitating hover: no DROPFRAME/WALKOFF,
+; immutable current-stage fall/toss bounds cover zero. Revoke on mutations.
+; Actual typed altitude/base, zero vertical velocity and no_adjust_base>0
 ; are checked before admission. Active airborne/landing needs another backend.
 ; Source phase11 subservice; no post-update Ack. Existing mark8 exits early.
 SourceGravityIdle4086_Ready = $40BFE0
@@ -23,6 +25,8 @@ SourceGravityIdle4086_Execute:
  phy
  lda.l SourceGravityIdle4086_Ready
  cmp #$B618
+ beq SourceGravityIdle4086_Guard1
+ cmp #$B619
  beq SourceGravityIdle4086_Guard1
  jmp SourceGravityIdle4086_Bad
 SourceGravityIdle4086_Guard1:
@@ -51,6 +55,8 @@ SourceGravityIdle4086_Guard4:
 .i16
  lda.l SourceWorldTick4086_State
  cmp #1
+ beq SourceGravityIdle4086_Guard5
+ cmp #2 ; actual arrange_ents POST_UPDATE owner
  beq SourceGravityIdle4086_Guard5
  jmp SourceGravityIdle4086_Bad
 SourceGravityIdle4086_Guard5:
@@ -292,6 +298,7 @@ SourceGravityIdle4086_CoreCount:
  asl a
  clc
  adc.l SourceGravityIdle4086_Core
+ sta.l SourceGravityIdle4086_Core
  tax
  lda.l $40C026,x
  bmi SourceGravityIdle4086_RejectCore
@@ -335,13 +342,51 @@ SourceGravityIdle4086_AltitudeReserved:
  lda.l SOURCE_WORLD_POOL+12,x
  cmp.l SourceGravityIdle4086_X
  beq SourceGravityIdle4086_AltitudeLow
- jmp SourceGravityIdle4086_Bad
+ jmp SourceGravityIdle4086_Hover
 SourceGravityIdle4086_AltitudeLow:
 .a16
 .i16
  lda.l SOURCE_WORLD_POOL+14,x
  cmp.l SourceGravityIdle4086_X+2
  beq SourceGravityIdle4086_Inactive
+ jmp SourceGravityIdle4086_Hover
+SourceGravityIdle4086_Hover:
+.a16
+.i16
+ lda.l SourceGravityIdle4086_Ready
+ cmp #$B619
+ beq SourceGravityIdle4086_HoverLease
+ jmp SourceGravityIdle4086_Bad
+SourceGravityIdle4086_HoverLease:
+.a16
+.i16
+ lda.l SourceGravityIdle4086_Core
+ tax
+ lda.l $40C016,x
+ bmi SourceGravityIdle4086_HoverNoGravity
+ ora.l $40C014,x
+ beq SourceGravityIdle4086_HoverNoGravity
+ jmp SourceGravityIdle4086_Bad
+SourceGravityIdle4086_HoverNoGravity:
+.a16
+.i16
+ lda.l SourceGravityIdle4086_View
+ tax
+ lda.l SOURCE_WORLD_POOL+12,x
+ sec
+ sbc.l SourceGravityIdle4086_X
+ sta.l SourceGravityIdle4086_Z
+ lda.l SOURCE_WORLD_POOL+14,x
+ sbc.l SourceGravityIdle4086_X+2
+ bvs SourceGravityIdle4086_HoverReject
+ bmi SourceGravityIdle4086_HoverReject
+ bne SourceGravityIdle4086_Inactive
+ lda.l SourceGravityIdle4086_Z
+ cmp #6554
+ bcs SourceGravityIdle4086_Inactive
+SourceGravityIdle4086_HoverReject:
+.a16
+.i16
  jmp SourceGravityIdle4086_Bad
 SourceGravityIdle4086_Inactive:
 .a16

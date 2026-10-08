@@ -18,7 +18,7 @@ emu.addMemoryCallback(function()
  local s=c.slot;local v=0x414000+s*80;local side=0x416800+s*64;local aux=0x41f500+s*20;local freeze=0x42e000+s*40;local life=0x439000+s*80
  set('SourceCheckMove4086_Ready',0xb617);set('SourceCheckMove4086_Status',0);set('SourceFreeze4086_Ready',0xb5df)
  set('VmSourceWorld_Ready',0xb4a3);set('VmSourceWorld_Count',128);set('VmSourceWorld_PoolBase',0x4000);set('VmSourceWorld_SideBase',0x6800);set('VmSourceWorld_Level',1);set('VmSourceWorld_TemplateCount',1);set('VmSourceWorld_Time',c.time,4)
- set('SourceWorldTick4086_Ready',0xb4d5);set('SourceWorldTick4086_State',1);set('SourceWorldTick4086_Pending',1);set('SourceWorldTick4086_Phase',11);set('SourceWorldTick4086_Slot',s);set('SourceWorldTick4086_Fault',0);set('SourceWorldTick4086_TimeLo',c.time,4)
+ set('SourceWorldTick4086_Ready',0xb4d5);set('SourceWorldTick4086_State',c.world_state);set('SourceWorldTick4086_Pending',1);set('SourceWorldTick4086_Phase',11);set('SourceWorldTick4086_Slot',s);set('SourceWorldTick4086_Fault',0);set('SourceWorldTick4086_TimeLo',c.time,4)
  set('SourceUpdateFrame4086_Ready',0xb4e3);set('SourceLifecycle4086_Ready',0xb4fb);set('SourceSelf4086_Ready',0xb4f6);set('SourceSelf4086_Active',0);set('SourceSelf4086_Fault',0);set('SourceSelf4086_GlobalLow',v,4)
  set('SourceModelEntityCopy4086_Ready',0xb4eb);set('SourceModelEntityCopy4086_Entities',128);set('SourceModelEntityCopy4086_Models',1)
  set('SourceEmptyInitEnvironment4086_Ready',0xb504);set('SourceEmptyInitEnvironment4086_Status',0);set('SourceEmptyInitEnvironment4086_Models',1);set('SourceEmptyInitEnvironment4086_Stage',1)
@@ -70,6 +70,7 @@ def main():
         rows.append(dict(base,bad=bad,fault=1,expected=[base['x'],base['z'],base['mx'],base['mz'],base['nextmove'],base['mark']]))
     for x,z,mx,mz in ((0x7fffffff,0,1,0),(0,0x7fffffff,0,1),(0x80000000,0,0xffffffff,0)):
         rows.append(dict(base,x=x,z=z,mx=mx,mz=mz,fault=1,bad='',expected=[x,z,mx,mz,48,0]))
+    rows=[dict(c,world_state=state)for state in (1,2)for c in rows]
     reporter=Reporter('M4-CHECK-MOVE',kind='GATE')
     raw,log=run_fixture(a.rom,a.output,rows,'SourceCheckMove4086_Execute','SourceCheckMove4086_Ready',0xb617,[],LUA,reporter,batch_size=2)
     results=[list(map(int,line.split('CHECKMOVE|',1)[1].split('|')))for line in log.splitlines()if'CHECKMOVE|'in line]

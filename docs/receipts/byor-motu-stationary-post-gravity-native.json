@@ -1,0 +1,81 @@
+{
+  "schema": "BYOR_MOTU_STATIONARY_POST_GRAVITY_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "air_authority": {
+      "path": "out/byor-motu-gravity-air-authority-table/report.json",
+      "sha256": "15a7b19afa66862c1ff2858947fad40512f3df0370c2089d18c44de5b7308a38"
+    },
+    "physics_authority": {
+      "path": "out/byor-motu-level-physics/authority-final/report.json",
+      "sha256": "cc11f11ed1c567a17bda097f468947aceb077e733ee0a6997e7c6c9acdb0f880"
+    },
+    "physics": {
+      "path": "out/byor-motu-level-physics/report.json",
+      "sha256": "9e2a66b93976ad727dccb1e9fc57d0386f7f9d229bd3962e08b99d5c141873fe"
+    },
+    "capability": {
+      "path": "out/byor-motu-stationary-gravity-capability/report.json",
+      "sha256": "8055b10132ef3cc56d41a4ffc80e0b43697fe9437a3fee1a4be8efe49b16ba8f"
+    },
+    "hover": {
+      "path": "out/byor-motu-arranger-hover-native/report.json",
+      "sha256": "22a7757ebce9328827f88827b82115a5575a0d20b9333e85ab9a3fd07480470d"
+    },
+    "idle": {
+      "path": "out/byor-motu-arranger-idle-native/report.json",
+      "sha256": "28cf6f2cbf20f30dc8fb5eb925a98740b063ab08e54c6c7a240506c644fbb86f"
+    },
+    "move": {
+      "path": "out/byor-motu-arranger-check-move-native/report.json",
+      "sha256": "252d501b542c6ebafda8dcf036a08449bb23ed519641de1635470e931d98d09e"
+    },
+    "post": {
+      "path": "out/byor-motu-post-stationary-native/report.json",
+      "sha256": "99ffbf321172687bbbd69dca54cb75697b917e3602c0ea694f4c143591cef15f"
+    },
+    "owner": {
+      "path": "out/byor-motu-post-stationary-world-native/report.json",
+      "sha256": "252764b78312eae18c90a7e4c6e9909153f10db6ae5513a43a85c83bda07ca37"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-post-stationary-bor-static-smoke/report.json",
+      "sha256": "3c1de38cee57963c4767ac7e794a0dcc170a46319d497a3c9d24d2d4e0dba4ae"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-post-stationary-rom-audit.log",
+      "sha256": "e97f0c795607770f984e979ec6a452283fc322c680a45de003a007e76856c654"
+    }
+  },
+  "counts": {
+    "air_authority": 6912,
+    "physics_authority": 256,
+    "hover": 216,
+    "idle": 384,
+    "move": 444,
+    "post": 396,
+    "owner": 154
+  },
+  "native_post_requests": 157,
+  "world_service_events": 4303,
+  "native_numeric_policy": "ACCEPTED_COMPAT_Q16_16; nonlanding A-base >=6554",
+  "hover_requirements": "type NONE, subject_to_gravity<=0, VY=0, positive no_adjust_base; zero falling/binding; no DROPFRAME/WALKOFF; immutable fall/toss limits covering zero",
+  "capability_selected_from_source_fields": true,
+  "capability_eligible_models": [
+    "HBreath",
+    "HWWind",
+    "SkGeyserT"
+  ],
+  "source_alpha_policy_unchanged": "SCREEN alpha1; lossless presentation selected independently",
+  "owner_proof": "actual native arranger state2 phase11, subservices, retained self restoration, movement, Ack/compaction/clock; other gameplay services instrumented",
+  "bank0_growth_bytes": 0,
+  "new_post_code_bank": 47,
+  "active_gravity_and_landing_native_proven": false,
+  "actual_source_effect_constructor_to_post_installer_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "final_rom_sha256": "6a8d23e23ea48c15cee6043966f7c9d9df8e6ba52b3de975d79d012dc4d0c68e",
+  "protected_tracked_files_unchanged": 17
+}

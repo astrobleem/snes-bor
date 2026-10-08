@@ -51,6 +51,8 @@ SourceCheckMove4086_Guard4:
  lda.l SourceWorldTick4086_State
  cmp #1
  beq SourceCheckMove4086_Guard5
+ cmp #2 ; actual arrange_ents POST_UPDATE owner
+ beq SourceCheckMove4086_Guard5
  jmp SourceCheckMove4086_Bad
 SourceCheckMove4086_Guard5:
 .a16

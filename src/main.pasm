@@ -14024,3 +14024,8 @@ SourceVM_InstructionReservation:
 .include "core/audio_idle_wait.pasm"
 
 .include "core/source_audio_stream.pasm"
+
+; Measured empty bank, generic closed stationary post-update service.
+.bank 47
+.org $8000
+.include "core/vm/vm_source_post_stationary.pasm"

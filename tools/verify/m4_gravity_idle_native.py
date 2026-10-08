@@ -18,7 +18,7 @@ emu.addMemoryCallback(function()
  local s=c.slot;local v=0x414000+s*80;local side=0x416800+s*64;local aux=0x41f500+s*20;local freeze=0x42e000+s*40;local life=0x439000+s*80
  set('SourceGravityIdle4086_Ready',0xb618);set('SourceGravityIdle4086_Status',0);set('SourceFreeze4086_Ready',0xb5df)
  set('VmSourceWorld_Ready',0xb4a3);set('VmSourceWorld_Count',128);set('VmSourceWorld_PoolBase',0x4000);set('VmSourceWorld_SideBase',0x6800);set('VmSourceWorld_Level',1);set('VmSourceWorld_TemplateCount',1);set('VmSourceWorld_Time',c.time,4)
- set('SourceWorldTick4086_Ready',0xb4d5);set('SourceWorldTick4086_State',1);set('SourceWorldTick4086_Pending',1);set('SourceWorldTick4086_Phase',11);set('SourceWorldTick4086_Slot',s);set('SourceWorldTick4086_Fault',0);set('SourceWorldTick4086_TimeLo',c.time,4)
+ set('SourceWorldTick4086_Ready',0xb4d5);set('SourceWorldTick4086_State',c.world_state);set('SourceWorldTick4086_Pending',1);set('SourceWorldTick4086_Phase',11);set('SourceWorldTick4086_Slot',s);set('SourceWorldTick4086_Fault',0);set('SourceWorldTick4086_TimeLo',c.time,4)
  set('SourceUpdateFrame4086_Ready',0xb4e3);set('SourceLifecycle4086_Ready',0xb4fb);set('SourceSelf4086_Ready',0xb4f6);set('SourceSelf4086_Active',0);set('SourceSelf4086_Fault',0);set('SourceSelf4086_GlobalLow',v,4)
  set('SourceModelEntityCopy4086_Ready',0xb4eb);set('SourceModelEntityCopy4086_Entities',128);set('SourceModelEntityCopy4086_Models',1)
  set('SourceEmptyInitEnvironment4086_Ready',0xb504);set('SourceEmptyInitEnvironment4086_Status',0);set('SourceEmptyInitEnvironment4086_Models',1);set('SourceEmptyInitEnvironment4086_Stage',1)
@@ -66,6 +66,7 @@ def main():
     base=dict(rows[0],mark=0,time=48,toss_time=0,altitude=34,freeze=0)
     for bad in ('ready','status','world','tick','state','phase','pending','tickfault','count','slot','time','self','selffault','selfactive','freeze','aux','platform','walls','stage','lifelease','modelrange','modelidentity','token','exists','noadjust','vertical','altitude','tosslease','corelease','corecount','atag','areserved'):
         rows.append(dict(base,bad=bad,fault=1,expected=[0,0]))
+    rows=[dict(c,world_state=state)for state in (1,2)for c in rows]
     reporter=Reporter('M4-GRAVITY-IDLE',kind='GATE')
     raw,log=run_fixture(a.rom,a.output,rows,'SourceGravityIdle4086_Execute','SourceGravityIdle4086_Ready',0xb618,[],LUA,reporter,batch_size=2)
     actual=[list(map(int,line.split('GRAVITYIDLE|',1)[1].split('|')))for line in log.splitlines()if 'GRAVITYIDLE|'in line]

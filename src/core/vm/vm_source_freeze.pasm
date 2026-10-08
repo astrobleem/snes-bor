@@ -595,6 +595,14 @@ SourceFreeze4086_QueryGuard5:
  lda.l SourceWorldTick4086_State
  cmp #1
  beq SourceFreeze4086_QueryGuard6
+ cmp #2
+ bne SourceFreeze4086_QueryStateBad
+ lda.l SourceWorldTick4086_Phase
+ cmp #11 ; arranger may query freeze only for post-update
+ beq SourceFreeze4086_QueryGuard6
+SourceFreeze4086_QueryStateBad:
+.a16
+.i16
  jmp SourceFreeze4086_QueryBad
 SourceFreeze4086_QueryGuard6:
 .a16
