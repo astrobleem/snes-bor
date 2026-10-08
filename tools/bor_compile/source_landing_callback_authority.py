@@ -79,7 +79,10 @@ def main():
  p.add_argument('--empty-damage-scripts',action='store_true',help='Execute both actual script dispatchers with uninitialized source script instances.')
  p.add_argument('--weaploss',type=int,choices=(0,1,2,3),default=0)
  p.add_argument('--score-body',action='store_true',help='Couple actual addscore and pinned SDL rumble with zero initialized scores and no score scripts.')
+ p.add_argument('--model-multiple',type=int,choices=(0,1,2,5),default=2)
+ p.add_argument('--model-score',type=int,default=0)
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+ if not 0<=a.model_score<=1000:raise ValueError('CALLBACK_SCORE_FIXTURE_BELOW_EXTRA_LIFE_DOMAIN')
  if a.score_body and not a.empty_damage_scripts:raise ValueError('SCORE_BODY_REQUIRES_ACTUAL_EMPTY_SCRIPT_DISPATCHERS')
  raw=subprocess.check_output(['git','-C',str(a.engine),'show',ENGINE_COMMIT+':engine/openbor.c']).decode('latin1')
  names=('checkgrab','checkdamageflip','checkdamagedrop','checkmpadd','checkhitscore','checkdamage','checkdeath','common_takedamage','player_takedamage','arrow_takedamage')
@@ -141,6 +144,7 @@ for(j=0;j<ne;j++)printf("%s%d",j?",":"",events[j]);puts("");
  if a.score_body:
   code=code.replace('self=&victim;','self=&victim;memset(player,0,sizeof(player));')
   code=code.replace('printf("CALLBACK|','score_total=player[0].score;printf("CALLBACK|')
+ code=code.replace('victim.modeldata.multiple=2;','victim.modeldata.multiple='+str(a.model_multiple)+';victim.modeldata.score='+str(a.model_score)+';')
  (a.output/'callback.c').write_text(code+'\n')
  env=dict(os.environ,WATCOM='C:/WATCOM',INCLUDE='C:/WATCOM/H;C:/WATCOM/H/NT')
  build=subprocess.run(['C:/WATCOM/BINNT/wcl386.exe','-q','-za99','-bt=nt','-op','-fpc','callback.c','-fe=callback.exe'],cwd=a.output,env=env,capture_output=True,text=True)
@@ -166,7 +170,8 @@ for(j=0;j<ne;j++)printf("%s%d",j?",":"",events[j]);puts("");
   if r['callback']==1:trace.append(8)
   if a.score_body:trace=[e for e in trace if e not in(7,8)]
   attack_force=0 if r['callback']==1 and r['cheat']else r['force']
-  score=attack_force*(2 if r['opponent']==2 else 1 if r['opponent']in(1,3)else 0)
+  score=attack_force*(a.model_multiple if r['opponent']==2 else 1 if r['opponent']in(1,3)else 0)
+  if dead and(r['opponent']==2 or(r['opponent']==1 and r['callback']==1)):score+=a.model_score
   rumble=attack_force*(3 if r['callback']==1 else 2 if r['opponent']==2 else 0)
   if a.score_body:rumble=0
   expected.append(dict(state=[int(not arrow or dead),health,dead,dead,1-dead,0,3,248,16,int(not arrow),int(arrow),int(arrow),int(arrow)],parameters=[0 if a.empty_damage_scripts else force,0 if a.empty_damage_scripts else 16,score,rumble],events=trace))
@@ -177,6 +182,7 @@ for(j=0;j<ne;j++)printf("%s%d",j?",":"",events[j]);puts("");
   source_checkgrab_self_no_op_proven=True,source_checkdamageflip_self_no_op_proven=True,
   actual_empty_damage_script_dispatchers_proven=a.empty_damage_scripts,
   source_weaploss=a.weaploss,
+  source_model_multiple=a.model_multiple,source_model_score=a.model_score,
   actual_addscore_and_SDL_rumble_bodies_proven=a.score_body,
   source_score_domain='initial score0, lifescore50000, no score scripts, increments below threshold'if a.score_body else None,
   damage_script_execution_service_instrumented=not a.empty_damage_scripts,

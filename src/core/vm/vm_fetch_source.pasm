@@ -71,6 +71,8 @@ Vm_FetchSourceInit:
     sta.l SourceLandingCallback4086_State
     sta.l SourceLandingCallback4086_Status
     sta.l SourceDeathFields4086_Ready
+    sta.l SourceLandingDeath4086_Ready
+    sta.l SourceLandingDeath4086_State
     sta.l SourceLandingKill4086_Ready
     sta.l SourceLandingKill4086_Status
     sta.l SourceGravityAir4086_StageReady

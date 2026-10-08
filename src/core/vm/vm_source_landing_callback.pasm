@@ -1,8 +1,9 @@
-; B636 complete nonlethal self-landing common/player/arrow callback domain.
+; B636 bounded self-landing common/player/arrow callbacks and retained death.
 ; Actual lifecycle function IDs: player1, arrow8, common10. Never aliases NULL.
 ; B5SC's closed animation-only admission proves damage/death scripts absent.
-; Opponent score uses actual B631; magic_type1 MP recovery and lethal domains
-; remain required. Source damage/death scripts are absent by B5SC admission.
+; Opponent score uses actual B631. B639 binds closed lethal checkdeath;
+; positive diesound, item, boss, pit retirement and magic_type1 MP stay required.
+; Source damage/death scripts are absent by B5SC admission.
 ; Continuation stages retain actor/time/model identity; no repeated child Ack.
 ; Source SDL control_rumble is empty; B62D leases that pinned backend policy.
 SourceLandingCallback4086_Ready = $7EFF00
@@ -539,6 +540,14 @@ SourceLandingCallback4086_InvincibleResult:
 .i16
  cmp #0
  beq SourceLandingCallback4086_BeginServices
+ jsl SourceLandingDeath4086_Preflight
+ bcc SourceLandingCallback4086_DeathAdmission
+ jmp SourceLandingCallback4086_Bad
+SourceLandingCallback4086_DeathAdmission:
+.a16
+.i16
+ cmp #0
+ beq SourceLandingCallback4086_BeginServices
  jmp SourceLandingCallback4086_Required
 SourceLandingCallback4086_BeginServices:
 .a16
@@ -555,6 +564,8 @@ SourceLandingCallback4086_ScorePrepared:
 SourceLandingCallback4086_ScoreAdmitted:
 .a16
 .i16
+ lda #0
+ sta.l SourceLandingDeath4086_State
  lda #1
  sta.l SourceLandingCallback4086_State
 SourceLandingCallback4086_Dispatch:
@@ -585,6 +596,12 @@ SourceLandingCallback4086_Dispatch5:
  bne SourceLandingCallback4086_DispatchBad
  jmp SourceLandingCallback4086_Commit
 SourceLandingCallback4086_DispatchBad:
+.a16
+.i16
+ cmp #7
+ bne SourceLandingCallback4086_Dispatch6
+ jmp SourceLandingCallback4086_DeathCall
+SourceLandingCallback4086_Dispatch6:
 .a16
 .i16
  cmp #6
@@ -717,13 +734,37 @@ SourceLandingCallback4086_Commit:
  ; MP admissibility was checked before source actor writes. The score stage
  ; executes actual B631 once, retaining pending service requirements.
  ; The paired animation-only script lease means actual dispatchers return.
- ; Result>0 means checkdeath returns without deathsound/item/boss work.
+ ; Commit checkdamage's health before checkdeath and its retained score child.
  lda.l SourceLandingCallback4086_View
  tax
  lda.l SourceLandingCallback4086_Result
  sta.l SOURCE_WORLD_POOL+36,x
  lda.l SourceLandingCallback4086_Result+2
  sta.l SOURCE_WORLD_POOL+38,x
+ bmi SourceLandingCallback4086_StartDeath
+ lda.l SourceLandingCallback4086_Result
+ ora.l SourceLandingCallback4086_Result+2
+ bne SourceLandingCallback4086_FinishForce
+SourceLandingCallback4086_StartDeath:
+.a16
+.i16
+ lda #7
+ sta.l SourceLandingCallback4086_State
+SourceLandingCallback4086_DeathCall:
+.a16
+.i16
+ jsl SourceLandingDeath4086_Execute
+ bcc SourceLandingCallback4086_DeathResult
+ jmp SourceLandingCallback4086_Bad
+SourceLandingCallback4086_DeathResult:
+.a16
+.i16
+ lda.l SourceLandingDeath4086_Status
+ beq SourceLandingCallback4086_FinishForce
+ jmp SourceLandingCallback4086_Required
+SourceLandingCallback4086_FinishForce:
+.a16
+.i16
  lda.l SourceLandingDamage4086_Physics
  tax
  lda #0
@@ -735,6 +776,13 @@ SourceLandingCallback4086_Commit:
  cmp #8
  bne SourceLandingCallback4086_ReturnSet
  lda #0
+ sta.l SourceLandingCallback4086_ReturnValue
+ lda.l SourceLandingCallback4086_View
+ tax
+ lda.l $439014,x
+ ora.l $439016,x
+ beq SourceLandingCallback4086_ReturnSet
+ lda #1
  sta.l SourceLandingCallback4086_ReturnValue
 SourceLandingCallback4086_ReturnSet:
 .a16

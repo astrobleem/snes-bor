@@ -58,7 +58,9 @@ INSTALL=r'''
 
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--authority',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--score-body',action='store_true');p.add_argument('--guards',action='store_true');p.add_argument('--invincible',action='store_true');a=p.parse_args()
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--authority',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--score-body',action='store_true');p.add_argument('--guards',action='store_true');p.add_argument('--invincible',action='store_true');p.add_argument('--lethal',action='store_true');p.add_argument('--death-guards',action='store_true');a=p.parse_args()
+ if a.death_guards and not a.lethal:raise ValueError('DEATH_GUARDS_REQUIRES_LETHAL_MATRIX')
+ if a.lethal and(not a.score_body or a.invincible or a.guards):raise ValueError('LETHAL_REQUIRES_SCORE_BODY_WITHOUT_RECOVERY_OR_GUARD_MATRIX')
  a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  authority=json.loads(a.authority.read_text());assert authority['status']=='PASS'and authority['source_weaploss']==3 and authority['actual_empty_damage_script_dispatchers_proven']
  if a.score_body:assert authority['actual_addscore_and_SDL_rumble_bodies_proven']
@@ -69,11 +71,11 @@ def main():
  tables=[pack_damage(dict(models=[dict(id=i,fields=dict(animal=0,nodrop=0,guardpoints=g if i==0 else 0))for i in range(16)]))for g in(0,1)]
  rows=[]
  for index,(c,state)in enumerate(zip(authority['inputs'],authority['actual'])):
-  if (c['opponent']!=0 and not a.score_body)or (c['invincible']==0 if a.invincible else c['invincible']!=0)or state['state'][2]!=0:continue
+  if (c['opponent']!=0 and not a.score_body)or (c['invincible']==0 if a.invincible else c['invincible']!=0)or state['state'][2]!=(1 if a.lethal else 0):continue
   if a.invincible and (c['guardbreak']or(c['callback']==1 and c['cheat'])or c['health']>c['force']):continue
   for slot in(0,63,127):
    rows.append(dict(slot=slot,handle=1,a=0,base=0,altbase=0,vy=-65536,noadjust=1,hole=1,wall=1,platform=1,freeze=0,mark=0,time=48,toss=0,falling=1,hithead=1,gravity=0,minfall=-6*65536,maxtoss=100*65536,subject=0,
-    damage=c['force'],dead=0,health=c['health'],invincible=c['invincible'],callback=(10,1,8)[c['callback']],cheat=c['cheat'],guardbreak=c['guardbreak'],opponent=c['opponent'],score_after=state['parameters'][2],health_after=state['state'][1],return_value=state['state'][0],autoland=0,noquake=0,fault=0,bounced=0,pending=0,authority_case=index,expected=[0,0,0,0,0,49,12,11]))
+    damage=c['force'],dead=0,dead_after=int(a.lethal),health=c['health'],invincible=c['invincible'],callback=(10,1,8)[c['callback']],cheat=c['cheat'],guardbreak=c['guardbreak'],opponent=c['opponent'],score_after=state['parameters'][2],health_after=state['state'][1]&0xffffffff,return_value=state['state'][0],autoland=0,noquake=0,fault=0,bounced=0,pending=0,authority_case=index,expected=[0,0,0,0,0,49,12,11]))
  if a.guards:
   seed=next(r for r in rows if r['health']==100 and r['damage']==7 and r['callback']==10 and r['guardbreak']==0 and r['opponent']==0)
   rows=[]
@@ -81,23 +83,45 @@ def main():
    for bad in('owner_inputs','core_ready','weapon_ready','weapon_owner','damage_inputs','damage_bank','damage_bank_high','damage_bytes','effects_ready','effects_marker','effects_model','rumble_ready','script_ready','script_mask','factor_ready','factor_model','factor_marker','health_tag','max_tag','health_reserved','max_reserved','opponent_bank','opponent_alignment','opponent_token','opponent_life_marker','opponent_model','opponent_player_tag','magic_MP','nonunit_offense','unknown_callback','exploding'):
     pending=bad in('magic_MP','nonunit_offense','unknown_callback','exploding')
     rows.append(dict(seed,slot=slot,bad=bad,fault=0 if pending else 1,pending=1,opponent=2 if bad.startswith('opponent_')or bad=='magic_MP'else 0,health_after=100,return_value=0,score_after=0,expected=[0,0,0,0,0,0,0,11]))
+ if a.death_guards:
+  seed=next(r for r in rows if r['health']==1 and r['damage']==7 and r['callback']==10 and r['guardbreak']==0 and r['opponent']==0)
+  rows=[]
+  for slot in(0,63,127):
+   for bad in('death_disabled','death_ready','death_fields','death_marker','death_model','death_item','death_boss','death_sound','death_pit','death_wide','death_y_tag','death_y_reserved'):
+    fault=int(bad in('death_ready','death_fields','death_marker','death_model','death_y_tag','death_y_reserved'))
+    rows.append(dict(seed,slot=slot,bad=bad,fault=fault,pending=1,dead_after=0,health_after=1,return_value=0,score_after=0,expected=[0,0,0,0,0,0,0,11]))
+    if bad in('death_pit','death_wide'):rows[-1]['expected'][0]=(-250*65536)&0xffffffff if bad=='death_pit'else 256*65536+1
  lua=BASE[:BASE.index("emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1]\n if c.landing_bad")]
  for token,value in dict(TABLEBYTES=len(ph),PLANBYTES=len(lp),PLANCOUNT=1,DIBYTES=len(tables[0]),CLONEBYTES=len(ct),PROGRAMS=cb['program_count']).items():lua=lua.replace(token,str(value))
  lua=lua.replace("set('SourceAnimationPhysics4086_Animations',6)","set('SourceAnimationPhysics4086_Animations',1)")
  install=INSTALL
+ install=install.replace('put(core,2,4)','put(core,'+str(authority.get('source_model_multiple',2))+',4)')
+ if a.lethal:
+  install+='''
+ set('SourceDeathFields4086_Ready',0xb638);set('SourceLandingDeath4086_Ready',0xb639);set('SourceLandingDeath4086_State',0)
+ put(view+72,DEATHSCORE,4);put(view+76,0xffffffff,4);put(rel+56,0);put(rel+58,0xb638);put(rel+60,0,4)
+ put(0x433838+s*64,0,4);put(0x43eb00+s*32,1,4)
+ local deathChanges={death_disabled={sy.SourceLandingDeath4086_Ready,0},death_ready={sy.SourceLandingDeath4086_Ready,1},death_fields={sy.SourceDeathFields4086_Ready,0},death_marker={rel+58,0},death_model={rel+56,1},death_item={rel+60,0x414050,4},death_boss={0x433838+s*64,1,4},death_sound={view+76,17,4}}
+ if c.bad and deathChanges[c.bad]then local r=deathChanges[c.bad];put(r[1],r[2],r[3])end
+'''.replace('DEATHSCORE',str(authority.get('source_model_score',0)))
  for token,value in dict(DIBYTES=len(tables[0]),CLONEBYTES=len(ct),PROGRAMS=cb['program_count']).items():install=install.replace(token,str(value))
  lua=lua.replace(' before={};for',install+' before={};for')
- lua=lua.replace('{life-8,96}','{life-8,c.slot==127 and 88 or 96},{0x7fb900+s*12,12},{0x7ef100+s*24,24},{0x437e00+s*20,20},{0x409000+s*64,64},{0x7efd00+s*4,4},{0x7fbfa0,32}')
+ lua=lua.replace('{life-8,96}','{life-8,c.slot==127 and 88 or 96},{0x7fb900+s*12,12},{0x7ef100+s*24,24},{0x437e00+s*20,20},{0x409000+s*64,64},{0x7efd00+s*4,4},{0x7fbfa0,32},{0x43eb00+s*32,32},{0x433800+s*64,64}')
  lua=lua.replace(' local n=0;for a,v in pairs(before)',r'''
  for _,r in ipairs({{view+36,c.health_after},{phy+12,c.pending==1 and c.damage or 0},{side+24,c.pending==1 and 48 or 49},{0x7fb904+c.slot*12,c.pending==1 and 47 or 248},{0x7fb908+c.slot*12,c.pending==1 and 0 or 16}})do for j=0,3 do before[r[1]+j]=(r[2]>>(8*j))&255 end end
  for j=0,3 do before[0x7fbfa0+j]=(c.score_after>>(8*j))&255 end
+ if c.dead_after==1 then for _,r in ipairs({{0x439010+c.slot*80,1},{0x439014+c.slot*80,1},{0x43eb00+c.slot*32,0}})do for j=0,3 do before[r[1]+j]=(r[2]>>(8*j))&255 end end end
  if c.guardbreak==0 and c.pending==0 then for j=0,3 do before[0x7ef100+c.slot*24+j]=0 end end
  if c.callback==8 and c.pending==0 then for _,r in ipairs({{0x40c004+c.slot*96,1},{0x40c008+c.slot*96,1},{0x40c010+c.slot*96,1},{0x40c014+c.slot*96,1},{0x40c024+c.slot*96,0}})do for j=0,3 do before[r[1]+j]=(r[2]>>(8*j))&255 end end end
  local n=0;for a,v in pairs(before)''')
  lua=lua.replace("emu.log('GRAVITYCOMMIT|'","emu.log('LANDCALLBACK|'")
  lua=lua.replace("word(sy.SourceGravityLanding4086_Service))","word(sy.SourceGravityLanding4086_Service)..'|'..word(CALLSTATUS)..'|'..word(CALLRETURN)..'|'..word(sy.SourceWorldTick4086_Pending)..'|'..word(sy.SourceWorldTick4086_Index))")
  lua+=r'''
- emu.addMemoryCallback(function()local c=rows[word(INDEX)+1];if c.bad=='core_ready'then set('SourceModelEntityCopy4086_Ready',0)end end,emu.callbackType.exec,sy.SourceLandingCallback4086_Execute,sy.SourceLandingCallback4086_Execute,emu.cpuType.snes,mt)
+ emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];if c.bad=='core_ready'then set('SourceModelEntityCopy4086_Ready',0)end
+ if c.bad=='death_pit'or c.bad=='death_wide'then local value=c.bad=='death_pit'and((-250*65536)&0xffffffff)or(256*65536+1);local address=0x41400c+c.slot*80;put(address,value,4);for j=0,3 do before[address+j]=(value>>(8*j))&255 end end
+ if c.bad=='death_y_tag'or c.bad=='death_y_reserved'then local address=0x414008+c.slot*80+(c.bad=='death_y_reserved'and 2 or 0);put(address,1);before[address]=1;before[address+1]=0 end
+ end,emu.callbackType.exec,sy.SourceLandingCallback4086_Execute,sy.SourceLandingCallback4086_Execute,emu.cpuType.snes,mt)
  emu.addMemoryCallback(function()emu.log('CALLBACKBEGIN|'..word(sy.SourcePostAir4086_Ready)..'|'..word(sy.SourceLandingCallback4086_Ready))end,emu.callbackType.exec,sy.SourcePostAir4086_Begin,sy.SourcePostAir4086_Begin,emu.cpuType.snes,mt)
  local lastPost='';local previousPost='';for name,address in pairs(sy)do if name:match('^SourcePostAir4086_')and address<0x400000 then emu.addMemoryCallback(function()previousPost=lastPost;lastPost=name end,emu.callbackType.exec,address,address,emu.cpuType.snes,mt)end end
  for _,name in ipairs({'SourcePostAir4086_Bad','SourceGravityAir4086_Bad','SourceGravityLanding4086_Bad','SourceLandingDamage4086_Bad','SourceLandingCallback4086_Bad','SourceCheckMove4086_Bad'})do
@@ -112,7 +136,7 @@ def main():
  expected=[[i,0,0,3 if c['fault']else 1 if c['pending']else 2,1 if c['pending']else 2,2 if c['pending']else 0,3 if c['fault']else 1 if c['pending']else 2,c['return_value'],1 if c['pending']else 0,0 if c['pending']else 1]for i,c in enumerate(rows)]
  ok=actual==expected;reporter.check('actual callback IDs, services, source health and force, scalar guardbreak/cheat, source return, actor fences and real POST/world Ack',ok)
  report=dict(schema='BYOR_4086_LANDING_CALLBACK_NATIVE_V1',status='PASS'if ok else'FAIL',cases=len(rows),inputs=rows,actual=actual,expected=expected,authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),rom_sha256=hashlib.sha256(raw).hexdigest(),
-  native_domain='positive self-landing; unit factors; nonlethal exact integer arithmetic; weaploss3; empty damage scripts; unfrozen; magic_type0; score below1up threshold',guard_matrix_only=a.guards,actual_callback_handler_ids=not a.guards,actual_post_and_world_ack=not a.guards,actual_native_score_service_proven=a.score_body and not a.guards and ok,source_weapon_service_called=False,lethal_callback_proven=False,motu_gameplay_proven=False,no_color_reduction=True)
+  native_domain='positive self-landing; unit factors; bounded exact integer arithmetic; weaploss3; empty damage scripts; unfrozen; magic_type0; score below1up threshold',guard_matrix_only=a.guards or a.death_guards,actual_callback_handler_ids=not(a.guards or a.death_guards),actual_post_and_world_ack=not(a.guards or a.death_guards),actual_native_score_service_proven=a.score_body and not(a.guards or a.death_guards)and ok,source_weapon_service_called=False,lethal_callback_proven=a.lethal and not a.death_guards and ok,death_domain='NULL item, no boss, negative diesound'if a.lethal else None,source_model_score=authority.get('source_model_score',0),source_model_multiple=authority.get('source_model_multiple',2),motu_gameplay_proven=False,no_color_reduction=True)
  (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 
