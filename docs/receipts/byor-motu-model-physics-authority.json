@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_MOTU_MODEL_PHYSICS_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "authority": {
+      "path": "out/byor-motu-model-physics-authority/report.json",
+      "sha256": "65f10f477d2ecdd0e557754ae8278e675befa76a443f3f3df6171ab61422fe57"
+    },
+    "inputs": {
+      "path": "out/byor-motu-model-physics/report.json",
+      "sha256": "24f598b542d744b0db48b86ed020587e21707dfd141aa43c0551b5f69373a9f6"
+    },
+    "compiled": {
+      "path": "out/byor-motu-model-physics/report.b4mp",
+      "sha256": "644922c3f9486707a5866af68a66bac131e72c9c27759018ddb28cb55d4c276e"
+    }
+  },
+  "source_loader_cases": 148,
+  "models": 16,
+  "compiled_bytes": 208,
+  "source_case_bodies_unmodified": true,
+  "calloc_defaults_verified": true,
+  "compiler_float_modes": [
+    "-op",
+    "-fpc"
+  ],
+  "reason_for_software_float_mode": "Enforce source binary32 field stores; default x87 retained an extended-precision intermediate causing one ULP discrepancy for synthetic33.33333percent",
+  "authored_model_height_and_antigravity_overrides_present": false,
+  "native_instance_physics_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
