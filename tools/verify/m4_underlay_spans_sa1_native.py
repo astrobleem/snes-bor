@@ -49,11 +49,11 @@ def compile_inputs(source,stage,scene,catalog):
  return background[0],bytes(descriptors),bytes(pixels),bytes(origins),actors,(wx,wy,w,h)
 
 
-def build(background,descriptors,pixels,origins,w,h,retain_stage=False):
+def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None):
  rom,_,_=base.build(np.zeros((3,2),dtype=np.uint16),True,iram=True);rom=bytearray(rom)+bytearray([255])*(1048576-len(rom))
  for at,data in((0x20000,descriptors),(0x30000,origins),(0x40000,background),(0x50000,pixels)):rom[at:at+len(data)]=data
  c=Code(0x3200);c.emit('78 18 fb c2 30 a2 ff 37 9a a9 00 30 5b e2 20 a9 ff 8d 2a 22 a9 80 8d 27 22 a9 42 48 ab c2 20 a9 00 00 85 16 85 18 8f f4 3f 41')
- c.label('entry');c.emit('64 04 64 12 64 14 e2 20 a9 84 8f 30 22 00 a9 20 8f 0b 22 00 a9 c4 8f 34 22 00 c2 20')
+ c.label('entry');c.emit('e2 20 a9 42 48 ab c2 20 64 04 64 12 64 14 e2 20 a9 84 8f 30 22 00 a9 20 8f 0b 22 00 a9 c4 8f 34 22 00 c2 20')
  if retain_stage:c.emit('a5 16');c.branch(0xd0,'restore')
  c.emit('a9 00 00 8f 32 22 00 8f 35 22 00');c.word(0xa9,len(background));c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20')
  if retain_stage:
@@ -65,7 +65,9 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False):
  c.emit('e2 20 a9 00 8f 50 22 00 c2 20 a5 00 8f 51 22 00');c.word(0xa9,w);c.emit('8f 53 22 00 ea ea ea af 06 23 00 18 65 02 0a 85 1a 8f 35 22 00 a5 0c 8f 32 22 00 a5 08 18 65 14 85 14 a5 08 0a 8f 38 22 00 e2 20 a5 0e 8f 34 22 00 a9 02 8f 37 22 00 c2 20 e6 12')
  if retain_stage:c.emit('a6 18 a5 1a 9d 00 60 a5 08 0a 9d 02 60 e8 e8 e8 e8 86 18')
  c.label('next');c.emit('a5 04 18 69 10 00 85 04');c.word(0xc9,len(descriptors));c.branch(0xf0,'done');c.jump('span')
- c.label('done');c.emit('a5 12 8f f6 3f 41 a5 14 8f f8 3f 41 a5 16');c.branch(0xd0,'final');c.emit('a9 a1 b4 8f f0 3f 41');c.label('wait');c.emit('af f4 3f 41 c9 01 00');c.branch(0xd0,'wait');c.emit('e6 16');c.jump('entry');c.label('final');c.emit('a9 ab b4 8f f0 3f 41');c.label('stop');c.jump('stop')
+ c.label('done');c.emit('a5 12 8f f6 3f 41 a5 14 8f f8 3f 41')
+ if shader_target is not None:c.emit('5c '+shader_target.to_bytes(3,'little').hex(' '))
+ c.emit('a5 16');c.branch(0xd0,'final');c.emit('a9 a1 b4 8f f0 3f 41');c.label('wait');c.emit('af f4 3f 41 c9 01 00');c.branch(0xd0,'wait');c.emit('e6 16');c.jump('entry');c.label('final');c.emit('a9 ab b4 8f f0 3f 41');c.label('stop');c.jump('stop')
  worker=c.finish()
  if c.base+len(worker)>0x3700:raise ValueError('UNDERLAY_SPAN_IRAM_CAPACITY')
  rom[0x9000:0x9000+len(worker)]=worker;main=bytearray(rom[0x8000:0x8400]);main=main[:main.index(bytes([255])*32)];needle=bytes.fromhex('bf 00 90 01 9f 00 32 00 e8 e0');at=main.index(needle)+len(needle);main[at:at+2]=struct.pack('<H',len(worker))
