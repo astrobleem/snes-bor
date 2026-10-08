@@ -1451,3 +1451,25 @@ protected tracked files remain intact. This strengthens the closed stationary
 capability, not active gravity/landing, actual live moving presentation or MOTU
 Demo completion. Evidence:
 `docs/receipts/byor-motu-stationary-post-completion-native.json`.
+
+
+### Active-physics source authority extension
+
+Unmodified pinned check_gravity/adjust_base/inair/diff now pass 3,600 landing
+cases against the extended binary32 reference. This covers mark/freeze behavior,
+vertical integration and clamps, landing velocity clearing, landframe boundaries,
+landing damage/callback selection, kill-service selection, hithead clearing,
+timers and self restoration. Frame, damage, bounce-predicate and kill services
+are instrumented, not native owners. Dust, bounce and platform landing branches
+remain explicitly outside this proof.
+
+Unmodified adjust_base separately passes 2,592 empty-world cases, including
+source SETA 40 and altbase sums, zero/negative BASE, nonzero frame-Y retention,
+no_adjust_base, pit-base behavior, and wall/hole/platform service selection.
+The optional landing callback leaves all 6,912 earlier compiled-C airborne
+cases unchanged. These are compiler/reference authority proofs, not native
+active gravity, landing or gameplay certification. No new physics RAM has been
+allocated: the actual source variable pool is 384x64 bytes at $418800..$41E7FF,
+so the apparent gap after 128 variables is already reserved. Native physics
+state must coexist with that pool and the compositor's conversion workspace.
+Evidence: `docs/receipts/byor-motu-landing-base-authority.json`.

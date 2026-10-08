@@ -1,0 +1,37 @@
+{
+  "schema": "BYOR_MOTU_LANDING_BASE_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "landing": {
+      "path": "out/byor-motu-gravity-landing-authority/report.json",
+      "sha256": "225f5a7060ba976137bdb4d52e547121e14b5455e51af2f538924e4227ab6605"
+    },
+    "adjust_base": {
+      "path": "out/byor-motu-adjust-base-empty-authority/report.json",
+      "sha256": "5acbd171add7f272581203257e82ec2d500811519a57fe67b99403c45bda7732"
+    },
+    "existing_air": {
+      "path": "out/byor-motu-gravity-air-authority-table/report.json",
+      "sha256": "15a7b19afa66862c1ff2858947fad40512f3df0370c2089d18c44de5b7308a38"
+    }
+  },
+  "landing_cases": 3600,
+  "empty_base_cases": 2592,
+  "existing_air_reference_regression_cases": 6912,
+  "new_air_reference_sha256": "ebb78f6bfcc989fba91fcc27478c93a3dfdd5a40d0ca88279693b72928629c53",
+  "source_functions_unmodified": true,
+  "landing_frame_and_damage_and_bounce_predicate_and_kill_services_instrumented": true,
+  "empty_geometry_services_instrumented": true,
+  "native_active_gravity_or_landing_or_base_adjustment_proven": false,
+  "physics_state_allocated": false,
+  "verified_variable_pool": {
+    "base": "418800",
+    "records": 384,
+    "stride": 64,
+    "end": "41E800",
+    "authority": "src/core/vm/vm_source_variables.pasm SOURCE_VARIABLE_CAPACITY/SOURCE_VARIABLE_STRIDE"
+  },
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

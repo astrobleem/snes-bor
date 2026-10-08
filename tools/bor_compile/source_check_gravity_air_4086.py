@@ -6,7 +6,7 @@ ceiling, drop/land frames, landing reactions and live callbacks are separate.
 from source_model_core_4086 import binary32 as f32
 
 
-def check_gravity_air(entity,time,physics,adjust_base,is_frozen,onmovea):
+def check_gravity_air(entity,time,physics,adjust_base,is_frozen,onmovea,landing=None):
     if entity['update_mark']&8:return
     adjust_base(entity)
     if not is_frozen(entity):
@@ -27,6 +27,7 @@ def check_gravity_air(entity,time,physics,adjust_base,is_frozen,onmovea):
             if entity['idling'] and entity['walkoff_valid'] and abs(f32(entity['a']-entity['base']))>2:
                 raise ValueError('CHECK_GRAVITY_WALKOFF_BACKEND_REQUIRED')
             if (entity['a']<=entity['base']or abs(f32(entity['a']-entity['base']))<0.1)and entity['velocity_y']<=0:
-                raise ValueError('CHECK_GRAVITY_LANDING_BACKEND_REQUIRED')
+                if landing is None:raise ValueError('CHECK_GRAVITY_LANDING_BACKEND_REQUIRED')
+                landing(entity)
         if due:entity['toss_time']=(time+1)&0xffffffff
     entity['update_mark']|=8
