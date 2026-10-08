@@ -1,0 +1,38 @@
+{
+  "schema": "BYOR_MOTU_GRAVITY_LANDING_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "landframe": {
+      "path": "out/byor-motu-gravity-landframe-native/report.json",
+      "sha256": "010c9b12a39a4e0667604a838fa2b7930fc35bd4ab96de2d9af26b52e1e46907"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-gravity-landing-rom-audit.log",
+      "sha256": "a47cc72eb93db172917c2bff5efdb561db3505d2ac8a8dda29840d6fd70505a3"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-gravity-landing-bor-static-smoke/report.json",
+      "sha256": "627b070cf7a9ffac33282dfe20812d72ade75506d1baef888fb9cb6f0539561b"
+    },
+    "commit": {
+      "path": "out/byor-motu-gravity-landing-commit-native/report.json",
+      "sha256": "697b65a5f7747a5751cb2a7f2206658091450df447fd4c90676045f4c9c83758"
+    }
+  },
+  "native_commit_cases": 1455,
+  "native_landframe_cases": 30,
+  "actual_gravity_commit_after_numeric_and_frame_completion": true,
+  "source_nonanimating_landframe_motion_quake_facing_self": true,
+  "frame_count_boundary_is_literal_noop": true,
+  "external_bounce_damage_dust_services_remain_pending": true,
+  "native_landing_animation_script_proven": false,
+  "native_world_post_integration_bound": false,
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "bank0_byte_changes_only_existing_external_relocations": true,
+  "protected_tracked_files_unchanged": 17,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
