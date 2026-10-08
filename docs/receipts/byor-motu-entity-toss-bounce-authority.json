@@ -1,0 +1,38 @@
+{
+  "schema": "BYOR_MOTU_ENTITY_TOSS_AND_BOUNCE_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "native": {
+      "path": "out/byor-motu-entity-toss-native/report.json",
+      "sha256": "90826ab6b24e60fb60133195151f94e915a3a43fb4635e47d4c9249bdeb84632"
+    },
+    "source_bounce_authority": {
+      "path": "out/byor-motu-landing-bounce-authority/report.json",
+      "sha256": "130b43901bb362a1e4c7a3cf36c15fb638c83cd63818b5d802421f242ac3c284"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-entity-toss-bor-static-smoke/report.json",
+      "sha256": "45992a4e2a236d12072f91c3a44b29416e82735cd2147eaf55670b5e0571e48a"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-entity-toss-rom-audit.log",
+      "sha256": "d8984e9efc520111f7a1a79b6aa75d65106005cae23c86bd5ee6dafdf6349d00"
+    }
+  },
+  "native_toss_cases": 161,
+  "source_bounce_cases": 2304,
+  "actual_source_tobounce_macro_and_toss_body": true,
+  "source_quake_branch_executed": true,
+  "sound_and_rumble_services_instrumented": true,
+  "entity_toss_distinct_from_script_tossentity_optional_horizontal_arguments": true,
+  "zero_lift_no_entity_dereference": true,
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "native_landing_bounce_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

@@ -50,6 +50,8 @@ Vm_FetchSourceInit:
     sta.l SourceAdjustBaseEmpty4086_Status
     sta.l SourceGravityAir4086_Ready
     sta.l SourceGravityAir4086_Status
+    sta.l SourceEntityToss4086_Ready
+    sta.l SourceEntityToss4086_Status
     sta.l SourceGravityAir4086_StageReady
     sta.l SourceGravityAir4086_ZeroProfileReady
     sta.l SourcePostStationary4086_Ready
