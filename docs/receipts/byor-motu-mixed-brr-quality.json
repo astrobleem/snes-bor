@@ -1,0 +1,320 @@
+{
+  "schema": "BYOR_MIXED_BRR_QUALITY_V1",
+  "status": "BOUNDED_CODEC_QUALITY_MEASURED_NATIVE_COST_UNBOUND",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "function_sha256": {
+    "clearmixbuffer": "2ad027a7fa0e1795fb3b36dbe3bb4645b1716a94a8f1b4d6f5914ee0e32354d6",
+    "mixaudio": "4f72af3cad3fbcc5fc36e448daed4673f20dbd71ea2e95f88cbd91b3b8481f96",
+    "update_sample": "001bf7d7d69c81cfc63da2a6edf8805e4072a4a226cb48a4a7c85f2fd6f62899",
+    "sound_play_sample": "3f544738c685931ef89c20070576ec412fca47cc57a861c3bc0a66b984498894"
+  },
+  "tad_commit": "00215a2e9aaf327d620120a48b47d74f80d5b521",
+  "tad_source_sha256": {
+    "encoder.rs": {
+      "checkout_sha256": "f6be37fe27cf111250d94c8472dec8962ca5d75ba8206208a4bbb76c2c99db66",
+      "git_blob_sha256": "cd09eb14709a56188d182e8e43bc996bad0c4989d5c8fecbae93bfb1bafbbe1a",
+      "line_ending_normalized_equal": true
+    },
+    "decoder.rs": {
+      "checkout_sha256": "6bb34eac2b46f5d8e12cb5379b62eaf38bd6bae9996de996863d4730cedf0f7b",
+      "git_blob_sha256": "f89698b8900ec654769eaf1b23cbb6930f983c1d5ec73f255971c30322922f91",
+      "line_ending_normalized_equal": true
+    },
+    "lib.rs": {
+      "checkout_sha256": "f1d697e09db3226cf7c0c6ef8bbfbf815d7509e463bac800997a901029b8d480",
+      "git_blob_sha256": "32181e11e0d6a06757529d69eefc4ff4e0e493e9c2c196cb01a9e5640c521feb",
+      "line_ending_normalized_equal": true
+    },
+    "gaussian_overflow_test.rs": {
+      "checkout_sha256": "226f2be81b04757195fe80086d9ae94ad994fcdce0a3ae0a84f46a24bfafcaf9",
+      "git_blob_sha256": "4fd4b7fd74ab8a15a35781df80aaa6f4dda14c86c99f620640015cbe5f5745d9",
+      "line_ending_normalized_equal": true
+    }
+  },
+  "source_assets": [
+    {
+      "sound_index": 4,
+      "source_path": "data/sounds/quake.wav",
+      "source_sha256": "0c6a4dce448443f967f58e7196d639e8b55a33f4c4a23c88eb1b655eca86e303"
+    },
+    {
+      "sound_index": 6,
+      "source_path": "data/chars/he-man/fx/wind.wav",
+      "source_sha256": "4274c51fb2cc35730ae61b2f8e3510dc5133390fb9d393fc76e837966a7c6f45"
+    },
+    {
+      "sound_index": 16,
+      "source_path": "data/chars/KnBot/energy.wav",
+      "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c"
+    },
+    {
+      "sound_index": 26,
+      "source_path": "data/sounds/punch.wav",
+      "source_sha256": "4a1c15698279d0ff55ff09a036d23126c131f978a13625ec14ae5952a9c03084"
+    }
+  ],
+  "output_rate": 11025,
+  "frames": 16384,
+  "source_output_rate_policy": "ACCEPTED_COMPAT 11025; actual C nearest Q12 sampling and mixer",
+  "stress_is_authored_timing": false,
+  "source_pcm_copied": false,
+  "native_encoding_cost_proven": false,
+  "physical_polyphony_proven": false,
+  "production_admitted": false,
+  "no_color_reduction": true,
+  "results": [
+    {
+      "name": "sound-4",
+      "sound_indices": [
+        4
+      ],
+      "mixed_pcm_sha256": "8c847903a3283f59703a75a3e368319c9d4111e032b098f5f9ffc63a14ca3c73",
+      "codecs": {
+        "tad": {
+          "samples": 16384,
+          "peak_error": 540,
+          "rms_error": 53.69892195146938,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 32.061872218436854,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "70f4310f9f5e5a8f847d230ecee1f846959ce2ac6965ccdbec52a0dcc8077906"
+        },
+        "peak-filter0": {
+          "samples": 16384,
+          "peak_error": 512,
+          "rms_error": 161.78902156821394,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 22.48220258632439,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "113f860af8731d1fa6ad7df320e3f45acee666491772179b16158f29a8b8702d"
+        },
+        "peak-filter1": {
+          "samples": 16384,
+          "peak_error": 512,
+          "rms_error": 85.67551401171676,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 28.004049184703117,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "91a0acd1d0dda1ba5a98a0a4ecdf29a9bf6c2f96ea007ff49ff0898957db20a9"
+        }
+      }
+    },
+    {
+      "name": "sound-6",
+      "sound_indices": [
+        6
+      ],
+      "mixed_pcm_sha256": "ec3cf35ab4cc64bd9ead112d3c641c1d631f5c3dc7bb72a6d398b419568cdad4",
+      "codecs": {
+        "tad": {
+          "samples": 16384,
+          "peak_error": 184,
+          "rms_error": 21.12688947726037,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 38.1282129788397,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "b7f4a27bfeaf994ed14e13af7296a2d53d052ac49da79a902f7f0dc65bfc0efc"
+        },
+        "peak-filter0": {
+          "samples": 16384,
+          "peak_error": 512,
+          "rms_error": 135.1131470287033,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 22.010971994024917,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "c301bf289c8f42bc42b20dd943d5ac979a84a67e9d99a547a6eb54816b2a5c86"
+        },
+        "peak-filter1": {
+          "samples": 16384,
+          "peak_error": 252,
+          "rms_error": 53.788344789147864,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 30.011160584290366,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "b5472b96d16c7a3959ed115d5ed9ebd7064a160540de5f264cb1f6860d770987"
+        }
+      }
+    },
+    {
+      "name": "sound-16",
+      "sound_indices": [
+        16
+      ],
+      "mixed_pcm_sha256": "3091a7dfe2e08e588cdb2eae97c389aba07c331417b0e607ecee46932aba1a82",
+      "codecs": {
+        "tad": {
+          "samples": 16384,
+          "peak_error": 256,
+          "rms_error": 28.067241038820505,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 29.172609198023025,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "6d19ea45e3ae196be232960e60e99f77966bb06ad52dcd03daf5e3e71df0950d"
+        },
+        "peak-filter0": {
+          "samples": 16384,
+          "peak_error": 256,
+          "rms_error": 65.48520825346743,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 21.813739425194107,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "fb8c8513dd00088e61c5aa90242ddbcb0b355b6bf4dcab152d39946646629432"
+        },
+        "peak-filter1": {
+          "samples": 16384,
+          "peak_error": 256,
+          "rms_error": 42.79459878941354,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 25.50882450262253,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "af509ec9acef39e3ffe9753ca89f5352fbdbc9e9d7a607ed5cb79a5d09bb50ff"
+        }
+      }
+    },
+    {
+      "name": "sound-26",
+      "sound_indices": [
+        26
+      ],
+      "mixed_pcm_sha256": "4f03edb268b69e80289db88c25b5fcaa1a38c08742b986ca51407fd43c757837",
+      "codecs": {
+        "tad": {
+          "samples": 16384,
+          "peak_error": 380,
+          "rms_error": 18.34089495456465,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 33.978194688416266,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "f0e19d0b9cdc1244e13225882ea76067273c3a8b88dc457dcb59c2a297abc0b5"
+        },
+        "peak-filter0": {
+          "samples": 16384,
+          "peak_error": 512,
+          "rms_error": 60.722215868658814,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 23.579652930344842,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "d891494593f3205884600ce74ffbb25fb3e20fda0f1859a1ceea787f285ef768"
+        },
+        "peak-filter1": {
+          "samples": 16384,
+          "peak_error": 508,
+          "rms_error": 32.59797431877478,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 28.982792892977912,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "63f1e67a2c7535dc5b5f06c6fed3ab86c58f5c6d67898dda853f3ac91a9df460"
+        }
+      }
+    },
+    {
+      "name": "six-voice-stress",
+      "sound_indices": [
+        6,
+        4,
+        16,
+        16,
+        16,
+        26
+      ],
+      "mixed_pcm_sha256": "87a6486c9c9c86d6ae7202c856b8097bc9676b8a8e502fd81d69f4636f15fdaa",
+      "codecs": {
+        "tad": {
+          "samples": 16384,
+          "peak_error": 790,
+          "rms_error": 73.95970582646675,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 33.99388777111802,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "c9d6fd43d73ed2e0eb30849fd8bc08b96fae35eebfcf69d7094eb3ed3c203429"
+        },
+        "peak-filter0": {
+          "samples": 16384,
+          "peak_error": 1024,
+          "rms_error": 342.7418853889906,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 20.67444764470501,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "8549237bf66fd36ad9dd4de05571004b30e7422a4ba4efcfaab45b86da61c298"
+        },
+        "peak-filter1": {
+          "samples": 16384,
+          "peak_error": 512,
+          "rms_error": 111.89934594557234,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 30.397240311467005,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "cbf4c9a524dd3325891d4844f6d096ce1e536378fe5c42fa98886cd5cba892d0"
+        }
+      }
+    },
+    {
+      "name": "twelve-voice-stress",
+      "sound_indices": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        6,
+        4,
+        26
+      ],
+      "mixed_pcm_sha256": "0dacfdcc804f6dfd92ba56cbb96c7da7ba1bb80070555eb0f91c3afc1c7a32f7",
+      "codecs": {
+        "tad": {
+          "samples": 16384,
+          "peak_error": 990,
+          "rms_error": 76.73532948398426,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 39.85314548780619,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "e262c42c1ee0ee7cd1d3788970f3dd05e708ff4747683c658ca8f169f5bb3298"
+        },
+        "peak-filter0": {
+          "samples": 16384,
+          "peak_error": 2048,
+          "rms_error": 608.884071478307,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 21.86236047262458,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "cbe9acf64008bffe12467b88b3a4f95e82d639f9ffc4f2774a834c983b99936a"
+        },
+        "peak-filter1": {
+          "samples": 16384,
+          "peak_error": 512,
+          "rms_error": 120.88661720285666,
+          "gaussian_overflow_minimum_triples": 0,
+          "snr_db": 35.905488236332424,
+          "clipped_source_samples": 0,
+          "brr_bytes": 9216,
+          "brr_sha256": "01ae6daba63ee1b0fcc82c8e5eee7c8b78ecd58f08aa8fc1d8071c717e5957b2"
+        }
+      }
+    }
+  ],
+  "report_path": "out\\byor-motu-mixed-brr-quality\\report.json",
+  "report_sha256": "14acbcbff06ee28126e1fdf3db43044a817422f32ba10e243b6c3a1d8a77aedf",
+  "source_output_duration_seconds": 1.486077097505669
+}
