@@ -502,3 +502,105 @@ SourceCostMove_FinishBadRole:
         values[name]=symbols[name]
     for name,value in values.items():code=re.sub(r'\b'+name+r'\b',str(value),code)
     return code
+
+
+def emit_combo_energy_query(work,symbols):
+    """Pure current-entity validanim/MP-first energy query for combo selection.
+
+    Uses the exact same canonical field reads and table validation as costmove.
+    A=0 absent/ineligible, A=1 eligible, carry=1 invalid owner/entity/table.
+    No actor or resource mutation; animation and numeric query controls change.
+    The caller must serialize it with real animation/costmove continuations.
+    """
+    template=emit(work,work+64,symbols)
+    # Extract the shared Resolve/canonical-field capture before any mutation.
+    start=template.index('SourceCostMove_Resolve:')
+    end=template.index('SourceCostMove_EnergyFields:')
+    capture=template[start:end].replace('SourceCostMove_','SourceComboEnergy_')
+    code='''
+SourceComboEnergy_Query:
+.a16
+.i16
+ php
+ rep #$31
+ phx
+ phy
+ lda.l WORK
+ cmp #$B670
+ beq SourceComboEnergy_Lease
+ jmp SourceComboEnergy_Fault
+SourceComboEnergy_Lease:
+.a16
+.i16
+ lda.l WORK+2
+ beq SourceComboEnergy_Resolve
+ cmp #2
+ beq SourceComboEnergy_Resolve
+ cmp #4
+ beq SourceComboEnergy_Resolve
+ jmp SourceComboEnergy_Fault
+'''+capture+'''
+SourceComboEnergy_EnergyFields:
+.a16
+.i16
+ lda #1
+ sta.l PRESENT
+ sta.l WHICH
+ lda #0
+ sta.l PRESENT+2
+ sta.l WHICH+2
+ jsl EXECUTE
+ bcc SourceComboEnergy_MPResult
+ jmp SourceComboEnergy_Fault
+SourceComboEnergy_MPResult:
+.a16
+.i16
+ lda.l RESULT
+ ora.l RESULT+2
+ bne SourceComboEnergy_True
+ lda #0
+ sta.l WHICH
+ jsl EXECUTE
+ bcc SourceComboEnergy_HPResult
+ jmp SourceComboEnergy_Fault
+SourceComboEnergy_HPResult:
+.a16
+.i16
+ lda.l RESULT
+ ora.l RESULT+2
+ bne SourceComboEnergy_True
+SourceComboEnergy_FalseNear:
+.a16
+.i16
+ lda #0
+ bra SourceComboEnergy_Return
+SourceComboEnergy_True:
+.a16
+.i16
+ lda #1
+SourceComboEnergy_Return:
+.a16
+.i16
+ ply
+ plx
+ plp
+ clc
+ rtl
+SourceComboEnergy_Fault:
+.a16
+.i16
+ lda #0
+ ply
+ plx
+ plp
+ sec
+ rtl
+'''
+    values=dict(WORK=work,PRESENT=symbols['SourceCheckEnergy4086_Present'],
+        WHICH=symbols['SourceCheckEnergy4086_Which'],RESULT=symbols['SourceCheckEnergy4086_Result'],
+        EXECUTE=symbols['SourceCheckEnergy4086_Execute'])
+    for n,v in values.items():code=re.sub(r'\b'+n+r'\b',str(v),code)
+    # The capture's early absent-animation branch must span the energy query.
+    code=re.sub(r'^ (beq|bcc) SourceComboEnergy_FalseNear$',
+        lambda m:' '+dict(beq='bne',bcc='bcs')[m[1]]+' SourceComboEnergy_Absent_'+str(m.start())+'\n jmp SourceComboEnergy_FalseNear\nSourceComboEnergy_Absent_'+str(m.start())+':\n.a16\n.i16',code,flags=re.M)
+    return code

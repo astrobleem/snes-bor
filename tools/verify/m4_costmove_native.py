@@ -4,7 +4,7 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_compile'))
 from compiler import Source
 from source_costmove_authority import cases
-from source_costmove_native import emit
+from source_costmove_native import emit,emit_combo_energy_query
 from source_animation_energy_4086 import derive as energies,pack as pack_energies
 from source_animation_init_4086 import derive as animations,pack as pack_animations
 from source_frame_effects_4086 import derive as effects,pack as pack_effects
@@ -85,6 +85,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--combo-query',action='store_true',help='Prove pure MP-first combo energy selection; no debit or actor mutation.')
     for n in ('rom','source','output'):p.add_argument('--'+n,type=Path,required=True)
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source);sy=symbols(Path('src/main.sym'))
     energy=energies(source);ai=animations(source);fe=effects(source);model=models(source)
@@ -110,13 +111,48 @@ def main():
     # before debit, velocity, flags, history, unlink or animation changes.
     overflow=dict(base,bad='overflow',fault=1,original=dict(base['original'],mp=0x7fffffff,health=0x7fffffff,seal=0,fields=dict(cost=-1,mponly=1,disable=0)))
     rows.append(overflow)
+    if a.combo_query:
+        from source_animation_energy_4086 import check
+        rows[-1]=dict(rows[-1],fault=0)
+        for c in rows:
+            if c['bad']=='link':c['fault']=0
+            e=c['original'];mp=check(1,e['fields'],e['type'],e['seal'],e['mp'],e['health'])
+            hp=check(0,e['fields'],e['type'],e['seal'],e['mp'],e['health'])
+            c['query_expected']=0 if c['fault'] or c['bad']=='role_absent' else int(mp or hp)
+            c['query_trace']='' if c['fault'] or c['bad']=='role_absent' else '1' if mp else '1,0'
+            if c['bad']=='numeric_ready':c['query_trace']='1'
     lua=LUA
+    if a.combo_query:
+        begin=lua.index('emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1];local s=c.slot;local p=(s+1)%128;local w=c.wanted;')
+        end=lua.index('emu.addMemoryCallback(function()',begin+1)
+        lua=lua[:begin]+lua[end:]
+        lua=lua.replace('prefix=0;start=emu.getState().masterClock','prefix=0;querytrace={};start=emu.getState().masterClock')
+        lua='local querytrace={};local query_a=0;local query_c=0\n'+lua
+        lua+=r'''
+emu.addMemoryCallback(function()
+ querytrace[#querytrace+1]=word(sy.SourceCheckEnergy4086_Which)
+end,emu.callbackType.exec,QUERYEXEC,QUERYEXEC,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local s=emu.getState();query_a=s['cpu.a'];query_c=s['cpu.ps']&1
+end,emu.callbackType.exec,AFTER,AFTER,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local changed=0;for a,v in pairs(before)do if emu.read(a,mt)~=v then changed=changed+1 end end
+ emu.log('COMBOENERGYNATIVE|'..word(INDEX)..'|'..query_a..'|'..query_c..'|'..changed..'|'..table.concat(querytrace,',')..'|'..(emu.getState().masterClock-start))
+end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
+'''
     for k,v in dict(WORKADDR=WORK,TAILADDR=TAIL,AIBYTES=len(aitable),FEBYTES=len(fetable),HANDLES=len(ai['animations']),AEBYTES=len(energytable)).items():lua=lua.replace(k,str(v))
     lua=lua.replace('CACHE',json.dumps(cache.hex()))
+    if a.combo_query:lua=lua.replace('QUERYEXEC',str(sy['SourceCheckEnergy4086_Execute']))
     reporter=Reporter('M4-COSTMOVE-NATIVE',kind='GATE')
-    raw,log=run_fixture(a.rom,folder,rows,'SourceCostMove_Begin','VmSourceInput_Ready',0xb670,
+    raw,log=run_fixture(a.rom,folder,rows,'SourceComboEnergy_Query' if a.combo_query else 'SourceCostMove_Begin','VmSourceInput_Ready',0xb670,
                        [(58,0,energytable),(59,0,aitable),(60,0,fetable)],lua,reporter,
-                       append=emit(WORK,TAIL,sy),probes=dict(PREFIX='SourceCostMove_BeforeAnimation'),batch_size=2,frame_limit=700,link_pcm=False)
+                       append=emit_combo_energy_query(WORK,sy) if a.combo_query else emit(WORK,TAIL,sy),probes=None if a.combo_query else dict(PREFIX='SourceCostMove_BeforeAnimation'),batch_size=2,frame_limit=700,link_pcm=False)
+    if a.combo_query:
+        actual=[l.split('COMBOENERGYNATIVE|',1)[1].strip().split('|') for l in log.splitlines() if 'COMBOENERGYNATIVE|' in l]
+        errors=[v for i,v in enumerate(actual) if v[:5]!=[str(i),str(rows[i]['query_expected']),str(rows[i]['fault']),'0',rows[i]['query_trace']]]
+        reporter.check('pure canonical combo energy query preserves actor state and MP-first short circuit',len(actual)==len(rows) and not errors)
+        report=dict(schema='BYOR_4086_COMBO_ENERGY_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',cases=len(rows),errors=errors[:10],rom_sha256=hashlib.sha256(raw).hexdigest(),peak_master_clocks=max(int(v[5]) for v in actual),private_energy_descriptors_instrumented=True,production_player_owner_bound=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+        (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8');reporter.finish();return
     actual=[list(map(int,l.split('COSTMOVENATIVE|',1)[1].split('|')))for l in log.splitlines()if 'COSTMOVENATIVE|'in l]
     errors=[v for i,v in enumerate(actual)if v[:4]!=[i,0,0,5 if rows[i]['fault']else 3 if rows[i]['wanted'][0]else 2]]
     reporter.check('actual cost/resource/unlink prefix and frame-zero request',len(actual)==len(rows)and not errors)

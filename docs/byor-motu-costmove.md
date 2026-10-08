@@ -25,3 +25,16 @@ was certified separately and has not yet been bound to the gameplay dispatcher.
 
 This is not full player_think, combat, effect presentation or MOTU Demo completion.
 No source color reduction or PCM copies are applied.
+
+Combo selection has a distinct pure energy query: valid current-model animation,
+then MP first, and HP only if MP fails. It shares costmove's canonical field
+capture and immutable table validation. The native proof compares 195 cases,
+exact short-circuit query order, and zero actor-byte mutation. Link validity and
+signed debit overflow belong to the later mutating costmove; they do not turn
+this pure eligibility query into an actor mutation preflight.
+
+The compiler-owned controller address plan consumes 4112 of the 6400 leased
+bytes, leaving 2288. It includes input histories, entity movetime, combo tails,
+input binding/snapshot/sequence controls, costmove and command continuations.
+It reserves no extra animhits array: shared source animation hits already have
+an initializer-owned canonical store. Layout generation alone grants no lease.

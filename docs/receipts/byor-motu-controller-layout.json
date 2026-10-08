@@ -1,0 +1,92 @@
+{
+  "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
+  "base": 8364032,
+  "bytes": 6400,
+  "used_bytes": 4112,
+  "remaining_bytes": 2288,
+  "entities": 128,
+  "players": 4,
+  "regions": [
+    {
+      "name": "input_history",
+      "address": 8364032,
+      "bytes": 1024,
+      "end": 8365056,
+      "authority": "source player ring and input words"
+    },
+    {
+      "name": "entity_movetime",
+      "address": 8365056,
+      "bytes": 512,
+      "end": 8365568,
+      "authority": "source entity movetime uint32"
+    },
+    {
+      "name": "entity_combo_tail",
+      "address": 8365568,
+      "bytes": 2048,
+      "end": 8367616,
+      "authority": "source entity combostep[1..4]"
+    },
+    {
+      "name": "input_scratch",
+      "address": 8367616,
+      "bytes": 40,
+      "end": 8367656,
+      "authority": "serialized input service controls"
+    },
+    {
+      "name": "input_snapshot",
+      "address": 8367656,
+      "bytes": 56,
+      "end": 8367712,
+      "authority": "immutable outer controller snapshot"
+    },
+    {
+      "name": "combo_sequence",
+      "address": 8367712,
+      "bytes": 110,
+      "end": 8367822,
+      "authority": "one copied immutable source command"
+    },
+    {
+      "name": "input_owner",
+      "address": 8367822,
+      "bytes": 2,
+      "end": 8367824,
+      "authority": "input service readiness"
+    },
+    {
+      "name": "binding_shadow",
+      "address": 8367824,
+      "bytes": 128,
+      "end": 8367952,
+      "authority": "four preflighted entity bindings"
+    },
+    {
+      "name": "binding_controls",
+      "address": 8367952,
+      "bytes": 32,
+      "end": 8367984,
+      "authority": "serialized input entity binding"
+    },
+    {
+      "name": "costmove_controls",
+      "address": 8367984,
+      "bytes": 64,
+      "end": 8368048,
+      "authority": "serialized costmove continuation"
+    },
+    {
+      "name": "combo_controls",
+      "address": 8368048,
+      "bytes": 96,
+      "end": 8368144,
+      "authority": "serialized combo selection continuation"
+    }
+  ],
+  "required_lease": "SourceForeignWork B671 nonzero matching generation; retired canvas/frontpanel/water owners",
+  "overlaps_vm_slots": false,
+  "runtime_owner_bound": false,
+  "motu_gameplay_proven": false
+}
