@@ -19,10 +19,10 @@ def expected_bitmap(data,w,h):
  return b''.join(bitmap_bytes(np.array([pixels[y:y+8,x:x+8,plane]for y in range(0,h,8)for x in range(0,w,8)]),bpp,1)for plane,bpp in((0,8),(1,2)))
 
 
-def bitmap_kernel(w,h,return_entry,iram=True):
+def bitmap_kernel(w,h,return_entry,iram=True,base=None):
  """Serialize native index words into type-1 tile-column bitmaps, no PPU writes."""
- if w%8 or h%8:raise ValueError('NATIVE_BITMAP_TILE_WINDOW_DOMAIN')
- c=Code(0x3200 if iram else 0xa000);c.emit('c2 30 a9 00 30 5b e2 20 a9 42 48 ab c2 20')
+ if w%8 or h%8 or w*h*2>0x6000:raise ValueError('NATIVE_BITMAP_TILE_WINDOW_DOMAIN')
+ c=Code(base if base is not None else(0x3200 if iram else 0xa000));c.emit('c2 30 a9 00 30 5b e2 20 a9 42 48 ab c2 20')
  c.label('entry');c.emit('64 42')
  for plane in(0,1):
   name='high'if plane==0 else'low'
@@ -44,6 +44,38 @@ def bitmap_kernel(w,h,return_entry,iram=True):
  worker=c.finish()
  if c.base+len(worker)>0x3500:raise ValueError('NATIVE_BITMAP_SHADER_IRAM_OVERLAP')
  return worker,{n:c.base+c.labels[n]for n in('entry','done')}
+
+
+def sparse_bitmap_kernel(w,h,return_entry,iram=True,base=0x3200):
+ """Stage bitmap DMA plus native final indices at actual clipped actor spans."""
+ if not iram or w%8 or h%8 or w*h*2>0x6000:raise ValueError('NATIVE_SPARSE_BITMAP_DOMAIN')
+ low_addr=(w*h).to_bytes(2,'little').hex(' ')
+ c=Code(base);c.emit('c2 30 a9 00 30 5b e2 20 a9 42 48 ab c2 20')
+ c.label('entry');c.emit('e2 20 a9 84 8f 30 22 00 a9 cd 8f 34 22 00 c2 20 a5 16');c.branch(0xf0,'first');c.word(0xa9,w*h*10//8);c.branch(0x80,'source');c.label('first');c.emit('a9 00 00');c.label('source');c.emit('8f 32 22 00');c.word(0xa9,w*h*10//8);c.emit('8f 38 22 00 a9 00 00 8f 35 22 00 e2 20 a9 02 8f 37 22 00 c2 20 64 40 a5 18');c.branch(0xd0,'span');c.jump('done')
+ c.label('span');c.emit('a6 40 bd 02 60 4a 85 44 bd 00 60 aa 86 26')
+ c.label('pixel');c.emit('bd 00 70 85 28 bf 00 00 ce a8 e2 20 a5 28 99 00 00 c2 20 98 29 03 00 85 2a 0a 0a 85 2e a5 28 eb 29 03 00 05 2e aa e2 20 bf 00 80 ce 85 2e c2 20 98 4a 4a a8 a6 2a e2 20 bf 10 80 ce 39 '+low_addr+' 05 2e 99 '+low_addr+' c2 20 a6 26 e8 e8 86 26 c6 44');c.branch(0xd0,'pixel')
+ c.emit('a5 40 18 69 04 00 85 40 c5 18');c.branch(0xf0,'done');c.jump('span')
+ c.label('done');c.emit('5c 00 b1 01');worker=c.finish()
+ if c.base+len(worker)>0x3500:raise ValueError('NATIVE_SPARSE_BITMAP_IRAM_OVERLAP')
+ return worker,{n:c.base+c.labels[n]for n in('entry','done')}
+
+
+def adaptive_bitmap_kernel(w,h,return_entry,iram=True,threshold=2200):
+ """Choose from measured paths using the native clipped span pixel count."""
+ c=Code(0x3200);c.emit('c2 30 a9 00 30 5b a5 14');c.word(0xc9,threshold);c.branch(0x90,'sparse')
+ c.emit('a9 01 00 8f e0 3f 41 5c 00 00 00');full_at=len(c.data)-3
+ c.label('sparse');c.emit('a9 00 00 8f e0 3f 41 5c 00 00 00');sparse_at=len(c.data)-3
+ full_base=c.base+len(c.data);full,full_entries=bitmap_kernel(w,h,return_entry,iram,full_base)
+ sparse_base=full_base+len(full);sparse,sparse_entries=sparse_bitmap_kernel(w,h,return_entry,iram,sparse_base)
+ dispatch=bytearray(c.finish());dispatch[full_at:full_at+3]=full_base.to_bytes(3,'little');dispatch[sparse_at:sparse_at+3]=sparse_base.to_bytes(3,'little')
+ return bytes(dispatch)+full+sparse,dict(entry=c.base,done=sparse_entries['done'])
+
+
+def sparse_bitmap_tables(w,h):
+ yy,xx=np.indices((h,w));offset=((yy//8)*(w//8)+(xx//8))*64+(yy%8)*8+xx%8
+ shifted=bytes(value<<(position*2)for position in range(4)for value in range(4))
+ masks=bytes(255^(3<<(position*2))for position in range(4))
+ return offset.astype('<u2').tobytes(),shifted+masks
 
 
 def type1_service(w,h,high_target=0,low_target=0x4000):
