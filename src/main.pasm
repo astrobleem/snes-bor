@@ -14051,3 +14051,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_gravity_landing.pasm"
 
 .include "core/vm/vm_source_post_air.pasm"
+
+.include "core/vm/vm_source_landing_damage.pasm"

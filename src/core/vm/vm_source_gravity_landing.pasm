@@ -218,8 +218,7 @@ SourceGravityLanding4086_TimeMatches:
 SourceGravityLanding4086_DamagePending:
 .a16
 .i16
- lda #$8102
- jmp SourceGravityLanding4086_Return
+ jmp SourceGravityLanding4086_LiveDamage
 SourceGravityLanding4086_BouncePending:
 .a16
 .i16
@@ -290,6 +289,36 @@ SourceGravityLanding4086_LiveDamage:
  ; Positive landing damage cannot be dropped or treated as a completed callback.
  lda #2
  sta.l SourceGravityLanding4086_Service
+ lda #1
+ sta.l SourceGravityLanding4086_State
+ lda.l SourceLandingDamage4086_Ready
+ beq SourceGravityLanding4086_DamageUnbound
+ cmp #$B629
+ beq SourceGravityLanding4086_DamageBound
+ jmp SourceGravityLanding4086_Bad
+SourceGravityLanding4086_DamageBound:
+.a16
+.i16
+ jsl SourceLandingDamage4086_Execute
+ bcc SourceGravityLanding4086_DamageProgress
+ jmp SourceGravityLanding4086_Bad
+SourceGravityLanding4086_DamageProgress:
+.a16
+.i16
+ cmp #0
+ beq SourceGravityLanding4086_DamageDone
+ jmp SourceGravityLanding4086_Return
+SourceGravityLanding4086_DamageDone:
+.a16
+.i16
+ lda #0
+ sta.l SourceGravityLanding4086_Service
+ lda.l SourceGravityLanding4086_Physics
+ tax
+ jmp SourceGravityLanding4086_Commit
+SourceGravityLanding4086_DamageUnbound:
+.a16
+.i16
  lda #$8102
  jmp SourceGravityLanding4086_Pending
 SourceGravityLanding4086_Commit:

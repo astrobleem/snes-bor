@@ -1,0 +1,36 @@
+{
+  "schema": "BYOR_MOTU_LANDING_DAMAGE_NATIVE_V1",
+  "status": "PASS",
+  "evidence": {
+    "damage": {
+      "path": "out/byor-motu-landing-damage-native/report.json",
+      "sha256": "4a829fb2a22d786f774249f6f96b2c522dfa10e724873f9f268b785eb14992e5"
+    },
+    "authored": {
+      "path": "out/byor-motu-landing-damage-authored-native/report.json",
+      "sha256": "e76691c392c6541b6647bf14e48d632716002d5d845d2af3c97bcf9d73280184"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-landing-damage-bor-static-smoke/report.json",
+      "sha256": "71ca1c7044463112190a133337efed7a2c2f3e9c09cf74db4f0bc9be52b15a01"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-landing-damage-rom-audit.log",
+      "sha256": "01fd14c34ac8dcfadc4476f72d08c31f9754a75164638dfce7f163408c588c3a"
+    }
+  },
+  "native_cases": 678,
+  "authored_landing_cases": 30,
+  "current_health_view_offset": 36,
+  "maxhealth_view_offset": 68,
+  "maxhealth_preserved": true,
+  "exact_domain": "NULL damage handler; unit binary32 defense; health and force below 2^23; positive result",
+  "callback_lethal_other_arithmetic_pending": true,
+  "full_dynamic_world_traversal_proven": false,
+  "motu_gameplay_proven": false,
+  "foreign_profile_admitted": false,
+  "bank0_growth_bytes": 0,
+  "bank0_external_relocation_bytes": 5,
+  "protected_tracked_files_unchanged": 17,
+  "no_color_reduction": true
+}

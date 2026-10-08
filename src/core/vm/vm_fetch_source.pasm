@@ -60,6 +60,8 @@ Vm_FetchSourceInit:
     sta.l SourceGravityLanding4086_State
     sta.l SourcePostAir4086_Ready
     sta.l SourcePostAir4086_State
+    sta.l SourceLandingDamage4086_Ready
+    sta.l SourceLandingDamage4086_Status
     sta.l SourceGravityAir4086_StageReady
     sta.l SourceGravityAir4086_ZeroProfileReady
     sta.l SourcePostStationary4086_Ready

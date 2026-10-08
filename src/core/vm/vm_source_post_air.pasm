@@ -166,10 +166,12 @@ SourcePostAir4086_MoveFresh:
  sta.l SourceLandingVelocity4086_Status
  sta.l SourceGravityLanding4086_State
  sta.l SourceGravityLanding4086_Service
+ sta.l SourceLandingDamage4086_Status
  sta.l SourceCheckMove4086_Status
  lda.l SourcePostAir4086_Slot
  sta.l SourceLandingVelocity4086_Slot
  sta.l SourceGravityLanding4086_Slot
+ sta.l SourceLandingDamage4086_Slot
  jsl SourceGravityAir4086_Execute
  bcc SourcePostAir4086_AirRan
  jmp SourcePostAir4086_RestoreBad
