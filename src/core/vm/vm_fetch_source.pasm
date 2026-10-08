@@ -117,6 +117,7 @@ Vm_FetchSourceInit:
     sta.l SourceScore4086_Ready
     sta.l SourceScore4086_NoScriptsReady
     sta.l SourceScore4086_StatsReady
+    sta.l SourceDropWeapon4086_Ready
     sta.l SourceWeapon4086_Ready
     sta.l SourceFrameEffectPlan4086_Ready
     sta.l SourceIdle4086_Ready
