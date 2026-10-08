@@ -12,6 +12,7 @@ from _harness import Reporter
 
 LUA=VELOCITY_LUA.replace(' before={};for',r'''
  set('SourceGravityLanding4086_Ready',0xb627);set('SourceGravityLanding4086_State',0);set('SourceGravityLanding4086_Service',0);set('SourceGravityLanding4086_Slot',s)
+ put(life+20,c.dead or 0,4)
  before={};for''')
 LUA=LUA.replace("emu.log('LANDVELOCITY|'", "emu.log('GRAVITYCOMMIT|'")
 LUA=LUA.replace("word(sy.SourceLandingVelocity4086_Status)..'|'..word(sy.SourceGravityAir4086_Status)",
@@ -61,6 +62,8 @@ def main():
     for force in (1,7,150,0x7fffffff):
         expected=list(seed['expected']);expected[5:7]=[0,0]
         rows.append(dict(seed,damage=force,damage_pending=True,expected=expected))
+        for dead in (1,-1,-0x80000000):
+            rows.append(dict(seed,damage=force,dead=dead,expected=list(seed['expected'])))
     for bad in ('pool','side','air','pending','time','phase','tick','slot','physics','ready','state'):
         expected=list(seed['expected']);expected[5:7]=[0,0]
         rows.append(dict(seed,controller_bad=bad,fault=1,expected=expected))

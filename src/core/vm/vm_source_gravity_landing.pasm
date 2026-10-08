@@ -274,6 +274,19 @@ SourceGravityLanding4086_Damage:
 SourceGravityLanding4086_RequireDamage:
 .a16
 .i16
+ ; Source tests the current entity's canonical dead DWORD after update_frame.
+ ; A dead entity keeps damage_on_landing unchanged and skips its handler.
+ lda.l SourceGravityLanding4086_View
+ tax
+ lda.l $439014,x
+ ora.l $439016,x
+ beq SourceGravityLanding4086_LiveDamage
+ lda.l SourceGravityLanding4086_Physics
+ tax
+ jmp SourceGravityLanding4086_Commit
+SourceGravityLanding4086_LiveDamage:
+.a16
+.i16
  ; Positive landing damage cannot be dropped or treated as a completed callback.
  lda #2
  sta.l SourceGravityLanding4086_Service

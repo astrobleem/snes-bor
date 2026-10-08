@@ -1,0 +1,61 @@
+{
+  "schema": "BYOR_MOTU_AUTHORED_LANDING_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "authored_frames": {
+      "path": "out/byor-motu-authored-landframe-native/report.json",
+      "sha256": "41e68b153210533384b148288955e84dc9dbd79984805753944bc8729208d0dd"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-authored-landing-bor-static-smoke/report.json",
+      "sha256": "f3edc7980c075cead4314a8af8664a8fa96dfad2376fd11f9815bcb8d3bcbd28"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-landing-dead-rom-audit.log",
+      "sha256": "162046106bb20140d73cb86d86528a9ae238dd5a47bd0ff72958a432fa174a3c"
+    },
+    "dead": {
+      "path": "out/byor-motu-gravity-landing-dead-native/report.json",
+      "sha256": "8da568737bad4c3b41305c77cd5b44093d251f99fea59b338bc34fc353f47322"
+    },
+    "damage_authority": {
+      "path": "out/byor-motu-landing-damage-authority/report.json",
+      "sha256": "34d900bf574af8378629587fd6f84c9e8a6f33806f9822840e3fe7cc417ad4b8"
+    }
+  },
+  "native_dead_and_commit_cases": 1467,
+  "native_authored_landing_cases": 30,
+  "source_authored_land_handles": [
+    16,
+    22,
+    44,
+    57,
+    77
+  ],
+  "source_authored_landing_roles": [
+    "He_Man freespecial4",
+    "He_Man fall",
+    "He_ManB fall",
+    "Skeletor fall",
+    "Knightbot fall"
+  ],
+  "native_linked_script_then_frame_effects_then_gravity_then_move_then_world_ack": true,
+  "source_dead_is_current_canonical_dword": true,
+  "dead_preserves_damage_on_landing": true,
+  "script_variable_values_cleared": true,
+  "compiler_metadata_retained": true,
+  "last_side_row_fence_excludes_owned_script_descriptor_cache": true,
+  "source_damage_c_authority_cases": 672,
+  "damage_callback_and_kill_instrumented_in_c": true,
+  "controlled_landing_inputs": true,
+  "full_dynamic_world_traversal_proven": false,
+  "live_positive_damage_or_bounce_effects_backend_proven": false,
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "bank0_byte_changes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
