@@ -311,6 +311,33 @@ SourceGravityIdle4086_RejectCore:
 SourceGravityIdle4086_StickyBase:
 .a16
 .i16
+ lda.l SourcePhysicsState4086_Ready
+ beq SourceGravityIdle4086_PhysicsGuardDone
+ cmp #$B61C
+ beq SourceGravityIdle4086_PhysicsLease
+ jmp SourceGravityIdle4086_Bad
+SourceGravityIdle4086_PhysicsLease:
+.a16
+.i16
+ lda.l SourceWorldTick4086_Slot
+ asl a
+ asl a
+ asl a
+ asl a
+ tax
+ ; Closed stationary/no-platform capability requires actual zero falling and
+ ; NULL collision relations whenever the canonical physics row is installed.
+ lda.l SOURCE_ENTITY_PHYSICS,x
+ ora.l SOURCE_ENTITY_PHYSICS+2,x
+ ora.l SOURCE_ENTITY_PHYSICS+4,x
+ ora.l SOURCE_ENTITY_PHYSICS+6,x
+ ora.l SOURCE_ENTITY_PHYSICS+8,x
+ ora.l SOURCE_ENTITY_PHYSICS+10,x
+ beq SourceGravityIdle4086_PhysicsGuardDone
+ jmp SourceGravityIdle4086_Bad
+SourceGravityIdle4086_PhysicsGuardDone:
+.a16
+.i16
  lda.l SourceGravityIdle4086_Side
  tax
  lda.l SOURCE_WORLD_SIDES+44,x

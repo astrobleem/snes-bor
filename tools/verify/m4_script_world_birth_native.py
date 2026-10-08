@@ -32,7 +32,7 @@ def main():
     p.add_argument('--lifecycle',type=Path,help='Paired B4LI current-model scalars at physical birth')
     p.add_argument('--model-attack-policy',type=Path,help='B4AP model blocking and stealth table, installed before alive')
     p.add_argument('--case',action='append',help='Run only these bounded native probe names.')
-    p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+    p.add_argument('--physics-state-birth',action='store_true',help='opt-in native physics reset before checked birth publication');p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
     root=Path(__file__).resolve().parents[2];syms=symbols(root/'src/main.sym')
     def c(file,key):return pasm_constant_in(str(root/file),key)
     models=(a.registry/'models.b4mr').read_bytes();rows=unpack_models(models)
@@ -121,6 +121,14 @@ emu.addMemoryCallback(function()
  emu.log('WORLDBIRTHAI|'..slot..'|'..cleared..'|'..word(0x414004+slot*80))
 end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
 '''.replace('BIRTHSLOT',str(syms['SourceBirthCore4086_Slot'])).replace('PUBLISHADDRESS',str(syms['Vm_SourceWorldSpawn__ai_state_published'])))
+    if a.physics_state_birth:
+        with (a.output/'vm_cost.lua').open('a')as f:
+            f.write('''
+emu.addMemoryCallback(function()
+ local slot=word(BIRTHSLOT);local sum=0;for j=0,15 do sum=sum+emu.read(0x42d800+slot*16+j,mt)end
+ emu.log('WORLDBIRTHPHYSICS|'..slot..'|'..sum..'|'..word(0x414004+slot*80))
+end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
+'''.replace('BIRTHSLOT',str(syms['SourceBirthCore4086_Slot'])).replace('PUBLISHADDRESS',str(syms['Vm_SourceWorldSpawn__physics_state_published'])))
     if policytable:
         with (a.output/'vm_cost.lua').open('a')as f:
             f.write('''
@@ -178,6 +186,8 @@ end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
                 m.write_memory('snesMemory',0x40bc00,policytable[16:].hex())
                 m.write_u16(syms['SourceModelAttackPolicy4086_Models'],len(rows));m.write_u16(syms['SourceModelAttackPolicy4086_Ready'],0xb5f0)
             m.write_memory('snesMemory',(POOL_BANK<<16)+SIDE_BASE,sides.hex())
+            m.write_u16(syms['SourcePhysicsState4086_Ready'],0xb61c if a.physics_state_birth else 0)
+            if a.physics_state_birth:m.write_memory('snesMemory',0x42d800,(bytes([165])*32).hex())
             ordered=name in ('reordered_allocated','invalid_order')
             m.write_u16(syms['SourceWorldTick4086_Ready'],0xb4d5 if ordered else 0)
             m.write_u16(syms['SourceWorldTick4086_Maximum'],0)
@@ -279,6 +289,11 @@ end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
                 if outcome in ('PTR','PTR_FAULT','PTR_KILLED'):expected_ai[born_slot*24:(born_slot+1)*24]=bytes(24)
                 if policytable and outcome in ('PTR','PTR_FAULT','PTR_KILLED'):expected_ai[born_slot*24+8:(born_slot+1)*24]=policytable[16+model_id*16:32+model_id*16]
                 reporter.check(name+' AI birth state resets only the published actor and retains rejected/sibling rows',read_block(m,0x42f400,48)==bytes(expected_ai))
+            if a.physics_state_birth:
+                expected_physics=bytearray([165]*32)
+                if outcome in ('PTR','PTR_FAULT','PTR_KILLED'):
+                    expected_physics[born_slot*16:(born_slot+1)*16]=bytes(16)
+                reporter.check(name+' physics birth resets only the published row and preserves sibling/rejected rows',read_block(m,0x42d800,32)==bytes(expected_physics))
             if name=='reordered_allocated':
                 reporter.check('birth extends the source traversal prefix',startup.u16(m,syms['SourceWorldTick4086_Maximum'])==1)
             results.append(dict(case=name,fields=fields,status=status,error=error,return_variant_hex=returned.hex(),
@@ -291,6 +306,7 @@ end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
         m.write_u16(syms['SourceLifecycle4086_Ready'],0)
         m.write_u16(syms['SourceBirthCore4086_Ready'],0)
         m.write_u16(syms['SourceRetirement4086_Ready'],0)
+        m.write_u16(syms['SourcePhysicsState4086_Ready'],0)
     publications=[list(map(int,line.split('BIRTHLIFEPUBLISH|',1)[1].split('|')))for line in (a.output/'mesen.log').read_text(errors='replace').splitlines()if 'BIRTHLIFEPUBLISH|'in line]
     if lifetable:
         expected_publications=sum(c[3]in ('PTR','PTR_FAULT','PTR_KILLED')for c in cases)+sum(c[0]=='retire_reuse'for c in cases)
@@ -315,6 +331,11 @@ end,emu.callbackType.exec,PUBLISHADDRESS,PUBLISHADDRESS,emu.cpuType.snes,mt)
         policy_publications=[list(map(int,line.split('WORLDBIRTHPOLICY|',1)[1].split('|')))for line in (a.output/'mesen.log').read_text(errors='replace').splitlines()if 'WORLDBIRTHPOLICY|'in line]
         reporter.check('observer proves full model policy installed after AI reset and before exists publication',len(policy_publications)==expected_publications and all(r[1:]==[0,0,0]for r in policy_publications))
         report.update(model_attack_policy_before_alive_observer=policy_publications,model_attack_policy_birth_installation_proven=True,model_attack_policy_table_sha256=hashlib.sha256(policytable).hexdigest(),status='PASS'if all(ok for _,ok in reporter.results)else'FAIL')
+    if a.physics_state_birth:
+        physics_publications=[list(map(int,line.split('WORLDBIRTHPHYSICS|',1)[1].split('|')))for line in (a.output/'mesen.log').read_text(errors='replace').splitlines()if'WORLDBIRTHPHYSICS|'in line]
+        expected_physics=sum(c[3]in ('PTR','PTR_FAULT','PTR_KILLED')for c in cases)+sum(c[0]=='retire_reuse'for c in cases)
+        reporter.check('checked minimal birth clears canonical physics row before alive publication',len(physics_publications)==expected_physics and all(v[1:]==[0,0]for v in physics_publications))
+        report.update(physics_birth_before_alive_observer=physics_publications,physics_birth_initialization_proven=True,native_active_gravity_or_landing_proven=False,status='PASS'if all(ok for _,ok in reporter.results)else'FAIL')
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

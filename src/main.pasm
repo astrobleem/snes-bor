@@ -14031,3 +14031,5 @@ SourceVM_InstructionReservation:
 
 ; World owner uses only internal short calls; relocated for explicit post gate.
 .include "core/vm/vm_source_world_tick.pasm"
+
+.include "core/vm/vm_source_physics_state.pasm"

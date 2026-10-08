@@ -1089,6 +1089,12 @@ SourceWorldTick4086_NextIndex:
     inc a
     sta.l SourceWorldTick4086_Index
     rts
+; External birth callers reside in a different ROM bank.
+SourceWorldTick4086_CountLiveLong:
+.a16
+.i16
+    jsr SourceWorldTick4086_CountLive
+    rtl
 SourceWorldTick4086_CountLive:
 .a16
 .i16

@@ -557,6 +557,13 @@ SourceCtorState4086_OffscreenAutokillMovementBirthDone:
 SourceCtorState4086_AIStateBirthDone:
 .a16
 .i16
+ lda.l SourceScriptClone4086_Slot
+ jsl SourcePhysicsState4086_InitializeBirth
+ bcc SourceCtorState4086_PhysicsStateBirthDone
+ jmp SourceCtorState4086_Bad
+SourceCtorState4086_PhysicsStateBirthDone:
+.a16
+.i16
  lda.l SourceCtorState4086_View
  tax
  lda #1

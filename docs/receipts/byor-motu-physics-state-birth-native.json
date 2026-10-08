@@ -1,0 +1,66 @@
+{
+  "schema": "BYOR_MOTU_PHYSICS_STATE_BIRTH_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "leaf": {
+      "path": "out/byor-motu-physics-state-birth-native/report.json",
+      "sha256": "0e6bac1da5d097a0288a89fdf877dba25b39197722f920bff5ca3cf772ba3eb8"
+    },
+    "minimal_birth": {
+      "path": "out/byor-motu-physics-minimal-birth-native/report.json",
+      "sha256": "8bdf54344bbb0e4429409c79ed38770165acee82ccecb18894e4d040e74998e5"
+    },
+    "constructor": {
+      "path": "out/byor-motu-source-hbreath-physics-final-native/report.json",
+      "sha256": "a8f76a8ea4b9984bcfcabfe1bad9f403009742a079dedb0860c3822b514c8cc0"
+    },
+    "hover": {
+      "path": "out/byor-motu-physics-state-hover-guard-native/report.json",
+      "sha256": "d77717eec7b0b099bc9b937353bc1f0cfd026c5f69b0f369fe2504663d1a3831"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-physics-state-bor-static-smoke/report.json",
+      "sha256": "6476c199f17ed8c9b026a0a8e5de52ee51ae0048cf6cf76196d1b092ae9ee4c5"
+    },
+    "workspace": {
+      "path": "out/byor-motu-sa1-reused-workspace-native/report.json",
+      "sha256": "fe12d5a27a6496adc7e1f13da729120595972f956dbb5b18e6a81b13e5ae9ee1"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-physics-state-rom-audit.log",
+      "sha256": "3c7fe1c303cce781e224a7e3da7f9052718e5f976cfd49cd2b2c5bbe75cd5d55"
+    }
+  },
+  "physics_state": {
+    "base": "42D800",
+    "end_exclusive": "42E000",
+    "rows": 128,
+    "stride": 16,
+    "fields": [
+      "falling32",
+      "hithead_token32",
+      "landed_on_platform_token32",
+      "damage_on_landing32"
+    ],
+    "lease": "B61C at40BFFE"
+  },
+  "source_authority": "Pinned spawn memset(e,0,sizeof(*e)) before exists publication",
+  "leaf_cases": 135,
+  "hover_guard_cases": 228,
+  "minimal_birth_cases": 26,
+  "actual_full_constructor_before_alive": true,
+  "ordered_minimal_birth_proven": true,
+  "physical_slot_initialized_without_optional_core_table": true,
+  "external_world_live_count_call_corrected_to_long_call": true,
+  "renderer_requirement": "Reused CHR workspace must end at or before42D800; full live renderer/world installer remains unbound",
+  "stationary_guards": "When B61C installed, require actual falling0/hitheadNULL/landed_on_platformNULL; unknown lease rejected",
+  "cold_reset_disables_physics_lease": true,
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "native_active_gravity_or_landing_proven": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

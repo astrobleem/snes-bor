@@ -43,6 +43,7 @@ Vm_FetchSourceInit:
     sta.l SourceEnvironment4086_Ready
     sta.l SourceArrowMove4086_Ready
     sta.l SourceArrowMove4086_Status
+    sta.l SourcePhysicsState4086_Ready
     sta.l SourcePostStationary4086_Ready
     sta.l SourcePostStationary4086_Status
     sta.l SourcePostStationary4086_Slot

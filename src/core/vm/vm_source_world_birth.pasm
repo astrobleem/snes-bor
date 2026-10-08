@@ -248,6 +248,15 @@ Vm_SourceWorldBranch_16:
 Vm_SourceWorldSpawn__copy:
 .a16
 .i16
+    ; Physical identity is required by every birth sidecar, even without B4BI.
+    lda.l VmSourceWorld_SideOffset
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    sta.l SourceBirthCore4086_Slot
     lda.l SourceModelAttackPolicy4086_Ready
     beq Vm_SourceWorldSpawn__policy_core_optional
     lda.l SourceBirthCore4086_Ready
@@ -265,14 +274,6 @@ Vm_SourceWorldSpawn__policy_core_optional:
 Vm_SourceWorldSpawn__core_preflight:
 .a16
 .i16
-    lda.l VmSourceWorld_SideOffset
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    sta.l SourceBirthCore4086_Slot
     lda.l VmSourceWorld_Model
     sta.l SourceBirthCore4086_Model
     jsl SourceBirthCore4086_Preflight
@@ -411,6 +412,13 @@ Vm_SourceWorldSpawn__core_published:
 Vm_SourceWorldSpawn__ai_state_published:
 .a16
 .i16
+    lda.l SourceBirthCore4086_Slot
+    jsl SourcePhysicsState4086_InitializeBirth
+    bcc Vm_SourceWorldSpawn__physics_state_published
+    jmp Vm_SourceWorldSpawn__bad
+Vm_SourceWorldSpawn__physics_state_published:
+.a16
+.i16
     lda.l SourceModelAttackPolicy4086_Ready
     beq Vm_SourceWorldSpawn__policy_published
     jsl SourceModelAttackPolicy4086_Apply
@@ -426,7 +434,7 @@ Vm_SourceWorldSpawn__policy_published:
     lda.l SourceWorldTick4086_Ready
     cmp #$B4D5
     bne Vm_SourceWorldSpawn__return_token
-    jsr SourceWorldTick4086_CountLive
+    jsl SourceWorldTick4086_CountLiveLong
     lda.l SourceWorldTick4086_Live
     cmp.l SourceWorldTick4086_Maximum
     bcc Vm_SourceWorldSpawn__return_token

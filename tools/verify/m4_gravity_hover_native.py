@@ -16,6 +16,7 @@ local before,cpu,ctx={},{},0
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];put(EXPECTFAULT,c.fault)
  local s=c.slot;local v=0x414000+s*80;local side=0x416800+s*64;local aux=0x41f500+s*20;local freeze=0x42e000+s*40;local life=0x439000+s*80
+ set('SourcePhysicsState4086_Ready',c.physics_ready or 0);put(0x42d800+s*16,c.falling or 0,4);put(0x42d804+s*16,c.hithead or 0,4);put(0x42d808+s*16,c.landed_platform or 0,4)
  set('SourceGravityIdle4086_Ready',0xb619);set('SourceGravityIdle4086_Status',0);set('SourceFreeze4086_Ready',0xb5df)
  set('VmSourceWorld_Ready',0xb4a3);set('VmSourceWorld_Count',128);set('VmSourceWorld_PoolBase',0x4000);set('VmSourceWorld_SideBase',0x6800);set('VmSourceWorld_Level',1);set('VmSourceWorld_TemplateCount',1);set('VmSourceWorld_Time',c.time,4)
  set('SourceWorldTick4086_Ready',0xb4d5);set('SourceWorldTick4086_State',c.world_state);set('SourceWorldTick4086_Pending',1);set('SourceWorldTick4086_Phase',11);set('SourceWorldTick4086_Slot',s);set('SourceWorldTick4086_Fault',0);set('SourceWorldTick4086_TimeLo',c.time,4)
@@ -34,7 +35,7 @@ emu.addMemoryCallback(function()
  local faults={ready={'SourceGravityIdle4086_Ready',0},status={'SourceGravityIdle4086_Status',3},world={'VmSourceWorld_Ready',0},tick={'SourceWorldTick4086_Ready',0},state={'SourceWorldTick4086_State',3},phase={'SourceWorldTick4086_Phase',10},pending={'SourceWorldTick4086_Pending',0},tickfault={'SourceWorldTick4086_Fault',1},count={'VmSourceWorld_Count',0},slot={'SourceWorldTick4086_Slot',128},time={'SourceWorldTick4086_TimeLo',(c.time+1)&0xffff},self={'SourceSelf4086_GlobalLow',0},selffault={'SourceSelf4086_Fault',1},selfactive={'SourceSelf4086_Active',1},freeze={'SourceFreeze4086_Ready',0},aux={'SourceUpdateFrame4086_Ready',0},platform={'SourceEmptyInitEnvironment4086_Ready',0},walls={'SourceEnvironment4086_WallCount',1},stage={'SourceEnvironment4086_Stage',2}}
  if faults[c.bad]then local f=faults[c.bad];set(f[1],f[2])end
  if c.bad=='noadjust'then put(0x40c024+s*96,0,4)elseif c.bad=='vertical'then put(side+44,65536,4)elseif c.bad=='altitude'then put(v+12,(c.altitude+1)*65536,4)elseif c.bad=='tosslease'then set('SourceToss4086_Ready',0)elseif c.bad=='corelease'then set('SourceModelEntityCopy4086_Ready',0)elseif c.bad=='corecount'then set('SourceModelEntityCopy4086_Entities',127)elseif c.bad=='atag'then put(v+8,1)elseif c.bad=='areserved'then put(v+10,1)elseif c.bad=='trymove'then put(life+4,1,4)elseif c.bad=='lifelease'then put(life+74,0)elseif c.bad=='modelrange'then put(side,1)elseif c.bad=='modelidentity'then put(life+72,1)elseif c.bad=='xtag'then put(v+48,1)elseif c.bad=='zreserved'then put(v+58,1)elseif c.bad=='token'then put(v,0,4)elseif c.bad=='exists'then put(v+4,0,4)end
- before={};for _,r in ipairs({{0x41f300,512},{0x414000,18432},{0x41f500,2560},{0x42e000,5120},{0x439000,10240},{0x40c000,12288},{sy.SourceWorldTick4086_Ready,52},{sy.SourceSelf4086_GlobalLow,4}})do for i=0,r[2]-1 do before[r[1]+i]=emu.read(r[1]+i,mt)end end
+ before={};for _,r in ipairs({{0x41f300,512},{0x414000,18432},{0x41f500,2560},{0x42e000,5120},{0x42d800,2048},{0x439000,10240},{0x40c000,12288},{sy.SourceWorldTick4086_Ready,52},{sy.SourceSelf4086_GlobalLow,4}})do for i=0,r[2]-1 do before[r[1]+i]=emu.read(r[1]+i,mt)end end
 end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local state=emu.getState();cpu={};for _,k in ipairs({'x','y','d','dbr','sp','ps'})do cpu[k]=state['cpu.'..k]end;cpu.sp=cpu.sp+3
@@ -66,6 +67,9 @@ def main():
     seed=dict(rows[0],mark=0,freeze=0,time=48,toss_time=0,a=93*65536,base=0)
     for change in (dict(a=6553),dict(a=65536,base=131072),dict(a=0x7fffffff,base=0x80000000),dict(gravity=1),dict(bad='vertical'),dict(bad='noadjust'),dict(bad='atag'),dict(bad='areserved'),dict(bad='tosslease'),dict(bad='phase'),dict(bad='platform'),dict(bad='stage')):
         rows.append(dict(seed,**change,fault=1,expected=[0,0]))
+    rows.append(dict(seed,physics_ready=0xb61c,expected=[49,8]))
+    for change in (dict(falling=1),dict(falling=65536),dict(hithead=0x414000),dict(landed_platform=0x414050),dict(physics_ready=0xb61d)):
+        rows.append(dict(seed,physics_ready=0xb61c,fault=1,expected=[0,0])|change)
     rows=[dict(c,world_state=state)for state in (1,2)for c in rows]
     reporter=Reporter('M4-GRAVITY-HOVER',kind='GATE')
     raw,log=run_fixture(a.rom,a.output,rows,'SourceGravityIdle4086_Execute','SourceGravityIdle4086_Ready',0xb619,[],LUA,reporter,batch_size=2)
