@@ -15,7 +15,9 @@ from _harness import McpSession,MESEN_EXE,_free_tcp_port,run_frames_exact
 from m4_sound_mix_sa1_native import Code,build as kernel_build
 
 
-def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup=0):
+def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup=0,unroll=1):
+ if unroll not in(1,4,8)or frames%unroll:raise ValueError('GATHER_UNROLL_DOMAIN')
+ if unroll!=1 and not expanded_byte_sum:raise ValueError('GATHER_UNROLL_REQUIRES_FACTORED_BYTES')
  if pcm_dma and expanded_byte_sum:raise ValueError('EXPANDED_BYTE_SUM_DMA_UNBOUND')
  if 44*4096+(frames+warmup)*period>=257*4096:raise ValueError('GATHER_MIX_SOURCE_COMPLETION_UNBOUND')
  raw,_,_=kernel_build(frames,busy,12,volume,True,True);rom=bytearray(raw)
@@ -38,19 +40,23 @@ def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup
   # destination middle byte starts it; the SA-1 CPU stalls until completion.
   c.emit('8d 32 22 e2 20 a9 c2 8d 34 22 a9 80 8d 30 22 a9 20 8d 0b 22 c2 20 a9 01 01 8d 38 22 a9 c0 36 8d 35 22')
  else:c.emit('18 65 02 85 02')
- c.emit('a0 00 00');c.word(0xa9,frames);c.emit('85 08')
+ c.emit('a0 00 00');c.word(0xa9,frames//unroll);c.emit('85 08')
  if expanded_byte_sum:c.emit('a6 02')
  c.label('sample')
- if expanded_byte_sum:c.emit('bf 00 00 c2 18 79 00 32 99 00 32 c8 c8')
- else:
-  c.emit('a6 02 e2 20 bf '+('c0 36 00'if pcm_dma else'00 00 c2')+' c2 20 29 ff 00 0a aa bf 00 30 00 18 79 00 32 99 00 32')
-  c.branch(0x90,'no_sum_carry');c.emit('98 aa fe 02 32');c.label('no_sum_carry');c.emit('c8 c8 c8 c8')
- if period&4095:
-  c.emit('a5 00 18');c.word(0x69,(period&4095)<<(4 if q16_fraction else 0));c.emit('85 00'+(''if q16_fraction else' c9 00 10'));c.branch(0x90,'no_phase_carry');c.emit((''if q16_fraction else'29 ff 0f 85 00')+(' e8 e8'if expanded_byte_sum else' e6 02'));c.label('no_phase_carry')
- if period>>12==1:c.emit('e8 e8'if expanded_byte_sum else'e6 02')
- elif period>>12:
-  c.emit('a5 02 18');c.word(0x69,period>>12);c.emit('85 02')
- c.emit('c6 08');c.branch(0xd0,'sample')
+ for item in range(unroll):
+  if expanded_byte_sum:c.emit('bf 00 00 c2 18 79 00 32 99 00 32 c8 c8')
+  else:
+   c.emit('a6 02 e2 20 bf '+('c0 36 00'if pcm_dma else'00 00 c2')+' c2 20 29 ff 00 0a aa bf 00 30 00 18 79 00 32 99 00 32')
+   c.branch(0x90,'no_sum_carry');c.emit('98 aa fe 02 32');c.label('no_sum_carry');c.emit('c8 c8 c8 c8')
+  if period&4095:
+   carry='no_phase_carry_'+str(item)
+   c.emit('a5 00 18');c.word(0x69,(period&4095)<<(4 if q16_fraction else 0));c.emit('85 00'+(''if q16_fraction else' c9 00 10'));c.branch(0x90,carry);c.emit((''if q16_fraction else'29 ff 0f 85 00')+(' e8 e8'if expanded_byte_sum else' e6 02'));c.label(carry)
+  if period>>12==1:c.emit('e8 e8'if expanded_byte_sum else'e6 02')
+  elif period>>12:
+   c.emit('8a 18'if expanded_byte_sum else'a5 02 18');c.word(0x69,(period>>12)*(2 if expanded_byte_sum else 1));c.emit('aa'if expanded_byte_sum else'85 02')
+ c.emit('c6 08')
+ if unroll==1:c.branch(0xd0,'sample')
+ else:c.branch(0xf0,'samples_done');c.jump('sample');c.label('samples_done')
  c.emit(('8a'if expanded_byte_sum else'a5 02')+(''if pcm_dma else' 38 e5 04')+(' 4a'if expanded_byte_sum else'')+' 85 0a')
  if q16_fraction:c.emit('a5 00 4a 4a 4a 4a 85 0c a5 0a')
  c.emit('29 0f 00 eb 0a 0a 0a 0a 05 '+('0c'if q16_fraction else'00')+' a6 06 9f 00 50 43 a5 0a 4a 4a 4a 4a 9f 02 50 43 a5 06 18 69 04 00 85 06 c9 30 00')
@@ -82,8 +88,8 @@ def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup
 
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--authority',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--period',type=int,choices=(1024,2457,4055,4096),default=4096);p.add_argument('--volume',type=int,choices=(0,1,32,37,64),default=37);p.add_argument('--busy-host',action='store_true');p.add_argument('--pcm-dma',action='store_true');p.add_argument('--expanded-byte-sum',action='store_true');a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
- authority=json.loads(a.authority.read_text());assert authority['status']=='PASS'and authority['right_volume_policy']=='equal to left';frames=authority['output_frames'];case=authority['inputs'].index([12,8,a.volume,a.period,257,1]);expected=authority['actual'][case];rom,entries,worker=build(frames,a.period,a.volume,a.busy_host,a.pcm_dma,a.expanded_byte_sum,authority.get('warmup_frames',0))
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--authority',required=True,type=Path);p.add_argument('--output',required=True,type=Path);p.add_argument('--period',type=int,choices=(1024,2457,4055,4096),default=4096);p.add_argument('--volume',type=int,choices=(0,1,32,37,64),default=37);p.add_argument('--busy-host',action='store_true');p.add_argument('--pcm-dma',action='store_true');p.add_argument('--expanded-byte-sum',action='store_true');p.add_argument('--unroll',type=int,choices=(1,4,8),default=1);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+ authority=json.loads(a.authority.read_text());assert authority['status']=='PASS'and authority['right_volume_policy']=='equal to left';frames=authority['output_frames'];case=authority['inputs'].index([12,8,a.volume,a.period,257,1]);expected=authority['actual'][case];rom,entries,worker=build(frames,a.period,a.volume,a.busy_host,a.pcm_dma,a.expanded_byte_sum,authority.get('warmup_frames',0),a.unroll)
  path=a.output/'proof.sfc';path.write_bytes(rom);lua=a.output/'observer.lua';lua.write_text('\n'.join(f"emu.addMemoryCallback(function()local s=emu.getState();emu.log('GATHERMIX|{n}|'..s.masterClock)end,emu.callbackType.exec,{v},{v},emu.cpuType.sa1,emu.memType.sa1Memory)"for n,v in entries.items()))
  class Observed(McpSession):
   def __enter__(self):
@@ -98,6 +104,7 @@ def main():
  events=[l.split('GATHERMIX|',1)[1].split('|')for l in(a.output/'mesen.log').read_text().splitlines()if'GATHERMIX|'in l]
  costs={n:int(v)for n,v in events};elapsed=costs['done']-costs['entry']if len(costs)==3 else None;expected_phase=expected[frames*2+1::2];ok=actual==expected[:frames*2]and phase==expected_phase and elapsed is not None
  report=dict(schema='BYOR_SOURCE_PCM8_GATHER_MIX_NATIVE_V1',status='PASS'if ok else'FAIL',source_case=authority['inputs'][case],output_frames=frames,stereo_output_samples=frames*2,PCM_mismatches=sum(x!=y for x,y in zip(actual,expected)),actual_phases=phase,expected_phases=expected_phase,master_clocks=elapsed,milliseconds=elapsed/21477.27 if elapsed else None,worker_bytes=len(worker),gain_lookup_IRAM_bytes=0 if a.expanded_byte_sum else 512,accumulator_IRAM_bytes=frames*(2 if a.expanded_byte_sum else 4),zero_extended_PCM8_ROM_words=a.expanded_byte_sum,uniform_gain_factored_after_byte_sum=a.expanded_byte_sum,source_position_advance_native=True,inputs_gathered_native=True,busy_host_BWRAM_reads=a.busy_host,PCM_DMA_prefetch=a.pcm_dma,PCM_cache_IRAM_bytes=257 if a.pcm_dma else 0,PCM_DMA_setup_and_transfer_in_timing=a.pcm_dma,all_channels_stay_inside_source_sample=True,sample_completion_proven=False,looping_proven=False,source_PCM16_proven=False,source_ROM_bank_crossing_proven=False,BRR_encoding_proven=False,mixed_stream_transport_proven=False,production_memory_lease=False,joint_graphics_contention_proven=False,complete_backend_admitted=False,rom_sha256=hashlib.sha256(rom).hexdigest(),authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),motu_gameplay_proven=False,no_color_reduction=True)
+ report['unroll']=a.unroll
  (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))
  if not ok:raise SystemExit(1)
 
