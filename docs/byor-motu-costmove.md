@@ -33,8 +33,18 @@ exact short-circuit query order, and zero actor-byte mutation. Link validity and
 signed debit overflow belong to the later mutating costmove; they do not turn
 this pure eligibility query into an actor mutation preflight.
 
-The compiler-owned controller address plan consumes 4112 of the 6400 leased
-bytes, leaving 2288. It includes input histories, entity movetime, combo tails,
+The compiler-owned controller address plan consumes 5040 of the 6400 leased
+bytes, leaving 1360. It includes input histories, entity movetime, combo tails,
 input binding/snapshot/sequence controls, costmove and command continuations.
 It reserves no extra animhits array: shared source animation hits already have
 an initializer-owned canonical store. Layout generation alone grants no lease.
+
+Canonical velocity is side +36/+40/+44. Auxiliary +0/+4 are authored frame
+movex/movez, and auxiliary +8 is altbase. Costmove clears only horizontal side
+velocity before ent_set_anim; vertical velocity and frame deltas remain intact
+at that prefix boundary. Animation initialization owns any later delta reset.
+The updated native proof seeds distinct nonzero values in both stores and
+checks the real fields, correcting the earlier auxiliary-field binding.
+
+Native entry tests set decimal mode before calling costmove and the pure energy
+query. Binary arithmetic clears decimal internally and restores the caller flag.

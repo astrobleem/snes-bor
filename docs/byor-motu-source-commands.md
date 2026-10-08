@@ -5,6 +5,10 @@ and matches the actual 27-entry input ring. Longest matches win; equal lengths
 retain source order. Query order is valid animation, MP, conditional HP, then
 input match. No actor identity is hard-coded in runtime selection.
 
+The height gate uses canonical side +48 base, separately from auxiliary +8
+altbase. Native tests distinguish those stores and cover the exact one-unit
+boundary on both sides. The earlier auxiliary-base binding was corrected.
+
 Begin leaves playkeys intact while costmove and its frame-zero work are pending.
 Finish runs only after the real callback/effect owner and animation acknowledgment.
 It re-reads current playerindex and current playkeys, clearing exactly the pinned
@@ -18,7 +22,7 @@ existing documented binary32-to-Q16 scalar ABI, including the source one-unit
 ground threshold and explicit subtraction overflow rejection.
 
 Native proof covers all 11 commands at three ring positions, all four player
-rows, and 15 false/admission cases: 48 cases total. Source energy descriptors
+rows, 15 false/admission cases, and six base/height cases: 54 cases total. Source energy descriptors
 remain unmodified. Guard failures preserve actor bytes. A separate He_ManB
 freespecial4 proof executes the actual compiled callbacks and native effects.
 Its instrumented post-callback playerindex/playkeys change proves that the
@@ -29,3 +33,6 @@ canvas arena. The isolated callback fixture retires ordinary producers; full
 production canvas/player ownership has not yet been bound. This capability is
 player_preinput, not the complete player_think movement/combat controller.
 Sound service remains instrumented in the callback proof. No color reduction.
+
+The native selector also runs every case with decimal mode set on entry and
+observes that the caller flag is restored after binary arithmetic.

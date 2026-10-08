@@ -16,7 +16,7 @@ from source_foreign_state_layout import layout
 from actor_s5_entity_fixture import symbols
 from _source_leaf_fixture import run_fixture
 from _harness import Reporter
-from m4_costmove_native import LUA
+from m4_costmove_native import LUA,decimal_probe,DECIMAL_LUA
 
 
 def main():
@@ -48,6 +48,11 @@ def main():
     for bad in ('playkeys','idling','altitude','input_owner','combo_ready','combo_pending','world','slot','player_tag','player_high','player_bounds','altitude_tag','role_tag','model','cost_pending'):
         false=bad in ('playkeys','idling','altitude')
         rows.append(dict(base,combo_bad=bad,fault=0 if false else 1,expected_state=2 if false else 5,expected_role=0 if bad in ('input_owner','combo_ready','combo_pending') else 65535))
+    for bad in ('altbase_only','raised_base'):
+        rows.append(dict(base,combo_bad=bad,fault=0))
+    for bad in ('height_plus_one','height_minus_one','height_plus_epsilon','height_minus_epsilon'):
+        false=bad.endswith('epsilon')
+        rows.append(dict(base,combo_bad=bad,fault=0,expected_state=2 if false else 3,expected_role=65535 if false else base['expected_role']))
     lua=LUA
     begin=lua.index('emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1];local s=c.slot;local p=(s+1)%128;local w=c.wanted;')
     end=lua.index('emu.addMemoryCallback(function()',begin+1)
@@ -72,6 +77,12 @@ def main():
  if c.combo_bad=='playkeys'then dword(at+224,0)
  elseif c.combo_bad=='idling'then dword(fl,0)
  elseif c.combo_bad=='altitude'then dword(v+12,131072)
+ elseif c.combo_bad=='altbase_only'then dword(aux+8,131072)
+ elseif c.combo_bad=='raised_base'then dword(v+12,131072);dword(0x416830+s*64,131072)
+ elseif c.combo_bad=='height_plus_one'then dword(v+12,65536)
+ elseif c.combo_bad=='height_minus_one'then dword(v+12,4294901760)
+ elseif c.combo_bad=='height_plus_epsilon'then dword(v+12,65537)
+ elseif c.combo_bad=='height_minus_epsilon'then dword(v+12,4294901759)
  elseif c.combo_bad=='input_owner'then put(INPUTOWNER,0)
  elseif c.combo_bad=='combo_ready'then put(w,0)
  elseif c.combo_bad=='combo_pending'then put(w+2,3)
@@ -93,7 +104,7 @@ emu.addMemoryCallback(function()
 end,emu.callbackType.exec,SELECTED,SELECTED,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];local s=c.slot;local at=HISTORY+(word(INDEX)%4)*256
- local changed=0;if c.combo_bad~='' then for a,v in pairs(before)do if emu.read(a,mt)~=v then changed=changed+1 end end end
+ local changed=0;if c.expected_state~=3 then for a,v in pairs(before)do if emu.read(a,mt)~=v then changed=changed+1 end end end
  emu.log('SOURCECOMBO|'..word(INDEX)..'|'..word(COMBOWORK+2)..'|'..word(COMBOWORK+8)..'|'..word(COMBOWORK+10)..'|'..word(COSTWORK+2)..'|'..long(at+224)..'|'..long(0x40c04c+s*96)..'|'..long(0x414024+s*80)..'|'..changed)
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
@@ -103,16 +114,18 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
     reporter=Reporter('M4-PLAYER-COMBO-NATIVE',kind='GATE')
     def before(m,sy):
         for n in ('StageWater_Enabled','StageWater_Pending','StageFp_BG2Loaded','StageFp_BG2Active','StageFp_BG2DmaPending','StageFp_BG2Booting','StreamScrollFp_ColPending','StreamScrollFp_Enabled'):m.write_u8(sy[n],0)
-    raw,log=run_fixture(a.rom,folder,rows,'SourceCombo_Begin','VmSourceInput_Ready',0xb673,[(58,0,energytable),(59,0,aitable),(60,0,fetable)],lua,reporter,append=asm,probes=dict(SELECTED='SourceCombo_Selected'),batch_size=2,frame_limit=700,before_start=before,link_pcm=False)
+    raw,log=run_fixture(a.rom,folder,rows,'DecimalProbe','VmSourceInput_Ready',0xb673,[(58,0,energytable),(59,0,aitable),(60,0,fetable)],lua+DECIMAL_LUA,reporter,append=asm+decimal_probe('SourceCombo_Begin'),probes=dict(SELECTED='SourceCombo_Selected',DECIMALAFTER='DecimalProbe_After'),batch_size=2,frame_limit=700,before_start=before,link_pcm=False)
+    decimal=[line.split('DECIMALENTRY|',1)[1].strip() for line in log.splitlines() if 'DECIMALENTRY|' in line]
+    reporter.check('binary arithmetic accepts and restores decimal-mode entry',decimal==[f'{i}|8' for i in range(len(rows))])
     actual=[list(map(int,line.split('SOURCECOMBO|')[1].strip().split('|'))) for line in log.splitlines() if 'SOURCECOMBO|' in line]
     errors=[]
     for i,row in enumerate(actual):
         c=rows[i]
         if row[0:3]!=[i,c['expected_state'],c['expected_role']]:errors.append(row);continue
-        if not c['combo_bad'] and row[3:]!=[c['expected_length'],3,c['player']['playkeys'],100,150,0]:errors.append(row)
+        if c['expected_state']==3 and row[3:]!=[c['expected_length'],3,c['player']['playkeys'],100,150,0]:errors.append(row)
         if c['combo_bad'] and row[-1]!=0:errors.append(row)
     reporter.check('all source commands select from live models and preserve playkeys while costmove frame zero is pending',len(actual)==len(rows) and not errors)
-    report=dict(schema='BYOR_4086_PLAYER_COMBO_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',cases=len(rows),authored_commands=sum(len(m['combos']) for m in combos['models']),errors=errors[:12],rom_sha256=hashlib.sha256(raw).hexdigest(),controller_layout=arena,source_energy_descriptors_unmodified=True,source_frame_zero_execution_bound=False,production_player_owner_bound=False,motu_gameplay_proven=False,no_pcm_copies=True,no_color_reduction=True)
+    report=dict(schema='BYOR_4086_PLAYER_COMBO_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',cases=len(rows),authored_commands=sum(len(m['combos']) for m in combos['models']),errors=errors[:12],rom_sha256=hashlib.sha256(raw).hexdigest(),controller_layout=arena,canonical_side_base_bound=True,frame_altbase_distinct=True,source_energy_descriptors_unmodified=True,source_frame_zero_execution_bound=False,production_player_owner_bound=False,motu_gameplay_proven=False,decimal_entry_preserved=True,no_pcm_copies=True,no_color_reduction=True)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8');reporter.finish()
 
 

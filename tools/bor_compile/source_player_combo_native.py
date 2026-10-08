@@ -25,7 +25,7 @@ SourceCombo_Begin:
 .a16
 .i16
  php
- rep #$31
+ rep #$39
  pha
  phx
  phy
@@ -86,6 +86,15 @@ SourceCombo_World:
  asl a
  asl a
  sta.l W+22
+ lda.l W+4
+ asl a
+ asl a
+ asl a
+ asl a
+ asl a
+ asl a
+ sta.l W+24 ; canonical side offset; base is not frame auxiliary altbase
+ lda.l W+22
  tax
  lda.l $414028,x
  cmp #1
@@ -123,10 +132,10 @@ SourceCombo_World:
  tax
  lda.l W+36
  sec
- sbc.l $41F508,x
+ sbc.l $416830,x
  sta.l W+36
  lda.l W+38
- sbc.l $41F50A,x
+ sbc.l $416832,x
  bvs SourceCombo_Fault
  bpl SourceCombo_HeightMagnitude
  sta.l W+38
@@ -248,7 +257,7 @@ SourceCombo_Finish:
 .a16
 .i16
  php
- rep #$31
+ rep #$39
  pha
  phx
  phy

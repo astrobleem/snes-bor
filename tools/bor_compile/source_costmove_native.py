@@ -16,7 +16,7 @@ SourceCostMove_Begin:
 .a16
 .i16
  php
- rep #$31
+ rep #$39
  pha
  phx
  phy
@@ -337,13 +337,13 @@ SourceCostMove_Flags:
  sta.l C+10,x
  sta.l C+12,x
  sta.l C+14,x
- lda.l W+34
- tax ; aux uses same 20-byte stride
+ lda.l W+50
+ tax ; canonical side velocity; auxiliary movex/movez are frame deltas
  lda #0
- sta.l $41F500,x
- sta.l $41F502,x
- sta.l $41F504,x
- sta.l $41F506,x
+ sta.l $416824,x
+ sta.l $416826,x
+ sta.l $416828,x
+ sta.l $41682A,x
  lda.l W+48
  cmp #$FFFF
  beq SourceCostMove_UnlinkSelf
@@ -447,7 +447,7 @@ SourceCostMove_Finish:
 .a16
 .i16
  php
- rep #$31
+ rep #$39
  pha
  phx
  phy
@@ -522,7 +522,7 @@ SourceComboEnergy_Query:
 .a16
 .i16
  php
- rep #$31
+ rep #$39
  phx
  phy
  lda.l WORK

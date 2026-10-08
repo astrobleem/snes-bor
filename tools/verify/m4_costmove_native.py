@@ -25,7 +25,7 @@ local function blob(a,hex)for i=1,#hex,2 do emu.write(a+(i-1)//2,tonumber(hex:su
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];local s=c.slot;local p=(s+1)%128
  local v=0x414000+s*80;local core=0x40c000+s*96;local fl=0x43eb00+s*32;local life=0x439000+s*80;local co=0x437e00+s*20;local rel=0x409000+s*64;local aux=0x41f500+s*20
- for _,r in ipairs({{v,80},{core,96},{fl,32},{life,80},{co,20},{rel,64},{aux,20},{0x414000+p*80,80},{0x40c000+p*96,96},{0x409000+p*64,64}})do for i=0,r[2]-1 do emu.write(r[1]+i,0,mt)end end
+ for _,r in ipairs({{v,80},{0x416800+s*64,64},{core,96},{fl,32},{life,80},{co,20},{rel,64},{aux,20},{0x414000+p*80,80},{0x40c000+p*96,96},{0x409000+p*64,64}})do for i=0,r[2]-1 do emu.write(r[1]+i,0,mt)end end
  blob(0x43c000,CACHE)
  dword(v,v);put(v+16,1);dword(v+20,0);put(v+32,1);dword(v+36,c.original.health)
  put(0x416800+s*64,c.model);put(0x416804+s*64,0);put(0x416806+s*64,0)
@@ -33,6 +33,7 @@ emu.addMemoryCallback(function()
  dword(life+12,99);dword(fl,3);dword(fl+4,9);dword(co+4,c.original.seal);dword(co+8,1);put(co+16,0xb5fb)
  for i=0,3 do dword(TAILADDR+s*16+4*i,i+2)end
  dword(aux,229376);dword(aux+4,4294803456)
+ dword(0x416824+s*64,229376);dword(0x416828+s*64,4294803456);dword(0x41682c+s*64,98304)
  dword(0x409000+p*64+28,v);dword(0x40c000+p*96+80,v)
  dword(rel+28,c.linked and(0x414000+p*80)or 0)
  put(WORKADDR,0xb670);put(WORKADDR+2,0);put(WORKADDR+4,s);put(WORKADDR+6,c.role)
@@ -64,14 +65,15 @@ emu.addMemoryCallback(function()
  elseif c.bad=='link'then dword(rel+28,0x424000)
  elseif c.bad=='role_absent'then put(0x43c000+2*(c.model*168+c.role),0)end
  put(EXPECTFAULT,c.fault)
- before={};for _,r in ipairs({{v,80},{core,96},{fl,32},{life,80},{co,20},{rel,64},{aux,20},{TAILADDR+s*16,16},{0x40c000+p*96,96},{0x409000+p*64,64}})do for i=0,r[2]-1 do before[r[1]+i]=emu.read(r[1]+i,mt)end end
+ before={};for _,r in ipairs({{v,80},{0x416800+s*64,64},{core,96},{fl,32},{life,80},{co,20},{rel,64},{aux,20},{TAILADDR+s*16,16},{0x40c000+p*96,96},{0x409000+p*64,64}})do for i=0,r[2]-1 do before[r[1]+i]=emu.read(r[1]+i,mt)end end
  prefix=0;start=emu.getState().masterClock
 end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];local s=c.slot;local p=(s+1)%128;local w=c.wanted;local got={1,long(0x40c04c+s*96),long(0x414024+s*80),long(0x43900c+s*80),long(0x40c058+s*96),long(0x43eb00+s*32),long(0x43eb04+s*32),long(0x437e08+s*20)}
  for i=0,3 do got[#got+1]=long(TAILADDR+s*16+4*i)end
  for _,a in ipairs({0x40901c+p*64,0x40c050+p*96,0x40901c+s*64,0x40c050+s*96})do got[#got+1]=long(a)~=0 and 1 or 0 end
- got[#got+1]=long(0x41f500+s*20);got[#got+1]=long(0x41f504+s*20);got[#got+1]=1;got[#got+1]=c.role
+ got[#got+1]=long(0x416824+s*64);got[#got+1]=long(0x416828+s*64);got[#got+1]=1;got[#got+1]=c.role
+ if long(0x41f500+s*20)~=229376 or long(0x41f504+s*20)~=4294803456 or long(0x41682c+s*64)~=98304 then prefix=prefix+1 end
  for i,v in ipairs(got)do if v~=(w[i]&0xffffffff)then prefix=prefix+1;emu.log('COSTPREFIXDIFF|'..word(INDEX)..'|'..i..'|'..v..'|'..w[i])end end
 end,emu.callbackType.exec,PREFIX,PREFIX,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
@@ -80,6 +82,17 @@ emu.addMemoryCallback(function()
  local state=word(WORKADDR+2);local anim=word(sy.SourceAnimationInit4086_State)
  emu.log('COSTMOVENATIVE|'..word(INDEX)..'|'..prefix..'|'..changed..'|'..state..'|'..anim..'|'..(emu.getState().masterClock-start))
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
+'''
+
+
+def decimal_probe(entry):
+    return f'''\nDecimalProbe:\n.a16\n.i16\n php\n sed\n jsl {entry}\nDecimalProbe_After:\n nop\n bcs DecimalProbe_Bad\n plp\n clc\n rtl\nDecimalProbe_Bad:\n plp\n sec\n rtl\n'''
+
+
+DECIMAL_LUA = r'''
+emu.addMemoryCallback(function()
+ emu.log('DECIMALENTRY|'..word(INDEX)..'|'..(emu.getState()['cpu.ps']&8))
+end,emu.callbackType.exec,DECIMALAFTER,DECIMALAFTER,emu.cpuType.snes,mt)
 '''
 
 
@@ -144,22 +157,28 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
     lua=lua.replace('CACHE',json.dumps(cache.hex()))
     if a.combo_query:lua=lua.replace('QUERYEXEC',str(sy['SourceCheckEnergy4086_Execute']))
     reporter=Reporter('M4-COSTMOVE-NATIVE',kind='GATE')
-    raw,log=run_fixture(a.rom,folder,rows,'SourceComboEnergy_Query' if a.combo_query else 'SourceCostMove_Begin','VmSourceInput_Ready',0xb670,
-                       [(58,0,energytable),(59,0,aitable),(60,0,fetable)],lua,reporter,
-                       append=emit_combo_energy_query(WORK,sy) if a.combo_query else emit(WORK,TAIL,sy),probes=None if a.combo_query else dict(PREFIX='SourceCostMove_BeforeAnimation'),batch_size=2,frame_limit=700,link_pcm=False)
+    entry='SourceComboEnergy_Query' if a.combo_query else 'SourceCostMove_Begin'
+    asm=(emit_combo_energy_query(WORK,sy) if a.combo_query else emit(WORK,TAIL,sy))+decimal_probe(entry)
+    probes=dict(DECIMALAFTER='DecimalProbe_After')
+    if not a.combo_query:probes['PREFIX']='SourceCostMove_BeforeAnimation'
+    raw,log=run_fixture(a.rom,folder,rows,'DecimalProbe','VmSourceInput_Ready',0xb670,
+                       [(58,0,energytable),(59,0,aitable),(60,0,fetable)],lua+DECIMAL_LUA,reporter,
+                       append=asm,probes=probes,batch_size=2,frame_limit=700,link_pcm=False)
+    decimal=[line.split('DECIMALENTRY|',1)[1].strip() for line in log.splitlines() if 'DECIMALENTRY|' in line]
+    reporter.check('binary arithmetic accepts and restores decimal-mode entry',decimal==[f'{i}|8' for i in range(len(rows))])
     if a.combo_query:
         actual=[l.split('COMBOENERGYNATIVE|',1)[1].strip().split('|') for l in log.splitlines() if 'COMBOENERGYNATIVE|' in l]
         errors=[v for i,v in enumerate(actual) if v[:5]!=[str(i),str(rows[i]['query_expected']),str(rows[i]['fault']),'0',rows[i]['query_trace']]]
         reporter.check('pure canonical combo energy query preserves actor state and MP-first short circuit',len(actual)==len(rows) and not errors)
-        report=dict(schema='BYOR_4086_COMBO_ENERGY_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',cases=len(rows),errors=errors[:10],rom_sha256=hashlib.sha256(raw).hexdigest(),peak_master_clocks=max(int(v[5]) for v in actual),private_energy_descriptors_instrumented=True,production_player_owner_bound=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+        report=dict(schema='BYOR_4086_COMBO_ENERGY_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',cases=len(rows),errors=errors[:10],rom_sha256=hashlib.sha256(raw).hexdigest(),peak_master_clocks=max(int(v[5]) for v in actual),private_energy_descriptors_instrumented=True,production_player_owner_bound=False,motu_gameplay_proven=False,no_color_reduction=True,decimal_entry_preserved=True,no_pcm_copies=True)
         (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8');reporter.finish();return
     actual=[list(map(int,l.split('COSTMOVENATIVE|',1)[1].split('|')))for l in log.splitlines()if 'COSTMOVENATIVE|'in l]
     errors=[v for i,v in enumerate(actual)if v[:4]!=[i,0,0,5 if rows[i]['fault']else 3 if rows[i]['wanted'][0]else 2]]
     reporter.check('actual cost/resource/unlink prefix and frame-zero request',len(actual)==len(rows)and not errors)
     report=dict(schema='BYOR_4086_COSTMOVE_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',cases=len(rows),guard_cases=sum(c['fault']for c in rows),errors=errors[:10],
                 rom_sha256=hashlib.sha256(raw).hexdigest(),peak_master_clocks=max(v[5]for v in actual),source_frame_zero_pending=True,
-                private_energy_descriptors_instrumented=True,source_resource_storage_bound=True,source_unlink_storage_bound=True,frame_zero_execution_bound=False,production_player_owner_bound=False,
-                motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+                private_energy_descriptors_instrumented=True,source_resource_storage_bound=True,source_unlink_storage_bound=True,canonical_side_velocity_bound=True,auxiliary_frame_deltas_retained_before_animation=True,vertical_velocity_retained_before_animation=True,frame_zero_execution_bound=False,production_player_owner_bound=False,
+                motu_gameplay_proven=False,no_color_reduction=True,decimal_entry_preserved=True,no_pcm_copies=True)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8');reporter.finish()
 
 if __name__=='__main__':main()
