@@ -1340,3 +1340,7 @@ pending. No color reduction is applied.
 ### Ordinary arrow movement backend
 
 The pinned arrow_move reference matches 960 verbatim compiled-C cases. The native zero-ptype, empty-wall capability passes 77 physical-row/CPU-state cases and ten production common_move priority cases. Arrow runs before STAR/BOMB/NOMOVE and airborne rejection; BIKER retains precedence. The backend preserves vertical velocity and the actual autokill field. Homing, nonempty-wall reactions, stale stage leases, and invalid typed fields fail explicitly. This is velocity publication under ACCEPTED_COMPAT_Q16_16; position integration and live scripted projectile travel are still unproven. Evidence: `byor-motu-arrow-move-native.json`.
+
+### Authored projectile and audio through the arrow owner
+
+Both authored directions pass frame-zero-to-frame-six Knightbot script execution, actual ShockBall construction, parent source-sound service/frame completion, and the child due check_ai/common_think/common_move/arrow_move path. Source speed 1.5 publishes velocity -1.5/+1.5 while retaining position, altitude, vertical velocity, and model speed; nextthink advances by two source ticks. Each direction also verifies all 897 DSP BRR blocks. The foreground fixture supplies time/self/tick ownership; no child actor fields are injected for advancement. This does not prove position integration, live combat, or a registered MOTU profile. Evidence: `byor-motu-authored-arrow-native.json`.

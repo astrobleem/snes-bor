@@ -1,0 +1,171 @@
+{
+  "schema": "BYOR_MOTU_AUTHORED_ARROW_RECEIPT_V1",
+  "status": "PASS",
+  "evidence": [
+    {
+      "path": "out/byor-motu-authored-arrow-audio-native-v2/report.json",
+      "sha256": "aae73365621a6c5468234fde98abfb194ce09b578cd5b4049e7296012ce672b6",
+      "rom_sha256": "ce69e2d9e9f33bc8fef4793079ae201eda3e8e86a53b405df9eefece04cae036",
+      "authored_arrow_observations": [
+        [
+          0,
+          1,
+          0,
+          98304,
+          4294868992,
+          147,
+          145,
+          0,
+          2,
+          2,
+          5
+        ]
+      ],
+      "source_audio_verification": {
+        "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+        "status": "PASS",
+        "source_path": "data/chars/KnBot/energy.wav",
+        "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+        "compiled_brr_sha256": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b",
+        "compiled_brr_bytes": 8073,
+        "chunks": 57,
+        "meaningful_byte_mismatches": 0,
+        "padding_byte_mismatches": 0,
+        "observer_peak_chunk_gap": 1,
+        "observed_consumer_underruns": 0,
+        "first_active_field": 24,
+        "last_active_field": 101,
+        "active_fields": 78,
+        "expected_active_fields": 78.24583461623554,
+        "effective_sample_rate_hz": 11023.4375,
+        "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+        "prefill_chunks": 7,
+        "voice0_srcn": 33,
+        "voice0_pitch": 1411,
+        "voice0_gain": 127,
+        "final_voice0_envelope": 0,
+        "audio_recording_pcm_sha256": "a595375171e5009868825dd1d6da42e94b51c66ac10dd2527e2591cb1d0d2a0d",
+        "audio_recording_file_sha256": "fa0aa0231755084c557baecc5c05ae3a62cea23a0a63aad352ed5ef385c79796",
+        "dsp_source_block_traversal": {
+          "source_blocks": 897,
+          "observed_blocks": 897,
+          "skipped_blocks": 0,
+          "repeated_blocks": 0,
+          "block_fingerprint_mismatches": 0,
+          "dsp_samples": 41589,
+          "endx_sample": 41589,
+          "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+          "trace_sha256": "12d921f69ff7e0fa946b1106239c0bf6de7c21e8a9c2cc94704d6966b93a83c5"
+        },
+        "policy": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 2
+        },
+        "private_runtime_only": true,
+        "legacy_gameplay_paused": true,
+        "sample_exact_recording_proven": false,
+        "concurrent_audio_proven": false,
+        "production_binding_installed": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "shared_wait_context_observations": 103,
+        "shared_wait_context_faults": 0
+      }
+    },
+    {
+      "path": "out/byor-motu-authored-arrow-right-audio-native/report.json",
+      "sha256": "1d84b52752da6d89d44ac3051e5fe80d8cfd95d7f04eff071ab2fb22c3103800",
+      "rom_sha256": "ce69e2d9e9f33bc8fef4793079ae201eda3e8e86a53b405df9eefece04cae036",
+      "authored_arrow_observations": [
+        [
+          0,
+          1,
+          1,
+          98304,
+          98304,
+          147,
+          145,
+          0,
+          2,
+          2,
+          5
+        ]
+      ],
+      "source_audio_verification": {
+        "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+        "status": "PASS",
+        "source_path": "data/chars/KnBot/energy.wav",
+        "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+        "compiled_brr_sha256": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b",
+        "compiled_brr_bytes": 8073,
+        "chunks": 57,
+        "meaningful_byte_mismatches": 0,
+        "padding_byte_mismatches": 0,
+        "observer_peak_chunk_gap": 1,
+        "observed_consumer_underruns": 0,
+        "first_active_field": 24,
+        "last_active_field": 101,
+        "active_fields": 78,
+        "expected_active_fields": 78.24583461623554,
+        "effective_sample_rate_hz": 11023.4375,
+        "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+        "prefill_chunks": 7,
+        "voice0_srcn": 33,
+        "voice0_pitch": 1411,
+        "voice0_gain": 127,
+        "final_voice0_envelope": 0,
+        "audio_recording_pcm_sha256": "1cf5936193c533ee73d15a65f3518595a01ffbe6ca77bb5f5ac6b9ac960e5f50",
+        "audio_recording_file_sha256": "30220d5d7fbe4e859d2e18c59fcacaca022ccfebcb94e5d1a2150167e037bdb8",
+        "dsp_source_block_traversal": {
+          "source_blocks": 897,
+          "observed_blocks": 897,
+          "skipped_blocks": 0,
+          "repeated_blocks": 0,
+          "block_fingerprint_mismatches": 0,
+          "dsp_samples": 41589,
+          "endx_sample": 41589,
+          "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+          "trace_sha256": "12d921f69ff7e0fa946b1106239c0bf6de7c21e8a9c2cc94704d6966b93a83c5"
+        },
+        "policy": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 2
+        },
+        "private_runtime_only": true,
+        "legacy_gameplay_paused": true,
+        "sample_exact_recording_proven": false,
+        "concurrent_audio_proven": false,
+        "production_binding_installed": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "shared_wait_context_observations": 103,
+        "shared_wait_context_faults": 0
+      }
+    }
+  ],
+  "directions": [
+    0,
+    1
+  ],
+  "source_model": "Knightbot",
+  "source_child": "ShockBall",
+  "source_model_speed": 1.5,
+  "source_flow": "authored frame0 to frame6 at delay16; actual script projectile yield; actual child allocation/model/script/default-frame/named-knife; parent actual source sound and pending frame completion; due check_ai -> common_think -> common_move -> arrow_move",
+  "owner_service_inputs": "Private foreground supplies due world time and source self/tick leases after parent frame completion. It does not inject child velocity, position, altitude, source speed, nextthink, script IP, animation or callback identity.",
+  "velocity_q16": [
+    -98304,
+    98304
+  ],
+  "source_audio_dsp_blocks_per_direction": 897,
+  "position_integration_proven": false,
+  "live_combat_proven": false,
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
