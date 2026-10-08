@@ -1,0 +1,21 @@
+{
+  "schema": "BYOR_4086_PLAYER_INPUT_ENTITY_BINDING_NATIVE_V1",
+  "status": "PASS",
+  "cases": 149,
+  "guard_cases": 21,
+  "results_observed": 149,
+  "errors": [],
+  "peak_master_clocks": 88534,
+  "rom_sha256": "78dc611f3406aedb0cd65107bce23597915049435ee35af4e77998808dd85ead",
+  "source_role_pointer_binding": true,
+  "source_typed_direction_binding": true,
+  "native_entity_movetime_storage_binding": true,
+  "private_fixture_lease": true,
+  "production_memory_lease_bound": false,
+  "entity_movetime_birth_hook_bound": false,
+  "world_installer_instrumented": true,
+  "full_player_think_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
