@@ -219,6 +219,8 @@ SourceCheckMove4086_Guard23:
  lda.l SOURCE_WORLD_POOL+4,x
  ora.l SOURCE_WORLD_POOL+6,x
  bne SourceCheckMove4086_Guard24
+ jsl SourceLandingKill4086_CheckMoveRetired
+ bcc SourceCheckMove4086_Guard24
  jmp SourceCheckMove4086_Bad
 SourceCheckMove4086_Guard24:
 .a16

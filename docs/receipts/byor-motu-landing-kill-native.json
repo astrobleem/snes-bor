@@ -1,0 +1,47 @@
+{
+  "schema": "BYOR_MOTU_LANDING_KILL_NATIVE_V1",
+  "status": "PASS",
+  "evidence": {
+    "landing_damage_and_kill": {
+      "path": "out/byor-motu-landing-kill-native/report.json",
+      "sha256": "f082beba73c0bf6a680b107448543c458adbad4d0b05a4baf57bf50ed39bc813"
+    },
+    "damage_authority": {
+      "path": "out/byor-motu-landing-damage-zero-authority/report.json",
+      "sha256": "e2bdba4f6efdc2017147e242f033bc424afb2e8fe957b92e9fa37ca4a714c033"
+    },
+    "retirement_authority": {
+      "path": "out/byor-motu-kill-subentity-authority/report.json",
+      "sha256": "8dd3f89560599bb473994a0aa8acb3704fa2d6017aeb91367d674467373ad1cf"
+    },
+    "authored_landing": {
+      "path": "out/byor-motu-landing-kill-authored-native/report.json",
+      "sha256": "3e2253121810e5cb4a6f3d329ad67d6a92181d5d366dac220a53f08bf7e21027"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-landing-kill-bor-static-smoke/report.json",
+      "sha256": "0f2cfc86b5950534f29b4b00bac0cd3ab4aa7b2bca2a12ad9b27478fa657aa9a"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-landing-kill-rom-audit.log",
+      "sha256": "464628b6304c757feb8523192172e93bd351572a7e64b700111c245adfe474d0"
+    }
+  },
+  "native_cases": 794,
+  "real_lethal_retirements": 27,
+  "stale_retired_move_guard_cases": 24,
+  "retirement_preflight_guard_cases": 8,
+  "authored_landing_cases": 30,
+  "source_current_health_zero_and_exists_zero_and_live_count_and_script_cleanup": true,
+  "held_retired_actor_real_check_move": true,
+  "real_world_acknowledgement": true,
+  "callback_and_other_arithmetic_backend_proven": false,
+  "full_dynamic_world_traversal_proven": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "bank0_changes_external_relocations_only": true,
+  "protected_tracked_files_unchanged": 17,
+  "no_color_reduction": true
+}

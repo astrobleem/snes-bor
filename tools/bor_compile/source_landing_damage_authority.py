@@ -27,7 +27,7 @@ def main():
  pre+='int damage_calls,damage_force,damage_type;void damage(entity *e,s_attack *a){damage_calls++;damage_force=a->attack_force;damage_type=a->attack_type;}\n'
  code=pre+'\n'.join(bodies[n]for n in ('diff','inair','adjust_base','check_gravity'))
  rows=[];expected=[]
- for health,force,factor,dead,callback in itertools.product((1,7,100,300,32767,8388607,16777216,-1),(0,1,7,150,32767,8388607,16777216),(1.,2.,1.5),(0,1),(0,1)):
+ for health,force,factor,dead,callback in itertools.product((0,1,7,100,300,32767,8388607,16777216,-1),(0,1,7,150,32767,8388607,16777216),(1.,2.,1.5),(0,1),(0,1)):
   row=dict(health=health,force=force,factor=factor,dead=dead,callback=callback);rows.append(row)
   after=health;clear=force;kc=dc=df=dt=0
   if force>0 and not dead:

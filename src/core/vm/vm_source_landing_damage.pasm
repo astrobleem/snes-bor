@@ -219,11 +219,23 @@ SourceLandingDamage4086_HealthReserved:
 .i16
  lda.l SourceLandingDamage4086_Force+2
  cmp #$0080
- bcs SourceLandingDamage4086_ArithmeticPending
+ bcc SourceLandingDamage4086_Far1_0
+ jmp SourceLandingDamage4086_ArithmeticPending
+SourceLandingDamage4086_Far1_0:
+.a16
+.i16
  lda.l SOURCE_WORLD_POOL+38,x
- bmi SourceLandingDamage4086_KillPending
+ bpl SourceLandingDamage4086_Far0_0
+ jmp SourceLandingDamage4086_KillPending
+SourceLandingDamage4086_Far0_0:
+.a16
+.i16
  cmp #$0080
- bcs SourceLandingDamage4086_ArithmeticPending
+ bcc SourceLandingDamage4086_Far1_1
+ jmp SourceLandingDamage4086_ArithmeticPending
+SourceLandingDamage4086_Far1_1:
+.a16
+.i16
  sec
  lda.l SOURCE_WORLD_POOL+36,x
  sbc.l SourceLandingDamage4086_Force
@@ -231,7 +243,11 @@ SourceLandingDamage4086_HealthReserved:
  lda.l SOURCE_WORLD_POOL+38,x
  sbc.l SourceLandingDamage4086_Force+2
  sta.l SourceLandingDamage4086_Result+2
- bmi SourceLandingDamage4086_KillPending
+ bpl SourceLandingDamage4086_Far0_1
+ jmp SourceLandingDamage4086_KillPending
+SourceLandingDamage4086_Far0_1:
+.a16
+.i16
  ora.l SourceLandingDamage4086_Result
  beq SourceLandingDamage4086_KillPending
  lda.l SourceLandingDamage4086_Result
@@ -251,6 +267,29 @@ SourceLandingDamage4086_Complete:
  lda #0
  jmp SourceLandingDamage4086_Return
 SourceLandingDamage4086_KillPending:
+.a16
+.i16
+ lda.l SourceLandingKill4086_Ready
+ beq SourceLandingDamage4086_KillUnbound
+ cmp #$B62A
+ beq SourceLandingDamage4086_KillBound
+ jmp SourceLandingDamage4086_Bad
+SourceLandingDamage4086_KillBound:
+.a16
+.i16
+ jsl SourceLandingKill4086_Execute
+ bcc SourceLandingDamage4086_KillDone
+ jmp SourceLandingDamage4086_Bad
+SourceLandingDamage4086_KillDone:
+.a16
+.i16
+ lda.l SourceLandingDamage4086_Physics
+ tax
+ lda #0
+ sta.l SOURCE_ENTITY_PHYSICS+12,x
+ sta.l SOURCE_ENTITY_PHYSICS+14,x
+ jmp SourceLandingDamage4086_Complete
+SourceLandingDamage4086_KillUnbound:
 .a16
 .i16
  lda #4
