@@ -20,6 +20,22 @@ from _harness import McpSession,MESEN_EXE,_free_tcp_port,Reporter,exact_input_ed
 import game_bor_startup_select as startup
 
 
+def fixed_palette_edges(reports,initials,capacity=236):
+    """A fixed edge must survive both frame changes and intra-frame raster writes."""
+    fixed=[all((v[i]or 0)==(initials[0][i]or 0)for v in initials)for i in range(capacity)]
+    for report,initial in zip(reports,initials):
+        for row in report['trace']:
+            for event in row['updates']:
+                slot=event['slot']-1
+                if not 0<=slot<capacity:raise ValueError('SEQUENCE_PALETTE_SLOT_DOMAIN')
+                if (event['color']or 0)!=(initial[slot]or 0):fixed[slot]=False
+    prefix=0
+    while prefix<capacity and fixed[prefix]:prefix+=1
+    suffix=0
+    while suffix<capacity-prefix and fixed[capacity-1-suffix]:suffix+=1
+    return prefix,suffix
+
+
 def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,source_clock=False,compact_canvas_nmi=False,sparse_palette=False,serialize_audio_raster=False,fold_first_use=False,prepared_sequence=None,continuous_audio_pump=False,source_audio_index=None,early_source_packet_staging=False):
     schedule=json.loads(deadlines.read_text());plan=json.loads((residency/'report.json').read_text())
     if not schedule['resident_identity_replay']:raise ValueError('PRODUCTION_SEQUENCE_UNPROVEN_DEADLINES')
@@ -54,12 +70,10 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
         assets=transformed
     prefix=100
     if hybrid:
-        prefix=0
-        while prefix<236 and all((v[prefix] or 0)==(initials[0][prefix] or 0) for v in initials):prefix+=1
+        prefix,suffix=fixed_palette_edges(reports,initials)
         if prefix==236:raise ValueError('HYBRID_FULLY_STATIC_SEQUENCE_RESTORE_NOT_REQUIRED')
-    suffix=0
+    else:suffix=0
     if hybrid:
-        while suffix<236-prefix and all((v[235-suffix] or 0)==(initials[0][235-suffix] or 0) for v in initials):suffix+=1
         for r in reports:
             if any(e['slot']>236-suffix and (e['color'] or 0)!=(initials[0][e['slot']-1] or 0)
                    for row in r['trace'] for e in row['updates']):raise ValueError('HYBRID_FIXED_SUFFIX_MUTATION')
@@ -84,9 +98,11 @@ def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,so
         (folder/'residency-pixel-identity.json').write_text(json.dumps(residency_identity,indent=2)+'\n')
     kwargs={}
     if hybrid:
-        if not plan.get('offset_map_aliases_bg2') or not plan.get('static_obj_subdivision'):
+        if not plan.get('offset_map_aliases_bg2') or not plan.get('static_obj_retention_verified'):
             raise ValueError('HYBRID_PRODUCTION_LAYOUT_UNPROVEN')
-        kwargs=dict(high_tile_offset=64,obj_obsel=0,obj_chr=(residency/'obj.chr').read_bytes(),
+        subdivided=bool(plan.get('static_obj_subdivision'))
+        kwargs=dict(high_base=0 if subdivided else plan['allocation']['high_chr'][0],
+            high_tile_offset=64 if subdivided else 0,obj_obsel=0 if subdivided else 0xc0,obj_chr=(residency/'obj.chr').read_bytes(),
             oam=(residency/'oam.bin').read_bytes(),obj_rom_bank=5,obj_rom_address=0xb000)
     component,_,resources=compile_rom(reports[0],assets[0],73 if sparse_palette else (74 if audio_service else 76),cache,offset_alias='low' if hybrid else True,**kwargs)
     fields=schedule['fields']+[dict(field=schedule['fields'][-1]['field']+1,jobs=[],mandatory=[])]
@@ -398,7 +414,7 @@ end,emu.callbackType.exec,PACKET_ARM_ADDRESS,PACKET_ARM_ADDRESS,emu.cpuType.snes
             descriptor=m.read_memory('SnesMemory',0x7ff840,64);field=int.from_bytes(descriptor[50:52],'little')
             pixels.append(dict(sample=advanced,program_field=field,matches=matches));snapshots.append(descriptor.hex())
             if matches:shutil.copyfile(shot['path'],folder/f'frame-{matches[0]:02d}.png')
-            if field>=72 and advanced>=(audio_hooks['fields']if audio_hooks else 77):break
+            if field>=min(72,resources['programs'][-1]['field']) and advanced>=(audio_hooks['fields']if audio_hooks else 77):break
         if audio_hooks:audio_hooks['closeout'](m,sy,owned)
         (folder/'cpu-state.json').write_text(json.dumps(m.get_cpu_state(),indent=2))
         (folder/'audio-closeout.bin').write_bytes(m.read_memory('SnesMemory',sy['TadPrivate_stream_frame'],64))

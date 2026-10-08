@@ -27,7 +27,7 @@ def main():
         frame=np.fromfile(a.assets/(name+'.bin'),dtype=np.uint8).reshape(224,256)
         counts[name]=len({frame[y:y+8,x:x+8].tobytes()for y in range(0,224,8)for x in range(0,256,8)})
     seq=a.output/'single-context';frame=seq/'frame-00';frame.mkdir(parents=True,exist_ok=True)
-    for name in ('high.bin','low.bin','promoted.bin','oam.bin','obj_chr.bin'):
+    for name in ('high.bin','low.bin','promoted.bin','oam.bin','obj_chr.bin','expected.bin'):
         target=frame/name
         if not target.exists():os.link(a.assets/name,target)
         elif target.read_bytes()!=(a.assets/name).read_bytes():raise ValueError('HYBRID_CONTEXT_STALE_SINGLE_FRAME_INPUT:'+name)

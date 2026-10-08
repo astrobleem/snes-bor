@@ -28,7 +28,7 @@ def decode_plane(vram,map_base,chr_base,bpp):
 
 def replay(residency,plan,schedule,assets,cache):
     vram=bytearray(65536)
-    high_base=4096 if plan['static_obj_subdivision'] else 8192
+    high_base=plan['allocation']['high_chr'][0]
     for name,base in [('high',high_base),('low',49152)]:
         raw=(cache/f'{name}.chr').read_bytes();vram[base:base+len(raw)]=raw
     for name,base in [('high',61440),('low',63488)]:
@@ -49,7 +49,7 @@ def replay(residency,plan,schedule,assets,cache):
                 vram[job['address']:job['address']+size]=data[start:start+size]
         # Future jobs can evict a tile during the last field of a pose.
         # Check every displayed field, not just the initial pose boundary.
-        for name,map_base,chr_base,bpp in [('high',61440,0 if plan['static_obj_subdivision'] else 8192,8),('low',63488,49152,2)]:
+        for name,map_base,chr_base,bpp in [('high',61440,0 if plan['static_obj_subdivision'] else high_base,8),('low',63488,49152,2)]:
             expected=np.fromfile(assets[frame]/('indices.bin'if name=='high'else'low_indices.bin'),dtype=np.uint8).reshape(224,256)
             if name=='high':expected=expected+3
             actual=decode_plane(vram,map_base,chr_base,bpp)

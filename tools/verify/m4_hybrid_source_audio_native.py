@@ -12,8 +12,9 @@ from m4_projectile_audio_fixture import configure
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    for name in ('sequence','residency','prepared-sequence','rom','assets','packed','output'):
+    for name in ('sequence','residency','rom','assets','packed','output'):
         p.add_argument('--'+name,required=True,type=Path)
+    p.add_argument('--prepared-sequence',type=Path)
     p.add_argument('--sound-index',type=int,default=16)
     p.add_argument('--early-packet-staging',action='store_true')
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
