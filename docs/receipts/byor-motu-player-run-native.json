@@ -1,0 +1,15 @@
+{
+  "schema": "BYOR_4086_PLAYER_RUN_NATIVE_V1",
+  "status": "PASS",
+  "cases": 6338,
+  "errors": [],
+  "rom_sha256": "2647c00e7c1d45bbd2aac2104bc51d4ce475b931b364069a9678a58238782626",
+  "peak_master_clocks": 21370,
+  "decimal_entry_preserved": true,
+  "canonical_actor_storage_bound": false,
+  "velocity_abi": "finite Q16; sign/zero queries only",
+  "full_player_think_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

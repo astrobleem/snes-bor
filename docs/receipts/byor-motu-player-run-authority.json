@@ -1,0 +1,17 @@
+{
+  "schema": "BYOR_4086_PLAYER_RUNNING_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "player_think_sha256": "51c446918438abf6d41ba73681784bd04f79f909f34c0efcdfcdb2d4ab07f736",
+  "literal_block_sha256": "9c77b3bd86fc7dd210e40073c8a8f1592b5734d1be9dd6466a9dda08ff7a7ec8",
+  "literal_block_unmodified": true,
+  "cases": 12672,
+  "compared_bytes": 50688,
+  "actual_sha256": "cdfbe8c94ef8502dde7ed9f6ee6907dcf41a45eee46db0603dbe527281aec000",
+  "errors": [],
+  "domain": "running cancellation only; velocities -2,0,2; all directional combinations; arbitrary signed flags/running retained",
+  "earlier_player_think_branches_bound": false,
+  "ordinary_movement_bound": false,
+  "native_bound": false,
+  "motu_gameplay_proven": false
+}
