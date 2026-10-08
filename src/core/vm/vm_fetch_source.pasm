@@ -73,6 +73,8 @@ Vm_FetchSourceInit:
     sta.l SourceDeathFields4086_Ready
     sta.l SourceLandingDeath4086_Ready
     sta.l SourceLandingDeath4086_State
+    sta.l SourceSoundChannels4086_Ready
+    sta.l SourceSoundChannels4086_BackendReady
     sta.l SourceLandingKill4086_Ready
     sta.l SourceLandingKill4086_Status
     sta.l SourceGravityAir4086_StageReady
