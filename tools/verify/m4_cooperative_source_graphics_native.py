@@ -7,6 +7,7 @@ import hashlib
 import json
 import re
 import struct
+import shutil
 from pathlib import Path
 
 from _source_leaf_fixture import run_fixture, REQUEST
@@ -245,6 +246,7 @@ emu.addMemoryCallback(function()emu.log('GRAPHICS|released|'..emu.getState().mas
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--rom',type=Path,required=True)
+    p.add_argument('--hybrid-ppu',action='store_true')
     p.add_argument('--graphics',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     a=p.parse_args();a.rom=a.rom.resolve();a.graphics=a.graphics.resolve()
     out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
@@ -273,10 +275,22 @@ def main():
                 EPOCHLOW=epochs[0],EPOCHHIGH=epochs[1],TOKENLOW=token&65535,TOKENHIGH=token>>16,
                 ENTRYLOW=int.from_bytes(trampoline[:2],'little'),ENTRYHIGH=int.from_bytes(trampoline[2:],'little'))
     values['ROWFAULT']=row_fault
-    asm=ASM;lua=LUA
+    asm=ASM;lua=LUA;ppu={}
+    cases=2 if a.hybrid_ppu else 6
+    if a.hybrid_ppu:
+        from m4_cooperative_graphics_ppu import conversion_asm, install, observer
+        context=a.graphics/'palette-context-1'
+        obj_bytes=(context/'obj_chr.bin').stat().st_size
+        high_target=max(4096,((obj_bytes+4095)//4096)*4096)
+        converter,descriptors=conversion_asm(high_target,gr['promoted_native_window_tiles'])
+        asm=asm.replace(' cmp #6',' cmp #2',1)+converter
+        lua+=observer()
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm);lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     r=Reporter('M4-COOPERATIVE-SOURCE-GRAPHICS-NATIVE',kind='GATE');world={}
     def transform(raw,sy):
+        if a.hybrid_ppu:
+            revised,resources=install(raw,sy,a.graphics,out)
+            raw[:]=revised;ppu.update(resources=resources,descriptors=descriptors)
         install_workspace_gate(raw,symbols(a.rom.parent/'worker.sym'),sy)
         if any(raw[0x200000:]):raise ValueError('GRAPHICS_ROM_TAIL_RESERVATION')
         raw[0x200000:]=sealed
@@ -287,7 +301,9 @@ def main():
         if raw[at:at+4]!=b'\x5c'+sy['Tad_StreamWaitFrame'].to_bytes(3,'little'):raise ValueError('GRAPHICS_WAIT_LAYOUT')
         raw[at+1:at+4]=sy['GraphicsWait'].to_bytes(3,'little')
     def before(m,sy):
-        run_frames_exact(m,144)
+        for _ in range(300):
+            if startup.u16(m,0x7e175c):break
+            run_frames_exact(m,1)
         if startup.u16(m,0x7e175c)==0:raise ValueError('GRAPHICS_RESIDENT_WORLD_NOT_ACQUIRED')
         m.write_u16(REQUEST+6,0)
         for name in ('SourceVMRun4086_Ready','SourceVMRun4086_Busy','VmSourceFrame_Pending'):m.write_u16(sy[name],0)
@@ -296,10 +312,42 @@ def main():
         (out/'diagnostic.json').write_text(json.dumps(dict(completed=completed,SCPU=m.get_cpu_state('Snes'),SA1=m.get_cpu_state('Sa1'),status=m.read_memory('SnesMemory',0x34d0,10).hex(),lease=startup.u16(m,0x41202e)),indent=2)+'\n')
         run_frames_exact(m,30)
         world.update(ack_after=startup.u16(m,0x412004),state=startup.u16(m,sy['Game_State']),fault=m.read_memory('SnesMemory',0x412008,3).hex(),lease=startup.u16(m,0x41202e))
-    raw,log=run_fixture(a.rom,out,[{} for _ in range(6)],'GraphicsFixture','SourceAudio_Status',0xb4ad,[],lua,r,
+        if a.hybrid_ppu and completed:
+            # Only a publication request; no host source bitmap or CHR handoff.
+            m.write_u16(0x7ff860,0xa5)
+            ppu['emulator_partial_field_timeouts']=0
+            ppu['pixel_mismatches']=[]
+            try:
+                for field in range(16):
+                    for attempt in range(20):
+                        result=m.run_frames(1)
+                        if result.get('framesAdvanced')==1 and not result.get('timedOut'):break
+                        if result.get('framesAdvanced')!=0 or not result.get('timedOut'):
+                            (out/'frame-progress-error.json').write_text(json.dumps(result,indent=2)+'\n')
+                            raise ValueError('NATIVE_CANVAS_FIELD_COUNT')
+                        ppu['emulator_partial_field_timeouts']+=1
+                    else:raise ValueError('NATIVE_CANVAS_NO_FIELD_PROGRESS')
+                    if field>=12 and startup.u16(m,0x7ff85a)>=2:
+                        import numpy as np
+                        from PIL import Image
+                        shot=m.tool('take_screenshot',{'format':'path'})
+                        rgb=np.asarray(Image.open(shot['path']).convert('RGB'),dtype=np.uint16)
+                        actual=(rgb[:,:,0]>>3)|((rgb[:,:,1]>>3)<<5)|((rgb[:,:,2]>>3)<<10)
+                        expected=np.fromfile(context/'expected.bin',dtype='<u2').reshape(224,256)
+                        ppu['pixel_mismatches'].append(int(np.count_nonzero(actual!=expected))if actual.shape==expected.shape else -1)
+            finally:
+                (out/'canvas-dispatch-diagnostic.json').write_text(json.dumps(dict(SCPU=m.get_cpu_state('Snes'),SA1=m.get_cpu_state('Sa1'),PPU=m.get_ppu_state(),raster=m.read_memory('SnesMemory',0x7ff840,38).hex(),lease=startup.u16(m,0x41202e),SCPU_trace=m.trace_log(12)),indent=2)+'\n')
+            ppu['VRAM']=m.read_memory('SnesVideoRam',high_target,5504)+m.read_memory('SnesVideoRam',49152,1376)
+            ppu['fault']=startup.u16(m,0x7ff856)
+            ppu['lease']=startup.u16(m,0x41202e)
+            ppu['worker_fault']=m.read_memory('SnesMemory',0x412008,3).hex()
+            shot=m.tool('take_screenshot',{'format':'path'});shutil.copyfile(shot['path'],out/'screenshot.png')
+    probes=dict(ACQUIRED='GraphicsAcquired',PRODUCED='GraphicsProduced',RELEASED='GraphicsReleased',INPUTSREADY='GraphicsInputsReady')
+    if a.hybrid_ppu:probes.update(CONVERSIONACQUIRED='GraphicsCanvasLeaseAcquired',CONVERSIONDONE='GraphicsCanvasConversionDone')
+    raw,log=run_fixture(a.rom,out,[{} for _ in range(cases)],'GraphicsFixture','SourceAudio_Status',0xb4ad,[],lua,r,
                        append=asm,bindings=dict(REALWAIT='Tad_StreamWaitFrame'),
-                       probes=dict(ACQUIRED='GraphicsAcquired',PRODUCED='GraphicsProduced',RELEASED='GraphicsReleased',INPUTSREADY='GraphicsInputsReady'),
-                       batch_size=1,frame_limit=120,rom_transform=transform,before_start=before,closeout=close,link_pcm=False)
+                       probes=probes,
+                       batch_size=1,frame_limit=120,rom_transform=transform,before_start=before,closeout=close,link_pcm=False,fixture_bank=38 if a.hybrid_ppu else 39)
     bitmaps=[bytes.fromhex(s.split('GRAPHICSBITMAP|',1)[1].strip())for s in log.splitlines()if 'GRAPHICSBITMAP|'in s]
     hashes=[hashlib.sha256(b).hexdigest()for b in bitmaps]
     expected=['68c7861e4af75225f0d1b145aa1ccc8ac4b6da50157c442f574b7473b987436d','893eafe85fb3ca631cb214731dc27dcd7e3bd9f1247ed245937e9906b0671794']
@@ -311,18 +359,47 @@ def main():
             name,value=s.split('GRAPHICS|',1)[1].strip().split('|')
             if name in ('acquired','produced','released'):events.append((name,int(value)))
     timings=[]
-    if len(events)==18 and [n for n,_ in events]==['acquired','produced','released']*6:
-        for i in range(0,18,3):
+    if len(events)==cases*3 and [n for n,_ in events]==['acquired','produced','released']*cases:
+        for i in range(0,cases*3,3):
             timings.append(dict(staging_and_job_master_clocks=events[i+1][1]-events[i][1],
                                 lease_master_clocks=events[i+2][1]-events[i][1]))
-    r.check('six acquired produced released event sequences measured',len(timings)==6)
-    r.check('invalid epoch origin and frame token rejected before bitmap mutation',len(statuses)==6 and [s[:4]for s in statuses[:5]]==['abb4','abb4','e1b4','a3b4','a3b4'] and hashes[2:5]==[expected[1]]*3)
-    r.check('test-only row fault entry unwinds producer and returns explicit failure',len(statuses)==6 and statuses[5][:4]=='aeb4')
-    r.check('resident context and legacy mailbox unchanged',log.count('GRAPHICS|resident|0')==6)
-    r.check('native writes remain in owned graphics inputs and output',log.count('GRAPHICS|writes|0')==6)
+    r.check('acquired produced released event sequences measured',len(timings)==cases)
+    if not a.hybrid_ppu:
+        r.check('invalid epoch origin and frame token rejected before bitmap mutation',len(statuses)==6 and [s[:4]for s in statuses[:5]]==['abb4','abb4','e1b4','a3b4','a3b4'] and hashes[2:5]==[expected[1]]*3)
+        r.check('test-only row fault entry unwinds producer and returns explicit failure',len(statuses)==6 and statuses[5][:4]=='aeb4')
+    r.check('resident context and legacy mailbox unchanged',log.count('GRAPHICS|resident|0')==cases)
+    r.check('native writes remain in owned graphics inputs and output',log.count('GRAPHICS|writes|0')==cases)
     r.check('resident world resumes without a fault',world['ack_after']>world['ack_before']and world['state']==startup.PLAYING and world['fault']=='000000'and world['lease']==0)
     report=dict(schema='BYOR_COOPERATIVE_SOURCE_GRAPHICS_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',checks=r.results,ROM_sha256=hashlib.sha256(raw).hexdigest(),graphics_component_ROM=gr['ROM_sha256'],bitmap_sha256=hashes,native_status=statuses,world=world,producer_bytes=len(producer),row_bytes=len(row),origin_bytes=origin_bytes,live_source_camera_binding=False,PPU_publication_proven=False,production_payload_lease=False,motu_gameplay_proven=False,no_color_reduction=True)
     report.update(timings=timings,row_fault_test_policy='test-only row entry JMP to existing palette failure handler; not a palette capacity proof')
+    if a.hybrid_ppu:
+        from m4_direct_bitmap_native import selected_tiles
+        import numpy as np
+        x,y,w,h=gr['window']
+        mask=np.fromfile(a.graphics/'palette-context-1/promoted.bin',np.bool_).reshape(28,32)[y//8:(y+h)//8,x//8:(x+w)//8]
+        planes=[np.fromfile(a.graphics/('palette-context-1/'+n+'.bin'),np.uint8).reshape(224,256)[y:y+h,x:x+w]for n in ('high','low')]
+        reference=selected_tiles(np.stack(planes,axis=-1).tobytes(),w,h,mask,bitmap=False)
+        pixels=ppu['pixel_mismatches']
+        r.check('native converted CHR is byte exact in VRAM',ppu['VRAM']==reference)
+        read_trace=[s.split('NATIVECHRREADS|')[1].strip().split('|')for s in log.splitlines()if 'NATIVECHRREADS|'in s]
+        r.check('conversion forbids unrelated S-CPU BW-RAM reads and disables before release',len(read_trace)==1 and int(read_trace[0][0])==6880 and read_trace[0][1:]==['0','0'])
+        r.check('conversion retains resident world and worker mailbox','NATIVECHRRESIDENT|0'in log)
+        r.check('native full hybrid scene pixels are lossless',len(pixels)>=3 and not any(pixels))
+        r.check('CGRAM updates remain in safe transfer windows','NATIVEPPUSAFE|0'in log)
+        traces=[s.split('NATIVEPPUCGRAM|',1)[1].strip().split(',')for s in log.splitlines()if 'NATIVEPPUCGRAM|'in s]
+        r.check('CGRAM observer trace matches compiled schedule',traces==[ppu['resources']['native_CGRAM_expected_trace']])
+        oam=[s.split('NATIVEPPUOAM|',1)[1].strip()for s in log.splitlines()if 'NATIVEPPUOAM|'in s]
+        r.check('OAM observer trace preserves compiled source pieces',oam==[(context/'oam.bin').read_bytes().hex()])
+        flags=[int(s.split('NATIVEPPUFLAGS|')[1])for s in log.splitlines()if 'NATIVEPPUFLAGS|'in s]
+        r.check('no native OBJ sprite or tile overflow',len(flags)>=3 and all(v&0xc0==0 for v in flags))
+        r.check('native canvas and worker finish without faults',ppu['fault']==0 and ppu['lease']==0 and ppu['worker_fault']=='000000')
+        ppu['conversion_BW_RAM_read_trace']=read_trace
+        ppu['conversion_master_clocks']=[int(s.split('NATIVECHRCLOCKS|')[1])for s in log.splitlines()if 'NATIVECHRCLOCKS|'in s]
+        ppu['CGRAM_budget_trace']=[[int(v)for v in s.split('NATIVEPPUBUDGET|')[1].split('|')]for s in log.splitlines()if 'NATIVEPPUBUDGET|'in s]
+        ppu['source_RGB555_sha256']=hashlib.sha256((context/'expected.bin').read_bytes()).hexdigest()
+        ppu['alpha_policy']='BOR 4086 alpha 1 RGB8 SCREEN composited before RGB555; lossless HIGH+LOW Mode4 addition'
+        ppu['VRAM_sha256']=hashlib.sha256(ppu.pop('VRAM')).hexdigest();ppu['pixel_mismatches']=pixels
+        report.update(PPU_publication_proven=all(ok for _,ok in r.results),hybrid_PPU=ppu,checks=r.results,status='PASS'if all(ok for _,ok in r.results)else'FAIL')
     (out/'report.json').write_text(json.dumps(report,indent=2)+'\n');r.finish()
 
 

@@ -12,10 +12,13 @@ import game_bor_startup_select as startup
 REQUEST, INDEX, ERROR = 0x7ffd80, 0x7ffd82, 0x7ffd84
 
 
-def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None, append='', bindings=None, probes=None, batch_size=8, frame_limit=2000, rom_transform=None, closeout=None, before_start=None, emulator_env=None, link_pcm=True):
+def run_fixture(rom_path, folder, rows, apply, ready, magic, tables, lua, reporter, finish=None, post=None, append='', bindings=None, probes=None, batch_size=8, frame_limit=2000, rom_transform=None, closeout=None, before_start=None, emulator_env=None, link_pcm=True, fixture_bank=39):
     if batch_size not in (1,2,4,8,16,32,64):raise ValueError('LEAF_BATCH_SIZE')
-    sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=39*32768;raw=bytearray(rom_path.read_bytes())
-    if raw[first:first+32768]!=bytes(32768) or raw[59*32768:61*32768]!=bytes(65536) or raw[0x7fd8]!=8:raise ValueError('LEAF_PRIVATE_RESERVATION')
+    if fixture_bank not in (38,39):raise ValueError('LEAF_FIXTURE_BANK')
+    sy=symbols(Path('src/main.sym'));entry=sy['Vm_SourceFrameGate'];first=fixture_bank*32768;raw=bytearray(rom_path.read_bytes())
+    expected=bytes([255])*32768 if fixture_bank==38 else bytes(32768)
+    if raw[first:first+32768]!=expected or raw[59*32768:61*32768]!=bytes(65536) or raw[0x7fd8]!=8:raise ValueError('LEAF_PRIVATE_RESERVATION')
+    if fixture_bank==38 and sy.get('SourceVM_InstructionReservation')!=(38<<16|0x8000):raise ValueError('LEAF_SCRIPT_BANK38_NOT_RESERVED')
     asm='''.snes
 .bank 39
 .org $8000
@@ -90,6 +93,7 @@ LeafFixture_Return:
  phy
  jml RESUME
 '''
+    asm=asm.replace('.bank 39','.bank '+str(fixture_bank),1)
     asm=asm.replace(' and #7',' and #'+str(batch_size-1))
     if finish:
         asm=asm.replace(' jsl APPLY',' lda.l MODE\n beq LeafFixture_Begin\n jsl SECONDARY\n bra LeafFixture_After\nLeafFixture_Begin:\n.a16\n.i16\n jsl APPLY')

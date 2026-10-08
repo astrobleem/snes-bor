@@ -27,7 +27,7 @@
       true
     ],
     [
-      "six acquired produced released event sequences measured",
+      "acquired produced released event sequences measured",
       true
     ],
     [
@@ -62,16 +62,16 @@
     "68c7861e4af75225f0d1b145aa1ccc8ac4b6da50157c442f574b7473b987436d"
   ],
   "native_status": [
-    "abb432f042340a006b00",
-    "abb432f042340a00bc00",
-    "e1b432f042340a00bc00",
-    "a3b432f042340a00bc00",
-    "a3b432f042340a00bc00",
-    "aeb432f042340a00bc00"
+    "abb463bb42340a006b00",
+    "abb463bb42340a00bc00",
+    "e1b463bb42340a00bc00",
+    "a3b463bb42340a00bc00",
+    "a3b463bb42340a00bc00",
+    "aeb463bb42340a00bc00"
   ],
   "world": {
-    "ack_before": 266,
-    "ack_after": 359,
+    "ack_before": 5,
+    "ack_after": 143,
     "state": 0,
     "fault": "000000",
     "lease": 0
@@ -86,28 +86,28 @@
   "no_color_reduction": true,
   "timings": [
     {
-      "staging_and_job_master_clocks": 176758,
-      "lease_master_clocks": 177476
+      "staging_and_job_master_clocks": 177332,
+      "lease_master_clocks": 177980
     },
     {
-      "staging_and_job_master_clocks": 193586,
-      "lease_master_clocks": 194264
+      "staging_and_job_master_clocks": 193492,
+      "lease_master_clocks": 194210
     },
     {
       "staging_and_job_master_clocks": 65834,
-      "lease_master_clocks": 66488
+      "lease_master_clocks": 66558
     },
     {
-      "staging_and_job_master_clocks": 65968,
-      "lease_master_clocks": 66692
+      "staging_and_job_master_clocks": 65874,
+      "lease_master_clocks": 66558
     },
     {
-      "staging_and_job_master_clocks": 65968,
-      "lease_master_clocks": 66692
+      "staging_and_job_master_clocks": 83842,
+      "lease_master_clocks": 84526
     },
     {
-      "staging_and_job_master_clocks": 133866,
-      "lease_master_clocks": 134550
+      "staging_and_job_master_clocks": 170216,
+      "lease_master_clocks": 170900
     }
   ],
   "row_fault_test_policy": "test-only row entry JMP to existing palette failure handler; not a palette capacity proof"
