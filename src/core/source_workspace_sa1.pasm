@@ -9,7 +9,7 @@
 ; payload ownership separately through SourceComputedAudio_State=4.
 SourceWorkspaceSA1_Magic = $412028 ; .dw compiler capability $B66D
 SourceWorkspaceSA1_Generation = $41202A ; .dd nonzero execution epoch
-SourceWorkspaceSA1_State = $41202E ; .dw 0 idle,1 request,2 parked,3 run,4 done,5 release
+SourceWorkspaceSA1_State = $41202E ; .dw 0 idle,1 request,2 parked,3 run,4 done,5 release,6 job fault
 
 SourceWorkspaceSA1_Poll:
 .a8
@@ -48,12 +48,24 @@ SourceWorkspaceSA1_Poll__park:
  bne SourceWorkspaceSA1_Poll__park
  ; The compiler-installed job has a returning ABI. It may use high IRAM
  ; scratch and normal DMA, but must retain this stack and leave world RAM
- ; and the legacy mailbox untouched. Producer/encoder chaining ends RTL.
- jsl $003500
+ ; and the legacy mailbox untouched. The compiler installs a four-byte JML
+ ; entry at $37C0, outside producer, row, accumulator and type1 scratch.
+ ; Producer/encoder chaining ends RTL through this caller's saved stack;
+ ; carry clear publishes completion, carry set publishes an explicit fault.
+ jsl $0037C0
  rep #$30
 .a16
 .i16
+ bcc SourceWorkspaceSA1_Poll__job_good
+ lda #6
+ bra SourceWorkspaceSA1_Poll__job_status
+SourceWorkspaceSA1_Poll__job_good:
+.a16
+.i16
  lda #4
+SourceWorkspaceSA1_Poll__job_status:
+.a16
+.i16
  sta.l SourceWorkspaceSA1_State
  bra SourceWorkspaceSA1_Poll__park
 SourceWorkspaceSA1_Poll__release:

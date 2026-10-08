@@ -1,0 +1,227 @@
+{
+  "schema": "BYOR_COOPERATIVE_JOB_RETURN_ABI_RECEIPT_V1",
+  "status": "PASS",
+  "proof": {
+    "path": "out/byor-motu-cooperative-job-result-native/report.json",
+    "sha256": "384ad199e49ed2b42377f2304c2e7c889f92d20c82361670089550e0cc2830be",
+    "report": {
+      "schema": "BYOR_COMPUTED_BRR_PRODUCTION_TRANSPORT_NATIVE_V1",
+      "status": "PASS",
+      "checks": [
+        [
+          "cold reset enters INTRO, not TITLE/PLAYING",
+          true
+        ],
+        [
+          "cold reset is not PLAYING",
+          true
+        ],
+        [
+          "INTRO remains reachable through second scene card",
+          true
+        ],
+        [
+          "INTRO -> TITLE",
+          true
+        ],
+        [
+          "cooperative disabled offer does not park resident world",
+          true
+        ],
+        [
+          "cooperative zero_epoch offer does not park resident world",
+          true
+        ],
+        [
+          "cooperative native job fault is explicit",
+          true
+        ],
+        [
+          "faulted cooperative job releases without a world fault",
+          true
+        ],
+        [
+          "native leaf batch completed",
+          true
+        ],
+        [
+          "generic buffer retires only its admitted generation after DSP completion",
+          true
+        ],
+        [
+          "native produced BRR matches authority before transport",
+          true
+        ],
+        [
+          "native produced source mixture matches pinned C",
+          true
+        ],
+        [
+          "resident actor context and worker mailbox remain byte exact during job",
+          true
+        ],
+        [
+          "cooperative job writes only its typed audio buffers and control",
+          true
+        ],
+        [
+          "cooperative worker releases and resumes real gameplay",
+          true
+        ]
+      ],
+      "proof": {
+        "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+        "status": "PASS",
+        "source_path": "private-proof/computed-twelve-source-buffer",
+        "source_sha256": "081529b6f018a5ca4ef1b1f1b5772902b948d3890cfb8b37582baa8604778fe8",
+        "compiled_brr_sha256": "459b599008259c8e360ef740f06dba5cac7605df07280863c706391a1ccce935",
+        "compiled_brr_bytes": 108,
+        "chunks": 1,
+        "meaningful_byte_mismatches": 0,
+        "padding_byte_mismatches": 0,
+        "observer_peak_chunk_gap": 1,
+        "observed_consumer_underruns": 0,
+        "first_active_field": 1,
+        "last_active_field": 1,
+        "active_fields": 1,
+        "expected_active_fields": 1.0467670182773985,
+        "effective_sample_rate_hz": 11023.4375,
+        "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+        "prefill_chunks": 0,
+        "voice0_srcn": 33,
+        "voice0_pitch": 1411,
+        "voice0_gain": 127,
+        "first_active_acknowledged_chunks": 0,
+        "delayed_host_ack_observation": true,
+        "final_voice0_envelope": 0,
+        "audio_recording_pcm_sha256": "aa7ec5592437ef5cdcc04d6a1c12917c98f2ec6c686f4e4276db77240e66763a",
+        "audio_recording_file_sha256": "ed2395e457a0678c0ddb58030b803f477f25056257f406944b6fcb29144ee6d5",
+        "dsp_source_block_traversal": {
+          "source_blocks": 12,
+          "observed_blocks": 12,
+          "skipped_blocks": 0,
+          "repeated_blocks": 0,
+          "block_fingerprint_mismatches": 0,
+          "dsp_samples": 484,
+          "endx_sample": 484,
+          "voice_pcm_sha256": "e1eaeec41c45debcb879f0c58a2c402d0da2bd7791065b5abb64cfe3e061eef9",
+          "trace_sha256": "964538995808cbdfbb1cb7507e9e58f70656024b53e85d5beaa7148321168a2d"
+        },
+        "policy": {
+          "policy": "ACCEPTED_COMPAT",
+          "output": "mono 11025 uniform gain 64; native predictive BRR"
+        },
+        "private_runtime_only": true,
+        "legacy_gameplay_paused": false,
+        "sample_exact_recording_proven": false,
+        "concurrent_audio_proven": false,
+        "production_binding_installed": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true
+      },
+      "ROM_sha256": "8a1b2829a02cbc0827a8e69cb14f58a56b21f3fd98b413a79ab3354bbb1da7f3",
+      "producer_component_ROM": "58ca8bd4ca794c71eee88ed2db9d0ff98304a3e22b501f760ca74d8490ae2611",
+      "native_source_voices": 12,
+      "native_output_samples": 192,
+      "buffer_pointer": "422200",
+      "native_producer_to_production_TAD": true,
+      "generic_computed_buffer_admission": true,
+      "native_transport_tail_zeroed": true,
+      "PCM_media_linked": false,
+      "computed_buffer_control": {
+        "hex": "6cb686403412040000226c000c00010086403412040001009022",
+        "state": 4,
+        "status": 4,
+        "generation": "86403412",
+        "consumer_generation": "86403412"
+      },
+      "cooperative_worker_execution": true,
+      "source_workspace_lease_installed": false,
+      "SA1_worker_replaced_in_private_paused_fixture": false,
+      "continuous_mixing": false,
+      "joint_hybrid_graphics": false,
+      "motu_gameplay_proven": false,
+      "no_color_reduction": true,
+      "execution_lease_master_clocks": {
+        "acquired": 236356972,
+        "produced": 236702164,
+        "released": 236720780
+      },
+      "staging_and_native_job_ms": 16.07243378697572,
+      "complete_execution_lease_ms": 16.939210616619338,
+      "world_resume": {
+        "state": 0,
+        "worker_fault": "000000",
+        "lease_state": 0,
+        "ack_before": 356,
+        "ack_after": 422
+      }
+    }
+  },
+  "job_entry": {
+    "address": "0037C0",
+    "bytes": 4,
+    "opcode": "JML",
+    "legal_target_range": [
+      "003200",
+      "0037C0"
+    ],
+    "outside_graphics_row_worker": true,
+    "caller_stack_preserved": true
+  },
+  "result_abi": {
+    "carry_clear": 4,
+    "carry_set": 6,
+    "release_request": 5,
+    "release_ack": 0
+  },
+  "audit": {
+    "path": "out/byor-motu-cooperative-job-result-audit.log",
+    "sha256": "2f489f37d1469cd841589c6ccc7e4696ca78a1edb00a002e64d4c2d27f915708"
+  },
+  "preservation": {
+    "status": "PASS",
+    "protected": 17,
+    "bank_zero_symbol_addresses_unchanged": true,
+    "masked_non_bank_zero_constants": {
+      "SourceAudio_StartTarget": "Tad_StreamStartPreparedSource",
+      "SourceAudio_StartRelay": "Tad_ProcessMaybeStream__return"
+    },
+    "bank_zero_growth_bytes": 0,
+    "changed_bank_zero_bytes": 4,
+    "changes_only_external_relocations": [
+      {
+        "pc": "0x8922",
+        "symbol": "Tad_AudioDriver_SIZE",
+        "old": 3464,
+        "new": 3521
+      },
+      {
+        "pc": "0xac10",
+        "symbol": "Tad_DataTable",
+        "delta": 3,
+        "old": "0x18e32",
+        "new": "0x18e6b"
+      },
+      {
+        "pc": "0xac15",
+        "symbol": "Tad_DataTable",
+        "delta": 0,
+        "old": "0x18e2f",
+        "new": "0x18e68"
+      },
+      {
+        "pc": "0xac1a",
+        "symbol": "Tad_DataTable",
+        "delta": 0,
+        "old": "0x18e2f",
+        "new": "0x18e68"
+      }
+    ],
+    "head": "3424213c0e7396a1cad446d3d250bb7bd7808a27"
+  },
+  "source_CHR_payload_lease": false,
+  "graphics_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

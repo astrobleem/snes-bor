@@ -15,7 +15,7 @@ from m4_projectile_audio_fixture import configure
 from m4_source_audio_native_verify import verify
 from m4_input_controller_native import offset
 from source_frame_audio_rom import pack
-from sa1_workspace_jobs import install_workspace_gate, returning_audio_kernel
+from sa1_workspace_jobs import install_workspace_gate, returning_audio_kernel, entry_trampoline
 from actor_s5_entity_fixture import symbols
 from _harness import run_frames_exact
 import game_bor_startup_select as startup
@@ -210,7 +210,7 @@ def main():
   encoder=returning_audio_kernel(encoder,encoder=True)
  finish=Code(0x9100);finish.emit('c2 30 a9 00 00 a2 00 00');finish.label('padding');finish.emit('9f 6c 22 42 e8 e8');finish.word(0xe0,36);finish.branch(0xd0,'padding');finish.emit('a9 ab b4 8f f0 30 00');finish.label('stop');finish.jump('stop');finish=finish.finish()
  if a.cooperative_worker:
-  finish=finish[:-3]+b'\x6b' # Return through the preserved worker stack.
+  finish=finish[:-3]+b'\x18\x6b' # Success through the preserved worker stack.
  glue=Code(0x9000);glue.emit('e2 20 a9 00 48 ab a9 80 8d 30 22 a9 20 8d 0b 22 c2 20 a9 00 88 8d 32 22 e2 20 a9 3b 8d 34 22 c2 20');glue.word(0xa9,len(encoder));glue.emit('8d 38 22 a9 00 35 8d 35 22 5c 00 35 00');glue=glue.finish()
  def transform(raw,sy):
   audio_transform(raw,sy)
@@ -256,6 +256,18 @@ def main():
     run_frames_exact(m,6)
     r.check('cooperative '+name+' offer does not park resident world',int.from_bytes(m.read_memory('SnesMemory',0x41202e,2),'little')==1 and int.from_bytes(m.read_memory('SnesMemory',0x412004,2),'little')>prior)
    m.write_u16(0x412028,0);m.write_u16(0x41202e,0)
+   # A native failing job must publish a fault and release the same worker,
+   # without a reset or a world fault. The two-byte stub is test-only input.
+   m.write_u16(0x41202a,1);m.write_u16(0x41202c,0)
+   m.write_u16(0x412028,0xB66D);m.write_u16(0x41202e,1)
+   run_frames_exact(m,1)
+   if int.from_bytes(m.read_memory('SnesMemory',0x41202e,2),'little')!=2:raise ValueError('COOPERATIVE_NEGATIVE_SAFEPOINT')
+   m.write_memory('SnesMemory',0x003500,'386b')
+   m.write_memory('SnesMemory',0x0037c0,entry_trampoline(0x003500).hex())
+   m.write_u16(0x41202e,3);run_frames_exact(m,1)
+   r.check('cooperative native job fault is explicit',int.from_bytes(m.read_memory('SnesMemory',0x41202e,2),'little')==6)
+   m.write_u16(0x41202e,5);run_frames_exact(m,1)
+   r.check('faulted cooperative job releases without a world fault',int.from_bytes(m.read_memory('SnesMemory',0x41202e,2),'little')==0 and m.read_memory('SnesMemory',0x412008,3)==bytes(3))
  lua=r'''
 emu.addMemoryCallback(function()
  local bytes={};for j=0,107 do bytes[#bytes+1]=string.format('%02x',emu.read(0x422200+j,emu.memType.snesMemory))end
@@ -292,7 +304,13 @@ ComputedAudioLeaseAcquired:
  nop
  lda #0
  sta.l $0034D2
+ lda #JOBENTRYLOW
+ sta.l $0037C0
+ lda #JOBENTRYHIGH
+ sta.l $0037C2
 '''+asm[end:]
+  trampoline=entry_trampoline(0x003500)
+  asm=asm.replace('JOBENTRYLOW',str(int.from_bytes(trampoline[:2],'little'))).replace('JOBENTRYHIGH',str(int.from_bytes(trampoline[2:],'little')))
   begin=asm.index(' lda #0\n sta.l $0030F0\n')
   end=asm.index('ComputedAudioProduced:',begin)
   asm=asm[:begin]+''' lda #0

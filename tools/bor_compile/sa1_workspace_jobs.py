@@ -41,3 +41,10 @@ def returning_audio_kernel(kernel, *, encoder=False):
             raise ValueError('WORKSPACE_ENCODER_SCRATCH_LAYOUT')
         kernel = kernel.replace(before, bytes.fromhex('a9 a0 34 5b'))
     return kernel
+
+
+def entry_trampoline(target):
+    """Select a compiled high-IRAM job without colliding with its row worker."""
+    if not 0x003200 <= target < 0x0037c0:
+        raise ValueError('WORKSPACE_JOB_ENTRY_RANGE')
+    return b'\x5c' + target.to_bytes(3, 'little')
