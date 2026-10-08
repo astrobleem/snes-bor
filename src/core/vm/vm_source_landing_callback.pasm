@@ -1,7 +1,8 @@
 ; B636 complete nonlethal self-landing common/player/arrow callback domain.
 ; Actual lifecycle function IDs: player1, arrow8, common10. Never aliases NULL.
 ; B5SC's closed animation-only admission proves damage/death scripts absent.
-; Other opponents, lethal arithmetic and required child services stay pending.
+; Opponent score uses actual B631; magic_type1 MP recovery and lethal domains
+; remain required. Source damage/death scripts are absent by B5SC admission.
 ; Continuation stages retain actor/time/model identity; no repeated child Ack.
 ; Source SDL control_rumble is empty; B62D leases that pinned backend policy.
 SourceLandingCallback4086_Ready = $7EFF00
@@ -24,7 +25,20 @@ SourceLandingCallback4086_HealthCheat = $7EFF28
 SourceLandingCallback4086_NoHurt = $7EFF2C
 SourceLandingCallback4086_ReturnValue = $7EFF30
 SourceLandingCallback4086_InputsReady = $7EFF32
-SourceLandingCallback4086_End = $7EFF34
+SourceLandingCallback4086_RawForce = $7EFF34
+SourceLandingCallback4086_Opponent = $7EFF38
+SourceLandingCallback4086_OppView = $7EFF3C
+SourceLandingCallback4086_OppCore = $7EFF3E
+SourceLandingCallback4086_ScoreAmount = $7EFF40
+SourceLandingCallback4086_ScorePlayer = $7EFF44
+SourceLandingCallback4086_MagicType = $7EFF48
+SourceLandingCallback4086_ScoreFlag = $7EFF4C
+SourceLandingCallback4086_Multiplier = $7EFF4E
+SourceLandingCallback4086_Negative = $7EFF50
+SourceLandingCallback4086_Operand = $7EFF52
+SourceLandingCallback4086_Count = $7EFF56
+SourceLandingCallback4086_OppSide = $7EFF58
+SourceLandingCallback4086_End = $7EFF5A
 SourceLandingCallback4086_Execute:
 .a16
 .i16
@@ -193,12 +207,13 @@ SourceLandingCallback4086_IdGood:
  clc
  adc.l SourceLandingCallback4086_Core
  sta.l SourceLandingCallback4086_Core
- ; Actual self-landing checkgrab/flip do nothing. Other opponent MP/score
- ; require separate services even though other==self for this attack.
- lda.l SourceLandingCallback4086_Side
- tax
- lda.l $40900C,x
- ora.l $40900E,x
+ jsr SourceLandingCallback4086_CheckOpponent
+ bcc SourceLandingCallback4086_OpponentChecked
+ jmp SourceLandingCallback4086_Bad
+SourceLandingCallback4086_OpponentChecked:
+.a16
+.i16
+ cmp #0
  beq SourceLandingCallback4086_NoOpponent
  jmp SourceLandingCallback4086_Required
 SourceLandingCallback4086_NoOpponent:
@@ -517,6 +532,18 @@ SourceLandingCallback4086_CheckNonlethal:
 SourceLandingCallback4086_BeginServices:
 .a16
 .i16
+ jsr SourceLandingCallback4086_PrepareScore
+ bcc SourceLandingCallback4086_ScorePrepared
+ jmp SourceLandingCallback4086_Bad
+SourceLandingCallback4086_ScorePrepared:
+.a16
+.i16
+ cmp #0
+ beq SourceLandingCallback4086_ScoreAdmitted
+ jmp SourceLandingCallback4086_Required
+SourceLandingCallback4086_ScoreAdmitted:
+.a16
+.i16
  lda #1
  sta.l SourceLandingCallback4086_State
 SourceLandingCallback4086_Dispatch:
@@ -539,14 +566,20 @@ SourceLandingCallback4086_Dispatch4:
 .i16
  cmp #4
  bne SourceLandingCallback4086_Dispatch5
- jmp SourceLandingCallback4086_Commit
+ jmp SourceLandingCallback4086_Score
 SourceLandingCallback4086_Dispatch5:
 .a16
 .i16
  cmp #5
  bne SourceLandingCallback4086_DispatchBad
- jmp SourceLandingCallback4086_Complete
+ jmp SourceLandingCallback4086_Commit
 SourceLandingCallback4086_DispatchBad:
+.a16
+.i16
+ cmp #6
+ bne SourceLandingCallback4086_DispatchInvalid
+ jmp SourceLandingCallback4086_Complete
+SourceLandingCallback4086_DispatchInvalid:
 .a16
 .i16
  jmp SourceLandingCallback4086_Bad
@@ -640,10 +673,38 @@ SourceLandingCallback4086_EffectsDone:
 .i16
  lda #4
  sta.l SourceLandingCallback4086_State
+SourceLandingCallback4086_Score:
+.a16
+.i16
+ lda.l SourceLandingCallback4086_ScoreFlag
+ beq SourceLandingCallback4086_ScoreDone
+ lda.l SourceLandingCallback4086_ScorePlayer
+ sta.l SourceScore4086_Index
+ lda.l SourceLandingCallback4086_ScorePlayer+2
+ sta.l SourceScore4086_Index+2
+ lda.l SourceLandingCallback4086_ScoreAmount
+ sta.l SourceScore4086_Add
+ lda.l SourceLandingCallback4086_ScoreAmount+2
+ sta.l SourceScore4086_Add+2
+ jsl SourceScore4086_Execute
+ bcc SourceLandingCallback4086_ScoreResult
+ jmp SourceLandingCallback4086_Bad
+SourceLandingCallback4086_ScoreResult:
+.a16
+.i16
+ lda.l SourceScore4086_Status
+ beq SourceLandingCallback4086_ScoreDone
+ jmp SourceLandingCallback4086_Required
+SourceLandingCallback4086_ScoreDone:
+.a16
+.i16
+ lda #5
+ sta.l SourceLandingCallback4086_State
 SourceLandingCallback4086_Commit:
 .a16
 .i16
- ; No opponent means actual checkmpadd/checkhitscore return without services.
+ ; MP admissibility was checked before source actor writes. The score stage
+ ; executes actual B631 once, retaining pending service requirements.
  ; The paired animation-only script lease means actual dispatchers return.
  ; Result>0 means checkdeath returns without deathsound/item/boss work.
  lda.l SourceLandingCallback4086_View
@@ -667,7 +728,7 @@ SourceLandingCallback4086_Commit:
 SourceLandingCallback4086_ReturnSet:
 .a16
 .i16
- lda #5
+ lda #6
  sta.l SourceLandingCallback4086_State
 SourceLandingCallback4086_Complete:
 .a16
