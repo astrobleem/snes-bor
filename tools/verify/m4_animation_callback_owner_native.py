@@ -51,6 +51,7 @@ def main():
     p.add_argument('--initial-select',action='store_true',help='Initialize authored player SELECT through real default-choice/ent_set_anim/frame-zero owners.')
     p.add_argument('--costmove-model',help='Execute actual costmove and frame-zero owner for this source identity, in an exclusive instrumented payload lease.')
     p.add_argument('--costmove-role',default='freespecial4',help='Authored animation role for the costmove continuation proof.')
+    p.add_argument('--source-command',action='store_true',help='Select costmove from actual source command/history; finish clears fresh post-callback playkeys.')
     p.add_argument('--initial-jump',action='store_true',help='Run real default choice/action/JUMP frame zero and current makeinv fields, isolated.')
     p.add_argument('--ai-run',action='store_true',help='execute actual generic AI dispatcher through common_spawn and real authored idle frame, then absent think script')
     p.add_argument('--common-spawn',action='store_true',help='Execute actual common_spawn idle transition through existing non-idle animation; isolated AI action, no world clock commit')
@@ -84,6 +85,15 @@ def main():
     if a.costmove_model:
         if not a.frame_owner or not a.effects_runner:raise ValueError('COSTMOVE_REQUIRES_REAL_FRAME_OWNER')
         a.initial_select=True
+    if a.source_command and not a.costmove_model:raise ValueError('SOURCE_COMMAND_REQUIRES_COSTMOVE_MODEL')
+    cost_work=0x7fa000;cost_tail=0x7fa040
+    if a.source_command:
+        from source_foreign_state_layout import layout
+        from source_player_combo_4086 import derive as derive_combos
+        controller_layout=layout(0x7fa000,6400)
+        controller={r['name']:r['address'] for r in controller_layout['regions']}
+        cost_work=controller['costmove_controls'];cost_tail=controller['entity_combo_tail']
+        command_report=derive_combos(source)
     if a.common_spawn and (not a.initial_idle or a.default_owner or a.ctor_owner):raise ValueError('COMMON_SPAWN_FIXTURE_REQUIRES_ISOLATED_INITIAL_IDLE')
     if a.ai_run and(not a.common_spawn or not a.script_clone):raise ValueError('AI_RUN_FRAME_REQUIRES_COMMON_SPAWN_SCRIPT_CLONE')
     if a.physics_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PHYSICS_BIRTH_REQUIRES_COMPLETE_CONSTRUCTOR')
@@ -391,9 +401,18 @@ CallbackFixture_AfterScript:
     if a.initial_none_walk:asm=asm.replace(' jsl WALKBEGIN',' jsl NONEWALKPREP\n bcs CallbackFixture_Bad\n jsl WALKBEGIN')
     if a.costmove_model:
         from source_costmove_native import emit as emit_costmove
-        asm=asm.replace(' jsl DEFAULTBEGIN\n bcs CallbackFixture_Bad\n jsl STARTFRAME',' jsl SourceCostMove_Begin\n bcs CallbackFixture_Bad\n lda.l $7FA002\n cmp #3\n bne CallbackFixture_Bad\n jsl STARTFRAME')
-        asm=asm.replace(' jsl INITACK\n bcs CallbackFixture_Bad',' jsl INITACK\n bcs CallbackFixture_Bad\n jsl SourceCostMove_Finish\n bcs CallbackFixture_Bad')
-        asm+=emit_costmove(0x7fa000,0x7fa040,sy)
+        begin_name='SourceCombo_Begin' if a.source_command else 'SourceCostMove_Begin'
+        finish_name='SourceCombo_Finish' if a.source_command else 'SourceCostMove_Finish'
+        asm=asm.replace(' jsl DEFAULTBEGIN\n bcs CallbackFixture_Bad\n jsl STARTFRAME',f' jsl {begin_name}\n bcs CallbackFixture_Bad\n lda.l {cost_work+2}\n cmp #3\n bne CallbackFixture_Bad\n jsl STARTFRAME')
+        asm=asm.replace(' jsl INITACK\n bcs CallbackFixture_Bad',f' jsl INITACK\n bcs CallbackFixture_Bad\n jsl {finish_name}\n bcs CallbackFixture_Bad')
+        asm+=emit_costmove(cost_work,cost_tail,sy)
+        if a.source_command:
+            from source_costmove_native import emit_combo_energy_query
+            from source_player_input_native import emit as emit_history
+            from source_player_combo_native import emit as emit_command
+            asm+=emit_history(controller['input_history'],controller['input_scratch'],controller['input_snapshot'],controller['combo_sequence'],controller['input_owner'],0xb674)
+            asm+=emit_combo_energy_query(cost_work,sy)
+            asm+=emit_command(command_report,controller['combo_controls'],cost_work,controller['input_history'],controller['combo_sequence'],controller['input_owner'],0xb674,sy)
     if a.initial_enemy:
         if enemy_role=='idle':
             asm=asm.replace(' jsl IDLEBEGIN',' jsl ENEMYPREP\n bcs CallbackFixture_Bad\n cmp #1\n bne CallbackFixture_Bad\n ldx #$8000\n ldy #58\n jsl ENEMYDROP\n bcs CallbackFixture_Bad\n cmp #0\n bne CallbackFixture_Bad\n jsl IDLEBEGIN')
@@ -645,6 +664,10 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
             initialinstall+='\n'+"\n".join(" set('"+n+"',"+str(v)+")" for n,v in cost_settings.items())
             initialinstall+='\n for j=0,2111 do put(0x7fa000+j,0,1)end;put(0x7fa000,0xb670,2);put(0x7fa006,'+str(animation['engine_animation_id'])+',2);put(0x7fa008,1,4);put(0x40c04c,100,4);put(0x437e04,0,4);put(0x437e10,0xb5fb,2);put(0x437e12,0,2);put(0x40901c,0,4)\n'
             lua+=f"emu.addMemoryCallback(function()emu.log('COSTMOVECOMPLETE|'..word(INDEX)..'|'..word(0x7fa002)..'|'..dw(0x40c04c)..'|'..dw(0x414024)..'|'..word(sy.SourceAnimationInit4086_State)..'|'..word(sy.SourceUpdateFrame4086_State))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
+            if a.source_command:
+                selected_command=next(c for m in command_report['models'] if m['model']==a.costmove_model for c in m['combos'] if c['anim']==animation['engine_animation_id'])
+                initialinstall+=f"\n for j=0,1023 do put({controller['input_history']}+j,0,1)end;for j=0,95 do put({controller['combo_controls']}+j,0,1)end;put({controller['combo_controls']},0xb673,2);put({controller['input_owner']},0xb674,2);put({controller['input_history']+224},0x80001dfc,4);put(0x414028,1,2);put(0x41402a,0,2);put(0x41402c,0,4);put(0x414008,2,2);put(0x41400a,0,2);put(0x41400c,0,4);put(0x41f508,0,4);put(0x43eb00,1,4);put(0x43eb08,0,4)\n"
+                for j,command_mask in enumerate(selected_command['input']):initialinstall+=f" put({controller['input_history']+108+4*((27-len(selected_command['input'])+j)%27)},{command_mask},4)\n"
         lua+=r'''
 emu.addMemoryCallback(function()
  emu.log('CALLBACKSELECTINIT|'..word(INDEX)..'|'..word(sy.SourceDefaultChoice4086_Chosen)..'|'..word(sy.SourceAnimationInit4086_State)..'|'..word(sy.SourceAnimationInit4086_Issued)..'|'..word(0x414014)..'|'..word(0x416804)..'|'..word(sy.SourceUpdateFrame4086_Request))
@@ -841,6 +864,12 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     if a.initial_enemy:
         for label in ('SourceDefaultEnemy4086_PrepareNormal','SourceDefaultEnemy4086_ResolveSpawn','SourceDefaultEnemy4086_SpawnResolved','SourceDefaultEnemy4086_RespawnResolved','SourceDefaultEnemy4086_Done','SourceDefaultEnemy4086_BeginHorizontalDrop','SourceDefaultInit4086_BeginIdle','SourceDefaultPlayer4086_Bad','SourceAnimationInit4086_ResolveBad'):
             lua+=f"emu.addMemoryCallback(function() emu.log('ENEMYSEG|{label}|'..emu.getState()['cpu.a']..'|'..word(sy.SourceDefaultPlayer4086_Status)..'|'..word(sy.SourceAnimationInit4086_State)..'|'..word(sy.SourceAnimationInit4086_Handle)..'|'..word(sy.SourceAnimationInit4086_Count)) end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)\n"
+    if a.source_command:
+        # Relocate the existing cost proof's controls before adding history data.
+        lua=re.sub(r'0x7fa0[0-3][0-9a-f]',lambda m:str(cost_work+int(m[0],16)-0x7fa000),lua)
+        lua+=f"emu.addMemoryCallback(function()local c=rows[word(INDEX)+1];put(0x41402c,c.direction,4);put({controller['input_history']}+c.direction*256+224,0xc0001dfc,4)end,emu.callbackType.exec,{fs['SourceCombo_Finish']},{fs['SourceCombo_Finish']},emu.cpuType.snes,mt)\n"
+        lua+=f"emu.addMemoryCallback(function()local c=rows[word(INDEX)+1];emu.log('COMMANDCOMPLETE|'..word(INDEX)..'|'..word({controller['combo_controls']+2})..'|'..word({controller['combo_controls']+8})..'|'..dw({controller['input_history']}+c.direction*256+224)..'|'..dw({controller['input_history']+224})..'|'..dw({controller['input_history']+480}))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
+        for name,value in values.items():lua=re.sub(r'\b'+name+r'\b',str(value),lua)
     script=folder/'callback_owner.lua';script.write_text(lua)
     if a.emit_only:
         print('Private source-derived fixture emitted; native execution NOT performed:',path)
@@ -889,6 +918,9 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     if a.costmove_model:
         cost_results=[list(map(int,s.split('COSTMOVECOMPLETE|')[1].strip().split('|'))) for s in (folder/'mesen.log').read_text().splitlines() if 'COSTMOVECOMPLETE|' in s]
         reporter.check('costmove debit and mandatory native callback completion precede success',cost_results==[[i,4,100-cost_fields['cost'],150,2,2] for i in range(len(rows))])
+        if a.source_command:
+            command_results=[list(map(int,line.split('COMMANDCOMPLETE|')[1].strip().split('|'))) for line in (folder/'mesen.log').read_text().splitlines() if 'COMMANDCOMPLETE|' in line]
+            reporter.check('source command completes actual callback and clears fresh post-callback player keys',command_results==[[i,4,animation['engine_animation_id'],0xc0000000,0x80001dfc if c['direction'] else 0xc0000000,0xc0000000 if c['direction'] else 0] for i,c in enumerate(rows)])
     if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:reporter.check('authored '+(enemy_role.upper()if a.initial_enemy else'JUMP'if a.initial_jump else'IDLE'if a.initial_idle else'WALK'if a.initial_walk else'SELECT')+(' transition completes actual frame zero; world service remains pending'if a.common_spawn else' initialization completes actual frame-zero before clock retirement'),len(select_results)==len(rows)and all(r[0]==i and (a.initial_enemy or a.initial_idle or a.initial_walk or r[1]==(65535 if a.initial_jump else animation['engine_animation_id']))and r[2:]==[2,1,animation['engine_animation_id'],animation['handle'],0]for i,r in enumerate(select_results)))
     if a.initial_jump:reporter.check('real JUMP frame zero and post-callback source makeinv fields',jump_results==[[i,300*65536,2,1,3,5,1,1,848,1]for i in range(len(rows))])
     tail_results=[list(map(int,line.split('CALLBACKTAIL|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CALLBACKTAIL|'in line]
@@ -959,6 +991,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
     r.update(native_birth_core=a.birth_core,birth_core_results=core_results)
     r.update(initial_select=a.initial_select,initial_select_results=select_results,initial_jump=a.initial_jump,initial_jump_results=jump_results)
     if a.costmove_model:r.update(costmove_model=a.costmove_model,costmove_role=a.costmove_role,costmove_results=cost_results,costmove_payload_lease='instrumented exclusive retired producer cache; production canvas handoff certified separately',production_costmove_binding=False)
+    if a.source_command:r.update(source_command=selected_command,source_command_results=command_results,controller_layout=controller_layout,post_callback_playerindex_and_playkeys_mutation_instrumented=True)
     r.update(empty_environment_tail_bound=a.initial_jump or a.initial_idle,tail_results=tail_results,initial_idle=a.initial_idle,initial_idle_results=idle_results)
     r.update(default_idle_registry_capability=idle_capability,default_walk_registry_capability=walk_capability,initial_walk=a.initial_walk,initial_walk_results=walk_results,initial_none_walk=a.initial_none_walk,initial_none_walk_results=none_walk_results)
     r.update(initial_none_model=a.initial_none_model,initial_none_model_results=no_walk_results)

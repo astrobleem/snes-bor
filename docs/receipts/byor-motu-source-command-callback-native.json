@@ -1,0 +1,369 @@
+{
+  "schema": "BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1",
+  "status": "PASS",
+  "rom_sha256": "69e68bad09b6598c7bccd47a41db9703907a1f69660d662495c707e072b113f4",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "owner_table_sha256": "cce1ac775e84a8eaba1014cf73de7ba0f8f1cad9eedc9c7dd2297f2c853532a2",
+  "cases": [
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 4,
+      "fault": 0
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 4,
+      "fault": 0
+    }
+  ],
+  "results": [
+    [
+      0,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "expected": [
+    [
+      0,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "faults": [],
+  "source_frame_handle": 36,
+  "script_programs": 7,
+  "callback_cpu_costs": [
+    [
+      0,
+      280706,
+      506,
+      506
+    ],
+    [
+      1,
+      290852,
+      507,
+      508
+    ]
+  ],
+  "cost_scope": "Before native callback Begin through callback completion/fault and instrumented frame-service acknowledgement; includes intervening NMI/runtime, excludes debugger initialization",
+  "initializer_copy_checks": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0
+    ]
+  ],
+  "remaining_effect_service_instrumented": false,
+  "native_effect_runner": true,
+  "native_frame_owner": true,
+  "sound_service_instrumented": true,
+  "frame_results": [
+    [
+      0,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      1,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ]
+  ],
+  "player_initialization_bound": false,
+  "source_effect_presentation_proven": false,
+  "combat_proven": false,
+  "motu_gameplay_proven": false,
+  "no_pcm_copies": true,
+  "no_color_reduction": true,
+  "native_birth_core": false,
+  "birth_core_results": [],
+  "initial_select": true,
+  "initial_select_results": [
+    [
+      0,
+      44,
+      2,
+      1,
+      44,
+      36,
+      0
+    ],
+    [
+      1,
+      44,
+      2,
+      1,
+      44,
+      36,
+      0
+    ]
+  ],
+  "initial_jump": false,
+  "initial_jump_results": [],
+  "costmove_model": "He_ManB",
+  "costmove_role": "freespecial4",
+  "costmove_results": [
+    [
+      0,
+      4,
+      100,
+      150,
+      2,
+      2
+    ],
+    [
+      1,
+      4,
+      100,
+      150,
+      2,
+      2
+    ]
+  ],
+  "costmove_payload_lease": "instrumented exclusive retired producer cache; production canvas handoff certified separately",
+  "production_costmove_binding": false,
+  "source_command": {
+    "cancel": 0,
+    "frame_min": 0,
+    "frame_max": 0,
+    "hits": 0,
+    "origin": "AUTHORED",
+    "source_line": 23,
+    "input": [
+      32,
+      1073741824,
+      64
+    ],
+    "anim": 44
+  },
+  "source_command_results": [
+    [
+      0,
+      4,
+      44,
+      3221225472,
+      3221225472,
+      0
+    ],
+    [
+      1,
+      4,
+      44,
+      3221225472,
+      2147491324,
+      3221225472
+    ]
+  ],
+  "controller_layout": {
+    "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
+    "base": 8364032,
+    "bytes": 6400,
+    "used_bytes": 4112,
+    "remaining_bytes": 2288,
+    "entities": 128,
+    "players": 4,
+    "regions": [
+      {
+        "name": "input_history",
+        "address": 8364032,
+        "bytes": 1024,
+        "end": 8365056,
+        "authority": "source player ring and input words"
+      },
+      {
+        "name": "entity_movetime",
+        "address": 8365056,
+        "bytes": 512,
+        "end": 8365568,
+        "authority": "source entity movetime uint32"
+      },
+      {
+        "name": "entity_combo_tail",
+        "address": 8365568,
+        "bytes": 2048,
+        "end": 8367616,
+        "authority": "source entity combostep[1..4]"
+      },
+      {
+        "name": "input_scratch",
+        "address": 8367616,
+        "bytes": 40,
+        "end": 8367656,
+        "authority": "serialized input service controls"
+      },
+      {
+        "name": "input_snapshot",
+        "address": 8367656,
+        "bytes": 56,
+        "end": 8367712,
+        "authority": "immutable outer controller snapshot"
+      },
+      {
+        "name": "combo_sequence",
+        "address": 8367712,
+        "bytes": 110,
+        "end": 8367822,
+        "authority": "one copied immutable source command"
+      },
+      {
+        "name": "input_owner",
+        "address": 8367822,
+        "bytes": 2,
+        "end": 8367824,
+        "authority": "input service readiness"
+      },
+      {
+        "name": "binding_shadow",
+        "address": 8367824,
+        "bytes": 128,
+        "end": 8367952,
+        "authority": "four preflighted entity bindings"
+      },
+      {
+        "name": "binding_controls",
+        "address": 8367952,
+        "bytes": 32,
+        "end": 8367984,
+        "authority": "serialized input entity binding"
+      },
+      {
+        "name": "costmove_controls",
+        "address": 8367984,
+        "bytes": 64,
+        "end": 8368048,
+        "authority": "serialized costmove continuation"
+      },
+      {
+        "name": "combo_controls",
+        "address": 8368048,
+        "bytes": 96,
+        "end": 8368144,
+        "authority": "serialized combo selection continuation"
+      }
+    ],
+    "required_lease": "SourceForeignWork B671 nonzero matching generation; retired canvas/frontpanel/water owners",
+    "overlaps_vm_slots": false,
+    "runtime_owner_bound": false,
+    "motu_gameplay_proven": false
+  },
+  "post_callback_playerindex_and_playkeys_mutation_instrumented": true,
+  "empty_environment_tail_bound": false,
+  "tail_results": [],
+  "initial_idle": false,
+  "initial_idle_results": [],
+  "default_idle_registry_capability": null,
+  "default_walk_registry_capability": null,
+  "initial_walk": false,
+  "initial_walk_results": [],
+  "initial_none_walk": false,
+  "initial_none_walk_results": [],
+  "initial_none_model": null,
+  "initial_none_model_results": [],
+  "ctor_owner_bound": false,
+  "ctor_state_bound": false,
+  "ctor_factors_bound": false,
+  "ctor_model_bound": false,
+  "ctor_media_bindings_bound": false,
+  "script_clone_bound": false,
+  "script_clone_results": [],
+  "script_clone_table_sha256": null,
+  "default_owner_bound": false,
+  "default_owner_results": [],
+  "initial_enemy": null,
+  "initial_enemy_role": null,
+  "initial_enemy_results": [],
+  "enemy_drop_context_instrumented": false,
+  "full_default_init_bound": false,
+  "stage_queue_index": null,
+  "stage_queue_row": null,
+  "stage_queue_table_sha256": null,
+  "stage_queue_constructor_inputs_bound": false,
+  "stage_queue_post_constructor_properties_bound": false,
+  "smartspawn_results": [],
+  "smartspawn_music_execution_bound": false,
+  "queue_producer_bound": false,
+  "queue_producer_results": [],
+  "queue_music_service_instrumented": false,
+  "scroller_owner_bound": false,
+  "scroller_no_player_return_only": false,
+  "scroller_results": []
+}
