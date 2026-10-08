@@ -22,12 +22,12 @@ def trunc_div(value,divisor):
  return (abs(value)//divisor)*(-1 if value<0 else 1)
 
 
-def reference(row):
+def reference(row,frames=48):
  count,bits,volume,period,length,active=row
- mixed=[32768<<3]*96;states=[]
+ mixed=[32768<<3]*(2*frames);states=[]
  for channel in range(count):
   position=((channel*4)%length)<<12;live=active
-  for sample in range(48):
+  for sample in range(frames):
    index=position>>12
    value=(index*37+channel*13)&255 if bits==8 else (index*257+channel*1024)%65536-32768
    for side,gain in enumerate((volume,64-volume)):
@@ -47,23 +47,24 @@ def main():
  p.add_argument('--source',type=Path,required=True)
  p.add_argument('--assets',type=Path,required=True)
  p.add_argument('--output',type=Path,required=True)
+ p.add_argument('--frames',type=int,choices=(48,184),default=48)
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  raw=subprocess.check_output(['git','-C',str(a.engine),'show',ENGINE_COMMIT+':engine/source/gamelib/soundmix.c']).decode('latin1')
  names=('clearmixbuffer','mixaudio','update_sample');bodies={n:extract(raw,n)for n in names}
  typedefs=raw[raw.index('typedef struct'):raw.index('} musicchannelstruct;')+len('} musicchannelstruct;')]
  macros='\n'.join(re.search(r'^#define\s+'+n+r'[^\n]*',raw,re.M)[0]for n in('MIXSHIFT','MAXVOLUME','MAX_CHANNELS','INT_TO_FIX','FIX_TO_INT','CHANNEL_PLAYING','CHANNEL_LOOPING','MUSIC_NUM_BUFFERS','SOUND_MONO'))
  rows=list(itertools.product((0,1,2,4,8,12),(8,16),(0,1,32,37,64),(1024,4096,8192),(17,257),(1,2)))
- code='#include <stdio.h>\n#include <string.h>\n'+macros+'\n'+typedefs+r'''
+ code='#include <stdio.h>\n#include <string.h>\n#define OUTPUT_FRAMES '+str(a.frames)+'\n'+macros+'\n'+typedefs+r'''
 typedef signed int s32;
 channelstruct vchannel[MAX_CHANNELS];musicchannelstruct musicchannel;
 s_soundcache cache[12],*soundcache=cache;
 int max_channels,playbits=16;unsigned samplesplayed;
-s32 storage[96],*mixbuf=storage;
+s32 storage[OUTPUT_FRAMES*2],*mixbuf=storage;
 unsigned char pcm8[12][257];short pcm16[12][257];
 '''+ '\n'.join(bodies.values())
  code+='\nint cases[][6]={'+','.join('{'+','.join(map(str,r))+'}'for r in rows)+'};\n'
  code+=r'''
-int main(void){unsigned k;int j,i,*c;unsigned short output[96];
+int main(void){unsigned k;int j,i,*c;unsigned short output[OUTPUT_FRAMES*2];
 if(sizeof(int)!=4||sizeof(void*)!=4)return 2;
 for(k=0;k<sizeof(cases)/sizeof(cases[0]);k++){
 c=cases[k];max_channels=c[0];memset(vchannel,0,sizeof(vchannel));memset(cache,0,sizeof(cache));
@@ -75,7 +76,7 @@ for(j=0;j<max_channels;j++){
  vchannel[j].fp_samplepos=((j*4)%c[4])<<12;vchannel[j].fp_period=c[3];
 }
 update_sample((unsigned char*)output,sizeof(output));printf("MIX|%u|",k);
-for(i=0;i<96;i++)printf("%s%u",i?",":"",output[i]);
+for(i=0;i<OUTPUT_FRAMES*2;i++)printf("%s%u",i?",":"",output[i]);
 for(j=0;j<max_channels;j++)printf(",%d,%u",vchannel[j].active,vchannel[j].fp_samplepos);puts("");
 }return 0;}
 '''
@@ -87,7 +88,7 @@ for(j=0;j<max_channels;j++)printf(",%d,%u",vchannel[j].active,vchannel[j].fp_sam
  lines=subprocess.check_output([str(a.output/'mixing.exe')],cwd=a.output,text=True).splitlines();actual=[]
  for line in lines:
   _,index,values=line.split('|');assert int(index)==len(actual);actual.append(list(map(int,values.split(','))))
- expected=[reference(r)for r in rows];ok=actual==expected and len(actual)==len(rows)
+ expected=[reference(r,a.frames)for r in rows];ok=actual==expected and len(actual)==len(rows)
  source=Source(a.source);manifest=json.loads((a.assets/'report.json').read_text());assets=[]
  for row in manifest['compiled']:
   data=source.read(row['source_path']);assert hashlib.sha256(data).hexdigest()==row['source_sha256']
@@ -95,7 +96,7 @@ for(j=0;j<max_channels;j++)printf(",%d,%u",vchannel[j].active,vchannel[j].fp_sam
    assets.append(dict(sound_index=row['sound_index'],source_path=row['source_path'],bits=w.getsampwidth()*8,channels=w.getnchannels(),frequency=w.getframerate(),source_frames=w.getnframes()))
  report=dict(schema='BYOR_4086_SOUND_MIXING_AUTHORITY_V1',status='PASS'if ok else'FAIL',engine_commit=ENGINE_COMMIT,
   source_path='engine/source/gamelib/soundmix.c',function_sha256={n:hashlib.sha256(b.encode('latin1')).hexdigest()for n,b in bodies.items()},
-  cases=len(rows),case_fields=['active_channels','bits','left_volume','Q12_period','sample_length','active_mode'],inputs=rows,actual=actual,expected=expected,
+  cases=len(rows),output_frames=a.frames,case_fields=['active_channels','bits','left_volume','Q12_period','sample_length','active_mode'],inputs=rows,actual=actual,expected=expected,
   source_assets=assets,source_mixshift=3,source_8bit_contribution='((unsigned_sample<<8)*volume/64)-32768',source_16bit_contribution='signed_sample*volume/64 with C truncation toward zero',
   output_16bit_policy='signed accumulator arithmetic >>3, clamp unsigned biased 0..65535, XOR 32768',
   mono_source_is_accumulated_into_both_output_sides=True,music_inactive=True,source_pcm_not_copied=True,
