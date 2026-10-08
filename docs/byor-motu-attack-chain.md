@@ -21,8 +21,8 @@ signed overflow fail explicitly. Scripts changing chain geometry require a
 capability beyond the existing immutable B4BC reader.
 
 The caller must serialize these services and lease 96 control bytes plus 128
-signed combostyle rows. The compiler controller arena plan now uses 4720 bytes,
-with 1680 bytes remaining. Existing input/command/costmove addresses are retained.
+signed combostyle rows. The compiler controller arena plan now uses 5040 bytes,
+with 1360 bytes remaining. Existing input/command/costmove addresses are retained.
 This plan does not initialize entity fields or grant runtime ownership by itself.
 
 | Control | Meaning |

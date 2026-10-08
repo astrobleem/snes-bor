@@ -25,7 +25,9 @@ def layout(base,size,entities=128,players=4):
            ('costmove_controls',64,'serialized costmove continuation'),
            ('combo_controls',96,'serialized combo selection continuation'),
            ('entity_combostyle',entities*4,'source mutable entity modeldata.combostyle int32'),
-           ('attack_chain_controls',96,'serialized attack-chain continuation')]
+           ('attack_chain_controls',96,'serialized attack-chain continuation'),
+           ('entity_run_tuple',entities*2,'lossless immutable RUN snapshot handle'),
+           ('run_tuple_controls',64,'serialized RUN capture/read controls')]
     cursor=base;regions=[]
     for name,count,authority in specs:
         cursor=(cursor+1)&~1

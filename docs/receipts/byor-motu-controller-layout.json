@@ -2,8 +2,8 @@
   "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
   "base": 8364032,
   "bytes": 6400,
-  "used_bytes": 4720,
-  "remaining_bytes": 1680,
+  "used_bytes": 5040,
+  "remaining_bytes": 1360,
   "entities": 128,
   "players": 4,
   "regions": [
@@ -97,6 +97,20 @@
       "bytes": 96,
       "end": 8368752,
       "authority": "serialized attack-chain continuation"
+    },
+    {
+      "name": "entity_run_tuple",
+      "address": 8368752,
+      "bytes": 256,
+      "end": 8369008,
+      "authority": "lossless immutable RUN snapshot handle"
+    },
+    {
+      "name": "run_tuple_controls",
+      "address": 8369008,
+      "bytes": 64,
+      "end": 8369072,
+      "authority": "serialized RUN capture/read controls"
     }
   ],
   "required_lease": "SourceForeignWork B671 nonzero matching generation; retired canvas/frontpanel/water owners",
