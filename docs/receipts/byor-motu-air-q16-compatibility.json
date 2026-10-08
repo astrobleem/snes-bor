@@ -1,0 +1,39 @@
+{
+  "schema": "BYOR_MOTU_AIR_Q16_COMPATIBILITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "path": "out/byor-motu-air-q16-compatibility/report.json",
+    "sha256": "2c327cd7ea23b7fbd3fb02e418414600e1d4761330c4a57b8df75e43e042fd19"
+  },
+  "source_c_cases": 6912,
+  "discrete_mismatches": 0,
+  "peak_one_step_altitude_error_q16_units": 0,
+  "peak_one_step_velocity_error_q16_units": 1,
+  "trajectories": [
+    {
+      "stage": "DATA\\LEVELS\\GUILE2.TXT",
+      "initial_source_frame_jump_velocity": 5.0,
+      "source_landing_tick": 200,
+      "q16_landing_tick": 200,
+      "landing_tick_difference": 0,
+      "peak_altitude_error_pixels": 0.03105449676513672,
+      "peak_velocity_error": 0.0006084442138671875
+    },
+    {
+      "stage": "DATA\\LEVELS\\HOLES.TXT",
+      "initial_source_frame_jump_velocity": 5.0,
+      "source_landing_tick": 200,
+      "q16_landing_tick": 200,
+      "landing_tick_difference": 0,
+      "peak_altitude_error_pixels": 0.03105449676513672,
+      "peak_velocity_error": 0.0006084442138671875
+    }
+  ],
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16; nearest input conversion, arithmetic-shift halves, fixed multiplication floor; source inair threshold approximated by6554units",
+  "trajectory_scope": "Derived stage constants and authored jump velocities, controlled sticky base/no animation changes/no callbacks/no bounce; stops at first landing; not authored gameplay",
+  "numeric_binary32_exact": false,
+  "native_airborne_proven": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
