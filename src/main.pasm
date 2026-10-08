@@ -14033,3 +14033,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_world_tick.pasm"
 
 .include "core/vm/vm_source_physics_state.pasm"
+
+.include "core/vm/vm_source_animation_physics.pasm"

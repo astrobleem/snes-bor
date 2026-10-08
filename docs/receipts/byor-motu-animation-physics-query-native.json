@@ -1,0 +1,52 @@
+{
+  "schema": "BYOR_MOTU_ANIMATION_PHYSICS_QUERY_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "native": {
+      "path": "out/byor-motu-animation-physics-query-native/report.json",
+      "sha256": "8f7b38d8a7676804fe712240590dec92f769f0ef6f7a51f34ed465fae09ad52c"
+    },
+    "authority": {
+      "path": "out/byor-motu-animation-physics-authority/report.json",
+      "sha256": "b2f0a3d7767d751c45072bc14bf36a1f39793f8845358e8580894e1eb9d7b95e"
+    },
+    "compiled": {
+      "path": "out/byor-motu-animation-physics/physics.b4ph",
+      "sha256": "598406817e5aeca4c17de8364b00c5c7c8f8e6e9335ba863e5cfef860ad773a3"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-animation-physics-bor-static-smoke/report.json",
+      "sha256": "c71c1557c54a6fc8ed48a5ba1c94b3e9dac98e01a1e6e55348e04fbc61737546"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-animation-physics-rom-audit.log",
+      "sha256": "de5304623e9ec99ee5fb63e00b9ec66ec7950824047d69cd5c304e5628ea7be2"
+    }
+  },
+  "native_cases": 858,
+  "authored_frame_rows": 836,
+  "compiled_bytes": 8624,
+  "lease": "B61F immutable B4PH table at SourceAnimationPhysics4086_Ready41FF00",
+  "control_scratch_domain": "41FF00..41FF4F; source frame aux ends41FF00, former quake reservation unused",
+  "metadata": [
+    "antigrav32",
+    "dropframe32",
+    "landframe32",
+    "land_entity32",
+    "current_frame_BASE32",
+    "current_frame_Y32"
+  ],
+  "table_at_exact_rom_bank_boundary_proven": true,
+  "malformed_header_and_full_dword_antigrav_and_descriptor_guards_proven": true,
+  "unpublished_results_preserved_on_rejection": true,
+  "cpu_and_adjacent_memory_preserved": true,
+  "cold_fetch_disables_capability": true,
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "foreign_profile_admitted": false,
+  "native_active_gravity_or_landing_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
