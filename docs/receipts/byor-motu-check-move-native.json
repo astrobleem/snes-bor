@@ -1,0 +1,95 @@
+{
+  "schema": "BYOR_MOTU_CHECK_MOVE_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_function_sha256": "7723872dd89ee6ed6eb222658efa76097dc52258ae12f4a65b22e916bc34e1da",
+  "authority_cases": 1152,
+  "native_cases": 222,
+  "capability": "DIRECT_CHECK_MOVE_NO_PLATFORM_NULL_TRYMOVE",
+  "coordinate_policy": "ACCEPTED_COMPAT_Q16_16",
+  "evidence": {
+    "authority": {
+      "path": "out/byor-motu-check-move-authority/report.json",
+      "sha256": "eb0127946658a26ea9967195dbf834aff000d0ef6df34c0b84ca1375cdadf473"
+    },
+    "native": {
+      "path": "out/byor-motu-check-move-final-native/report.json",
+      "sha256": "db1343449a7290b19b99b25df393a6dc7594f7b9f67fb08ac8d8fadd5d6a944c"
+    },
+    "authored_left": {
+      "path": "out/byor-motu-authored-move-left-audio-final-native/report.json",
+      "sha256": "24fc93849ad3ddcbf5714471e6fec17be58234289d2d83e397a02801ffc93920"
+    },
+    "authored_right": {
+      "path": "out/byor-motu-authored-move-right-audio-final-native/report.json",
+      "sha256": "8f30a8e5da423bc81943e949d9d7731d0215f2eaf11ddabc5e7e4e68a5d7e9f8"
+    },
+    "bor_static_smoke": {
+      "path": "out/byor-motu-check-move-bor-static-smoke/report.json",
+      "sha256": "4f1f0cb334eb1efa40fb66db33e32b80060bcb74809f5bf993112fc9f5f73789"
+    }
+  },
+  "authored_directions": [
+    {
+      "direction": 0,
+      "observation": [
+        0,
+        1,
+        5242880,
+        5144576,
+        14483456,
+        14483456,
+        2228224,
+        2228224,
+        4294868992,
+        0,
+        146,
+        2,
+        6,
+        2,
+        2
+      ],
+      "source_audio_dsp_blocks": 897
+    },
+    {
+      "direction": 1,
+      "observation": [
+        0,
+        1,
+        5242880,
+        5341184,
+        14483456,
+        14483456,
+        2228224,
+        2228224,
+        98304,
+        0,
+        146,
+        2,
+        6,
+        2,
+        2
+      ],
+      "source_audio_dsp_blocks": 897
+    }
+  ],
+  "source_policy": "update_mark bit4 early return; no platform; actual freeze query; unsigned nextmove<=time; null trymove direct addition; nextmove=time+1; displacement; OR update_mark bit4",
+  "native_faults": [
+    "stale time/self/phase/tick lease",
+    "invalid model identity",
+    "missing no-platform/empty-wall registry",
+    "initialized trymove requiring separate backend",
+    "invalid position variants",
+    "both-axis signed Q16 overflow before publication"
+  ],
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "width_guard": "raw zero violations; audit_all ALL CHECKS PASS",
+  "direct_position_integration_proven": true,
+  "gravity_proven": false,
+  "full_ent_post_update_proven": false,
+  "live_world_owner_proven": false,
+  "foreign_profile_registered": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

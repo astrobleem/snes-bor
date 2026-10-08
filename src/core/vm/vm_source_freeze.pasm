@@ -549,7 +549,7 @@ SourceFreeze4086_Predicate_PublishFrozen:
 .i16
  rts
 
-; Readonly query for check_lost before the later frozen service.
+; Readonly query for check_lost, frozen service, and check_move phase11.
 SourceFreeze4086_Query:
 .a16
 .i16
@@ -636,6 +636,8 @@ SourceFreeze4086_QueryGuard11:
  cmp #2
  beq SourceFreeze4086_QueryPhase
  cmp #3
+ beq SourceFreeze4086_QueryGuard12
+ cmp #11
  beq SourceFreeze4086_QueryGuard12
  jmp SourceFreeze4086_QueryBad
 SourceFreeze4086_QueryGuard12:

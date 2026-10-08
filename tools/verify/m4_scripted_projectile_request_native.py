@@ -110,7 +110,7 @@ end,emu.callbackType.exec,AFTERCHILD,AFTERCHILD,emu.cpuType.snes,mt)
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for k in ('rom','source','output'):p.add_argument('--'+k,type=Path,required=True)
- p.add_argument('--direction',type=int,choices=(0,1));p.add_argument('--arrow-tick',action='store_true');p.add_argument('--constructor',action='store_true');p.add_argument('--from-frame-zero',action='store_true');p.add_argument('--audio-source',type=Path);p.add_argument('--audio-rom',type=Path);p.add_argument('--isolate-audio',action='store_true');p.add_argument('--idle-audio-pump',action='store_true');p.add_argument('--spc-driver',type=Path);p.add_argument('--prefill-audio',action='store_true');p.add_argument('--audio-arm-guard',action='store_true');a=p.parse_args();assert not a.audio_rom or a.audio_source;assert not a.from_frame_zero or a.constructor;assert not a.arrow_tick or (a.from_frame_zero and a.audio_source);assert not a.audio_source or a.from_frame_zero;assert not(a.isolate_audio or a.idle_audio_pump or a.spc_driver or a.prefill_audio or a.audio_arm_guard)or a.audio_source;a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+ p.add_argument('--move-tick',action='store_true');p.add_argument('--direction',type=int,choices=(0,1));p.add_argument('--arrow-tick',action='store_true');p.add_argument('--constructor',action='store_true');p.add_argument('--from-frame-zero',action='store_true');p.add_argument('--audio-source',type=Path);p.add_argument('--audio-rom',type=Path);p.add_argument('--isolate-audio',action='store_true');p.add_argument('--idle-audio-pump',action='store_true');p.add_argument('--spc-driver',type=Path);p.add_argument('--prefill-audio',action='store_true');p.add_argument('--audio-arm-guard',action='store_true');a=p.parse_args();assert not a.audio_rom or a.audio_source;assert not a.from_frame_zero or a.constructor;assert not a.arrow_tick or (a.from_frame_zero and a.audio_source);assert not a.move_tick or a.arrow_tick;assert not a.audio_source or a.from_frame_zero;assert not(a.isolate_audio or a.idle_audio_pump or a.spc_driver or a.prefill_audio or a.audio_arm_guard)or a.audio_source;a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source)
  owner,code,meta,dispatch=derive(source);callbacks=pack(owner);reg=registry(source);models=pack_registry(reg);validate_pair(callbacks,models,code,meta,dispatch)
  nr,ncode,nmeta=continuations(source);assert(code,meta)==(ncode,nmeta);native=pack_continuations(nr);pair_native(native,code,meta)
  er=effects(source);fe=pack_effects(er);an=next(x for x in er['animations']if x['model']=='Knightbot'and x['role']=='attack1');model=next(x['id']for x in reg['models']if x['identity']=='Knightbot');child=next(x['id']for x in reg['models']if x['identity']=='ShockBall')
@@ -150,6 +150,10 @@ def main():
    from m4_projectile_arrow_fixture import ASM as ARROW_ASM, OBSERVER as ARROW_OBSERVER, BINDINGS as ARROW_BINDINGS, PROBES as ARROW_PROBES
    asm=asm.replace('ScriptedProjectileConstructorDone:\n.a16\n.i16\n','ScriptedProjectileConstructorDone:\n.a16\n.i16\n'+ARROW_ASM)
    lua+=ARROW_OBSERVER;bindings.update(ARROW_BINDINGS);probes.update(ARROW_PROBES)
+  if a.move_tick:
+   from m4_projectile_move_fixture import ASM as MOVE_ASM, OBSERVER as MOVE_OBSERVER, BINDINGS as MOVE_BINDINGS, PROBES as MOVE_PROBES
+   asm=asm.replace('ScriptedProjectileAfterArrow:\n.a16\n.i16\n nop\n','ScriptedProjectileAfterArrow:\n.a16\n.i16\n nop\n'+MOVE_ASM)
+   lua+=MOVE_OBSERVER;bindings.update(MOVE_BINDINGS);probes.update(MOVE_PROBES)
   if a.audio_source:
    from m4_projectile_audio_fixture import configure, SERVICE, NEAR, BINDINGS as AUDIO_BINDINGS, OBSERVER
    from actor_s5_entity_fixture import symbols
@@ -184,7 +188,7 @@ def main():
 emu.addMemoryCallback(function()local changed=0;for addr,value in pairs(waiting)do if emu.read(addr,mt)~=value then changed=changed+1 end end;emu.log('SCRIPTWAIT|'..word(INDEX)..'|'..changed)end,emu.callbackType.exec,WAITOBSERVED,WAITOBSERVED,emu.cpuType.snes,mt)
 '''
  audio_verification=None
- authored_arrow=[]
+ authored_arrow=[];authored_move=[]
  r=Reporter('M4-SCRIPTED-PROJECTILE-CONSTRUCTOR'if a.constructor else'M4-SCRIPTED-PROJECTILE-REQUEST',kind='GATE')
  raw,log=run_fixture(a.rom,a.output,rows,'ScriptedProjectileFixture','SourceNativeRequest4086_Ready',0xb615,tables,lua,r,append=asm,bindings=bindings,batch_size=1,probes=probes,frame_limit=200,**fixture_hooks)
  actual=[list(map(int,l.split('SCRIPTEDPROJECTILE|',1)[1].split('|')))for l in log.splitlines()if'SCRIPTEDPROJECTILE|'in l]
@@ -202,6 +206,10 @@ emu.addMemoryCallback(function()local changed=0;for addr,value in pairs(waiting)
   authored_arrow=[list(map(int,l.split('AUTHOREDARROW|',1)[1].split('|')))for l in log.splitlines()if'AUTHOREDARROW|'in l]
   expected_arrow=[[i,1 if c['slot']==0 else 0,c['direction'],98304,(-98304 if c['direction']==0 else 98304)&0xffffffff,147,145,0,2,2,5]for i,c in enumerate(rows)]
   r.check('real scripted child source speed -> due check_ai/common_think/common_move/arrow_move, direction velocity, unchanged position/A/Z speed, actual nextthink +2',authored_arrow==expected_arrow)
+ if a.move_tick:
+  authored_move=[list(map(int,l.split('AUTHOREDMOVE|',1)[1].split('|')))for l in log.splitlines()if'AUTHOREDMOVE|'in l]
+  expected_move=[[i,1 if c['slot']==0 else 0,80*65536,80*65536+(-98304 if c['direction']==0 else 98304),221*65536,221*65536,34*65536,34*65536,(-98304 if c['direction']==0 else 98304)&0xffffffff,0,146,2,6,2,2]for i,c in enumerate(rows)]
+  r.check('actual child velocity accumulator -> due direct check_move position, preserved Z/A, nextmove+1 and update_mark',authored_move==expected_move)
  r.check('posted native prevents early VM resume; IP, budget, call frames and all slots unchanged on repeated callback Run',waits==[[i,0]for i in range(len(rows))])
  expected=[]
  for i,c in enumerate(rows):
@@ -221,6 +229,6 @@ emu.addMemoryCallback(function()local changed=0;for addr,value in pairs(waiting)
      audio_verification['shared_wait_context_observations']=len(contexts);audio_verification['shared_wait_context_faults']=sum(v[1]for v in contexts)
     r.check('private stream: all BRR bytes, padding, voice0 pitch/gain, continuous full-duration envelope and END; no observed producer underrun',audio_verification['status']=='PASS')
  else:r.check('actual source FRAME6, real bytecode/script CALL frame, typed model/coordinate/direction request, cooperative yield and exact native continuation identity; no child allocated',actual==expected)
- (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_SCRIPTED_PROJECTILE_REQUEST_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),wait_observations=waits,natural_frame_observations=natural,from_authored_frame_zero=a.from_frame_zero,actual=actual,expected=expected,rom_sha256=hashlib.sha256(raw).hexdigest(),source_model='Knightbot',source_frame=6,compiled_source_sha256=hashlib.sha256(code+meta+dispatch).hexdigest(),source_stage_context_instrumented=True,source_self_global_lease_disabled=not a.constructor,constructor_executed=a.constructor,constructor_observations=actual_ctor,constructor_expected=expected_ctor,source_audio_namespace_addressing=bool(a.audio_rom),source_frame_audio_request_executed=bool(a.audio_source),source_frame_audio_executed=audio_verification is not None,authored_arrow_tick_executed=a.arrow_tick,authored_arrow_observations=authored_arrow,position_integration_proven=False,audio_verification=audio_verification,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
+ (a.output/'report.json').write_text(json.dumps(dict(schema='BYOR_4086_SCRIPTED_PROJECTILE_REQUEST_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',cases=len(rows),wait_observations=waits,natural_frame_observations=natural,from_authored_frame_zero=a.from_frame_zero,actual=actual,expected=expected,rom_sha256=hashlib.sha256(raw).hexdigest(),source_model='Knightbot',source_frame=6,compiled_source_sha256=hashlib.sha256(code+meta+dispatch).hexdigest(),source_stage_context_instrumented=True,source_self_global_lease_disabled=not a.constructor,constructor_executed=a.constructor,constructor_observations=actual_ctor,constructor_expected=expected_ctor,source_audio_namespace_addressing=bool(a.audio_rom),source_frame_audio_request_executed=bool(a.audio_source),source_frame_audio_executed=audio_verification is not None,authored_arrow_tick_executed=a.arrow_tick,authored_arrow_observations=authored_arrow,authored_move_observations=authored_move,direct_position_integration_proven=a.move_tick,gravity_proven=False,position_integration_proven=False,audio_verification=audio_verification,motu_gameplay_proven=False,no_color_reduction=True),indent=2)+'\n');r.finish()
 
 if __name__=='__main__':main()
