@@ -1,0 +1,48 @@
+{
+  "schema": "BYOR_MOTU_GRAVITY_AIR_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "native": {
+      "path": "out/byor-motu-gravity-air-native/report.json",
+      "sha256": "8c588c1e0f142ebf24889b763feb60f983bbada0af1de5b4952cd7a048568cf9"
+    },
+    "capability": {
+      "path": "out/byor-motu-air-capability/report.json",
+      "sha256": "16a506effee958b7c0eec65f726632488f3af38e374f04cb63c18d8aad6fcfc2"
+    },
+    "numeric_compatibility": {
+      "path": "out/byor-motu-air-q16-compatibility/report.json",
+      "sha256": "2c327cd7ea23b7fbd3fb02e418414600e1d4761330c4a57b8df75e43e042fd19"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-gravity-air-bor-static-smoke/report.json",
+      "sha256": "88061f2da3daf8bd30de61da099a622bc358cf96a5a3c40b8460d92f0e607bf9"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-gravity-air-rom-audit.log",
+      "sha256": "fb087ed1af36556a77e521b152c406928738f40c93311ce7427d64553246422a"
+    }
+  },
+  "native_cases": 1740,
+  "source_models": 16,
+  "source_stages": 2,
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16; retained binary32 C comparison and bounded trajectory error evidence",
+  "native_base_and_freeze_services": true,
+  "nonlanding_air_fields_native": true,
+  "pending_landing_never_commits_toss_or_update_mark": true,
+  "overflow_rejection_restores_base_and_horizontal_velocity": true,
+  "leases": [
+    "B621 air",
+    "B622 immutable zero model physics and closed callbacks",
+    "B623 immutable matching stage physics"
+  ],
+  "native_landing_completion_bound": false,
+  "native_world_post_integration_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

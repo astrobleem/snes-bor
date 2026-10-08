@@ -48,6 +48,10 @@ Vm_FetchSourceInit:
     sta.l SourceAnimationPhysics4086_Status
     sta.l SourceAdjustBaseEmpty4086_Ready
     sta.l SourceAdjustBaseEmpty4086_Status
+    sta.l SourceGravityAir4086_Ready
+    sta.l SourceGravityAir4086_Status
+    sta.l SourceGravityAir4086_StageReady
+    sta.l SourceGravityAir4086_ZeroProfileReady
     sta.l SourcePostStationary4086_Ready
     sta.l SourcePostStationary4086_Status
     sta.l SourcePostStationary4086_Slot
