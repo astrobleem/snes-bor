@@ -1,0 +1,1387 @@
+{
+  "schema": "BYOR_FUSED_BITMAP_TYPE1_COMPONENT_PROOF_V1",
+  "status": "PASS",
+  "no_color_reduction": true,
+  "proofs": [
+    {
+      "folder": "out\\byor-motu-fused-fixed-art-bitmaps-native",
+      "report_sha256": "e220a4a49620c8eb29f8d69de1b8ca4251ff46090b0ac0e270c5703f67c5e9d4",
+      "report": {
+        "schema": "BYOR_NATIVE_UNDERLAY_SCREEN_JOINT_V1",
+        "status": "PASS",
+        "opaque_pixels": 4163,
+        "underlay_pixels": 11520,
+        "RGB555_byte_mismatches": [
+          0,
+          0
+        ],
+        "underlay_RGB8_identity_byte_mismatches": null,
+        "master_clocks": [
+          570750,
+          815850
+        ],
+        "milliseconds": [
+          26.574606549156385,
+          37.98667149037098
+        ],
+        "job_events": [
+          [
+            "underlay_entry",
+            "104732"
+          ],
+          [
+            "underlay_done",
+            "462810"
+          ],
+          [
+            "shader_entry",
+            "462916"
+          ],
+          [
+            "shader_done",
+            "675482"
+          ],
+          [
+            "underlay_entry",
+            "1831664"
+          ],
+          [
+            "underlay_done",
+            "2202504"
+          ],
+          [
+            "shader_entry",
+            "2202610"
+          ],
+          [
+            "shader_done",
+            "2647514"
+          ]
+        ],
+        "underlay_worker_IRAM_bytes": 541,
+        "shader_worker_IRAM_bytes": 180,
+        "retained_stage_window": true,
+        "rom_sha256": "bb47486572f1019ef4f6937f54905a3a8a4a3130434c82b1e1043911d2756376",
+        "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+        "no_color_reduction": true,
+        "host_supplied_pixel_inputs": false,
+        "native_opaque_actor_composition": true,
+        "native_SCREEN_shading": true,
+        "native_camera_bound": false,
+        "native_palette_allocation": false,
+        "CHR_publication": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native clipped opaque spans produce underlay identities consumed directly by native exact RGB8 SCREEN shading. Two mutable actor origins, fixed stage/camera/source frame/layer order. No host pixel input between stages. No palette allocation, CHR publication, live VM, production lease or joint audio deadline admission.",
+        "observer_traces": {
+          "JOINTDMA": [
+            [
+              204,
+              52648,
+              0
+            ],
+            [
+              218,
+              55816,
+              0
+            ]
+          ],
+          "JOINTPIXELS": [
+            [
+              394,
+              0
+            ],
+            [
+              2608,
+              0
+            ]
+          ],
+          "SCREENBASE": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "expected_DMA_trace": [
+          [
+            204,
+            52648,
+            0
+          ],
+          [
+            218,
+            55816,
+            0
+          ]
+        ],
+        "native_DMA_and_shader_output_bounds_proven": true,
+        "compiled_geometry_sha256": "878b94c99991317c8815f832579e63a45df01788e73acb8f5d5e87bf6e8b5cf2",
+        "compiled_group_descriptors_sha256": "c7cf7610a29f988bfeabdc9313824c7fd799962dda6a6ef9d4bc4d7d39cb7fdc",
+        "output_sha256": [
+          "dc95153d93e9a93839bc4ee4ee251044c64ab131f33f1c8e7e02b6802b031294",
+          "bbf474ee5cf941dea05dd52160319e0a3d74d90062696add8d757e9d1bfe5f21"
+        ],
+        "compiler_opaque_RGB8_identity_contract_checked": true,
+        "typed_underlay": true,
+        "per_pixel_destination_guards": false,
+        "identity_producer": "Immutable compiler-checked ROM stage/spans; native clipped copies and restores only",
+        "arbitrary_underlay_writes_supported": false,
+        "precompiled_background_SCREEN": true,
+        "native_actor_correction_counts": [
+          197,
+          1304
+        ],
+        "expected_actor_correction_counts": [
+          197,
+          1304
+        ],
+        "correction_map_ROM_bytes": 69120,
+        "background_SCREEN_ROM_bytes": 8326,
+        "background_SCREEN_sha256": "01fac8a8e11c1a65b402bb2124f4f374cbc6803a781771a828b371c84952ff7f",
+        "background_epoch_unchanged_required": true,
+        "native_baseline_rebuild_bound": false,
+        "adaptive_shader": false,
+        "native_selected_paths": [],
+        "path_legend": {
+          "0": "compiled background plus native actor corrections",
+          "1": "full typed SCREEN shader"
+        },
+        "adaptive_actor_pixel_threshold": null,
+        "full_fallback_IRAM_bytes": 0,
+        "adaptive_policy_optimal": false,
+        "correction_map_sha256": "38b4f12800770d4c2da89c557ac778f15417670cbf97578bd552e644c61d935d",
+        "compiled_context_epoch": 2410332979,
+        "compiled_context_digest": "33c3aa8f14df83cd30a1245ff3006dac6c418224e1d08a058486e5b68ca7a80c",
+        "native_context_epoch_admission": true,
+        "native_context_owner_bound": false,
+        "invalidated_context_half": null,
+        "context_rejection_DMA_trace": [],
+        "proof_kind": "EXACT_NATIVE_PRODUCER_CHAIN",
+        "whole_tile_colour_canvas": true,
+        "colour_canvas_source_bytes": 23040,
+        "actor_RGB555_span_ROM_bytes": 8810,
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "post_layer_overlap_supported": false,
+        "transient_memory_map": {
+          "underlay": "0x420000",
+          "restore_descriptors": "0x426000",
+          "RGB555_output": "0x427000",
+          "actor_origins": "0x42d000",
+          "context_epoch": "0x42d100"
+        },
+        "fused_SCREEN_palette_lookup": true,
+        "fused_scanline_map_ROM_bytes": 92160,
+        "fused_actor_index_span_ROM_bytes": 17620,
+        "fused_stage_index_canvas_ROM_bytes": 46080,
+        "fused_table_ROM_bytes": 253188,
+        "fused_table_sha256": "80037e76b66a91849dad266b28ad3a508b8beacc8312730062ff109d3260a8c8",
+        "fused_underlay_vocabulary_count": 78,
+        "persistent_actor_HIGH_slots": [
+          [
+            {
+              "color": 0,
+              "slot": 193
+            },
+            {
+              "color": 31,
+              "slot": 194
+            },
+            {
+              "color": 71,
+              "slot": 225
+            },
+            {
+              "color": 142,
+              "slot": 226
+            },
+            {
+              "color": 144,
+              "slot": 192
+            },
+            {
+              "color": 149,
+              "slot": 208
+            },
+            {
+              "color": 206,
+              "slot": 227
+            },
+            {
+              "color": 213,
+              "slot": 224
+            },
+            {
+              "color": 215,
+              "slot": 4
+            },
+            {
+              "color": 275,
+              "slot": 228
+            },
+            {
+              "color": 283,
+              "slot": 5
+            },
+            {
+              "color": 541,
+              "slot": 6
+            },
+            {
+              "color": 2114,
+              "slot": 7
+            },
+            {
+              "color": 2189,
+              "slot": 212
+            },
+            {
+              "color": 2271,
+              "slot": 232
+            },
+            {
+              "color": 2391,
+              "slot": 213
+            },
+            {
+              "color": 2395,
+              "slot": 8
+            },
+            {
+              "color": 2515,
+              "slot": 9
+            },
+            {
+              "color": 4227,
+              "slot": 10
+            },
+            {
+              "color": 4502,
+              "slot": 12
+            },
+            {
+              "color": 4767,
+              "slot": 13
+            },
+            {
+              "color": 6275,
+              "slot": 14
+            },
+            {
+              "color": 8731,
+              "slot": 16
+            },
+            {
+              "color": 8923,
+              "slot": 17
+            },
+            {
+              "color": 10568,
+              "slot": 18
+            },
+            {
+              "color": 10847,
+              "slot": 218
+            },
+            {
+              "color": 11039,
+              "slot": 19
+            },
+            {
+              "color": 12616,
+              "slot": 236
+            },
+            {
+              "color": 14601,
+              "slot": 20
+            },
+            {
+              "color": 14732,
+              "slot": 198
+            },
+            {
+              "color": 15068,
+              "slot": 237
+            },
+            {
+              "color": 16779,
+              "slot": 21
+            },
+            {
+              "color": 17181,
+              "slot": 22
+            },
+            {
+              "color": 18957,
+              "slot": 24
+            },
+            {
+              "color": 19022,
+              "slot": 25
+            },
+            {
+              "color": 20942,
+              "slot": 201
+            },
+            {
+              "color": 21075,
+              "slot": 26
+            },
+            {
+              "color": 23122,
+              "slot": 203
+            },
+            {
+              "color": 25301,
+              "slot": 27
+            },
+            {
+              "color": 27351,
+              "slot": 28
+            },
+            {
+              "color": 27416,
+              "slot": 205
+            },
+            {
+              "color": 29596,
+              "slot": 223
+            },
+            {
+              "color": 29599,
+              "slot": 29
+            },
+            {
+              "color": 31709,
+              "slot": 239
+            },
+            {
+              "color": 31711,
+              "slot": 30
+            }
+          ],
+          [
+            {
+              "color": 0,
+              "slot": 193
+            },
+            {
+              "color": 31,
+              "slot": 194
+            },
+            {
+              "color": 71,
+              "slot": 225
+            },
+            {
+              "color": 142,
+              "slot": 226
+            },
+            {
+              "color": 144,
+              "slot": 192
+            },
+            {
+              "color": 149,
+              "slot": 208
+            },
+            {
+              "color": 206,
+              "slot": 227
+            },
+            {
+              "color": 213,
+              "slot": 224
+            },
+            {
+              "color": 215,
+              "slot": 4
+            },
+            {
+              "color": 275,
+              "slot": 228
+            },
+            {
+              "color": 283,
+              "slot": 5
+            },
+            {
+              "color": 541,
+              "slot": 6
+            },
+            {
+              "color": 2114,
+              "slot": 7
+            },
+            {
+              "color": 2189,
+              "slot": 212
+            },
+            {
+              "color": 2271,
+              "slot": 232
+            },
+            {
+              "color": 2391,
+              "slot": 213
+            },
+            {
+              "color": 2395,
+              "slot": 8
+            },
+            {
+              "color": 2515,
+              "slot": 9
+            },
+            {
+              "color": 4227,
+              "slot": 10
+            },
+            {
+              "color": 4502,
+              "slot": 12
+            },
+            {
+              "color": 4767,
+              "slot": 13
+            },
+            {
+              "color": 6275,
+              "slot": 14
+            },
+            {
+              "color": 8731,
+              "slot": 16
+            },
+            {
+              "color": 8923,
+              "slot": 17
+            },
+            {
+              "color": 10568,
+              "slot": 18
+            },
+            {
+              "color": 10847,
+              "slot": 218
+            },
+            {
+              "color": 11039,
+              "slot": 19
+            },
+            {
+              "color": 12616,
+              "slot": 236
+            },
+            {
+              "color": 14601,
+              "slot": 20
+            },
+            {
+              "color": 14732,
+              "slot": 198
+            },
+            {
+              "color": 15068,
+              "slot": 237
+            },
+            {
+              "color": 16779,
+              "slot": 21
+            },
+            {
+              "color": 17181,
+              "slot": 22
+            },
+            {
+              "color": 18957,
+              "slot": 24
+            },
+            {
+              "color": 19022,
+              "slot": 25
+            },
+            {
+              "color": 20942,
+              "slot": 201
+            },
+            {
+              "color": 21075,
+              "slot": 26
+            },
+            {
+              "color": 23122,
+              "slot": 203
+            },
+            {
+              "color": 25301,
+              "slot": 27
+            },
+            {
+              "color": 27351,
+              "slot": 28
+            },
+            {
+              "color": 27416,
+              "slot": 205
+            },
+            {
+              "color": 29596,
+              "slot": 223
+            },
+            {
+              "color": 29599,
+              "slot": 29
+            },
+            {
+              "color": 31709,
+              "slot": 239
+            },
+            {
+              "color": 31711,
+              "slot": 30
+            }
+          ]
+        ],
+        "compiled_palette_peak_CGRAM_bytes": [
+          30,
+          30
+        ],
+        "fused_index_bytes_equal_compiler": true,
+        "fused_index_context_policy": "Two compiler pose contexts with persistent actor HIGH slots and scanline-live BG palettes; live context owner unbound",
+        "native_type1_bitmap_serialization": true,
+        "native_bitmap_CPU_write_trace": [
+          [
+            14400,
+            0
+          ],
+          [
+            14400,
+            0
+          ]
+        ],
+        "expected_bitmap_CPU_write_trace": [
+          [
+            14400,
+            0
+          ],
+          [
+            14400,
+            0
+          ]
+        ],
+        "native_character_DMA_and_type2_trace": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "expected_character_DMA_and_type2_trace": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "native_character_transfer_bounds_verified": true,
+        "character_code_swap_transfer_bounds_verified": false,
+        "native_8bpp_2bpp_character_packing": false,
+        "iram_native_characters": true,
+        "native_character_code_swap": true,
+        "native_character_ROM_worker_bytes": 282,
+        "native_character_bytes_per_pose": 14400,
+        "native_character_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_character_master_clocks": [
+          785898,
+          785770
+        ],
+        "native_character_milliseconds": [
+          36.59208083708963,
+          36.586121047973045
+        ],
+        "native_character_sha256": [
+          "5bbf5f0d66d9f4503c3f08bd5270643a4ed5c303b7c179e7f62e57c026c7ce52",
+          "33533b0c707fb37019abf0675b2f2d486b25df53f803eb4ca13f4ea1030e8626"
+        ],
+        "underlay_observer_crc32": [
+          1063258911,
+          2952202979
+        ],
+        "expected_underlay_crc32": [
+          1063258911,
+          2952202979
+        ],
+        "underlay_consumed_then_reloaded": true,
+        "character_IRAM_buffers": [
+          13824,
+          13952
+        ],
+        "character_output_BWRAM": [
+          4325376,
+          4339776
+        ]
+      }
+    },
+    {
+      "folder": "out\\byor-motu-fused-fixed-art-type1-native",
+      "report_sha256": "8d81dd4c28ab1e24720ec2f34e2aad49c083b163c38f9a30c323fa868e9945d5",
+      "report": {
+        "schema": "BYOR_NATIVE_UNDERLAY_SCREEN_JOINT_V1",
+        "status": "PASS",
+        "opaque_pixels": 4163,
+        "underlay_pixels": 11520,
+        "RGB555_byte_mismatches": [
+          0,
+          0
+        ],
+        "underlay_RGB8_identity_byte_mismatches": null,
+        "master_clocks": [
+          557292,
+          797078
+        ],
+        "milliseconds": [
+          25.947990596570232,
+          37.112631167741526
+        ],
+        "job_events": [
+          [
+            "underlay_entry",
+            "104856"
+          ],
+          [
+            "underlay_done",
+            "450550"
+          ],
+          [
+            "shader_entry",
+            "450652"
+          ],
+          [
+            "shader_done",
+            "662148"
+          ],
+          [
+            "underlay_entry",
+            "1782394"
+          ],
+          [
+            "underlay_done",
+            "2139796"
+          ],
+          [
+            "shader_entry",
+            "2139898"
+          ],
+          [
+            "shader_done",
+            "2579472"
+          ]
+        ],
+        "underlay_worker_IRAM_bytes": 541,
+        "shader_worker_IRAM_bytes": 180,
+        "retained_stage_window": true,
+        "rom_sha256": "a8b816e5e2fdf1830db3b5c4be19ec89b43e93c51b8767782132580fa6943723",
+        "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+        "no_color_reduction": true,
+        "host_supplied_pixel_inputs": false,
+        "native_opaque_actor_composition": true,
+        "native_SCREEN_shading": true,
+        "native_camera_bound": false,
+        "native_palette_allocation": false,
+        "CHR_publication": true,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Two explicit poses: native opaque spans, exact SCREEN, palette indices, bitmap serialization and forced-blank CHR delivery. No PPU scene, live context, audio deadline or production memory lease.",
+        "observer_traces": {
+          "JOINTDMA": [
+            [
+              204,
+              52648,
+              0
+            ],
+            [
+              218,
+              55816,
+              0
+            ]
+          ],
+          "JOINTPIXELS": [
+            [
+              394,
+              0
+            ],
+            [
+              2608,
+              0
+            ]
+          ],
+          "SCREENBASE": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "expected_DMA_trace": [
+          [
+            204,
+            52648,
+            0
+          ],
+          [
+            218,
+            55816,
+            0
+          ]
+        ],
+        "native_DMA_and_shader_output_bounds_proven": true,
+        "compiled_geometry_sha256": "878b94c99991317c8815f832579e63a45df01788e73acb8f5d5e87bf6e8b5cf2",
+        "compiled_group_descriptors_sha256": "c7cf7610a29f988bfeabdc9313824c7fd799962dda6a6ef9d4bc4d7d39cb7fdc",
+        "output_sha256": [
+          "dc95153d93e9a93839bc4ee4ee251044c64ab131f33f1c8e7e02b6802b031294",
+          "bbf474ee5cf941dea05dd52160319e0a3d74d90062696add8d757e9d1bfe5f21"
+        ],
+        "compiler_opaque_RGB8_identity_contract_checked": true,
+        "typed_underlay": true,
+        "per_pixel_destination_guards": false,
+        "identity_producer": "Immutable compiler-checked ROM stage/spans; native clipped copies and restores only",
+        "arbitrary_underlay_writes_supported": false,
+        "precompiled_background_SCREEN": true,
+        "native_actor_correction_counts": [
+          197,
+          1304
+        ],
+        "expected_actor_correction_counts": [
+          197,
+          1304
+        ],
+        "correction_map_ROM_bytes": 69120,
+        "background_SCREEN_ROM_bytes": 8326,
+        "background_SCREEN_sha256": "01fac8a8e11c1a65b402bb2124f4f374cbc6803a781771a828b371c84952ff7f",
+        "background_epoch_unchanged_required": true,
+        "native_baseline_rebuild_bound": false,
+        "adaptive_shader": false,
+        "native_selected_paths": [],
+        "path_legend": {
+          "0": "compiled background plus native actor corrections",
+          "1": "full typed SCREEN shader"
+        },
+        "adaptive_actor_pixel_threshold": null,
+        "full_fallback_IRAM_bytes": 0,
+        "adaptive_policy_optimal": false,
+        "correction_map_sha256": "38b4f12800770d4c2da89c557ac778f15417670cbf97578bd552e644c61d935d",
+        "compiled_context_epoch": 2410332979,
+        "compiled_context_digest": "33c3aa8f14df83cd30a1245ff3006dac6c418224e1d08a058486e5b68ca7a80c",
+        "native_context_epoch_admission": true,
+        "native_context_owner_bound": false,
+        "invalidated_context_half": null,
+        "context_rejection_DMA_trace": [],
+        "proof_kind": "EXACT_NATIVE_PRODUCER_CHAIN",
+        "whole_tile_colour_canvas": true,
+        "colour_canvas_source_bytes": 23040,
+        "actor_RGB555_span_ROM_bytes": 8810,
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "post_layer_overlap_supported": false,
+        "transient_memory_map": {
+          "underlay": "0x420000",
+          "restore_descriptors": "0x426000",
+          "RGB555_output": "0x427000",
+          "actor_origins": "0x42d000",
+          "context_epoch": "0x42d100"
+        },
+        "fused_SCREEN_palette_lookup": true,
+        "fused_scanline_map_ROM_bytes": 92160,
+        "fused_actor_index_span_ROM_bytes": 17620,
+        "fused_stage_index_canvas_ROM_bytes": 46080,
+        "fused_table_ROM_bytes": 253188,
+        "fused_table_sha256": "80037e76b66a91849dad266b28ad3a508b8beacc8312730062ff109d3260a8c8",
+        "fused_underlay_vocabulary_count": 78,
+        "persistent_actor_HIGH_slots": [
+          [
+            {
+              "color": 0,
+              "slot": 193
+            },
+            {
+              "color": 31,
+              "slot": 194
+            },
+            {
+              "color": 71,
+              "slot": 225
+            },
+            {
+              "color": 142,
+              "slot": 226
+            },
+            {
+              "color": 144,
+              "slot": 192
+            },
+            {
+              "color": 149,
+              "slot": 208
+            },
+            {
+              "color": 206,
+              "slot": 227
+            },
+            {
+              "color": 213,
+              "slot": 224
+            },
+            {
+              "color": 215,
+              "slot": 4
+            },
+            {
+              "color": 275,
+              "slot": 228
+            },
+            {
+              "color": 283,
+              "slot": 5
+            },
+            {
+              "color": 541,
+              "slot": 6
+            },
+            {
+              "color": 2114,
+              "slot": 7
+            },
+            {
+              "color": 2189,
+              "slot": 212
+            },
+            {
+              "color": 2271,
+              "slot": 232
+            },
+            {
+              "color": 2391,
+              "slot": 213
+            },
+            {
+              "color": 2395,
+              "slot": 8
+            },
+            {
+              "color": 2515,
+              "slot": 9
+            },
+            {
+              "color": 4227,
+              "slot": 10
+            },
+            {
+              "color": 4502,
+              "slot": 12
+            },
+            {
+              "color": 4767,
+              "slot": 13
+            },
+            {
+              "color": 6275,
+              "slot": 14
+            },
+            {
+              "color": 8731,
+              "slot": 16
+            },
+            {
+              "color": 8923,
+              "slot": 17
+            },
+            {
+              "color": 10568,
+              "slot": 18
+            },
+            {
+              "color": 10847,
+              "slot": 218
+            },
+            {
+              "color": 11039,
+              "slot": 19
+            },
+            {
+              "color": 12616,
+              "slot": 236
+            },
+            {
+              "color": 14601,
+              "slot": 20
+            },
+            {
+              "color": 14732,
+              "slot": 198
+            },
+            {
+              "color": 15068,
+              "slot": 237
+            },
+            {
+              "color": 16779,
+              "slot": 21
+            },
+            {
+              "color": 17181,
+              "slot": 22
+            },
+            {
+              "color": 18957,
+              "slot": 24
+            },
+            {
+              "color": 19022,
+              "slot": 25
+            },
+            {
+              "color": 20942,
+              "slot": 201
+            },
+            {
+              "color": 21075,
+              "slot": 26
+            },
+            {
+              "color": 23122,
+              "slot": 203
+            },
+            {
+              "color": 25301,
+              "slot": 27
+            },
+            {
+              "color": 27351,
+              "slot": 28
+            },
+            {
+              "color": 27416,
+              "slot": 205
+            },
+            {
+              "color": 29596,
+              "slot": 223
+            },
+            {
+              "color": 29599,
+              "slot": 29
+            },
+            {
+              "color": 31709,
+              "slot": 239
+            },
+            {
+              "color": 31711,
+              "slot": 30
+            }
+          ],
+          [
+            {
+              "color": 0,
+              "slot": 193
+            },
+            {
+              "color": 31,
+              "slot": 194
+            },
+            {
+              "color": 71,
+              "slot": 225
+            },
+            {
+              "color": 142,
+              "slot": 226
+            },
+            {
+              "color": 144,
+              "slot": 192
+            },
+            {
+              "color": 149,
+              "slot": 208
+            },
+            {
+              "color": 206,
+              "slot": 227
+            },
+            {
+              "color": 213,
+              "slot": 224
+            },
+            {
+              "color": 215,
+              "slot": 4
+            },
+            {
+              "color": 275,
+              "slot": 228
+            },
+            {
+              "color": 283,
+              "slot": 5
+            },
+            {
+              "color": 541,
+              "slot": 6
+            },
+            {
+              "color": 2114,
+              "slot": 7
+            },
+            {
+              "color": 2189,
+              "slot": 212
+            },
+            {
+              "color": 2271,
+              "slot": 232
+            },
+            {
+              "color": 2391,
+              "slot": 213
+            },
+            {
+              "color": 2395,
+              "slot": 8
+            },
+            {
+              "color": 2515,
+              "slot": 9
+            },
+            {
+              "color": 4227,
+              "slot": 10
+            },
+            {
+              "color": 4502,
+              "slot": 12
+            },
+            {
+              "color": 4767,
+              "slot": 13
+            },
+            {
+              "color": 6275,
+              "slot": 14
+            },
+            {
+              "color": 8731,
+              "slot": 16
+            },
+            {
+              "color": 8923,
+              "slot": 17
+            },
+            {
+              "color": 10568,
+              "slot": 18
+            },
+            {
+              "color": 10847,
+              "slot": 218
+            },
+            {
+              "color": 11039,
+              "slot": 19
+            },
+            {
+              "color": 12616,
+              "slot": 236
+            },
+            {
+              "color": 14601,
+              "slot": 20
+            },
+            {
+              "color": 14732,
+              "slot": 198
+            },
+            {
+              "color": 15068,
+              "slot": 237
+            },
+            {
+              "color": 16779,
+              "slot": 21
+            },
+            {
+              "color": 17181,
+              "slot": 22
+            },
+            {
+              "color": 18957,
+              "slot": 24
+            },
+            {
+              "color": 19022,
+              "slot": 25
+            },
+            {
+              "color": 20942,
+              "slot": 201
+            },
+            {
+              "color": 21075,
+              "slot": 26
+            },
+            {
+              "color": 23122,
+              "slot": 203
+            },
+            {
+              "color": 25301,
+              "slot": 27
+            },
+            {
+              "color": 27351,
+              "slot": 28
+            },
+            {
+              "color": 27416,
+              "slot": 205
+            },
+            {
+              "color": 29596,
+              "slot": 223
+            },
+            {
+              "color": 29599,
+              "slot": 29
+            },
+            {
+              "color": 31709,
+              "slot": 239
+            },
+            {
+              "color": 31711,
+              "slot": 30
+            }
+          ]
+        ],
+        "compiled_palette_peak_CGRAM_bytes": [
+          30,
+          30
+        ],
+        "fused_index_bytes_equal_compiler": true,
+        "fused_index_context_policy": "Two compiler pose contexts with persistent actor HIGH slots and scanline-live BG palettes; live context owner unbound",
+        "native_type1_bitmap_serialization": true,
+        "native_bitmap_CPU_write_trace": [
+          [
+            14400,
+            0
+          ],
+          [
+            14400,
+            0
+          ]
+        ],
+        "expected_bitmap_CPU_write_trace": [
+          [
+            14400,
+            0
+          ],
+          [
+            14400,
+            0
+          ]
+        ],
+        "native_character_DMA_and_type2_trace": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "expected_character_DMA_and_type2_trace": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "native_character_transfer_bounds_verified": true,
+        "character_code_swap_transfer_bounds_verified": false,
+        "native_8bpp_2bpp_character_packing": false,
+        "iram_native_characters": true,
+        "native_character_code_swap": true,
+        "native_character_ROM_worker_bytes": 282,
+        "native_character_bytes_per_pose": 14400,
+        "native_character_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_character_master_clocks": [
+          770536,
+          769684
+        ],
+        "native_character_milliseconds": [
+          35.87681302139425,
+          35.837143175086965
+        ],
+        "native_character_sha256": [
+          "5bbf5f0d66d9f4503c3f08bd5270643a4ed5c303b7c179e7f62e57c026c7ce52",
+          "33533b0c707fb37019abf0675b2f2d486b25df53f803eb4ca13f4ea1030e8626"
+        ],
+        "underlay_observer_crc32": [
+          1063258911,
+          2952202979
+        ],
+        "expected_underlay_crc32": [
+          1063258911,
+          2952202979
+        ],
+        "underlay_consumed_then_reloaded": true,
+        "character_IRAM_buffers": [
+          13824,
+          13952
+        ],
+        "character_output_BWRAM": [
+          4325376,
+          4339776
+        ],
+        "type1_exclusive_BWRAM_read_trace": [
+          [
+            14400,
+            0,
+            0
+          ],
+          [
+            14400,
+            0,
+            0
+          ]
+        ],
+        "type1_expected_exclusive_BWRAM_read_trace": [
+          [
+            14400,
+            0,
+            0
+          ],
+          [
+            14400,
+            0,
+            0
+          ]
+        ],
+        "forced_blank_native_CHR_publication": true,
+        "type1_vram_descriptors": [
+          {
+            "source": 4325376,
+            "bytes": 11520,
+            "bpp": 8,
+            "columns": 1,
+            "tile_count": 180,
+            "cdma": 0,
+            "iram": 13824,
+            "vram_word_address": 0,
+            "dcnt": 176,
+            "requires_sa1_setup": true,
+            "requires_chr_irq_ready": true,
+            "forbids_other_scpu_bwram_reads": true,
+            "native_admitted": false
+          },
+          {
+            "source": 4336896,
+            "bytes": 2880,
+            "bpp": 2,
+            "columns": 1,
+            "tile_count": 180,
+            "cdma": 2,
+            "iram": 13824,
+            "vram_word_address": 8192,
+            "dcnt": 176,
+            "requires_sa1_setup": true,
+            "requires_chr_irq_ready": true,
+            "forbids_other_scpu_bwram_reads": true,
+            "native_admitted": false
+          }
+        ],
+        "type1_vram_master_clocks": [
+          95034,
+          23792,
+          94994,
+          23792
+        ],
+        "type1_vram_byte_mismatches": [
+          0,
+          0
+        ],
+        "type1_VBlank_deadline_admitted": false
+      }
+    }
+  ],
+  "hardware_handshake": "SA1 IRAM $30F0; SCPU WRAM $0002; no BW-RAM polling during type1 conversion",
+  "native_PPU_scene": false,
+  "VBlank_deadline_admitted": false,
+  "production_memory_lease": false,
+  "joint_audio_proven": false,
+  "motu_gameplay_proven": false
+}
