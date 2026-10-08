@@ -1,7 +1,7 @@
 {
   "schema": "BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1",
   "status": "PASS",
-  "rom_sha256": "69e68bad09b6598c7bccd47a41db9703907a1f69660d662495c707e072b113f4",
+  "rom_sha256": "7323cf1efc4353ae2abea6022b896bb37154d53e836a7cbbc892d0d50e5065f8",
   "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
   "owner_table_sha256": "cce1ac775e84a8eaba1014cf73de7ba0f8f1cad9eedc9c7dd2297f2c853532a2",
   "cases": [
@@ -102,7 +102,7 @@
     ],
     [
       1,
-      290852,
+      290812,
       507,
       508
     ]
@@ -237,8 +237,8 @@
     "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
     "base": 8364032,
     "bytes": 6400,
-    "used_bytes": 4112,
-    "remaining_bytes": 2288,
+    "used_bytes": 5040,
+    "remaining_bytes": 1360,
     "entities": 128,
     "players": 4,
     "regions": [
@@ -318,6 +318,34 @@
         "bytes": 96,
         "end": 8368144,
         "authority": "serialized combo selection continuation"
+      },
+      {
+        "name": "entity_combostyle",
+        "address": 8368144,
+        "bytes": 512,
+        "end": 8368656,
+        "authority": "source mutable entity modeldata.combostyle int32"
+      },
+      {
+        "name": "attack_chain_controls",
+        "address": 8368656,
+        "bytes": 96,
+        "end": 8368752,
+        "authority": "serialized attack-chain continuation"
+      },
+      {
+        "name": "entity_run_tuple",
+        "address": 8368752,
+        "bytes": 256,
+        "end": 8369008,
+        "authority": "lossless immutable RUN snapshot handle"
+      },
+      {
+        "name": "run_tuple_controls",
+        "address": 8369008,
+        "bytes": 64,
+        "end": 8369072,
+        "authority": "serialized RUN capture/read controls"
       }
     ],
     "required_lease": "SourceForeignWork B671 nonzero matching generation; retired canvas/frontpanel/water owners",

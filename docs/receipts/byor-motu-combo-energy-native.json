@@ -3,11 +3,12 @@
   "status": "PASS",
   "cases": 195,
   "errors": [],
-  "rom_sha256": "917af9df2e8563fbb0bb2fe33597ae7d5800c7588f964817e74bb7e7b0954069",
-  "peak_master_clocks": 48302,
+  "rom_sha256": "c73dec531a42344bcf86f7a5ce6857494abe8305ad11cd2950794b8e3dc8919a",
+  "peak_master_clocks": 33118,
   "private_energy_descriptors_instrumented": true,
   "production_player_owner_bound": false,
   "motu_gameplay_proven": false,
   "no_color_reduction": true,
+  "decimal_entry_preserved": true,
   "no_pcm_copies": true
 }

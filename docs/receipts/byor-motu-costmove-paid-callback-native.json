@@ -1,7 +1,7 @@
 {
   "schema": "BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1",
   "status": "PASS",
-  "rom_sha256": "0be8a72e3000a4417af0084d67e0ff45e00e6d445eb1d67f14a55318dc672689",
+  "rom_sha256": "4948704003698eda731f0456067f4024cb1e4ce31a6894b202af42c50bb3118e",
   "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
   "owner_table_sha256": "cce1ac775e84a8eaba1014cf73de7ba0f8f1cad9eedc9c7dd2297f2c853532a2",
   "cases": [
@@ -96,15 +96,15 @@
   "callback_cpu_costs": [
     [
       0,
-      289772,
-      505,
-      506
+      289732,
+      507,
+      508
     ],
     [
       1,
-      289460,
-      506,
-      507
+      289500,
+      508,
+      509
     ]
   ],
   "cost_scope": "Before native callback Begin through callback completion/fault and instrumented frame-service acknowledgement; includes intervening NMI/runtime, excludes debugger initialization",

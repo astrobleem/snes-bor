@@ -1,16 +1,16 @@
 {
   "schema": "BYOR_4086_PLAYER_COMBO_NATIVE_V1",
   "status": "PASS",
-  "cases": 48,
+  "cases": 54,
   "authored_commands": 11,
   "errors": [],
-  "rom_sha256": "d410307979f8aa88b970704f711d922dfdb6a85fab316ac27c76fd5a19d0e275",
+  "rom_sha256": "af6946c02eb8e82249b79926eb75c307d49c81fc35a17486f85999d7e71d624b",
   "controller_layout": {
     "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
     "base": 8364032,
     "bytes": 6400,
-    "used_bytes": 4112,
-    "remaining_bytes": 2288,
+    "used_bytes": 5040,
+    "remaining_bytes": 1360,
     "entities": 128,
     "players": 4,
     "regions": [
@@ -90,6 +90,34 @@
         "bytes": 96,
         "end": 8368144,
         "authority": "serialized combo selection continuation"
+      },
+      {
+        "name": "entity_combostyle",
+        "address": 8368144,
+        "bytes": 512,
+        "end": 8368656,
+        "authority": "source mutable entity modeldata.combostyle int32"
+      },
+      {
+        "name": "attack_chain_controls",
+        "address": 8368656,
+        "bytes": 96,
+        "end": 8368752,
+        "authority": "serialized attack-chain continuation"
+      },
+      {
+        "name": "entity_run_tuple",
+        "address": 8368752,
+        "bytes": 256,
+        "end": 8369008,
+        "authority": "lossless immutable RUN snapshot handle"
+      },
+      {
+        "name": "run_tuple_controls",
+        "address": 8369008,
+        "bytes": 64,
+        "end": 8369072,
+        "authority": "serialized RUN capture/read controls"
       }
     ],
     "required_lease": "SourceForeignWork B671 nonzero matching generation; retired canvas/frontpanel/water owners",
@@ -97,10 +125,13 @@
     "runtime_owner_bound": false,
     "motu_gameplay_proven": false
   },
+  "canonical_side_base_bound": true,
+  "frame_altbase_distinct": true,
   "source_energy_descriptors_unmodified": true,
   "source_frame_zero_execution_bound": false,
   "production_player_owner_bound": false,
   "motu_gameplay_proven": false,
+  "decimal_entry_preserved": true,
   "no_pcm_copies": true,
   "no_color_reduction": true
 }
