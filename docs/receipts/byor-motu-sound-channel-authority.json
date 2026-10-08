@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_MOTU_SOUND_CHANNEL_AUTHORITY_V1",
+  "status": "PASS",
+  "report": "out/byor-motu-sound-channel-authority/report.json",
+  "pinned_engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_function": "engine/source/gamelib/soundmix.c:sound_play_sample",
+  "unmodified_source_function_executed": true,
+  "defined_source_cases": 4119,
+  "actual_openbor_startup_channels": 12,
+  "all_12_channel_occupancy_masks": 4096,
+  "free_channel_selection": "highest free index",
+  "full_channel_selection": "first strictly lowest unsigned priority, admitted when lowest <= requested priority",
+  "start_offset_samples": "(channel * 4) % soundlen",
+  "volume_clamp": "0..64 per stereo side",
+  "source_busy_queue": false,
+  "excluded_undefined_source_case": "all active priorities UINT_MAX and new priority UINT_MAX leave channel -1 and reach vchannel[-1]; no defined source behavior claimed",
+  "existing_single_stream_backend_is_complete_source_channel_backend": false,
+  "native_source_channel_backend_proven": false,
+  "authored_simultaneous_channel_demand_proven": false,
+  "motu_gameplay_proven": false,
+  "no_pcm_copies": true,
+  "no_color_reduction": true
+}
