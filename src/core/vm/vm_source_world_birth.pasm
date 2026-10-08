@@ -426,6 +426,13 @@ Vm_SourceWorldSpawn__physics_state_published:
 Vm_SourceWorldSpawn__damage_state_published:
 .a16
 .i16
+    lda.l SourceBirthCore4086_Slot
+    jsl SourceDamageEffectsState4086_InitializeBirth
+    bcc Vm_SourceWorldSpawn__damage_effects_state_published
+    jmp Vm_SourceWorldSpawn__bad
+Vm_SourceWorldSpawn__damage_effects_state_published:
+.a16
+.i16
     lda.l SourceModelAttackPolicy4086_Ready
     beq Vm_SourceWorldSpawn__policy_published
     jsl SourceModelAttackPolicy4086_Apply

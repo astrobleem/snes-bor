@@ -955,6 +955,13 @@ SourceCtorState4086_BeginGuard_7:
 SourceCtorState4086_DamageStateBirthDone:
 .a16
 .i16
+ lda.l SourceScriptClone4086_Slot
+ jsl SourceDamageEffectsState4086_InitializeBirth
+ bcc SourceCtorState4086_DamageEffectsBirthDone
+ jmp SourceCtorState4086_BeginBad
+SourceCtorState4086_DamageEffectsBirthDone:
+.a16
+.i16
  jsl SourceScriptClone4086_Bind
  bcc SourceCtorState4086_BeginGuard_8
  jmp SourceCtorState4086_BeginBad

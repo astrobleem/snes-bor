@@ -1,0 +1,56 @@
+{
+  "schema": "BYOR_MOTU_DAMAGE_EFFECT_STATE_BIRTH_V1",
+  "status": "PASS",
+  "evidence": {
+    "effect_state_native": {
+      "path": "out/byor-motu-damage-effects-state-native/report.json",
+      "sha256": "bf33c0c01ee6c7600077384473b0ba0225b4471435450a4965a0112c9dc695a6"
+    },
+    "full_hbreath_constructor": {
+      "path": "out/byor-motu-hbreath-damage-effects-state-ctor-native/report.json",
+      "sha256": "95596427d7e23bcbddbb93c89ef6013f521915a5bed8e39acfb577c4ae583dea"
+    },
+    "landing_drop_regression": {
+      "path": "out/byor-motu-damage-effects-drop-regression-native/report.json",
+      "sha256": "906fe8780e43fc475a7158ab3842844d7eab1a22b21e0db05954810ac5e3e295"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-damage-effects-state-bor-static-smoke/report.json",
+      "sha256": "03a49e6212c668fca3ecd2e68f97f9a62f55f16076739e6910699f62899415ab"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-damage-effects-state-rom-audit.log",
+      "sha256": "cf190ba4d445aa306adb807f7c3cd013f4b57786906f8c23f24f17dfad37b104"
+    }
+  },
+  "native_state_birth_cases": 144,
+  "full_source_hbreath_constructor_cases": 2,
+  "landing_drop_regression_cases": 334,
+  "allocation": {
+    "base": "7EF100",
+    "bytes": 3072,
+    "end_exclusive": "7EFD00",
+    "rows": 128,
+    "stride": 24
+  },
+  "fields": [
+    "projectile",
+    "staydown.rise",
+    "staydown.riseattack",
+    "staydown.riseattack_stall",
+    "modeldata.guardpoints.current",
+    "marker",
+    "copied model identity"
+  ],
+  "full_constructor_order": "fresh model/lifecycle copy, damage state, damage effect state, script bind/default callbacks; source exists is already published by reset",
+  "minimal_birth_order": "fresh model/lifecycle copy, damage state, damage effect state, exists",
+  "adjacent_G12_frontpanel_VM_and_damage_state_preserved": true,
+  "immutable_B4DI_source_and_CRC_pair_checked_before_fixture_lease": true,
+  "native_damage_callback_backend_proven": false,
+  "full_dynamic_world_traversal_proven": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17
+}

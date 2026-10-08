@@ -149,6 +149,12 @@ SourceLandingDrop4086_G12:
 .a16
 .i16
  lda.l SourceLandingDrop4086_Bank
+ cmp #$100
+ bcc SourceLandingDrop4086_BankByte
+ jmp SourceLandingDrop4086_Bad
+SourceLandingDrop4086_BankByte:
+.a16
+.i16
  cmp #$80
  bcc SourceLandingDrop4086_BankLow
  cmp #$C0
