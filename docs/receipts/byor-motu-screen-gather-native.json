@@ -1,0 +1,306 @@
+{
+  "schema": "BYOR_SOURCE_SCREEN_GATHER_NATIVE_RECEIPT_V1",
+  "status": "EXACT_NATIVE_GATHER_SHADER_PROVEN_LIVE_COMPOSITOR_UNBOUND",
+  "reports": [
+    {
+      "path": "out/byor-motu-screen-gather-native/report.json",
+      "sha256": "051072737d07ea6591fe8806d94f9b514d4c265ae2e69c26d9aba7f8f9554520",
+      "result": {
+        "schema": "BYOR_GROUPED_SOURCE_SCREEN_NATIVE_V1",
+        "status": "PASS",
+        "opaque_pixels": 2751,
+        "source_color_groups": 205,
+        "group_descriptors_bytes": 2160,
+        "mutable_pixel_buffer_bytes": 5502,
+        "worker_IRAM_bytes": 350,
+        "RGB555_byte_mismatches": [
+          0,
+          0
+        ],
+        "master_clocks": [
+          397960,
+          398068
+        ],
+        "milliseconds": [
+          18.5293568502887,
+          18.53438542235582
+        ],
+        "rom_sha256": "6e93e98d561e559593d363a49cc2dec9ff7c5752c7c38b712e478f7f89cbe379",
+        "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+        "in_place_destination_to_RGB555": true,
+        "destination_range_and_alignment_checked": true,
+        "invalid_destination": null,
+        "busy_host_BWRAM_reads": true,
+        "source_poses": [
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  80,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          },
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  50,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          }
+        ],
+        "geometry_gathering_native": false,
+        "online_palette_allocation_native": false,
+        "CHR_publication_native": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "IRAM_DMA_cache": false,
+        "cache_IRAM_bytes": 0,
+        "normal_DMA_setup_and_transfer_in_timing": false,
+        "group_packets": 270,
+        "native_underlay_plane_gather": true,
+        "underlay_plane_storage": "precomposed source RGB8 identity planes in ROM",
+        "underlay_plane_bytes": [
+          114688,
+          114688
+        ],
+        "live_underlay_composition_native": false,
+        "screen_addresses_source_derived": true,
+        "underlay_plane_sha256": [
+          "e6c03492ffb25aa3100dfd4a2bea681dbf85969dca3588aa836147942480959f",
+          "36ab5a76b12ec535f38b1e0a5648b8537722bf232d7ef8ed370e99e968c11879"
+        ],
+        "source_color_plane_bank_groups": 270,
+        "scope": "Native source-address gather and exact SCREEN shader over two precomposed opaque underlays. No native layer composition, palette allocation, CHR publication, production lease or gameplay admission."
+      }
+    },
+    {
+      "path": "out/byor-motu-screen-gather-static-regression/report.json",
+      "sha256": "60cf8ecfc811238d74ee4847423dd23a8991695db533daf87b78d57b346c32ad",
+      "result": {
+        "schema": "BYOR_GROUPED_SOURCE_SCREEN_NATIVE_V1",
+        "status": "PASS",
+        "opaque_pixels": 2751,
+        "source_color_groups": 205,
+        "group_descriptors_bytes": 1640,
+        "mutable_pixel_buffer_bytes": 5502,
+        "worker_IRAM_bytes": 301,
+        "RGB555_byte_mismatches": [
+          0,
+          0
+        ],
+        "master_clocks": [
+          308598,
+          308474
+        ],
+        "milliseconds": [
+          14.36858595156647,
+          14.362812405859776
+        ],
+        "rom_sha256": "9b012af413d2d21ae260f15f9435d3e13e05b1daafa8aad9dc29b194d9a2d0f7",
+        "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+        "in_place_destination_to_RGB555": true,
+        "destination_range_and_alignment_checked": true,
+        "invalid_destination": null,
+        "busy_host_BWRAM_reads": true,
+        "source_poses": [
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  80,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          },
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  50,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          }
+        ],
+        "geometry_gathering_native": false,
+        "online_palette_allocation_native": false,
+        "CHR_publication_native": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "IRAM_DMA_cache": false,
+        "cache_IRAM_bytes": 0,
+        "normal_DMA_setup_and_transfer_in_timing": false,
+        "group_packets": 205,
+        "native_underlay_plane_gather": false,
+        "underlay_plane_storage": null,
+        "underlay_plane_bytes": [],
+        "live_underlay_composition_native": false,
+        "screen_addresses_source_derived": false,
+        "underlay_plane_sha256": [],
+        "source_color_plane_bank_groups": 205,
+        "scope": "Exact SCREEN shader over two offline-gathered underlays. No live renderer or gameplay admission."
+      }
+    }
+  ],
+  "no_color_reduction": true,
+  "production_assembly_changed": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "scope": "Two source-derived RGB8 identity underlay planes are precomposed offline. Native SA-1 gathers each opaque effect pixel by source-derived screen address, then applies exact RGB8 SCREEN lookup and emits RGB555. No live actor-layer composition, production memory lease, palette admission, CHR publication or joint audio deadline proof."
+}
