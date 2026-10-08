@@ -34,7 +34,7 @@ def covered_source_pixels(descriptors,origins,mask,w,h,skip_actor=None):
  return count
 
 
-def row_kernel(w,h,tile_count=None):
+def row_kernel(w,h,tile_count=None,dirty_tiles=False):
  low_base=(tile_count*64)if tile_count is not None else w*h
  c=Code(0x3500);c.emit('a5 08 85 60 a5 1a 85 62 a5 0c 85 64 e2 20 a5 0e 85 66 a5 16 18 69 c6');patches=[]
  for name in('map_bank','map_pointer'):
@@ -45,11 +45,27 @@ def row_kernel(w,h,tile_count=None):
   c.emit('a6 62 e2 20 bf 00 00 cf');c.branch(0xd0,'promoted');c.emit('c2 20');c.jump('advance');c.label('promoted');c.emit('c2 20')
  c.emit('a5 62 0a aa e2 20');c.label('map_bank');c.emit('bf 02 00 c6');c.branch(0xf0,'plain');c.emit('85 6c c2 20');c.label('map_pointer');c.emit('bf 00 00 c6 85 6a a7 64 a8 b7 6a');c.branch(0xd0,'admitted');c.jump('fault');c.label('admitted');c.emit('85 70');c.branch(0x80,'packed')
  c.label('plain');c.emit('a5 66 18 69 04 85 66 c2 20 a7 64 85 70 e2 20 a5 66 38 e9 04 85 66 c2 20')
- c.label('packed');c.emit('a6 62 bf 00 00 ce a8 e2 20 a5 70 99 00 00 c2 20 98 29 03 00 85 72 0a 0a 85 74 a5 70 eb 29 03 00 05 74 aa e2 20 bf 00 80 ce 85 74 c2 20 98 4a 4a a8 a6 72 e2 20 bf 10 80 ce');c.word(0x39,low_base);c.emit('05 74');c.word(0x99,low_base);c.emit('c2 20');c.label('advance');c.emit('a5 64 18 69 02 00 85 64');c.branch(0x90,'source_advanced');c.emit('e2 20 e6 66 c2 20');c.label('source_advanced');c.emit('e6 62 e6 62 c6 60');c.branch(0xf0,'done');c.jump('pixel');c.label('done');c.emit('6b');c.label('fault');c.emit('a9 ae b4 8f f0 3f 41');c.label('stop');c.jump('stop')
+ c.label('packed');c.emit('a6 62 bf 00 00 ce a8')
+ if dirty_tiles:c.emit('98'+' 4a'*6+' aa e2 20 a9 01 9f 00 c0 42 c2 20')
+ c.emit('e2 20 a5 70 99 00 00 c2 20 98 29 03 00 85 72 0a 0a 85 74 a5 70 eb 29 03 00 05 74 aa e2 20 bf 00 80 ce 85 74 c2 20 98 4a 4a a8 a6 72 e2 20 bf 10 80 ce');c.word(0x39,low_base);c.emit('05 74');c.word(0x99,low_base);c.emit('c2 20');c.label('advance');c.emit('a5 64 18 69 02 00 85 64');c.branch(0x90,'source_advanced');c.emit('e2 20 e6 66 c2 20');c.label('source_advanced');c.emit('e6 62 e6 62 c6 60');c.branch(0xf0,'done');c.jump('pixel');c.label('done');c.emit('6b');c.label('fault');c.emit('a9 ae b4 8f f0 3f 41');c.label('stop');c.jump('stop')
  code=bytearray(c.finish())
  for at,name in patches:code[at:at+3]=(c.base+c.labels[name]+3).to_bytes(3,'little')
  if c.base+len(code)>0x3600:raise ValueError('DIRECT_BITMAP_TYPE1_IRAM_BUFFER_OVERLAP')
  return bytes(code),{n:c.base+c.labels[n]for n in('pixel','done','fault')}
+
+
+def dirty_restore(tile_count,return_entry):
+ """Restore previous native dirty tiles from an identical guarded baseline."""
+ c=Code(0xac00);c.emit('c2 30 e2 20 a9 cd 8f 34 22 00 c2 20 a2 00 00')
+ c.label('tile');c.emit('e2 20 bf 00 c0 42');c.branch(0xf0,'next');c.emit('a9 00 9f 00 c0 42 c2 20 8a 85 80')
+ for shift,plane_base,size in ((6,0,64),(4,tile_count*64,16)):
+  c.emit('a5 80'+' 0a'*shift)
+  if plane_base:c.emit('18');c.word(0x69,plane_base)
+  c.emit('8f 35 22 00 18');c.word(0x69,tile_count*80);c.emit('8f 32 22 00');c.word(0xa9,size)
+  c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20')
+ c.label('next');c.emit('c2 20 e8');c.word(0xe0,tile_count);c.branch(0xf0,'done');c.jump('tile')
+ c.label('done');c.emit('5c '+return_entry.to_bytes(3,'little').hex(' '))
+ return c.finish(),{n:0x010000+c.base+c.labels[n]for n in('tile','done')}
 
 
 def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvases,actor_indices,tables,maps,epoch):
@@ -67,7 +83,7 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
   ppu_boot=compile_boot(out/'palette-context-1',window,a.effect_tile_direct)
   high_target=ppu_boot['resources']['native_window_HIGH_VRAM'];low_target=49152
  baseline=b''.join(selected_tiles(v,w,h,mask)for v in canvases)
- worker,row_entries=row_kernel(w,h,tile_count if a.effect_tile_direct else None)
+ worker,row_entries=row_kernel(w,h,tile_count if a.effect_tile_direct else None,a.dirty_tile_restore)
  fixed_origin=(a.fixed_underlay_actor,*struct.unpack_from('<hh',origins,a.fixed_underlay_actor*4))if a.fixed_underlay_actor is not None else None
  frame_contract=None;frame_identity=None
  if fixed_origin is not None:
@@ -75,11 +91,15 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
   frame_hash=hashlib.sha256(json.dumps(frame_identity,sort_keys=True).encode()).hexdigest();frame_contract=(fixed_origin[0],int.from_bytes(bytes.fromhex(frame_hash)[:4],'little'))
  if a.invalidate_fixed_underlay_frame and frame_contract is None:raise ValueError('FIXED_FRAME_NEGATIVE_REQUIRES_GUARDED_ACTOR')
  rom,entries,producer=build(bg,descriptors,pixels,origins,w,h,expected_context_epoch=epoch,
-     bitmap_row_target=0x3500,bitmap_baselines=baseline,bitmap_actor_indices=actor_indices[0],notify_cpu=a.idle_direct_cpu,bitmap_tile_count=tile_count,fixed_actor_origin=fixed_origin,fixed_actor_frame=frame_contract,fixed_frame_input_override=(frame_contract[1]^1)if a.invalidate_fixed_underlay_frame else None)
+     bitmap_row_target=0x3500,bitmap_baselines=baseline,bitmap_actor_indices=actor_indices[0],notify_cpu=a.idle_direct_cpu,bitmap_tile_count=tile_count,fixed_actor_origin=fixed_origin,fixed_actor_frame=frame_contract,fixed_frame_input_override=(frame_contract[1]^1)if a.invalidate_fixed_underlay_frame else None,bitmap_dirty_tiles=a.dirty_tile_restore)
+ if a.dirty_tile_restore and(not a.effect_tile_direct or fixed_origin is None):raise ValueError('DIRTY_RESTORE_REQUIRES_GUARDED_EFFECT_TILE_BASELINE')
  rom=bytearray(rom)+bytearray([255])*1048576
  if a.invalidate_fixed_underlay or a.invalidate_fixed_underlay_frame:
   if fixed_origin is None:raise ValueError('FIXED_UNDERLAY_NEGATIVE_REQUIRES_GUARDED_ACTOR')
   if a.invalidate_fixed_underlay:rom[0x30000+fixed_origin[0]*4]^=1
+ if a.dirty_tile_restore:
+  restorer,restore_entries=dirty_restore(tile_count,entries['stage_ready']);rom[0xac00:0xac00+len(restorer)]=restorer
+ else:restorer=b'';restore_entries={}
  rom[0x9c00:0x9c00+len(worker)]=worker
  for at,data in((0x60000,maps[0]),(0x70000,maps[1]),(0x100000,tables)):
   rom[at:at+len(data)]=data
@@ -103,9 +123,16 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
  rom[0x8000:0x8400]=main+bytes([255])*(1024-len(main));path=out/'proof.sfc';path.write_bytes(rom)
  observer='local regs={};local active=false;local writes=0;local bad=0;local dmas=0;local dmaBytes=0;local dmaBad=0\n'
  observer+=f"emu.addMemoryCallback(function(a,v)if active then writes=writes+1;if a>={0x420000+bitmap_bytes} then bad=bad+1 end end end,emu.callbackType.write,0x420000,0x426000,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
- observer+=f"emu.addMemoryCallback(function(a,v)regs[a]=v;if active and a==0x2237 and regs[0x2230]==0x84 then local dst=(regs[0x2235]or 0)+(regs[0x2236]or 0)*256+v*65536;local n=(regs[0x2238]or 0)+(regs[0x2239]or 0)*256;dmas=dmas+1;dmaBytes=dmaBytes+n;if dst~=0x20000 or n~={bitmap_bytes} then dmaBad=dmaBad+1 end end end,emu.callbackType.write,0x2230,0x2239,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
+ observer+=f"emu.addMemoryCallback(function(a,v)regs[a]=v;if active and a==0x2237 and regs[0x2230]==0x84 then local dst=(regs[0x2235]or 0)+(regs[0x2236]or 0)*256+v*65536;local n=(regs[0x2238]or 0)+(regs[0x2239]or 0)*256;dmas=dmas+1;dmaBytes=dmaBytes+n;if dst<0x20000 or dst+n>0x20000+{bitmap_bytes} then dmaBad=dmaBad+1 end end end,emu.callbackType.write,0x2230,0x2239,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
+ if a.dirty_tile_restore:
+  observer+='local dirtySet=0;local dirtyClear=0;local dirtyBad=0\n'
+  observer+=f"emu.addMemoryCallback(function(address,value)if active then if value==1 then dirtySet=dirtySet+1 elseif value==0 then dirtyClear=dirtyClear+1 else dirtyBad=dirtyBad+1 end;if address>=0x42c000+{tile_count} then dirtyBad=dirtyBad+1 end end end,emu.callbackType.write,0x42c000,0x42c3ff,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  for name,address in entries.items():
+  if name=='stage_ready':continue
   extra="active=true;writes=0;bad=0;dmas=0;dmaBytes=0;dmaBad=0"if name=='entry'else"active=false;emu.log('DIRECTBOUNDS|'..writes..'|'..bad..'|'..dmas..'|'..dmaBytes..'|'..dmaBad)"if name in('done','fixed_actor_fault','epoch_fault')else''
+  if a.dirty_tile_restore:
+   if name=='entry':extra+=';dirtySet=0;dirtyClear=0;dirtyBad=0'
+   elif name in('done','fixed_actor_fault','epoch_fault'):extra+=";emu.log('DIRECTDIRTY|'..dirtySet..'|'..dirtyClear..'|'..dirtyBad)"
   observer+=f"emu.addMemoryCallback(function()emu.log('DIRECTJOB|{name}|'..emu.getState().masterClock);{extra} end,emu.callbackType.exec,{address},{address},emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  for name,address in vram_entries.items():observer+=f"emu.addMemoryCallback(function()emu.log('DIRECTVRAM|{name}|'..emu.getState().masterClock)end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,emu.memType.snesMemory)\n"
  if ppu_boot:
@@ -152,14 +179,24 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
  masked_counts=[]
  for shift in(0,a.move_x):
   changed=bytearray(origins);offset=moving[0]*4;struct.pack_into('<h',changed,offset,struct.unpack_from('<h',changed,offset)[0]+shift);masked_counts.append(covered_source_pixels(descriptors,changed,mask,w,h,a.fixed_underlay_actor))
- expected_bounds=[[2*count,0,1,bitmap_bytes,0]for count in masked_counts]
+ previous_tiles=set()
+ if a.dirty_tile_restore:
+  rank=np.cumsum(mask.flat).reshape(mask.shape)-1
+  for at in range(0,len(descriptors),16):
+   row,left,length,origin,pointer=struct.unpack_from('<HHHHI',descriptors,at);ox,oy=struct.unpack_from('<hh',origins,origin);yy=row+oy
+   if origin==a.fixed_underlay_actor*4 or not 0<=yy<h:continue
+   for xx in range(max(0,left+ox),min(w,left+ox+length)):
+    if mask[yy//8,xx//8]:previous_tiles.add(int(rank[yy//8,xx//8]))
+ expected_bounds=[[2*count,0,(2*len(previous_tiles)if phase and a.dirty_tile_restore else 1),(80*len(previous_tiles)if phase and a.dirty_tile_restore else bitmap_bytes),0]for phase,count in enumerate(masked_counts)]
+ dirty_trace=[[int(n)for n in v.split('DIRECTDIRTY|',1)[1].split('|')]for v in log if'DIRECTDIRTY|'in v]
+ dirty_expected=[[count,len(previous_tiles)if phase else 0,0]for phase,count in enumerate(masked_counts)]if a.dirty_tile_restore else[]
  clocks=[int(jobs[i+1][1])-int(jobs[i][1])for i in(0,2)]if[v[0]for v in jobs]==['entry','done']*2 else None
- ok=actual==expected and vram==packed and bounds==expected_bounds and clocks is not None
+ ok=actual==expected and vram==packed and bounds==expected_bounds and clocks is not None and dirty_trace==dirty_expected
  report=dict(schema='BYOR_DIRECT_SCREEN_BITMAP_NATIVE_V1',status='PASS'if ok else'FAIL',window=window,
      ROM_sha256=hashlib.sha256(rom).hexdigest(),producer_IRAM_bytes=len(producer),row_worker_IRAM_bytes=len(worker),
      bitmap_byte_mismatches=[sum(a!=b for a,b in zip(v,e))for v,e in zip(actual,expected)],VRAM_byte_mismatches=[sum(a!=b for a,b in zip(v,e))for v,e in zip(vram,packed)],
      native_span_and_pixel_counts=counts,write_and_DMA_bounds=bounds,expected_write_and_DMA_bounds=expected_bounds,
-     source_effect_tile_mask=a.effect_tile_direct,promoted_native_window_tiles=tile_count,bitmap_bytes=bitmap_bytes,actor_pixels_in_promoted_tiles=masked_counts,
+     dirty_tile_restore=a.dirty_tile_restore,native_dirty_flag_write_trace=dirty_trace,expected_dirty_flag_write_trace=dirty_expected,previous_dirty_tiles=sorted(previous_tiles),dirty_restore_ROM_worker_bytes=len(restorer),source_effect_tile_mask=a.effect_tile_direct,promoted_native_window_tiles=tile_count,bitmap_bytes=bitmap_bytes,actor_pixels_in_promoted_tiles=masked_counts,
      fixed_underlay_actor=a.fixed_underlay_actor,fixed_underlay_native_origin_guard=fixed_origin,fixed_underlay_source_frame_immutable_in_ROM=fixed_origin is not None,fixed_underlay_native_frame_guard=frame_contract,fixed_underlay_source_identity=frame_identity,live_actor_source_frame_guard=False,
      master_clocks=clocks,milliseconds=[v/21477.27 for v in clocks]if clocks else None,native_bitmap_sha256=[hashlib.sha256(v).hexdigest()for v in actual],
      no_color_reduction=True,alpha_policy='Exact source RGB8 SCREEN before RGB555 conversion',

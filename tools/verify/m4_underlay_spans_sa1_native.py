@@ -51,12 +51,13 @@ def compile_inputs(source,stage,scene,catalog,tile_aligned=False):
  return background[0],bytes(descriptors),bytes(pixels),bytes(origins),actors,(wx,wy,w,h)
 
 
-def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None,colour_canvas_second=None,colour_pixels_second=None,force_stage_reload=False,bitmap_row_target=None,bitmap_baselines=None,bitmap_actor_indices=None,notify_cpu=False,bitmap_tile_count=None,fixed_actor_origin=None,fixed_actor_frame=None,fixed_frame_input_override=None):
+def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None,colour_canvas_second=None,colour_pixels_second=None,force_stage_reload=False,bitmap_row_target=None,bitmap_baselines=None,bitmap_actor_indices=None,notify_cpu=False,bitmap_tile_count=None,fixed_actor_origin=None,fixed_actor_frame=None,fixed_frame_input_override=None,bitmap_dirty_tiles=False):
  if fixed_actor_frame is not None and(fixed_actor_origin is None or fixed_actor_frame[0]!=fixed_actor_origin[0]):raise ValueError('FIXED_FRAME_REQUIRES_MATCHING_GUARDED_ACTOR')
  if fixed_frame_input_override is not None and fixed_actor_frame is None:raise ValueError('FIXED_FRAME_OVERRIDE_REQUIRES_CONTRACT')
  bitmap_bytes=(bitmap_tile_count if bitmap_tile_count is not None else w*h//64)*80
  rom,_,_=base.build(np.zeros((3,2),dtype=np.uint16),True,iram=True);rom=bytearray(rom)+bytearray([255])*(1048576-len(rom))
  for at,data in((0x20000,descriptors),(0x30000,origins),(0x40000,background),(0x50000,pixels)):rom[at:at+len(data)]=data
+ if bitmap_dirty_tiles and(bitmap_row_target is None or bitmap_baselines[:bitmap_bytes]!=bitmap_baselines[bitmap_bytes:]):raise ValueError('DIRTY_BITMAP_REQUIRES_IDENTICAL_BASELINE_CONTEXTS')
  if bitmap_row_target is not None:
   if retain_stage or colour_canvas is not None or len(bitmap_baselines)!=bitmap_bytes*2 or len(bitmap_actor_indices)!=len(pixels):raise ValueError('DIRECT_BITMAP_SOURCE_CONTRACT')
   rom[0xd0000:0xd0000+len(bitmap_baselines)]=bitmap_baselines
@@ -85,6 +86,8 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
    c.emit('af '+(0x42d000+actor*4+axis*2).to_bytes(3,'little').hex(' '));c.word(0xc9,value&65535);c.branch(0xf0,'fixed_axis_%d'%axis);c.jump('fixed_actor_fault');c.label('fixed_axis_%d'%axis)
  c.emit('64 04 64 12 64 14 e2 20 a9 84 8f 30 22 00 a9 20 8f 0b 22 00 a9 c4 8f 34 22 00 c2 20')
  if bitmap_row_target is not None:
+  if bitmap_dirty_tiles:
+   c.emit('a5 16');c.branch(0xf0,'initial_bitmap');c.emit('5c 00 ac 01');c.label('initial_bitmap')
   c.emit('e2 20 a9 cd 8f 34 22 00 c2 20 a5 16');c.branch(0xf0,'bitmap_first');c.word(0xa9,bitmap_bytes);c.branch(0x80,'bitmap_source');c.label('bitmap_first');c.emit('a9 00 00');c.label('bitmap_source');c.emit('8f 32 22 00 a9 00 00 8f 35 22 00');c.word(0xa9,bitmap_bytes);c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20');c.jump('stage_ready')
  if retain_stage and not force_stage_reload:c.emit('a5 16');c.branch(0xd0,'restore')
  c.emit('a9 00 00 8f 32 22 00 8f 35 22 00');c.word(0xa9,len(background));c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20')
@@ -133,13 +136,15 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
  rom[0x9000:0x9000+len(worker)]=worker;main=bytearray(rom[0x8000:0x8400]);main=main[:main.index(bytes([255])*32)];needle=bytes.fromhex('bf 00 90 01 9f 00 32 00 e8 e0');at=main.index(needle)+len(needle);main[at:at+2]=struct.pack('<H',len(worker))
  extra=bytes.fromhex('c2 20 a2 00 00 bf 00 00 c3 9f 00 d0 42 e8 e8 e0')+struct.pack('<H',len(origins))+bytes.fromhex('d0 f1 e2 20')
  if expected_context_epoch is not None:extra+=bytes.fromhex('c2 20 a9')+struct.pack('<H',expected_context_epoch&65535)+bytes.fromhex('8f 00 d1 42 a9')+struct.pack('<H',expected_context_epoch>>16)+bytes.fromhex('8f 02 d1 42 e2 20')
+ if bitmap_dirty_tiles:
+  extra+=bytes.fromhex('c2 30 a2 00 00 a9 00 00 9f 00 c0 42 e8 e8 e0')+struct.pack('<H',((bitmap_tile_count or w*h//64)+1)&~1)+bytes.fromhex('d0 f5 e2 20')
  if fixed_actor_frame is not None:
   actor,frame_epoch=fixed_actor_frame
   if fixed_frame_input_override is not None:frame_epoch=fixed_frame_input_override
   extra+=bytes.fromhex('c2 20 a9')+struct.pack('<H',frame_epoch&65535)+bytes.fromhex('8f')+(0x42d104+actor*4).to_bytes(3,'little')+bytes.fromhex('a9')+struct.pack('<H',frame_epoch>>16)+bytes.fromhex('8f')+(0x42d106+actor*4).to_bytes(3,'little')+bytes.fromhex('e2 20')
  if main[-3]!=0x4c:raise ValueError('UNDERLAY_SPAN_HOST_LAYOUT')
  main[-2:]=struct.pack('<H',struct.unpack('<H',main[-2:])[0]+len(extra));at=main.index(needle)-3;main[at:at]=extra;rom[0x8000:0x8400]=main+bytes([255])*(1024-len(main));rom[0x7fd7]=10
- names=['entry','done']+(['epoch_fault']if expected_context_epoch is not None else[])+(['fixed_actor_fault']if fixed_actor_origin is not None else[])
+ names=['entry','done']+(['stage_ready']if bitmap_dirty_tiles else[])+(['epoch_fault']if expected_context_epoch is not None else[])+(['fixed_actor_fault']if fixed_actor_origin is not None else[])
  return bytes(rom),{n:c.base+c.labels[n]for n in names},worker
 
 

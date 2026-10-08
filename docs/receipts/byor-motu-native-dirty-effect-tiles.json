@@ -1,0 +1,350 @@
+{
+  "schema": "BYOR_NATIVE_GUARDED_DIRTY_EFFECT_TILES_COMPONENT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-dirty-tile-return-native/report.json",
+      "sha256": "3a9bac7772148cfa3267af0efca0205002b180709b61f12f07351342f8d6a8b9",
+      "report": {
+        "schema": "BYOR_DIRECT_SCREEN_BITMAP_NATIVE_V1",
+        "status": "PASS",
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "ROM_sha256": "b41d9ad11064e8faf27e3d06c2d631d925686f9bfed7db592abb46623baf5a76",
+        "producer_IRAM_bytes": 520,
+        "row_worker_IRAM_bytes": 233,
+        "bitmap_byte_mismatches": [
+          0,
+          0
+        ],
+        "VRAM_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_span_and_pixel_counts": [
+          [
+            10,
+            188
+          ],
+          [
+            10,
+            107
+          ]
+        ],
+        "write_and_DMA_bounds": [
+          [
+            38,
+            0,
+            1,
+            6880,
+            0
+          ],
+          [
+            0,
+            0,
+            4,
+            160,
+            0
+          ]
+        ],
+        "expected_write_and_DMA_bounds": [
+          [
+            38,
+            0,
+            1,
+            6880,
+            0
+          ],
+          [
+            0,
+            0,
+            4,
+            160,
+            0
+          ]
+        ],
+        "dirty_tile_restore": true,
+        "native_dirty_flag_write_trace": [
+          [
+            19,
+            0,
+            0
+          ],
+          [
+            0,
+            2,
+            0
+          ]
+        ],
+        "expected_dirty_flag_write_trace": [
+          [
+            19,
+            0,
+            0
+          ],
+          [
+            0,
+            2,
+            0
+          ]
+        ],
+        "previous_dirty_tiles": [
+          83,
+          84
+        ],
+        "dirty_restore_ROM_worker_bytes": 125,
+        "source_effect_tile_mask": true,
+        "promoted_native_window_tiles": 86,
+        "bitmap_bytes": 6880,
+        "actor_pixels_in_promoted_tiles": [
+          19,
+          0
+        ],
+        "fixed_underlay_actor": 0,
+        "fixed_underlay_native_origin_guard": [
+          0,
+          -96,
+          -44
+        ],
+        "fixed_underlay_source_frame_immutable_in_ROM": true,
+        "fixed_underlay_native_frame_guard": [
+          0,
+          2831569577
+        ],
+        "fixed_underlay_source_identity": {
+          "kind": "actor:He_ManB",
+          "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+          "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+          "source_dimensions": [
+            200,
+            200
+          ],
+          "source_flip": false,
+          "selected_map": 0,
+          "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+          "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+        },
+        "live_actor_source_frame_guard": false,
+        "master_clocks": [
+          126580,
+          89370
+        ],
+        "milliseconds": [
+          5.893672706074841,
+          4.161143385542017
+        ],
+        "native_bitmap_sha256": [
+          "893eafe85fb3ca631cb214731dc27dcd7e3bd9f1247ed245937e9906b0671794",
+          "68c7861e4af75225f0d1b145aa1ccc8ac4b6da50157c442f574b7473b987436d"
+        ],
+        "no_color_reduction": true,
+        "alpha_policy": "Exact source RGB8 SCREEN before RGB555 conversion",
+        "SCPU_WAI_during_source_job": false,
+        "source_job_completion_IRQ": false,
+        "production_CPU_contention_admitted": false,
+        "intermediate_underlay_canvas": false,
+        "intermediate_full_index_canvas": false,
+        "source_actor_index_atlas_identical": true,
+        "CHR_publication": true,
+        "native_PPU_scene": true,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native signed clipped source spans directly draw exact SCREEN or opaque indices into compiler stage-baseline bitmaps, then type1 VRAM conversion. Two explicit poses, fixed source art/camera/context; no live world or production deadline admission.",
+        "PPU_pixel_mismatches": 0,
+        "CGRAM_observer_verified": true,
+        "OAM_observer_verified": true,
+        "CGRAM_HBlank_timing_verified": true,
+        "OBJ_status": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "PPU_resources": {
+          "bg_mode": 4,
+          "high_chr_bytes": 40640,
+          "high_chr_base": 0,
+          "high_chr_start": 8192,
+          "high_tile_offset": 128,
+          "obj_obsel": 192,
+          "low_chr_bytes": 9504,
+          "low_chr_base": 49152,
+          "offset_tilemap_base": 63488,
+          "offset_map_aliases_bg1": false,
+          "offset_map_aliases_bg2": true,
+          "hdma_channels": [
+            0
+          ],
+          "irq_enabled": true,
+          "timer_dots": 160,
+          "irq_entry_prg_offset": 57344,
+          "irq_exit_prg_offset": 57379,
+          "code_bank": 1,
+          "oam_entries": 22,
+          "obj_chr_bytes": 6144,
+          "per_field_palette_restore_bytes": 472,
+          "peak_palette_updates": 15,
+          "source_color_bits_preserved": 15,
+          "spc_protocol_proven": false,
+          "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+          "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd",
+          "native_window_tile_counts": [
+            635,
+            594
+          ],
+          "native_window_HIGH_VRAM": 8192,
+          "native_window_LOW_VRAM": 49152,
+          "native_window_placeholder_bytes": 6880,
+          "static_data_bank_offset": 18
+        }
+      }
+    },
+    {
+      "path": "out/byor-motu-dirty-return-workspace-mix-brr-joint-native/report.json",
+      "sha256": "75895d2830919cee8847c248be6f8390063186d576b8c295d3c784062c1d2547",
+      "report": {
+        "schema": "BYOR_SERIALIZED_GRAPHICS_SOURCE_MIX_BRR_NATIVE_V1",
+        "status": "PASS",
+        "ROM_sha256": "0e9624a28cb432e32e6d7764b23c87a7aa9930ac79eb965b978048d80fd24ce5",
+        "graphics_component_ROM": "b41d9ad11064e8faf27e3d06c2d631d925686f9bfed7db592abb46623baf5a76",
+        "audio_component_ROM": "a1e1d96bc364bd8b76920973a112e9fe15590c7da2beb36e3a285aad73d35ac6",
+        "native_bitmap_identity": true,
+        "native_VRAM_identity": true,
+        "PPU_pixel_mismatches": 0,
+        "CGRAM_identity": true,
+        "OAM_identity": true,
+        "CGRAM_HBlank_timing_verified": true,
+        "OBJ_status": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "PCM_identity": true,
+        "BRR_identity": true,
+        "source_Q12_identity": true,
+        "IRAM_restore_trace": [
+          [
+            "0"
+          ]
+        ],
+        "native_event_order_verified": true,
+        "graphics_events": [
+          [
+            "entry",
+            "115072"
+          ],
+          [
+            "done",
+            "241652"
+          ],
+          [
+            "entry",
+            "599518"
+          ],
+          [
+            "done",
+            "688616"
+          ]
+        ],
+        "audio_events": [
+          [
+            "gather_entry",
+            "310494"
+          ],
+          [
+            "gather_done",
+            "502338"
+          ],
+          [
+            "encode_entry",
+            "504288"
+          ],
+          [
+            "encode_done",
+            "596384"
+          ]
+        ],
+        "handoff_events": [
+          [
+            "handoff",
+            "307000"
+          ],
+          [
+            "restore",
+            "596488"
+          ],
+          [
+            "restored",
+            "599468"
+          ]
+        ],
+        "active_source_voices": 12,
+        "output_samples": 192,
+        "audio_output_rate": 11025,
+        "audio_policy": "ACCEPTED_COMPAT mono uniform gain 64 normal pitch",
+        "reload_immutable_workers": true,
+        "source_CHR_workspace_audio": true,
+        "retained_bitmap_identity": true,
+        "audio_BW_write_ranges_verified": true,
+        "audio_buffers": {
+          "PCM": "0x422000",
+          "BRR": "0x422200",
+          "phases": "0x422300"
+        },
+        "borrowed_IRAM_snapshot": {
+          "address": "0030F2",
+          "bytes": 2,
+          "production_owner": "fixture IRAM scratch"
+        },
+        "SPC_transport_bound": false,
+        "continuous_audio_proven": false,
+        "live_actor_source_frame_guard": false,
+        "production_memory_lease": false,
+        "field_deadline_admitted": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "scope": "Graphics phase 0 and VRAM publication, native audio gather/mix/BRR, worker state restoration, graphics phase 1 and complete source PPU scene in one ROM. Explicit source poses, not live gameplay.",
+        "master_clocks": {
+          "gather_mix": 191844,
+          "encode": 92096,
+          "audio_chain": 285890,
+          "complete_handoff": 292468
+        },
+        "milliseconds": {
+          "gather_mix": 8.932420181894626,
+          "encode": 4.288068269384331,
+          "audio_chain": 13.311282113601962,
+          "complete_handoff": 13.617559401171563
+        }
+      }
+    }
+  ],
+  "compiler_baseline_contexts_byte_identical_required": true,
+  "dirty_flags": {
+    "address": "42C000",
+    "bytes": 86,
+    "native_range_and_value_observed": true
+  },
+  "restored_tiles": [
+    83,
+    84
+  ],
+  "restored_bitmap_bytes": 160,
+  "restore_DMA_descriptors": 4,
+  "full_bitmap_bytes": 6880,
+  "no_color_reduction": true,
+  "production_memory_lease": false,
+  "continuous_audio_transport": false,
+  "motu_gameplay_proven": false,
+  "scope": "Native clipped opaque spans mark promoted tiles. The following pose restores only previous dirty HIGH/LOW tile ranges from the immutable baseline before exact RGB8 SCREEN composition. All pixels, palette/OAM traces, dirty writes and DMA bounds match. One-ROM twelve-source native audio handoff preserves bitmap and dirty flags. Live source owner, layer/camera context selection, continuous transport and production lease are not bound."
+}

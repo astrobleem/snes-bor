@@ -50,6 +50,7 @@ def main():
  pcm_address=0x422000 if a.source_workspace_audio else 0x420000;br_address=0x422200 if a.source_workspace_audio else 0x430000;phase_address=0x422300 if a.source_workspace_audio else 0x435000
  new_audio_entries=None
  if a.source_workspace_audio and gr['bitmap_bytes']>0x2000:raise ValueError('DISJOINT_SOURCE_BITMAP_WORKSPACE_CAPACITY')
+ if a.source_workspace_audio and not a.reload_workers:raise ValueError('SOURCE_WORKSPACE_AUDIO_REQUIRES_IMMUTABLE_WORKER_RELOAD')
  gather=audio[0x9000:0x9000+ar['gather_worker_bytes']]
  encoder=audio[0x9800:0x9800+ar['encoder_worker_bytes']]
  if a.source_workspace_audio:
@@ -119,7 +120,7 @@ def main():
    if name=='restored':check+=f"local bad=0;for j=0,{gr['bitmap_bytes']-1} do if retainedNative[j]~=emu.read(0x420000+j,emu.memType.sa1Memory)then bad=bad+1 end end;emu.log('GRAPHICSBITMAPRETAINED|'..bad);emu.log('AUDIOWORKSPACEWRITES|'..audioBadWrites);audioActive=false;"
   observer+=f"emu.addMemoryCallback(function(){activate}emu.log('GRAPHICSHANDOFF|{name}|'..emu.getState().masterClock);{check} end,emu.callbackType.exec,{address},{address},emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  if a.source_workspace_audio:
-  observer+="emu.addMemoryCallback(function(address,value)if audioActive and not((address>=0x422000 and address<0x422180)or(address>=0x422200 and address<0x42226c)or(address>=0x422300 and address<0x422330)or(address>=0x413ff0 and address<0x413ff4))then audioBadWrites=audioBadWrites+1 end end,emu.callbackType.write,0x400000,0x43ffff,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
+  observer+=f"emu.addMemoryCallback(function(address,value)if audioActive and not((address>={pcm_address} and address<{pcm_address+ar['frames']*2})or(address>={br_address} and address<{br_address+ar['frames']//16*9})or(address>={phase_address} and address<{phase_address+48})or(address>=0x413ff0 and address<0x413ff4))then audioBadWrites=audioBadWrites+1 end end,emu.callbackType.write,0x400000,0x43ffff,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  lua=out/'observer.lua';lua.write_text(observer)
  class Observed(McpSession):
   def __enter__(self):
