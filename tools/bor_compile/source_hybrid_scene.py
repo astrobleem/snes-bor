@@ -38,7 +38,7 @@ def capture(source,stage,scene):
     return canvas,metadata,draws
 
 
-def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assignment_cache=None,palette_seed=None,fixed_background_policy='whole_frame',opaque_effect_policy='obj',cull_covered_obj=False):
+def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assignment_cache=None,palette_seed=None,fixed_background_policy='whole_frame',opaque_effect_policy='obj',cull_covered_obj=False,promoted_windows=()):
     if opaque_effect_policy not in ('obj','bg'):raise ValueError('HYBRID_OPAQUE_EFFECT_POLICY')
     if fixed_background_policy not in ('whole_frame','scanline_live'):raise ValueError('HYBRID_FIXED_BACKGROUND_POLICY')
     if not 1<=banks<=7:raise ValueError('HYBRID_OBJ_BANK_COUNT')
@@ -62,6 +62,10 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
                 p['rows']={0:sorted({c for cs in p['rows'].values() for c in cs})}
                 p['allowed_banks']=obj_banks
             pieces.extend(own);ordinary.append(dict(layer=layer,draw=draw))
+    for x,y,w,h in promoted_windows:
+        if x%8 or y%8 or w%8 or h%8 or not 0<=x<x+w<=256 or not 0<=y<y+h<=224:
+            raise ValueError('HYBRID_PROMOTED_TILE_WINDOW_DOMAIN')
+        mask[y:y+h,x:x+w]=True
     promoted=mask.reshape(28,8,32,8).any(axis=(1,3))
     roi=np.repeat(np.repeat(promoted,8,axis=0),8,axis=1)
     expected=rgb555(canvas);base=rgb555(baseline);bg=np.where(roi,expected,base)
@@ -97,7 +101,7 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
         if assignment_cache is not None:assignment_cache[assignment_key]=allocated
     public={k:v for k,v in allocated.items() if k not in ('pieces','assignment')}
     result=dict(schema='BYOR_HYBRID_EXPLICIT_SCENE_V1',scene=scene,source_layers=metadata['layers'],
-        promoted_tiles=int(np.count_nonzero(promoted)),promoted_pixels=int(np.count_nonzero(roi)),
+        promoted_tiles=int(np.count_nonzero(promoted)),promoted_pixels=int(np.count_nonzero(roi)),promoted_windows=list(promoted_windows),
         obj_bank_count=banks,obj_banks=obj_banks,
         opaque_effect_policy=opaque_effect_policy,
         pre_culled_fully_covered_obj_pieces=pre_culled,
