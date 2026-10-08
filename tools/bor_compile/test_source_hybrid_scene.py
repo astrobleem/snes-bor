@@ -74,10 +74,52 @@ class HybridScene(unittest.TestCase):
                     if index:output[wy,wx]=palette[128+bank*16+index]
         self.assertTrue(np.array_equal(output,a['expected']))
 
+    def test_full_actor_art_translation_keeps_static_assignment_and_high_slots(self):
+        root=Path(__file__).resolve().parents[2]
+        scene=json.loads((root/'docs/receipts/byor-motu-hybrid-source-pose-native.json').read_text())['source_scene']
+        source=Source(root/'Masters of the Universe [v.3.0 Build 4086].pak')
+        cache={};reports=[]
+        for move in (0,30):
+            pose=deepcopy(scene);pose['actors'][1]['position'][0]+=move
+            r,a=derive(source,'data/levels/guile2.txt',pose,3,20,
+                       assignment_cache=cache,retain_full_actor_art=True,
+                       persistent_actor_high=True,fixed_background_policy='scanline_live',
+                       promoted_windows=[(80,88,120,96)])
+            self.assertIsNotNone(a)
+            self.assertTrue(r['layer_pixel_identity_verified'])
+            self.assertLessEqual(r['obj_geometry']['oam_entries'],128)
+            self.assertLessEqual(r['obj_geometry']['peak_sprites'],32)
+            self.assertLessEqual(r['obj_geometry']['peak_slivers'],34)
+            reports.append(r)
+        self.assertEqual(len(cache),1)
+        self.assertEqual(reports[0]['obj_static_palettes'],reports[1]['obj_static_palettes'])
+        self.assertEqual(reports[0]['obj_piece_banks'],reports[1]['obj_piece_banks'])
+        self.assertEqual(reports[0]['persistent_actor_high_slots'],reports[1]['persistent_actor_high_slots'])
+        self.assertNotEqual(reports[0]['source_rgb555_sha256'],reports[1]['source_rgb555_sha256'])
+
     def test_invalid_bank_counts_fail_explicitly(self):
         for count in (0,8):
             with self.assertRaisesRegex(ValueError,'HYBRID_OBJ_BANK_COUNT'):
                 derive(None,None,None,count)
+
+    def test_persistent_actor_high_entries_survive_all_scanline_updates(self):
+        root=Path(__file__).resolve().parents[2]
+        scene=json.loads((root/'docs/receipts/byor-motu-hybrid-source-pose-native.json').read_text())['source_scene']
+        r,a=derive(Source(root/'Masters of the Universe [v.3.0 Build 4086].pak'),
+                   'data/levels/guile2.txt',scene,3,20,
+                   persistent_actor_high=True,fixed_background_policy='scanline_live')
+        self.assertIsNotNone(a)
+        required={v['slot']:v['color']for v in r['persistent_actor_high_slots']}
+        palette=np.zeros(256,dtype=np.uint16)
+        palette[:4]=r['low_component_palette']
+        for entry in r['bg_schedule']['initial']:palette[entry['slot']]=entry['color']or 0
+        updates={v['scanline']:v for v in r['bg_schedule']['trace']}
+        for y in range(224):
+            if y in updates:
+                event=updates[y];start=event['cgram_start']
+                palette[start:start+len(event['values'])]=[c or 0 for c in event['values']]
+            self.assertTrue(all(int(palette[slot])==color for slot,color in required.items()))
+            self.assertTrue(np.array_equal(palette[a['high'][y]]+palette[a['low'][y]],a['bg'][y]))
 
 
 if __name__=='__main__':unittest.main()

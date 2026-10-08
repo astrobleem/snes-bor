@@ -26,19 +26,19 @@ def capture(source,stage,scene):
         h,w=canvas.shape[:2];ih,iw=indices.shape
         x0=max(0,x);y0=max(0,y);x1=min(w,x+iw);y1=min(h,y+ih)
         mask=np.zeros((h,w),dtype=bool)
-        pixels=np.where(indices!=0,rgb555(rgb),-1)
+        pixels=np.where(indices!=0,rgb555(rgb),-1);source_pixels=pixels.copy()
         yy,xx=np.indices(indices.shape)
         pixels=np.where((xx+x>=0)&(xx+x<w)&(yy+y>=0)&(yy+y<h),pixels,-1)
         if x1>x0 and y1>y0:
             mask[y0:y1,x0:x1]=indices[y0-y:y1-y,x0-x:x1-x]!=0 if transparent else True
-        draws.append(dict(mask=mask,pixels=pixels,x=x,y=y,alpha=alpha))
+        draws.append(dict(mask=mask,pixels=pixels,source_pixels=source_pixels,x=x,y=y,alpha=alpha))
         return original(canvas,indices,rgb,x,y,alpha,transparent)
     with patch.object(source_scene_bg,'overlay',overlay): canvas,metadata=source_scene_bg.compose_rgb8(source,stage,scene)
     if canvas.shape!=(224,256,3) or len(draws)!=len(metadata['layers']):raise ValueError('HYBRID_CONTEXT_DOMAIN')
     return canvas,metadata,draws
 
 
-def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assignment_cache=None,palette_seed=None,fixed_background_policy='whole_frame',opaque_effect_policy='obj',cull_covered_obj=False,promoted_windows=()):
+def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assignment_cache=None,palette_seed=None,fixed_background_policy='whole_frame',opaque_effect_policy='obj',cull_covered_obj=False,promoted_windows=(),persistent_actor_high=False,retain_full_actor_art=False):
     if opaque_effect_policy not in ('obj','bg'):raise ValueError('HYBRID_OPAQUE_EFFECT_POLICY')
     if fixed_background_policy not in ('whole_frame','scanline_live'):raise ValueError('HYBRID_FIXED_BACKGROUND_POLICY')
     if not 1<=banks<=7:raise ValueError('HYBRID_OBJ_BANK_COUNT')
@@ -53,6 +53,7 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
         if layer['alpha']==1 or layer['kind']=='frontpanel' or (opaque_effect_policy=='bg' and layer.get('source_model_type')=='none'):mask|=draw['mask']
         elif layer['kind'].startswith('actor:'):
             if layer['alpha']!=0:raise ValueError('HYBRID_ALPHA_VARIANT_UNBOUND')
+            if retain_full_actor_art:draw['pixels']=draw['source_pixels']
             own=pieces_for_grid(draw['pixels'],tuple(scene.get('piece_size',[16,32])))
             for p in own:
                 p['x']+=draw['x'];p['y']+=draw['y'];p['actor']=len(ordinary)
@@ -89,20 +90,29 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
             if x1>x0 and y1>y0 and np.any(visible & ~roi[y0:y1,x0:x1]):retained.append(p)
             else:pre_culled+=1
         pieces=retained
-    assignment_key=hashlib.sha256(json.dumps(dict(pieces=pieces,obj_banks=obj_banks),sort_keys=True).encode()).hexdigest()
+    origins=[(v['draw']['x'],v['draw']['y'])for v in ordinary]
+    key_pieces=[dict(p,x=p['x']-origins[p['actor']][0],y=p['y']-origins[p['actor']][1])for p in pieces]if retain_full_actor_art else pieces
+    assignment_key=hashlib.sha256(json.dumps(dict(pieces=key_pieces,obj_banks=obj_banks),sort_keys=True).encode()).hexdigest()
     static_colors=sorted({c for p in pieces for c in p['rows'][0]})
     allocated=assignment_cache.get(assignment_key) if assignment_cache is not None else None
+    if allocated is not None and retain_full_actor_art:
+        allocated=deepcopy(allocated)
+        for p in allocated.get('pieces',[]):p['x']+=origins[p['actor']][0];p['y']+=origins[p['actor']][1]
     if allocated is None:
         if len(static_colors)>15*banks:
             allocated=dict(status='STATIC_OBJ_COLOR_CAPACITY_INFEASIBLE',required_colors=len(static_colors),
                            available_opaque_slots=15*banks,
                            scope='Compiler retained source pieces, including pixels covered by promoted BG. Not universal hybrid infeasibility.')
         else:allocated=split_scene_color_masks(pieces,banks=tuple(obj_banks),time_limit=time_limit)
-        if assignment_cache is not None:assignment_cache[assignment_key]=allocated
+        if assignment_cache is not None:
+            cached=deepcopy(allocated)
+            if retain_full_actor_art:
+                for p in cached.get('pieces',[]):p['x']-=origins[p['actor']][0];p['y']-=origins[p['actor']][1]
+            assignment_cache[assignment_key]=cached
     public={k:v for k,v in allocated.items() if k not in ('pieces','assignment')}
     result=dict(schema='BYOR_HYBRID_EXPLICIT_SCENE_V1',scene=scene,source_layers=metadata['layers'],
         promoted_tiles=int(np.count_nonzero(promoted)),promoted_pixels=int(np.count_nonzero(roi)),promoted_windows=list(promoted_windows),
-        obj_bank_count=banks,obj_banks=obj_banks,
+        obj_bank_count=banks,obj_banks=obj_banks,retain_full_actor_art=retain_full_actor_art,
         opaque_effect_policy=opaque_effect_policy,
         pre_culled_fully_covered_obj_pieces=pre_culled,
         bg_composited_opaque_source_models=[l['kind']for l in metadata['layers']if l['kind'].startswith('actor:')and l['alpha']==0 and opaque_effect_policy=='bg'and l.get('source_model_type')=='none'],
@@ -131,7 +141,7 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
     for bank,colors in zip(obj_banks,palettes):
         for i,color in enumerate(colors,1):
             slot=128+bank*16+i;obj_palette_words.append(dict(slot=slot,color=color))
-            if color in high:aliases.setdefault(color,slot)
+            if persistent_actor_high or color in high:aliases.setdefault(color,slot)
     # A BG high component may use an OBJ-owned entry only when the complete
     # RGB555 word is identical. Never mask or alter the OBJ word to obtain it.
     if fixed_background_policy=='scanline_live':
@@ -141,10 +151,13 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
         colors,counts=np.unique(base_high,return_counts=True)
         order=sorted(zip(map(int,colors),map(int,counts)),key=lambda v:(-v[1],v[0]))
         fixed=sorted([c for c,n in order if c not in aliases][:len(result['bg_owned_obj_transparent_entries'])])
+    actor_high=sorted({c&0x7bdf for c in static_colors}) if persistent_actor_high else []
+    if persistent_actor_high:fixed=sorted(set(fixed)|set(actor_high))
     result.update(fixed_background_policy=fixed_background_policy,baseline_bg_high_colors=baseline_colors,
                   background_palette_capability='RASTER_BG_SCANLINE_LIVENESS'if fixed_background_policy=='scanline_live'else'STATIC_BG_PREFIX_RASTER_EFFECT',
                   ordinary_actor_palette_capability='STATIC_OBJ_PALETTE',
-                  low_component_bits=[0,1,1],low_component_palette=low_palette)
+                  low_component_bits=[0,1,1],low_component_palette=low_palette,persistent_actor_high=persistent_actor_high,
+                  persistent_actor_high_colors=actor_high)
     fixed_free=[c for c in fixed if c not in aliases]
     reserved=set(result['obj_palette_cgram_reserved'])
     # OBJ transparency is selected by pixel index zero, independent of that
@@ -198,6 +211,9 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
         initial_load_phase='VBLANK',update_phase='BEFORE_TARGET_SCANLINE',
         runtime_policy='Fixed-width native fixture also retransmits unchanged windows; publication budget must include these writes'),
         bg_palette_pixel_identity_verified=True)
+    if persistent_actor_high:
+        mapping={c:physical[i] for i,c in enumerate(fixed_free)};mapping.update(aliases)
+        result['persistent_actor_high_slots']=[dict(color=c,slot=mapping[c])for c in actor_high]
     # Cull only fully hidden colour-mask objects. Partial objects retain their
     # complete source-derived graphic; promoted BG tiles hide covered pixels.
     graphics=[]

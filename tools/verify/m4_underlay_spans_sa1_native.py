@@ -51,7 +51,7 @@ def compile_inputs(source,stage,scene,catalog,tile_aligned=False):
  return background[0],bytes(descriptors),bytes(pixels),bytes(origins),actors,(wx,wy,w,h)
 
 
-def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None,colour_canvas_second=None):
+def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None,colour_canvas_second=None,colour_pixels_second=None,force_stage_reload=False):
  rom,_,_=base.build(np.zeros((3,2),dtype=np.uint16),True,iram=True);rom=bytearray(rom)+bytearray([255])*(1048576-len(rom))
  for at,data in((0x20000,descriptors),(0x30000,origins),(0x40000,background),(0x50000,pixels)):rom[at:at+len(data)]=data
  if colour_canvas is not None:
@@ -60,15 +60,19 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
   if colour_canvas_second is not None:
    if len(colour_canvas_second)!=len(colour_canvas)or len(colour_canvas)*2>65536:raise ValueError('COLOUR_BASELINE_CONTEXT_CAPACITY')
    rom[0x80000+len(colour_canvas):0x80000+len(colour_canvas)*2]=colour_canvas_second
+  if colour_pixels_second is not None:
+   if len(colour_pixels_second)!=len(colour_pixels)or len(colour_pixels)*2>65536:raise ValueError('ACTOR_INDEX_CONTEXT_CAPACITY')
+   rom[0x90000+len(colour_pixels):0x90000+len(colour_pixels)*2]=colour_pixels_second
  c=Code(0x3200);c.emit('78 18 fb c2 30 a2 ff 37 9a a9 00 30 5b e2 20 a9 ff 8d 2a 22 a9 80 8d 27 22 a9 42 48 ab c2 20 a9 00 00 85 16 85 18 8f f4 3f 41')
  c.label('entry');c.emit('e2 20 a9 42 48 ab c2 20')
  if expected_context_epoch is not None:
   c.emit('af 00 d1 42');c.word(0xc9,expected_context_epoch&65535);c.branch(0xf0,'epoch_low_valid');c.jump('epoch_fault');c.label('epoch_low_valid');c.emit('af 02 d1 42');c.word(0xc9,expected_context_epoch>>16);c.branch(0xf0,'epoch_valid');c.jump('epoch_fault');c.label('epoch_valid')
  c.emit('64 04 64 12 64 14 e2 20 a9 84 8f 30 22 00 a9 20 8f 0b 22 00 a9 c4 8f 34 22 00 c2 20')
- if retain_stage:c.emit('a5 16');c.branch(0xd0,'restore')
+ if retain_stage and not force_stage_reload:c.emit('a5 16');c.branch(0xd0,'restore')
  c.emit('a9 00 00 8f 32 22 00 8f 35 22 00');c.word(0xa9,len(background));c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20')
- if retain_stage:
+ if retain_stage and not force_stage_reload:
   c.jump('restored');c.label('restore');c.emit('a2 00 00 a5 18');c.branch(0xf0,'restored');c.label('restore_span');c.emit('bd 00 60 8f 32 22 00 8f 35 22 00 bd 02 60 8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20 e8 e8 e8 e8 e4 18');c.branch(0xd0,'restore_span');c.label('restored');c.emit('64 18')
+ if force_stage_reload:c.emit('64 18')
  if colour_canvas is not None:
   c.emit('e2 20 a9 c8 8f 34 22 00 c2 20')
   if colour_canvas_second is not None:
@@ -82,7 +86,12 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
  c.emit('e2 20 a9 00 8f 50 22 00 c2 20 a5 00 8f 51 22 00');c.word(0xa9,w);c.emit('8f 53 22 00 ea ea ea af 06 23 00 18 65 02 0a 85 1a 8f 35 22 00 a5 0c 8f 32 22 00 a5 08 18 65 14 85 14 a5 08 0a 8f 38 22 00 e2 20 a5 0e 8f 34 22 00 a9 02 8f 37 22 00 c2 20 e6 12')
  # Normal DMA advances its source address and drains its transfer counter.
  # The RGB555 transfer must reload both, rather than reuse the ID DMA state.
- if colour_canvas is not None:c.emit('a5 1a 18 69 00 70 8f 35 22 00 a5 0c 8f 32 22 00 a5 08 0a 8f 38 22 00 e2 20 a5 0e 18 69 04 8f 34 22 00 a9 02 8f 37 22 00 c2 20')
+ if colour_canvas is not None:
+  c.emit('a5 1a 18 69 00 70 8f 35 22 00')
+  if colour_pixels_second is not None:
+   c.emit('a5 16');c.branch(0xf0,'actor_first');c.emit('a5 0c 18');c.word(0x69,len(colour_pixels));c.branch(0x80,'actor_source');c.label('actor_first');c.emit('a5 0c');c.label('actor_source')
+  else:c.emit('a5 0c')
+  c.emit('8f 32 22 00 a5 08 0a 8f 38 22 00 e2 20 a5 0e 18 69 04 8f 34 22 00 a9 02 8f 37 22 00 c2 20')
  if retain_stage:c.emit('a6 18 a5 1a 9d 00 60 a5 08 0a 9d 02 60 e8 e8 e8 e8 86 18')
  c.label('next');c.emit('a5 04 18 69 10 00 85 04');c.word(0xc9,len(descriptors));c.branch(0xf0,'done');c.jump('span')
  c.label('done');c.emit('a5 12 8f f6 3f 41 a5 14 8f f8 3f 41')
