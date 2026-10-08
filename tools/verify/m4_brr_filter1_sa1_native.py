@@ -37,7 +37,7 @@ def residual_lookup(shift,avoid_min=False):
  return bytes(table)
 
 
-def build(samples,busy,predictor_dbr=False,clip_repair=False,worker_base=0x3200,input_bank=0xc2):
+def build(samples,busy,predictor_dbr=False,clip_repair=False,worker_base=0x3200,input_bank=0xc2,persistent_jobs=0):
  raw,_,_=filter0_build(samples,busy);rom=bytearray(raw)
  prediction=[(p if p<16384 else p-32768)+((-(p if p<16384 else p-32768))>>4)for p in range(32768)]
  rom[0x10000:0x20000]=struct.pack('<32768h',*prediction)
@@ -51,12 +51,17 @@ def build(samples,busy,predictor_dbr=False,clip_repair=False,worker_base=0x3200,
  rom[0x1e0000:0x1f0000]=bytes(65536)
  c=Code(worker_base);c.emit('78 18 fb c2 30 a2 ff 37 9a a9 00 30 5b e2 20 a9 ff 8d 2a 22 a9 80 8d 27 22 a9 00 48 ab c2 20')
  c.label('entry');c.emit('a9 00 00 8f f2 3f 41 85 28 85 00 85 04 85 10 85 14 85 18 e2 20 a9 43 85 06 a9 c3 85 24 c2 20')
- c.label('block');c.emit('e2 20 a9 c1 a6 10');c.branch(0xd0,'predictor_bank');c.emit('a9 de');c.label('predictor_bank');c.emit(('48 ab'if predictor_dbr else'85 1a')+' c2 20 a9 00 00 85 08 a5 14 85 12 a9 10 00 85 20')
+ if persistent_jobs:c.emit('af 00 f0 43 85 14 af 04 f0 43 85 04 af 02 f0 43 85 2c')
+ def present(name):
+  c.emit('a6 10')
+  if persistent_jobs:c.branch(0xd0,name);c.emit('a6 2c');c.label(name)
+ c.label('block');c.emit('e2 20 a9 c1');present('predictor_present');c.branch(0xd0,'predictor_bank');c.emit('a9 de');c.label('predictor_bank');c.emit(('48 ab'if predictor_dbr else'85 1a')+' c2 20 a9 00 00 85 08 a5 14 85 12 a9 10 00 85 20')
+ if persistent_jobs:c.emit('a6 10')
  predictor='b9 00 00'if predictor_dbr else'b7 18'
  source_load='bf 00 00 '+f'{input_bank:02x}'
  c.label('peak');c.emit(source_load+' c9 00 80 6a 85 1c a5 12 29 ff 7f 0a a8 '+predictor+' 85 1e a5 1c 85 12 38 e5 1e')
  c.branch(0x10,'absolute');c.emit('49 ff ff 1a');c.label('absolute');c.emit('c5 08');c.branch(0x90,'retain');c.emit('85 08');c.label('retain');c.emit('e8 e8 c6 20');c.branch(0xd0,'peak')
- c.emit('a6 08 e2 20 bf 00 00 c3 85 0a 18 69 d1 a6 10');c.branch(0xd0,'quant_bank');c.emit('a5 0a 18 69 c4');c.label('quant_bank');c.emit('85 02 a5 0a 0a 0a 0a 0a a6 10');c.branch(0xf0,'header');c.emit('09 04');c.label('header');c.emit('87 04 c2 20 e6 04 a5 0a 29 ff 00 0a 0a 0a 0a 0a 18 69 00 90 85 22 a6 10 a9 08 00 85 0c')
+ c.emit('a6 08 e2 20 bf 00 00 c3 85 0a 18 69 d1');present('quant_present');c.branch(0xd0,'quant_bank');c.emit('a5 0a 18 69 c4');c.label('quant_bank');c.emit('85 02 a5 0a 0a 0a 0a 0a');present('header_present');c.branch(0xf0,'header');c.emit('09 04');c.label('header');c.emit('87 04 c2 20 e6 04 a5 0a 29 ff 00 0a 0a 0a 0a 0a 18 69 00 90 85 22 a6 10 a9 08 00 85 0c')
  c.label('pair')
  for side in range(2):
   c.emit(source_load+' c9 00 80 6a 85 1c a5 14 29 ff 7f 0a a8 '+predictor+' 85 1e a5 1c 38 e5 1e a8 e2 20 b7 00 85 26')
@@ -74,7 +79,10 @@ def build(samples,busy,predictor_dbr=False,clip_repair=False,worker_base=0x3200,
   c.emit('e8 e8')
  c.emit('e6 04 c6 0c');c.branch(0xf0,'pair_done');c.jump('pair');c.label('pair_done');c.emit('86 10');c.word(0xe0,len(samples)*2);c.branch(0xf0,'done');c.jump('block')
  c.label('fault');c.emit('a9 ad de 8f f2 3f 41');c.jump('done')
- c.label('done');c.emit('a5 04 38 e9 09 00 85 04 e2 20 a7 04 09 01 87 04 c2 20 a9 ab b4 8f f0 3f 41');c.label('stop');c.jump('stop');worker=c.finish()
+ c.label('done')
+ if persistent_jobs:
+  c.emit('a5 14 8f 00 f0 43 a5 04 8f 04 f0 43 a5 2c 1a 8f 02 f0 43');c.word(0xc9,persistent_jobs);c.branch(0xb0,'final_job');c.emit('5c 00 a1 01');c.label('final_job')
+ c.emit('a5 04 38 e9 09 00 85 04 e2 20 a7 04 09 01 87 04 c2 20 a9 ab b4 8f f0 3f 41');c.label('stop');c.jump('stop');worker=c.finish()
  if len(worker)>0x500:raise ValueError('PREDICTIVE_WORKER_IRAM_GAP')
  rom[0x9000:0x9000+len(worker)]=worker
  main=bytearray(rom[0x8000:0x8400]);needle=bytes.fromhex('bf 00 90 01 9f 00 32 00 e8 e0');at=main.index(needle)+len(needle);main[at:at+2]=struct.pack('<H',len(worker));rom[0x8000:0x8400]=main

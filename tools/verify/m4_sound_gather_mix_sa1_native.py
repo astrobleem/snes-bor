@@ -23,14 +23,18 @@ def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup
  if not 1<=count<=12:raise ValueError('ACTIVE_CHANNEL_COUNT_DOMAIN')
  if input_channels is not None and(not expanded_byte_sum or period!=4096):raise ValueError('SOURCE_INPUT_REQUIRES_INTEGER_STRIDE_PROJECTION')
  if packed_mono and not expanded_byte_sum:raise ValueError('PACKED_MONO_REQUIRES_FACTORED_BYTES')
- if 44*4096+(frames+warmup)*period>=257*4096:raise ValueError('GATHER_MIX_SOURCE_COMPLETION_UNBOUND')
+ if input_channels is None and 44*4096+(frames+warmup)*period>=257*4096:raise ValueError('GATHER_MIX_SOURCE_COMPLETION_UNBOUND')
+ source_stride=1024 if expanded_byte_sum else 512
+ if input_channels is not None:
+  size=max(len(row['values'])*2 for row in input_channels)
+  source_stride=max(1024,1<<(size-1).bit_length())
+  if source_stride*count>65536:raise ValueError('BOUNDED_SOURCE_ROM_BANK_CAPACITY')
+  if any((row['initial_Q12']>>12)+frames>=len(row['values'])for row in input_channels):raise ValueError('BOUNDED_SOURCE_STRIDE_CACHE_END')
  raw,_,_=kernel_build(frames,busy,12,volume,True,True);rom=bytearray(raw)
  for channel in range(count):
   values=input_channels[channel]['values']if input_channels is not None else[(i*37+channel*13)&255 for i in range(257)]
-  if len(values)!=257:raise ValueError('BOUNDED_SOURCE_STRIDE_CACHE_SIZE')
-  data=struct.pack('<257H',*values)if expanded_byte_sum else bytes(values)
-  stride=1024 if expanded_byte_sum else 512
-  rom[0x20000+channel*stride:0x20000+channel*stride+len(data)]=data
+  data=struct.pack('<'+'H'*len(values),*values)if expanded_byte_sum else bytes(values)
+  rom[0x20000+channel*source_stride:0x20000+channel*source_stride+len(data)]=data
  phase=b''.join(struct.pack('<I',input_channels[channel]['initial_Q12']if input_channels is not None else channel*4*4096+warmup*period)for channel in range(count));rom[0x1a400:0x1a430]=phase+bytes(48-len(phase))
  c=Code(0x3500);c.emit('78 18 fb c2 30 a2 ff 37 9a a9 e0 34 5b e2 20 a9 ff 8d 2a 22 a9 80 8d 27 22 a9 00 48 ab c2 20')
  acc_stride=2 if expanded_byte_sum else 4
@@ -39,7 +43,7 @@ def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup
  q16_fraction=expanded_byte_sum and bool(period&4095)
  c.label('channel');c.emit('a6 06 bf 00 50 43 29 ff 0f'+(' 0a 0a 0a 0a'if q16_fraction else'')+' 85 00 bf 00 50 43 eb 29 ff 00 4a 4a 4a 4a 85 02 bf 02 50 43 0a 0a 0a 0a 05 02 85 02 8a')
  if expanded_byte_sum:c.emit('a5 02 0a 85 02 a6 06 8a')
- c.emit('0a '*(8 if expanded_byte_sum else 7));c.emit('85 04')
+ c.emit('0a '*(source_stride.bit_length()-3));c.emit('85 04')
  if pcm_dma:
   # SA-1 normal DMA: source ROM, destination internal RAM. Writing the
   # destination middle byte starts it; the SA-1 CPU stalls until completion.

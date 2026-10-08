@@ -1,0 +1,1207 @@
+{
+  "schema": "BYOR_MOTU_REAL_SOURCE_AUDIO_CONTINUATION_V1",
+  "status": "FOUR_NATIVE_SOURCE_JOBS_EXACT_TRANSPORT_UNBOUND",
+  "authority": {
+    "path": "out\\byor-motu-mixed-brr-continuation-authority\\report.json",
+    "sha256": "5859ec98b4cf40d313464d90e7ca073b59a401dcb1d19900a316a2b8c8bd55eb",
+    "result": {
+      "schema": "BYOR_MIXED_BRR_QUALITY_V1",
+      "status": "MEASURED",
+      "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+      "function_sha256": {
+        "clearmixbuffer": "2ad027a7fa0e1795fb3b36dbe3bb4645b1716a94a8f1b4d6f5914ee0e32354d6",
+        "mixaudio": "4f72af3cad3fbcc5fc36e448daed4673f20dbd71ea2e95f88cbd91b3b8481f96",
+        "update_sample": "001bf7d7d69c81cfc63da2a6edf8805e4072a4a226cb48a4a7c85f2fd6f62899",
+        "sound_play_sample": "3f544738c685931ef89c20070576ec412fca47cc57a861c3bc0a66b984498894"
+      },
+      "tad_commit": "00215a2e9aaf327d620120a48b47d74f80d5b521",
+      "tad_source_sha256": {
+        "encoder.rs": {
+          "checkout_sha256": "f6be37fe27cf111250d94c8472dec8962ca5d75ba8206208a4bbb76c2c99db66",
+          "git_blob_sha256": "cd09eb14709a56188d182e8e43bc996bad0c4989d5c8fecbae93bfb1bafbbe1a",
+          "line_ending_normalized_equal": true
+        },
+        "decoder.rs": {
+          "checkout_sha256": "6bb34eac2b46f5d8e12cb5379b62eaf38bd6bae9996de996863d4730cedf0f7b",
+          "git_blob_sha256": "f89698b8900ec654769eaf1b23cbb6930f983c1d5ec73f255971c30322922f91",
+          "line_ending_normalized_equal": true
+        },
+        "lib.rs": {
+          "checkout_sha256": "f1d697e09db3226cf7c0c6ef8bbfbf815d7509e463bac800997a901029b8d480",
+          "git_blob_sha256": "32181e11e0d6a06757529d69eefc4ff4e0e493e9c2c196cb01a9e5640c521feb",
+          "line_ending_normalized_equal": true
+        },
+        "gaussian_overflow_test.rs": {
+          "checkout_sha256": "226f2be81b04757195fe80086d9ae94ad994fcdce0a3ae0a84f46a24bfafcaf9",
+          "git_blob_sha256": "4fd4b7fd74ab8a15a35781df80aaa6f4dda14c86c99f620640015cbe5f5745d9",
+          "line_ending_normalized_equal": true
+        }
+      },
+      "source_assets": [
+        {
+          "sound_index": 4,
+          "source_path": "data/sounds/quake.wav",
+          "source_sha256": "0c6a4dce448443f967f58e7196d639e8b55a33f4c4a23c88eb1b655eca86e303"
+        },
+        {
+          "sound_index": 6,
+          "source_path": "data/chars/he-man/fx/wind.wav",
+          "source_sha256": "4274c51fb2cc35730ae61b2f8e3510dc5133390fb9d393fc76e837966a7c6f45"
+        },
+        {
+          "sound_index": 16,
+          "source_path": "data/chars/KnBot/energy.wav",
+          "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c"
+        },
+        {
+          "sound_index": 26,
+          "source_path": "data/sounds/punch.wav",
+          "source_sha256": "4a1c15698279d0ff55ff09a036d23126c131f978a13625ec14ae5952a9c03084"
+        }
+      ],
+      "output_rate": 11025,
+      "frames": 768,
+      "source_output_rate_policy": "ACCEPTED_COMPAT 11025; actual C nearest Q12 sampling and mixer",
+      "stress_is_authored_timing": false,
+      "source_pcm_copied": false,
+      "native_encoding_cost_proven": false,
+      "physical_polyphony_proven": false,
+      "production_admitted": false,
+      "no_color_reduction": true,
+      "results": [
+        {
+          "name": "sound-4",
+          "sound_indices": [
+            4
+          ],
+          "mixed_pcm_sha256": "e618d66cc629000355e280095dc5f368aa3cc76ec6318ed67a0acd8d4e94ba16",
+          "actual_C_final_channels": [
+            {
+              "slot": 0,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 1,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 2,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 3,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 4,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 5,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 6,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 7,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 8,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 9,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 10,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 11,
+              "active": 1,
+              "Q12_position": 6471680,
+              "Q12_period": 8192,
+              "fixture_sample_index": 0
+            }
+          ],
+          "codecs": {
+            "tad": {
+              "samples": 768,
+              "peak_error": 480,
+              "rms_error": 122.64617129504424,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 27.445866192140226,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "48af393d09bb32e8f65761c975129c16766cf5a475a35abf2db6cebe8bbf394f"
+            },
+            "peak-filter0": {
+              "samples": 768,
+              "peak_error": 512,
+              "rms_error": 229.4631415572735,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 22.004687392146668,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "bbea1dd63a3fd12b21e5d2028e1e24b65dae7cda29453a1b4b5d77c7c4d30f13"
+            },
+            "peak-filter1": {
+              "samples": 768,
+              "peak_error": 510,
+              "rms_error": 208.5814314402571,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 22.833433223945324,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "fd1d984e4918354be3d97d3eff68e40cefb9246b527e68e04483a3db26ca5537"
+            }
+          }
+        },
+        {
+          "name": "sound-6",
+          "sound_indices": [
+            6
+          ],
+          "mixed_pcm_sha256": "061ac5872d5d0051032953c059a132d471947ea698f99bee088fdf5fd1fcf854",
+          "actual_C_final_channels": [
+            {
+              "slot": 0,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 1,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 2,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 3,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 4,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 5,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 6,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 7,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 8,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 9,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 10,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 11,
+              "active": 1,
+              "Q12_position": 6471680,
+              "Q12_period": 8192,
+              "fixture_sample_index": 0
+            }
+          ],
+          "codecs": {
+            "tad": {
+              "samples": 768,
+              "peak_error": 128,
+              "rms_error": 21.19699271123147,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 37.14009175625206,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "97662ba21b6d4ae361e19e6755b6969f6ec62b728986c66e776afe5bdf59f19a"
+            },
+            "peak-filter0": {
+              "samples": 768,
+              "peak_error": 256,
+              "rms_error": 121.47427711248172,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 21.975890300260502,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "d6f113dacabdaf77561333c321713a21e13cfeaec07de17362f98e079128aff0"
+            },
+            "peak-filter1": {
+              "samples": 768,
+              "peak_error": 128,
+              "rms_error": 49.55205596138267,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 29.76434319617955,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "1b18dc3ce508127ccc92ba8c1dc09fa44c029192a5b63bf168f1756497ca1f57"
+            }
+          }
+        },
+        {
+          "name": "sound-16",
+          "sound_indices": [
+            16
+          ],
+          "mixed_pcm_sha256": "0293e11bc85de547ecbaf948f07d230a195529ced238ca63da1da271d379a256",
+          "actual_C_final_channels": [
+            {
+              "slot": 0,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 1,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 2,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 3,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 4,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 5,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 6,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 7,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 8,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 9,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 10,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 11,
+              "active": 1,
+              "Q12_position": 12763136,
+              "Q12_period": 16384,
+              "fixture_sample_index": 0
+            }
+          ],
+          "codecs": {
+            "tad": {
+              "samples": 768,
+              "peak_error": 232,
+              "rms_error": 23.176856272296003,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 28.601738611497055,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "60986076eb27129ca5f4ae3764ceb04eba8e286d6fb7a8ca74d73749b977e2f9"
+            },
+            "peak-filter0": {
+              "samples": 768,
+              "peak_error": 128,
+              "rms_error": 59.520304658718494,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 20.409526252598184,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "f489aaeeaea831762e2cbab8074dbe1b41d148e6ef4188bf66387e5b69d9bb67"
+            },
+            "peak-filter1": {
+              "samples": 768,
+              "peak_error": 128,
+              "rms_error": 31.18284450890692,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 26.024514579995895,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "577f1453f1562893c008c12a53d644424a6a875881314c1e57ff1c57b23d565c"
+            }
+          }
+        },
+        {
+          "name": "sound-26",
+          "sound_indices": [
+            26
+          ],
+          "mixed_pcm_sha256": "731c02f5c07284edd7bdf6fb352fa6384d9ce015b0216c69c5d6ebf85447eaac",
+          "actual_C_final_channels": [
+            {
+              "slot": 0,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 1,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 2,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 3,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 4,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 5,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 6,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 7,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 8,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 9,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 10,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 11,
+              "active": 1,
+              "Q12_position": 3325952,
+              "Q12_period": 4096,
+              "fixture_sample_index": 0
+            }
+          ],
+          "codecs": {
+            "tad": {
+              "samples": 768,
+              "peak_error": 380,
+              "rms_error": 67.06122824205752,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 33.00264843347649,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "24e4622c03c17eb6525b1afc5020c1e3ac8b5a6d2cf604784a8b90c67f67fbe7"
+            },
+            "peak-filter0": {
+              "samples": 768,
+              "peak_error": 512,
+              "rms_error": 161.7322890870383,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 25.356143832823825,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "11d1e736456dc2d0aa8b17a3310414533906fa90d12ae76ee58cb4430b2e5b63"
+            },
+            "peak-filter1": {
+              "samples": 768,
+              "peak_error": 508,
+              "rms_error": 125.12918324675503,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 27.584906304627562,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "34143b150f5c7041bee9e4c5ca3c582cefed6d2c814c55b7cc19ccff7af81904"
+            }
+          }
+        },
+        {
+          "name": "six-voice-stress",
+          "sound_indices": [
+            6,
+            4,
+            16,
+            16,
+            16,
+            26
+          ],
+          "mixed_pcm_sha256": "76affbce5e00c87bada095dd2fee3c9467ab58af3880d12e5b3430380788d677",
+          "actual_C_final_channels": [
+            {
+              "slot": 0,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 1,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 2,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 3,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 4,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 5,
+              "active": 0,
+              "Q12_position": 0,
+              "Q12_period": 0,
+              "fixture_sample_index": 0
+            },
+            {
+              "slot": 6,
+              "active": 1,
+              "Q12_position": 3244032,
+              "Q12_period": 4096,
+              "fixture_sample_index": 5
+            },
+            {
+              "slot": 7,
+              "active": 1,
+              "Q12_position": 12697600,
+              "Q12_period": 16384,
+              "fixture_sample_index": 4
+            },
+            {
+              "slot": 8,
+              "active": 1,
+              "Q12_position": 12713984,
+              "Q12_period": 16384,
+              "fixture_sample_index": 3
+            },
+            {
+              "slot": 9,
+              "active": 1,
+              "Q12_position": 12730368,
+              "Q12_period": 16384,
+              "fixture_sample_index": 2
+            },
+            {
+              "slot": 10,
+              "active": 1,
+              "Q12_position": 6455296,
+              "Q12_period": 8192,
+              "fixture_sample_index": 1
+            },
+            {
+              "slot": 11,
+              "active": 1,
+              "Q12_position": 6471680,
+              "Q12_period": 8192,
+              "fixture_sample_index": 0
+            }
+          ],
+          "codecs": {
+            "tad": {
+              "samples": 768,
+              "peak_error": 790,
+              "rms_error": 156.93526398911538,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 29.627445214746032,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "b3ed97e52332063cdc3d16465e0b303159fedda4a6f97e9c33a0d89331fa9a39"
+            },
+            "peak-filter0": {
+              "samples": 768,
+              "peak_error": 1024,
+              "rms_error": 461.9552647894238,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 20.249857639968283,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "fd18affadfad3c6c9a27dfbf71cdc9a90b946ebd95db5db922262ca584d491e0"
+            },
+            "peak-filter1": {
+              "samples": 768,
+              "peak_error": 512,
+              "rms_error": 215.97048409447066,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 26.85396802538262,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "f959c0fb3445c872c2f804bd9fbcfde05ed095b68ba7e286aaa44e41a8028756"
+            }
+          }
+        },
+        {
+          "name": "twelve-voice-stress",
+          "sound_indices": [
+            16,
+            16,
+            16,
+            16,
+            16,
+            16,
+            16,
+            16,
+            16,
+            6,
+            4,
+            26
+          ],
+          "mixed_pcm_sha256": "80229d9f4a90435fcc7b108343d0bff03f97acd76766c8a7aebda5bfb9634a70",
+          "actual_C_final_channels": [
+            {
+              "slot": 0,
+              "active": 1,
+              "Q12_position": 3145728,
+              "Q12_period": 4096,
+              "fixture_sample_index": 11
+            },
+            {
+              "slot": 1,
+              "active": 1,
+              "Q12_position": 6307840,
+              "Q12_period": 8192,
+              "fixture_sample_index": 10
+            },
+            {
+              "slot": 2,
+              "active": 1,
+              "Q12_position": 6324224,
+              "Q12_period": 8192,
+              "fixture_sample_index": 9
+            },
+            {
+              "slot": 3,
+              "active": 1,
+              "Q12_position": 12632064,
+              "Q12_period": 16384,
+              "fixture_sample_index": 8
+            },
+            {
+              "slot": 4,
+              "active": 1,
+              "Q12_position": 12648448,
+              "Q12_period": 16384,
+              "fixture_sample_index": 7
+            },
+            {
+              "slot": 5,
+              "active": 1,
+              "Q12_position": 12664832,
+              "Q12_period": 16384,
+              "fixture_sample_index": 6
+            },
+            {
+              "slot": 6,
+              "active": 1,
+              "Q12_position": 12681216,
+              "Q12_period": 16384,
+              "fixture_sample_index": 5
+            },
+            {
+              "slot": 7,
+              "active": 1,
+              "Q12_position": 12697600,
+              "Q12_period": 16384,
+              "fixture_sample_index": 4
+            },
+            {
+              "slot": 8,
+              "active": 1,
+              "Q12_position": 12713984,
+              "Q12_period": 16384,
+              "fixture_sample_index": 3
+            },
+            {
+              "slot": 9,
+              "active": 1,
+              "Q12_position": 12730368,
+              "Q12_period": 16384,
+              "fixture_sample_index": 2
+            },
+            {
+              "slot": 10,
+              "active": 1,
+              "Q12_position": 12746752,
+              "Q12_period": 16384,
+              "fixture_sample_index": 1
+            },
+            {
+              "slot": 11,
+              "active": 1,
+              "Q12_position": 12763136,
+              "Q12_period": 16384,
+              "fixture_sample_index": 0
+            }
+          ],
+          "codecs": {
+            "tad": {
+              "samples": 768,
+              "peak_error": 794,
+              "rms_error": 169.00828998405177,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 32.270102876743486,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "a34ae9a14dabc474dbc40c9a28e472d33e7d0b826e57263677cd6a9858d7f4b8"
+            },
+            "peak-filter0": {
+              "samples": 768,
+              "peak_error": 2048,
+              "rms_error": 640.9482558418165,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 20.691803627587852,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "9b21b832c846abeb42376c4c33b45045991dd0366d345d0cc3befb95251e288e"
+            },
+            "peak-filter1": {
+              "samples": 768,
+              "peak_error": 512,
+              "rms_error": 219.0434698105987,
+              "gaussian_overflow_minimum_triples": 0,
+              "snr_db": 30.017656821096704,
+              "clipped_source_samples": 0,
+              "brr_bytes": 432,
+              "brr_sha256": "574cd79adf7a11b14ce25b93c55d7c2ea1cc72431114a7b0e3d09933de6b3c02"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "reports": [
+    {
+      "path": "out/byor-motu-real-source-continuation-observed-native/report.json",
+      "sha256": "807777d1c9bec5919a058a7600d3da5c2f4b599f178e22bf950dfd6a99b7a9a4",
+      "result": {
+        "schema": "BYOR_REAL_SOURCE_MIX_BRR_JOINT_NATIVE_V1",
+        "status": "PASS",
+        "case": "twelve-voice-stress",
+        "frames": 768,
+        "jobs": 4,
+        "job_frames": 192,
+        "active_channels": 12,
+        "channels": [
+          {
+            "slot": 0,
+            "sound_index": 26,
+            "source_sha256": "4a1c15698279d0ff55ff09a036d23126c131f978a13625ec14ae5952a9c03084",
+            "source_frequency": 11025,
+            "stride": 1,
+            "actual_C_final_Q12": 3145728
+          },
+          {
+            "slot": 1,
+            "sound_index": 4,
+            "source_sha256": "0c6a4dce448443f967f58e7196d639e8b55a33f4c4a23c88eb1b655eca86e303",
+            "source_frequency": 22050,
+            "stride": 2,
+            "actual_C_final_Q12": 6307840
+          },
+          {
+            "slot": 2,
+            "sound_index": 6,
+            "source_sha256": "4274c51fb2cc35730ae61b2f8e3510dc5133390fb9d393fc76e837966a7c6f45",
+            "source_frequency": 22050,
+            "stride": 2,
+            "actual_C_final_Q12": 6324224
+          },
+          {
+            "slot": 3,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12632064
+          },
+          {
+            "slot": 4,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12648448
+          },
+          {
+            "slot": 5,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12664832
+          },
+          {
+            "slot": 6,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12681216
+          },
+          {
+            "slot": 7,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12697600
+          },
+          {
+            "slot": 8,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12713984
+          },
+          {
+            "slot": 9,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12730368
+          },
+          {
+            "slot": 10,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12746752
+          },
+          {
+            "slot": 11,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12763136
+          }
+        ],
+        "PCM_byte_mismatches": 0,
+        "PCM_scope": "all jobs captured before encoding and compared to actual C",
+        "BRR_byte_mismatches": 0,
+        "actual_reconstructed_source_Q12": [
+          3145728,
+          6307840,
+          6324224,
+          12632064,
+          12648448,
+          12664832,
+          12681216,
+          12697600,
+          12713984,
+          12730368,
+          12746752,
+          12763136
+        ],
+        "expected_source_Q12": [
+          3145728,
+          6307840,
+          6324224,
+          12632064,
+          12648448,
+          12664832,
+          12681216,
+          12697600,
+          12713984,
+          12730368,
+          12746752,
+          12763136
+        ],
+        "clipping_guard": false,
+        "clip_repairs": 0,
+        "master_clocks": {
+          "gather_mix": 193802,
+          "code_exchange": 2260,
+          "encode": 92682,
+          "total": 288744
+        },
+        "milliseconds": {
+          "gather_mix": 9.023586331037418,
+          "code_exchange": 0.10522752658973883,
+          "encode": 4.315352928933705,
+          "total": 13.444166786560862
+        },
+        "gather_worker_bytes": 385,
+        "encoder_worker_bytes": 551,
+        "rom_sha256": "8e231688996f15fcbd7ed5447517ff04d979d9e997aafc3292b0bc7bb761f1ff",
+        "mixed_sha256": "80229d9f4a90435fcc7b108343d0bff03f97acd76766c8a7aebda5bfb9634a70",
+        "brr_sha256": "574cd79adf7a11b14ce25b93c55d7c2ea1cc72431114a7b0e3d09933de6b3c02",
+        "authority_sha256": "5859ec98b4cf40d313464d90e7ca073b59a401dcb1d19900a316a2b8c8bd55eb",
+        "stride_projection": "lossless selected original PCM8 samples at source-derived integer rate; source Q12 reconstructed exactly",
+        "output_rate_policy": "ACCEPTED_COMPAT 11025",
+        "normal_pitch_only": true,
+        "sample_completion_bound": false,
+        "looping_bound": false,
+        "SPC_transport_bound": false,
+        "joint_graphics_bound": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "job_traces": [
+          {
+            "gather_entry": 148874,
+            "gather_done": 342636,
+            "encode_entry": 344936,
+            "encode_done": 437950
+          },
+          {
+            "gather_entry": 439734,
+            "gather_done": 633472,
+            "encode_entry": 635766,
+            "encode_done": 728538
+          },
+          {
+            "gather_entry": 730316,
+            "gather_done": 923772,
+            "encode_entry": 926068,
+            "encode_done": 1018642
+          },
+          {
+            "gather_entry": 1020422,
+            "gather_done": 1214224,
+            "encode_entry": 1216484,
+            "encode_done": 1309166
+          }
+        ],
+        "job_total_master_clocks": [
+          289076,
+          288804,
+          288326,
+          288744
+        ],
+        "peak_job_master_clocks": 289076,
+        "total_chain_master_clocks": 1160292,
+        "PCM_observed_bytes": 1536,
+        "PCM_expected_bytes": 1536,
+        "code_exchange_normal_SA1_DMA": true
+      }
+    },
+    {
+      "path": "out/byor-motu-real-source-six-continuation-native/report.json",
+      "sha256": "3ebe3bf0e188f479f1f1987fcfe5f9153212124c8e311a28b18f81434ef36f86",
+      "result": {
+        "schema": "BYOR_REAL_SOURCE_MIX_BRR_JOINT_NATIVE_V1",
+        "status": "PASS",
+        "case": "six-voice-stress",
+        "frames": 768,
+        "jobs": 4,
+        "job_frames": 192,
+        "active_channels": 6,
+        "channels": [
+          {
+            "slot": 6,
+            "sound_index": 26,
+            "source_sha256": "4a1c15698279d0ff55ff09a036d23126c131f978a13625ec14ae5952a9c03084",
+            "source_frequency": 11025,
+            "stride": 1,
+            "actual_C_final_Q12": 3244032
+          },
+          {
+            "slot": 7,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12697600
+          },
+          {
+            "slot": 8,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12713984
+          },
+          {
+            "slot": 9,
+            "sound_index": 16,
+            "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+            "source_frequency": 44100,
+            "stride": 4,
+            "actual_C_final_Q12": 12730368
+          },
+          {
+            "slot": 10,
+            "sound_index": 4,
+            "source_sha256": "0c6a4dce448443f967f58e7196d639e8b55a33f4c4a23c88eb1b655eca86e303",
+            "source_frequency": 22050,
+            "stride": 2,
+            "actual_C_final_Q12": 6455296
+          },
+          {
+            "slot": 11,
+            "sound_index": 6,
+            "source_sha256": "4274c51fb2cc35730ae61b2f8e3510dc5133390fb9d393fc76e837966a7c6f45",
+            "source_frequency": 22050,
+            "stride": 2,
+            "actual_C_final_Q12": 6471680
+          }
+        ],
+        "PCM_byte_mismatches": 0,
+        "PCM_scope": "all jobs captured before encoding and compared to actual C",
+        "BRR_byte_mismatches": 0,
+        "actual_reconstructed_source_Q12": [
+          3244032,
+          12697600,
+          12713984,
+          12730368,
+          6455296,
+          6471680
+        ],
+        "expected_source_Q12": [
+          3244032,
+          12697600,
+          12713984,
+          12730368,
+          6455296,
+          6471680
+        ],
+        "clipping_guard": false,
+        "clip_repairs": 0,
+        "master_clocks": {
+          "gather_mix": 118326,
+          "code_exchange": 2284,
+          "encode": 92608,
+          "total": 213218
+        },
+        "milliseconds": {
+          "gather_mix": 5.509359429759927,
+          "code_exchange": 0.10634498704909888,
+          "encode": 4.311907425850678,
+          "total": 9.927611842659704
+        },
+        "gather_worker_bytes": 385,
+        "encoder_worker_bytes": 551,
+        "rom_sha256": "fb5cdc9880edbb9eb48198d435dfc17d868c565fe7d8f15778cfdc53c0b2a7be",
+        "mixed_sha256": "76affbce5e00c87bada095dd2fee3c9467ab58af3880d12e5b3430380788d677",
+        "brr_sha256": "f959c0fb3445c872c2f804bd9fbcfde05ed095b68ba7e286aaa44e41a8028756",
+        "authority_sha256": "5859ec98b4cf40d313464d90e7ca073b59a401dcb1d19900a316a2b8c8bd55eb",
+        "stride_projection": "lossless selected original PCM8 samples at source-derived integer rate; source Q12 reconstructed exactly",
+        "output_rate_policy": "ACCEPTED_COMPAT 11025",
+        "normal_pitch_only": true,
+        "sample_completion_bound": false,
+        "looping_bound": false,
+        "SPC_transport_bound": false,
+        "joint_graphics_bound": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "job_traces": [
+          {
+            "gather_entry": 148874,
+            "gather_done": 267164,
+            "encode_entry": 269424,
+            "encode_done": 362134
+          },
+          {
+            "gather_entry": 363916,
+            "gather_done": 482136,
+            "encode_entry": 484420,
+            "encode_done": 577068
+          },
+          {
+            "gather_entry": 578806,
+            "gather_done": 696996,
+            "encode_entry": 699282,
+            "encode_done": 791970
+          },
+          {
+            "gather_entry": 793750,
+            "gather_done": 912076,
+            "encode_entry": 914360,
+            "encode_done": 1006968
+          }
+        ],
+        "job_total_master_clocks": [
+          213260,
+          213152,
+          213164,
+          213218
+        ],
+        "peak_job_master_clocks": 213260,
+        "total_chain_master_clocks": 858094,
+        "PCM_observed_bytes": 1536,
+        "PCM_expected_bytes": 1536,
+        "code_exchange_normal_SA1_DMA": true
+      }
+    }
+  ],
+  "complete_packets": 3,
+  "continuous_predictor_and_channel_phase_proven": true,
+  "all_PCM_and_BRR_compared": true,
+  "production_memory_lease": false,
+  "SPC_transport_bound": false,
+  "no_color_reduction": true
+}
