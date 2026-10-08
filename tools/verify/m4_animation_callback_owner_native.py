@@ -46,6 +46,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',type=Path,required=True)
     p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--effects-runner',action='store_true',help='Use real paired B4EP/motion/quake/self retirement; sound service instrumented.')
+    p.add_argument('--frame-owner',action='store_true',help='Use the generic native callback/effects owner; requires effects runner; external sound remains instrumented.')
     p.add_argument('--birth-core',action='store_true',help='Execute actual B4BI core/flags/relation birth augmentation.')
     p.add_argument('--initial-select',action='store_true',help='Initialize authored player SELECT through real default-choice/ent_set_anim/frame-zero owners.')
     p.add_argument('--initial-jump',action='store_true',help='Run real default choice/action/JUMP frame zero and current makeinv fields, isolated.')
@@ -329,6 +330,26 @@ CallbackFixture_EffectsDone:
  jsl CLOCKCOMMIT
  bcs CallbackFixture_Bad
 '''+asm[end:]
+    if a.frame_owner:
+        if not a.effects_runner:raise ValueError('FRAME_OWNER_REQUIRES_EFFECTS_RUNNER')
+        begin=asm.index(' jsl CALLBACKBEGIN');end=asm.index('CallbackFixture_Effects:',begin)
+        asm=asm[:begin]+'''CallbackFixture_Run:
+.a16
+.i16
+ jsl FRAMEOWNER
+ bcs CallbackFixture_ExpectedFault
+ cmp #$8001
+ beq CallbackFixture_Run
+CallbackFixture_AfterScript:
+.a16
+.i16
+ nop
+ cmp #0
+ beq CallbackFixture_EffectsDone
+ cmp #9
+ beq CallbackFixture_AudioService
+ jmp CallbackFixture_Bad
+'''+asm[end:]
     if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:
         if a.initial_walk:
             asm=asm.replace(' jsl FRAMEBEGIN',' jsl WALKBEGIN\n bcs CallbackFixture_Bad\n cmp #1\n bne CallbackFixture_Bad\n jsl STARTFRAME')
@@ -389,6 +410,7 @@ CallbackFixture_EffectsDone:
         CONTEXTVALID=sy['VmNativeVariant_ContextValid'],RESUME=entry+5,CASES=len(rows))
     values.update(EXPECTFAULT=0x7ffb86,CHECKIDLE=sy['SourceUpdateFrame4086_CheckIdle'],CLOCKCOMMIT=sy['SourceClock4086_Commit'])
     if a.effects_runner:values.update(EFFECTRUN=sy['SourceFrameEffects4086_Run'],EFFECTACK=sy['SourceFrameEffectPlan4086_Ack'],EFFECTACKWORD=sy['SourceFrameEffectPlan4086_Acknowledged'])
+    if a.frame_owner:values['FRAMEOWNER']=sy['SourceFrameOwner4086_Run']
     if a.initial_select or a.initial_jump or a.initial_idle or a.initial_walk:values.update(DEFAULTBEGIN=sy['SourceDefaultChoice4086_Begin'],STARTFRAME=sy['SourceAnimationInit4086_StartFrame'],INITACK=sy['SourceAnimationInit4086_Ack'])
     if a.initial_jump:values.update(DEFAULTPREPARE=sy['SourceDefaultChoice4086_Prepare'],PLAYERBEGIN=sy['SourceDefaultPlayer4086_BeginAction'],PLAYERINV=sy['SourceDefaultPlayer4086_ApplyInvincibility'],DEFAULTTAIL=sy['SourceDefaultInit4086_FinalizeEmpty'])
     if a.ai_run:values.update(AIRUNBEGIN=sy['SourceAIRun4086_Begin'],AIRUNCONTINUE=sy['SourceAIRun4086_Continue'])
@@ -483,6 +505,7 @@ emu.addMemoryCallback(function()
  set('SourceRetirement4086_Ready',0)
  set('SourceLifecycle4086_Ready',0)
  set('SourceBirthCore4086_Ready',0)
+ set('SourcePhysicsState4086_Ready',0)
  INSTALL_EFFECT_RUNNER
  INSTALL_BIRTH_CORE
  put(0x414004,1,2)
@@ -543,6 +566,14 @@ end,emu.callbackType.exec,BAD,BAD,emu.cpuType.snes,mt)
         SLOTS=struct.unpack_from('<H',metadata,10)[0],ANIMATIONID=animation['engine_animation_id'],ACTORID=actor,HANDLE=animation['handle'],
         INIT=fs['CallbackFixture_Init'],RUNENTRY=sy['SourceAnimationCallback4086_Run'],RUNRETURN=fs['CallbackFixture_Run']+4,
         RESULT=fs['CallbackFixture_Result'],BAD=fs['CallbackFixture_Bad'],BEFOREOWNER=fs['CallbackFixture_BeforeOwner'])
+    if a.frame_owner:
+        values['RUNRETURN']=sy['SourceFrameOwner4086_AfterCallback']
+        lua+=r'''
+emu.addMemoryCallback(function(address,value)
+ local s=emu.getState()
+ if word(INDEX)<8 then emu.log('FRAMECTXWRITE|'..word(INDEX)..'|'..address..'|'..value..'|'..tostring(s['cpu.pc'])..'|'..tostring(s['cpu.k']))end
+end,emu.callbackType.write,sy.VmNativeVariant_ContextValid,sy.VmNativeVariant_ContextValid+1,emu.cpuType.snes,mt)
+'''
     install=''
     if a.effects_runner:
         h=struct.unpack_from('<4s6H4I',plan)
@@ -853,7 +884,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         source_frame_handle=animation['handle'],script_programs=owners['program_count'],
         callback_cpu_costs=costs,cost_scope='Before native callback Begin through callback completion/fault and instrumented frame-service acknowledgement; includes intervening NMI/runtime, excludes debugger initialization',
         initializer_copy_checks=initializers,
-        remaining_effect_service_instrumented=not a.effects_runner,native_effect_runner=a.effects_runner,sound_service_instrumented=a.effects_runner,frame_results=frame_results,player_initialization_bound=False,source_effect_presentation_proven=False,
+        remaining_effect_service_instrumented=not a.effects_runner,native_effect_runner=a.effects_runner,native_frame_owner=a.frame_owner,sound_service_instrumented=a.effects_runner,frame_results=frame_results,player_initialization_bound=False,source_effect_presentation_proven=False,
         combat_proven=False,motu_gameplay_proven=False,no_pcm_copies=True,no_color_reduction=True)
     r.update(native_birth_core=a.birth_core,birth_core_results=core_results)
     r.update(initial_select=a.initial_select,initial_select_results=select_results,initial_jump=a.initial_jump,initial_jump_results=jump_results)

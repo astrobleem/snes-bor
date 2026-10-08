@@ -14045,3 +14045,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_landing_plan.pasm"
 
 .include "core/vm/vm_source_landing_velocity.pasm"
+
+.include "core/vm/vm_source_frame_owner.pasm"

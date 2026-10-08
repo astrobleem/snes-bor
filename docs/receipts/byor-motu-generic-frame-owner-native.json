@@ -1,0 +1,44 @@
+{
+  "schema": "BYOR_MOTU_GENERIC_FRAME_OWNER_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "callback": {
+      "path": "out/byor-motu-generic-frame-owner-native/report.json",
+      "sha256": "2d183f0439bfe819b8138baac089eafdb8c0880b4d80b07051000549f7502d42"
+    },
+    "baseline": {
+      "path": "out/byor-motu-generic-frame-owner-baseline-native/report.json",
+      "sha256": "18a144b148259ce1c540ae2b0f97bf7dc9dd65b3aa9b4094ab97cf205afb5b6a"
+    },
+    "constructor": {
+      "path": "out/byor-motu-generic-frame-hbreath-ctor-native/report.json",
+      "sha256": "10719e912b0c01ba58f2ede93ae4670d97f28efe66470703b98636c07876372d"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-frame-owner-bor-static-smoke/report.json",
+      "sha256": "6df3618da940f7325a4aed28dc2e24fdda19b839a3823825fa6cbc8c4ad102e1"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-frame-owner-rom-audit.log",
+      "sha256": "c894e6a0c8683a513b9174715a51ae247c89ffdeda0bc1ff509b02e78cf35b9b"
+    }
+  },
+  "authored_callback_cases": 8,
+  "full_constructor_cases": 2,
+  "native_callback_and_effect_retirement_owner": true,
+  "native_script_context_and_initializer_and_birth": true,
+  "source_frame_cursor_ack_only_after_actual_callback_completion": true,
+  "external_effect_tickets_remain_pending": true,
+  "external_sound_service_instrumented": true,
+  "source_callback_return_probe_matches_actual_native_callee": true,
+  "fixture_disables_unowned_physics_birth_lease": true,
+  "complete_constructor_physics_birth_and_base_adjustment_retained": true,
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "native_landing_frame_integration_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
