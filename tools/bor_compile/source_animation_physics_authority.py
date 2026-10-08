@@ -9,7 +9,7 @@ import subprocess
 from compiler import Source,key
 from dialect_4086 import ENGINE_COMMIT
 from source_profile import document,discover
-from source_animation_physics_4086 import loader_frames
+from source_animation_physics_4086 import loader_frames,derive,pack,unpack
 
 COMMANDS=('dive','dive1','dive2','landframe','dropframe','seta','move','movea','movez')
 
@@ -82,14 +82,27 @@ char **args;int stricmp(const char *a,const char *b){unsigned x,y;do{x=(unsigned
     if build.returncode:raise ValueError('ANIMATION_PHYSICS_AUTHORITY_BUILD:'+build.stdout+build.stderr)
     log=subprocess.check_output([str(folder/'physics_loader.exe')],cwd=folder,text=True)
     (folder/'authority.log').write_text(log);actual=[list(map(int,line.split(',')))for line in log.splitlines()]
-    report=dict(schema='BYOR_4086_ANIMATION_PHYSICS_LOADER_AUTHORITY_V1',status='PASS'if actual==expected else'FAIL',
+    inputs=derive(source);binary=pack(inputs);decoded=unpack(binary)
+    compiled_expected=[]
+    for animation in decoded:
+        compiled_expected.append([animation['antigrav'],animation['landframe'],animation['land_entity_index'],
+            animation['dropframe'],len(animation['frames']),
+            *[value for f in animation['frames']for value in (f['base'],f['y'])]])
+    compiled_actual=[]
+    for values in actual[:len(decoded)]:
+        compiled_actual.append(values[:5]+[value for i in range(values[4])for value in (values[5+i*4],values[7+i*4])])
+    (folder/'physics.b4ph').write_bytes(binary)
+    report=dict(schema='BYOR_4086_ANIMATION_PHYSICS_LOADER_AUTHORITY_V1',status='PASS'if actual==expected and compiled_actual==compiled_expected else'FAIL',
         engine_commit=ENGINE_COMMIT,cases=len(fixtures),actual=actual,expected=expected,
         case_body_sha256={n:hashlib.sha256(b.encode('latin1')).hexdigest()for n,b in bodies.items()},
         source_case_bodies_unmodified=True,frame_macro_sha256=hashlib.sha256(frame_macro.encode()).hexdigest(),
+        compiled_sha256=hashlib.sha256(binary).hexdigest(),compiled_bytes=len(binary),
+        compiled_records_match_independent_c_authority=compiled_actual==compiled_expected,
         cached_model_lookup_instrumented=True,full_model_loader_proven=False,
         native_active_gravity_or_landing_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n')
-    print(report['status'],len(fixtures),'animation physics loader cases');assert actual==expected
+    print(report['status'],len(fixtures),'animation physics loader cases',len(binary),'compiled bytes')
+    assert actual==expected and compiled_actual==compiled_expected
 
 
 def main():

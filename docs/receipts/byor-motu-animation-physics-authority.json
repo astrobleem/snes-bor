@@ -5,11 +5,15 @@
   "evidence": {
     "authority": {
       "path": "out/byor-motu-animation-physics-authority/report.json",
-      "sha256": "d38c4425cc4aa9b5229f55cf12c10c33f6b8f68f99c715ccd7e13d3af4643af1"
+      "sha256": "b2f0a3d7767d751c45072bc14bf36a1f39793f8845358e8580894e1eb9d7b95e"
     },
     "inputs": {
       "path": "out/byor-motu-animation-physics/report.json",
-      "sha256": "2fefe43d9e5d6af4428fbc4eb3b4c2a310d72343f54638249d568604e2f73641"
+      "sha256": "a1117c183653f4d0a1b6f887e9ccca846a4a74fcff3ef7e09c44507725728f0b"
+    },
+    "compiled": {
+      "path": "out/byor-motu-animation-physics/physics.b4ph",
+      "sha256": "598406817e5aeca4c17de8364b00c5c7c8f8e6e9335ba863e5cfef860ad773a3"
     }
   },
   "source_loader_cases": 84,
@@ -24,5 +28,7 @@
   "full_model_loader_proven": false,
   "native_active_gravity_or_landing_bound": false,
   "motu_gameplay_proven": false,
-  "no_color_reduction": true
+  "no_color_reduction": true,
+  "compiled_bytes": 8624,
+  "compiled_records_match_independent_c_authority": true
 }

@@ -8,6 +8,7 @@ import argparse
 from copy import deepcopy
 import json
 from pathlib import Path
+import struct
 from compiler import Source, key
 from dialect_4086 import ENGINE_COMMIT
 from source_model_core_4086 import integer
@@ -69,10 +70,61 @@ def derive(source):
         native_active_gravity_or_landing_bound=False, motu_gameplay_proven=False, no_color_reduction=True)
 
 
+HEADER=struct.Struct('<4sHHII')
+DIRECTORY=struct.Struct('<HHiiiii')
+FRAME=struct.Struct('<ii')
+
+
+def pack(report):
+    animations=sorted(report['animations'],key=lambda a:a['handle'])
+    if not 1<=len(animations)<=128:
+        raise ValueError('ANIMATION_PHYSICS_NATIVE_ANIMATION_CAPACITY')
+    frames=bytearray();directory=bytearray()
+    first=HEADER.size+len(animations)*DIRECTORY.size
+    for handle,animation in enumerate(animations,1):
+        if animation['handle']!=handle or not 1<=len(animation['frames'])<=65535:
+            raise ValueError('ANIMATION_PHYSICS_NATIVE_HANDLE_OR_FRAME_COUNT')
+        directory.extend(DIRECTORY.pack(handle,len(animation['frames']),animation['antigrav'],
+            animation['dropframe'],animation['landframe'],animation['land_entity_index'],first+len(frames)))
+        for frame in animation['frames']:
+            frames.extend(FRAME.pack(frame['movement']['base'],frame['movement']['y']))
+    size=first+len(frames)
+    if size>32768:
+        raise ValueError('ANIMATION_PHYSICS_NATIVE_BANK_CAPACITY')
+    return HEADER.pack(b'B4PH',1,len(animations),size,0)+directory+frames
+
+
+def unpack(raw):
+    if len(raw)<HEADER.size:
+        raise ValueError('ANIMATION_PHYSICS_HEADER_TRUNCATED')
+    magic,version,count,size,reserved=HEADER.unpack_from(raw)
+    if magic!=b'B4PH' or version!=1 or reserved or size!=len(raw) or not 1<=count<=128 or size>32768:
+        raise ValueError('ANIMATION_PHYSICS_HEADER')
+    cursor=HEADER.size+count*DIRECTORY.size
+    if cursor>size:
+        raise ValueError('ANIMATION_PHYSICS_DIRECTORY_TRUNCATED')
+    animations=[]
+    for index in range(count):
+        handle,n,antigrav,drop,land,entity,offset=DIRECTORY.unpack_from(raw,HEADER.size+index*DIRECTORY.size)
+        if handle!=index+1 or not n or antigrav not in (0,1) or offset!=cursor or cursor+n*FRAME.size>size or entity< -1:
+            raise ValueError('ANIMATION_PHYSICS_DIRECTORY')
+        animations.append(dict(handle=handle,antigrav=antigrav,dropframe=drop,landframe=land,
+            land_entity_index=entity,frames=[dict(base=b,y=y)for b,y in
+                (FRAME.unpack_from(raw,cursor+i*FRAME.size)for i in range(n))]))
+        cursor+=n*FRAME.size
+    if cursor!=size:
+        raise ValueError('ANIMATION_PHYSICS_TRAILING_BYTES')
+    return animations
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--source',required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--binary',type=Path,help='Compile bounded B4PH physics metadata for native lookup.')
     a=p.parse_args();report=derive(Source(a.source));a.output.parent.mkdir(parents=True,exist_ok=True)
+    if a.binary:
+        raw=pack(report);unpack(raw);a.binary.parent.mkdir(parents=True,exist_ok=True);a.binary.write_bytes(raw)
+        report['compiled_bytes']=len(raw)
     a.output.write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(dict(animations=len(report['animations']),
         antigrav=sum(a['antigrav']!=0 for a in report['animations']),
