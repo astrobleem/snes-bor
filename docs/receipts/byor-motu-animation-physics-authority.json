@@ -1,0 +1,28 @@
+{
+  "schema": "BYOR_MOTU_ANIMATION_PHYSICS_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "authority": {
+      "path": "out/byor-motu-animation-physics-authority/report.json",
+      "sha256": "d38c4425cc4aa9b5229f55cf12c10c33f6b8f68f99c715ccd7e13d3af4643af1"
+    },
+    "inputs": {
+      "path": "out/byor-motu-animation-physics/report.json",
+      "sha256": "2fefe43d9e5d6af4428fbc4eb3b4c2a310d72343f54638249d568604e2f73641"
+    }
+  },
+  "source_loader_cases": 84,
+  "authored_animations": 80,
+  "authored_antigrav_animations": 0,
+  "authored_landframe_animations": 5,
+  "final_animation_metadata_applies_to_all_frames": true,
+  "source_dive_antigrav_and_this_frame_count_verified": true,
+  "source_move_base_x_y_z_persistence_verified": true,
+  "land_entity_default": "calloc cache index0; explicit LANDFRAME with no entity becomes-1",
+  "source_case_bodies_unmodified": true,
+  "full_model_loader_proven": false,
+  "native_active_gravity_or_landing_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
