@@ -1,0 +1,690 @@
+{
+  "schema": "BYOR_NATIVE_OPAQUE_UNDERLAY_SPANS_RECEIPT_V1",
+  "status": "EXACT_NATIVE_OPAQUE_COMPOSITION_PROVEN_LIVE_RENDERER_UNBOUND",
+  "reports": [
+    {
+      "path": "out/byor-motu-underlay-spans-observed-native/report.json",
+      "sha256": "126c18de35c0ab8ad8bae9482193f35e40ae3f62fd3856f5be50318dd5d50a6f",
+      "result": {
+        "schema": "BYOR_NATIVE_OPAQUE_SPAN_UNDERLAY_V1",
+        "status": "PASS",
+        "window": [
+          84,
+          92,
+          110,
+          90
+        ],
+        "underlay_pixels": 9900,
+        "RGB8_identity_word_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_drawn_spans_and_pixels": [
+          [
+            82,
+            1303
+          ],
+          [
+            16,
+            50
+          ]
+        ],
+        "source_opaque_spans": 283,
+        "source_span_pixel_ROM_bytes": 8810,
+        "stage_window_ROM_bytes": 19800,
+        "worker_IRAM_bytes": 366,
+        "master_clocks": [
+          199000,
+          165876
+        ],
+        "milliseconds": [
+          9.265609642193818,
+          7.723327964867043
+        ],
+        "rom_sha256": "76cacd03b7676daefc313338872968d2dd8dacc787d0f03f00f89a19107453d1",
+        "source_layers": [
+          {
+            "kind": "actor:He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "position": [
+              -16,
+              44
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 3327,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+            "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+          },
+          {
+            "kind": "actor:KnightBot",
+            "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+            "source_dimensions": [
+              50,
+              50
+            ],
+            "position": [
+              173,
+              172
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 1078,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "enemy",
+            "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40"
+          }
+        ],
+        "no_color_reduction": true,
+        "native_actor_origin_clipping": true,
+        "move_x": -30,
+        "move_altitude": 0,
+        "native_opaque_actor_composition": true,
+        "native_stage_camera_composition": false,
+        "SCREEN_shading_joint": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Two source-derived opaque underlays produced natively from compiled opaque spans and mutable actor origins. The stage window and layer order remain offline inputs. No live VM, camera, palette allocator, CHR publication or joint audio proof.",
+        "SA1_write_callback_trace": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "expected_composition_bytes_written": [
+          22406,
+          19900
+        ],
+        "write_callback_covers_normal_DMA": false,
+        "outside_window_writes": [
+          0,
+          0
+        ],
+        "native_DMA_descriptor_trace": [
+          [
+            83,
+            22406,
+            0
+          ],
+          [
+            17,
+            19900,
+            0
+          ]
+        ],
+        "DMA_destination_ranges_checked": true
+      }
+    },
+    {
+      "path": "out/byor-motu-underlay-spans-retained-native/report.json",
+      "sha256": "2966034a55c4e64eadfd39b11276e0e933166fc9a2a2c7623ea7d8d753369af0",
+      "result": {
+        "schema": "BYOR_NATIVE_OPAQUE_SPAN_UNDERLAY_V1",
+        "status": "PASS",
+        "window": [
+          84,
+          92,
+          110,
+          90
+        ],
+        "underlay_pixels": 9900,
+        "RGB8_identity_word_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_drawn_spans_and_pixels": [
+          [
+            82,
+            1303
+          ],
+          [
+            16,
+            50
+          ]
+        ],
+        "source_opaque_spans": 283,
+        "source_span_pixel_ROM_bytes": 8810,
+        "stage_window_ROM_bytes": 19800,
+        "worker_IRAM_bytes": 441,
+        "master_clocks": [
+          206706,
+          104422
+        ],
+        "milliseconds": [
+          9.624407571353343,
+          4.861977336970667
+        ],
+        "rom_sha256": "8b26b86e272b676c71988f203a13a8f2a7f616cdd69f89f7b975d1a525f9146b",
+        "source_layers": [
+          {
+            "kind": "actor:He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "position": [
+              -16,
+              44
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 3327,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+            "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+          },
+          {
+            "kind": "actor:KnightBot",
+            "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+            "source_dimensions": [
+              50,
+              50
+            ],
+            "position": [
+              173,
+              172
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 1078,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "enemy",
+            "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40"
+          }
+        ],
+        "no_color_reduction": true,
+        "native_actor_origin_clipping": true,
+        "retained_stage_window": true,
+        "restore_descriptor_cache_bytes": 1132,
+        "move_x": -30,
+        "move_altitude": 0,
+        "native_opaque_actor_composition": true,
+        "native_stage_camera_composition": false,
+        "SCREEN_shading_joint": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Two source-derived opaque underlays produced natively from compiled opaque spans and mutable actor origins. The stage window and layer order remain offline inputs. No live VM, camera, palette allocator, CHR publication or joint audio proof.",
+        "SA1_write_callback_trace": [
+          [
+            328,
+            328
+          ],
+          [
+            64,
+            64
+          ]
+        ],
+        "expected_composition_bytes_written": [
+          22406,
+          2706
+        ],
+        "write_callback_covers_normal_DMA": false,
+        "outside_window_writes": [
+          328,
+          64
+        ],
+        "native_DMA_descriptor_trace": [
+          [
+            83,
+            22406,
+            0
+          ],
+          [
+            98,
+            2706,
+            0
+          ]
+        ],
+        "DMA_destination_ranges_checked": true,
+        "expected_CPU_restore_cache_writes": [
+          328,
+          64
+        ],
+        "CPU_write_trace_is_restore_cache_only": true,
+        "stage_window_epoch_unchanged_required": true,
+        "native_epoch_invalidation_bound": false
+      }
+    },
+    {
+      "path": "out/byor-motu-underlay-spans-retained-upper-right-native/report.json",
+      "sha256": "ceb3e246e0a6e28874a8ff02d46e676629134301441740c048fbe1c88069894d",
+      "result": {
+        "schema": "BYOR_NATIVE_OPAQUE_SPAN_UNDERLAY_V1",
+        "status": "PASS",
+        "window": [
+          84,
+          92,
+          110,
+          90
+        ],
+        "underlay_pixels": 9900,
+        "RGB8_identity_word_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_drawn_spans_and_pixels": [
+          [
+            82,
+            1303
+          ],
+          [
+            38,
+            163
+          ]
+        ],
+        "source_opaque_spans": 283,
+        "source_span_pixel_ROM_bytes": 8810,
+        "stage_window_ROM_bytes": 19800,
+        "worker_IRAM_bytes": 441,
+        "master_clocks": [
+          206706,
+          109352
+        ],
+        "milliseconds": [
+          9.624407571353343,
+          5.091522339664213
+        ],
+        "rom_sha256": "8b26b86e272b676c71988f203a13a8f2a7f616cdd69f89f7b975d1a525f9146b",
+        "source_layers": [
+          {
+            "kind": "actor:He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "position": [
+              -16,
+              44
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 3327,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+            "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+          },
+          {
+            "kind": "actor:KnightBot",
+            "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+            "source_dimensions": [
+              50,
+              50
+            ],
+            "position": [
+              173,
+              172
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 1078,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "enemy",
+            "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40"
+          }
+        ],
+        "no_color_reduction": true,
+        "native_actor_origin_clipping": true,
+        "retained_stage_window": true,
+        "restore_descriptor_cache_bytes": 1132,
+        "move_x": 140,
+        "move_altitude": 100,
+        "native_opaque_actor_composition": true,
+        "native_stage_camera_composition": false,
+        "SCREEN_shading_joint": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Two source-derived opaque underlays produced natively from compiled opaque spans and mutable actor origins. The stage window and layer order remain offline inputs. No live VM, camera, palette allocator, CHR publication or joint audio proof.",
+        "SA1_write_callback_trace": [
+          [
+            328,
+            328
+          ],
+          [
+            152,
+            152
+          ]
+        ],
+        "expected_composition_bytes_written": [
+          22406,
+          2932
+        ],
+        "write_callback_covers_normal_DMA": false,
+        "outside_window_writes": [
+          328,
+          152
+        ],
+        "native_DMA_descriptor_trace": [
+          [
+            83,
+            22406,
+            0
+          ],
+          [
+            120,
+            2932,
+            0
+          ]
+        ],
+        "DMA_destination_ranges_checked": true,
+        "expected_CPU_restore_cache_writes": [
+          328,
+          152
+        ],
+        "CPU_write_trace_is_restore_cache_only": true,
+        "stage_window_epoch_unchanged_required": true,
+        "native_epoch_invalidation_bound": false
+      }
+    },
+    {
+      "path": "out/byor-motu-underlay-spans-retained-lower-left-native/report.json",
+      "sha256": "3135bd175cee8fde9cf95fb302f6500d40cac803bfced9dd77e945a82ee50827",
+      "result": {
+        "schema": "BYOR_NATIVE_OPAQUE_SPAN_UNDERLAY_V1",
+        "status": "PASS",
+        "window": [
+          84,
+          92,
+          110,
+          90
+        ],
+        "underlay_pixels": 9900,
+        "RGB8_identity_word_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_drawn_spans_and_pixels": [
+          [
+            82,
+            1303
+          ],
+          [
+            7,
+            33
+          ]
+        ],
+        "source_opaque_spans": 283,
+        "source_span_pixel_ROM_bytes": 8810,
+        "stage_window_ROM_bytes": 19800,
+        "worker_IRAM_bytes": 441,
+        "master_clocks": [
+          206706,
+          94064
+        ],
+        "milliseconds": [
+          9.624407571353343,
+          4.379700027051856
+        ],
+        "rom_sha256": "8b26b86e272b676c71988f203a13a8f2a7f616cdd69f89f7b975d1a525f9146b",
+        "source_layers": [
+          {
+            "kind": "actor:He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "position": [
+              -16,
+              44
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 3327,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+            "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+          },
+          {
+            "kind": "actor:KnightBot",
+            "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+            "source_dimensions": [
+              50,
+              50
+            ],
+            "position": [
+              173,
+              172
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 1078,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "enemy",
+            "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40"
+          }
+        ],
+        "no_color_reduction": true,
+        "native_actor_origin_clipping": true,
+        "retained_stage_window": true,
+        "restore_descriptor_cache_bytes": 1132,
+        "move_x": -140,
+        "move_altitude": -100,
+        "native_opaque_actor_composition": true,
+        "native_stage_camera_composition": false,
+        "SCREEN_shading_joint": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Two source-derived opaque underlays produced natively from compiled opaque spans and mutable actor origins. The stage window and layer order remain offline inputs. No live VM, camera, palette allocator, CHR publication or joint audio proof.",
+        "SA1_write_callback_trace": [
+          [
+            328,
+            328
+          ],
+          [
+            28,
+            28
+          ]
+        ],
+        "expected_composition_bytes_written": [
+          22406,
+          2672
+        ],
+        "write_callback_covers_normal_DMA": false,
+        "outside_window_writes": [
+          328,
+          28
+        ],
+        "native_DMA_descriptor_trace": [
+          [
+            83,
+            22406,
+            0
+          ],
+          [
+            89,
+            2672,
+            0
+          ]
+        ],
+        "DMA_destination_ranges_checked": true,
+        "expected_CPU_restore_cache_writes": [
+          328,
+          28
+        ],
+        "CPU_write_trace_is_restore_cache_only": true,
+        "stage_window_epoch_unchanged_required": true,
+        "native_epoch_invalidation_bound": false
+      }
+    },
+    {
+      "path": "out/byor-motu-underlay-spans-retained-flipped-native/report.json",
+      "sha256": "0ebe31090398b69c839794af52f0ba12ac53c187a35cbc429eecbb748f3f5892",
+      "result": {
+        "schema": "BYOR_NATIVE_OPAQUE_SPAN_UNDERLAY_V1",
+        "status": "PASS",
+        "window": [
+          84,
+          92,
+          110,
+          90
+        ],
+        "underlay_pixels": 9900,
+        "RGB8_identity_word_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_drawn_spans_and_pixels": [
+          [
+            64,
+            568
+          ],
+          [
+            7,
+            33
+          ]
+        ],
+        "source_opaque_spans": 283,
+        "source_span_pixel_ROM_bytes": 8810,
+        "stage_window_ROM_bytes": 19800,
+        "worker_IRAM_bytes": 441,
+        "master_clocks": [
+          194200,
+          91562
+        ],
+        "milliseconds": [
+          9.042117550321805,
+          4.263204774163569
+        ],
+        "rom_sha256": "a770aa36dc5e0cc5d7313122a446aae7d3f5579107ebbf9ff90268cbf75fa95b",
+        "source_layers": [
+          {
+            "kind": "actor:He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "position": [
+              -24,
+              44
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 3327,
+            "source_flip": true,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+            "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+          },
+          {
+            "kind": "actor:KnightBot",
+            "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+            "source_dimensions": [
+              50,
+              50
+            ],
+            "position": [
+              173,
+              172
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 1078,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "enemy",
+            "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40"
+          }
+        ],
+        "no_color_reduction": true,
+        "native_actor_origin_clipping": true,
+        "retained_stage_window": true,
+        "restore_descriptor_cache_bytes": 1132,
+        "move_x": -30,
+        "move_altitude": 0,
+        "native_opaque_actor_composition": true,
+        "native_stage_camera_composition": false,
+        "SCREEN_shading_joint": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Two source-derived opaque underlays produced natively from compiled opaque spans and mutable actor origins. The stage window and layer order remain offline inputs. No live VM, camera, palette allocator, CHR publication or joint audio proof.",
+        "SA1_write_callback_trace": [
+          [
+            256,
+            256
+          ],
+          [
+            28,
+            28
+          ]
+        ],
+        "expected_composition_bytes_written": [
+          20936,
+          1202
+        ],
+        "write_callback_covers_normal_DMA": false,
+        "outside_window_writes": [
+          256,
+          28
+        ],
+        "native_DMA_descriptor_trace": [
+          [
+            65,
+            20936,
+            0
+          ],
+          [
+            71,
+            1202,
+            0
+          ]
+        ],
+        "DMA_destination_ranges_checked": true,
+        "expected_CPU_restore_cache_writes": [
+          256,
+          28
+        ],
+        "CPU_write_trace_is_restore_cache_only": true,
+        "stage_window_epoch_unchanged_required": true,
+        "native_epoch_invalidation_bound": false
+      }
+    }
+  ],
+  "no_color_reduction": true,
+  "bank_zero_growth_bytes": 0,
+  "production_assembly_changed": false,
+  "protected_tracked_files": 17,
+  "SCREEN_shading_joint": false,
+  "production_memory_lease": false,
+  "motu_gameplay_proven": false,
+  "scope": "Native clipped source spans plus mutable actor origins produce exact RGB8 underlay identities in a fixed stage window. Retained-window variant restores previous actor spans; it requires unchanged stage identity/camera. DMA register observer covers every transfer destination/count. SA1 CPU write callbacks do not cover normal DMA; their observed writes are exactly the bounded restore-descriptor cache."
+}
