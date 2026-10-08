@@ -59,6 +59,7 @@ emu.addMemoryCallback(function()
   for i=0,23 do before[row+i]=0 end
   for i=0,3 do before[row+16+i]=(c.guard>>(8*i))&255 end
   before[row+20]=0x2f;before[row+21]=0xb6;before[row+22]=c.model
+  for i=0,3 do before[0x7efd00+c.slot*4+i]=0 end
  end
  local n=0;for a,v in pairs(before)do if emu.read(a,mt)~=v then n=n+1 end end
  emu.log('DAMAGEEFFECTSTATE|'..word(INDEX)..'|'..ctx..'|'..n)
@@ -81,10 +82,11 @@ def main():
                         append=ASM,bindings=dict(SLOT='SourceWorldTick4086_Slot',BIRTH='SourceDamageEffectsState4086_InitializeBirth',EFFECTREADY='SourceDamageEffectsState4086_Ready'),probes=dict(ENTER='DamageEffectsStateFixture_Run'))
     actual=[list(map(int,l.split('DAMAGEEFFECTSTATE|',1)[1].split('|')))for l in log.splitlines()if'DAMAGEEFFECTSTATE|'in l]
     expected=[[i,0,0]for i in range(len(rows))];ok=actual==expected
-    reporter.check('all128 rows initialize exact source projectile/staydown/guard/model state; adjacent G12/frontpanel/VM/damage state preserved; malformed slots/leases/descriptors reject atomically; cold no-op',ok)
+    reporter.check('all128 rows initialize exact source projectile/staydown/guard/model and toexplode state; adjacent G12/frontpanel/VM/damage state preserved; malformed slots/leases/descriptors reject atomically; cold no-op',ok)
     report=dict(schema='BYOR_4086_DAMAGE_EFFECT_STATE_BIRTH_NATIVE_V1',status='PASS'if ok else'FAIL',cases=len(rows),inputs=rows,actual=actual,expected=expected,
                 rom_sha256=hashlib.sha256(raw).hexdigest(),allocation=dict(base='7EF100',bytes=3072,end_exclusive='7EFD00',left_authority='G12_AnimTrace_Ring7EF000..7EF03F; StageFp_BG2HistoryEnd7EEAB6'),
-                source_policy='memset-zero projectile/staydown; shallow modeldata guardpoints copy; fresh model identity',
+                toexplode_allocation=dict(base='7EFD00',bytes=512,end_exclusive='7EFF00'),
+                source_policy='memset-zero projectile/staydown/toexplode; shallow modeldata guardpoints copy; fresh model identity',
                 full_constructor_integration_proven=False,native_damage_callback_proven=False,motu_gameplay_proven=False,no_color_reduction=True)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 

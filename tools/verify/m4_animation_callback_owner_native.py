@@ -754,7 +754,9 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         settings=dict(SourceDamageEffectsState4086_Ready=0xb62f,SourceLandingDrop4086_Ready=0xb62e,SourceLandingDrop4086_Base=locations['damageinputs']&65535,SourceLandingDrop4086_Bank=base>>16,SourceLandingDrop4086_Bytes=len(damage_inputs_table),SourceLandingDrop4086_Models=len(damage_inputs_report['models']))
         initialinstall+='\n'+'\n'.join(" set('"+k+"',"+str(v)+")"for k,v in settings.items())+'\n for j=0,3071 do emu.write(0x7ef100+j,165,mt)end\n'
         guard=damage_inputs_report['models'][default]['fields']['guardpoints']&0xffffffff
+        initialinstall+='\n for j=0,511 do emu.write(0x7efd00+j,165,mt)end\n'
         address=sy['SourceCtorState4086_DamageEffectsBirthDone']
+        lua+=f"emu.addMemoryCallback(function()emu.log('CTORTOEXPLODE|'..word(INDEX)..'|'..dw(0x7efd00)..'|'..dw(0x7efd04)..'|'..dw(0x414004))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()local n=0;local wanted={{}};for j=0,23 do wanted[j]=0 end;for j=0,3 do wanted[16+j]=({guard}>>(8*j))&255 end;wanted[20]=0x2f;wanted[21]=0xb6;wanted[22]={default};for j=0,23 do if emu.read(0x7ef100+j,mt)~=wanted[j]then n=n+1 end end;local other=0;for j=0,23 do other=other+emu.read(0x7ef118+j,mt)end;emu.log('CTORDAMAGEEFFECT|'..word(INDEX)..'|'..n..'|'..other..'|'..dw(0x414004))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     if a.stationary_post:
         settings=dict(SourcePostStationary4086_Ready=0xb61a,SourcePostStationary4086_Status=0,SourcePostStationary4086_Slot=0,SourceGravityIdle4086_Ready=0xb619,SourceGravityIdle4086_Status=0,SourceCheckMove4086_Ready=0xb617,SourceCheckMove4086_Status=0,SourceWorldTick4086_Ready=0xb4d5,SourceWorldTick4086_State=2,SourceWorldTick4086_Pending=1,SourceWorldTick4086_Phase=11,SourceWorldTick4086_Slot=0,SourceWorldTick4086_Fault=0)
@@ -947,6 +949,9 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     if a.damage_effects_state_birth:
         damage_effect_results=[list(map(int,line.split('CTORDAMAGEEFFECT|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORDAMAGEEFFECT|'in line]
+        toexplode_results=[list(map(int,line.split('CTORTOEXPLODE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORTOEXPLODE|'in line]
+        reporter.check('actual constructor clears current source toexplode and preserves sibling before script/default callbacks',toexplode_results==[[i,0,0xa5a5a5a5,1]for i in range(len(rows))])
+        r.update(native_toexplode_birth_bound=True,toexplode_birth_results=toexplode_results)
         reporter.check('native projectile/staydown/guard state follows actual constructor model copy before script/default callbacks and preserves sibling',damage_effect_results==[[i,0,3960,1]for i in range(len(rows))])
         r.update(native_damage_effect_state_birth_bound=True,damage_effect_birth_results=damage_effect_results,damage_inputs_table_sha256=hashlib.sha256(damage_inputs_table).hexdigest(),native_damage_callback_bound=False)
         r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'

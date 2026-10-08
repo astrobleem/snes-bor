@@ -3,6 +3,8 @@
 ; ends below $7EF000. No alias with VM slots or the DMA queue arena.
 ; +0 projectile, +4 staydown.rise, +8 riseattack, +12 riseattack_stall,
 ; +16 current modeldata.guardpoints, +20 marker, +22 copied model identity.
+; Source toexplode is an independent signed DWORD per physical actor at
+; $7EFD00..$7EFEFF. Birth clears it; bomb/projectile services must update it.
 ; B4DI CRC/source pair is validated by compiler/installer before both leases.
 SourceDamageEffectsState4086_Ready = $7FBF2E
 SourceDamageEffectsState4086_Offset = $7FBF30
@@ -13,6 +15,8 @@ SourceDamageEffectsState4086_End = $7FBF3A
 SOURCE_ENTITY_DAMAGE_EFFECTS = $7EF100
 SOURCE_ENTITY_DAMAGE_EFFECTS_STRIDE = 24
 SOURCE_ENTITY_DAMAGE_EFFECTS_END = $7EFD00
+SOURCE_ENTITY_TOEXPLODE = $7EFD00
+SOURCE_ENTITY_TOEXPLODE_END = $7EFF00
 SourceDamageEffectsState4086_InitializeBirth:
 .a16
 .i16
@@ -197,6 +201,13 @@ SourceDamageEffectsState4086_Clear:
  sta.l SOURCE_ENTITY_DAMAGE_EFFECTS+20,x
  lda.l SourceDamageEffectsState4086_Model
  sta.l SOURCE_ENTITY_DAMAGE_EFFECTS+22,x
+ lda 5,s
+ asl a
+ asl a
+ tax
+ lda #0
+ sta.l SOURCE_ENTITY_TOEXPLODE,x
+ sta.l SOURCE_ENTITY_TOEXPLODE+2,x
 SourceDamageEffectsState4086_Good:
 .a16
 .i16
