@@ -7,7 +7,7 @@ import wave
 from pathlib import Path
 
 
-def verify(folder, assets, require_dsp_trace=False):
+def verify(folder, assets, require_dsp_trace=False, report_path=None):
     trace=json.loads((folder/'audio-stream-trace.json').read_text())
     source=trace['source']
     payload=(assets/source['brr_path']).read_bytes()
@@ -28,7 +28,8 @@ def verify(folder, assets, require_dsp_trace=False):
     assert active and observations[-1]['voice0']['envelope']==0
     assert [r['field'] for r in active]==list(range(active[0]['field'],active[-1]['field']+1))
     assert all(r['voice0']['sampleSrc']==33 and r['voice0']['pitch']==1411 and r['voice0']['adsr1']==0 and r['voice0']['gain']==127 for r in active)
-    assert active[0]['chunks_accepted']>=8
+    prefill=trace.get('prefill_chunks',7 if trace.get('initial_seven_chunk_prefill')else 0)
+    assert active[0]['chunks_accepted']>=prefill+1
     # Local Mesen authority: Spc.h's 32000Hz, SnesConsole.cpp's NTSC
     # 21477270Hz and SnesPpu.cpp's 1364-clock lines / odd short line.
     # Frame sampling bounds the observed start/end to two fields.
@@ -82,7 +83,7 @@ def verify(folder, assets, require_dsp_trace=False):
         first_active_field=active[0]['field'],last_active_field=active[-1]['field'],
         active_fields=observed_fields,expected_active_fields=expected_fields,
         effective_sample_rate_hz=effective_rate,start_latency_observation='First envelope observation relative to post-request native observer; not source-event exact timing',
-        prefill_chunks=7,voice0_srcn=33,voice0_pitch=1411,voice0_gain=127,
+        prefill_chunks=prefill,voice0_srcn=33,voice0_pitch=1411,voice0_gain=127,
         final_voice0_envelope=0,audio_recording_pcm_sha256=fingerprint['sha256'],
         audio_recording_file_sha256=hashlib.sha256(wav.read_bytes()).hexdigest(),
         dsp_source_block_traversal=block_proof,
@@ -90,7 +91,7 @@ def verify(folder, assets, require_dsp_trace=False):
         legacy_gameplay_paused=trace['legacy_gameplay_paused'],
         sample_exact_recording_proven=False,concurrent_audio_proven=False,
         production_binding_installed=False,motu_gameplay_proven=False,no_color_reduction=True)
-    (folder/'audio-verification.json').write_text(json.dumps(result,indent=2)+'\n')
+    (report_path or folder/'audio-verification.json').write_text(json.dumps(result,indent=2)+'\n')
     return result
 
 
@@ -99,7 +100,8 @@ def main():
     p.add_argument('--folder',type=Path,required=True)
     p.add_argument('--assets',type=Path,required=True)
     p.add_argument('--require-dsp-trace',action='store_true')
-    a=p.parse_args();r=verify(a.folder,a.assets,a.require_dsp_trace)
+    p.add_argument('--report',type=Path,help='Separate receipt destination when rechecking retained evidence')
+    a=p.parse_args();r=verify(a.folder,a.assets,a.require_dsp_trace,a.report)
     print('Private source stream:',r['status'],r['chunks'],'chunks;',r['active_fields'],'active fields')
 
 

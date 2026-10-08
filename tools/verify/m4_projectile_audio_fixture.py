@@ -139,6 +139,7 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
     assert row['normalized_sample_rate']==11025 and (generic_rom or row['brr_bytes']<=32768)
     payload=(source_audio/row['brr_path']).read_bytes()
     assert hashlib.sha256(payload).hexdigest()==row['brr_sha256']
+    prefill_target=min(7,max(0,math.ceil(len(payload)/144)-1))
     observations=[];received=[]
     def transform(raw,sy):
         # Candidate linking relocates stream assets; main.sym's legacy data
@@ -186,7 +187,7 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
     def before(m,sy):
         # Isolate voice0 from MSU music in this bounded audio observer.
         m.write_memory('SnesMemory',0x2007,'00')
-        for name,value in [('AudioStream_Enable',1),('AudioStream_TransportOnly',2 if prefill else 0),('AudioStream_SerialPermit',1),('AudioSemantic_FootDieStreamActive',0)]:m.write_memory('SnesMemory',sy[name],f'{value:02x}')
+        for name,value in [('AudioStream_Enable',1),('AudioStream_TransportOnly',2 if prefill and prefill_target else 0),('AudioStream_SerialPermit',1),('AudioSemantic_FootDieStreamActive',0)]:m.write_memory('SnesMemory',sy[name],f'{value:02x}')
         m.write_u16(sy['AudioSemantic_FootDieStreamFrame'],0xffff)
         (folder/'voice0.raw.arm').touch()
         m.record_audio(folder/'source-energy.wav')
@@ -226,7 +227,7 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
                     # is in flight can prefill an eighth chunk before mode
                     # switches, then overwrite the head on the first KON.
                     if not pending:
-                        if accepted<7:m.write_memory('SnesMemory',sy['AudioStream_SerialPermit'],'01')
+                        if accepted<prefill_target:m.write_memory('SnesMemory',sy['AudioStream_SerialPermit'],'01')
                         else:m.write_memory('SnesMemory',sy['AudioStream_TransportOnly'],'00')
                 run_frames_exact(m,1)
                 observe(m,sy)
@@ -236,7 +237,7 @@ def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_d
         m.stop_audio()
         (folder/'audio-fingerprint.json').write_text(json.dumps(m.audio_fingerprint(folder/'source-energy.wav'),indent=2)+'\n')
         (folder/'audio-state.json').write_text(json.dumps(m.get_audio_state(),indent=2,default=lambda x:x.hex()if isinstance(x,bytes)else str(x))+'\n')
-        (folder/'audio-stream-trace.json').write_text(json.dumps(dict(source_binding_instrumented=True,generic_asad_namespace=bool(generic_rom),legacy_gameplay_paused=isolate,idle_wait_audio_pump=idle_pump,initial_seven_chunk_prefill=prefill,already_armed_table_guard=arm_guard,spc_driver_sha256=hashlib.sha256(spc_driver.read_bytes()).hexdigest()if spc_driver else None,source=row,received_chunks=received,observations=observations),indent=2)+'\n')
+        (folder/'audio-stream-trace.json').write_text(json.dumps(dict(source_binding_instrumented=True,generic_asad_namespace=bool(generic_rom),legacy_gameplay_paused=isolate,idle_wait_audio_pump=idle_pump,initial_seven_chunk_prefill=prefill and prefill_target==7,prefill_chunks=prefill_target if prefill else 0,already_armed_table_guard=arm_guard,spc_driver_sha256=hashlib.sha256(spc_driver.read_bytes()).hexdigest()if spc_driver else None,source=row,received_chunks=received,observations=observations),indent=2)+'\n')
     return row,transform,before,closeout
 
 BINDINGS=dict(FRAMEDATA='SourceUpdateFrame4086_FrameData',STREAMSOURCE='AudioStream_SourceId',SOUNDTICKET='SourceFrameEffectPlan4086_Acknowledged',SOUNDACK='SourceFrameEffectPlan4086_Ack',STREAMREQUESTS='AudioSemantic_StreamRequestCount',STREAMCHUNKS='AudioStream_SourceChunks',STREAMLENGTH='AudioStream_SourceLength',NMISKIPPED='Core_Nmi_Play__frame_skipped',NMICOMMIT='Core_Nmi_Play__do_commit',NMIHARDWAREFRAME='Nmi_FrameCounter')

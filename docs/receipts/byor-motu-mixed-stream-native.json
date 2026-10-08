@@ -1,0 +1,211 @@
+{
+  "schema": "BYOR_MOTU_COMPUTED_MIXED_STREAM_TRANSPORT_V1",
+  "status": "NATIVE_PRODUCED_MIXTURE_TRANSPORT_AND_DSP_PROVEN_LIVE_PRODUCER_UNBOUND",
+  "reports": [
+    {
+      "path": "out/byor-motu-mixed-stream-native/audio-verification.json",
+      "sha256": "e9479ebf8024e895a4b41c76af61af358d4ef4fb3487a60b5569a2d71f7845d9",
+      "result": {
+        "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+        "status": "PASS",
+        "source_path": "private-proof/mixed-source-channels",
+        "source_sha256": "807777d1c9bec5919a058a7600d3da5c2f4b599f178e22bf950dfd6a99b7a9a4",
+        "compiled_brr_sha256": "574cd79adf7a11b14ce25b93c55d7c2ea1cc72431114a7b0e3d09933de6b3c02",
+        "compiled_brr_bytes": 432,
+        "chunks": 3,
+        "meaningful_byte_mismatches": 0,
+        "padding_byte_mismatches": 0,
+        "observer_peak_chunk_gap": 1,
+        "observed_consumer_underruns": 0,
+        "first_active_field": 5,
+        "last_active_field": 8,
+        "active_fields": 4,
+        "expected_active_fields": 4.187068073109594,
+        "effective_sample_rate_hz": 11023.4375,
+        "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+        "prefill_chunks": 2,
+        "voice0_srcn": 33,
+        "voice0_pitch": 1411,
+        "voice0_gain": 127,
+        "final_voice0_envelope": 0,
+        "audio_recording_pcm_sha256": "12e29684267ada2b0c4f891bca5c4d826e154fbd1f1846bfc503a53073e09a71",
+        "audio_recording_file_sha256": "f4333c6a676ece9270b70710b3eae73973448744cf23df6de7f6420812af7269",
+        "dsp_source_block_traversal": {
+          "source_blocks": 48,
+          "observed_blocks": 48,
+          "skipped_blocks": 0,
+          "repeated_blocks": 0,
+          "block_fingerprint_mismatches": 0,
+          "dsp_samples": 2156,
+          "endx_sample": 2156,
+          "voice_pcm_sha256": "0fbd23dd9b1bfa27ef3e60ebd669140be1c095d0eb240b8fee98a442858b664c",
+          "trace_sha256": "5a6dac132461bd4db9a9cb4a11a36e77313f5eb0972d979314183c1e233b67da"
+        },
+        "policy": "ACCEPTED_COMPAT 11025 mono source mixer output with predictive BRR encoding; no sample-exact recording claim",
+        "private_runtime_only": true,
+        "legacy_gameplay_paused": true,
+        "sample_exact_recording_proven": false,
+        "concurrent_audio_proven": false,
+        "production_binding_installed": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out/byor-motu-mixed-stream-native/long-source-regression.json",
+      "sha256": "d4e59f3e25103c6367fc3d214f9060af1f6f8e65363292e28b28ca4fd8fd4186",
+      "result": {
+        "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+        "status": "PASS",
+        "source_path": "data/chars/KnBot/energy.wav",
+        "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+        "compiled_brr_sha256": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b",
+        "compiled_brr_bytes": 8073,
+        "chunks": 57,
+        "meaningful_byte_mismatches": 0,
+        "padding_byte_mismatches": 0,
+        "observer_peak_chunk_gap": 1,
+        "observed_consumer_underruns": 0,
+        "first_active_field": 14,
+        "last_active_field": 91,
+        "active_fields": 78,
+        "expected_active_fields": 78.24583461623554,
+        "effective_sample_rate_hz": 11023.4375,
+        "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+        "prefill_chunks": 7,
+        "voice0_srcn": 33,
+        "voice0_pitch": 1411,
+        "voice0_gain": 127,
+        "final_voice0_envelope": 0,
+        "audio_recording_pcm_sha256": "9d0aa9117ad887c803b3598d7f72a4898cc20b79b9e603147a9c2f7d16cc5044",
+        "audio_recording_file_sha256": "27dbf29d7f0d5dfbf67ef3884b672280b7ef226b477045cbc019b3438c4e1c18",
+        "dsp_source_block_traversal": {
+          "source_blocks": 897,
+          "observed_blocks": 897,
+          "skipped_blocks": 0,
+          "repeated_blocks": 0,
+          "block_fingerprint_mismatches": 0,
+          "dsp_samples": 41589,
+          "endx_sample": 41589,
+          "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+          "trace_sha256": "12d921f69ff7e0fa946b1106239c0bf6de7c21e8a9c2cc94704d6966b93a83c5"
+        },
+        "policy": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 2
+        },
+        "private_runtime_only": true,
+        "legacy_gameplay_paused": false,
+        "sample_exact_recording_proven": false,
+        "concurrent_audio_proven": false,
+        "production_binding_installed": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out/byor-motu-mixed-stream-native/report.json",
+      "sha256": "102162faf70c00ffb7e085a513486dbdc6562290e3d41340a9191856319dfe40",
+      "result": {
+        "schema": "BYOR_ASAD_NATIVE_ASSET_V1",
+        "status": "PASS",
+        "checks": [
+          [
+            "cold reset enters INTRO, not TITLE/PLAYING",
+            true
+          ],
+          [
+            "cold reset is not PLAYING",
+            true
+          ],
+          [
+            "INTRO remains reachable through second scene card",
+            true
+          ],
+          [
+            "INTRO -> TITLE",
+            true
+          ],
+          [
+            "native leaf batch completed",
+            true
+          ],
+          [
+            "full acknowledged source cursor equals meaningful asset length",
+            true
+          ],
+          [
+            "ASAD full source block traversal and END",
+            true
+          ]
+        ],
+        "proof": {
+          "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+          "status": "PASS",
+          "source_path": "private-proof/mixed-source-channels",
+          "source_sha256": "807777d1c9bec5919a058a7600d3da5c2f4b599f178e22bf950dfd6a99b7a9a4",
+          "compiled_brr_sha256": "574cd79adf7a11b14ce25b93c55d7c2ea1cc72431114a7b0e3d09933de6b3c02",
+          "compiled_brr_bytes": 432,
+          "chunks": 3,
+          "meaningful_byte_mismatches": 0,
+          "padding_byte_mismatches": 0,
+          "observer_peak_chunk_gap": 1,
+          "observed_consumer_underruns": 0,
+          "first_active_field": 5,
+          "last_active_field": 8,
+          "active_fields": 4,
+          "expected_active_fields": 4.187068073109594,
+          "effective_sample_rate_hz": 11023.4375,
+          "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+          "prefill_chunks": 2,
+          "voice0_srcn": 33,
+          "voice0_pitch": 1411,
+          "voice0_gain": 127,
+          "final_voice0_envelope": 0,
+          "audio_recording_pcm_sha256": "12e29684267ada2b0c4f891bca5c4d826e154fbd1f1846bfc503a53073e09a71",
+          "audio_recording_file_sha256": "f4333c6a676ece9270b70710b3eae73973448744cf23df6de7f6420812af7269",
+          "dsp_source_block_traversal": {
+            "source_blocks": 48,
+            "observed_blocks": 48,
+            "skipped_blocks": 0,
+            "repeated_blocks": 0,
+            "block_fingerprint_mismatches": 0,
+            "dsp_samples": 2156,
+            "endx_sample": 2156,
+            "voice_pcm_sha256": "0fbd23dd9b1bfa27ef3e60ebd669140be1c095d0eb240b8fee98a442858b664c",
+            "trace_sha256": "5a6dac132461bd4db9a9cb4a11a36e77313f5eb0972d979314183c1e233b67da"
+          },
+          "policy": "ACCEPTED_COMPAT 11025 mono source mixer output with predictive BRR encoding; no sample-exact recording claim",
+          "private_runtime_only": true,
+          "legacy_gameplay_paused": true,
+          "sample_exact_recording_proven": false,
+          "concurrent_audio_proven": false,
+          "production_binding_installed": false,
+          "motu_gameplay_proven": false,
+          "no_color_reduction": true
+        },
+        "rom_sha256": "57e079c6861020ac941e2e8d68c8da0e996e0da95d80548dbba62bca53696da1",
+        "sound_index": 0,
+        "namespace_derived": true,
+        "source_binding_instrumented": true,
+        "production_driver_override": false,
+        "foreign_vm_owner_disabled_for_backend_fixture": true,
+        "invalid_index_rejected": true,
+        "busy_request_rejected": true,
+        "active_namespace_identity_preserved": true,
+        "authored_source_event_proven": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true
+      }
+    }
+  ],
+  "native_producer": "out/byor-motu-real-source-continuation-observed-native/report.json",
+  "aggregate_is_private_proof_identity": true,
+  "production_namespace_admitted": false,
+  "concurrent_source_channels_in_mixture": 12,
+  "concurrent_live_mixing_and_transport_proven": false,
+  "no_color_reduction": true
+}
