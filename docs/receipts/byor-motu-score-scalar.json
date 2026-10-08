@@ -1,0 +1,52 @@
+{
+  "schema": "BYOR_MOTU_SCORE_SCALAR_V1",
+  "status": "PASS",
+  "evidence": {
+    "source_C": {
+      "path": "out/byor-motu-score-expanded-authority/report.json",
+      "sha256": "92dba170f30f3bc0c0a8b9232719573ff6edfa5c1a99b47d094db0823adc2df2"
+    },
+    "source_inputs": {
+      "path": "out/byor-motu-score-inputs.json",
+      "sha256": "a7a70d2b8979bca697836f2ec00e8c05a47082297774b0b7103c34ea83a9618a"
+    },
+    "native": {
+      "path": "out/byor-motu-score-native/report.json",
+      "sha256": "38cf6f92b25f5735522a56e91e4bc334cfb75c3ebf65af965029e773c62e8733"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-score-bor-static-smoke/report.json",
+      "sha256": "20106c7bbc109083bb4ffc6a27e1e0cb1f0ae14c3a98833485bec80507a29252"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-score-rom-audit.log",
+      "sha256": "f083c9407537b6fb5dc2fb0282d6b6dbbae20f918d96823cd4c1b239f01593fa"
+    }
+  },
+  "pinned_source_C_cases": 795,
+  "native_cases": 802,
+  "source_lifescore": 50000,
+  "source_score_script_mask": 0,
+  "authored_Demo_magic_type": 0,
+  "authored_Demo_hit_MP_add_no_op": true,
+  "native_proven": [
+    "negative player index no-op",
+    "index&3",
+    "unsigned score wrap and999999999 cap",
+    "32bit unsigned quotient/remainder",
+    "old score next1up with strict greater-than comparison",
+    "no-service score store"
+  ],
+  "native_extra_life_service_proven": false,
+  "native_score_script_service_proven": false,
+  "required_services_player_state_preserved": true,
+  "controller_allocation": "7FBF5E..7FBF91",
+  "player_stats_allocation": "7FBFA0..7FBFBF",
+  "native_gameplay_global_installation_proven": false,
+  "full_damage_callback_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17
+}
