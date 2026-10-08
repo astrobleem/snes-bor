@@ -23,7 +23,9 @@ def layout(base,size,entities=128,players=4):
            ('binding_shadow',128,'four preflighted entity bindings'),
            ('binding_controls',32,'serialized input entity binding'),
            ('costmove_controls',64,'serialized costmove continuation'),
-           ('combo_controls',96,'serialized combo selection continuation')]
+           ('combo_controls',96,'serialized combo selection continuation'),
+           ('entity_combostyle',entities*4,'source mutable entity modeldata.combostyle int32'),
+           ('attack_chain_controls',96,'serialized attack-chain continuation')]
     cursor=base;regions=[]
     for name,count,authority in specs:
         cursor=(cursor+1)&~1

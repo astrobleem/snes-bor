@@ -1,0 +1,253 @@
+{
+  "schema": "BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1",
+  "status": "PASS",
+  "rom_sha256": "3d952413170768dba2e2314111257efd6f56d3e727f1dc26d87f4a7c58f02237",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "owner_table_sha256": "cce1ac775e84a8eaba1014cf73de7ba0f8f1cad9eedc9c7dd2297f2c853532a2",
+  "cases": [
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 4,
+      "fault": 0
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 4,
+      "fault": 0
+    }
+  ],
+  "results": [
+    [
+      0,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "expected": [
+    [
+      0,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "faults": [],
+  "source_frame_handle": 31,
+  "script_programs": 7,
+  "callback_cpu_costs": [
+    [
+      0,
+      323086,
+      507,
+      508
+    ],
+    [
+      1,
+      322814,
+      508,
+      509
+    ]
+  ],
+  "cost_scope": "Before native callback Begin through callback completion/fault and instrumented frame-service acknowledgement; includes intervening NMI/runtime, excludes debugger initialization",
+  "initializer_copy_checks": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0
+    ]
+  ],
+  "remaining_effect_service_instrumented": false,
+  "native_effect_runner": true,
+  "native_frame_owner": true,
+  "sound_service_instrumented": true,
+  "frame_results": [
+    [
+      0,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      1,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ]
+  ],
+  "player_initialization_bound": false,
+  "source_effect_presentation_proven": false,
+  "combat_proven": false,
+  "motu_gameplay_proven": false,
+  "no_pcm_copies": true,
+  "no_color_reduction": true,
+  "native_birth_core": false,
+  "birth_core_results": [],
+  "initial_select": true,
+  "initial_select_results": [
+    [
+      0,
+      10,
+      2,
+      1,
+      10,
+      31,
+      0
+    ],
+    [
+      1,
+      10,
+      2,
+      1,
+      10,
+      31,
+      0
+    ]
+  ],
+  "initial_jump": false,
+  "initial_jump_results": [],
+  "attack_chain_model": "He_ManB",
+  "attack_chain_step": 6,
+  "attack_chain_results": [
+    [
+      0,
+      5,
+      6,
+      49,
+      17,
+      1,
+      0,
+      2,
+      2
+    ],
+    [
+      1,
+      5,
+      6,
+      49,
+      17,
+      1,
+      0,
+      2,
+      2
+    ]
+  ],
+  "attack_chain_table_sha256": "02d8bd7826315e0b941a5548a3e4a27db90bff8b98a2410252856a4e13095ef2",
+  "attack_chain_frame_zero_callbacks_executed": true,
+  "attack_chain_post_callback_mutation_instrumented": false,
+  "production_attack_chain_binding": false,
+  "attack_chain_payload_lease": "instrumented exclusive retired producer cache",
+  "empty_environment_tail_bound": false,
+  "tail_results": [],
+  "initial_idle": false,
+  "initial_idle_results": [],
+  "default_idle_registry_capability": null,
+  "default_walk_registry_capability": null,
+  "initial_walk": false,
+  "initial_walk_results": [],
+  "initial_none_walk": false,
+  "initial_none_walk_results": [],
+  "initial_none_model": null,
+  "initial_none_model_results": [],
+  "ctor_owner_bound": false,
+  "ctor_state_bound": false,
+  "ctor_factors_bound": false,
+  "ctor_model_bound": false,
+  "ctor_media_bindings_bound": false,
+  "script_clone_bound": false,
+  "script_clone_results": [],
+  "script_clone_table_sha256": null,
+  "default_owner_bound": false,
+  "default_owner_results": [],
+  "initial_enemy": null,
+  "initial_enemy_role": null,
+  "initial_enemy_results": [],
+  "enemy_drop_context_instrumented": false,
+  "full_default_init_bound": false,
+  "stage_queue_index": null,
+  "stage_queue_row": null,
+  "stage_queue_table_sha256": null,
+  "stage_queue_constructor_inputs_bound": false,
+  "stage_queue_post_constructor_properties_bound": false,
+  "smartspawn_results": [],
+  "smartspawn_music_execution_bound": false,
+  "queue_producer_bound": false,
+  "queue_producer_results": [],
+  "queue_music_service_instrumented": false,
+  "scroller_owner_bound": false,
+  "scroller_no_player_return_only": false,
+  "scroller_results": []
+}

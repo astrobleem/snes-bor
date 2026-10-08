@@ -2,8 +2,8 @@
   "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
   "base": 8364032,
   "bytes": 6400,
-  "used_bytes": 4112,
-  "remaining_bytes": 2288,
+  "used_bytes": 4720,
+  "remaining_bytes": 1680,
   "entities": 128,
   "players": 4,
   "regions": [
@@ -83,6 +83,20 @@
       "bytes": 96,
       "end": 8368144,
       "authority": "serialized combo selection continuation"
+    },
+    {
+      "name": "entity_combostyle",
+      "address": 8368144,
+      "bytes": 512,
+      "end": 8368656,
+      "authority": "source mutable entity modeldata.combostyle int32"
+    },
+    {
+      "name": "attack_chain_controls",
+      "address": 8368656,
+      "bytes": 96,
+      "end": 8368752,
+      "authority": "serialized attack-chain continuation"
     }
   ],
   "required_lease": "SourceForeignWork B671 nonzero matching generation; retired canvas/frontpanel/water owners",

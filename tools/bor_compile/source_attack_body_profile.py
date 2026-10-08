@@ -12,10 +12,11 @@ def chain_capacity():
  return int(re.search(r'^#define\s+MAX_ATCHAIN\s+(\d+)',header,re.M)[1])
 
 def load(rows,maximum,capacity):
- d=dict(noflip=0,chainlength=1,atchain=[1]*capacity)
+ d=dict(noflip=0,chainlength=1,atchain=[1]*capacity,combostyle=0)
  for r in rows:
   n,v=r['directive'],r['values']
   if n=='nomove':d['noflip']=integer(v,1)
+  elif n=='combostyle':d['combostyle']=integer(v)
   elif n=='atchain':
    d['atchain']=[min(maximum,max(0,integer(v,i)))for i in range(capacity)];d['chainlength']=max((i+1 for i,x in enumerate(d['atchain'])if x),default=0)
  return d

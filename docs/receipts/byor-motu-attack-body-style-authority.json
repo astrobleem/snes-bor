@@ -1,0 +1,31 @@
+{
+  "schema": "BYOR_4086_ATTACK_BODY_PROFILE_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "cases": 38,
+  "literal_parser_and_loader_unmodified": true,
+  "parser_sha256": "7698f2dc0ca0befc8093a8ac9a8654ecf948b67799eec5f7049bacd112cb921c",
+  "literal_loader_sha256": "e8b7b679954a0426f0aafa4b020218853a2dd23c7eb65074a9ecda1752c56bf3",
+  "table_sha256": "e7b36c8aeea5b946eda199a7219ed3248de23c31ab10762c14486c39729ce9f8",
+  "native_bound": false,
+  "motu_gameplay_proven": false,
+  "full_report_sha256": "26d278dc66408fbfbdb62ec21d4f1a35c83dc7ea77794298256febff2a2d8837",
+  "authored_combostyles": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}

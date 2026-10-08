@@ -56,7 +56,7 @@ def main():
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);authority=json.loads(a.authority.read_text());assert authority['status']=='PASS'
  profile=derive(Source(a.source));real=pack_runtime(profile);assert len(real)==160
  for i,m in enumerate(profile['models']):
-  row=authority['actual'][16+i%13];m['fields']=dict(noflip=row[0],chainlength=row[1],atchain=row[2:])
+  row=authority['actual'][16+i%13];m['fields']=dict(noflip=row[0],chainlength=row[1],atchain=row[2:14])
  synthetic=pack_runtime(profile);rows=[]
  for which in (0,1):
   for slot in range(128):rows.append(dict(slot=slot,model=slot%16,synthetic=which,bad='',fault=0,patch=-1,value=0))

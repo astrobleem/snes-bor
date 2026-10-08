@@ -1,0 +1,20 @@
+{
+  "schema": "BYOR_4086_ATTACK_CHAIN_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "function_sha256": "2a554a2ca124d1c5a69bfc9d2236bcdda1fab726c0f436003e3790fb53f54e20",
+  "macro_sha256": "2176ee99c84919ef917f5ab715b3af75c9805ebbabe040c6779d5e2064feeda8",
+  "literal_function_unmodified": true,
+  "literal_set_attacking_macro": true,
+  "cases": 4096,
+  "compared_state_bytes": 163840,
+  "callback_mutation_modes": 5,
+  "ordered_query_trace_exact": true,
+  "actual_sha256": "53cf9bc080b97d3e89cfb62f6c0a4515ff0d4ebdd3c01d88eb5377b6728796cd",
+  "mismatches": [],
+  "target_search_instrumented": true,
+  "animation_callback_instrumented": true,
+  "native_bound": false,
+  "full_player_think_bound": false,
+  "motu_gameplay_proven": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "BYOR_4086_ATTACK_CHAIN_NATIVE_V1",
+  "status": "PASS",
+  "cases": 188,
+  "guards": 12,
+  "errors": [],
+  "rom_sha256": "28c274a8514a07b3064af320c605751d7e2f327a0a779bdffa3bff5b2e51a0e0",
+  "peak_master_clocks": 257884,
+  "target_results_instrumented": true,
+  "private_chain_tables_instrumented": true,
+  "source_animation_begin_executed": true,
+  "decimal_entry_and_flag_retention_proven": true,
+  "frame_zero_pending_only": true,
+  "frame_zero_callbacks_executed": false,
+  "production_player_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
