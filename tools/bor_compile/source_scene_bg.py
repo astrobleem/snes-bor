@@ -82,6 +82,7 @@ def compose_rgb8(source,stage,scene):
         draw(path,left,anchor_y-f['offset'][1],
              'actor:'+model['name'],palette=pal['rgb8'],alpha=alpha,flip=(direction==0))
         layers[-1].update(requested_map=actor.get('map',0),selected_map=selected_map,
+            source_model_type=model['type'],
             palette_source_path=pal['source_path'],palette_asset_sha256=pal['asset_sha256'])
     front=[r for r in rows if r['directive']=='frontpanel']
     for ordinal,row in enumerate(front):

@@ -38,7 +38,8 @@ def capture(source,stage,scene):
     return canvas,metadata,draws
 
 
-def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assignment_cache=None,palette_seed=None,fixed_background_policy='whole_frame'):
+def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assignment_cache=None,palette_seed=None,fixed_background_policy='whole_frame',opaque_effect_policy='obj',cull_covered_obj=False):
+    if opaque_effect_policy not in ('obj','bg'):raise ValueError('HYBRID_OPAQUE_EFFECT_POLICY')
     if fixed_background_policy not in ('whole_frame','scanline_live'):raise ValueError('HYBRID_FIXED_BACKGROUND_POLICY')
     if not 1<=banks<=7:raise ValueError('HYBRID_OBJ_BANK_COUNT')
     first_bank=7-banks if first_bank is None else first_bank
@@ -49,7 +50,7 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
     baseline,_=source_scene_bg.compose_rgb8(source,stage,empty)
     mask=np.zeros((224,256),dtype=bool);pieces=[];ordinary=[]
     for layer,draw in zip(metadata['layers'],draws):
-        if layer['alpha']==1 or layer['kind']=='frontpanel':mask|=draw['mask']
+        if layer['alpha']==1 or layer['kind']=='frontpanel' or (opaque_effect_policy=='bg' and layer.get('source_model_type')=='none'):mask|=draw['mask']
         elif layer['kind'].startswith('actor:'):
             if layer['alpha']!=0:raise ValueError('HYBRID_ALPHA_VARIANT_UNBOUND')
             own=pieces_for_grid(draw['pixels'],tuple(scene.get('piece_size',[16,32])))
@@ -74,15 +75,34 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
             region=predicted[y0:y1,x0:x1];region[part>=0]=part[part>=0]
     predicted[roi]=bg[roi]
     if not np.array_equal(predicted,expected):raise AssertionError('HYBRID_LAYER_PIXEL_IDENTITY')
-    assignment_key=hashlib.sha256(json.dumps(pieces,sort_keys=True).encode()).hexdigest()
+    pre_culled=0
+    if cull_covered_obj:
+        retained=[]
+        for p in pieces:
+            x0=max(0,p['x']);x1=min(256,p['x']+p['width'])
+            y0=max(0,p['y']);y1=min(224,p['y']+p['height'])
+            visible=ordinary[p['actor']]['draw']['mask'][y0:y1,x0:x1]
+            if x1>x0 and y1>y0 and np.any(visible & ~roi[y0:y1,x0:x1]):retained.append(p)
+            else:pre_culled+=1
+        pieces=retained
+    assignment_key=hashlib.sha256(json.dumps(dict(pieces=pieces,obj_banks=obj_banks),sort_keys=True).encode()).hexdigest()
+    static_colors=sorted({c for p in pieces for c in p['rows'][0]})
     allocated=assignment_cache.get(assignment_key) if assignment_cache is not None else None
     if allocated is None:
-        allocated=split_scene_color_masks(pieces,banks=tuple(obj_banks),time_limit=time_limit)
+        if len(static_colors)>15*banks:
+            allocated=dict(status='STATIC_OBJ_COLOR_CAPACITY_INFEASIBLE',required_colors=len(static_colors),
+                           available_opaque_slots=15*banks,
+                           scope='Compiler retained source pieces, including pixels covered by promoted BG. Not universal hybrid infeasibility.')
+        else:allocated=split_scene_color_masks(pieces,banks=tuple(obj_banks),time_limit=time_limit)
         if assignment_cache is not None:assignment_cache[assignment_key]=allocated
     public={k:v for k,v in allocated.items() if k not in ('pieces','assignment')}
     result=dict(schema='BYOR_HYBRID_EXPLICIT_SCENE_V1',scene=scene,source_layers=metadata['layers'],
         promoted_tiles=int(np.count_nonzero(promoted)),promoted_pixels=int(np.count_nonzero(roi)),
         obj_bank_count=banks,obj_banks=obj_banks,
+        opaque_effect_policy=opaque_effect_policy,
+        pre_culled_fully_covered_obj_pieces=pre_culled,
+        bg_composited_opaque_source_models=[l['kind']for l in metadata['layers']if l['kind'].startswith('actor:')and l['alpha']==0 and opaque_effect_policy=='bg'and l.get('source_model_type')=='none'],
+        static_obj_required_colors=len(static_colors),static_obj_minimum_banks=(len(static_colors)+14)//15,
         obj_palette_cgram_reserved=[128+bank*16+i for bank in obj_banks for i in range(1,16)],
         bg_owned_obj_transparent_entries=[128+bank*16 for bank in obj_banks],
         obj_color_math=False,bg_color_math='BG1 + BG2 disjoint RGB555 components',
@@ -190,7 +210,7 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
                         tile[y,x]=colors.index(c)+1
                         if 0<=wx<256 and 0<=wy<224 and not roi[wy,wx]:visible=True
         if visible:graphics.append((q,bank,tile))
-    if len(graphics)>32:raise ValueError('HYBRID_OBJ_FIRST_TABLE_CAPACITY')
+    if len(graphics)>64:raise ValueError('HYBRID_OBJ_TWO_NAME_TABLE_CAPACITY')
     chr_data=bytearray(((len(graphics)+7)//8)*2048);oam=bytearray(544)
     for i in range(128):oam[i*4+1]=224
     for i,(q,bank,tile) in enumerate(graphics):
@@ -201,7 +221,7 @@ def derive(source,stage,scene,banks,time_limit=20,span=15,first_bank=None,assign
                 for row in range(8):
                     for plane in range(4):
                         chr_data[number*32+(plane//2)*16+row*2+plane%2]=sum(((int(part[row,col])>>plane)&1)<<(7-col) for col in range(8))
-        oam[i*4:i*4+4]=bytes([q['x']&255,q['y']&255,base_tile,0x20|(bank<<1)])
+        oam[i*4:i*4+4]=bytes([q['x']&255,q['y']&255,base_tile&255,0x20|(bank<<1)|(base_tile>>8)])
         oam[512+i//4]|=((q['x']>>8)&1)<<((i%4)*2)
     result.update(native_obj_entries=len(graphics),fully_bg_occluded_obj_entries=len(expanded)-len(graphics),
                   obj_chr_bytes=len(chr_data),native_obsel=0xc0)

@@ -105,7 +105,9 @@ def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False,
     if obj_chr is not None:
         if not 0<=obj_rom_bank<8 or not 0x8000<=obj_rom_address<=0xdddf:raise ValueError('MODE4_OBJ_ROM_RANGE')
         if obj_chr:dma(obj_rom_address,obj_rom_bank,0x18,len(obj_chr),1,0)
-        store(0x2102,0);store(0x2103,0);dma(obj_rom_address+8192,obj_rom_bank,0x04,544,0)
+        obj_oam_offset=max(8192,len(obj_chr))
+        if obj_rom_address+obj_oam_offset+544>65536:raise ValueError('MODE4_OBJ_ROM_BANK_OVERFLOW')
+        store(0x2102,0);store(0x2103,0);dma(obj_rom_address+obj_oam_offset,obj_rom_bank,0x04,544,0)
         store(0x2101,obj_obsel)
     store(0x2121,0);dma(0x9000,5,0x22,512,0)
     for address,value in [(0x2105,4),(0x2107,0x78),(0x2108,0x7c),(0x2109,offsetmap>>9),
@@ -149,7 +151,7 @@ def compile_rom(report,assets,timer=180,cache_assets=None,offset_alias=False,
     rom[0x29000:0x29200]=palette.tobytes();rom[0x29800:0x2a000]=bytes(2048)
     if obj_chr is not None:
         pos=obj_rom_bank*32768+obj_rom_address-0x8000
-        rom[pos:pos+len(obj_chr)]=obj_chr;rom[pos+8192:pos+8192+544]=oam
+        rom[pos:pos+len(obj_chr)]=obj_chr;rom[pos+obj_oam_offset:pos+obj_oam_offset+544]=oam
     rom[0x7fc0:0x7fd5]=b'M4 BG COMPONENTS'.ljust(21);rom[0x7fd5:0x7fdc]=bytes([0x20,0,8,0,1,0,0])
     rom[0x7ffc:0x7ffe]=struct.pack('<H',0x8000)
     if len(rom)!=262144:raise AssertionError('COMPONENT_ROM_SIZE_DRIFT')

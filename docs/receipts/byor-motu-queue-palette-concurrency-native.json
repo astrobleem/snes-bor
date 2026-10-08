@@ -1,0 +1,408 @@
+{
+  "schema": "BYOR_MOTU_QUEUE_PALETTE_CONCURRENCY_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "queue_dispatch_authority_cases": 1716,
+  "queue_dispatch_authority_path": "out\\byor-motu-queue-concurrency\\authority\\report.json",
+  "queue_dispatch_block_sha256": "f826236de3e6d8fa3780c591aee385248540c1de7ebcd8f533790ec4a9d4a557",
+  "queue_exploration_path": "out\\byor-motu-queue-concurrency\\report.json",
+  "queue_exploration_sha256": "732a51f82193b7a5894e12b3c57612d0d42c0bc6a35eb87e7fe780aa616df622",
+  "queue_admitted_stage_results": [
+    {
+      "source_path": "DATA\\LEVELS\\GUILE2.TXT",
+      "states": 208,
+      "peak_enemy_count": 3,
+      "queue_records": 34,
+      "spawn_records": 21,
+      "queue_completion_admitted": true
+    },
+    {
+      "source_path": "DATA\\LEVELS\\HOLES.TXT",
+      "states": 3,
+      "peak_enemy_count": 1,
+      "queue_records": 1,
+      "spawn_records": 1,
+      "queue_completion_admitted": true
+    }
+  ],
+  "contexts": [
+    {
+      "label": "alternate-knightbot",
+      "source_scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit alternate palette combat pose; map1 is authored by GUILE2. Reachability and timing are not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              98,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              80,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              200,
+              220,
+              0
+            ],
+            "order": 1,
+            "map": 1
+          }
+        ],
+        "camera": [
+          0,
+          0
+        ]
+      },
+      "source_rgb555_sha256": "6a51bcd8e83847f3ee7f6039079aeeeb5911aa78baae41c08b3a7df910cd4fc7",
+      "compiler_report": "out/byor-motu-alternate-hybrid-3banks/alternate-knightbot/report.json",
+      "compiler_report_sha256": "77ba17ccd1c9f10c0b6275c6ae46424aa99ea823dabd915f42c88d13b7e5ad6f",
+      "native_result": "out/byor-motu-alternate-hybrid-native/native/result.json",
+      "native_result_sha256": "5ca4044e1c1d279cc947f886f9d39951a1473966d9e9fc6574c85a284a7413f9",
+      "obj_palette_banks": [
+        4,
+        5,
+        6
+      ],
+      "obj_static_palettes": [
+        [
+          206,
+          275,
+          4534,
+          5251,
+          8763,
+          12616,
+          15068,
+          19026,
+          19981,
+          22197,
+          26425,
+          27482,
+          30653,
+          31710,
+          32767
+        ],
+        [
+          0,
+          573,
+          1173,
+          2189,
+          2271,
+          2391,
+          4534,
+          5823,
+          6307,
+          11071,
+          11592,
+          20046,
+          26357,
+          29596,
+          31709
+        ],
+        [
+          71,
+          142,
+          206,
+          245,
+          275,
+          1168,
+          1239,
+          1307,
+          2427,
+          4534,
+          6307,
+          8763,
+          10847,
+          11592,
+          15068
+        ]
+      ],
+      "obj_geometry": {
+        "oam_entries": 29,
+        "peak_sprites": 8,
+        "peak_slivers": 16
+      },
+      "native_oam_entries": 20,
+      "peak_palette_bytes": 30,
+      "resources": {
+        "bg_mode": 4,
+        "high_chr_bytes": 53248,
+        "high_chr_base": 8192,
+        "high_chr_start": 8192,
+        "high_tile_offset": 0,
+        "obj_obsel": 192,
+        "low_chr_bytes": 9184,
+        "low_chr_base": 49152,
+        "offset_tilemap_base": 63488,
+        "offset_map_aliases_bg1": false,
+        "offset_map_aliases_bg2": true,
+        "hdma_channels": [
+          0
+        ],
+        "irq_enabled": true,
+        "timer_dots": 160,
+        "irq_entry_prg_offset": 33792,
+        "irq_exit_prg_offset": 33827,
+        "code_bank": 1,
+        "oam_entries": 20,
+        "obj_chr_bytes": 6144,
+        "per_field_palette_restore_bytes": 472,
+        "peak_palette_updates": 15,
+        "source_color_bits_preserved": 15,
+        "spc_protocol_proven": false,
+        "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+        "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd"
+      },
+      "rom_sha256": "21a1fd99ee9bce72edfd7b23ef9e4aaef1bd07ab874a6308957145f70136eb2a",
+      "schedule_sha256": "c8990b38e90eda55bc670689b5120f66b4f8d228d90fdfb1aa5fdb1d1166b317",
+      "cgram_observer_verified": true,
+      "oam_observer_verified": true,
+      "pixel_mismatches": 0,
+      "obj_overflow_samples": 0,
+      "active_window_samples": 0,
+      "first_cgram_data_hclock_range": [
+        1108,
+        1204
+      ],
+      "last_cgram_data_hclock_range": [
+        24,
+        72
+      ]
+    },
+    {
+      "label": "three-enemy-map-mix",
+      "source_scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit three-enemy stress pose, base/map1 identity mixture admitted by source queue at1800. Pose/timing and HBreath overlap not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              1898,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              1880,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              1960,
+              190,
+              0
+            ],
+            "order": 1
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              2010,
+              220,
+              0
+            ],
+            "order": 3,
+            "map": 1
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              1920,
+              160,
+              0
+            ],
+            "order": 4
+          }
+        ],
+        "camera": [
+          1800,
+          0
+        ]
+      },
+      "source_rgb555_sha256": "69036dc7e12ad403101d140a2e53c983b278c80514c0552c04406b4ed06ca6fc",
+      "compiler_report": "out/byor-motu-three-enemy-hybrid-4banks-v2/three-enemy-map-mix/report.json",
+      "compiler_report_sha256": "4737012d31c738007c40aa402ea46d5df400295bbc59ebdc417b7e80486949c9",
+      "native_result": "out/byor-motu-three-enemy-hybrid-native/native/result.json",
+      "native_result_sha256": "5a65abae388cda68356a439323f9dd39ea5c2650a59ce0bd3fcee743c63804c7",
+      "obj_palette_banks": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "obj_static_palettes": [
+        [
+          0,
+          245,
+          573,
+          1173,
+          2271,
+          2427,
+          5251,
+          5823,
+          10847,
+          11592,
+          12616,
+          19981,
+          20046,
+          26357,
+          31709
+        ],
+        [
+          71,
+          142,
+          206,
+          275,
+          1168,
+          1239,
+          1307,
+          2189,
+          2391,
+          4534,
+          6307,
+          8763,
+          11071,
+          15068,
+          29596
+        ],
+        [
+          3170,
+          17803,
+          19026,
+          22197,
+          23122,
+          26425,
+          27482,
+          30653,
+          31710,
+          32767
+        ],
+        [
+          0,
+          31,
+          2547,
+          9947,
+          14633,
+          14732,
+          17213,
+          20942,
+          22131,
+          23122,
+          27383,
+          27416,
+          30655,
+          32767
+        ]
+      ],
+      "obj_geometry": {
+        "oam_entries": 46,
+        "peak_sprites": 16,
+        "peak_slivers": 32
+      },
+      "native_oam_entries": 40,
+      "peak_palette_bytes": 32,
+      "resources": {
+        "bg_mode": 4,
+        "high_chr_bytes": 45056,
+        "high_chr_base": 16384,
+        "high_chr_start": 16384,
+        "high_tile_offset": 0,
+        "obj_obsel": 192,
+        "low_chr_bytes": 7648,
+        "low_chr_base": 49152,
+        "offset_tilemap_base": 63488,
+        "offset_map_aliases_bg1": false,
+        "offset_map_aliases_bg2": true,
+        "hdma_channels": [
+          0
+        ],
+        "irq_enabled": true,
+        "timer_dots": 160,
+        "irq_entry_prg_offset": 33792,
+        "irq_exit_prg_offset": 33827,
+        "code_bank": 1,
+        "oam_entries": 40,
+        "obj_chr_bytes": 10240,
+        "per_field_palette_restore_bytes": 472,
+        "peak_palette_updates": 16,
+        "source_color_bits_preserved": 15,
+        "spc_protocol_proven": false,
+        "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+        "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd"
+      },
+      "rom_sha256": "4e3fd3342eb68b88e88d9269d28a4eb083d9c49ce21459346fd05ccdeb5212c9",
+      "schedule_sha256": "39c3b1579de99680726f860e8042397959a2acc6a4dd3ef5cf1f443c5c5cae23",
+      "cgram_observer_verified": true,
+      "oam_observer_verified": true,
+      "pixel_mismatches": 0,
+      "obj_overflow_samples": 0,
+      "active_window_samples": 0,
+      "first_cgram_data_hclock_range": [
+        1116,
+        1196
+      ],
+      "last_cgram_data_hclock_range": [
+        48,
+        80
+      ]
+    }
+  ],
+  "three_enemy_static_rgb555_union": 51,
+  "three_bank_opaque_capacity": 45,
+  "four_bank_opaque_capacity": 60,
+  "automatic_bank_selection_assets_match_native_inputs": true,
+  "source_alpha": "Pinned SCREEN in RGB8 before RGB555; Mode4 disjoint components sum exactly",
+  "no_color_reduction": true,
+  "scope": "Independent explicit poses; queue admission uses nondeterministic retirement/camera inputs. No animation/pose reachability, projectile bound, transition bandwidth, production audio or live gameplay claim.",
+  "motu_gameplay_proven": false
+}

@@ -53,6 +53,8 @@ def main():
         report['native_obj_entries']=residency['static_obj_entries']
         if residency['static_obj_subdivision']:
             high_base=0;high_tile_offset=64;obsel=0
+        else:
+            high_base=residency['allocation']['high_chr'][0]
         path.write_text(json.dumps(report,indent=2)+'\n')
     cache_assets=None
     if a.resident_bg_tiles:

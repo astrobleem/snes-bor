@@ -18,7 +18,7 @@ def static_obj_atlas(folders,reports):
     for folder,r in zip(folders,reports):
         oam=(folder/'oam.bin').read_bytes();data=(folder/'obj_chr.bin').read_bytes();frame=[]
         for i in range(r['native_obj_entries']):
-            q=bytearray(oam[i*4:i*4+4]);base=q[2];q[2]=0
+            q=bytearray(oam[i*4:i*4+4]);base=q[2]+((q[3]&1)<<8);q[2]=0;q[3]&=254
             xhigh=(oam[512+i//4]>>((i%4)*2))&1
             raw=b''.join(data[(base+ty*16+tx)*32:(base+ty*16+tx+1)*32]
                          for ty in range(4) for tx in range(2))
@@ -32,11 +32,11 @@ def static_obj_atlas(folders,reports):
         available=[k for k in pending if not any(k in edges[p] for p in pending)]
         if not available:raise ValueError('HYBRID_STATIC_OAM_ORDER_CYCLE')
         key=available[0];pending.remove(key);order.append(key)
-    if len(order)>32:raise ValueError('HYBRID_STATIC_OBJ_ATLAS_CAPACITY')
+    if len(order)>64:raise ValueError('HYBRID_STATIC_OBJ_ATLAS_CAPACITY')
     atlas=bytearray(((len(order)+7)//8)*2048);oam=bytearray(544)
     for i in range(128):oam[i*4+1]=224
     for i,(q,xhigh,raw) in enumerate(order):
-        base=(i//8)*64+(i%8)*2;record=bytearray(q);record[2]=base
+        base=(i//8)*64+(i%8)*2;record=bytearray(q);record[2]=base&255;record[3]|=base>>8
         oam[i*4:i*4+4]=record;oam[512+i//4]|=xhigh<<((i%4)*2)
         for ty in range(4):
             for tx in range(2):
@@ -65,7 +65,7 @@ def subdivide_static_obj(atlas,oam,count):
     """Legal OBSEL 0: dense 16x16 objects plus nonempty 8x8 pieces."""
     objects=[];large=[];small=[]
     for i in range(count):
-        q=oam[i*4:i*4+4];base=q[2];xh=(oam[512+i//4]>>((i%4)*2))&1
+        q=bytearray(oam[i*4:i*4+4]);base=q[2]+((q[3]&1)<<8);q[3]&=254;xh=(oam[512+i//4]>>((i%4)*2))&1
         x=q[0]+256*xh;x=x if x<256 else x-512
         for half in range(2):
             tiles=[atlas[(base+(half*2+ty)*16+tx)*32:(base+(half*2+ty)*16+tx+1)*32]
@@ -125,7 +125,7 @@ def main():
     subdivision=None
     if a.subdivide_static_obj:
         atlas,oam,subdivision=subdivide_static_obj(atlas,oam,entries);entries=subdivision['entries']
-    high_start=4096 if subdivision else 8192
+    high_start=4096 if subdivision else max(8192,((len(atlas)+8191)//8192)*8192)
     # Mode4 BG2 has 2bpp tiles (16 bytes). Its C000 base can extend to F000,
     # where the BG1 map begins. Reserve only the requested span; HIGH reuses
     # the remaining aligned tail. The former 640 was a fixture allocation.
