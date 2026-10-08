@@ -1,0 +1,41 @@
+{
+  "schema": "BYOR_MOTU_LANDING_EFFECTS_COMPONENT_V1",
+  "status": "PASS",
+  "evidence": {
+    "source_C": {
+      "path": "out/byor-motu-landing-effects-bounded-authority/report.json",
+      "sha256": "e9e19dec5004f10a9a05b648180674082707176d62677935b5fff4ac15d14134"
+    },
+    "native": {
+      "path": "out/byor-motu-landing-effects-native/report.json",
+      "sha256": "37fb0fca1db518a86ff19b0adb85ef6fd605f40ce2b8c82b08114545ccb274d0"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-landing-effects-bor-static-smoke/report.json",
+      "sha256": "f3c414e13f10126315d81498bb909d4657053df126aa8d68e9dd81171a261cab"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-landing-effects-rom-audit.log",
+      "sha256": "881d7ed027388710c2b74e6b3dfde256255eb64c70627030b5ba718171a0310a"
+    }
+  },
+  "source_effect_and_drop_C_cases": 320,
+  "native_cases": 705,
+  "native_source_effects": [
+    "nodrop policy",
+    "absolute height inair predicate",
+    "projectile reset",
+    "conditional staydown.rise/riseattack reset"
+  ],
+  "source_riseattack_stall_and_guard_state_preserved": true,
+  "coordinate_domain": "Q16 source position/base in[-256,256), exactly representable binary32; abs difference>=6554 Q16 units",
+  "frozen_policy": "required unfrozen and actual colourmap service; no actor state writes or fake completion",
+  "wider_coordinate_policy": "required arithmetic capability; no actor state writes or fake completion",
+  "full_damage_callback_bound": false,
+  "world_post_acknowledgement_proven": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17
+}

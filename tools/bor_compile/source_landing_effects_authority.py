@@ -30,6 +30,11 @@ def run(engine, output):
         rows.append(dict(mode=0, nodrop=nodrop, frozen=frozen, drop=drop, y=y, animal=0, guard=0, count=3., model_count=5., deadline=47))
     for animal, guard, drop, count, deadline in itertools.product((0, 1), (0, 1), (0, 1), (-1., 0., 3.), (0, 47, 48, 49)):
         rows.append(dict(mode=1, nodrop=0, frozen=0, drop=drop, y=0., animal=animal, guard=guard, count=count, model_count=5., deadline=deadline))
+    for r in rows:r['base']=0.
+    for base,nodrop,delta in itertools.product((0.,64.,-64.,255.,-255.,-256.),(0,1,2),(-6554,-6553,0,6553,6554)):
+        y=base+delta/65536
+        if -256<=y<256:
+            rows.append(dict(mode=0,nodrop=nodrop,frozen=0,drop=0,y=y,animal=0,guard=0,count=3.,model_count=5.,deadline=47,base=base))
     code = r'''
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,7 +51,7 @@ entity *self;unsigned time=48;int maps,map_arg,unexpected;
 void ent_set_colourmap(entity *e,int n){if(e!=self)unexpected++;maps++;map_arg=n;e->colourmap=n;}
 int model_get_colourmap(Model *m,int n){unexpected++;return n;}
 '''+macro+'\n'+'\n'.join(bodies.values())
-    code += '\nstruct Case{int mode,nodrop,frozen,drop;float y;int animal,guard;float count,model_count;unsigned deadline;}cases[]={\n'
+    code += '\nstruct Case{int mode,nodrop,frozen,drop;float y;int animal,guard;float count,model_count;unsigned deadline;float base;}cases[]={\n'
     code += ',\n'.join('{'+','.join(str(v) for v in r.values())+'}' for r in rows)+'\n};\n'
     code += r'''
 int main(void){unsigned i;entity e;s_attack a;struct Case *c;
@@ -54,7 +59,7 @@ if(sizeof(int)!=4||sizeof(float)!=4||sizeof(void*)!=4)return 2;
 for(i=0;i<sizeof(cases)/sizeof(cases[0]);i++){
 c=cases+i;memset(&e,0,sizeof(e));memset(&a,0,sizeof(a));self=&e;maps=unexpected=0;map_arg=-1;
 e.modeldata.nodrop=c->nodrop;e.modeldata.animal=c->animal;e.modeldata.guardpoints.max=c->guard;e.modeldata.knockdowncount=c->model_count;
-e.frozen=c->frozen;e.freezetime=123;e.drop=c->drop;e.position.y=c->y;e.map=7;e.colourmap=9;
+e.frozen=c->frozen;e.freezetime=123;e.drop=c->drop;e.position.y=c->y;e.base=c->base;e.map=7;e.colourmap=9;
 e.projectile=3;e.staydown.rise=11;e.staydown.riseattack=12;e.health=100;e.modeldata.health=150;
 e.knockdowncount=c->count;e.knockdowntime=c->deadline;e.defense[ATK_LAND].knockdown=1.;
 a.attack_type=ATK_LAND;a.attack_force=7;
@@ -87,7 +92,7 @@ printf("EFFECT|%u|%d,%d,%u,%d,%d,%d,%d,%d,%d,%g,%u,%d\n",i,e.drop,e.frozen,e.fre
         else:
             if r['frozen']: drop = 1
             if r['nodrop']: drop = 0
-            if abs(r['y']) >= .1 and r['nodrop'] < 2: drop = 1
+            if abs(r['y']-r['base']) >= .1 and r['nodrop'] < 2: drop = 1
             expected = [drop,0,0 if r['frozen'] else 123,0,0 if drop else 11,0 if drop else 12,7 if r['frozen'] else 9,r['frozen'],7 if r['frozen'] else -1,count,deadline,0]
         results.append(dict(case=r, actual=actual, expected=expected, passed=actual==expected))
     report = dict(schema='BYOR_4086_LANDING_EFFECTS_AUTHORITY_V1', status='PASS' if len(results)==len(rows) and all(r['passed'] for r in results) else 'FAIL',

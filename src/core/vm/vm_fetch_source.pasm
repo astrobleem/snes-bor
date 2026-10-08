@@ -113,6 +113,7 @@ Vm_FetchSourceInit:
     sta.l SourceModelTransition4086_Ready
     sta.l SourceLandingDrop4086_Ready
     sta.l SourceDamageEffectsState4086_Ready
+    sta.l SourceLandingEffects4086_Ready
     sta.l SourceWeapon4086_Ready
     sta.l SourceFrameEffectPlan4086_Ready
     sta.l SourceIdle4086_Ready
