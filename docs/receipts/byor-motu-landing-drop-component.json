@@ -1,0 +1,59 @@
+{
+  "schema": "BYOR_MOTU_LANDING_DROP_COMPONENT_V1",
+  "status": "PASS",
+  "evidence": {
+    "effect_bodies": {
+      "path": "out/byor-motu-landing-effects-authority/report.json",
+      "sha256": "401e6d2ea1e041ac635e69be87fcdce0061913f718bd16071b6cc135a5e2f0b7"
+    },
+    "damage_loader": {
+      "path": "out/byor-motu-damage-input-loader-authority/report.json",
+      "sha256": "730dd313361f89501955a4efdeee550cb7fb9eb3758d952b95490d1216aa70c3"
+    },
+    "damage_inputs": {
+      "path": "out/byor-motu-damage-inputs/report.json",
+      "sha256": "6589fe84ede284c1879b0668326a436f0253a1f674b7cf1f0cc6b78158032c5a"
+    },
+    "drop_weapon1": {
+      "path": "out/byor-motu-drop-weapon-land-authority/report.json",
+      "sha256": "6b90b00380e8492ed6bded2c785ccd1a43ccbb9c174b50f05547c4b924916806"
+    },
+    "drop_weapon2": {
+      "path": "out/byor-motu-drop-weapon-flag2-regression-authority/report.json",
+      "sha256": "3b3b7bc6baf57d38362e98654d09cf78986fe9e418c801999abc153ee609860b"
+    },
+    "native_drop": {
+      "path": "out/byor-motu-landing-drop-native/report.json",
+      "sha256": "23ebe5924cae94f876b5a2bf7a68d121d7e015397a5e6d6afab263bf0c87ac40"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-landing-drop-bor-static-smoke/report.json",
+      "sha256": "f3b86afacaf8eb17c3e5b3ca5ff1aff31d563d2c7e39c2e966c0e73df2005327"
+    },
+    "audit": {
+      "path": "out/byor-motu-landing-drop-rom-audit.log",
+      "sha256": "a4c0fdc3660ea3c3d5ab171b37b9c5e3112bc243f76c497673bac3f878b48cbe"
+    }
+  },
+  "actual_source_effect_C_cases": 236,
+  "actual_damage_loader_C_cases": 46,
+  "actual_dropweapon1_C_cases": 144,
+  "actual_dropweapon2_C_cases": 48,
+  "native_zero_drop_cases": 334,
+  "source_damage_models": 16,
+  "source_damage_input_bytes": 280,
+  "native_domain": "zero attack_drop, no_pain0, immutable unit knockdown defense; source animal/drop/count/deadline behavior",
+  "native_component_bound_to_complete_damage_callback": false,
+  "world_post_acknowledgement_proven": false,
+  "colourmap_service_instrumented_in_C": true,
+  "weapon_transition_instrumented_in_C": true,
+  "width_annotations_byte_identical": true,
+  "width_guard_new_failures": 0,
+  "control_allocation": "7FBF14..7FBF2D; previous bounce control ends7FBF14; damage array and VM slots preserved",
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "no_color_reduction": true,
+  "foreign_profile_admitted": false,
+  "full_dynamic_world_traversal_proven": false,
+  "motu_gameplay_proven": false
+}

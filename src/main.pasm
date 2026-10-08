@@ -14056,3 +14056,4 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_landing_kill.pasm"
 .include "core/vm/vm_source_damage_state.pasm"
 .include "core/vm/vm_source_bounce_effects.pasm"
+.include "core/vm/vm_source_landing_drop.pasm"

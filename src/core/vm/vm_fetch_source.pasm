@@ -111,6 +111,7 @@ Vm_FetchSourceInit:
     sta.l SourceModelCachedCopy4086_Ready
     sta.l SourceModelAnimation4086_Ready
     sta.l SourceModelTransition4086_Ready
+    sta.l SourceLandingDrop4086_Ready
     sta.l SourceWeapon4086_Ready
     sta.l SourceFrameEffectPlan4086_Ready
     sta.l SourceIdle4086_Ready
