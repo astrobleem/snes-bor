@@ -31,3 +31,32 @@ def type1_descriptor(source,bpp,columns,tile_count,vram_byte_address,iram=0x3600
                 vram_word_address=vram_byte_address//2,dcnt=0xb0,
                 requires_sa1_setup=True,requires_chr_irq_ready=True,
                 forbids_other_scpu_bwram_reads=True,native_admitted=False)
+
+
+
+def reused_workspace_descriptors(source,capacity,jobs,iram=0x3600):
+    """Serialize lossless jobs through one bounded BW-RAM window.
+
+    Caller must fill each chunk, complete its conversion/DMA, disable conversion,
+    and only then overwrite the shared window. Source tile rows stay complete.
+    This plan does not admit production CPU/IRQ/NMI contention or pixel gathering.
+    """
+    if capacity<=0 or source>>16 not in (0x40,0x41,0x42,0x43) or (source&65535)+capacity>65536:
+        raise ValueError('CHARCONV_WORKSPACE_RANGE')
+    descriptors=[]
+    for index,job in enumerate(jobs):
+        bpp,columns,count,target=(job[k]for k in ('bpp','columns','tile_count','vram_byte_address'))
+        # Validate the complete output allocation independently of chunking.
+        if target%2 or count<=0 or target+count*8*bpp>65536:raise ValueError('CHARCONV_VRAM_RANGE')
+        if bpp not in (2,4,8)or columns not in (1,2,4,8,16,32):raise ValueError('CHARCONV_FORMAT')
+        if count%columns:raise ValueError('CHARCONV_COMPLETE_TILE_ROWS')
+        maximum=(capacity//(8*bpp*columns))*columns
+        if not maximum:raise ValueError('CHARCONV_WORKSPACE_ONE_ROW_REQUIRED')
+        offset=0
+        while offset<count:
+            tiles=min(maximum,count-offset)
+            d=type1_descriptor(source,bpp,columns,tiles,target+offset*8*bpp,iram)
+            d.update(job=index,tile_offset=offset,job_byte_offset=offset*8*bpp,workspace_capacity=capacity,
+                     requires_chunk_copy_before_setup=True,requires_previous_conversion_disabled=True)
+            descriptors.append(d);offset+=tiles
+    return descriptors

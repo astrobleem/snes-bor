@@ -1473,3 +1473,25 @@ allocated: the actual source variable pool is 384x64 bytes at $418800..$41E7FF,
 so the apparent gap after 128 variables is already reserved. Native physics
 state must coexist with that pool and the compositor's conversion workspace.
 Evidence: `docs/receipts/byor-motu-landing-base-authority.json`.
+
+
+### Shared conversion workspace feasibility
+
+The isolated component producer's LOW buffer at $430000 cannot be carried into
+a source-world allocation unchanged: that address belongs to native source
+snapshot/factor/model storage. A generic reused-workspace planner now splits
+complete tile rows and preserves their exact output destinations. Native type-1
+conversion serializes 896 8bpp HIGH tiles and 512 2bpp LOW tiles through
+$420000..$42D7FF in chunks of 864/32/512 tiles. All 65,536 CHR bytes match the
+independent tile encoder, source heap hashes match before/after, and the full
+2KiB $42D800..$42DFFF physics sentinel is preserved. This is a source-neutral
+VRAM stress proof, not an actual Mode4 allocation or live scene compositor.
+
+DMA durations are 455,874 / 16,976 / 67,602 master clocks for 55,296 / 2,048 /
+8,192 bytes. CPU ROM copying costs 5,738,936 master clocks total. The copy loop
+is unsuitable as evidence of a gameplay-rate producer; native production and
+joint IRQ/NMI/audio deadlines remain unadmitted. This proves bounded exact
+conversion/reuse and a protected future physics window without allocating it
+or claiming an integrated runtime. Three focused serializer/planner tests pass,
+including complete-row coverage and explicit bounds failures. Evidence:
+`docs/receipts/byor-motu-reused-chr-workspace-native.json`.
