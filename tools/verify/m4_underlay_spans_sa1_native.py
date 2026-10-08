@@ -51,7 +51,7 @@ def compile_inputs(source,stage,scene,catalog,tile_aligned=False):
  return background[0],bytes(descriptors),bytes(pixels),bytes(origins),actors,(wx,wy,w,h)
 
 
-def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None,colour_canvas_second=None,colour_pixels_second=None,force_stage_reload=False,bitmap_row_target=None,bitmap_baselines=None,bitmap_actor_indices=None,notify_cpu=False,bitmap_tile_count=None):
+def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None,colour_canvas_second=None,colour_pixels_second=None,force_stage_reload=False,bitmap_row_target=None,bitmap_baselines=None,bitmap_actor_indices=None,notify_cpu=False,bitmap_tile_count=None,fixed_actor_origin=None):
  bitmap_bytes=(bitmap_tile_count if bitmap_tile_count is not None else w*h//64)*80
  rom,_,_=base.build(np.zeros((3,2),dtype=np.uint16),True,iram=True);rom=bytearray(rom)+bytearray([255])*(1048576-len(rom))
  for at,data in((0x20000,descriptors),(0x30000,origins),(0x40000,background),(0x50000,pixels)):rom[at:at+len(data)]=data
@@ -72,6 +72,11 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
  c.label('entry');c.emit('e2 20 a9 42 48 ab c2 20')
  if expected_context_epoch is not None:
   c.emit('af 00 d1 42');c.word(0xc9,expected_context_epoch&65535);c.branch(0xf0,'epoch_low_valid');c.jump('epoch_fault');c.label('epoch_low_valid');c.emit('af 02 d1 42');c.word(0xc9,expected_context_epoch>>16);c.branch(0xf0,'epoch_valid');c.jump('epoch_fault');c.label('epoch_valid')
+ if fixed_actor_origin is not None:
+  actor,fx,fy=fixed_actor_origin
+  if bitmap_row_target is None or actor!=0:raise ValueError('FIXED_UNDERLAY_REQUIRES_LOWEST_NATIVE_ACTOR')
+  for axis,value in enumerate((fx,fy)):
+   c.emit('af '+(0x42d000+actor*4+axis*2).to_bytes(3,'little').hex(' '));c.word(0xc9,value&65535);c.branch(0xf0,'fixed_axis_%d'%axis);c.jump('fixed_actor_fault');c.label('fixed_axis_%d'%axis)
  c.emit('64 04 64 12 64 14 e2 20 a9 84 8f 30 22 00 a9 20 8f 0b 22 00 a9 c4 8f 34 22 00 c2 20')
  if bitmap_row_target is not None:
   c.emit('e2 20 a9 cd 8f 34 22 00 c2 20 a5 16');c.branch(0xf0,'bitmap_first');c.word(0xa9,bitmap_bytes);c.branch(0x80,'bitmap_source');c.label('bitmap_first');c.emit('a9 00 00');c.label('bitmap_source');c.emit('8f 32 22 00 a9 00 00 8f 35 22 00');c.word(0xa9,bitmap_bytes);c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20');c.jump('stage_ready')
@@ -87,7 +92,10 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
   else:c.emit('a9 00 00')
   c.emit('8f 32 22 00 a9 00 70 8f 35 22 00');c.word(0xa9,len(colour_canvas));c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20')
  c.label('stage_ready')
- c.label('span');c.emit('a6 04 bf 00 00 c2 85 00 bf 02 00 c2 85 02 bf 04 00 c2 85 08 bf 08 00 c2 85 0c e2 20 bf 0a 00 c2 85 0e c2 20 bf 06 00 c2 aa bd 02 d0 18 65 00')
+ c.label('span');c.emit('a6 04 bf 00 00 c2 85 00 bf 02 00 c2 85 02 bf 04 00 c2 85 08 bf 08 00 c2 85 0c e2 20 bf 0a 00 c2 85 0e c2 20 bf 06 00 c2 aa')
+ if fixed_actor_origin is not None:
+  c.word(0xe0,fixed_actor_origin[0]*4);c.branch(0xd0,'dynamic_actor');c.jump('next');c.label('dynamic_actor')
+ c.emit('bd 02 d0 18 65 00')
  c.branch(0x10,'row_nonnegative');c.jump('next');c.label('row_nonnegative');c.word(0xc9,h);c.branch(0x90,'row_visible');c.jump('next');c.label('row_visible');c.emit('85 00 bd 00 d0 18 65 02');c.branch(0x10,'left_nonnegative')
  c.emit('49 ff ff 1a c5 08');c.branch(0x90,'left_clipped');c.jump('next');c.label('left_clipped');c.emit('85 0a a5 08 38 e5 0a 85 08 a5 0a 0a 18 65 0c 85 0c');c.branch(0x90,'pointer_no_carry');c.emit('e2 20 e6 0e c2 20');c.label('pointer_no_carry');c.emit('a9 00 00')
  c.label('left_nonnegative');c.word(0xc9,w);c.branch(0x90,'left_visible');c.jump('next');c.label('left_visible');c.emit('85 02');c.word(0xa9,w);c.emit('38 e5 02 c5 08');c.branch(0xb0,'width_ready');c.emit('85 08');c.label('width_ready')
@@ -113,6 +121,7 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
  if notify_cpu:c.emit('e2 20 a9 80 8f 09 22 00 c2 20')
  c.label('stop');c.jump('stop')
  if expected_context_epoch is not None:c.label('epoch_fault');c.emit('a9 e1 b4 8f f0 3f 41');c.jump('stop')
+ if fixed_actor_origin is not None:c.label('fixed_actor_fault');c.emit('a9 a3 b4 8f f0 3f 41');c.jump('stop')
  worker=c.finish()
  if c.base+len(worker)>0x3700:raise ValueError('UNDERLAY_SPAN_IRAM_CAPACITY')
  rom[0x9000:0x9000+len(worker)]=worker;main=bytearray(rom[0x8000:0x8400]);main=main[:main.index(bytes([255])*32)];needle=bytes.fromhex('bf 00 90 01 9f 00 32 00 e8 e0');at=main.index(needle)+len(needle);main[at:at+2]=struct.pack('<H',len(worker))
@@ -120,7 +129,8 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
  if expected_context_epoch is not None:extra+=bytes.fromhex('c2 20 a9')+struct.pack('<H',expected_context_epoch&65535)+bytes.fromhex('8f 00 d1 42 a9')+struct.pack('<H',expected_context_epoch>>16)+bytes.fromhex('8f 02 d1 42 e2 20')
  if main[-3]!=0x4c:raise ValueError('UNDERLAY_SPAN_HOST_LAYOUT')
  main[-2:]=struct.pack('<H',struct.unpack('<H',main[-2:])[0]+len(extra));at=main.index(needle)-3;main[at:at]=extra;rom[0x8000:0x8400]=main+bytes([255])*(1024-len(main));rom[0x7fd7]=10
- return bytes(rom),{n:c.base+c.labels[n]for n in(('entry','done','epoch_fault')if expected_context_epoch is not None else('entry','done'))},worker
+ names=['entry','done']+(['epoch_fault']if expected_context_epoch is not None else[])+(['fixed_actor_fault']if fixed_actor_origin is not None else[])
+ return bytes(rom),{n:c.base+c.labels[n]for n in names},worker
 
 
 def main():

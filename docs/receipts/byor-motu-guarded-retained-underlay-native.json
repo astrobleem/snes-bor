@@ -1,0 +1,208 @@
+{
+  "schema": "BYOR_GUARDED_RETAINED_UNDERLAY_COMPONENT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-fixed-underlay-effect-tiles-native/report.json",
+      "sha256": "04d0fa85bad51192fe71be39dae8a0a8956c34dbba73fbc613420ab7b65f1ab8",
+      "report": {
+        "schema": "BYOR_DIRECT_SCREEN_BITMAP_NATIVE_V1",
+        "status": "PASS",
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "ROM_sha256": "807da52f5a5db040515b842f93c898e97a2de954294fb28ae9452b4933392045",
+        "producer_IRAM_bytes": 488,
+        "row_worker_IRAM_bytes": 215,
+        "bitmap_byte_mismatches": [
+          0,
+          0
+        ],
+        "VRAM_byte_mismatches": [
+          0,
+          0
+        ],
+        "native_span_and_pixel_counts": [
+          [
+            10,
+            107
+          ],
+          [
+            10,
+            188
+          ]
+        ],
+        "write_and_DMA_bounds": [
+          [
+            0,
+            0,
+            1,
+            6880,
+            0
+          ],
+          [
+            38,
+            0,
+            1,
+            6880,
+            0
+          ]
+        ],
+        "expected_write_and_DMA_bounds": [
+          [
+            0,
+            0,
+            1,
+            6880,
+            0
+          ],
+          [
+            38,
+            0,
+            1,
+            6880,
+            0
+          ]
+        ],
+        "source_effect_tile_mask": true,
+        "promoted_native_window_tiles": 86,
+        "bitmap_bytes": 6880,
+        "actor_pixels_in_promoted_tiles": [
+          0,
+          19
+        ],
+        "fixed_underlay_actor": 0,
+        "fixed_underlay_native_origin_guard": [
+          0,
+          -96,
+          -44
+        ],
+        "fixed_underlay_source_frame_immutable_in_ROM": true,
+        "live_actor_source_frame_guard": false,
+        "master_clocks": [
+          108590,
+          125490
+        ],
+        "milliseconds": [
+          5.05604297007953,
+          5.842921376878905
+        ],
+        "native_bitmap_sha256": [
+          "68c7861e4af75225f0d1b145aa1ccc8ac4b6da50157c442f574b7473b987436d",
+          "893eafe85fb3ca631cb214731dc27dcd7e3bd9f1247ed245937e9906b0671794"
+        ],
+        "no_color_reduction": true,
+        "alpha_policy": "Exact source RGB8 SCREEN before RGB555 conversion",
+        "SCPU_WAI_during_source_job": false,
+        "source_job_completion_IRQ": false,
+        "production_CPU_contention_admitted": false,
+        "intermediate_underlay_canvas": false,
+        "intermediate_full_index_canvas": false,
+        "source_actor_index_atlas_identical": true,
+        "CHR_publication": true,
+        "native_PPU_scene": true,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native signed clipped source spans directly draw exact SCREEN or opaque indices into compiler stage-baseline bitmaps, then type1 VRAM conversion. Two explicit poses, fixed source art/camera/context; no live world or production deadline admission.",
+        "PPU_pixel_mismatches": 0,
+        "CGRAM_observer_verified": true,
+        "OAM_observer_verified": true,
+        "CGRAM_HBlank_timing_verified": true,
+        "OBJ_status": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "PPU_resources": {
+          "bg_mode": 4,
+          "high_chr_bytes": 40640,
+          "high_chr_base": 0,
+          "high_chr_start": 8192,
+          "high_tile_offset": 128,
+          "obj_obsel": 192,
+          "low_chr_bytes": 9520,
+          "low_chr_base": 49152,
+          "offset_tilemap_base": 63488,
+          "offset_map_aliases_bg1": false,
+          "offset_map_aliases_bg2": true,
+          "hdma_channels": [
+            0
+          ],
+          "irq_enabled": true,
+          "timer_dots": 160,
+          "irq_entry_prg_offset": 57344,
+          "irq_exit_prg_offset": 57379,
+          "code_bank": 1,
+          "oam_entries": 23,
+          "obj_chr_bytes": 6144,
+          "per_field_palette_restore_bytes": 472,
+          "peak_palette_updates": 15,
+          "source_color_bits_preserved": 15,
+          "spc_protocol_proven": false,
+          "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+          "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd",
+          "native_window_tile_counts": [
+            635,
+            595
+          ],
+          "native_window_HIGH_VRAM": 8192,
+          "native_window_LOW_VRAM": 49152,
+          "native_window_placeholder_bytes": 6880,
+          "static_data_bank_offset": 18
+        }
+      }
+    },
+    {
+      "path": "out/byor-motu-fixed-underlay-origin-reject-native/report.json",
+      "sha256": "42417813c525880ae858ccfe6a17bed06ba7aa193c850958483b26f76f53b81e",
+      "report": {
+        "schema": "BYOR_FIXED_UNDERLAY_NATIVE_REJECTION_V1",
+        "status": "PASS",
+        "marker": "a3b4",
+        "native_write_and_DMA_trace": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "native_job_events": [
+          [
+            "entry",
+            "102292"
+          ],
+          [
+            "fixed_actor_fault",
+            "102412"
+          ]
+        ],
+        "fixed_actor_origin": [
+          0,
+          -96,
+          -44
+        ],
+        "ROM_sha256": "fc2aa5ef70df53024a5aaeb23bf22995e13bcb0cb41780605e32d14e535edfcb",
+        "no_color_reduction": true,
+        "frame_identity_proven": false,
+        "motu_gameplay_proven": false,
+        "production_memory_lease": false
+      }
+    }
+  ],
+  "no_color_reduction": true,
+  "live_actor_source_frame_guard": false,
+  "production_memory_lease": false,
+  "joint_audio": false,
+  "motu_gameplay_proven": false,
+  "scope": "Lowest opaque actor source frame is compiler retained beneath source RGB8 SCREEN; mutable native origin is checked before output writes and DMA. A changed origin fails closed. No live source-frame owner or layer lease is bound."
+}

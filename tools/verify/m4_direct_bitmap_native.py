@@ -23,10 +23,11 @@ def selected_tiles(data,w,h,mask,bitmap=True):
  return b''.join(result)
 
 
-def covered_source_pixels(descriptors,origins,mask,w,h):
+def covered_source_pixels(descriptors,origins,mask,w,h,skip_actor=None):
  count=0
  for at in range(0,len(descriptors),16):
   row,left,length,origin,pointer=struct.unpack_from('<HHHHI',descriptors,at);ox,oy=struct.unpack_from('<hh',origins,origin);y=row+oy
+  if skip_actor is not None and origin==skip_actor*4:continue
   if not 0<=y<h:continue
   for x in range(max(0,left+ox),min(w,left+ox+length)):
    count+=int(mask[y//8,x//8])
@@ -67,9 +68,13 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
   high_target=ppu_boot['resources']['native_window_HIGH_VRAM'];low_target=49152
  baseline=b''.join(selected_tiles(v,w,h,mask)for v in canvases)
  worker,row_entries=row_kernel(w,h,tile_count if a.effect_tile_direct else None)
+ fixed_origin=(a.fixed_underlay_actor,*struct.unpack_from('<hh',origins,a.fixed_underlay_actor*4))if a.fixed_underlay_actor is not None else None
  rom,entries,producer=build(bg,descriptors,pixels,origins,w,h,expected_context_epoch=epoch,
-     bitmap_row_target=0x3500,bitmap_baselines=baseline,bitmap_actor_indices=actor_indices[0],notify_cpu=a.idle_direct_cpu,bitmap_tile_count=tile_count)
+     bitmap_row_target=0x3500,bitmap_baselines=baseline,bitmap_actor_indices=actor_indices[0],notify_cpu=a.idle_direct_cpu,bitmap_tile_count=tile_count,fixed_actor_origin=fixed_origin)
  rom=bytearray(rom)+bytearray([255])*1048576
+ if a.invalidate_fixed_underlay:
+  if fixed_origin is None:raise ValueError('FIXED_UNDERLAY_NEGATIVE_REQUIRES_GUARDED_ACTOR')
+  rom[0x30000+fixed_origin[0]*4]^=1
  rom[0x9c00:0x9c00+len(worker)]=worker
  for at,data in((0x60000,maps[0]),(0x70000,maps[1]),(0x100000,tables)):
   rom[at:at+len(data)]=data
@@ -95,7 +100,7 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
  observer+=f"emu.addMemoryCallback(function(a,v)if active then writes=writes+1;if a>={0x420000+bitmap_bytes} then bad=bad+1 end end end,emu.callbackType.write,0x420000,0x426000,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  observer+=f"emu.addMemoryCallback(function(a,v)regs[a]=v;if active and a==0x2237 and regs[0x2230]==0x84 then local dst=(regs[0x2235]or 0)+(regs[0x2236]or 0)*256+v*65536;local n=(regs[0x2238]or 0)+(regs[0x2239]or 0)*256;dmas=dmas+1;dmaBytes=dmaBytes+n;if dst~=0x20000 or n~={bitmap_bytes} then dmaBad=dmaBad+1 end end end,emu.callbackType.write,0x2230,0x2239,emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  for name,address in entries.items():
-  extra="active=true;writes=0;bad=0;dmas=0;dmaBytes=0;dmaBad=0"if name=='entry'else"active=false;emu.log('DIRECTBOUNDS|'..writes..'|'..bad..'|'..dmas..'|'..dmaBytes..'|'..dmaBad)"if name=='done'else''
+  extra="active=true;writes=0;bad=0;dmas=0;dmaBytes=0;dmaBad=0"if name=='entry'else"active=false;emu.log('DIRECTBOUNDS|'..writes..'|'..bad..'|'..dmas..'|'..dmaBytes..'|'..dmaBad)"if name in('done','fixed_actor_fault','epoch_fault')else''
   observer+=f"emu.addMemoryCallback(function()emu.log('DIRECTJOB|{name}|'..emu.getState().masterClock);{extra} end,emu.callbackType.exec,{address},{address},emu.cpuType.sa1,emu.memType.sa1Memory)\n"
  for name,address in vram_entries.items():observer+=f"emu.addMemoryCallback(function()emu.log('DIRECTVRAM|{name}|'..emu.getState().masterClock)end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,emu.memType.snesMemory)\n"
  if ppu_boot:
@@ -116,9 +121,13 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
   for phase,target in enumerate((b'\xa1\xb4',b'\xab\xb4')):
    for _ in range(60):
     run_frames_exact(m,1)
+    if a.invalidate_fixed_underlay:
+     marker=m.read_memory('SnesMemory',0x413ff0,2)
+     if marker==b'\xa3\xb4':break
     if m.read_memory('SnesMemory',0x7e0002,1)!=bytes([phase+1])or ppu_boot and phase==1 and m.read_memory('SnesMemory',0x7e0003,1)!=b'\x01':continue
     marker=m.read_memory('SnesMemory',0x413ff0,2)
     if marker==target:break
+   if a.invalidate_fixed_underlay and marker==b'\xa3\xb4':break
    if marker!=target:raise ValueError('DIRECT_BITMAP_NATIVE_COMPLETION:'+marker.hex())
    actual.append(m.read_memory('SnesMemory',0x420000,bitmap_bytes));vram.append(m.read_memory('SnesVideoRam',high_target,high_bytes)+m.read_memory('SnesVideoRam',low_target,low_bytes));counts.append(struct.unpack('<HH',m.read_memory('SnesMemory',0x413ff6,4)))
    if phase==0:
@@ -128,10 +137,16 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
    for _ in range(5):run_frames_exact(m,1)
    shot=m.tool('take_screenshot',{'format':'path'});shutil.copyfile(shot['path'],out/'screenshot.png')
  log=(out/'mesen.log').read_text().splitlines();jobs=[v.split('DIRECTJOB|',1)[1].split('|')for v in log if'DIRECTJOB|'in v];bounds=[[int(n)for n in v.split('DIRECTBOUNDS|',1)[1].split('|')]for v in log if'DIRECTBOUNDS|'in v]
+ if a.invalidate_fixed_underlay:
+  ok=marker==b'\xa3\xb4'and bounds==[[0,0,0,0,0]]and[v[0]for v in jobs]==['entry','fixed_actor_fault']
+  report=dict(schema='BYOR_FIXED_UNDERLAY_NATIVE_REJECTION_V1',status='PASS'if ok else'FAIL',marker=marker.hex(),native_write_and_DMA_trace=bounds,native_job_events=jobs,fixed_actor_origin=fixed_origin,ROM_sha256=hashlib.sha256(rom).hexdigest(),no_color_reduction=True,frame_identity_proven=False,motu_gameplay_proven=False,production_memory_lease=False)
+  (out/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))
+  if not ok:raise SystemExit(1)
+  return
  expected=[selected_tiles(v,w,h,mask)for v in contexts[2]];packed=[selected_tiles(v,w,h,mask,False)for v in contexts[2]]
  masked_counts=[]
  for shift in(0,a.move_x):
-  changed=bytearray(origins);offset=moving[0]*4;struct.pack_into('<h',changed,offset,struct.unpack_from('<h',changed,offset)[0]+shift);masked_counts.append(covered_source_pixels(descriptors,changed,mask,w,h))
+  changed=bytearray(origins);offset=moving[0]*4;struct.pack_into('<h',changed,offset,struct.unpack_from('<h',changed,offset)[0]+shift);masked_counts.append(covered_source_pixels(descriptors,changed,mask,w,h,a.fixed_underlay_actor))
  expected_bounds=[[2*count,0,1,bitmap_bytes,0]for count in masked_counts]
  clocks=[int(jobs[i+1][1])-int(jobs[i][1])for i in(0,2)]if[v[0]for v in jobs]==['entry','done']*2 else None
  ok=actual==expected and vram==packed and bounds==expected_bounds and clocks is not None
@@ -140,6 +155,7 @@ def run(a,out,bg,descriptors,pixels,origins,actors,moving,window,contexts,canvas
      bitmap_byte_mismatches=[sum(a!=b for a,b in zip(v,e))for v,e in zip(actual,expected)],VRAM_byte_mismatches=[sum(a!=b for a,b in zip(v,e))for v,e in zip(vram,packed)],
      native_span_and_pixel_counts=counts,write_and_DMA_bounds=bounds,expected_write_and_DMA_bounds=expected_bounds,
      source_effect_tile_mask=a.effect_tile_direct,promoted_native_window_tiles=tile_count,bitmap_bytes=bitmap_bytes,actor_pixels_in_promoted_tiles=masked_counts,
+     fixed_underlay_actor=a.fixed_underlay_actor,fixed_underlay_native_origin_guard=fixed_origin,fixed_underlay_source_frame_immutable_in_ROM=fixed_origin is not None,live_actor_source_frame_guard=False,
      master_clocks=clocks,milliseconds=[v/21477.27 for v in clocks]if clocks else None,native_bitmap_sha256=[hashlib.sha256(v).hexdigest()for v in actual],
      no_color_reduction=True,alpha_policy='Exact source RGB8 SCREEN before RGB555 conversion',
      SCPU_WAI_during_source_job=a.idle_direct_cpu,source_job_completion_IRQ=a.idle_direct_cpu,production_CPU_contention_admitted=False,
