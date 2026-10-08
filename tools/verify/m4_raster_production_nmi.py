@@ -23,7 +23,7 @@ def offset(address):
     return (address>>16)*32768+(address&65535)-32768
 
 
-def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm='',audio_service=False,source_clock=False,palette_count=None,compact_canvas_nmi=False,sparse_targets=False,serialize_audio_raster=False,continuous_audio_pump=False,source_audio_index=None,early_source_packet_staging=False):
+def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=False,palette_prefix=0,frame_hook=None,extra_asm='',audio_service=False,source_clock=False,palette_count=None,compact_canvas_nmi=False,sparse_targets=False,serialize_audio_raster=False,continuous_audio_pump=False,source_audio_index=None,early_source_packet_staging=False,retire_legacy_water=False):
     if serialize_audio_raster and not (audio_service and sparse_targets):raise ValueError('AUDIO_RASTER_RESERVATION_OWNER_REQUIRED')
     if continuous_audio_pump and not serialize_audio_raster:raise ValueError('CONTINUOUS_AUDIO_REQUIRES_RASTER_RESERVATION')
     if early_source_packet_staging and source_audio_index is None:raise ValueError('EARLY_SOURCE_PACKET_OWNER_REQUIRED')
@@ -38,6 +38,11 @@ def build(raw,report,folder,original,sy,canvas_nmi=False,direct_targets_rom=Fals
     if not 1<=palette_count<=236-palette_prefix:raise ValueError('INITIAL_PALETTE_COUNT_RANGE')
     asm='.snes\nStageWater_Nmi = $%06X\n'%sy['StageWater_Nmi']+emit(contract if canvas_nmi else None,
          0xb48000 if direct_targets_rom else None,(4+palette_prefix,palette_count),frame_hook,compact_canvas_nmi,sparse_targets)
+    if retire_legacy_water:
+        if not canvas_nmi:raise ValueError('WATER_RETIRE_REQUIRES_CANVAS_OWNER')
+        marker='    jsl StageWater_Nmi\n'
+        if asm.count(marker)!=1:raise ValueError('WATER_NMI_OWNER_HANDOFF')
+        asm=asm.replace(marker,'    nop\n    nop\n    nop\n    nop\n')
     asm+='\n.bank 39\n.org $C000\nSourceRasterFetchWrapper:\n.a16\n.i16\n'+fetch_prologue(clear_decimal=sparse_targets)
     if sparse_targets:
         # Ordinary JSR callers still return through the existing bank-zero RTS.
@@ -379,12 +384,15 @@ SourceCanvasAsadPrefillDone:
     # Retire the ordinary frontpanel producer before acquiring that resource.
     for name in ('StageFp_BG2Loaded','StageFp_BG2Active','StreamScrollFp_ColPending','StreamScrollFp_Enabled'):
         shadows[sy[name]]=0
+    if retire_legacy_water:
+        shadows[sy['StageWater_Enabled']]=0
+        shadows[sy['StageWater_Pending']]=0
     # Offset-map address is derived from the actual private BG register setup.
     at=private[0x8000:0x8400].find(bytes.fromhex('8d 09 21'))
     shadows[0x7e5011]=private[0x8000+at-1]
     for address,value in shadows.items():code.extend(bytes([0xa9,value,0x8f,address&255,(address>>8)&255,address>>16]))
     code.extend(bytes.fromhex('c2 30'))
-    for address,value in [(0x7ff862,0xb4b1 if canvas_nmi else 0),(0x7e5017,0),(0x7e5019,65535),(0x7e501b,0),(0x7e501d,65535),(0x7e501f,0),(0x7e5021,0)]:
+    for address,value in [(0x7ff866,0xb672 if retire_legacy_water else 0),(0x7ff862,0xb4b1 if canvas_nmi else 0),(0x7e5017,0),(0x7e5019,65535),(0x7e501b,0),(0x7e501d,65535),(0x7e501f,0),(0x7e5021,0)]:
         code.extend(bytes([0xa9,value&255,value>>8,0x8f,address&255,(address>>8)&255,address>>16]))
     # Asset loading and shadow installation can finish late in VBlank.
     # Enabling NMI there immediately services its pending flag with too little

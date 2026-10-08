@@ -247,6 +247,7 @@ emu.addMemoryCallback(function()emu.log('GRAPHICS|released|'..emu.getState().mas
 def main():
     p=argparse.ArgumentParser();p.add_argument('--rom',type=Path,required=True)
     p.add_argument('--hybrid-ppu',action='store_true')
+    p.add_argument('--foreign-workspace',action='store_true')
     p.add_argument('--graphics',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     a=p.parse_args();a.rom=a.rom.resolve();a.graphics=a.graphics.resolve()
     out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
@@ -285,12 +286,22 @@ def main():
         converter,descriptors=conversion_asm(high_target,gr['promoted_native_window_tiles'])
         asm=asm.replace(' cmp #6',' cmp #2',1)+converter
         lua+=observer()
+    if a.foreign_workspace:
+        if not a.hybrid_ppu:raise ValueError('FOREIGN_WORKSPACE_REQUIRES_REAL_CANVAS')
+        import m4_foreign_workspace_probe as foreign
+        foreign_sy=symbols(Path('src/main.sym'))
+        foreign_asm=foreign.ASM
+        for name in ('SourceForeignWork_Init','SourceForeignWork_Check'):
+            foreign_asm=foreign_asm.replace(name,str(foreign_sy[name]))
+        asm+=foreign_asm
+        lua+=foreign.observer(foreign_sy)
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm);lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     r=Reporter('M4-COOPERATIVE-SOURCE-GRAPHICS-NATIVE',kind='GATE');world={}
     def transform(raw,sy):
         if a.hybrid_ppu:
-            revised,resources=install(raw,sy,a.graphics,out)
+            revised,resources=install(raw,sy,a.graphics,out,foreign_workspace=a.foreign_workspace)
             raw[:]=revised;ppu.update(resources=resources,descriptors=descriptors)
+            if a.foreign_workspace:foreign.install(raw,sy)
         install_workspace_gate(raw,symbols(a.rom.parent/'worker.sym'),sy)
         if any(raw[0x200000:]):raise ValueError('GRAPHICS_ROM_TAIL_RESERVATION')
         raw[0x200000:]=sealed
@@ -306,6 +317,7 @@ def main():
             run_frames_exact(m,1)
         if startup.u16(m,0x7e175c)==0:raise ValueError('GRAPHICS_RESIDENT_WORLD_NOT_ACQUIRED')
         m.write_u16(REQUEST+6,0)
+        if a.foreign_workspace:m.write_u16(0x7fbfe2,0)
         for name in ('SourceVMRun4086_Ready','SourceVMRun4086_Busy','VmSourceFrame_Pending'):m.write_u16(sy[name],0)
         world['ack_before']=startup.u16(m,0x412004)
     def close(m,sy,completed):
@@ -344,6 +356,7 @@ def main():
             shot=m.tool('take_screenshot',{'format':'path'});shutil.copyfile(shot['path'],out/'screenshot.png')
     probes=dict(ACQUIRED='GraphicsAcquired',PRODUCED='GraphicsProduced',RELEASED='GraphicsReleased',INPUTSREADY='GraphicsInputsReady')
     if a.hybrid_ppu:probes.update(CONVERSIONACQUIRED='GraphicsCanvasLeaseAcquired',CONVERSIONDONE='GraphicsCanvasConversionDone')
+    if a.foreign_workspace:probes.update(FWINIT='ForeignLeaseInit',FWINITIALIZED='ForeignLeaseInitialized',FWCASE='ForeignLeaseCase',FWRESULT='ForeignLeaseResult',FWRESTORE='ForeignLeaseRestore')
     raw,log=run_fixture(a.rom,out,[{} for _ in range(cases)],'GraphicsFixture','SourceAudio_Status',0xb4ad,[],lua,r,
                        append=asm,bindings=dict(REALWAIT='Tad_StreamWaitFrame'),
                        probes=probes,
@@ -370,8 +383,10 @@ def main():
     r.check('resident context and legacy mailbox unchanged',log.count('GRAPHICS|resident|0')==cases)
     r.check('native writes remain in owned graphics inputs and output',log.count('GRAPHICS|writes|0')==cases)
     r.check('resident world resumes without a fault',world['ack_after']>world['ack_before']and world['state']==startup.PLAYING and world['fault']=='000000'and world['lease']==0)
+    foreign_report=foreign.checks(log,r) if a.foreign_workspace else None
     report=dict(schema='BYOR_COOPERATIVE_SOURCE_GRAPHICS_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',checks=r.results,ROM_sha256=hashlib.sha256(raw).hexdigest(),graphics_component_ROM=gr['ROM_sha256'],bitmap_sha256=hashes,native_status=statuses,world=world,producer_bytes=len(producer),row_bytes=len(row),origin_bytes=origin_bytes,live_source_camera_binding=False,PPU_publication_proven=False,production_payload_lease=False,motu_gameplay_proven=False,no_color_reduction=True)
     report.update(timings=timings,row_fault_test_policy='test-only row entry JMP to existing palette failure handler; not a palette capacity proof')
+    if foreign_report is not None:report['foreign_workspace']=foreign_report
     if a.hybrid_ppu:
         from m4_direct_bitmap_native import selected_tiles
         import numpy as np

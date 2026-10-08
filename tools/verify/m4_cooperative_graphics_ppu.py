@@ -144,7 +144,7 @@ GraphicsCanvasConverted:
     return code,descriptors
 
 
-def install(raw,sy,graphics,folder):
+def install(raw,sy,graphics,folder,foreign_workspace=False):
     context=graphics/'palette-context-1'
     assets=context/'native-input'
     report=json.loads((assets/'report.json').read_text())
@@ -157,7 +157,7 @@ def install(raw,sy,graphics,folder):
         obj_chr=obj,oam=(context/'oam.bin').read_bytes(),obj_obsel=source['native_obsel'],
         obj_rom_bank=5,obj_rom_address=0xb000)
     rom,gates=build(component,report,folder,bytes(raw),sy,canvas_nmi=True,
-                    compact_canvas_nmi=True)
+                    compact_canvas_nmi=True,retire_legacy_water=foreign_workspace)
     rom=bytearray(rom)
     # Insert the returning conversion call after static atlas/PPU setup and
     # before the owner's fresh VBlank edge and visible publication.

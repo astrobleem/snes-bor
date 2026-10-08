@@ -15,4 +15,5 @@ SourceNativeCold4086_Clear:
     sta.l SourceAnimationInit4086_Ready
     sta.l SourceFrameStack4086_Ready
     sta.l SourceNativeRequest4086_Ready
+    sta.l SourceForeignWork_Ready
     rtl

@@ -14073,3 +14073,8 @@ SourceVM_InstructionReservation:
 
 ; Compiler opt-in cooperative SA-1 worker safepoint, also outside bank zero.
 .include "core/source_workspace_sa1.pasm"
+
+; Explicit retired-frontpanel overlay for the exclusive foreign canvas owner.
+.bank 51
+.org $8000
+.include "core/source_foreign_workspace.pasm"
