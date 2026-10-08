@@ -14003,6 +14003,7 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_arrow_move.pasm"
 
 .include "core/vm/vm_source_check_move.pasm"
+.include "core/vm/vm_source_gravity_idle.pasm"
 
 .include "core/vm/vm_source_native_continuation.pasm"
 

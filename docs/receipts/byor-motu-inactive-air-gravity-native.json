@@ -1,0 +1,226 @@
+{
+  "schema": "BYOR_MOTU_INACTIVE_AIR_GRAVITY_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_function_sha256": "7fc43295eae6b9b18e51427af8cd163c0d70bdec83805f79212c768195c5ef77",
+  "adjust_base_function_sha256": "56c38a538e050b24d8b0b1335d8b6eb74c658170a8e578e13a5f9164bdb534c3",
+  "authority_cases": 852,
+  "native_cases": 192,
+  "evidence": {
+    "authority": {
+      "path": "out/byor-motu-check-gravity-idle-authority/report.json",
+      "sha256": "d98601e33ec3211d55f0f38a3e2c24ac0b2f01b5e85a2e176053856b5122ac5d"
+    },
+    "native": {
+      "path": "out/byor-motu-gravity-idle-native/report.json",
+      "sha256": "1b86ab7b808b86cca4a9d1bd11ad700b41237e6353e517fb4d947b34c19a098d"
+    },
+    "left": {
+      "path": "out/byor-motu-authored-gravity-left-audio-native/report.json",
+      "sha256": "8192cf0dd1640c88553968ac6d29ac0c638c3f2ebec4fa05af0c7fd9e942298f"
+    },
+    "right": {
+      "path": "out/byor-motu-authored-gravity-right-audio-native/report.json",
+      "sha256": "969b8354893222fb8ed51554f30df82b082273d8da26dc3b25d679f8f38afdc7"
+    }
+  },
+  "native_rom_sha256": "9d9d6fcdd8b907541453a797e3c36f8ae8298321cf645b6b43893de900d76b63",
+  "authored_children": [
+    {
+      "direction": "left",
+      "gravity_observations": [
+        [
+          0,
+          1,
+          0,
+          146,
+          2,
+          10,
+          2228224,
+          2228224,
+          0,
+          2
+        ]
+      ],
+      "move_observations": [
+        [
+          0,
+          1,
+          5242880,
+          5144576,
+          14483456,
+          14483456,
+          2228224,
+          2228224,
+          4294868992,
+          0,
+          146,
+          2,
+          14,
+          2,
+          2
+        ]
+      ],
+      "audio_verification": {
+        "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+        "status": "PASS",
+        "source_path": "data/chars/KnBot/energy.wav",
+        "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+        "compiled_brr_sha256": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b",
+        "compiled_brr_bytes": 8073,
+        "chunks": 57,
+        "meaningful_byte_mismatches": 0,
+        "padding_byte_mismatches": 0,
+        "observer_peak_chunk_gap": 1,
+        "observed_consumer_underruns": 0,
+        "first_active_field": 23,
+        "last_active_field": 100,
+        "active_fields": 78,
+        "expected_active_fields": 78.24583461623554,
+        "effective_sample_rate_hz": 11023.4375,
+        "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+        "prefill_chunks": 7,
+        "voice0_srcn": 33,
+        "voice0_pitch": 1411,
+        "voice0_gain": 127,
+        "final_voice0_envelope": 0,
+        "audio_recording_pcm_sha256": "1351851941b25ca71c8eca1654285d4161c19afda089f3c17b6d50133740744d",
+        "audio_recording_file_sha256": "be68b9c3e4687e9c19a1ad3a5035ce13370ef03b1d5c5b59c29abe275ce3dcd3",
+        "dsp_source_block_traversal": {
+          "source_blocks": 897,
+          "observed_blocks": 897,
+          "skipped_blocks": 0,
+          "repeated_blocks": 0,
+          "block_fingerprint_mismatches": 0,
+          "dsp_samples": 41589,
+          "endx_sample": 41589,
+          "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+          "trace_sha256": "12d921f69ff7e0fa946b1106239c0bf6de7c21e8a9c2cc94704d6966b93a83c5"
+        },
+        "policy": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 2
+        },
+        "private_runtime_only": true,
+        "legacy_gameplay_paused": true,
+        "sample_exact_recording_proven": false,
+        "concurrent_audio_proven": false,
+        "production_binding_installed": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "shared_wait_context_observations": 103,
+        "shared_wait_context_faults": 0
+      }
+    },
+    {
+      "direction": "right",
+      "gravity_observations": [
+        [
+          0,
+          1,
+          0,
+          146,
+          2,
+          10,
+          2228224,
+          2228224,
+          0,
+          2
+        ]
+      ],
+      "move_observations": [
+        [
+          0,
+          1,
+          5242880,
+          5341184,
+          14483456,
+          14483456,
+          2228224,
+          2228224,
+          98304,
+          0,
+          146,
+          2,
+          14,
+          2,
+          2
+        ]
+      ],
+      "audio_verification": {
+        "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+        "status": "PASS",
+        "source_path": "data/chars/KnBot/energy.wav",
+        "source_sha256": "f3ca27e99f3542c10024683fb55a2285590b73af4df77419733373868682935c",
+        "compiled_brr_sha256": "4cf87dc1c740b105a39ebccd886007f29575f2c3a351b1c2d545b771b5b1e46b",
+        "compiled_brr_bytes": 8073,
+        "chunks": 57,
+        "meaningful_byte_mismatches": 0,
+        "padding_byte_mismatches": 0,
+        "observer_peak_chunk_gap": 1,
+        "observed_consumer_underruns": 0,
+        "first_active_field": 23,
+        "last_active_field": 100,
+        "active_fields": 78,
+        "expected_active_fields": 78.24583461623554,
+        "effective_sample_rate_hz": 11023.4375,
+        "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+        "prefill_chunks": 7,
+        "voice0_srcn": 33,
+        "voice0_pitch": 1411,
+        "voice0_gain": 127,
+        "final_voice0_envelope": 0,
+        "audio_recording_pcm_sha256": "b217f96330ea7ce22fcf6a36f6517a4a37545254a31c28b0fc385b435487e5e3",
+        "audio_recording_file_sha256": "66a2e74c1a527437e213c56dadaa55a19774ee170ba8eb35b27123b95c647b18",
+        "dsp_source_block_traversal": {
+          "source_blocks": 897,
+          "observed_blocks": 897,
+          "skipped_blocks": 0,
+          "repeated_blocks": 0,
+          "block_fingerprint_mismatches": 0,
+          "dsp_samples": 41589,
+          "endx_sample": 41589,
+          "voice_pcm_sha256": "dd6f41dda0900d93da14f94c98b6177d3e2f0393cad1b01f23f560ae52daad7e",
+          "trace_sha256": "12d921f69ff7e0fa946b1106239c0bf6de7c21e8a9c2cc94704d6966b93a83c5"
+        },
+        "policy": {
+          "tool": "ffmpeg",
+          "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+          "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+          "rate_hz": 11025,
+          "padded_frames": 2
+        },
+        "private_runtime_only": true,
+        "legacy_gameplay_paused": true,
+        "sample_exact_recording_proven": false,
+        "concurrent_audio_proven": false,
+        "production_binding_installed": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "shared_wait_context_observations": 103,
+        "shared_wait_context_faults": 0
+      }
+    }
+  ],
+  "capability": "SOURCE_CHECK_GRAVITY_INACTIVE_AIR_STICKY_BASE",
+  "lease": "B618 plus actual source identity/self/tick/freeze and B504 closed platform environment. Compiler contract falling=0 and no binding/platform mutation capability; actual no_adjust_base>0, typed altitude==base and zero vertical velocity checked.",
+  "inactive_air_branch_proven": true,
+  "adjust_base_sticky_empty_platform_branch_proven": true,
+  "active_airborne_or_landing_proven": false,
+  "world_post_update_ack_proven": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "original_bor_static_smoke": {
+    "path": "out\\byor-motu-gravity-idle-bor-static-smoke\\report.json",
+    "sha256": "4a629b4459fcaca372499e85496706b6b5b333116558986fb2307f255c12a697",
+    "status": "PASS"
+  },
+  "rom_audit": "ALL CHECKS PASS",
+  "bank_zero_growth_bytes": 0,
+  "bank_zero_changes_only_external_relocations": true,
+  "bank63_remaining_bytes": 1172
+}

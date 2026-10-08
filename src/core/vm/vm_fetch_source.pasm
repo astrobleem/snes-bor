@@ -43,6 +43,8 @@ Vm_FetchSourceInit:
     sta.l SourceEnvironment4086_Ready
     sta.l SourceArrowMove4086_Ready
     sta.l SourceArrowMove4086_Status
+    sta.l SourceGravityIdle4086_Ready
+    sta.l SourceGravityIdle4086_Status
     sta.l SourceCheckMove4086_Ready
     sta.l SourceCheckMove4086_Status
     sta.l SourceTarget4086_Ready
