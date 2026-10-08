@@ -1,0 +1,108 @@
+{
+  "schema": "BYOR_NATIVE_COMPUTED_BRR_PRODUCTION_TRANSPORT_RECEIPT_V1",
+  "status": "PASS",
+  "proof": {
+    "path": "out/byor-motu-computed-brr-production-transport-native/report.json",
+    "sha256": "7b43e313cf4b881a1c2f53dfad0c6896dde7ca8f7bb7b05b53a7d67fe7c17522",
+    "report": {
+      "schema": "BYOR_COMPUTED_BRR_PRODUCTION_TRANSPORT_NATIVE_V1",
+      "status": "PASS",
+      "checks": [
+        [
+          "cold reset enters INTRO, not TITLE/PLAYING",
+          true
+        ],
+        [
+          "cold reset is not PLAYING",
+          true
+        ],
+        [
+          "INTRO remains reachable through second scene card",
+          true
+        ],
+        [
+          "INTRO -> TITLE",
+          true
+        ],
+        [
+          "native leaf batch completed",
+          true
+        ],
+        [
+          "native produced BRR matches authority before transport",
+          true
+        ],
+        [
+          "native produced source mixture matches pinned C",
+          true
+        ]
+      ],
+      "proof": {
+        "schema": "BYOR_SOURCE_STREAM_PRIVATE_NATIVE_V1",
+        "status": "PASS",
+        "source_path": "private-proof/computed-twelve-source-buffer",
+        "source_sha256": "081529b6f018a5ca4ef1b1f1b5772902b948d3890cfb8b37582baa8604778fe8",
+        "compiled_brr_sha256": "459b599008259c8e360ef740f06dba5cac7605df07280863c706391a1ccce935",
+        "compiled_brr_bytes": 108,
+        "chunks": 1,
+        "meaningful_byte_mismatches": 0,
+        "padding_byte_mismatches": 0,
+        "observer_peak_chunk_gap": 1,
+        "observed_consumer_underruns": 0,
+        "first_active_field": 10,
+        "last_active_field": 10,
+        "active_fields": 1,
+        "expected_active_fields": 1.0467670182773985,
+        "effective_sample_rate_hz": 11023.4375,
+        "start_latency_observation": "First envelope observation relative to post-request native observer; not source-event exact timing",
+        "prefill_chunks": 0,
+        "voice0_srcn": 33,
+        "voice0_pitch": 1411,
+        "voice0_gain": 127,
+        "final_voice0_envelope": 0,
+        "audio_recording_pcm_sha256": "0d80996c608bbd26ee17efe822b74fa296edf85c35eefe1db4e40adb26330508",
+        "audio_recording_file_sha256": "20ef7a7056929c8a97fe50f07142e4bdfd3eeb853bfafa512515929a2566562d",
+        "dsp_source_block_traversal": {
+          "source_blocks": 12,
+          "observed_blocks": 12,
+          "skipped_blocks": 0,
+          "repeated_blocks": 0,
+          "block_fingerprint_mismatches": 0,
+          "dsp_samples": 484,
+          "endx_sample": 484,
+          "voice_pcm_sha256": "e1eaeec41c45debcb879f0c58a2c402d0da2bd7791065b5abb64cfe3e061eef9",
+          "trace_sha256": "964538995808cbdfbb1cb7507e9e58f70656024b53e85d5beaa7148321168a2d"
+        },
+        "policy": {
+          "policy": "ACCEPTED_COMPAT",
+          "output": "mono 11025 uniform gain 64; native predictive BRR"
+        },
+        "private_runtime_only": true,
+        "legacy_gameplay_paused": true,
+        "sample_exact_recording_proven": false,
+        "concurrent_audio_proven": false,
+        "production_binding_installed": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true
+      },
+      "ROM_sha256": "56e98e415c1b18bd6f52be48e25a9d10c9aabdc3cb6b50c07cbadc7fd717c470",
+      "producer_component_ROM": "58ca8bd4ca794c71eee88ed2db9d0ff98304a3e22b501f760ca74d8490ae2611",
+      "native_source_voices": 12,
+      "native_output_samples": 192,
+      "buffer_pointer": "422200",
+      "native_producer_to_production_TAD": true,
+      "source_workspace_lease_installed": false,
+      "SA1_worker_replaced_in_private_paused_fixture": true,
+      "continuous_mixing": false,
+      "joint_hybrid_graphics": false,
+      "motu_gameplay_proven": false,
+      "no_color_reduction": true
+    }
+  },
+  "no_color_reduction": true,
+  "source_CHR_lease_installed": false,
+  "continuous_mixing": false,
+  "joint_hybrid_graphics": false,
+  "motu_gameplay_proven": false,
+  "scope": "Paused original production runtime replaces its dormant SA-1 worker in a private fixture, natively gathers twelve actual source channels, mixes pinned C PCM and produces predictive BRR. The production TAD path then reads that completed BW-RAM buffer and plays all twelve DSP blocks with exact fingerprints and ENDX. An ASAD reset followed by a private typed buffer offer is instrumented; no production computed-buffer admission or live sound owner is installed."
+}
