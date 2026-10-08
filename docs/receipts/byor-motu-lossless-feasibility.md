@@ -1336,3 +1336,7 @@ Additional layer parameters, vertical scrolling, water and quake still fail
 explicitly. These are offline source composition capabilities; a live camera
 owner, world geometry gathering and native changed-context publication remain
 pending. No color reduction is applied.
+
+### Ordinary arrow movement backend
+
+The pinned arrow_move reference matches 960 verbatim compiled-C cases. The native zero-ptype, empty-wall capability passes 77 physical-row/CPU-state cases and ten production common_move priority cases. Arrow runs before STAR/BOMB/NOMOVE and airborne rejection; BIKER retains precedence. The backend preserves vertical velocity and the actual autokill field. Homing, nonempty-wall reactions, stale stage leases, and invalid typed fields fail explicitly. This is velocity publication under ACCEPTED_COMPAT_Q16_16; position integration and live scripted projectile travel are still unproven. Evidence: `byor-motu-arrow-move-native.json`.

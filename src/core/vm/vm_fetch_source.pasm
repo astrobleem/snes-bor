@@ -41,6 +41,8 @@ Vm_FetchSourceInit:
     sta.l VmSourceInput_Ready
     sta.l SourceClock4086_Ready
     sta.l SourceEnvironment4086_Ready
+    sta.l SourceArrowMove4086_Ready
+    sta.l SourceArrowMove4086_Status
     sta.l SourceTarget4086_Ready
     sta.l SourceTarget4086_OrderReady
     sta.l SourceRandom4086_Ready

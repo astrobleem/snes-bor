@@ -1,0 +1,51 @@
+{
+  "schema": "BYOR_MOTU_ARROW_MOVE_RECEIPT_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_function_sha256": "74d8712bfa7d35b205dd0eb41d0eefac5c3dc5ff9f37c4b6c1d645e13ad15cc8",
+  "authority_cases": 960,
+  "native_cases": 77,
+  "dispatcher_cases": 10,
+  "evidence": {
+    "authority": {
+      "path": "out/byor-motu-arrow-move-authority/report.json",
+      "sha256": "4de104fe1d1760f869a8c30d468332cdba876afeedce5a9a6e36ad7bfc2bd495"
+    },
+    "native": {
+      "path": "out/byor-motu-arrow-final-native/report.json",
+      "sha256": "b99ba427efaa3db6c57b8ae7ef21f964ecd60f346a18065b8c83d898cb40e0f1"
+    },
+    "dispatcher": {
+      "path": "out/byor-motu-arrow-dispatch-native/report.json",
+      "sha256": "5d60bf2b30cf28c657ca207aaf6811af4cb969526566dd34ca3151b9fc9ea251"
+    },
+    "common_thinker_regression": {
+      "path": "out/byor-motu-arrow-common-run-regression/report.json",
+      "sha256": "2213864f1fca8cc073ed20f8061beaeeeb220f99075f4c653599e186928c833d"
+    },
+    "bor_static_smoke": {
+      "path": "out/byor-motu-arrow-bor-static-smoke/report.json",
+      "sha256": "70f435b5ee382e70dc270e7bb3b1c396d2d5614cf29df029b6db625d81e46d24"
+    }
+  },
+  "capability": "ORDINARY_ARROW_ZERO_PTYPE_EMPTY_WALL_STAGE",
+  "native_coordinate_policy": "ACCEPTED_COMPAT_Q16_16",
+  "source_policy": "non-CHASE; direction LEFT/RIGHT sets velocity.x from actual modeldata.speed; other directions retain x; velocity.z unchanged; autokill |= zero retains real actor value",
+  "dispatcher_policy": "common_move computes inair first; BIKER precedes ARROW; ARROW precedes STAR/BOMB/NOMOVE and airborne ordinary rejection",
+  "native_faults": [
+    "invalid owner and common_think state",
+    "nonempty walls or stale stage identity",
+    "CHASE subtype",
+    "unbound model/speed lifecycle",
+    "noninteger/reserved direction variant",
+    "unrepresentable Q16 negation"
+  ],
+  "bank_zero_growth_bytes": 0,
+  "protected_dirty_tracked_files": 17,
+  "width_guard": "raw zero violations; audit_all ALL CHECKS PASS",
+  "position_integration_proven": false,
+  "live_scripted_projectile_movement_proven": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "cold_fetch_revokes_arrow_capability": true
+}

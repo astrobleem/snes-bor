@@ -353,8 +353,23 @@ SourceAIReadonly4086_MoveMask:
  lda.l $40C034,x
  and #$0780
  beq SourceAIReadonly4086_MoveOrdinary
- ; Biker/arrow/star/bomb have priority even with NOMOVE or an airborne actor.
+ ; Biker has source priority over arrow; star/bomb require their own backends.
+ and #$0180
+ cmp #$0100
+ beq SourceAIReadonly4086_MoveArrow
  jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_MoveArrow:
+.a16
+.i16
+ lda #0
+ sta.l SourceArrowMove4086_Status
+ jsl SourceArrowMove4086_Execute
+ bcc SourceAIReadonly4086_MoveArrowDone
+ jmp SourceAIReadonly4086_Bad
+SourceAIReadonly4086_MoveArrowDone:
+.a16
+.i16
+ jmp SourceAIReadonly4086_True
 SourceAIReadonly4086_MoveOrdinary:
 .a16
 .i16
