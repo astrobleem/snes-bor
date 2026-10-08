@@ -1,0 +1,2294 @@
+{
+  "schema": "BYOR_SCREEN_INCREMENTAL_AND_ANIMATION_COST_RECEIPT_V1",
+  "status": "MEASURED_EXACT_COMPONENTS_LIVE_RENDERER_UNBOUND",
+  "reports": [
+    {
+      "path": "out/byor-motu-screen-dirty-gather-native/report.json",
+      "sha256": "2d1424c30c09de47be099883d9a7e23d0bb8fcba5c92a47be4a13ab50fac228b",
+      "result": {
+        "schema": "BYOR_GROUPED_SOURCE_SCREEN_NATIVE_V1",
+        "status": "PASS",
+        "opaque_pixels": 2751,
+        "source_color_groups": 205,
+        "group_descriptors_bytes": 2480,
+        "mutable_pixel_buffer_bytes": 11004,
+        "worker_IRAM_bytes": 472,
+        "RGB555_byte_mismatches": [
+          0,
+          0
+        ],
+        "master_clocks": [
+          597984,
+          39786
+        ],
+        "milliseconds": [
+          27.842644805415212,
+          1.8524700765041366
+        ],
+        "rom_sha256": "56e4dd003dd862311e4b33bc387f60bbd436b8374694a466a61dbc02bca719be",
+        "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+        "in_place_destination_to_RGB555": true,
+        "destination_range_and_alignment_checked": true,
+        "invalid_destination": null,
+        "busy_host_BWRAM_reads": true,
+        "source_poses": [
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  80,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          },
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  50,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          }
+        ],
+        "geometry_gathering_native": false,
+        "online_palette_allocation_native": false,
+        "CHR_publication_native": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "IRAM_DMA_cache": false,
+        "cache_IRAM_bytes": 0,
+        "normal_DMA_setup_and_transfer_in_timing": false,
+        "group_packets": 310,
+        "native_underlay_plane_gather": true,
+        "underlay_plane_storage": "precomposed source RGB8 identity planes in ROM",
+        "underlay_plane_bytes": [
+          114688,
+          114688
+        ],
+        "live_underlay_composition_native": false,
+        "screen_addresses_source_derived": true,
+        "underlay_plane_sha256": [
+          "e6c03492ffb25aa3100dfd4a2bea681dbf85969dca3588aa836147942480959f",
+          "36ab5a76b12ec535f38b1e0a5648b8537722bf232d7ef8ed370e99e968c11879"
+        ],
+        "source_color_plane_bank_groups": 270,
+        "scope": "Native source-address gather and exact SCREEN shader over two precomposed opaque underlays. No native layer composition, palette allocation, CHR publication, production lease or gameplay admission.",
+        "incremental_underlay_update": true,
+        "changed_underlay_pixels": 142,
+        "retained_output_pixels": 2609,
+        "dirty_selection_native": false,
+        "output_range_and_alignment_checked": true
+      }
+    },
+    {
+      "path": "out/byor-motu-screen-native-dirty-gather-observed/report.json",
+      "sha256": "e9d25e7b012396b4e57bdd9e38df3b6caef19869d252bf9ce8c602acb137a3bf",
+      "result": {
+        "schema": "BYOR_GROUPED_SOURCE_SCREEN_NATIVE_V1",
+        "status": "PASS",
+        "opaque_pixels": 2751,
+        "source_color_groups": 205,
+        "group_descriptors_bytes": 4320,
+        "mutable_pixel_buffer_bytes": 11004,
+        "worker_IRAM_bytes": 584,
+        "RGB555_byte_mismatches": [
+          0,
+          0
+        ],
+        "master_clocks": [
+          978710,
+          516318
+        ],
+        "milliseconds": [
+          45.56957192417845,
+          24.040206227327776
+        ],
+        "rom_sha256": "2309089c53af4802e47ea9d21b9548694f8302f12dbb68a3a16b664f963d79ee",
+        "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+        "in_place_destination_to_RGB555": true,
+        "destination_range_and_alignment_checked": true,
+        "invalid_destination": null,
+        "busy_host_BWRAM_reads": true,
+        "source_poses": [
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  80,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          },
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  50,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          }
+        ],
+        "geometry_gathering_native": false,
+        "online_palette_allocation_native": false,
+        "CHR_publication_native": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "IRAM_DMA_cache": false,
+        "cache_IRAM_bytes": 0,
+        "normal_DMA_setup_and_transfer_in_timing": false,
+        "group_packets": 540,
+        "native_underlay_plane_gather": true,
+        "underlay_plane_storage": "precomposed source RGB8 identity planes in ROM",
+        "underlay_plane_bytes": [
+          114688,
+          114688
+        ],
+        "live_underlay_composition_native": false,
+        "screen_addresses_source_derived": true,
+        "underlay_plane_sha256": [
+          "e6c03492ffb25aa3100dfd4a2bea681dbf85969dca3588aa836147942480959f",
+          "36ab5a76b12ec535f38b1e0a5648b8537722bf232d7ef8ed370e99e968c11879"
+        ],
+        "source_color_plane_bank_groups": 270,
+        "scope": "Native source-address gather and exact SCREEN shader over two precomposed opaque underlays. No native layer composition, palette allocation, CHR publication, production lease or gameplay admission.",
+        "incremental_underlay_update": true,
+        "changed_underlay_pixels": 142,
+        "retained_output_pixels": 2609,
+        "dirty_selection_native": true,
+        "retained_underlay_identity_bytes": 5502,
+        "output_range_and_alignment_checked": true,
+        "observed_native_shader_pixel_counts": [
+          2751,
+          142
+        ],
+        "full_output_bytes": 5502,
+        "pixel_records_bytes": [
+          11004,
+          11004
+        ]
+      }
+    },
+    {
+      "path": "out/byor-motu-screen-native-dirty-output-range/report.json",
+      "sha256": "d571c0c438b99fd6bb42d807151d748f0261f9afa93124465ef683e3eef64e79",
+      "result": {
+        "schema": "BYOR_GROUPED_SOURCE_SCREEN_NATIVE_V1",
+        "status": "PASS",
+        "opaque_pixels": 2751,
+        "source_color_groups": 205,
+        "group_descriptors_bytes": 4320,
+        "mutable_pixel_buffer_bytes": 11004,
+        "worker_IRAM_bytes": 584,
+        "RGB555_byte_mismatches": [],
+        "master_clocks": null,
+        "milliseconds": null,
+        "rom_sha256": "13de6fcf7c72684f9669455f555fc3c34742e3cbac11b226bbef45f0052e0bee",
+        "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+        "in_place_destination_to_RGB555": false,
+        "destination_range_and_alignment_checked": true,
+        "invalid_destination": null,
+        "busy_host_BWRAM_reads": true,
+        "source_poses": [
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  80,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          },
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  50,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          }
+        ],
+        "geometry_gathering_native": false,
+        "online_palette_allocation_native": false,
+        "CHR_publication_native": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "IRAM_DMA_cache": false,
+        "cache_IRAM_bytes": 0,
+        "normal_DMA_setup_and_transfer_in_timing": false,
+        "group_packets": 540,
+        "native_underlay_plane_gather": true,
+        "underlay_plane_storage": "precomposed source RGB8 identity planes in ROM",
+        "underlay_plane_bytes": [
+          114688,
+          114688
+        ],
+        "live_underlay_composition_native": false,
+        "screen_addresses_source_derived": true,
+        "underlay_plane_sha256": [
+          "e6c03492ffb25aa3100dfd4a2bea681dbf85969dca3588aa836147942480959f",
+          "36ab5a76b12ec535f38b1e0a5648b8537722bf232d7ef8ed370e99e968c11879"
+        ],
+        "source_color_plane_bank_groups": 270,
+        "scope": "Native source-address gather and exact SCREEN shader over two precomposed opaque underlays. No native layer composition, palette allocation, CHR publication, production lease or gameplay admission.",
+        "incremental_underlay_update": true,
+        "changed_underlay_pixels": 142,
+        "retained_output_pixels": null,
+        "dirty_selection_native": true,
+        "retained_underlay_identity_bytes": 5502,
+        "output_range_and_alignment_checked": true,
+        "invalid_output": "range",
+        "observed_native_shader_pixel_counts": [],
+        "full_output_bytes": 5502,
+        "pixel_records_bytes": [
+          11004,
+          11004
+        ],
+        "source_layers": [
+          {
+            "kind": "background",
+            "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+            "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+            "source_dimensions": [
+              800,
+              400
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 57344,
+            "source_flip": false
+          },
+          {
+            "kind": "panel",
+            "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+            "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+            "source_dimensions": [
+              2544,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 44246,
+            "source_flip": false
+          },
+          {
+            "kind": "actor:He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "position": [
+              -16,
+              44
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 3327,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+            "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+          },
+          {
+            "kind": "actor:KnightBot",
+            "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+            "source_dimensions": [
+              50,
+              50
+            ],
+            "position": [
+              173,
+              172
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 1078,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "enemy",
+            "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40"
+          },
+          {
+            "kind": "actor:HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+            "source_dimensions": [
+              110,
+              90
+            ],
+            "position": [
+              84,
+              92
+            ],
+            "alpha": 1,
+            "visible_source_pixels": 2751,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+            "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+          },
+          {
+            "kind": "frontpanel",
+            "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+            "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+            "source_dimensions": [
+              350,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 2749,
+            "source_flip": false
+          }
+        ],
+        "proof_kind": "EXPECTED_GUARD_REJECTION"
+      }
+    },
+    {
+      "path": "out/byor-motu-screen-native-dirty-output-odd/report.json",
+      "sha256": "3b51a5a3a6642aff90e23e563a1c382df3b76124b673c3c54c410db69bb40aaf",
+      "result": {
+        "schema": "BYOR_GROUPED_SOURCE_SCREEN_NATIVE_V1",
+        "status": "PASS",
+        "opaque_pixels": 2751,
+        "source_color_groups": 205,
+        "group_descriptors_bytes": 4320,
+        "mutable_pixel_buffer_bytes": 11004,
+        "worker_IRAM_bytes": 584,
+        "RGB555_byte_mismatches": [],
+        "master_clocks": null,
+        "milliseconds": null,
+        "rom_sha256": "b8ab27ac75184eee26dbb0f97f2e439b61bc94f1956e0d8f00124c2687d494bf",
+        "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+        "in_place_destination_to_RGB555": false,
+        "destination_range_and_alignment_checked": true,
+        "invalid_destination": null,
+        "busy_host_BWRAM_reads": true,
+        "source_poses": [
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  80,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          },
+          {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  50,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  200,
+                  220,
+                  0
+                ],
+                "order": 1
+              }
+            ]
+          }
+        ],
+        "geometry_gathering_native": false,
+        "online_palette_allocation_native": false,
+        "CHR_publication_native": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true,
+        "IRAM_DMA_cache": false,
+        "cache_IRAM_bytes": 0,
+        "normal_DMA_setup_and_transfer_in_timing": false,
+        "group_packets": 540,
+        "native_underlay_plane_gather": true,
+        "underlay_plane_storage": "precomposed source RGB8 identity planes in ROM",
+        "underlay_plane_bytes": [
+          114688,
+          114688
+        ],
+        "live_underlay_composition_native": false,
+        "screen_addresses_source_derived": true,
+        "underlay_plane_sha256": [
+          "e6c03492ffb25aa3100dfd4a2bea681dbf85969dca3588aa836147942480959f",
+          "36ab5a76b12ec535f38b1e0a5648b8537722bf232d7ef8ed370e99e968c11879"
+        ],
+        "source_color_plane_bank_groups": 270,
+        "scope": "Native source-address gather and exact SCREEN shader over two precomposed opaque underlays. No native layer composition, palette allocation, CHR publication, production lease or gameplay admission.",
+        "incremental_underlay_update": true,
+        "changed_underlay_pixels": 142,
+        "retained_output_pixels": null,
+        "dirty_selection_native": true,
+        "retained_underlay_identity_bytes": 5502,
+        "output_range_and_alignment_checked": true,
+        "invalid_output": "odd",
+        "observed_native_shader_pixel_counts": [],
+        "full_output_bytes": 5502,
+        "pixel_records_bytes": [
+          11004,
+          11004
+        ],
+        "source_layers": [
+          {
+            "kind": "background",
+            "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+            "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+            "source_dimensions": [
+              800,
+              400
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 57344,
+            "source_flip": false
+          },
+          {
+            "kind": "panel",
+            "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+            "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+            "source_dimensions": [
+              2544,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 44246,
+            "source_flip": false
+          },
+          {
+            "kind": "actor:He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "position": [
+              -16,
+              44
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 3327,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+            "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+          },
+          {
+            "kind": "actor:KnightBot",
+            "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+            "source_dimensions": [
+              50,
+              50
+            ],
+            "position": [
+              173,
+              172
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 1078,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "enemy",
+            "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40"
+          },
+          {
+            "kind": "actor:HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+            "source_dimensions": [
+              110,
+              90
+            ],
+            "position": [
+              84,
+              92
+            ],
+            "alpha": 1,
+            "visible_source_pixels": 2751,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+            "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+          },
+          {
+            "kind": "frontpanel",
+            "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+            "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+            "source_dimensions": [
+              350,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 2749,
+            "source_flip": false
+          }
+        ],
+        "proof_kind": "EXPECTED_GUARD_REJECTION"
+      }
+    },
+    {
+      "path": "out/byor-motu-screen-animation-cost-native/report.json",
+      "sha256": "ab8d2ebbd423d1d340043348161fccad0c58cc498fa37733a168db445604cb92",
+      "result": {
+        "schema": "BYOR_SOURCE_SCREEN_ANIMATION_NATIVE_COST_V1",
+        "status": "MEASURED",
+        "source_animation_handle": 47,
+        "source_frame_count": 40,
+        "rows": [
+          {
+            "frame": 0,
+            "start_source_tick": 0,
+            "delay_ticks": 6,
+            "opaque_pixels": 214,
+            "peak_shader_master_clocks": 35378,
+            "shader_ms": 1.6472298388016726,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "e5972142eb8f2cea8de98fd015cb1ea9ecd12c736ab02839d67fea38b6631027",
+            "report_sha256": "cd8478607e25d05eb051f4c873c70fe9f1f5b1aea999d24cfd7ad34bd0bdfeeb",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 214,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 1,
+            "start_source_tick": 6,
+            "delay_ticks": 6,
+            "opaque_pixels": 281,
+            "peak_shader_master_clocks": 47252,
+            "shader_ms": 2.2000934010700615,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "51755a7211d55de451d8ca873140da458bd74105f219b6f8dc1ff7263e0abe8c",
+            "report_sha256": "541c1dad31fe0403699cd10a370651df77564e7abfd4c22693195ed8b71b41d6",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR02.PNG",
+                "sha256": "fafd54dd0b36783a08a5c8f082fb4788b2d0b8bd65130df7c73e05890e978c37",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 281,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 2,
+            "start_source_tick": 12,
+            "delay_ticks": 6,
+            "opaque_pixels": 446,
+            "peak_shader_master_clocks": 67646,
+            "shader_ms": 3.149655426411271,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "b24361d8cdb4302caa9796b86fd05395418426c8532ff1da8af7034f8ed56cd1",
+            "report_sha256": "74d44a42b96756c3e9b12b95566c9dbac39917e5f7ee11ea6c5472184c624e4e",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR03.PNG",
+                "sha256": "822757c2f84bd65a0d0526a93c3ef229241ad563eff3a98ebf35012657cc1258",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 446,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 3,
+            "start_source_tick": 18,
+            "delay_ticks": 6,
+            "opaque_pixels": 599,
+            "peak_shader_master_clocks": 94588,
+            "shader_ms": 4.404097913747883,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "1413b2bc1129958a11d15054209555b5bf3570742b8e85eb9de16bcea0c7fb18",
+            "report_sha256": "aae8fdf09fa3674cd7b6a663c2d0a6010bca30023f594480cf990886eb196f60",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR04.PNG",
+                "sha256": "d34804ac83de7d51bc0769a2e982dd2fa20b35195da3496392380b52dbd7631b",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 599,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 4,
+            "start_source_tick": 24,
+            "delay_ticks": 6,
+            "opaque_pixels": 770,
+            "peak_shader_master_clocks": 108662,
+            "shader_ms": 5.059395351457611,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "b9aee1b36839923e85eb1bb21d40cbcb7d612a0b0a1a349e143bf64c7aea3d85",
+            "report_sha256": "ca510779e904fe00d0a14cd6c0727cc3ecd12c40d558e7e97d957de5b1172062",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR05.PNG",
+                "sha256": "6bb13a182826c9acf98f5f52ddd8ff68277443ab78424815f1417c9b7762c4d7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 770,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 5,
+            "start_source_tick": 30,
+            "delay_ticks": 6,
+            "opaque_pixels": 962,
+            "peak_shader_master_clocks": 132716,
+            "shader_ms": 6.179370096851229,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "db5072a42a11d68c1fa1a979173118cbac683f9d6890863cd97cfa78e3228c09",
+            "report_sha256": "3ba1150869b9b27ba4beff9ee64f15629e50fe060fd5ac8442bc4a019a1b19f9",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR06.PNG",
+                "sha256": "2570fd356db246aacd0a778d5360efe18cb7eb6c7362a26f96b5529321250d84",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 962,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 6,
+            "start_source_tick": 36,
+            "delay_ticks": 6,
+            "opaque_pixels": 1233,
+            "peak_shader_master_clocks": 190018,
+            "shader_ms": 8.847400065278315,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "f3f3501340c0fdff1033b54cd9c6462ccc98b7ef6708cfb9d57545ae352e2272",
+            "report_sha256": "d3b5680c782c4c3d71804e31d911d585cd8929bbb4eda2082392521662b7689e",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR07.PNG",
+                "sha256": "24664c840e7d9fd1366b345f8627aff891484de6a8f52d20eef9b47de965ca0f",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 1233,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 7,
+            "start_source_tick": 42,
+            "delay_ticks": 6,
+            "opaque_pixels": 1523,
+            "peak_shader_master_clocks": 209746,
+            "shader_ms": 9.765952562872283,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "9bd865eec0eec7c7100096c81a76331443ccf3065adef9ac684e0ab3f8cfd3d2",
+            "report_sha256": "e57f928193110a04a308b579e95c7b89df52bbf2b255aa0ea1713340a873257f",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR08.PNG",
+                "sha256": "47dc04a8b2b701dc19be43635cb152bfc86f63ed4a63646789c830550ae29b49",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 1523,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 8,
+            "start_source_tick": 48,
+            "delay_ticks": 6,
+            "opaque_pixels": 1843,
+            "peak_shader_master_clocks": 252678,
+            "shader_ms": 11.764903081257534,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "55a70f02bbde9b90e72f96cde853d75e2207b1c763cb190b80f25bf6ebf5cb82",
+            "report_sha256": "d5404db007db3e6597b99429474d0806860a86ff316b4dc2ba5f84db7fd3a96c",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR09.PNG",
+                "sha256": "0d271928eac467d38f3fec098d2a316a8223668536f7fc9c91ef7be47eb2d995",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 1843,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 9,
+            "start_source_tick": 54,
+            "delay_ticks": 6,
+            "opaque_pixels": 2160,
+            "peak_shader_master_clocks": 298356,
+            "shader_ms": 13.891709700534564,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "5de01347104bda7d91d274395d8d41eb80af26bd910fceb14b42e0330e541403",
+            "report_sha256": "9a241d8403ab1674bf161291700cfd2baa0f7eadf07f8fa491f317c773c21b98",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR10.PNG",
+                "sha256": "36c74c714d0c55994cc574a4e2c27f3f3617abcf7462d2b9e8e98a7aba701502",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2160,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 10,
+            "start_source_tick": 60,
+            "delay_ticks": 6,
+            "opaque_pixels": 2377,
+            "peak_shader_master_clocks": 334984,
+            "shader_ms": 15.597140604927906,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "4f91d8c69fbb0d728777093790ef87fb30fb99946722e5056ef9c8a402573cdb",
+            "report_sha256": "ab1f608661f225702951d60005adcd7a7ec891bd854d879af1a781321fe4717a",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR11.PNG",
+                "sha256": "a1c0c94d987a99293959f270e977d0542d13fbcedce9694dc46826db4a0482f2",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2377,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 11,
+            "start_source_tick": 66,
+            "delay_ticks": 6,
+            "opaque_pixels": 2751,
+            "peak_shader_master_clocks": 398068,
+            "shader_ms": 18.53438542235582,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "8f398e17a79304307a415f0a9fe02fef7cf485fad21d98ff54acbdf58b6ce626",
+            "report_sha256": "80523b88cb51bc77cf9671ade8d46e116d063329c35bc80e57f2d0cd765aac69",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 12,
+            "start_source_tick": 72,
+            "delay_ticks": 6,
+            "opaque_pixels": 3106,
+            "peak_shader_master_clocks": 428820,
+            "shader_ms": 19.96622475761584,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "dd8863ea04de6d2e81d8f45a260543dfe230179fc6c3685b60d262572d21f955",
+            "report_sha256": "00057db1483597969605b6333e6a8e42463f3a7bfa726333995c85c4d02ba981",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR13.PNG",
+                "sha256": "280a8f951a276926250cdc94a263129213916e561a268c7e1e7275bf88b34fa5",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3106,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 13,
+            "start_source_tick": 78,
+            "delay_ticks": 6,
+            "opaque_pixels": 3421,
+            "peak_shader_master_clocks": 457680,
+            "shader_ms": 21.309970959996313,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "b08eb7b3cfa8aaeb8b9cd08d1aa0f9e4678b3acd5deb56cbf83941b10da98ed6",
+            "report_sha256": "db00bdde6208f5c3771d73672ac1bc83c17a7cf2982936d023079df0b67ea9c7",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR14.PNG",
+                "sha256": "72ef5a8d418f2e160a9af6985deee4b4605b95a76a21ea0c6694048f2832925f",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3421,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 14,
+            "start_source_tick": 84,
+            "delay_ticks": 6,
+            "opaque_pixels": 3705,
+            "peak_shader_master_clocks": 481116,
+            "shader_ms": 22.40117109856141,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "6e00f38b1c2de8886d20c98d41a6e99c179aabcf0fef900ba15552e11c20d6ce",
+            "report_sha256": "18822d285588e75821f4b55752ca61dfe48a46bfb6671363b567cd08c4ca6483",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR15.PNG",
+                "sha256": "d8e1bd148cea795f029c010809640de22aee004635a86834a5608bfe3a74ed8d",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3705,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 15,
+            "start_source_tick": 90,
+            "delay_ticks": 6,
+            "opaque_pixels": 3929,
+            "peak_shader_master_clocks": 502336,
+            "shader_ms": 23.389192388045593,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "7a71bb2add16a3b11d3a487657f8c6b50167a89e430e25239f80b539c4228666",
+            "report_sha256": "4c4e167c14caadcf77507351f0979d252f1e366e87e32e55c3b2b46fd538c649",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR16.PNG",
+                "sha256": "625013aa68064ce978a7b60cb5a8a6d17cce09248e4b04a9e7f32d0728fdf334",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3929,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 16,
+            "start_source_tick": 96,
+            "delay_ticks": 6,
+            "opaque_pixels": 3975,
+            "peak_shader_master_clocks": 509032,
+            "shader_ms": 23.70096385620705,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "3167db744113eb92f238421f3f7e96f0c7a6e1bca7f73ff03d4e7ce1e85b68a9",
+            "report_sha256": "db64917e09a9e675f50e787f9cc1bc3dec7e4d0f8be6efcc112e96ed59510a53",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR17.PNG",
+                "sha256": "ffb1c9eb42edb86eaf0092082917d4836e7089f982d2bdf2ac0dc356928fc82b",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3975,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 17,
+            "start_source_tick": 102,
+            "delay_ticks": 6,
+            "opaque_pixels": 3805,
+            "peak_shader_master_clocks": 490064,
+            "shader_ms": 22.817797606492817,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "a5d8d718f33a3650307261cd7eecd62d9452816f6d83b132fbce5466059b977b",
+            "report_sha256": "a5833e7f0b0d4cc25acf3034ae02ec8944c850807188a7bc6f5ea47796c25ed7",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR18.PNG",
+                "sha256": "9e64c0228740a584d76ebe626747c01ce43dc64a1f6d64b95a6440d469bf7546",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3805,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 18,
+            "start_source_tick": 108,
+            "delay_ticks": 6,
+            "opaque_pixels": 3611,
+            "peak_shader_master_clocks": 463668,
+            "shader_ms": 21.588777344606648,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "362b89753af383556cabdfeaeb633e9f96c874b56e03ee292611784281aacfd4",
+            "report_sha256": "4738bf2c2355e1ea3030fa83eb8a88d7f246f965d35091de7e3c0919bd06e864",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR19.PNG",
+                "sha256": "ce732302993b16d518f1226f585045bf88b2f3728b31fc4b10a3d9b771b9f959",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3611,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 19,
+            "start_source_tick": 114,
+            "delay_ticks": 6,
+            "opaque_pixels": 3672,
+            "peak_shader_master_clocks": 469174,
+            "shader_ms": 21.845141398324834,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "345cbcf6a9fd10ac4695c0ac5026e14cfab8f6fab8d2f66c5d3ccba71f608233",
+            "report_sha256": "724f9f8904f20f373d566b08c82b8a550a0a358c57099a45e7f5c6124e18cfc9",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR20.PNG",
+                "sha256": "fc5e0fe22187cda7a79bb744995e964a12234bb3ecc95454852ac6a4cd809080",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3672,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 20,
+            "start_source_tick": 120,
+            "delay_ticks": 6,
+            "opaque_pixels": 3785,
+            "peak_shader_master_clocks": 482238,
+            "shader_ms": 22.453412375036493,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "a5fe3c416727542fb117bc2c0f1a011df3a179587595eea4972abc444918d211",
+            "report_sha256": "76c36fba290b54cb85a2ba9c4d8b0071df5d39fcaf31ad197eb7faf891513a81",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR21.PNG",
+                "sha256": "4f826b64c63d5311121f3ec80437610da9ea4166c50898f17711b151cbd4f572",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3785,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 21,
+            "start_source_tick": 126,
+            "delay_ticks": 6,
+            "opaque_pixels": 3819,
+            "peak_shader_master_clocks": 488046,
+            "shader_ms": 22.723837806201626,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "ee6f59981546ea8d73ad0a79ba886d8235d3cd9fe1b7c5c01e9fa2f808bd5d15",
+            "report_sha256": "f168636cbcdaca2ab576cbc11ae558851b80dd59f4281bc2c4461f34118c45a4",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR22.PNG",
+                "sha256": "3907f84a8d6410e382a13ffad093e747e5138ffb3eb2b144b19e811600d42f53",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3819,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 22,
+            "start_source_tick": 132,
+            "delay_ticks": 6,
+            "opaque_pixels": 4177,
+            "peak_shader_master_clocks": 522168,
+            "shader_ms": 24.312587214296787,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "be1f8d9af09c6e93daa1d01d312cd299e3c722d836c3f23f4faf8d5675454fc8",
+            "report_sha256": "a2ecc2fb799634d885b59fcb9a84c743b6c89997ddc6fa5bbf4c4698571580aa",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR23.PNG",
+                "sha256": "0acb3c98e5eb9ac90da0f8eeb7937d8c9a56b1d4b34cb0f35b74b0c1d83174a0",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 4177,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 23,
+            "start_source_tick": 138,
+            "delay_ticks": 6,
+            "opaque_pixels": 4163,
+            "peak_shader_master_clocks": 522640,
+            "shader_ms": 24.334563936664203,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "02fb82e59304edf5a3f6f57d2a3e506eb45290bd00f34227e5a8edda2501ce5b",
+            "report_sha256": "0b31c42b24245230dc5a5c68463f512dd36b6c53a4c4b1707d6ac51c152a3625",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR24.PNG",
+                "sha256": "87e9125145e2aaa57a5a54ef5ca0855a78a63378515cd4321ee87632b3a8cee8",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 4163,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 24,
+            "start_source_tick": 144,
+            "delay_ticks": 6,
+            "opaque_pixels": 4132,
+            "peak_shader_master_clocks": 518108,
+            "shader_ms": 24.123550153255046,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "a65f37d1b7a9c1b795cf82b9d704504ca73f0c9aa97078d02da62bfb9d4cb0f5",
+            "report_sha256": "4d6b1deb4996c6feeb002649b04f24464555d65013f63de2503654851bf5b205",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR25.PNG",
+                "sha256": "97fc375065143cabb1b04da05a029a33dc0dfc2d8269927f22ba48c9a8ce5846",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 4132,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 25,
+            "start_source_tick": 150,
+            "delay_ticks": 6,
+            "opaque_pixels": 4216,
+            "peak_shader_master_clocks": 522608,
+            "shader_ms": 24.333073989385056,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "7a8c172d17351580a64fd956c5f1b347c30f5787e1e17049a129b5f9aa592ca7",
+            "report_sha256": "b3cc2bac89cb12de4833691a949e4bfadbdb71a70409bfac3266c5d3f4eb8c83",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR26.PNG",
+                "sha256": "5ef36e0607d38305499ece40b66db6bd9f7d57d4d4b1a6bc31bbef94be7fe56d",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 4216,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 26,
+            "start_source_tick": 156,
+            "delay_ticks": 6,
+            "opaque_pixels": 4244,
+            "peak_shader_master_clocks": 516440,
+            "shader_ms": 24.04588665132952,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "3e77f18fd0c8ecb57c8d5bbdca1b048f6947664fa05fa075e6bc292e47f02db9",
+            "report_sha256": "fa91e80a8cb92359631708f9be69dcaee5b1b01790ecac19bafff6059b1f1776",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR27.PNG",
+                "sha256": "134416d19ecd008f5ab368fc48c68d05db761de20442680e628f285f198265f7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 4244,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 27,
+            "start_source_tick": 162,
+            "delay_ticks": 6,
+            "opaque_pixels": 3794,
+            "peak_shader_master_clocks": 460978,
+            "shader_ms": 21.463528651453373,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "1be3e9385995e4016e9d5995c7131514c3a1714e9b8ccdaad7bc7bd3b8925f0d",
+            "report_sha256": "c7e4a448099676d61f28b75948a4d15aa19eaf52586f90b0483d126d07869da8",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR28.PNG",
+                "sha256": "bccdc48cf09223f4d2d4a411b4dd504ef30c7451044a81f3a3d37f74edae1c40",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3794,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 28,
+            "start_source_tick": 168,
+            "delay_ticks": 6,
+            "opaque_pixels": 3670,
+            "peak_shader_master_clocks": 443664,
+            "shader_ms": 20.657374051730038,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "3737382259df3b35106f67b1b33c470b9f4f67226405a4465e6db4b9dbcde886",
+            "report_sha256": "dde0e2b72765612cacf9e5d3d5c63afb0df010f71b526288323d0b898e636a64",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR29.PNG",
+                "sha256": "8c955c1e7a0ff1cf29a4ffe182a5cfe0979b453dac4c368dc06aa806e333769f",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3670,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 29,
+            "start_source_tick": 174,
+            "delay_ticks": 6,
+            "opaque_pixels": 3606,
+            "peak_shader_master_clocks": 426808,
+            "shader_ms": 19.87254432243949,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "436a51003d979da50a28e559504617a0a193631cec135e2991a507bc11a6212d",
+            "report_sha256": "c898191670328e7dacece1c16e213a053e1ab930ab2c2fb9d2d9ef0bb281e93b",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR30.PNG",
+                "sha256": "061ccaa2273335115138763461681b20b067c12844d3a85152c16d20dda49ecc",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3606,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 30,
+            "start_source_tick": 180,
+            "delay_ticks": 6,
+            "opaque_pixels": 3591,
+            "peak_shader_master_clocks": 421630,
+            "shader_ms": 19.63145222833256,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "661dc80730d21052cfd8bdb191a91faeb19308d48d203b95a4c64192feb10e75",
+            "report_sha256": "72060f83ba5763fb064b27e7b56c6f76c88663b785b373c692d1b8b107a2e46d",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR31.PNG",
+                "sha256": "d10535817193e5614dbd05492dd8c4ed2ddf9ac48111ebe6e4be765ab26b19c5",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3591,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 31,
+            "start_source_tick": 186,
+            "delay_ticks": 6,
+            "opaque_pixels": 3498,
+            "peak_shader_master_clocks": 406506,
+            "shader_ms": 18.927265895525828,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "2926b2af8792febdd4c7e77187f079c20fbaa5294bc61e98fbbbbfe03441701c",
+            "report_sha256": "345f3b878f922052dfb7a9b40f727a927155b435c08fe84fb57ee58aebc6658d",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR32.PNG",
+                "sha256": "8237ba5607b1cb493183e8d8fd411fd2b2b650402457c3df7bbddf3a8f13b55d",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3498,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 32,
+            "start_source_tick": 192,
+            "delay_ticks": 6,
+            "opaque_pixels": 3257,
+            "peak_shader_master_clocks": 376738,
+            "shader_ms": 17.54124243909957,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "3f69cedfd778aa0793d8212b7e7edfb68bac735a071db8e395183da235a6b6be",
+            "report_sha256": "571878b9868585253db12b8a12e1d4867ebec4c3ba189f52b6fe486599f8aa5a",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR33.PNG",
+                "sha256": "6d7e9a59a619bf558d0540982ee514405ba5aa19ade3aa33b370ec5a7c20947c",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3257,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 33,
+            "start_source_tick": 198,
+            "delay_ticks": 6,
+            "opaque_pixels": 3548,
+            "peak_shader_master_clocks": 404820,
+            "shader_ms": 18.848764298255784,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "6b7915009299b7c77ce620b0055ed77516d13778bb5f553ef0f74b2ba7735e43",
+            "report_sha256": "cd63fd14934ee37d2996116d27a9a723eee02b082bc0cae5796e768b594fca88",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR34.PNG",
+                "sha256": "0dca48297bbba57ab1459910eb1a4a2074f9b644d3964c8d35d554d4abfdc619",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3548,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 34,
+            "start_source_tick": 204,
+            "delay_ticks": 6,
+            "opaque_pixels": 3465,
+            "peak_shader_master_clocks": 393266,
+            "shader_ms": 18.31080020877886,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "170390723a6962f0446d996f929887c7b95f370587e8dddee4de6cecc14bf458",
+            "report_sha256": "bc12a71725fa2fd8c2a2a43597d84481f62731924cabd74439605782d203718b",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR35.PNG",
+                "sha256": "f2fb78209af7c2ea2d089802b81f3d0830dc4b794044f711045dee0c682e06a5",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3465,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 35,
+            "start_source_tick": 210,
+            "delay_ticks": 6,
+            "opaque_pixels": 3064,
+            "peak_shader_master_clocks": 346388,
+            "shader_ms": 16.128120566533827,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "8931f0f71050909558e90832bf86c71c37c59a2581f7123da49f508a6df5596e",
+            "report_sha256": "2790c8ef067cc3437892e8dc080f5c29ede4f2eb446c88d306a83214510ef5b0",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR36.PNG",
+                "sha256": "f1d615068dae048b9428c41bac5dc05f2e5362b8f4a2fbbac9d608a046a80f09",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 3064,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 36,
+            "start_source_tick": 216,
+            "delay_ticks": 6,
+            "opaque_pixels": 2599,
+            "peak_shader_master_clocks": 291526,
+            "shader_ms": 13.573699078141681,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "0ccf28dd5e69f3b0cf823a5e069db9870d06a7fee10e35a729edfca40229f18c",
+            "report_sha256": "421dd78a62b765b72e5e9c87ad88679b95ef492211105c03246f2ca669f12d4d",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR37.PNG",
+                "sha256": "bb7d82ec4bb2f5bfdec3edb1f76369c48aae1af649c09fa93b5cb56f1e92e9c5",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2599,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 37,
+            "start_source_tick": 222,
+            "delay_ticks": 6,
+            "opaque_pixels": 1314,
+            "peak_shader_master_clocks": 147426,
+            "shader_ms": 6.864280236733999,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "2efe38dacd14941869aea5f885d408bad5bc6fb575ed400c150d0856058b2ab5",
+            "report_sha256": "7a1d20b16201e5cf6aae7e2b67abaf851ab5e3a3fc4e021c01bd18c600caf351",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR38.PNG",
+                "sha256": "dcc444ce3a4d7ee2a002f98f99c8f34bf7e26b5d124374c3beab251f3f1eb269",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 1314,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 38,
+            "start_source_tick": 228,
+            "delay_ticks": 6,
+            "opaque_pixels": 627,
+            "peak_shader_master_clocks": 70424,
+            "shader_ms": 3.2790014745821976,
+            "native_job_proven": true,
+            "transparent_no_shader_required": false,
+            "rom_sha256": "43fe6de5b176b9660e93c097e5b94a1d806cd8cd9d2e15d21d53b41a73d0282a",
+            "report_sha256": "9ed514a41bb0942f4b8c046597f2f471d2b1b6242b8ddb31794a56571bd598ac",
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR39.PNG",
+                "sha256": "c723c9b3736fed2272595ffbba6a17ad26b3862a7daa5a3facb8cd21dc6f7fae",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 627,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          },
+          {
+            "frame": 39,
+            "start_source_tick": 234,
+            "delay_ticks": 6,
+            "opaque_pixels": 0,
+            "peak_shader_master_clocks": 0,
+            "shader_ms": 0.0,
+            "native_job_proven": false,
+            "transparent_no_shader_required": true,
+            "rom_sha256": null,
+            "report_sha256": null,
+            "source_effect_layers": [
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+                "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+                "source_dimensions": [
+                  4,
+                  4
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 0,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ]
+          }
+        ],
+        "measured_frames": [
+          0,
+          39
+        ],
+        "source_duration_ticks": 240,
+        "peak_shader_master_clocks": 522640,
+        "sum_shader_master_clocks": 13734404,
+        "no_color_reduction": true,
+        "deadline_admitted": false,
+        "native_underlay_composition": false,
+        "joint_audio_proven": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native source-address SCREEN gather/shading for every measured source frame with explicit fixed opaque actors/camera. Underlay composition, palette planning, CHR transfer and joint audio costs are excluded. Transparent source frames need no SCREEN job."
+      }
+    }
+  ],
+  "no_color_reduction": true,
+  "production_assembly_changed": false,
+  "bank_zero_growth_bytes": 0,
+  "protected_tracked_files": 17,
+  "deadline_admitted": false,
+  "motu_gameplay_proven": false,
+  "scope": "Exact component proofs over compiler-composed RGB8 underlays. Native full scan selected the same 142 changed pixels as the source authority, but was slower than full gather/shading. Entire animation shading was measured natively; it excludes underlay composition, palette planning, transfers, source world and audio. No complete renderer or lossless infeasibility conclusion."
+}
