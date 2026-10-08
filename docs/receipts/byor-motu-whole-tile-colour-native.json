@@ -1,0 +1,907 @@
+{
+  "schema": "BYOR_NATIVE_WHOLE_TILE_COLOUR_RECEIPT_V1",
+  "status": "EXACT_COLOUR_CANVAS_PROVEN_DEADLINE_UNADMITTED",
+  "no_color_reduction": true,
+  "reports": [
+    {
+      "path": "out/byor-motu-whole-tile-colour-native/report.json",
+      "sha256": "afa8c11aebae9a9bd9489780825c3d1b5d9bf47d191ce8b6f50d6f8cbb39509f",
+      "result": {
+        "schema": "BYOR_NATIVE_UNDERLAY_SCREEN_JOINT_V1",
+        "status": "PASS",
+        "opaque_pixels": 2751,
+        "underlay_pixels": 11520,
+        "RGB555_byte_mismatches": [
+          0,
+          0
+        ],
+        "underlay_RGB8_identity_byte_mismatches": [
+          0,
+          0
+        ],
+        "master_clocks": [
+          662836,
+          253486
+        ],
+        "milliseconds": [
+          30.862209210015983,
+          11.802524250055988
+        ],
+        "job_events": [
+          [
+            "underlay_entry",
+            "109860"
+          ],
+          [
+            "underlay_done",
+            "466480"
+          ],
+          [
+            "shader_entry",
+            "466586"
+          ],
+          [
+            "shader_done",
+            "772696"
+          ],
+          [
+            "underlay_entry",
+            "1038234"
+          ],
+          [
+            "underlay_done",
+            "1258362"
+          ],
+          [
+            "shader_entry",
+            "1258468"
+          ],
+          [
+            "shader_done",
+            "1291720"
+          ]
+        ],
+        "underlay_worker_IRAM_bytes": 570,
+        "shader_worker_IRAM_bytes": 187,
+        "retained_stage_window": true,
+        "rom_sha256": "9cd7b86f2c51f4529944754905b7e15d364c0b3181efa82c0c453af096368110",
+        "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+        "source_layers": [
+          {
+            "kind": "background",
+            "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+            "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+            "source_dimensions": [
+              800,
+              400
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 57344,
+            "source_flip": false
+          },
+          {
+            "kind": "panel",
+            "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+            "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+            "source_dimensions": [
+              2544,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 44246,
+            "source_flip": false
+          },
+          {
+            "kind": "actor:He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "position": [
+              -16,
+              44
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 3327,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+            "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+          },
+          {
+            "kind": "actor:KnightBot",
+            "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+            "source_dimensions": [
+              50,
+              50
+            ],
+            "position": [
+              173,
+              172
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 1078,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "enemy",
+            "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40"
+          },
+          {
+            "kind": "actor:HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+            "source_dimensions": [
+              110,
+              90
+            ],
+            "position": [
+              84,
+              92
+            ],
+            "alpha": 1,
+            "visible_source_pixels": 2751,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+            "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+          },
+          {
+            "kind": "frontpanel",
+            "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+            "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+            "source_dimensions": [
+              350,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 2749,
+            "source_flip": false
+          }
+        ],
+        "no_color_reduction": true,
+        "host_supplied_pixel_inputs": false,
+        "native_opaque_actor_composition": true,
+        "native_SCREEN_shading": true,
+        "native_camera_bound": false,
+        "native_palette_allocation": false,
+        "CHR_publication": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native clipped opaque spans produce underlay identities consumed directly by native exact RGB8 SCREEN shading. Two mutable actor origins, fixed stage/camera/source frame/layer order. No host pixel input between stages. No palette allocation, CHR publication, live VM, production lease or joint audio deadline admission.",
+        "observer_traces": {
+          "JOINTDMA": [
+            [
+              204,
+              52648,
+              0
+            ],
+            [
+              158,
+              27052,
+              0
+            ]
+          ],
+          "JOINTPIXELS": [
+            [
+              284,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "SCREENBASE": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "expected_DMA_trace": [
+          [
+            204,
+            52648,
+            0
+          ],
+          [
+            158,
+            27052,
+            0
+          ]
+        ],
+        "native_DMA_and_shader_output_bounds_proven": true,
+        "compiled_geometry_sha256": "ab2a08e63d65ed4ae0d3ff0ef86d0073373035f8ecc135c753c129f907bb2b68",
+        "compiled_group_descriptors_sha256": "7370821c4cb12c511ed9f4a941516a1e901e36d2f9e7feec1c97d6d1bae8139a",
+        "output_sha256": [
+          "8ffb40415fdaa08e36b94803fc0dfd59a318fe3fdbab672fe85ca568b56c4e35",
+          "67f9858cad814eb685e5f5251384051c76a0f47934c80f21a72b790b62dead1f"
+        ],
+        "compiler_opaque_RGB8_identity_contract_checked": true,
+        "typed_underlay": true,
+        "per_pixel_destination_guards": false,
+        "identity_producer": "Immutable compiler-checked ROM stage/spans; native clipped copies and restores only",
+        "arbitrary_underlay_writes_supported": false,
+        "precompiled_background_SCREEN": true,
+        "native_actor_correction_counts": [
+          142,
+          0
+        ],
+        "expected_actor_correction_counts": [
+          142,
+          0
+        ],
+        "correction_map_ROM_bytes": 69120,
+        "background_SCREEN_ROM_bytes": 5502,
+        "background_SCREEN_sha256": "06183d8c3756b8648b053702835d6ac05af3cb329a801c77f38c8975952d7f7d",
+        "background_epoch_unchanged_required": true,
+        "native_baseline_rebuild_bound": false,
+        "adaptive_shader": false,
+        "native_selected_paths": [],
+        "path_legend": {
+          "0": "compiled background plus native actor corrections",
+          "1": "full typed SCREEN shader"
+        },
+        "adaptive_actor_pixel_threshold": null,
+        "full_fallback_IRAM_bytes": 0,
+        "adaptive_policy_optimal": false,
+        "correction_map_sha256": "4ecefb98e0f370acc784145c188377ef081470e4bec352bcc71b34b43e5464f5",
+        "compiled_context_epoch": 2659728451,
+        "compiled_context_digest": "433c889e26218fdda3cb04ddae1e54460d06ca0e808869fdc856cd75ae6bad97",
+        "native_context_epoch_admission": true,
+        "native_context_owner_bound": false,
+        "invalidated_context_half": null,
+        "context_rejection_DMA_trace": [],
+        "proof_kind": "EXACT_NATIVE_PRODUCER_CHAIN",
+        "whole_tile_colour_canvas": true,
+        "colour_canvas_source_bytes": 23040,
+        "actor_RGB555_span_ROM_bytes": 8810,
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "post_layer_overlap_supported": false,
+        "transient_memory_map": {
+          "underlay": "0x420000",
+          "restore_descriptors": "0x426000",
+          "RGB555_output": "0x427000",
+          "actor_origins": "0x42d000",
+          "context_epoch": "0x42d100"
+        }
+      }
+    },
+    {
+      "path": "out/byor-motu-whole-tile-cost-peak-native/report.json",
+      "sha256": "73cbb798d05381fc35fb1c39fe075700947cc0d58c69450335fe01e9ceb2006a",
+      "result": {
+        "schema": "BYOR_NATIVE_UNDERLAY_SCREEN_JOINT_V1",
+        "status": "PASS",
+        "opaque_pixels": 4163,
+        "underlay_pixels": 11520,
+        "RGB555_byte_mismatches": [
+          0,
+          0
+        ],
+        "underlay_RGB8_identity_byte_mismatches": [
+          0,
+          0
+        ],
+        "master_clocks": [
+          671250,
+          911900
+        ],
+        "milliseconds": [
+          31.25397222272663,
+          42.45884137043488
+        ],
+        "job_events": [
+          [
+            "underlay_entry",
+            "109860"
+          ],
+          [
+            "underlay_done",
+            "466480"
+          ],
+          [
+            "shader_entry",
+            "466586"
+          ],
+          [
+            "shader_done",
+            "781110"
+          ],
+          [
+            "underlay_entry",
+            "1021728"
+          ],
+          [
+            "underlay_done",
+            "1318102"
+          ],
+          [
+            "shader_entry",
+            "1318204"
+          ],
+          [
+            "shader_done",
+            "1933628"
+          ]
+        ],
+        "underlay_worker_IRAM_bytes": 570,
+        "shader_worker_IRAM_bytes": 187,
+        "retained_stage_window": true,
+        "rom_sha256": "ce7001d0dbf7b11b0b27f95e490b2a1c320869e5dbb205f73ee1476d2847f070",
+        "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+        "source_layers": [
+          {
+            "kind": "background",
+            "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+            "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+            "source_dimensions": [
+              800,
+              400
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 57344,
+            "source_flip": false
+          },
+          {
+            "kind": "panel",
+            "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+            "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+            "source_dimensions": [
+              2544,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 44246,
+            "source_flip": false
+          },
+          {
+            "kind": "actor:He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "position": [
+              -16,
+              44
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 3327,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+            "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+          },
+          {
+            "kind": "actor:KnightBot",
+            "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+            "source_dimensions": [
+              50,
+              50
+            ],
+            "position": [
+              173,
+              172
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 1078,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "enemy",
+            "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40"
+          },
+          {
+            "kind": "actor:HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR24.PNG",
+            "sha256": "87e9125145e2aaa57a5a54ef5ca0855a78a63378515cd4321ee87632b3a8cee8",
+            "source_dimensions": [
+              110,
+              90
+            ],
+            "position": [
+              84,
+              92
+            ],
+            "alpha": 1,
+            "visible_source_pixels": 4163,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+            "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+          },
+          {
+            "kind": "frontpanel",
+            "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+            "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+            "source_dimensions": [
+              350,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 2749,
+            "source_flip": false
+          }
+        ],
+        "no_color_reduction": true,
+        "host_supplied_pixel_inputs": false,
+        "native_opaque_actor_composition": true,
+        "native_SCREEN_shading": true,
+        "native_camera_bound": false,
+        "native_palette_allocation": false,
+        "CHR_publication": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native clipped opaque spans produce underlay identities consumed directly by native exact RGB8 SCREEN shading. Two mutable actor origins, fixed stage/camera/source frame/layer order. No host pixel input between stages. No palette allocation, CHR publication, live VM, production lease or joint audio deadline admission.",
+        "observer_traces": {
+          "JOINTDMA": [
+            [
+              204,
+              52648,
+              0
+            ],
+            [
+              318,
+              36060,
+              0
+            ]
+          ],
+          "JOINTPIXELS": [
+            [
+              394,
+              0
+            ],
+            [
+              2608,
+              0
+            ]
+          ],
+          "SCREENBASE": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "expected_DMA_trace": [
+          [
+            204,
+            52648,
+            0
+          ],
+          [
+            318,
+            36060,
+            0
+          ]
+        ],
+        "native_DMA_and_shader_output_bounds_proven": true,
+        "compiled_geometry_sha256": "878b94c99991317c8815f832579e63a45df01788e73acb8f5d5e87bf6e8b5cf2",
+        "compiled_group_descriptors_sha256": "c7cf7610a29f988bfeabdc9313824c7fd799962dda6a6ef9d4bc4d7d39cb7fdc",
+        "output_sha256": [
+          "dc95153d93e9a93839bc4ee4ee251044c64ab131f33f1c8e7e02b6802b031294",
+          "bbf474ee5cf941dea05dd52160319e0a3d74d90062696add8d757e9d1bfe5f21"
+        ],
+        "compiler_opaque_RGB8_identity_contract_checked": true,
+        "typed_underlay": true,
+        "per_pixel_destination_guards": false,
+        "identity_producer": "Immutable compiler-checked ROM stage/spans; native clipped copies and restores only",
+        "arbitrary_underlay_writes_supported": false,
+        "precompiled_background_SCREEN": true,
+        "native_actor_correction_counts": [
+          197,
+          1304
+        ],
+        "expected_actor_correction_counts": [
+          197,
+          1304
+        ],
+        "correction_map_ROM_bytes": 69120,
+        "background_SCREEN_ROM_bytes": 8326,
+        "background_SCREEN_sha256": "01fac8a8e11c1a65b402bb2124f4f374cbc6803a781771a828b371c84952ff7f",
+        "background_epoch_unchanged_required": true,
+        "native_baseline_rebuild_bound": false,
+        "adaptive_shader": false,
+        "native_selected_paths": [],
+        "path_legend": {
+          "0": "compiled background plus native actor corrections",
+          "1": "full typed SCREEN shader"
+        },
+        "adaptive_actor_pixel_threshold": null,
+        "full_fallback_IRAM_bytes": 0,
+        "adaptive_policy_optimal": false,
+        "correction_map_sha256": "38b4f12800770d4c2da89c557ac778f15417670cbf97578bd552e644c61d935d",
+        "compiled_context_epoch": 2388967406,
+        "compiled_context_digest": "eebf648e0455352f4d583a5f2bb36bc99c65c1090dc4039884c412d224b36ff0",
+        "native_context_epoch_admission": true,
+        "native_context_owner_bound": false,
+        "invalidated_context_half": null,
+        "context_rejection_DMA_trace": [],
+        "proof_kind": "EXACT_NATIVE_PRODUCER_CHAIN",
+        "whole_tile_colour_canvas": true,
+        "colour_canvas_source_bytes": 23040,
+        "actor_RGB555_span_ROM_bytes": 8810,
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "post_layer_overlap_supported": false,
+        "transient_memory_map": {
+          "underlay": "0x420000",
+          "restore_descriptors": "0x426000",
+          "RGB555_output": "0x427000",
+          "actor_origins": "0x42d000",
+          "context_epoch": "0x42d100"
+        }
+      }
+    },
+    {
+      "path": "out/byor-motu-whole-tile-adaptive-native/report.json",
+      "sha256": "18300355781bb50e6474cf89d1ef9df336f636b74ba1f13f27a0e68405aca296",
+      "result": {
+        "schema": "BYOR_NATIVE_UNDERLAY_SCREEN_JOINT_V1",
+        "status": "PASS",
+        "opaque_pixels": 4163,
+        "underlay_pixels": 11520,
+        "RGB555_byte_mismatches": [
+          0,
+          0
+        ],
+        "underlay_RGB8_identity_byte_mismatches": [
+          0,
+          0
+        ],
+        "master_clocks": [
+          671204,
+          743630
+        ],
+        "milliseconds": [
+          31.251830423512857,
+          34.62404672474668
+        ],
+        "job_events": [
+          [
+            "underlay_entry",
+            "148280"
+          ],
+          [
+            "underlay_done",
+            "504782"
+          ],
+          [
+            "shader_entry",
+            "504888"
+          ],
+          [
+            "shader_done",
+            "819484"
+          ],
+          [
+            "underlay_entry",
+            "1040882"
+          ],
+          [
+            "underlay_done",
+            "1337324"
+          ],
+          [
+            "shader_entry",
+            "1337426"
+          ],
+          [
+            "shader_done",
+            "1784512"
+          ]
+        ],
+        "underlay_worker_IRAM_bytes": 570,
+        "shader_worker_IRAM_bytes": 205,
+        "retained_stage_window": true,
+        "rom_sha256": "83a1c04fb3c3ef29066bef373d489e314531bcdcde7c0c285bf3d64393b7cda4",
+        "table_sha256": "59d939c73bc4f90bd89287de80512aec265ad167e6439677b34103b0bf06354f",
+        "source_layers": [
+          {
+            "kind": "background",
+            "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+            "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+            "source_dimensions": [
+              800,
+              400
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 57344,
+            "source_flip": false
+          },
+          {
+            "kind": "panel",
+            "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+            "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+            "source_dimensions": [
+              2544,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 44246,
+            "source_flip": false
+          },
+          {
+            "kind": "actor:He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "position": [
+              -16,
+              44
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 3327,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+            "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+          },
+          {
+            "kind": "actor:KnightBot",
+            "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+            "source_dimensions": [
+              50,
+              50
+            ],
+            "position": [
+              173,
+              172
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 1078,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "enemy",
+            "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+            "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40"
+          },
+          {
+            "kind": "actor:HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR24.PNG",
+            "sha256": "87e9125145e2aaa57a5a54ef5ca0855a78a63378515cd4321ee87632b3a8cee8",
+            "source_dimensions": [
+              110,
+              90
+            ],
+            "position": [
+              84,
+              92
+            ],
+            "alpha": 1,
+            "visible_source_pixels": 4163,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+            "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+          },
+          {
+            "kind": "frontpanel",
+            "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+            "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+            "source_dimensions": [
+              350,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 2749,
+            "source_flip": false
+          }
+        ],
+        "no_color_reduction": true,
+        "host_supplied_pixel_inputs": false,
+        "native_opaque_actor_composition": true,
+        "native_SCREEN_shading": true,
+        "native_camera_bound": false,
+        "native_palette_allocation": false,
+        "CHR_publication": false,
+        "joint_audio_proven": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "scope": "Native clipped opaque spans produce underlay identities consumed directly by native exact RGB8 SCREEN shading. Two mutable actor origins, fixed stage/camera/source frame/layer order. No host pixel input between stages. No palette allocation, CHR publication, live VM, production lease or joint audio deadline admission.",
+        "observer_traces": {
+          "JOINTDMA": [
+            [
+              204,
+              52648,
+              0
+            ],
+            [
+              318,
+              36060,
+              0
+            ]
+          ],
+          "JOINTPIXELS": [
+            [
+              394,
+              0
+            ],
+            [
+              8326,
+              0
+            ]
+          ],
+          "SCREENBASE": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "expected_DMA_trace": [
+          [
+            204,
+            52648,
+            0
+          ],
+          [
+            318,
+            36060,
+            0
+          ]
+        ],
+        "native_DMA_and_shader_output_bounds_proven": true,
+        "compiled_geometry_sha256": "878b94c99991317c8815f832579e63a45df01788e73acb8f5d5e87bf6e8b5cf2",
+        "compiled_group_descriptors_sha256": "c7cf7610a29f988bfeabdc9313824c7fd799962dda6a6ef9d4bc4d7d39cb7fdc",
+        "output_sha256": [
+          "dc95153d93e9a93839bc4ee4ee251044c64ab131f33f1c8e7e02b6802b031294",
+          "bbf474ee5cf941dea05dd52160319e0a3d74d90062696add8d757e9d1bfe5f21"
+        ],
+        "compiler_opaque_RGB8_identity_contract_checked": true,
+        "typed_underlay": true,
+        "per_pixel_destination_guards": false,
+        "identity_producer": "Immutable compiler-checked ROM stage/spans; native clipped copies and restores only",
+        "arbitrary_underlay_writes_supported": false,
+        "precompiled_background_SCREEN": true,
+        "native_actor_correction_counts": [
+          197,
+          0
+        ],
+        "expected_actor_correction_counts": [
+          197,
+          1304
+        ],
+        "correction_map_ROM_bytes": 69120,
+        "background_SCREEN_ROM_bytes": 8326,
+        "background_SCREEN_sha256": "01fac8a8e11c1a65b402bb2124f4f374cbc6803a781771a828b371c84952ff7f",
+        "background_epoch_unchanged_required": true,
+        "native_baseline_rebuild_bound": false,
+        "adaptive_shader": true,
+        "native_selected_paths": [
+          0,
+          1
+        ],
+        "path_legend": {
+          "0": "compiled background plus native actor corrections",
+          "1": "full typed SCREEN shader"
+        },
+        "adaptive_actor_pixel_threshold": 2081,
+        "full_fallback_IRAM_bytes": 252,
+        "adaptive_policy_optimal": false,
+        "correction_map_sha256": "38b4f12800770d4c2da89c557ac778f15417670cbf97578bd552e644c61d935d",
+        "compiled_context_epoch": 2388967406,
+        "compiled_context_digest": "eebf648e0455352f4d583a5f2bb36bc99c65c1090dc4039884c412d224b36ff0",
+        "native_context_epoch_admission": true,
+        "native_context_owner_bound": false,
+        "invalidated_context_half": null,
+        "context_rejection_DMA_trace": [],
+        "proof_kind": "EXACT_NATIVE_PRODUCER_CHAIN",
+        "whole_tile_colour_canvas": true,
+        "colour_canvas_source_bytes": 23040,
+        "actor_RGB555_span_ROM_bytes": 8810,
+        "window": [
+          80,
+          88,
+          120,
+          96
+        ],
+        "post_layer_overlap_supported": false,
+        "transient_memory_map": {
+          "underlay": "0x420000",
+          "restore_descriptors": "0x426000",
+          "RGB555_output": "0x427000",
+          "actor_origins": "0x42d000",
+          "context_epoch": "0x42d100"
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Two explicit source poses per fixture; no gameplay or source-world binding.",
+    "Dense warm update is 34.624 ms with adaptive shading; audio and CHR publication costs excluded.",
+    "Fixed stage/camera/frame epoch; no live palette allocation or memory lease.",
+    "Post-alpha opaque overlapping layers are explicitly rejected."
+  ]
+}

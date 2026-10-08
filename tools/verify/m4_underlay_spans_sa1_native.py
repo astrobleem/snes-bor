@@ -21,11 +21,13 @@ from m4_sound_mix_sa1_native import Code
 from _harness import McpSession,MESEN_EXE,_free_tcp_port,run_frames_exact
 
 
-def compile_inputs(source,stage,scene,catalog):
+def compile_inputs(source,stage,scene,catalog,tile_aligned=False):
  _,metadata=base.capture(source,stage,scene);effects=[v for v in metadata['layers']if v['alpha']==1]
  if len(effects)!=1:raise ValueError('SINGLE_SCREEN_WINDOW_REQUIRED')
  effect=effects[0];wx,wy=effect['position'];w,h=effect['source_dimensions'];vw,vh=scene.get('viewport',[256,224])
- if not 0<=wx<wx+w<=vw or not 0<=wy<wy+h<=vh or w*h*2>0x5000:raise ValueError('ISOLATED_UNDERLAY_WINDOW_DOMAIN')
+ if tile_aligned:
+  right=min(vw,(wx+w+7)//8*8);bottom=min(vh,(wy+h+7)//8*8);wx=max(0,wx//8*8);wy=max(0,wy//8*8);w=right-wx;h=bottom-wy
+ if not 0<=wx<wx+w<=vw or not 0<=wy<wy+h<=vh or w*h*2>0x6000:raise ValueError('ISOLATED_UNDERLAY_WINDOW_DOMAIN')
  di={tuple(c):i for i,c in enumerate(catalog['destinations'])};actors=[];background=[];original=source_scene_bg.overlay;ordinal=0;seen=False
  def overlay(canvas,indices,rgb,x,y,alpha=0,transparent=True):
   nonlocal ordinal,seen
@@ -49,23 +51,31 @@ def compile_inputs(source,stage,scene,catalog):
  return background[0],bytes(descriptors),bytes(pixels),bytes(origins),actors,(wx,wy,w,h)
 
 
-def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None):
+def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_target=None,expected_context_epoch=None,colour_canvas=None,colour_pixels=None):
  rom,_,_=base.build(np.zeros((3,2),dtype=np.uint16),True,iram=True);rom=bytearray(rom)+bytearray([255])*(1048576-len(rom))
  for at,data in((0x20000,descriptors),(0x30000,origins),(0x40000,background),(0x50000,pixels)):rom[at:at+len(data)]=data
+ if colour_canvas is not None:
+  if len(colour_canvas)!=len(background)or len(colour_pixels)!=len(pixels):raise ValueError('WHOLE_TILE_COLOUR_SOURCE_CAPACITY')
+  rom[0x80000:0x80000+len(colour_canvas)]=colour_canvas;rom[0x90000:0x90000+len(colour_pixels)]=colour_pixels
  c=Code(0x3200);c.emit('78 18 fb c2 30 a2 ff 37 9a a9 00 30 5b e2 20 a9 ff 8d 2a 22 a9 80 8d 27 22 a9 42 48 ab c2 20 a9 00 00 85 16 85 18 8f f4 3f 41')
  c.label('entry');c.emit('e2 20 a9 42 48 ab c2 20')
  if expected_context_epoch is not None:
-  c.emit('af 00 51 42');c.word(0xc9,expected_context_epoch&65535);c.branch(0xf0,'epoch_low_valid');c.jump('epoch_fault');c.label('epoch_low_valid');c.emit('af 02 51 42');c.word(0xc9,expected_context_epoch>>16);c.branch(0xf0,'epoch_valid');c.jump('epoch_fault');c.label('epoch_valid')
+  c.emit('af 00 d1 42');c.word(0xc9,expected_context_epoch&65535);c.branch(0xf0,'epoch_low_valid');c.jump('epoch_fault');c.label('epoch_low_valid');c.emit('af 02 d1 42');c.word(0xc9,expected_context_epoch>>16);c.branch(0xf0,'epoch_valid');c.jump('epoch_fault');c.label('epoch_valid')
  c.emit('64 04 64 12 64 14 e2 20 a9 84 8f 30 22 00 a9 20 8f 0b 22 00 a9 c4 8f 34 22 00 c2 20')
  if retain_stage:c.emit('a5 16');c.branch(0xd0,'restore')
  c.emit('a9 00 00 8f 32 22 00 8f 35 22 00');c.word(0xa9,len(background));c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20')
  if retain_stage:
   c.jump('restored');c.label('restore');c.emit('a2 00 00 a5 18');c.branch(0xf0,'restored');c.label('restore_span');c.emit('bd 00 60 8f 32 22 00 8f 35 22 00 bd 02 60 8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20 e8 e8 e8 e8 e4 18');c.branch(0xd0,'restore_span');c.label('restored');c.emit('64 18')
- c.label('span');c.emit('a6 04 bf 00 00 c2 85 00 bf 02 00 c2 85 02 bf 04 00 c2 85 08 bf 08 00 c2 85 0c e2 20 bf 0a 00 c2 85 0e c2 20 bf 06 00 c2 aa bd 02 50 18 65 00')
- c.branch(0x10,'row_nonnegative');c.jump('next');c.label('row_nonnegative');c.word(0xc9,h);c.branch(0x90,'row_visible');c.jump('next');c.label('row_visible');c.emit('85 00 bd 00 50 18 65 02');c.branch(0x10,'left_nonnegative')
+ if colour_canvas is not None:
+  c.emit('e2 20 a9 c8 8f 34 22 00 c2 20 a9 00 00 8f 32 22 00 a9 00 70 8f 35 22 00');c.word(0xa9,len(colour_canvas));c.emit('8f 38 22 00 e2 20 a9 02 8f 37 22 00 c2 20')
+ c.label('span');c.emit('a6 04 bf 00 00 c2 85 00 bf 02 00 c2 85 02 bf 04 00 c2 85 08 bf 08 00 c2 85 0c e2 20 bf 0a 00 c2 85 0e c2 20 bf 06 00 c2 aa bd 02 d0 18 65 00')
+ c.branch(0x10,'row_nonnegative');c.jump('next');c.label('row_nonnegative');c.word(0xc9,h);c.branch(0x90,'row_visible');c.jump('next');c.label('row_visible');c.emit('85 00 bd 00 d0 18 65 02');c.branch(0x10,'left_nonnegative')
  c.emit('49 ff ff 1a c5 08');c.branch(0x90,'left_clipped');c.jump('next');c.label('left_clipped');c.emit('85 0a a5 08 38 e5 0a 85 08 a5 0a 0a 18 65 0c 85 0c');c.branch(0x90,'pointer_no_carry');c.emit('e2 20 e6 0e c2 20');c.label('pointer_no_carry');c.emit('a9 00 00')
  c.label('left_nonnegative');c.word(0xc9,w);c.branch(0x90,'left_visible');c.jump('next');c.label('left_visible');c.emit('85 02');c.word(0xa9,w);c.emit('38 e5 02 c5 08');c.branch(0xb0,'width_ready');c.emit('85 08');c.label('width_ready')
  c.emit('e2 20 a9 00 8f 50 22 00 c2 20 a5 00 8f 51 22 00');c.word(0xa9,w);c.emit('8f 53 22 00 ea ea ea af 06 23 00 18 65 02 0a 85 1a 8f 35 22 00 a5 0c 8f 32 22 00 a5 08 18 65 14 85 14 a5 08 0a 8f 38 22 00 e2 20 a5 0e 8f 34 22 00 a9 02 8f 37 22 00 c2 20 e6 12')
+ # Normal DMA advances its source address and drains its transfer counter.
+ # The RGB555 transfer must reload both, rather than reuse the ID DMA state.
+ if colour_canvas is not None:c.emit('a5 1a 18 69 00 70 8f 35 22 00 a5 0c 8f 32 22 00 a5 08 0a 8f 38 22 00 e2 20 a5 0e 18 69 04 8f 34 22 00 a9 02 8f 37 22 00 c2 20')
  if retain_stage:c.emit('a6 18 a5 1a 9d 00 60 a5 08 0a 9d 02 60 e8 e8 e8 e8 86 18')
  c.label('next');c.emit('a5 04 18 69 10 00 85 04');c.word(0xc9,len(descriptors));c.branch(0xf0,'done');c.jump('span')
  c.label('done');c.emit('a5 12 8f f6 3f 41 a5 14 8f f8 3f 41')
@@ -75,8 +85,8 @@ def build(background,descriptors,pixels,origins,w,h,retain_stage=False,shader_ta
  worker=c.finish()
  if c.base+len(worker)>0x3700:raise ValueError('UNDERLAY_SPAN_IRAM_CAPACITY')
  rom[0x9000:0x9000+len(worker)]=worker;main=bytearray(rom[0x8000:0x8400]);main=main[:main.index(bytes([255])*32)];needle=bytes.fromhex('bf 00 90 01 9f 00 32 00 e8 e0');at=main.index(needle)+len(needle);main[at:at+2]=struct.pack('<H',len(worker))
- extra=bytes.fromhex('c2 20 a2 00 00 bf 00 00 c3 9f 00 50 42 e8 e8 e0')+struct.pack('<H',len(origins))+bytes.fromhex('d0 f1 e2 20')
- if expected_context_epoch is not None:extra+=bytes.fromhex('c2 20 a9')+struct.pack('<H',expected_context_epoch&65535)+bytes.fromhex('8f 00 51 42 a9')+struct.pack('<H',expected_context_epoch>>16)+bytes.fromhex('8f 02 51 42 e2 20')
+ extra=bytes.fromhex('c2 20 a2 00 00 bf 00 00 c3 9f 00 d0 42 e8 e8 e0')+struct.pack('<H',len(origins))+bytes.fromhex('d0 f1 e2 20')
+ if expected_context_epoch is not None:extra+=bytes.fromhex('c2 20 a9')+struct.pack('<H',expected_context_epoch&65535)+bytes.fromhex('8f 00 d1 42 a9')+struct.pack('<H',expected_context_epoch>>16)+bytes.fromhex('8f 02 d1 42 e2 20')
  if main[-3]!=0x4c:raise ValueError('UNDERLAY_SPAN_HOST_LAYOUT')
  main[-2:]=struct.pack('<H',struct.unpack('<H',main[-2:])[0]+len(extra));at=main.index(needle)-3;main[at:at]=extra;rom[0x8000:0x8400]=main+bytes([255])*(1024-len(main));rom[0x7fd7]=10
  return bytes(rom),{n:c.base+c.labels[n]for n in(('entry','done','epoch_fault')if expected_context_epoch is not None else('entry','done'))},worker
@@ -108,7 +118,7 @@ def main():
    if marker!=target:raise ValueError('NATIVE_UNDERLAY_SPAN_COMPLETION')
    actual.append(m.read_memory('SnesMemory',0x420000,len(expected[phase])));counts.append(struct.unpack('<HH',m.read_memory('SnesMemory',0x413ff6,4)))
    if phase==0:
-    offset=moving[0]*4;x=struct.unpack_from('<h',origins,offset)[0]+a.move_x;y=struct.unpack_from('<h',origins,offset+2)[0]-a.move_altitude;m.write_memory('SnesMemory',0x425000+offset,struct.pack('<hh',x,y).hex());m.write_u16(0x413ff4,1)
+    offset=moving[0]*4;x=struct.unpack_from('<h',origins,offset)[0]+a.move_x;y=struct.unpack_from('<h',origins,offset+2)[0]-a.move_altitude;m.write_memory('SnesMemory',0x42d000+offset,struct.pack('<hh',x,y).hex());m.write_u16(0x413ff4,1)
  events=[v.split('SPANJOB|',1)[1].split('|')for v in(out/'mesen.log').read_text().splitlines()if'SPANJOB|'in v];clocks=[int(events[i+1][1])-int(events[i][1])for i in(0,2)]if[e[0]for e in events]==['entry','done','entry','done']else None;ok=actual==expected and clocks is not None
  report=dict(schema='BYOR_NATIVE_OPAQUE_SPAN_UNDERLAY_V1',status='PASS'if ok else'FAIL',window=list(window),underlay_pixels=w*h,RGB8_identity_word_byte_mismatches=[sum(x!=y for x,y in zip(v,e))for v,e in zip(actual,expected)],native_drawn_spans_and_pixels=counts,source_opaque_spans=len(desc)//16,source_span_pixel_ROM_bytes=len(pixels),stage_window_ROM_bytes=len(bg),worker_IRAM_bytes=len(worker),master_clocks=clocks,milliseconds=[v/21477.27 for v in clocks]if clocks else None,rom_sha256=hashlib.sha256(rom).hexdigest(),source_layers=[v[4]for v in actors],no_color_reduction=True,native_actor_origin_clipping=True,retained_stage_window=a.retain_stage,restore_descriptor_cache_bytes=len(desc)//4 if a.retain_stage else 0,move_x=a.move_x,move_altitude=a.move_altitude,native_opaque_actor_composition=True,native_stage_camera_composition=False,SCREEN_shading_joint=False,production_memory_lease=False,motu_gameplay_proven=False,scope='Two source-derived opaque underlays produced natively from compiled opaque spans and mutable actor origins. The stage window and layer order remain offline inputs. No live VM, camera, palette allocator, CHR publication or joint audio proof.')
  for phase,data in enumerate(actual):(out/('underlay-%d.rgb8ids'%phase)).write_bytes(data)
