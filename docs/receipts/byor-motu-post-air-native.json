@@ -1,0 +1,49 @@
+{
+  "schema": "BYOR_MOTU_POST_AIR_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "static_world": {
+      "path": "out/byor-motu-post-air-world-static-native/report.json",
+      "sha256": "608e25d98414355090b988d8e051be4fccaa97d12efe36f1438e7c36a26f9a72"
+    },
+    "landframe": {
+      "path": "out/byor-motu-post-air-landframe-native/report.json",
+      "sha256": "972a7aada838911132d5731a29e7a50b394e3809ebe446191d67d590bc97c074"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-post-air-bor-static-smoke/report.json",
+      "sha256": "d5b18f11e58615b81140030dabb4c48c41f645acfff0437dbd85d5174b3486a4"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-post-air-rom-audit.log",
+      "sha256": "1f1a4e171c724476e5f6ee468a933f1e1c052d8f4b6f41546fa628add49f6703"
+    },
+    "pending": {
+      "path": "out/byor-motu-post-air-pending-native/report.json",
+      "sha256": "d1f19a7db6606e3862acb472506eac7a9e8215ac3db01417e7359ebf736126ff"
+    }
+  },
+  "native_landframe_post_and_world_ack_cases": 90,
+  "native_pending_resume_cases": 54,
+  "retained_parent_self_forms": [
+    "NULL",
+    "first physical actor",
+    "last physical actor"
+  ],
+  "native_gravity_then_movement_then_restore_then_world_ack": true,
+  "early_world_gate_rejects": true,
+  "repeated_native_bounce_and_damage_resumes_retain_pending": true,
+  "static_world_traversals": 154,
+  "static_world_events": 4303,
+  "native_landing_animation_script_proven": false,
+  "full_dynamic_world_traversal_proven": false,
+  "bounce_sound_rumble_and_damage_backend_proven": false,
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "bank0_byte_changes_only_existing_external_relocations": true,
+  "protected_tracked_files_unchanged": 17,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

@@ -21,6 +21,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--rom',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--post-air',action='store_true',help='Drive real resumable POST gravity then movement, restoring retained self.')
     a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
     animations=[];physics=[];plans=[];rows=[]
     for lf in (-1,0,1,2,3):
@@ -43,6 +44,9 @@ def main():
                     noquake=0,fault=0,bounced=0,direction=direction,active=int(active),lf=lf,
                     expected=[0,0,0,0,0,49,8,7 if active else 11]))
     fe=pack_frames(dict(models=['effect'],animations=animations))
+    if a.post_air:
+        rows=[dict(r,oldself=old)for r in rows for old in (0,0x414000,0x4167b0)]
+        for r in rows:r['expected'][6]=12
     ep=pack_effects(derive(dict(models=['effect'],animations=animations)))
     ph=pack_physics(dict(animations=physics));lp=pack_landing(dict(plans=plans))
     crc=struct.unpack_from('<I',ep,24)[0]
@@ -60,6 +64,14 @@ def main():
  put(view+16,1);put(view+18,0);put(view+20,0,4);put(view+28,c.direction,4);put(0x43fb00+(c.handle-1)*4,0,4)
 """.replace('FEBYTES',str(len(fe))).replace('EPBYTES',str(len(ep))).replace('PAIRCRC',str(crc)).replace('BODYCRC',str(struct.unpack_from('<I',ep,28)[0]))
     lua=lua.replace(' before={};for',install+' before={};for')
+    if a.post_air:
+        post_install="""
+ set('SourcePostAir4086_Ready',0xb628);set('SourcePostAir4086_State',0);set('SourcePostAir4086_Service',0);set('SourcePostAir4086_Slot',s)
+ set('SourcePostStationary4086_Ready',0);set('SourceCheckMove4086_Ready',0xb617);set('SourceCheckMove4086_Status',0)
+ set('SourceSelf4086_GlobalLow',c.oldself,4);put(life+4,0,4);put(core+72,32,4);set('SourceWorldTick4086_Index',0)
+ put(view+48,2);put(view+50,0);put(view+52,10*65536,4);put(view+56,2);put(view+58,0);put(view+60,20*65536,4);put(side+24,48,4)
+"""
+        lua=lua.replace(' before={};for',post_install+' before={};for')
     # The retained byte observer admits only the source frame's actual stores.
     insert="""
  if c.active==1 then
@@ -71,8 +83,15 @@ def main():
 """
     lua=lua.replace(' local n=0;for a,v in pairs(before)',insert+' local n=0;for a,v in pairs(before)')
     lua=lua.replace(' if c.active==1 then',' local aux=0x41f500+c.slot*20\n if c.active==1 then')
+    if a.post_air:
+        lua=lua.replace(' local n=0;for a,v in pairs(before)',r'''
+ for _,r in ipairs({{side+24,49},{view+52,(10+(c.active==1 and(c.direction==0 and -3 or 3)or 0))*65536},{view+60,(20-c.active)*65536}})do
+ for i=0,3 do before[r[1]+i]=(r[2]>>(8*i))&255 end end
+ local n=0;for a,v in pairs(before)''')
     lua=lua.replace("emu.log('GRAVITYCOMMIT|'","emu.log('LANDFRAME|'")
     lua=lua.replace("word(sy.SourceGravityLanding4086_Service))", "word(sy.SourceGravityLanding4086_Service)..'|'..word(sy.SourceUpdateFrame4086_State)..'|'..word(sy.SourceSelf4086_Active))")
+    if a.post_air:
+        lua=lua.replace("word(sy.SourceSelf4086_Active))", "word(sy.SourceSelf4086_Active)..'|'..word(sy.SourcePostAir4086_State)..'|'..word(sy.SourceCheckMove4086_Status)..'|'..word(sy.SourceSelf4086_GlobalLow)..'|'..word(sy.SourceSelf4086_GlobalHigh)..'|'..word(sy.SourceWorldTick4086_Pending)..'|'..word(sy.SourceWorldTick4086_Index))")
     lua+=r'''
 for _,name in ipairs({'SourceFrameMotion4086_Bad','SourceFrameEffectPlan4086_Bad','SourceFrameEffectLeaf4086_Bad','SourceFrameEffects4086_Bad','SourceUpdateFrame4086_Bad'})do
  if sy[name] then emu.addMemoryCallback(function()
@@ -80,18 +99,49 @@ for _,name in ipairs({'SourceFrameMotion4086_Bad','SourceFrameEffectPlan4086_Bad
  end,emu.callbackType.exec,sy[name],sy[name],emu.cpuType.snes,mt)end
 end
 '''
-    reporter=Reporter('M4-GRAVITY-LANDFRAME',kind='GATE')
-    raw,log=run_fixture(a.rom,a.output,rows,'GravityCommitFixture_Run','SourceGravityLanding4086_Ready',0xb627,
-        [(58,0,ph),(59,0,lp),(60,0,fe),(60,0x1000,ep)],lua,reporter,append=ASM,
-        bindings=dict(AIR='SourceGravityAir4086_Execute',VELOCITY='SourceLandingVelocity4086_Execute',LANDINGBEGIN='SourceGravityLanding4086_Begin'))
+    reporter=Reporter('M4-POST-AIR-LANDFRAME'if a.post_air else'M4-GRAVITY-LANDFRAME',kind='GATE')
+    driver='PostAirFixture_Run'if a.post_air else'GravityCommitFixture_Run'
+    post_asm='''PostAirFixture_Run:
+.a16
+.i16
+ php
+ rep #$38
+ jsl POSTCHECK
+ bcc PostAirFixture_Bad
+ jsl POSTBEGIN
+ bcs PostAirFixture_Bad
+ cmp #0
+ bne PostAirFixture_Bad
+ jsl POSTCHECK
+ bcs PostAirFixture_Bad
+ lda #11
+ jsl WORLDACK
+ bcs PostAirFixture_Bad
+ plp
+ clc
+ rtl
+PostAirFixture_Bad:
+.a16
+.i16
+ plp
+ sec
+ rtl
+'''
+    bindings=dict(AIR='SourceGravityAir4086_Execute',VELOCITY='SourceLandingVelocity4086_Execute',LANDINGBEGIN='SourceGravityLanding4086_Begin')
+    if a.post_air:bindings.update(POSTCHECK='SourcePostAir4086_CheckAck',POSTBEGIN='SourcePostAir4086_Begin',WORLDACK='SourceWorldTick4086_Ack')
+    raw,log=run_fixture(a.rom,a.output,rows,driver,'SourceGravityLanding4086_Ready',0xb627,
+        [(58,0,ph),(59,0,lp),(60,0,fe),(60,0x1000,ep)],lua,reporter,append=ASM+(post_asm if a.post_air else''),bindings=bindings)
     actual=[list(map(int,l.split('LANDFRAME|',1)[1].split('|')))for l in log.splitlines()if 'LANDFRAME|' in l]
     expected=[[i,0,0,2,2,0,2 if r['lf'] in (1,2) else 0,0]for i,r in enumerate(rows)]
+    if a.post_air:
+        for e,r in zip(expected,rows):e.extend([2,2,r['oldself']&65535,r['oldself']>>16,0,1])
     reporter.check('actual landing frame, motion, quake, facing and self retirement precede gravity commit; count boundary is a no-op',actual==expected)
     report=dict(schema='BYOR_4086_GRAVITY_LANDFRAME_NATIVE_V1',status='PASS'if actual==expected else'FAIL',
         cases=len(rows),inputs=rows,actual=actual,expected=expected,rom_sha256=hashlib.sha256(raw).hexdigest(),
         frame_table_sha256=hashlib.sha256(fe).hexdigest(),effect_plan_sha256=hashlib.sha256(ep).hexdigest(),
-        native_landframe_motion_quake_self=True,native_animation_script_landframe_proven=False,
-        source_nonanimating_skips_script=True,host_acknowledgements=False,native_world_post_integration_bound=False,
+        native_landframe_motion_quake_self=actual==expected,native_animation_script_landframe_proven=False,
+        source_nonanimating_skips_script=True,host_acknowledgements=False,native_post_gravity_then_movement=a.post_air and actual==expected,native_world_post_ack_bound=a.post_air and actual==expected,
+        native_full_world_traversal_with_dynamic_gravity_proven=False,
         motu_gameplay_proven=False,no_color_reduction=True)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
