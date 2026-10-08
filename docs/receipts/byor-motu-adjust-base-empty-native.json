@@ -1,0 +1,57 @@
+{
+  "schema": "BYOR_MOTU_EMPTY_WORLD_ADJUST_BASE_NATIVE_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "evidence": {
+    "base": {
+      "path": "out/byor-motu-adjust-base-empty-native/report.json",
+      "sha256": "9b31271963bb4c9f1e9b0e8c520faa501a4052a42f598995c2e4271b4572c13c"
+    },
+    "source_authority": {
+      "path": "out/byor-motu-adjust-base-empty-authority/report.json",
+      "sha256": "5acbd171add7f272581203257e82ec2d500811519a57fe67b99403c45bda7732"
+    },
+    "constructor": {
+      "path": "out/byor-motu-source-hbreath-adjust-base-native/report.json",
+      "sha256": "35d5eecb2bde71ab456017536c71b0c2f12ca3e4272bcc56838213b819c32b84"
+    },
+    "post_restoration": {
+      "path": "out/byor-motu-adjust-base-post-restoration-native/report.json",
+      "sha256": "94034e116a1b3def87974807525b4406ff5e0aa45b2d526ee6c307aafce57e54"
+    },
+    "world_regression": {
+      "path": "out/byor-motu-adjust-base-world-regression-native/report.json",
+      "sha256": "11ef08b8567d72bbcee96626f5225267082c29bf21271d6164e8c83f8f738a49"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-adjust-base-bor-static-smoke/report.json",
+      "sha256": "ab79b59231f3ab35dfd1e09722b4dc37754032474fb3a038a76a18e258aeb55e"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-adjust-base-rom-audit.log",
+      "sha256": "77709694be34a2c771bfe75fcaf480005307db9f3398594ab97b61c460f9e5a7"
+    }
+  },
+  "native_cases": 2607,
+  "independent_source_c_cases": 2592,
+  "post_restore_cases": 413,
+  "lease": "B620 at41FF50; controls/scratch41FF50..41FF67; reserved unused former quake scratch",
+  "caller_contract": "Closed current-stage no-hole/basemap/platform/wall world; revoke on geometry mutation; actual landed_on_platform must beNULL",
+  "current_frame_base_y_from_native_b4ph_query": true,
+  "source_noadjust_and_pit_and_frame_base_y_and_altbase_semantics_proven": true,
+  "overflow_rejection_atomic_for_actor_fields": true,
+  "base_adjustment_runs_before_freeze_check": true,
+  "optional_stationary_post_runs_base_before_gravity_and_movement": true,
+  "actual_source_hbreath_constructor_feeds_post": true,
+  "post_owner_context_supplied": true,
+  "full_motu_world_installer_bound": false,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16; source signed zero collapses to zero; no source pixel/color quantization",
+  "cold_fetch_disables_capability": true,
+  "code_bank": 47,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17,
+  "foreign_profile_admitted": false,
+  "native_active_gravity_or_landing_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

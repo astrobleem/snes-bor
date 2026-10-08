@@ -14,6 +14,7 @@ LUA=HOVER_LUA.replace("set('SourceSelf4086_GlobalLow',v,4)","set('SourceSelf4086
 LUA=LUA.replace("set('SourceToss4086_Ready',0xb4e2)","set('SourceToss4086_Ready',0xb4e2);set('SourceCheckMove4086_Ready',0xb617);set('SourceCheckMove4086_Status',0)")
 LUA=LUA.replace("set('SourceGravityIdle4086_Status',0)","set('SourceGravityIdle4086_Status',c.initial_gstatus)").replace("set('SourceCheckMove4086_Status',0)","set('SourceCheckMove4086_Status',c.initial_mstatus)")
 LUA=LUA.replace("set('SourceCheckMove4086_Status',c.initial_mstatus)","set('SourceCheckMove4086_Status',c.initial_mstatus);set('SourcePostStationary4086_Ready',c.post_ready);set('SourcePostStationary4086_Status',c.post_status);set('SourcePostStationary4086_Slot',c.post_slot)")
+LUA=LUA.replace("set('SourcePhysicsState4086_Ready',c.physics_ready or 0)","set('SourcePhysicsState4086_Ready',c.physics_ready or 0);set('SourceAdjustBaseEmpty4086_Ready',c.adjust_ready or 0);set('SourceAdjustBaseEmpty4086_Status',c.adjust_status or 0)")
 LUA=LUA.replace("if c.fault==0 then for", "if true then for")
 LUA=LUA.replace("{freeze+36,c.expected[2]}","{freeze+36,c.expected[2]},{side+24,c.expected[3]}")
 LUA=LUA.replace("if faults[c.bad]then", "if c.bad=='trymove'then put(life+4,1,4)end\n if faults[c.bad]then")
@@ -45,6 +46,9 @@ def main():
  rows=[dict(c,post_ready=0xb61a,post_status=0,post_slot=c['slot'])for c in rows]
  for change in (dict(post_ready=0),dict(post_ready=0xb61b),dict(post_status=2),dict(post_status=3),dict(post_slot=1)):
   rows.append(dict(seed,initial_gstatus=0,initial_mstatus=0,post_ready=0xb61a,post_status=0,post_slot=0,fault=1,expected=[0,0,0],gstatus=0,mstatus=0)|change)
+ for oldself in (0,0x414000,0x414050,0x4167b0):
+  for change in (dict(adjust_ready=0xb621),dict(adjust_ready=0xb620,adjust_status=3),dict(adjust_ready=0xb620)):
+   rows.append(dict(seed,oldself=oldself,initial_gstatus=0,initial_mstatus=0,post_ready=0xb61a,post_status=0,post_slot=0,fault=1,expected=[0,0,0],gstatus=0,mstatus=0)|change)
  reporter=Reporter('M4-POST-STATIONARY',kind='GATE')
  raw,log=run_fixture(a.rom,a.output,rows,'SourcePostStationary4086_Execute','SourceGravityIdle4086_Ready',0xb619,[],LUA,reporter,batch_size=2)
  actual=[list(map(int,line.split('GRAVITYIDLE|',1)[1].split('|')))for line in log.splitlines()if'GRAVITYIDLE|'in line]

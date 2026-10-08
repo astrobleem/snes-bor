@@ -14035,3 +14035,5 @@ SourceVM_InstructionReservation:
 .include "core/vm/vm_source_physics_state.pasm"
 
 .include "core/vm/vm_source_animation_physics.pasm"
+
+.include "core/vm/vm_source_adjust_base_empty.pasm"

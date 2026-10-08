@@ -188,6 +188,8 @@ SourcePostStationary4086_SourceCheckMove4086Ready:
  sta.l SourceSelf4086_GlobalLow
  lda #$41
  sta.l SourceSelf4086_GlobalHigh
+ jsl SourceAdjustBaseEmpty4086_RunPost
+ bcs SourcePostStationary4086_RestoreBad
  jsl SourceGravityIdle4086_Execute
  bcs SourcePostStationary4086_RestoreBad
  jsl SourceCheckMove4086_Execute

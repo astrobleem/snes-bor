@@ -71,12 +71,14 @@ def main():
     p.add_argument('--ctor-model',action='store_true',help='Install fresh fields from the current shared cached model before script bind.')
     p.add_argument('--script-clone',action='store_true',help='Run real constructor method-1 clear/bind before default initialization.')
     p.add_argument('--physics-state-birth',action='store_true',help='native physics row reset before exists publication; requires complete constructor')
+    p.add_argument('--adjust-base-empty',action='store_true',help='execute source empty-world base adjustment through stationary post, using actual current-frame lookup')
     p.add_argument('--stationary-post',action='store_true',help='checked source-derived stationary post-update after complete NONE constructor; phase owner context supplied')
     p.add_argument('--ctor-altitude-q16',type=int,default=0,help='generic explicit constructor altitude input')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     if a.common_spawn and (not a.initial_idle or a.default_owner or a.ctor_owner):raise ValueError('COMMON_SPAWN_FIXTURE_REQUIRES_ISOLATED_INITIAL_IDLE')
     if a.ai_run and(not a.common_spawn or not a.script_clone):raise ValueError('AI_RUN_FRAME_REQUIRES_COMMON_SPAWN_SCRIPT_CLONE')
     if a.physics_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PHYSICS_BIRTH_REQUIRES_COMPLETE_CONSTRUCTOR')
+    if a.adjust_base_empty and not(a.stationary_post and a.physics_state_birth):raise ValueError('ADJUST_BASE_EMPTY_REQUIRES_STATIONARY_POST_AND_PHYSICS_STATE')
     if a.stationary_post and not(a.initial_none_model and a.ctor_owner and a.ctor_state and a.ctor_model and a.ctor_factors and a.script_clone and a.freeze_state and a.default_owner):raise ValueError('STATIONARY_POST_REQUIRES_COMPLETE_NONE_SOURCE_CONSTRUCTOR')
     owners,code,metadata,dispatch=derive(source);callbacks=pack(owners)
     registry=model_registry(source);models=pack_registry(registry);births=pack_birth(birth_templates(source))
@@ -148,6 +150,12 @@ def main():
     if a.common_spawn:
         previous_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity'] and h['role']!='idle')
     sy=symbols(Path('src/main.sym'));raw=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate']
+    physics_table=b''
+    if a.adjust_base_empty:
+        from source_animation_physics_4086 import derive as physics_inputs,pack as pack_physics
+        physics_table=pack_physics(physics_inputs(source))
+        if a.drop_context or raw[58*32768:59*32768]!=bytes(32768):raise ValueError('ADJUST_BASE_PRIVATE_PHYSICS_BANK_OWNERSHIP')
+        raw[58*32768:58*32768+len(physics_table)]=physics_table
     first=39*32768
     if raw[first:first+32768]!=bytes(32768) or raw[60*32768:61*32768]!=bytes(32768):raise ValueError('CALLBACK_NATIVE_RESERVED_ROM')
     base=sy['SourceVM_InstructionReservation'];at=offset(base)
@@ -701,8 +709,12 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         lua+=f"emu.addMemoryCallback(function()local sum=0;for j=0,15 do sum=sum+emu.read(0x42d800+j,mt)end;local other=0;for j=0,15 do other=other+emu.read(0x42d810+j,mt)end;emu.log('CTORPHYSICS|'..word(INDEX)..'|'..sum..'|'..other..'|'..dw(0x414004))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     if a.stationary_post:
         settings=dict(SourcePostStationary4086_Ready=0xb61a,SourcePostStationary4086_Status=0,SourcePostStationary4086_Slot=0,SourceGravityIdle4086_Ready=0xb619,SourceGravityIdle4086_Status=0,SourceCheckMove4086_Ready=0xb617,SourceCheckMove4086_Status=0,SourceWorldTick4086_Ready=0xb4d5,SourceWorldTick4086_State=2,SourceWorldTick4086_Pending=1,SourceWorldTick4086_Phase=11,SourceWorldTick4086_Slot=0,SourceWorldTick4086_Fault=0)
+        if a.adjust_base_empty:
+            settings.update(SourceAdjustBaseEmpty4086_Ready=0xb620,SourceAdjustBaseEmpty4086_Status=0,SourceAnimationPhysics4086_Ready=0xb61f,SourceAnimationPhysics4086_Status=0,SourceAnimationPhysics4086_Base=0x8000,SourceAnimationPhysics4086_Bank=58,SourceAnimationPhysics4086_Bytes=len(physics_table),SourceAnimationPhysics4086_Animations=struct.unpack_from('<H',physics_table,6)[0])
         install=';'.join(f'set("{k}",{v})'for k,v in settings.items())
         lua+=f"local post_before={{}};emu.addMemoryCallback(function(){install};set('SourceWorldTick4086_TimeLo',dw(sy.VmSourceWorld_Time),4);post_before={{}};for _,r in ipairs({{{{0x414000,18432}},{{0x41f300,512}},{{0x41f500,2560}},{{0x42e000,5120}},{{0x42d800,2048}},{{0x439000,10240}},{{0x40c000,12288}},{{sy.SourceSelf4086_GlobalLow,4}}}})do for i=0,r[2]-1 do post_before[r[1]+i]=emu.read(r[1]+i,mt)end end end,emu.callbackType.exec,{fs['CallbackFixture_PostBefore']},{fs['CallbackFixture_PostBefore']},emu.cpuType.snes,mt)\n"
+        if a.adjust_base_empty:
+            lua+=f"emu.addMemoryCallback(function()emu.log('CTORBASE|'..word(INDEX)..'|'..word({sy['SourceAdjustBaseEmpty4086_Status']})..'|'..word({sy['SourceAnimationPhysics4086_Status']}))end,emu.callbackType.exec,{fs['CallbackFixture_PostAfter']},{fs['CallbackFixture_PostAfter']},emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()local time=dw(sy.VmSourceWorld_Time);for _,r in ipairs({{{{0x41f300,(time+1)&0xffffffff}},{{0x416818,(time+1)&0xffffffff}},{{0x42e024,12}}}})do for i=0,3 do post_before[r[1]+i]=(r[2]>>(8*i))&255 end end;local n=0;for a,v in pairs(post_before)do if emu.read(a,mt)~=v then n=n+1 end end;emu.log('CTORPOST|'..word(INDEX)..'|'..n..'|'..word({sy['SourceGravityIdle4086_Status']})..'|'..word({sy['SourceCheckMove4086_Status']})..'|'..dw(0x41400c)..'|'..dw(0x416830)..'|'..dw(0x41682c)..'|'..word(0x41681e)..'|'..dw(0x40c014)..'|'..dw(0x40c024))end,emu.callbackType.exec,{fs['CallbackFixture_PostAfter']},{fs['CallbackFixture_PostAfter']},emu.cpuType.snes,mt)\n"
     lua=lua.replace('FREEZESTATE',str(0xb5df if a.freeze_state else 0))
     if a.ai_state_birth:
@@ -870,6 +882,10 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         cm=model_core_inputs(source)['models'][default]['fields']
         reporter.check('actual source NONE constructor/frame-zero feeds stationary post without actor-field advancement injection',len(ctor_post_results)==len(rows)and all(v[0]==i and v[1:5]==[0,2,2,a.ctor_altitude_q16]and v[6:]==[0,ctor_state_report['models'][default]['alpha'],max(0,cm['subject_to_gravity']),1 if cm['no_adjust_base']<0 else cm['no_adjust_base']]for i,v in enumerate(ctor_post_results)))
         r.update(source_stationary_constructor_post_bound=True,stationary_post_results=ctor_post_results,stationary_post_owner_context_supplied=True,stationary_post_world_traversal_proven=False,constructor_altitude_q16=a.ctor_altitude_q16)
+    if a.adjust_base_empty:
+        base_results=[list(map(int,line.split('CTORBASE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORBASE|'in line]
+        reporter.check('actual completed source constructor executes compiled current-frame base adjustment before stationary gravity',base_results==[[i,2,2]for i in range(len(rows))])
+        r.update(source_constructor_base_adjustment_bound=True,base_adjustment_results=base_results,compiled_physics_table_sha256=hashlib.sha256(physics_table).hexdigest(),closed_empty_world_context_supplied=True)
     if a.physics_state_birth:
         physics_birth_results=[list(map(int,line.split('CTORPHYSICS|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORPHYSICS|'in line]
         reporter.check('native physics state clears before actual constructor exists publication and preserves sibling row',physics_birth_results==[[i,0,2640,0]for i in range(len(rows))])
