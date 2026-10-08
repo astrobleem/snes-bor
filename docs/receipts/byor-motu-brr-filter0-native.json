@@ -1,0 +1,63 @@
+{
+  "schema": "BYOR_MOTU_NATIVE_BRR_FILTER0_COST_V1",
+  "status": "EXACT_FILTER0_ENCODING_PROVEN_QUALITY_NOT_ADMITTED",
+  "reports": [
+    {
+      "path": "out/byor-motu-brr-filter0-native/report.json",
+      "sha256": "b54256ef7aa79ac74b3a06e9151c826121feef6c96ce67ee81204ffca92dce72",
+      "result": {
+        "schema": "BYOR_NATIVE_FILTER0_BRR_V1",
+        "status": "PASS",
+        "frames": 192,
+        "blocks": 12,
+        "brr_bytes": 108,
+        "byte_mismatches": 0,
+        "master_clocks": 33312,
+        "milliseconds": 1.551035117591761,
+        "worker_IRAM_bytes": 197,
+        "quantization_lookup_ROM_bytes": 851968,
+        "range_lookup_ROM_bytes": 16385,
+        "busy_host_BWRAM_reads": true,
+        "mixed_input_sha256": "081529b6f018a5ca4ef1b1f1b5772902b948d3890cfb8b37582baa8604778fe8",
+        "rom_sha256": "6510b1c8c443df262480ec94c50e151937d435041ca018f207f6fb2ff55ae35f",
+        "brr_sha256": "5436fdf9676a6d49a580f94830e53bb1b57ed8ce47fc2e9746c15668154c93f5",
+        "filter1_native": false,
+        "codec_quality_admitted": false,
+        "PCM_gather_and_mix_in_timing": false,
+        "mixed_transport_bound": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out/byor-motu-brr-filter0-long-native/report.json",
+      "sha256": "33cb8f6836b4ee71158f440a1e8c209b0a20663c33832067b974ce67d8d909c7",
+      "result": {
+        "schema": "BYOR_NATIVE_FILTER0_BRR_V1",
+        "status": "PASS",
+        "frames": 8192,
+        "blocks": 512,
+        "brr_bytes": 4608,
+        "byte_mismatches": 0,
+        "master_clocks": 1405256,
+        "milliseconds": 65.42991730326992,
+        "worker_IRAM_bytes": 197,
+        "quantization_lookup_ROM_bytes": 851968,
+        "range_lookup_ROM_bytes": 16385,
+        "busy_host_BWRAM_reads": true,
+        "mixed_input_sha256": "3f543ce66550d62ba11ddf196b93e19c9e08d021c1ccb4cb92cff51fda8eae35",
+        "rom_sha256": "09d92eb14a8f7a1e795aee581424b32fbfed79ed112d0388630559d3609018df",
+        "brr_sha256": "96980b4893c53f34c739f2c6abb1047ef8325a88301f78e47c65ef122f242811",
+        "filter1_native": false,
+        "codec_quality_admitted": false,
+        "PCM_gather_and_mix_in_timing": false,
+        "mixed_transport_bound": false,
+        "production_memory_lease": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true
+      }
+    }
+  ],
+  "no_color_reduction": true
+}
