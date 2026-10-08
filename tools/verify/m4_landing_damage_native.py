@@ -17,6 +17,7 @@ assert PROPERTIES[3] == ('health', 1) and PROPERTIES[7] == ('maxhealth', 1)
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True)
  p.add_argument('--authority',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+ p.add_argument('--domain-only',action='store_true')
  p.add_argument('--kill-backend',action='store_true');p.add_argument('--retirement-authority',type=Path);a=p.parse_args()
  a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);authority=json.loads(a.authority.read_text());assert authority['status']=='PASS'
  ph=pack_physics(dict(animations=[dict(handle=1,antigrav=0,dropframe=-1,landframe=-1,land_entity_index=-1,frames=[dict(movement=dict(base=-1,y=0))])]))
@@ -48,6 +49,10 @@ def main():
   for slot in (0,63,127):
    for bad in ('move_kill_ready','move_kill_status','move_kill_slot','move_kill_time','move_kill_token','move_ret_status','move_ret_slot','move_ret_victim'):
     rows.append(dict(lethal,slot=slot,bad=bad,afterkill_fault=1,fault=1,pending=1,status=2,expected=[0,0,0,0,0,49,8,11]))
+ if a.domain_only:
+  rows=[dict(seed,slot=slot,health=health,health_after=health,status=5,pending=1,damage_after=7,
+    authority_case=None,domain_guard=True,expected=[0,0,0,0,0,0,0,11])
+    for slot in (0,63,127)for health in(-8388609,-2147483648,8388608,2147483647)]
  lua=BASE_LUA[:BASE_LUA.index("emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1]\n if c.landing_bad")]
  lua=lua.replace('TABLEBYTES',str(len(ph))).replace('PLANBYTES',str(len(lp))).replace('PLANCOUNT','1')
  lua=lua.replace("set('SourceAnimationPhysics4086_Animations',6)","set('SourceAnimationPhysics4086_Animations',1)")

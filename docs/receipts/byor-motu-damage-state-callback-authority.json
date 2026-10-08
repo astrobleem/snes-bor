@@ -1,0 +1,60 @@
+{
+  "schema": "BYOR_MOTU_DAMAGE_STATE_AND_CALLBACK_AUTHORITY_V1",
+  "status": "PASS",
+  "evidence": {
+    "callbacks_authority": {
+      "path": "out/byor-motu-landing-callback-authority/report.json",
+      "sha256": "80126c54e1d02c4ff8385a5193a31ff80a02821b55366b9a21c985de456a767c"
+    },
+    "concrete_land_type_authority": {
+      "path": "out/byor-motu-landing-damage-type-authority/report.json",
+      "sha256": "3722c6e61facf6792f90c201e3b9668fb5a9613b0b288ad59de710209d90e552"
+    },
+    "landing_native": {
+      "path": "out/byor-motu-landing-kill-type-native/report.json",
+      "sha256": "6893a935a55547d7ad3fed00a79b3a899acde4c5015735051905b5b2fa7aea19"
+    },
+    "arithmetic_domain_native": {
+      "path": "out/byor-motu-landing-damage-domain-native/report.json",
+      "sha256": "f18b586b3fb69d975ddf453f8d4d28639468fe7ac81277ffc4abd97b4f85a352"
+    },
+    "damage_birth_native": {
+      "path": "out/byor-motu-damage-state-native/report.json",
+      "sha256": "33707eee9c1d2480d61eec887e15c5045150536b860109cd06277273e90918f7"
+    },
+    "full_hbreath_constructor": {
+      "path": "out/byor-motu-hbreath-damage-state-ctor-native/report.json",
+      "sha256": "85ce81f9a95d4c63dc1f038806234ba4aff069a3fb9798efda217a0639ffe876"
+    },
+    "bor_smoke": {
+      "path": "out/byor-motu-damage-state-bor-static-smoke/report.json",
+      "sha256": "9ab84502d3327fadd001c70cee7f157fa93bda9677a28d2d9aaea830bf530519"
+    },
+    "rom_audit": {
+      "path": "out/byor-motu-damage-state-rom-audit.log",
+      "sha256": "0753a2816fd65e78dd2607316b8b386530902d2a37fac5f9615e688db3b3cb47"
+    }
+  },
+  "pinned_callback_C_cases": 1296,
+  "concrete_ATK_LAND": 16,
+  "native_landing_cases": 794,
+  "native_arithmetic_domain_guard_cases": 12,
+  "native_damage_birth_cases": 155,
+  "full_source_hbreath_constructor_cases": 2,
+  "damage_state_allocation": {
+    "base": "7FB900",
+    "bytes": 1536,
+    "end_exclusive": "7FBF00",
+    "control": "7FBF00..7FBF05"
+  },
+  "full_constructor_order": "fresh model/lifecycle copy, damage-state copy, script bind, default/frame callbacks; source exists already set by reset",
+  "minimal_birth_order": "fresh core/lifecycle, damage-state copy, exists",
+  "callback_service_bodies_instrumented_in_C": true,
+  "native_damage_callback_backend_proven": false,
+  "full_dynamic_world_traversal_proven": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "bank0_growth_bytes": 0,
+  "protected_tracked_files_unchanged": 17
+}

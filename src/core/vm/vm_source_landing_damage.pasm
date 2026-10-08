@@ -226,6 +226,12 @@ SourceLandingDamage4086_Far1_0:
 .i16
  lda.l SOURCE_WORLD_POOL+38,x
  bpl SourceLandingDamage4086_Far0_0
+ cmp #$FF80
+ bcs SourceLandingDamage4086_NegativeHealthBounded
+ jmp SourceLandingDamage4086_ArithmeticPending
+SourceLandingDamage4086_NegativeHealthBounded:
+.a16
+.i16
  jmp SourceLandingDamage4086_KillPending
 SourceLandingDamage4086_Far0_0:
 .a16

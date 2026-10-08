@@ -946,6 +946,15 @@ SourceCtorState4086_BeginGuard_6:
 SourceCtorState4086_BeginGuard_7:
 .a16
 .i16
+ ; Source spawn copies model knockdowncount after exists and model assignment.
+ ; Bind no script and run no default callback until this fresh copy completes.
+ lda.l SourceScriptClone4086_Slot
+ jsl SourceDamageState4086_InitializeBirth
+ bcc SourceCtorState4086_DamageStateBirthDone
+ jmp SourceCtorState4086_BeginBad
+SourceCtorState4086_DamageStateBirthDone:
+.a16
+.i16
  jsl SourceScriptClone4086_Bind
  bcc SourceCtorState4086_BeginGuard_8
  jmp SourceCtorState4086_BeginBad

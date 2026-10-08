@@ -72,6 +72,7 @@ def main():
     p.add_argument('--ctor-model',action='store_true',help='Install fresh fields from the current shared cached model before script bind.')
     p.add_argument('--script-clone',action='store_true',help='Run real constructor method-1 clear/bind before default initialization.')
     p.add_argument('--physics-state-birth',action='store_true',help='native physics row reset before exists publication; requires complete constructor')
+    p.add_argument('--damage-state-birth',action='store_true',help='native exact damage state after source model copy and before constructor script/default callbacks')
     p.add_argument('--adjust-base-empty',action='store_true',help='execute source empty-world base adjustment through stationary post, using actual current-frame lookup')
     p.add_argument('--stationary-post',action='store_true',help='checked source-derived stationary post-update after complete NONE constructor; phase owner context supplied')
     p.add_argument('--ctor-altitude-q16',type=int,default=0,help='generic explicit constructor altitude input')
@@ -79,6 +80,7 @@ def main():
     if a.common_spawn and (not a.initial_idle or a.default_owner or a.ctor_owner):raise ValueError('COMMON_SPAWN_FIXTURE_REQUIRES_ISOLATED_INITIAL_IDLE')
     if a.ai_run and(not a.common_spawn or not a.script_clone):raise ValueError('AI_RUN_FRAME_REQUIRES_COMMON_SPAWN_SCRIPT_CLONE')
     if a.physics_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PHYSICS_BIRTH_REQUIRES_COMPLETE_CONSTRUCTOR')
+    if a.damage_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('DAMAGE_BIRTH_REQUIRES_COMPLETE_CONSTRUCTOR')
     if a.adjust_base_empty and not(a.stationary_post and a.physics_state_birth):raise ValueError('ADJUST_BASE_EMPTY_REQUIRES_STATIONARY_POST_AND_PHYSICS_STATE')
     if a.stationary_post and not(a.initial_none_model and a.ctor_owner and a.ctor_state and a.ctor_model and a.ctor_factors and a.script_clone and a.freeze_state and a.default_owner):raise ValueError('STATIONARY_POST_REQUIRES_COMPLETE_NONE_SOURCE_CONSTRUCTOR')
     owners,code,metadata,dispatch=derive(source);callbacks=pack(owners)
@@ -738,6 +740,10 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         initialinstall+="\n set('SourcePhysicsState4086_Ready',0xb61c);for j=0,2047 do emu.write(0x42d800+j,165,mt)end\n"
         address=sy['SourceCtorState4086_PhysicsStateBirthDone']
         lua+=f"emu.addMemoryCallback(function()local sum=0;for j=0,15 do sum=sum+emu.read(0x42d800+j,mt)end;local other=0;for j=0,15 do other=other+emu.read(0x42d810+j,mt)end;emu.log('CTORPHYSICS|'..word(INDEX)..'|'..sum..'|'..other..'|'..dw(0x414004))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
+    if a.damage_state_birth:
+        initialinstall+="\n set('SourceDamageState4086_Ready',0xb62b);for j=0,1535 do emu.write(0x7fb900+j,165,mt)end\n"
+        address=sy['SourceCtorState4086_DamageStateBirthDone']
+        lua+=f"emu.addMemoryCallback(function()local n=0;for j=0,11 do local wanted=j<4 and((dw(0x439040)>>(8*j))&255)or 0;if emu.read(0x7fb900+j,mt)~=wanted then n=n+1 end end;local other=0;for j=0,11 do other=other+emu.read(0x7fb90c+j,mt)end;emu.log('CTORDAMAGE|'..word(INDEX)..'|'..n..'|'..other..'|'..dw(0x414004))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     if a.stationary_post:
         settings=dict(SourcePostStationary4086_Ready=0xb61a,SourcePostStationary4086_Status=0,SourcePostStationary4086_Slot=0,SourceGravityIdle4086_Ready=0xb619,SourceGravityIdle4086_Status=0,SourceCheckMove4086_Ready=0xb617,SourceCheckMove4086_Status=0,SourceWorldTick4086_Ready=0xb4d5,SourceWorldTick4086_State=2,SourceWorldTick4086_Pending=1,SourceWorldTick4086_Phase=11,SourceWorldTick4086_Slot=0,SourceWorldTick4086_Fault=0)
         if a.adjust_base_empty:
@@ -922,6 +928,11 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         reporter.check('native physics state clears before actual constructor exists publication and preserves sibling row',physics_birth_results==[[i,0,2640,0]for i in range(len(rows))])
         r.update(native_physics_birth_bound=True,physics_birth_results=physics_birth_results,native_active_gravity_or_landing_bound=False)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
+    if a.damage_state_birth:
+        damage_birth_results=[list(map(int,line.split('CTORDAMAGE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORDAMAGE|'in line]
+        reporter.check('native damage state follows fresh source model copy before script bind/default callbacks, retaining sibling',damage_birth_results==[[i,0,1980,1]for i in range(len(rows))])
+        r.update(native_damage_state_birth_bound=True,damage_birth_results=damage_birth_results,native_damage_callback_bound=False)
+        r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     if a.ai_state_birth:
         ai_birth_results=[list(map(int,line.split('CTORAI|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORAI|'in line]
         reporter.check('real constructor clears all 24 stale AI bytes before exists publication and preserves sibling row',ai_birth_results==[[i,0,0,6120,0]for i in range(len(rows))])

@@ -21,6 +21,8 @@ def main():
  raw=subprocess.check_output(['git','-C',str(a.engine),'show',ENGINE_COMMIT+':engine/openbor.c']).decode('latin1')
  bodies={n:extract(raw,n)for n in ('check_gravity','adjust_base','inair','diff')}
  pre=PREAMBLE.replace('int inair(entity *e){unexpected();return 0;}','').replace('float diff(float a,float b){return a>b?a-b:b-a;}','')
+ # Concrete pinned e_attack_types identity, not the old one-lane fixture index.
+ pre=pre.replace('#define ATK_LAND 0','#define ATK_LAND 16').replace('defense[1]','defense[20]')
  pre=pre.replace('int tobounce(entity *e){unexpected();return 0;}','int tobounce(entity *e){return 0;}')
  pre=pre.replace('void execute_onmovea_script(entity *e){unexpected();}','void execute_onmovea_script(entity *e){}')
  pre=pre.replace('void kill(entity *e){unexpected();}','int kill_calls;void kill(entity *e){kill_calls++;}')
@@ -31,7 +33,7 @@ def main():
   row=dict(health=health,force=force,factor=factor,dead=dead,callback=callback);rows.append(row)
   after=health;clear=force;kc=dc=df=dt=0
   if force>0 and not dead:
-   if callback:dc=1;df=force
+   if callback:dc=1;df=force;dt=16
    else:after=int(f32(f32(health)-f32(f32(force)*f32(factor))));kc=int(after<=0);clear=0
   expected.append([after,clear,kc,dc,df,dt,0,8,49,1])
  code+='\nstruct Case{int health,force,dead,callback;float factor;}cases[]={\n'
@@ -61,6 +63,7 @@ printf("%d,%d,%d,%d,%d,%d,%d,%u,%u,%d\n",ent.health,ent.damage_on_landing,kill_c
   cases=len(rows),inputs=rows,actual=actual,expected=expected,mismatches=mismatches,
   damage_and_kill_services_instrumented=True,positive_health_force_below_2_to_23_unit_defense_exact_integer_domain=True,
   native_damage_or_kill_backend_proven=False,motu_gameplay_proven=False,no_color_reduction=True)
+ report['source_attack_type_land']=16
  (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(report['status'],len(rows),'actual source landing damage cases',mismatches[:2]);assert actual==expected
 
 
