@@ -1,0 +1,16 @@
+{
+  "schema": "BYOR_COMBAT_HIT_SCALARS_RECEIPT_V1",
+  "status": "PASS",
+  "cases": 116,
+  "actual_score_calls": 27,
+  "proof_path": "out/byor-motu-combat-hit-scalars-token-native/report.json",
+  "proof_sha256": "fe334ae47c9fd22aa25edd842f80baca51246ef9a22ec2f769d90c8017928011",
+  "rom_sha256": "48cc1c42b8955f947e487f70ded71514181a5d83a6801d8d17342dce3b0ec15e",
+  "authority_sha256": "e05e2a904608214140bbf30258e044eb0f4f729699f3fddda0c2e8f1fc29641b",
+  "rumble_policy": "ACCEPTED_COMPAT_NO_SNES_CONTROLLER_RUMBLE",
+  "extra_life_and_death_score_proven": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

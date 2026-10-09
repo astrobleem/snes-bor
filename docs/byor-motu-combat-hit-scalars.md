@@ -1,0 +1,9 @@
+# Source MP and hit-score predecessors
+
+The generic NONSELF_ZERO_HIT_MULTIPLIER capability requires source-derived zero model multipliers and absent score scripts. All 16 MOTU models meet this multiplier requirement. Runtime magic_type other than 1 makes the pinned checkmpadd a no-op. Mode 1 rejects explicitly pending a real MP service. Nonzero current model multipliers and required script configurations also reject.
+
+The private native service reads the defender's actual retained opponent pointer and validates its exact token, bounds and player index type. A distinct player opponent receives the existing native SourceScore4086_Execute with the source player index and zero addition, including the source negative-index no-op. Other, null and self opponents do not call addscore in this nonself domain. It runs between effects/facing and health; its retained cursor prevents repeated scoring. Controller rumble uses the explicit ACCEPTED_COMPAT_NO_SNES_CONTROLLER_RUMBLE policy.
+
+The 116-case proof executes unmodified pinned checkmpadd and checkhitscore as C for 108 admitted cases, instrumenting score and rumble calls. Native code invokes the actual score service exactly 27 times and preserves all scores/lives while processing health. Repeated predecessor calls do not repeat scoring. Eight malformed leases, pointers and source score configurations reject before health. Neighbors and CPU context remain checked. The first run failed because the pointer remainder test read stale comparison flags; the corrected token decoder passes and the failed evidence is retained.
+
+This fixture installs the collision/effects completion, opponent configurations and globals; it does not certify authored gameplay. Kill score, threshold/1UP audio, death/action and the complete callback remain outstanding. No color reduction or PCM copying occurred. See the [receipt](receipts/byor-motu-combat-hit-scalars.json).

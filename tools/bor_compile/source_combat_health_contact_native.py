@@ -2,7 +2,7 @@
 from source_current_colourmap import layout
 
 
-def emit(attacks,work,sy,code_bank=39,*,captured_force=False):
+def emit(attacks,work,sy,code_bank=39,*,captured_force=False,common_cursor=2):
  w=layout()['controls'];lines=[];serial=0
  def put(s):lines.extend(s.strip().splitlines())
  def guard(op):
@@ -11,7 +11,7 @@ def emit(attacks,work,sy,code_bank=39,*,captured_force=False):
   put(' '+dict(beq='bne',bne='beq',bcc='bcs',bcs='bcc')[op]+f' {g}\n jmp HealthContact_Bad\n{g}:\n.a16\n.i16')
  def equal(a,b):put(f' lda.l {a}\n cmp.l {b}');guard('bne')
  put('HealthContact_Run:\n.a16\n.i16\n php\n rep #$39\n phx\n phy')
- for a,v in((w+40,0xb6ad),(w+42,2),(w+44,2)):
+ for a,v in((w+40,0xb6ad),(w+42,2),(w+44,common_cursor)):
   put(f' lda.l {a}\n cmp #{v}');guard('bne')
  for a,b in((w+48,work+4),(w+46,work+6),(w+8,work+8),(w+10,work+10),(w+50,sy['SourceCollisionFrame4086_Attack']),(w+54,sy['SourceCollisionFrame4086_Handle']),(w+52,sy['SourceCollisionFrame4086_Frame'])):equal(a,b)
  if captured_force:
