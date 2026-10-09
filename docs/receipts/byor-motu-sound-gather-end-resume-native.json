@@ -1,0 +1,198 @@
+{
+  "schema": "BYOR_SOUND_GATHER_END_RESUME_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-sound-gather-resume-4096-1-1-native/report.json",
+      "sha256": "49220fcb14240ec6a2abec72d6da44a6d2bd047412a87a2f5d5cd442ccff97d1",
+      "rom_sha256": "1d7779bf6f0527da0a1590bc7e8a6af640dac0b7102b9dcca6975685407fbe03",
+      "source_case": [
+        12,
+        8,
+        37,
+        4096,
+        17,
+        1
+      ],
+      "batches": 1,
+      "batch_master_clocks": [
+        91080
+      ],
+      "PCM_mismatches": 0,
+      "phase_mismatches": 0,
+      "active_mismatches": 0,
+      "worker_bytes": 377,
+      "accumulator_IRAM_bytes": 736,
+      "fixed_loop_bias": false
+    },
+    {
+      "path": "out/byor-motu-sound-gather-resume-2457-1-2-native/report.json",
+      "sha256": "51d272e90c50f145c579072dec54a442245a4625468d194313eda50e3f251418",
+      "rom_sha256": "3caa3af6703cbfb8310a5175a957dc30a04639778ad8d3fe1378fa6005f54d00",
+      "source_case": [
+        12,
+        8,
+        37,
+        2457,
+        17,
+        1
+      ],
+      "batches": 2,
+      "batch_master_clocks": [
+        108410,
+        70328
+      ],
+      "PCM_mismatches": 0,
+      "phase_mismatches": 0,
+      "active_mismatches": 0,
+      "worker_bytes": 413,
+      "accumulator_IRAM_bytes": 736,
+      "fixed_loop_bias": false
+    },
+    {
+      "path": "out/byor-motu-sound-gather-end-unroll-4096-2-native/report.json",
+      "sha256": "e4ef3a78de8eba6e5a95f1d5fb15b9462e1dc993b460cf3a9508ef05f1638194",
+      "rom_sha256": "c9ced5180be40f6a4369ef31eefb07902ea2be4e9ab4fb66132d76669c36f692",
+      "source_case": [
+        12,
+        8,
+        37,
+        4096,
+        17,
+        2
+      ],
+      "batches": 2,
+      "batch_master_clocks": [
+        239092,
+        239092
+      ],
+      "PCM_mismatches": 0,
+      "phase_mismatches": 0,
+      "active_mismatches": 0,
+      "worker_bytes": 481,
+      "accumulator_IRAM_bytes": 368,
+      "fixed_loop_bias": true
+    },
+    {
+      "path": "out/byor-motu-sound-gather-end-unroll-2457-2-native/report.json",
+      "sha256": "7d7bcde63785b6c70650df2769f89a68fa5a2b6d0ef593a6a69427285801c222",
+      "rom_sha256": "7cb48913cb4ad99d738c72f111d9df18c54f6899daaaecde4f17bb6555e82851",
+      "source_case": [
+        12,
+        8,
+        37,
+        2457,
+        17,
+        2
+      ],
+      "batches": 2,
+      "batch_master_clocks": [
+        307566,
+        307604
+      ],
+      "PCM_mismatches": 0,
+      "phase_mismatches": 0,
+      "active_mismatches": 0,
+      "worker_bytes": 535,
+      "accumulator_IRAM_bytes": 368,
+      "fixed_loop_bias": true
+    },
+    {
+      "path": "out/byor-motu-sound-gather-end-unroll-4055-2-native/report.json",
+      "sha256": "b980f4d4be53dd444aa99c23cee2669131158b6a1eea2efa0810b47aeb60729c",
+      "rom_sha256": "6d403fd4a3088cc5886ce5e437d249d6f6bf876ae58c8679f28bd9089874b612",
+      "source_case": [
+        12,
+        8,
+        37,
+        4055,
+        17,
+        2
+      ],
+      "batches": 2,
+      "batch_master_clocks": [
+        314688,
+        314726
+      ],
+      "PCM_mismatches": 0,
+      "phase_mismatches": 0,
+      "active_mismatches": 0,
+      "worker_bytes": 535,
+      "accumulator_IRAM_bytes": 368,
+      "fixed_loop_bias": true
+    },
+    {
+      "path": "out/byor-motu-sound-gather-end-unroll-2457-1-native/report.json",
+      "sha256": "94fbd67f39176b0ceedc8d9ad81ff57bd7db889dacf8b37d2ed67d2d878760a1",
+      "rom_sha256": "64c59fd7131bd43a7b95ed638b5e51b58ee09ca71a5fa7df5ee9048df7cfef1c",
+      "source_case": [
+        12,
+        8,
+        37,
+        2457,
+        17,
+        1
+      ],
+      "batches": 2,
+      "batch_master_clocks": [
+        104796,
+        70328
+      ],
+      "PCM_mismatches": 0,
+      "phase_mismatches": 0,
+      "active_mismatches": 0,
+      "worker_bytes": 584,
+      "accumulator_IRAM_bytes": 736,
+      "fixed_loop_bias": false
+    },
+    {
+      "path": "out/byor-motu-sound-gather-two-resume-native/report.json",
+      "sha256": "c6c8fe41ff0882183394506a991a616e7cd1fa0dba6b920af1a05eb3172ae04d",
+      "rom_sha256": "6add7411a196c3e3b265631ae55b5b68afd2983f2eedd69718df53bf3f4c7849",
+      "source_case": [
+        2,
+        8,
+        37,
+        4055,
+        17,
+        2
+      ],
+      "batches": 2,
+      "batch_master_clocks": [
+        132348,
+        132424
+      ],
+      "PCM_mismatches": 0,
+      "phase_mismatches": 0,
+      "active_mismatches": 0,
+      "worker_bytes": 413,
+      "accumulator_IRAM_bytes": 736,
+      "fixed_loop_bias": false
+    }
+  ],
+  "source_authority": {
+    "path": "out/byor-motu-sound-mixing-second-block-authority/report.json",
+    "sha256": "f389a051292c3a647896d819386877b11bbb0bcd34c49eec33b59f4e5ef32dbb",
+    "cases": 1200,
+    "warmup_frames": 184,
+    "function_sha256": {
+      "clearmixbuffer": "2ad027a7fa0e1795fb3b36dbe3bb4645b1716a94a8f1b4d6f5914ee0e32354d6",
+      "mixaudio": "4f72af3cad3fbcc5fc36e448daed4673f20dbd71ea2e95f88cbd91b3b8481f96",
+      "update_sample": "001bf7d7d69c81cfc63da2a6edf8805e4072a4a226cb48a4a7c85f2fd6f62899"
+    }
+  },
+  "native_completed_channels_stay_inactive": true,
+  "native_looping_phase_preserved": true,
+  "uniform_gain": true,
+  "source_PCM8": true,
+  "persistent_native_batches": 2,
+  "source_sample_ROM_bank_crossing_bound": false,
+  "source_PCM16_bound": false,
+  "source_event_admission_bound": false,
+  "production_memory_lease": false,
+  "joint_graphics_BRR_transport_budget_bound": false,
+  "complete_backend_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

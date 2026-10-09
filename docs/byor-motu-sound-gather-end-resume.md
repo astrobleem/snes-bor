@@ -1,0 +1,11 @@
+# Native source sample ending and looping
+
+The isolated PCM8 SA-1 mixer handles source sample completion and looping. Each sample is mixed before Q12 advancement, then its position is reduced modulo source length. One-shot channels become inactive at the boundary. Looping channels remain active. Per-frame active counts preserve the source PCM8 bias when channels finish at different positions. A subsequent native batch consumes retained phase and active state; finished channels do not restart.
+
+Pinned clearmixbuffer, mixaudio and update_sample C remain unmodified. The authority fixture supports a full 184-frame warm prefix before another 184-frame block and passes 1,200 cases. Retained native cases cover twelve-channel endings, fractional phase, repeated looping, two-channel looping and a second batch after completion. PCM, final Q12 phase and active state all match C exactly.
+
+The initial twelve-channel variant required up to 444,630 master clocks per batch. An immutable looping-count capability eliminates changing-bias bookkeeping when every channel stays looping. Four-sample unrolling checks the end after every sample and reduces the twelve-channel cases to 239,092 clocks at integer stride, 307,604 at Q12 period 2457 and 314,726 at period 4055. The two-channel fractional loop costs at most 132,424 without that optimization. These isolated measurements do not certify joint graphics and BRR transport deadlines.
+
+The final unrolled loop worker uses at most 535 bytes and a 368-byte IRAM accumulator. Dynamic ending uses a 736-byte accumulator and 584-byte worker. Default non-completing emission remains byte-identical in six tested period/unroll combinations. The first ending test exposed an unwritten high word in the active DWORD; both words are now written. That failed proof is excluded.
+
+Tests use 17-byte samples with separate identities, uniform gain and admitted initial phases. Arbitrary bank crossing, PCM16, source event admission, full asset lifetimes, production memory leases and a completed physical backend remain unbound. The immutable loop optimization does not imply MOTU one-shot 1UP/death sounds loop. No MOTU gameplay or completion is claimed. No color reduction or PCM copying occurred. See the [receipt](receipts/byor-motu-sound-gather-end-resume-native.json).

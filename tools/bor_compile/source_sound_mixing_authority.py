@@ -70,7 +70,7 @@ def main():
  p.add_argument('--output',type=Path,required=True)
  p.add_argument('--frames',type=int,choices=(48,184),default=48)
  p.add_argument('--equal-volumes',action='store_true')
- p.add_argument('--warmup-frames',type=int,choices=(0,48),default=0)
+ p.add_argument('--warmup-frames',type=int,choices=(0,48,184),default=0)
  a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  raw=subprocess.check_output(['git','-C',str(a.engine),'show',ENGINE_COMMIT+':engine/source/gamelib/soundmix.c']).decode('latin1')
  engine=subprocess.check_output(['git','-C',str(a.engine),'show',ENGINE_COMMIT+':engine/openbor.c']).decode('latin1');calls=engine_sound_calls(engine)
@@ -106,7 +106,7 @@ for(j=0;j<max_channels;j++)printf(",%d,%u",vchannel[j].active,vchannel[j].fp_sam
 '''
  if a.equal_volumes:code=code.replace('vchannel[j].volume[1]=64-c[2]','vchannel[j].volume[1]=c[2]')
  if a.warmup_frames:
-  code=code.replace('update_sample((unsigned char*)output,sizeof(output));','{unsigned short warm[96];update_sample((unsigned char*)warm,sizeof(warm));}\nupdate_sample((unsigned char*)output,sizeof(output));')
+  code=code.replace('update_sample((unsigned char*)output,sizeof(output));','{unsigned short warm['+str(a.warmup_frames*2)+'];update_sample((unsigned char*)warm,sizeof(warm));}\nupdate_sample((unsigned char*)output,sizeof(output));')
  (a.output/'mixing.c').write_text(code)
  env=dict(os.environ,WATCOM='C:/WATCOM',INCLUDE='C:/WATCOM/H;C:/WATCOM/H/NT')
  run=subprocess.run(['C:/WATCOM/BINNT/wcl386.exe','-q','-za99','-bt=nt','-op','-fpc','mixing.c','-fe=mixing.exe'],cwd=a.output,env=env,capture_output=True,text=True)
