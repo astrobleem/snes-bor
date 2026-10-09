@@ -1,0 +1,15 @@
+{
+  "schema": "BYOR_DO_ATTACK_PREPARE_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "cases": 48384,
+  "prefix_sha256": "c735fd10bd6626abc3134d29f9bb4ae994916687244e6cda4eab75005f528177",
+  "input_sha256": "bb4c0e10bf14a76358944f0cd4c8182a0674d5896266b7bf317c0cbee8583118",
+  "output_sha256": "7e7a64479fa51e2f7c65aeaf1b579eb173fee6ad83a61e9c00091d32eaef5d91",
+  "mismatches": [],
+  "defense_threshold_expression_excluded": true,
+  "ordered_target_loop_excluded": true,
+  "native_combat_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

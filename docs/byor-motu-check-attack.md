@@ -207,3 +207,29 @@ paired bank/extent before processing; the full fresh matrix passes. Registry and
 callback compiler tests pass. Receipt: byor-motu-attack-target-native.json. This
 is a synchronous target predicate, not the ordered all-target do_attack owner,
 hit callback execution, damage, world Ack or sustained MOTU combat.
+
+Pinned do_attack preparation passes 48,384 unmodified C-prefix cases. This
+measures completion/no-attack exits, owner chains up to 128 entities, signed
+projectile>0 mask selection, unsigned attack identities and initial force/
+animation capture. The earlier defense block-threshold expression and subsequent
+ordered target loop are explicitly excluded. Cyclic owner pointers are outside
+this bounded reference and must fault in native execution.
+
+Native preparation passes 310 cases through the real check_attack gate and
+physical pointer resolver. It validates relation markers and rejects malformed
+owner pointers/cycles before assigning an ID. Completed levels and inactive
+frames return zero; active preparation allocates/reuses the real ID and publishes
+top-owner token, mask, force, original handle/frame and current ID in the unused
+contact controls +32..55. Arena and staging size do not grow. Active completion
+returns 0x8110 TARGET_LOOP_REQUIRED, preserving world phase8/pending1. No hit,
+damage, audio, callback or world Ack is fabricated. Bank zero and CPU context
+remain intact. The initial fixture wrongly expected an inactive frame to advance
+the global sequence; that failed expectation is corrected and the fresh matrix
+passes. Receipts: byor-motu-do-attack-prepare-authority/native.
+
+A subsequent integration audit found inherited callback ABI inconsistencies:
+B4FB and actual default installers declare think+0/takedamage+4/trymove+8, while
+landing damage/callback, named knife and movement consumers use conflicting
+offsets. Their prior fixture inputs repeated those offsets. These component
+proofs do not establish joined callback correctness; reconciliation and focused
+joined regression are required before production M4 certification.

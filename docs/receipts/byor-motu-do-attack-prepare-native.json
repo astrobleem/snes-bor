@@ -1,0 +1,22 @@
+{
+  "schema": "BYOR_DO_ATTACK_PREPARE_NATIVE_V1",
+  "status": "PASS",
+  "cases": 310,
+  "rom_sha256": "83f7922d1defea00c16af6e623dd4685783b8cfe00d54c9154add755ce152da9",
+  "ready_ticket": 33040,
+  "record_control_range": [
+    4374432,
+    4374456
+  ],
+  "memory_lease_installed_by_fixture": true,
+  "defense_threshold_expression_excluded": true,
+  "ordered_target_loop_bound": false,
+  "damage_bound": false,
+  "production_memory_lease": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "inputs_sha256": "b0d0e927075dd9904dd5f00120fec13840252e51266340404ce9d857162a48bf",
+  "results_sha256": "30d61d6bdbff6092216d7c9e7125e4adb1b5a026b3d4347238fb39a8345587af",
+  "expected_sha256": "30d61d6bdbff6092216d7c9e7125e4adb1b5a026b3d4347238fb39a8345587af"
+}
