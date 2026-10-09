@@ -3,7 +3,7 @@ import argparse,hashlib,json,os,re,struct,subprocess
 from pathlib import Path
 from compiler import Source,key
 from source_profile import document,discover
-from source_model_core_4086 import load as load_core
+from source_model_core_4086 import load as load_core,number
 from source_player_jump_entry_profile import load
 from dialect_4086 import ENGINE_COMMIT
 
@@ -19,8 +19,12 @@ def main():
     init=raw[raw.index('s_model *init_model('):raw.index('void update_model_loadflag(')]
     defaults='\n'.join(line for line in init.splitlines()if re.match(r'\s*newchar->(?:jumpspeed|jumpheight|runjumpheight|runjumpdist)\s*=',line))
     start=raw.index('    if(newchar->jumpspeed < 0)',raw.index('s_model *load_cached_model('));post=raw[start:raw.index('    if(blendfx_is_set == 0)',start)]
-    docs={k:document(Source(a.source),n)for k,(n,_)in Source(a.source).index.items()if k.endswith('.txt')};structure=discover(Source(a.source),docs)
-    cases=[dict(identity=m['declaration'],rows=docs[key(m['source_path'])]['directives'],height=4.0,speed=-1.0)for m in structure['models']]
+    pak=Source(a.source);docs={k:document(pak,n)for k,(n,_)in pak.index.items()if k.endswith('.txt')};structure=discover(pak,docs)
+    height=4.0;speed=-1.0
+    for r in docs[key(structure['models_path'])]['directives']:
+        if r['directive']=='jumpheight':height=number(r['values'])
+        elif r['directive']=='jumpspeed':speed=number(r['values'])
+    cases=[dict(identity=m['declaration'],rows=docs[key(m['source_path'])]['directives'],height=height,speed=speed)for m in structure['models']]
     def row(n,*v):return dict(directive=n,values=list(map(str,v)))
     for name in('jumpspeed','jumpspeedf'):
         for value in('-100','-0','0','0.7','1.17549435e-38','10.1234567','300'):

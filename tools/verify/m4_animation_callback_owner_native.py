@@ -75,6 +75,7 @@ def main():
     p.add_argument('--ground-walk',action='store_true',help='After actual SELECT construction, run canonical ground movement and real WALK frame-zero services.')
     p.add_argument('--canonical-attack',action='store_true',help='Canonical ordinary attack with actual chain/frame owners; source sound result instrumented.')
     p.add_argument('--early-attack',action='store_true',help='Join ordinary attack after release in the real early player prefix.')
+    p.add_argument('--pending-jump-birth',action='store_true',help='Clear exact pending jump descriptor before actual constructor exists publication, bind after model copy.')
     p.add_argument('--canonical-release',action='store_true',help='Canonical attack release after SELECT; sound results instrumented, actual frame owner.')
     p.add_argument('--canonical-lie-absence',action='store_true',help='Execute the actual RISEATTACK absence query after SELECT birth, preserving actor/input state.')
     p.add_argument('--canonical-jump-attack',action='store_true',help='Actual closed zero-air-control jump attack helper after SELECT birth.')
@@ -103,6 +104,7 @@ def main():
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
     if a.canonical_attack and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('ORDINARY_ATTACK_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
     if a.early_attack and not a.early_player:raise ValueError('JOINED_ATTACK_REQUIRES_EARLY_PLAYER')
+    if a.pending_jump_birth and not a.run_tuple_birth:raise ValueError('PENDING_JUMP_BIRTH_REQUIRES_REAL_MODEL_COPIER')
     if a.canonical_attack and(a.canonical_release or a.canonical_lie_absence or a.canonical_jump_attack or a.early_player or a.canonical_special or a.canonical_charge or a.ground_walk or a.attack_chain_model or a.costmove_model):raise ValueError('ORDINARY_ATTACK_FIXTURE_CONFLICT')
     if a.canonical_release and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('RELEASE_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
     if a.canonical_release and(a.canonical_lie_absence or a.canonical_jump_attack or a.early_player or a.canonical_special or a.canonical_charge or a.ground_walk or a.attack_chain_model or a.costmove_model):raise ValueError('RELEASE_FIXTURE_CONFLICT')
@@ -585,6 +587,17 @@ CallbackFixture_AfterScript:
         asm+=emit_player_state(player_state_plan,player_state_work,sy)+emit_birth_bridge(player_state_work,sy)
         if a.run_tuple_birth:
             asm+=emit_run_tuples(run_work,run_handles,run_tuple_report,sy)+emit_ctor_model_bridge(run_work,sy)
+        if a.pending_jump_birth:
+            from source_pending_jump_layout import layout as pending_layout
+            from source_pending_jump_native import emit as emit_pending,emit_constructor_bridge
+            pending_plan=pending_layout();pending_work=run_regions['pending_jump_controls']
+            asm+=emit_pending(pending_plan,pending_work,sy)+emit_constructor_bridge(pending_work,sy)
+            needle=' jsl SourcePlayerState_ClearBirth\n bcs SourcePlayerState_BirthBad'
+            if needle not in asm:raise ValueError('PENDING_JUMP_REAL_BIRTH_GATE')
+            asm=asm.replace(needle,needle+'\n jsl PendingJump_ConstructorBirth\n bcs SourcePlayerState_BirthBad',1)
+            needle=' jsl SourceRunTuple_CaptureCurrent\n bcs SourceRunTuple_CtorCaptureBad'
+            if needle not in asm:raise ValueError('PENDING_JUMP_REAL_MODEL_GATE')
+            asm=asm.replace(needle,needle+'\n jsl PendingJump_ConstructorCopy\n bcs SourceRunTuple_CtorCaptureBad',1)
     if a.ground_walk:
         from source_player_ground_native import emit as emit_ground
         from source_player_ground_binding import emit as emit_ground_binding
@@ -1421,6 +1434,28 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
             lua=lua.replace(' put(0x7ffb86,c.fault,2)',f' put(0x7ffb86,c.fault,2)\n for j=0,63 do put({run_work}+j,0,1)end\n put({run_work},0xb678,2)\n for j=0,255 do put({run_handles}+j,0xa5,1)end')
             run_done=fs['SourceRunTuple_CtorModelDone']
             lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);emu.log('CTORRUNTUPLE|'..word(INDEX)..'|'..slot..'|'..word({run_handles}+slot*2)..'|'..word({run_handles}+127*2)..'|'..dw(0x414004+slot*80)..'|'..word({run_work}+2))end,emu.callbackType.exec,{run_done},{run_done},emu.cpuType.snes,mt)\n"
+        if a.pending_jump_birth:
+            pending_base=pending_plan['base']
+            lua+=f"""
+emu.addMemoryCallback(function()
+ for j=0,63 do put({pending_work}+j,0,1)end
+ put({pending_work},0xb691,2);put({pending_work}+8,word(INDEX)+1,4);put({pending_work}+12,word(INDEX)+1,4)
+ put({pending_work}+16,{pending_base&65535},2);put({pending_work}+18,0x42,2);put({pending_work}+20,{pending_plan['chr_capacity']},2);put({pending_work}+22,{len(registry['models'])},2)
+ for j=-8,{pending_plan['bytes']+7} do put({pending_base}+j,0xa5,1)end
+ put(0x416800,0xffff,2)
+end,emu.callbackType.exec,{poison},{poison},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local slot=word(sy.SourceScriptClone4086_Slot);local at={pending_base}+slot*24;local cleared=0;local sibling=0
+ for j=0,15 do cleared=cleared+emu.read(at+j,mt)end
+ for j=0,23 do sibling=sibling+emu.read({pending_base}+127*24+j,mt)end
+ emu.log('CTORPENDINGBIRTH|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x414004+slot*80)..'|'..word(at+16)..'|'..word(at+18)..'|'..dw(at+20))
+end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local slot=word(sy.SourceScriptClone4086_Slot);local at={pending_base}+slot*24;local cleared=0
+ for j=0,15 do cleared=cleared+emu.read(at+j,mt)end
+ emu.log('CTORPENDINGCOPY|'..word(INDEX)..'|'..cleared..'|'..word(at+16)..'|'..word(at+18)..'|'..dw(at+20)..'|'..word({pending_work}+2))
+end,emu.callbackType.exec,{run_done},{run_done},emu.cpuType.snes,mt)
+"""
     if a.ground_walk:
         prepare=fs['CallbackFixture_GroundPrepare'];done=fs['CallbackFixture_GroundDone']
         lua+=f'''emu.addMemoryCallback(function()
@@ -1747,10 +1782,12 @@ end,emu.callbackType.exec,{fs['CallbackFixture_LieDone']},{fs['CallbackFixture_L
     if a.ai_run:
         initialinstall+="\nset('SourceAI4086_State',0);set('SourceAI4086_Endgame',0,4);set('SourceAIRun4086_Ready',0xb5e6);set('SourceAIRun4086_State',0);put(0x439000,0,4);put(0x416814,48,4);put(0x42f400,0,4);put(0x42e024,0,4)\n"
         lua+="emu.addMemoryCallback(function()emu.log('AIRUNFRAME|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..dw(0x42e024)..'|'..dw(0x416814)..'|'..word(sy.SourceAIRun4086_PendingKind))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
-    if a.early_player or a.canonical_attack:
+    if a.early_player or a.canonical_attack or a.pending_jump_birth:
         initialinstall+="\nset('SourceDamageEffectsState4086_Ready',0);set('SourcePhysicsState4086_Ready',0)\n"
         for name in ('SourceModelAttackPolicy4086_Ready','SourceAttackTiming4086_Ready','SourceOffscreenState4086_Ready','SourceDeathFields4086_Ready','SourceDamageState4086_Ready'):
             initialinstall+=f' put({sy[name]},0,2)\n'
+    if a.pending_jump_birth and not(a.early_player or a.canonical_attack):initialinstall+=f' put({sy["SourceAttackBody4086_Ready"]},0,2)\n'
+    if a.early_player or a.canonical_attack:
         for field,value in dict(SourceAttackBody4086_Ready=0xb605,SourceAttackBody4086_Status=0,SourceAttackBody4086_Bank=58,SourceAttackBody4086_Base=0x8000+chain_at,SourceAttackBody4086_Bytes=len(chain_table)).items():initialinstall+=f' put({sy[field]},{value},2)\n'
 
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
@@ -2102,6 +2139,12 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         reporter.check('readonly alternate queries retain source order and full-width weapon subtype predicate',attack_queries==query_expected)
         r.update(canonical_attack_bound=True,attack_results=attack_results,attack_expected=attack_expected,attack_capability=attack_capability,attack_frame_owner_real=True,attack_chain_owner_real=True,attack_sound_result_instrumented=True,physical_attack_sound_backend_bound=False,full_player_think_bound=False)
         r.update(attack_toss_results=attack_toss,attack_query_results=attack_queries,attack_toss_owner_real=True,attack_jump_velocity_owner_real=True)
+    if a.pending_jump_birth:
+        pending_birth=[list(map(int,line.split('CTORPENDINGBIRTH|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORPENDINGBIRTH|'in line]
+        pending_copy=[list(map(int,line.split('CTORPENDINGCOPY|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORPENDINGCOPY|'in line]
+        reporter.check('real constructor clears pending source jump descriptor before exists publication and retains sibling',pending_birth==[[i,0,0,3960,0,c['default']+1,0xb691,i+1]for i,c in enumerate(rows)])
+        reporter.check('actual fresh model copy binds pending row before script/frame callbacks without changing source descriptor',pending_copy==[[i,0,c['default']+1,0xb691,i+1,2]for i,c in enumerate(rows)])
+        r.update(pending_jump_birth_hook_bound=True,pending_jump_model_constructor_hook_bound=True,pending_jump_birth_results=pending_birth,pending_jump_copy_results=pending_copy,pending_jump_layout=pending_plan,pending_jump_ram_ownership_instrumented=True,production_pending_jump_memory_lease=False,tryjump_dojump_bound=False)
     if a.canonical_release:
         release_results=[list(map(int,line.split('RELEASEFRAMEBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'RELEASEFRAMEBOUND|'in line]
         expected=[]

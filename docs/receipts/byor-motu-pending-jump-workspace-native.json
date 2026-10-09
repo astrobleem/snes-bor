@@ -1,0 +1,183 @@
+{
+  "schema": "BYOR_SA1_REUSED_WORKSPACE_NATIVE_V1",
+  "status": "PASS",
+  "rom_sha256": "056512feb148ee3f46800a2a0cc93aa1864407e51605491b8fc2e62199176df7",
+  "expected_chr_sha256": "1431af14be6266e89298214fffd68503421346cd585c7956a592247e4446dbbd",
+  "actual_chr_sha256": "1431af14be6266e89298214fffd68503421346cd585c7956a592247e4446dbbd",
+  "vram_exact": true,
+  "descriptors": [
+    {
+      "source": 4325376,
+      "bytes": 52224,
+      "bpp": 8,
+      "columns": 16,
+      "tile_count": 816,
+      "cdma": 16,
+      "iram": 13824,
+      "vram_word_address": 0,
+      "dcnt": 176,
+      "requires_sa1_setup": true,
+      "requires_chr_irq_ready": true,
+      "forbids_other_scpu_bwram_reads": true,
+      "native_admitted": false,
+      "job": 0,
+      "tile_offset": 0,
+      "job_byte_offset": 0,
+      "workspace_capacity": 52224,
+      "requires_chunk_copy_before_setup": true,
+      "requires_previous_conversion_disabled": true
+    },
+    {
+      "source": 4325376,
+      "bytes": 5120,
+      "bpp": 8,
+      "columns": 16,
+      "tile_count": 80,
+      "cdma": 16,
+      "iram": 13824,
+      "vram_word_address": 26112,
+      "dcnt": 176,
+      "requires_sa1_setup": true,
+      "requires_chr_irq_ready": true,
+      "forbids_other_scpu_bwram_reads": true,
+      "native_admitted": false,
+      "job": 0,
+      "tile_offset": 816,
+      "job_byte_offset": 52224,
+      "workspace_capacity": 52224,
+      "requires_chunk_copy_before_setup": true,
+      "requires_previous_conversion_disabled": true
+    },
+    {
+      "source": 4325376,
+      "bytes": 8192,
+      "bpp": 2,
+      "columns": 16,
+      "tile_count": 512,
+      "cdma": 18,
+      "iram": 13824,
+      "vram_word_address": 28672,
+      "dcnt": 176,
+      "requires_sa1_setup": true,
+      "requires_chr_irq_ready": true,
+      "forbids_other_scpu_bwram_reads": true,
+      "native_admitted": false,
+      "job": 1,
+      "tile_offset": 0,
+      "job_byte_offset": 0,
+      "workspace_capacity": 52224,
+      "requires_chunk_copy_before_setup": true,
+      "requires_previous_conversion_disabled": true
+    }
+  ],
+  "workspace": [
+    "420000",
+    "42CC00"
+  ],
+  "physics_sentinel": [
+    "42D800",
+    "42E000"
+  ],
+  "physics_sentinel_preserved": true,
+  "source_heap_hashes": [
+    [
+      4276536182,
+      4276536182
+    ]
+  ],
+  "source_heap_preserved": true,
+  "packed_bytes": 65536,
+  "timings": [
+    {
+      "chunk": 0,
+      "copy_master_clocks": 4573192,
+      "dma_master_clocks": 430498,
+      "bytes": 52224
+    },
+    {
+      "chunk": 1,
+      "copy_master_clocks": 448392,
+      "dma_master_clocks": 42312,
+      "bytes": 5120
+    },
+    {
+      "chunk": 2,
+      "copy_master_clocks": 717392,
+      "dma_master_clocks": 67642,
+      "bytes": 8192
+    }
+  ],
+  "events": [
+    {
+      "chunk": 0,
+      "phase": "BeforeCopy",
+      "master_clock": 330402
+    },
+    {
+      "chunk": 0,
+      "phase": "AfterCopy",
+      "master_clock": 4903594
+    },
+    {
+      "chunk": 0,
+      "phase": "Start",
+      "master_clock": 4904376
+    },
+    {
+      "chunk": 0,
+      "phase": "Done",
+      "master_clock": 5334874
+    },
+    {
+      "chunk": 1,
+      "phase": "BeforeCopy",
+      "master_clock": 5334942
+    },
+    {
+      "chunk": 1,
+      "phase": "AfterCopy",
+      "master_clock": 5783334
+    },
+    {
+      "chunk": 1,
+      "phase": "Start",
+      "master_clock": 5784116
+    },
+    {
+      "chunk": 1,
+      "phase": "Done",
+      "master_clock": 5826428
+    },
+    {
+      "chunk": 2,
+      "phase": "BeforeCopy",
+      "master_clock": 5826496
+    },
+    {
+      "chunk": 2,
+      "phase": "AfterCopy",
+      "master_clock": 6543888
+    },
+    {
+      "chunk": 2,
+      "phase": "Start",
+      "master_clock": 6544630
+    },
+    {
+      "chunk": 2,
+      "phase": "Done",
+      "master_clock": 6612272
+    }
+  ],
+  "marker_hex": "acb4adb4",
+  "source_or_native_physics_state_installed": false,
+  "live_rgb8_compositor_bound": false,
+  "production_irq_nmi_audio_budget_admitted": false,
+  "no_color_reduction": true,
+  "reserved_entity_bytes": 3072,
+  "reserved_entity_range": [
+    "42CC00",
+    "42D800"
+  ],
+  "reserved_entity_and_physics_sentinel_preserved": true
+}

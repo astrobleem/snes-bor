@@ -14,22 +14,24 @@ from m4_sa1_character_conversion_type1_native import build as template
 from sa1_character_conversion import bitmap_bytes,reused_workspace_descriptors
 
 
-def build(folder):
+def build(folder,reserve_bytes=0):
+ if reserve_bytes<0 or reserve_bytes%2 or reserve_bytes>=0xd800:raise ValueError('CHARCONV_STATE_RESERVATION')
+ capacity=0xd800-reserve_bytes
  template(folder,16);asm=(folder/'type1.pasm').read_text()
  jobs=[dict(bpp=8,columns=16,tile_count=896,vram_byte_address=0),dict(bpp=2,columns=16,tile_count=512,vram_byte_address=57344)]
- ds=reused_workspace_descriptors(0x420000,0xd800,jobs);data=bytearray();expected=bytearray();starts=[]
+ ds=reused_workspace_descriptors(0x420000,capacity,jobs);data=bytearray();expected=bytearray();starts=[]
  for job in jobs:
   pixels=pattern_tiles(job['tile_count'])&((1<<job['bpp'])-1);starts.append(len(data));data.extend(bitmap_bytes(pixels,job['bpp'],16));expected.extend(b''.join(encode(t,job['bpp'])for t in pixels))
  begin=asm.index('    ldx #0\nCopyInput:');end=asm.index('    ldx #0\nCopyWorker:',begin)
- asm=asm[:begin]+'''    ldx #0
+ asm=asm[:begin]+f'''    ldx #0
     lda #$4086
 PhysicsSentinelInit:
 .a16
 .i16
-    sta.l $42D800,x
+    sta.l ${0x420000+capacity:06X},x
     inx
     inx
-    cpx #2048
+    cpx #{2048+reserve_bytes}
     bne PhysicsSentinelInit
 '''+asm[end:]
  begin=asm.index('    lda #$80\n    sta.w $2115\n')+len('    lda #$80\n    sta.w $2115\n');end=asm.index('    rep #$20\n.a16\n    lda #$B4AD',begin);body=''
@@ -90,14 +92,14 @@ WorkspaceChunk{i}Done:
 
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
- rom,expected,sy,ds=build(folder);path=folder/'proof.sfc';path.write_bytes(rom)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--reserve-bytes',type=int,default=0);a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
+ rom,expected,sy,ds=build(folder,a.reserve_bytes);path=folder/'proof.sfc';path.write_bytes(rom);capacity=0xd800-a.reserve_bytes
  script='''local mt=emu.memType.snesMemory
 local function heap_hash()local h=2166136261;for _,r in ipairs({{0x40b000,0x410000},{0x414000,0x420000},{0x430000,0x440000}})do for a=r[1],r[2]-1 do h=((h~emu.read(a,mt))*16777619)&0xffffffff end end;return h end
 local baseline=0
 '''
  script+=f"emu.addMemoryCallback(function()baseline=heap_hash()end,emu.callbackType.exec,{sy['WorkspaceChunk0BeforeCopy']},{sy['WorkspaceChunk0BeforeCopy']},emu.cpuType.snes,mt)\n"
- end=sy['WorkspaceChunk2Done']+5
+ end=sy[f'WorkspaceChunk{len(ds)-1}Done']+5
  # The completion marker is written only after conversion disable.
  script+=f"emu.addMemoryCallback(function()emu.log('WORKSPACEHEAP|'..baseline..'|'..heap_hash())end,emu.callbackType.exec,{end},{end},emu.cpuType.snes,mt)\n"
  for i in range(len(ds)):
@@ -113,7 +115,7 @@ local baseline=0
   for _ in range(60):
    m.tool('run_frames',{'count':1});marker=m.read_memory('SnesMemory',0x413ff0,4)
    if marker==bytes.fromhex('ac b4 ad b4'):break
-  actual=m.read_memory('SnesVideoRam',0,len(expected));sentinel=m.read_memory('SnesMemory',0x42d800,2048)
+  actual=m.read_memory('SnesVideoRam',0,len(expected));sentinel=m.read_memory('SnesMemory',0x420000+capacity,2048+a.reserve_bytes)
  logs=(folder/'mesen.log').read_text();events=[];heaps=[]
  for line in logs.splitlines():
   if 'WORKSPACECHUNK|'in line:
@@ -123,8 +125,9 @@ local baseline=0
  for i,d in enumerate(ds):
   row={e['phase']:e['master_clock']for e in events if e['chunk']==i}
   if len(row)==4:timing.append(dict(chunk=i,copy_master_clocks=row['AfterCopy']-row['BeforeCopy'],dma_master_clocks=row['Done']-row['Start'],bytes=d['bytes']))
- good=actual==expected and sentinel==bytes.fromhex('8640')*1024 and len(heaps)==1 and heaps[0][0]==heaps[0][1]and len(timing)==len(ds)and all(t['dma_master_clocks']>=t['bytes']*8 for t in timing)and marker==bytes.fromhex('ac b4 ad b4')
+ good=actual==expected and sentinel==bytes.fromhex('8640')*((2048+a.reserve_bytes)//2) and len(heaps)==1 and heaps[0][0]==heaps[0][1]and len(timing)==len(ds)and all(t['dma_master_clocks']>=t['bytes']*8 for t in timing)and marker==bytes.fromhex('ac b4 ad b4')
  r=dict(schema='BYOR_SA1_REUSED_WORKSPACE_NATIVE_V1',status='PASS'if good else'FAIL',rom_sha256=hashlib.sha256(rom).hexdigest(),expected_chr_sha256=hashlib.sha256(expected).hexdigest(),actual_chr_sha256=hashlib.sha256(actual).hexdigest(),vram_exact=actual==expected,descriptors=ds,workspace=['420000','42D800'],physics_sentinel=['42D800','42E000'],physics_sentinel_preserved=sentinel==bytes.fromhex('8640')*1024,source_heap_hashes=heaps,source_heap_preserved=len(heaps)==1 and heaps[0][0]==heaps[0][1],packed_bytes=len(expected),timings=timing,events=events,marker_hex=marker.hex(),source_or_native_physics_state_installed=False,live_rgb8_compositor_bound=False,production_irq_nmi_audio_budget_admitted=False,no_color_reduction=True)
+ r.update(workspace=['420000',f'{0x420000+capacity:06X}'],reserved_entity_bytes=a.reserve_bytes,reserved_entity_range=[f'{0x420000+capacity:06X}','42D800'],reserved_entity_and_physics_sentinel_preserved=sentinel==bytes.fromhex('8640')*((2048+a.reserve_bytes)//2),physics_sentinel_preserved=sentinel[-2048:]==bytes.fromhex('8640')*1024)
  (folder/'packed.chr').write_bytes(actual);(folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');print(r['status'],r['packed_bytes'],'lossless CHR bytes',timing,heaps)
  if not good:raise SystemExit(1)
 

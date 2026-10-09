@@ -2,8 +2,8 @@
   "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
   "base": 8364032,
   "bytes": 6400,
-  "used_bytes": 5616,
-  "remaining_bytes": 784,
+  "used_bytes": 6216,
+  "remaining_bytes": 184,
   "entities": 128,
   "players": 4,
   "regions": [
@@ -169,11 +169,102 @@
       "authority": "special input/resource snapshot and mandatory callback continuation"
     },
     {
-      "name": "player_state_controls",
+      "name": "special_binding_controls",
       "address": 8369584,
       "bytes": 64,
       "end": 8369648,
+      "authority": "canonical special capture and preflighted publication"
+    },
+    {
+      "name": "special_services_controls",
+      "address": 8369648,
+      "bytes": 32,
+      "end": 8369680,
+      "authority": "real special queries and mandatory frame services"
+    },
+    {
+      "name": "charge_services_controls",
+      "address": 8369680,
+      "bytes": 24,
+      "end": 8369704,
+      "authority": "canonical charging cancellation and real idle continuation"
+    },
+    {
+      "name": "pain_services_controls",
+      "address": 8369704,
+      "bytes": 24,
+      "end": 8369728,
+      "authority": "pain helper through real special continuation and fresh inpain cleanup"
+    },
+    {
+      "name": "player_early_controls",
+      "address": 8369728,
+      "bytes": 32,
+      "end": 8369760,
+      "authority": "entry checks, rush expiry and ordered preinput/charge/pain dispatch"
+    },
+    {
+      "name": "player_fall_controls",
+      "address": 8369760,
+      "bytes": 24,
+      "end": 8369784,
+      "authority": "canonical player falling input and landing marker"
+    },
+    {
+      "name": "player_jump_controls",
+      "address": 8369784,
+      "bytes": 32,
+      "end": 8369816,
+      "authority": "default zero-air-control jump attack and real frame continuation"
+    },
+    {
+      "name": "player_lie_controls",
+      "address": 8369816,
+      "bytes": 16,
+      "end": 8369832,
+      "authority": "real lying first-query absence admission"
+    },
+    {
+      "name": "player_state_controls",
+      "address": 8369832,
+      "bytes": 64,
+      "end": 8369896,
       "authority": "module-tail lifetime lease and exact integer row access"
+    },
+    {
+      "name": "player_directional_controls",
+      "address": 8369896,
+      "bytes": 64,
+      "end": 8369960,
+      "authority": "canonical air predicate and ordered directional RUN queries"
+    },
+    {
+      "name": "player_button_controls",
+      "address": 8369960,
+      "bytes": 48,
+      "end": 8370008,
+      "authority": "pre-attack button query and real special continuation"
+    },
+    {
+      "name": "player_release_controls",
+      "address": 8370008,
+      "bytes": 128,
+      "end": 8370136,
+      "authority": "canonical release, sound/frame continuations and integral charge threshold"
+    },
+    {
+      "name": "player_attack_controls",
+      "address": 8370136,
+      "bytes": 48,
+      "end": 8370184,
+      "authority": "ordinary attack, chain/target/frame/sound continuations"
+    },
+    {
+      "name": "pending_jump_controls",
+      "address": 8370184,
+      "bytes": 64,
+      "end": 8370248,
+      "authority": "generation-bound pending jump storage and constructor model binding"
     }
   ],
   "required_lease": "SourceForeignWork B671 nonzero matching generation; retired canvas/frontpanel/water owners",
