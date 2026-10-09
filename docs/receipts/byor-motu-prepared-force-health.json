@@ -1,0 +1,24 @@
+{
+  "schema": "BYOR_PREPARED_DAMAGE_FORCE_HEALTH_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "path": "out/byor-motu-player-health-contact-native/report.json",
+      "cases": 278,
+      "sha256": "b6b71e361ff32c6c28fadaed5d9cf02899332728421236e7cf54ce8c35aad3ce",
+      "rom_sha256": "a3ef2c0d02795c74c7edcab65c416bbe5e1e53b8ffd6893af997661be86bce3d"
+    },
+    {
+      "path": "out/byor-motu-damage-contact-prepared-force-native/report.json",
+      "cases": 412,
+      "sha256": "a9874b053f294cc01f27ffaba52b752e063b66187c4c94ab2fce4d373c27dd4b",
+      "rom_sha256": "7190d2427e9f26bee28341a0db5efdd5849f3d2bd90188a1de54521871167f4f"
+    }
+  ],
+  "default_emitters_byte_identical": true,
+  "production_globals_capture_bound": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

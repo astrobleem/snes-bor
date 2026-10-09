@@ -5,14 +5,14 @@ The 96-byte source attack-chain control lease owns this snapshot and result.
 """
 
 
-def emit(work,sy):
+def emit(work,sy,*,allow_nonplayer=False,prefix="PlayerDamageForce"):
  lines=[];serial=0;size=16
  def put(s):lines.extend(s.strip().splitlines())
- def label(n):put('PlayerDamageForce_'+n+':\n.a16\n.i16')
+ def label(n):put(prefix+'_'+n+':\n.a16\n.i16')
  def guard(op,n='Bad'):
   nonlocal serial
-  serial+=1;g='PlayerDamageForce_Guard'+str(serial)
-  put(' '+dict(beq='bne',bne='beq',bcc='bcs',bcs='bcc')[op]+f' {g}\n jmp PlayerDamageForce_{n}\n{g}:\n.a16\n.i16')
+  serial+=1;g=prefix+'_Guard'+str(serial)
+  put(' '+dict(beq='bne',bne='beq',bcc='bcs',bcs='bcc')[op]+f' {g}\n jmp {prefix}_{n}\n{g}:\n.a16\n.i16')
  def require(a,v):put(f' lda.l {a}\n cmp #{v}');guard('bne')
  label('Run');put(f' php\n rep #$39\n phx\n phy\n phd\n tsc\n sec\n sbc #{size}\n tcs\n inc a\n tcd')
  put(f' jsl {sy["SourceForeignWork_Check"]}');guard('bcs');require(work+64,0xb6b2)
@@ -26,13 +26,19 @@ def emit(work,sy):
   if src==0:put(f' cmp.l {sy["SourceSelf4086_GlobalLow"]}');guard('bne')
   require('$414002,x',0x41)
   put(f' lda ${src:02X}\n asl a\n asl a\n asl a\n asl a\n asl a\n sta $04\n asl a\n clc\n adc $04\n tax\n lda.l $40C048,x')
-  if src==0:put(' and #1');guard('beq')
+  if src==0:
+   put(' and #1')
+   if allow_nonplayer:put(' sta $08')
+   else:guard('beq')
   else:put(' and #2\n sta $06')
+ if allow_nonplayer:
+  require(work+60,0xb6b3);require(work+62,0)
+  put(' lda $08');guard('beq','Raw')
  put(f' lda.l {work}+72\n ora.l {work}+74');guard('bne','Zero')
  put(f' lda.l {work}+76\n ora.l {work}+78');guard('beq','Raw');put(' lda $06');guard('bne','Zero')
  label('Raw')
  for off in(0,2):put(f' lda.l {work}+{68+off}\n sta.l {work}+{80+off}')
- put(' jmp PlayerDamageForce_Good');label('Zero');put(f' lda #0\n sta.l {work}+80\n sta.l {work}+82')
+ put(' jmp '+prefix+'_Good');label('Zero');put(f' lda #0\n sta.l {work}+80\n sta.l {work}+82')
  for n,status,carry in(('Good',2,'clc'),('Bad',3,'sec')):
   label(n);put(f' lda #{status}\n sta.l {work}+66\n tay\n tsc\n clc\n adc #{size}\n tcs\n tya\n pld\n ply\n plx\n plp\n {carry}\n rtl')
  return '\n'.join(lines)+'\n'
