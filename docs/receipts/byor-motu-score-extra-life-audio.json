@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_SCORE_EXTRA_LIFE_ASAD_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out/byor-motu-score-extra-life-audio-native/report.json",
+  "proof_sha256": "510df597f112ee5964e311c073cf0e904af35d25e8525d624bfa03f9386aaf44",
+  "rom_sha256": "a2ec76fcc7222d199bab15ff8bd073f48eead631ad3abdd8f8f10c86195ba0ad",
+  "source_1up_binding": {
+    "source_path": "data/sounds/1up.wav",
+    "sound_index": 27
+  },
+  "events": [
+    "audio|3|49999",
+    "life|3|49999",
+    "done|4|50069|0"
+  ],
+  "capability": "ISOLATED_IDLE_SINGLE_ASAD_SOUND_CHILD",
+  "concurrent_source_mixer_bound": false,
+  "source_effect_volume_projection_bound": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
