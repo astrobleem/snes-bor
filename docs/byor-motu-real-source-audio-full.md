@@ -1,0 +1,11 @@
+# Concurrent complete 1UP and death asset mixing
+
+The generic native gather/mixer now accepts complete admitted PCM8 assets in separate 64KiB ROM banks. Each channel has a source-derived length and retained Q12 phase/active state. The isolated worker patches its own IRAM ROM-load bank operand before gathering that channel. This admits up to twelve independent banks with at most 32,767 PCM8 frames per asset. Longer assets, arbitrary within-sample bank crossing and PCM16 remain explicit gaps. The prior non-banked emitter is byte-identical in six period/unroll combinations.
+
+The proof uses actual namespace 27 1UP and namespace 17 He-Man death assets, verifying source WAV and normalized WAV identities against the compiled audio manifest. Normalization preserves the existing ACCEPTED_COMPAT full-duration mono PCM_u8/11025 Hz policy and explicit final silence padding. It embeds the complete normalized assets in the private ROM, without copying PCM media files.
+
+Unmodified pinned sound_play_sample admits the two sounds to source slots 11 and 10. Unmodified clearmixbuffer, mixaudio and update_sample then produce the C comparison stream. Native start and tail cases span two batches; a full-lifetime case runs 103 successive 184-frame batches. All 75,808 full-stream PCM bytes match C exactly. Final source phase and active state also match, and both sounds finish without restart. The measured peak full-lifetime batch is 111,732 master clocks. Source-slot compaction is explicit; it does not change individual sample identity or the summed PCM.
+
+The first banked attempt changed A while selecting the ROM bank and failed its PCM/phase comparison. Restoring the sample base before pointer arithmetic fixes the error. That failed proof is excluded.
+
+This proves isolated concurrent mixing and complete normalized asset lifetimes, not source event admission, BRR/SPC transport, audible output, realtime pacing, a production memory lease or a joint graphics budget. It does not bind these sounds into the death callback or certify MOTU gameplay. No source pixels or colors were changed; no color reduction or PCM file copying occurred. See the [receipt](receipts/byor-motu-real-source-audio-full-native.json).

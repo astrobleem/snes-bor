@@ -1,0 +1,272 @@
+{
+  "schema": "BYOR_REAL_SOURCE_AUDIO_FULL_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out/byor-motu-real-source-audio-full-native/report.json",
+  "proof_sha256": "dde266b1f98dfd142327e80192ceac15217e9672d7182813e4bc811d84d00b73",
+  "source_identities": [
+    {
+      "sound_index": 27,
+      "source_path": "data/sounds/1up.wav",
+      "source_sha256": "a6b208af4441d78254e7e6ea5be63e36b5a30de9f9562eed1191e06da0691991",
+      "normalized_frames": 14064,
+      "meaningful_frames": 14061,
+      "normalized_pcm_sha256": "c122071a8242f4081191bd005003184466dc60dba841ccd83b45e3ca96c7075e",
+      "policy": {
+        "tool": "ffmpeg",
+        "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+        "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+        "rate_hz": 11025,
+        "padded_frames": 3
+      }
+    },
+    {
+      "sound_index": 17,
+      "source_path": "data/chars/he-man/death.wav",
+      "source_sha256": "a37291fd2225028ab82ba17cfd665170ca83ffde2f852b791bcab066e20fa187",
+      "normalized_frames": 18848,
+      "meaningful_frames": 18847,
+      "normalized_pcm_sha256": "477eb839e83cab66cac2ba4003b33ac955b6e1224ec03aca5818e37c0f2a1d6d",
+      "policy": {
+        "tool": "ffmpeg",
+        "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+        "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+        "rate_hz": 11025,
+        "padded_frames": 1
+      }
+    }
+  ],
+  "source_functions_sha256": {
+    "clearmixbuffer": "2ad027a7fa0e1795fb3b36dbe3bb4645b1716a94a8f1b4d6f5914ee0e32354d6",
+    "mixaudio": "4f72af3cad3fbcc5fc36e448daed4673f20dbd71ea2e95f88cbd91b3b8481f96",
+    "update_sample": "001bf7d7d69c81cfc63da2a6edf8805e4072a4a226cb48a4a7c85f2fd6f62899",
+    "sound_play_sample": "3f544738c685931ef89c20070576ec412fca47cc57a861c3bc0a66b984498894"
+  },
+  "cases": [
+    {
+      "case": "start",
+      "batches": 2,
+      "status": "PASS",
+      "source_slots": [
+        11,
+        10
+      ],
+      "initial_Q12": [
+        0,
+        0
+      ],
+      "PCM_observed_bytes": 1472,
+      "PCM_expected_bytes": 1472,
+      "PCM_mismatches": 0,
+      "actual_phases": [
+        1507328,
+        1507328
+      ],
+      "expected_phases": [
+        1507328,
+        1507328
+      ],
+      "actual_active": [
+        1,
+        1
+      ],
+      "expected_active": [
+        1,
+        1
+      ],
+      "batch_master_clocks": [
+        111684,
+        111668
+      ],
+      "worker_bytes": 558,
+      "rom_sha256": "c3baec75ec170241c651e28cee0b8a2da11d9f2819ace0d1b90c7fa42d02a371",
+      "PCM_sha256": "e15059ea19e001ec637a5c60cbcaa6d4333ac7c4e1334906fe5c9e9dfcef5290"
+    },
+    {
+      "case": "tail",
+      "batches": 2,
+      "status": "PASS",
+      "source_slots": [
+        11,
+        10
+      ],
+      "initial_Q12": [
+        57118720,
+        76967936
+      ],
+      "PCM_observed_bytes": 1472,
+      "PCM_expected_bytes": 1472,
+      "PCM_mismatches": 0,
+      "actual_phases": [
+        0,
+        0
+      ],
+      "expected_phases": [
+        0,
+        0
+      ],
+      "actual_active": [
+        0,
+        0
+      ],
+      "expected_active": [
+        0,
+        0
+      ],
+      "batch_master_clocks": [
+        90310,
+        69408
+      ],
+      "worker_bytes": 558,
+      "rom_sha256": "90d3692fdafed259538d532adc5b44ca62830f2ebc85575176934e24f904c12a",
+      "PCM_sha256": "8cb3226d58fa7da8aeefe8e64d3b3eca72698fb2949f36adc86e56923544e71a"
+    },
+    {
+      "case": "full",
+      "batches": 103,
+      "status": "PASS",
+      "source_slots": [
+        11,
+        10
+      ],
+      "initial_Q12": [
+        0,
+        0
+      ],
+      "PCM_observed_bytes": 75808,
+      "PCM_expected_bytes": 75808,
+      "PCM_mismatches": 0,
+      "actual_phases": [
+        0,
+        0
+      ],
+      "expected_phases": [
+        0,
+        0
+      ],
+      "actual_active": [
+        0,
+        0
+      ],
+      "expected_active": [
+        0,
+        0
+      ],
+      "batch_master_clocks": [
+        111684,
+        111668,
+        111656,
+        111656,
+        111668,
+        111628,
+        111672,
+        111664,
+        111648,
+        111704,
+        111668,
+        111636,
+        111668,
+        111664,
+        111660,
+        111660,
+        111668,
+        111672,
+        111664,
+        111664,
+        111672,
+        111656,
+        111660,
+        111672,
+        111668,
+        111676,
+        111644,
+        111632,
+        111664,
+        111664,
+        111676,
+        111660,
+        111668,
+        111668,
+        111660,
+        111676,
+        111660,
+        111648,
+        111676,
+        111676,
+        111656,
+        111684,
+        111652,
+        111652,
+        111684,
+        111632,
+        111652,
+        111660,
+        111644,
+        111656,
+        111660,
+        111680,
+        111684,
+        111644,
+        111668,
+        111636,
+        111664,
+        111648,
+        111660,
+        111644,
+        111668,
+        111652,
+        111664,
+        111652,
+        111660,
+        111732,
+        111632,
+        111668,
+        111696,
+        111672,
+        111640,
+        111664,
+        111656,
+        111672,
+        111656,
+        111628,
+        100216,
+        90716,
+        90692,
+        90684,
+        90700,
+        90672,
+        90692,
+        90720,
+        90716,
+        90700,
+        90692,
+        90740,
+        90716,
+        90728,
+        90724,
+        90720,
+        90712,
+        90716,
+        90716,
+        90728,
+        90708,
+        90720,
+        90712,
+        90744,
+        90720,
+        90724,
+        79088
+      ],
+      "worker_bytes": 558,
+      "rom_sha256": "64820a8b46bb9c5b480e5dbc42e0f41624b613a97b00902131155392231f27f3",
+      "PCM_sha256": "e8ce1b92eb4f8cdd558013736a1e1cc396efa76ffbdb64c667f54b17084154ff"
+    }
+  ],
+  "complete_asset_lifetimes_proven": true,
+  "BRR_SPC_transport_bound": false,
+  "source_event_admission_bound": false,
+  "production_memory_lease": false,
+  "complete_backend_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_PCM_files_copied": true
+}
