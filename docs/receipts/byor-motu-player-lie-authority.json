@@ -1,0 +1,15 @@
+{
+  "schema": "BYOR_4086_PLAYER_LIE_ABSENT_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_function_sha256": "e1bbcf00ddce9d978a2f5410bff6c9524a335caae8fac1640309eee028385aff",
+  "literal_function_unmodified": true,
+  "cases": 324,
+  "compared_bytes": 6480,
+  "actual_sha256": "4996be374568211420e3b3da421ed90e3fffdfecf6ec76a45d05fbb752c74824",
+  "expected_sha256": "4996be374568211420e3b3da421ed90e3fffdfecf6ec76a45d05fbb752c74824",
+  "validanim_instrumented_absent": true,
+  "present_riseattack_owner_bound": false,
+  "native_bound": false,
+  "motu_gameplay_proven": false
+}

@@ -73,6 +73,7 @@ def main():
     p.add_argument('--player-state-birth',action='store_true',help='Execute the checked VM-tail lease and actual constructor state clearing through an opt-in birth bridge.')
     p.add_argument('--run-tuple-birth',action='store_true',help='Capture exact RUN snapshot after actual constructor model-data copy; requires player-state birth bridge.')
     p.add_argument('--ground-walk',action='store_true',help='After actual SELECT construction, run canonical ground movement and real WALK frame-zero services.')
+    p.add_argument('--canonical-lie-absence',action='store_true',help='Execute the actual RISEATTACK absence query after SELECT birth, preserving actor/input state.')
     p.add_argument('--canonical-jump-attack',action='store_true',help='Actual closed zero-air-control jump attack helper after SELECT birth.')
     p.add_argument('--early-player',action='store_true',help='Join real empty search, preinput, charging and pain in player_think source order.')
     p.add_argument('--pain-helper',action='store_true',help='Wrap canonical special with actual source pain cleanup.')
@@ -97,6 +98,8 @@ def main():
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
+    if a.canonical_lie_absence and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('LIE_ABSENCE_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
+    if a.canonical_lie_absence and(a.canonical_jump_attack or a.early_player or a.canonical_special or a.canonical_charge or a.ground_walk):raise ValueError('LIE_ABSENCE_FIXTURE_CONFLICT')
     if a.canonical_jump_attack and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('JUMP_ATTACK_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
     if a.canonical_jump_attack and(a.early_player or a.canonical_special or a.canonical_charge or a.ground_walk):raise ValueError('JUMP_ATTACK_FIXTURE_CONFLICT')
     if a.early_player:
@@ -219,6 +222,8 @@ def main():
         rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=c)for c in range(14)for d in (0,1)]
     if a.canonical_jump_attack:
         rows=[dict(f=0,direction=d,default=default,fault=0,jump_play=play,jump_nospecial=n,jump_held=held)for d in(0,1)for play in(0,64,256,320)for n in(-1,0,2,3)for held in(0,48)]
+    if a.canonical_lie_absence:
+        rows=[dict(f=0,direction=d,default=default,fault=0,lie_port=port,lie_health=health)for port in range(4)for health in(-2147483648,0,150)for d in(0,1)]
     if a.common_spawn:
         previous_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity'] and h['role']!='idle')
     sy=symbols(Path('src/main.sym'));raw=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate']
@@ -759,6 +764,24 @@ CallbackFixture_JumpAttackDone:
 .i16
  nop
 """)
+    if a.canonical_lie_absence:
+        from source_player_lie_absence_native import emit as emit_lie
+        gr=run_regions;li=gr['player_lie_controls'];lie_role=role_id(config,'riseattack')
+        asm+=emit_lie(li,lie_role,sy)
+        needle='CallbackFixture_ResultPublished:\n.a16\n.i16\n nop'
+        if needle not in asm:raise ValueError('LIE_CONSTRUCTOR_RESULT_GATE')
+        asm=asm.replace(needle,needle+"""
+CallbackFixture_LiePrepare:
+.a16
+.i16
+ nop
+ jsl PlayerLieAbsent_Execute
+ bcs CallbackFixture_Bad
+CallbackFixture_LieDone:
+.a16
+.i16
+ nop
+""")
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -1294,6 +1317,19 @@ end,emu.callbackType.exec,{fs['CallbackFixture_JumpAttackDone']},{fs['CallbackFi
         for jump_role in jump_roles:
             addr=fs['PlayerJump_Query_'+jump_role]
             lua+=f"emu.addMemoryCallback(function()emu.log('JUMPQUERY|'..word(INDEX)..'|{jump_role}')end,emu.callbackType.exec,{addr},{addr},emu.cpuType.snes,mt)\n"
+    if a.canonical_lie_absence:
+        lua+=f"""local lie_before={{}}
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];for j=0,15 do put({li}+j,0,1)end;put({li},0xb68b,2)
+ put(0x414028,1,4);put(0x41402c,c.lie_port,4);put(0x414024,c.lie_health,4);put(0x41401c,0xfffffffd,4)
+ for j=0,1023 do put({gr['input_history']}+j,0xa5,1)end
+ lie_before={{}};for _,r in ipairs({{{{0x414000,80}},{{0x416800,64}},{{0x43eb00,32}},{{0x40c000,96}},{{0x439000,80}},{{0x42e000,40}},{{0x7ef100,24}},{{{gr['input_history']},1024}}}})do for j=0,r[2]-1 do lie_before[r[1]+j]=emu.read(r[1]+j,mt)end end
+end,emu.callbackType.exec,{fs['CallbackFixture_LiePrepare']},{fs['CallbackFixture_LiePrepare']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local failures=0;for a,v in pairs(lie_before)do if emu.read(a,mt)~=v then failures=failures+1 end end
+ emu.log('LIEABSENT|'..word(INDEX)..'|'..word({li}+2)..'|'..failures..'|'..word(sy.SourceAnimationInit4086_Number)..'|'..word(sy.SourceAnimationInit4086_Handle))
+end,emu.callbackType.exec,{fs['CallbackFixture_LieDone']},{fs['CallbackFixture_LieDone']},emu.cpuType.snes,mt)
+"""
     if a.freeze_state:
         address=sy['SourceCtorState4086_FreezeBirthDone']
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,39 do cleared=cleared+emu.read(0x42e000+slot*40+j,mt);sibling=sibling+emu.read(0x42e000+(slot+1)*40+j,mt)end;emu.log('CTORFREEZE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x41f300+slot*4)..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
@@ -1562,6 +1598,10 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             query_expected += [[str(i),name]for name in names]
         reporter.check('actual readonly jump queries retain source short circuit and selection order',jump_queries==query_expected)
         r.update(canonical_jump_attack_bound=True,jump_results=jump_results,jump_queries=jump_queries,jump_capability=jump_capability,jump_input_and_velocity_context_instrumented=True,jump_frame_owner_real=True,active_gravity_or_landing_bound=False,full_player_think_bound=False)
+    if a.canonical_lie_absence:
+        lie_results=[list(map(int,line.split('LIEABSENT|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'LIEABSENT|'in line]
+        reporter.check('actual first lie query short circuits and retains every observed actor/input byte when RISEATTACK is absent',lie_results==[[i,2,0,lie_role,0]for i in range(len(rows))])
+        r.update(canonical_lie_absence_bound=True,lie_results=lie_results,lie_actor_and_input_mutations_instrumented=True,present_riseattack_owner_bound=False,full_player_think_bound=False)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     if a.damage_state_birth:
         damage_birth_results=[list(map(int,line.split('CTORDAMAGE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORDAMAGE|'in line]

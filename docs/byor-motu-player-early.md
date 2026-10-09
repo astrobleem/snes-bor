@@ -17,5 +17,5 @@ projectile bits are checked. Role, input and idle/ground state are
 instrumented fixture inputs. The real SELECT-to-play transition, remaining
 controller body, combat and MOTU Demo completion remain unbound.
 
-The compiler address plan uses 5848 of 6400 bytes, leaving 552. It does not grant
+The compiler address plan uses 5864 of 6400 bytes, leaving 536. It does not grant
 a production canvas lease. No color reduction or bank-0 code is introduced.
