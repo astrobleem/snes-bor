@@ -31,7 +31,7 @@ void Varlist_Clear(Varlist *v){evaluations+=100;}
 '''
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--engine',type=Path,default=Path('E:/gh/openbor-bcec'));p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--engine',type=Path,default=Path('E:/gh/openbor-bcec'));p.add_argument('--output',type=Path,required=True);p.add_argument('--model-copy',action='store_true',help='Literal method-0 copy with optional model-flag clear; named values retained.');a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  text=subprocess.check_output(['git','show',ENGINE_COMMIT+':engine/openborscript.c'],cwd=a.engine).decode('latin1');names=('Varlist_Cleanup','Script_Clear','execute_init_method','Script_Copy');functions=[extract(text,n)for n in names]
  code=PRE+'\n'.join(functions)+r'''
 int main(void){int srcinit,dstinit,n,i;Names names;ScriptVariant indices[1];Varlist vars;Interpreter srcprogram,oldprogram;Script src,dst;char keep[24];
@@ -42,10 +42,16 @@ src.initialized=srcinit;src.pinterpreter=&srcprogram;src.comment="source";dst.in
 Script_Clear(&dst,1);Script_Copy(&dst,&src,1);
 printf("CLONE|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d|%d\n",n,dst.initialized,dst.interpreterowner,dst.pinterpreter==(srcinit?&srcprogram:NULL),dst.varlist==&vars,memcmp(keep,names.names,24)==0,names.values[0].vt|names.values[1].vt|names.values[2].vt,names.values[0].lVal|names.values[1].lVal|names.values[2].lVal,evaluations,cleanups,dst.comment==(srcinit?src.comment:NULL));}return 0;}
 '''
+ if a.model_copy:code=code.replace('Script_Clear(&dst,1);Script_Copy(&dst,&src,1);','if(n&4)Script_Clear(&dst,0);Script_Copy(&dst,&src,0);')
  (a.output/'clone.c').write_text(code);env=dict(os.environ,WATCOM='C:/WATCOM',INCLUDE='C:/WATCOM/H;C:/WATCOM/H/NT');pr=subprocess.run(['C:/WATCOM/BINNT/wcl386.exe','-q','-bt=nt','clone.c','-fe=clone.exe'],cwd=a.output,env=env,capture_output=True,text=True);(a.output/'build.log').write_text(pr.stdout+pr.stderr)
  if pr.returncode:raise ValueError('SCRIPT_CLONE_AUTHORITY_C_BUILD')
  log=subprocess.check_output([str(a.output/'clone.exe')],cwd=a.output,text=True);(a.output/'authority.log').write_text(log);rows=[list(map(int,l.split('|')[1:]))for l in log.splitlines()if l.startswith('CLONE|')];expected=[[n,n&1,0,int(bool(n&3)),1,1,0,0,0,1,int(bool(n&3))]for n in range(24)]
- r=dict(schema='BYOR_4086_SCRIPT_CLONE_CONSTRUCTOR_AUTHORITY_V1',status='PASS'if rows==expected else'FAIL',engine_commit=ENGINE_COMMIT,verbatim_functions=[dict(name=n,sha256=hashlib.sha256(f.encode('latin1')).hexdigest())for n,f in zip(names,functions)],cases=len(rows),results=rows,expected=expected,scope='method-1 constructor clears non-owning script instance then copies initialized/absent model script, absent init/clear entries, named values only, zero indexed count',variant_clear_and_interpreter_bodies_instrumented=True,native_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
+ if a.model_copy:
+  expected=[]
+  for n in range(24):
+   srcinit=n&1;dstinit=(n>>1)&1;cleared=bool(n&4 and dstinit);pointer=int(bool(srcinit or cleared))
+   expected.append([n,int(bool(srcinit or dstinit and not cleared)),0,pointer,1,1,3,(100+n)|(101+n)|(102+n),0,0,pointer])
+ r=dict(schema='BYOR_4086_SCRIPT_COPY_MODEL_AUTHORITY_V1'if a.model_copy else'BYOR_4086_SCRIPT_CLONE_CONSTRUCTOR_AUTHORITY_V1',status='PASS'if rows==expected else'FAIL',engine_commit=ENGINE_COMMIT,verbatim_functions=[dict(name=n,sha256=hashlib.sha256(f.encode('latin1')).hexdigest())for n,f in zip(names,functions)],cases=len(rows),results=rows,expected=expected,scope='method-0 non-owning instance; optional prior clear; absent source preserves old instance; named values retained; absent init/clear entries; zero indexed count'if a.model_copy else'method-1 constructor clears non-owning script instance then copies initialized/absent model script, absent init/clear entries, named values only, zero indexed count',variant_clear_and_interpreter_bodies_instrumented=True,native_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
  (a.output/'report.json').write_text(json.dumps(r,indent=2)+'\n');print(r['status'],len(rows),'pinned C script clone cases')
  if r['status']!='PASS':raise SystemExit(1)
 

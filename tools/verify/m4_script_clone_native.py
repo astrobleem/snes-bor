@@ -46,27 +46,72 @@ LUA=LUA.replace("if c.fault==0 and c.level~=0 and c.multiple<0 then for i=0,3 do
 LUA=LUA.replace("..word(sy.SourceDefaultPlayer4086_Status)..'|'..word(sy.SourceEmptyInitEnvironment4086_Status))","..word(sy.SourceScriptClone4086_Status))")
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source);cr=clone(source);ct=pack_clone(cr);cb,*_=derive(source);bt=pack(cb)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--model-copy',action='store_true');a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);source=Source(a.source);cr=clone(source);ct=pack_clone(cr);cb,*_=derive(source);bt=pack(cb)
  base=dict(level=1,alive=1,multiple=0,platform=0,wall=0,bad='',fault=0)
  rows=[]
  for slot,m,old in itertools.product((0,1,127),cr['models'],(0,1)):
   rows.append(dict(base,slot=slot,model=m['id'],mask=m['initialized_mask'],mode=0,oldmask=old))
-  if old==0:rows.append(dict(base,slot=slot,model=m['id'],mask=m['initialized_mask'],mode=1,oldmask=0))
+ if old==0:rows.append(dict(base,slot=slot,model=m['id'],mask=m['initialized_mask'],mode=1,oldmask=0))
+ if a.model_copy:
+  rows=[dict(base,slot=slot,model=m['id'],mask=m['initialized_mask'],mode=mode,oldmask=old)for slot,m,old,mode in itertools.product((0,1,127),cr['models'],(0,1),(0,1))]
  for mode,slot in itertools.product((0,1),(0,127)):
   for bad in('ready','clone_sticky','world','pool','side','count','clone_slot','token','token_high','models','model','table','bank','bytes','vars','vars_count','vars_base','vars_bank','callback','callback_models','old_wide','clear_entry','onkill'):
    rows.append(dict(rows[0],mode=mode,slot=slot,bad=bad,fault=1))
   rows.append(dict(rows[0],mode=mode,slot=slot,oldmask=2,fault=1))
   if mode==1:
-   rows.append(dict(rows[0],mode=1,slot=slot,oldmask=1,fault=1))
+   if not a.model_copy:rows.append(dict(rows[0],mode=1,slot=slot,oldmask=1,fault=1))
    for bad in('side_model','callback_program'):rows.append(dict(rows[0],mode=1,slot=slot,model=3,mask=1,bad=bad,fault=1))
  sy=symbols(Path('src/main.sym'));lua=LUA.replace('MODE',str(0x7ffd88)).replace('CLONEBYTES',str(len(ct))).replace('CALLBACKBYTES',str(len(bt))).replace('PROGRAMS',str(cb['program_count']))
  lua=lua.replace("local s=emu.getState();cpu={};ctx=0;for _,k in ipairs({'x','y','d','dbr','sp','ps'})do cpu[k]=s['cpu.'..k]end",'')
  for label in('SourceScriptClone4086_Clear','SourceScriptClone4086_Bind'):
   lua+=f"emu.addMemoryCallback(function()local s=emu.getState();cpu={{}};ctx=0;for _,k in ipairs({{'x','y','d','dbr','sp','ps'}})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)\n"
- r=Reporter('M4-SCRIPT-CLONE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'SourceScriptClone4086_Clear','SourceScriptClone4086_Ready',0xb5c1,[(59,0,ct),(60,0,bt)],lua,r,finish='SourceScriptClone4086_Bind',batch_size=4)
+ options={};apply='SourceScriptClone4086_Clear'
+ if a.model_copy:
+  from source_script_model_copy_native import emit
+  lua=lua.replace('local mask=c.mode==0 and 0 or c.mask','local mask=c.mode==0 and 0 or(c.mask~=0 and c.mask or c.oldmask)')
+  lua=lua.replace(' if c.mode==0 then for i=0,3 do for j=0,7 do before[0x418808+i*64+j]=0 end end end','')
+  # Observe the compiled method-0 wrapper's complete CPU context.
+  lua+="emu.addMemoryCallback(function()local s=emu.getState();cpu={};ctx=0;for _,k in ipairs({'x','y','d','dbr','sp','ps'})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,APPLY,APPLY,emu.cpuType.snes,mt)\n"
+  assembly='''
+ModelScriptProbe:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ lda.l $7FFD88
+ beq ModelScriptProbe_Clear
+ jsl ModelScriptCopy_Copy0
+ bra ModelScriptProbe_Return
+ModelScriptProbe_Clear:
+.a16
+.i16
+ jsl ModelScriptCopy_Clear0
+ModelScriptProbe_Return:
+.a16
+.i16
+ bcs ModelScriptProbe_Bad
+ ply
+ plx
+ plp
+ clc
+ rtl
+ModelScriptProbe_Bad:
+.a16
+.i16
+ ply
+ plx
+ plp
+ sec
+ rtl
+'''+emit(sy)
+  apply='ModelScriptProbe';options=dict(append=assembly,link_pcm=False)
+ else:options=dict(finish='SourceScriptClone4086_Bind',link_pcm=False)
+ r=Reporter('M4-SCRIPT-CLONE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,apply,'SourceScriptClone4086_Ready',0xb5c1,[(59,0,ct),(60,0,bt)],lua,r,batch_size=4,**options)
  results=[list(map(int,line.split('TAILRESULT|',1)[1].split('|')))for line in log.splitlines()if 'TAILRESULT|'in line]
  r.check('all authored model instances, retained names/scopes, foreign owner values, paired program identity, guards and CPU context',results==[[i,0,0,3 if c['fault']else 2]for i,c in enumerate(rows)])
- d=dict(schema='BYOR_4086_SCRIPT_CLONE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,script_table_sha256=hashlib.sha256(ct).hexdigest(),callback_table_sha256=hashlib.sha256(bt).hexdigest(),no_init_or_clear_entries=cr,full_constructor_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
+ d=dict(schema='BYOR_4086_SCRIPT_CLONE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,script_table_sha256=hashlib.sha256(ct).hexdigest(),callback_table_sha256=hashlib.sha256(bt).hexdigest(),no_init_or_clear_entries=cr,model_script_copy_bound=a.model_copy,named_values_retained=a.model_copy,full_constructor_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
  (a.output/'report.json').write_text(json.dumps(d,indent=2)+'\n');r.finish()
 
 if __name__=='__main__':main()

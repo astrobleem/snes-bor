@@ -1,0 +1,20 @@
+{
+  "schema": "BYOR_4086_SCRIPT_CLONE_NATIVE_V1",
+  "status": "PASS",
+  "rom_sha256": "988a4950e094a16bfa74ac6318b58e9370dd83b5104c6b34f0af0099a6503e18",
+  "cases": 292,
+  "script_table_sha256": "7af26fcfca114db9607d166f637ee9350a49f93771d1079e3107a606866eeaaf",
+  "callback_table_sha256": "cce1ac775e84a8eaba1014cf73de7ba0f8f1cad9eedc9c7dd2297f2c853532a2",
+  "model_script_copy_bound": true,
+  "named_values_retained": true,
+  "full_constructor_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "full_report_sha256": "f83565d185d6c7dbcb7da317464f40564ffd26a359040665a088ef731a934d9f",
+  "guards": 100,
+  "native_results_sha256": "6d2242e988014130a06eb3cb9d20176f0e84dff474a090814e3445e744540efa",
+  "new_state_bytes": 0,
+  "bank_zero_code_bytes": 0
+}
