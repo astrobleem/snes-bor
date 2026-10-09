@@ -5,8 +5,8 @@ player_think. Matching ENDLEVEL candidates reject until completion is owned.
 """
 
 
-def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=None,idle_profile=None):
-    spans=((work,32),(state,64),(search,24),(combo,96),(charge,24),(pain,24))+(((fall,24),)if fall is not None else())+(((jump,32),)if jump is not None else())+(((lie,16),)if lie is not None else())
+def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=None,idle_profile=None,directional=None):
+    spans=((work,32),(state,64),(search,24),(combo,96),(charge,24),(pain,24))+(((fall,24),)if fall is not None else())+(((jump,32),)if jump is not None else())+(((lie,16),)if lie is not None else())+(((directional,64),)if directional is not None else())
     for i,(a,n)in enumerate(spans):
         if not 0<=a<=0x1000000-n:raise ValueError('PLAYER_EARLY_EXTENT')
         if any(a<b+m and b<a+n for b,m in spans[i+1:]):raise ValueError('PLAYER_EARLY_OVERLAP')
@@ -109,6 +109,8 @@ def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=Non
             put(f' lda.l {work}+20\n tax\n lda.l $416804,x\n cmp.l {work}+28');branch('bne')
             put(' lda.l $416800,x\n cmp #'+str(len(idle_profile['models'])));branch('bcs')
             put(' jmp PlayerEarly_Exit');label('NotBusy')
+        if name=='Continue' and directional is not None:
+            put(f' lda.l {work}+4\n sta.l {directional}+4\n lda.l {work}+6\n sta.l {directional}+6\n jsl PlayerDirectional_Execute');branch('bcs')
         put(f' lda #{status}\n sta.l {work}+2\n lda #0\n ply\n plx\n plp\n clc\n rtl')
     label('Bad');put(f' lda #5\n sta.l {work}+2\n ply\n plx\n plp\n sec\n rtl')
     return '\n'.join(lines)+'\n'

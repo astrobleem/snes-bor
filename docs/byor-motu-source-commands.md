@@ -19,16 +19,16 @@ Models declaring cancel fail compilation with SOURCE_COMBO_CANCEL_OWNER_REQUIRED
 cancel commands are not silently treated as ordinary commands. All 16 MOTU
 models meet this capability, with 11 source commands. Height tests use the
 existing documented binary32-to-Q16 scalar ABI, including the source one-unit
-ground threshold and explicit subtraction overflow rejection.
+ground threshold and unsigned absolute distance over the complete signed32 coordinate domain.
 
 Native proof covers all 11 commands at three ring positions, all four player
-rows, 15 false/admission cases, and six base/height cases: 54 cases total. Source energy descriptors
+rows, 15 false/admission cases, and ten base/height cases: 58 cases total. Source energy descriptors
 remain unmodified. Guard failures preserve actor bytes. A separate He_ManB
 freespecial4 proof executes the actual compiled callbacks and native effects.
 Its instrumented post-callback playerindex/playkeys change proves that the
 finisher clears the fresh row and preserves the other row and high bits.
 
-Controller storage comes from the 5864-byte compiler address plan in the retired
+Controller storage comes from the 5928-byte compiler address plan in the retired
 canvas arena. The isolated callback fixture retires ordinary producers; full
 production canvas/player ownership has not yet been bound. This capability is
 player_preinput, not the complete player_think movement/combat controller.

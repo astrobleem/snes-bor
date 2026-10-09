@@ -130,24 +130,35 @@ SourceCombo_World:
  sta.l W+38
  lda.l W+24
  tax
+ lda.l $416830,x
+ sta.l W+40
+ lda.l $416832,x
+ sta.l W+42
+ eor #$8000
+ sta.l W+44
+ lda.l W+38
+ eor #$8000
+ cmp.l W+44
+ bcc SourceCombo_BaseHigher
+ bne SourceCombo_YHigher
+ lda.l W+36
+ cmp.l W+40
+ bcc SourceCombo_BaseHigher
+SourceCombo_YHigher:
  lda.l W+36
  sec
- sbc.l $416830,x
+ sbc.l W+40
  sta.l W+36
  lda.l W+38
- sbc.l $416832,x
- bvs SourceCombo_Fault
- bpl SourceCombo_HeightMagnitude
- sta.l W+38
- lda.l W+36
- eor #$FFFF
- clc
- adc #1
+ sbc.l W+42
+ bra SourceCombo_HeightMagnitude
+SourceCombo_BaseHigher:
+ lda.l W+40
+ sec
+ sbc.l W+36
  sta.l W+36
- lda.l W+38
- eor #$FFFF
- adc #0
- bvs SourceCombo_Fault
+ lda.l W+42
+ sbc.l W+38
 SourceCombo_HeightMagnitude:
  cmp #1
  bcc SourceCombo_Current

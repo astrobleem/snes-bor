@@ -53,6 +53,8 @@ def main():
     for bad in ('height_plus_one','height_minus_one','height_plus_epsilon','height_minus_epsilon'):
         false=bad.endswith('epsilon')
         rows.append(dict(base,combo_bad=bad,fault=0,expected_state=2 if false else 3,expected_role=65535 if false else base['expected_role']))
+    for bad in ('height_min_max','height_max_min','height_min_zero','height_zero_min'):
+        rows.append(dict(base,combo_bad=bad,fault=0,expected_state=2,expected_role=65535))
     lua=LUA
     begin=lua.index('emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1];local s=c.slot;local p=(s+1)%128;local w=c.wanted;')
     end=lua.index('emu.addMemoryCallback(function()',begin+1)
@@ -83,6 +85,10 @@ def main():
  elseif c.combo_bad=='height_minus_one'then dword(v+12,4294901760)
  elseif c.combo_bad=='height_plus_epsilon'then dword(v+12,65537)
  elseif c.combo_bad=='height_minus_epsilon'then dword(v+12,4294901759)
+ elseif c.combo_bad=='height_min_max'then dword(v+12,0x80000000);dword(0x416830+s*64,0x7fffffff)
+ elseif c.combo_bad=='height_max_min'then dword(v+12,0x7fffffff);dword(0x416830+s*64,0x80000000)
+ elseif c.combo_bad=='height_min_zero'then dword(v+12,0x80000000)
+ elseif c.combo_bad=='height_zero_min'then dword(0x416830+s*64,0x80000000)
  elseif c.combo_bad=='input_owner'then put(INPUTOWNER,0)
  elseif c.combo_bad=='combo_ready'then put(w,0)
  elseif c.combo_bad=='combo_pending'then put(w+2,3)

@@ -44,7 +44,8 @@ def layout(base,size,entities=128,players=4):
            ('player_fall_controls',24,'canonical player falling input and landing marker'),
            ('player_jump_controls',32,'default zero-air-control jump attack and real frame continuation'),
            ('player_lie_controls',16,'real lying first-query absence admission'),
-           ('player_state_controls',64,'module-tail lifetime lease and exact integer row access')]
+           ('player_state_controls',64,'module-tail lifetime lease and exact integer row access'),
+           ('player_directional_controls',64,'canonical air predicate and ordered directional RUN queries')]
     cursor=base;regions=[]
     for name,count,authority in specs:
         cursor=(cursor+1)&~1

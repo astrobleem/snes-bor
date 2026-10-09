@@ -219,7 +219,7 @@ def main():
     if a.canonical_charge:
         rows=[dict(f=0,direction=d,default=default,fault=0,charge_port=port,charge_mask=mask,charge_mutation=mutation)for mutation in (0,1)for port in range(4)for mask in (0,128,256,384)for d in (0,1)]
     if a.early_player:
-        rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=c)for c in range(27)for d in (0,1)]
+        rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=c)for c in range(42)for d in (0,1)]
     if a.canonical_jump_attack:
         rows=[dict(f=0,direction=d,default=default,fault=0,jump_play=play,jump_nospecial=n,jump_held=held)for d in(0,1)for play in(0,64,256,320)for n in(-1,0,2,3)for held in(0,48)]
     if a.canonical_lie_absence:
@@ -728,9 +728,14 @@ CallbackFixture_ChargeDone:
         jp=gr['player_jump_controls'];li=gr['player_lie_controls'];jump_capability=jump_profile(source)
         from source_animation_idle_absence_4086 import derive as idle_profile
         idle_capability=idle_profile(source)
+        from source_player_directional_profile import derive as directional_profile
+        from source_player_directional_native import emit as emit_directional
+        di=gr['player_directional_controls'];directional_capability=directional_profile(source)
+        directional_roles={n:role_id(config,n)for n in('run','attackup','attackdown','attackforward','dodge')}
+        asm+=emit_directional(di,gr['run_tuple_controls'],gr['input_history'],gr['combo_sequence'],gr['input_owner'],0xb674,directional_capability,directional_roles,sy)
         jump_roles={n:role_id(config,n)for n in('jumpspecial','jumpattack','jumpattack2','jumpattack3','runjumpattack','jumpforward')}
         asm+=emit_jump(jp,gr['input_history'],gr['input_owner'],0xb674,jump_capability,jump_roles,sy)+emit_lie(li,role_id(config,'riseattack'),sy)
-        asm+=emit_early(pe,player_state_work,fe,co,ch,pn,sy,fall=pf,jump=jp,lie=li,idle_profile=idle_capability)+emit_fall(pf,gr['input_history'],gr['input_owner'],0xb674,sy)+emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
+        asm+=emit_early(pe,player_state_work,fe,co,ch,pn,sy,fall=pf,jump=jp,lie=li,idle_profile=idle_capability,directional=di)+emit_fall(pf,gr['input_history'],gr['input_owner'],0xb674,sy)+emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
         asm+=emit_history(gr['input_history'],gr['input_scratch'],gr['input_snapshot'],gr['combo_sequence'],gr['input_owner'],0xb674)
         asm+=emit_costmove(se,gr['entity_combo_tail'],sy)+emit_combo_energy_query(se,sy)
         asm+=emit_combo(early_commands,co,se,gr['input_history'],gr['combo_sequence'],gr['input_owner'],0xb674,sy)+emit_empty(fe,sy)
@@ -1290,8 +1295,8 @@ end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixtu
         early_tail=player_state_plan['base']
         lua+=f"""emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];local k=c.early_case
- for _,r in ipairs({{{{{pe},32}},{{{pn},24}},{{{ch},24}},{{{co},96}},{{{fe},24}},{{{pf},24}},{{{jp},32}},{{{li},16}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
- put({jp},0xb68a,2);put({li},0xb68b,2);put({pe},0xb688,2);put({pe}+12,48,4);put({pf},0xb689,2);put({pf}+8,k==12 and 2 or 0,4);
+ for _,r in ipairs({{{{{pe},32}},{{{pn},24}},{{{ch},24}},{{{co},96}},{{{fe},24}},{{{pf},24}},{{{jp},32}},{{{li},16}},{{{di},64}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
+ put({di},0xb68c,2);put({jp},0xb68a,2);put({li},0xb68b,2);put({pe},0xb688,2);put({pe}+12,48,4);put({pf},0xb689,2);put({pf}+8,k==12 and 2 or 0,4);
  set('SourceDamageEffectsState4086_Ready',0xb62f);set('SourcePhysicsState4086_Ready',0xb61c)
  put(0x7ef100,(k==11 or k==12)and 2 or k==13 and 65538 or 0,4);put(0x7ef114,0xb62f,2);put(0x7ef116,{default},2);put(0x42d80c,7,4);
 put({pn},0xb687,2);put({ch},0xb686,2);put({co},0xb673,2);put({fe},0xb67d,2)
@@ -1307,13 +1312,29 @@ put({pn},0xb687,2);put({ch},0xb686,2);put({co},0xb673,2);put({fe},0xb67d,2)
  put({gr['input_history']+216},k==3 and 384 or k==4 and 128 or(k==11 or k==12 or k==13)and {early_keys['moveup']|early_keys['jump']} or 0,4)
  put({gr['input_history']+224},k==5 and 256 or(k==8 or k==9)and 1024 or k==15 and 64 or k==16 and 320 or k==17 and 256 or 0,4)
  if k==8 or k==9 then put({gr['input_history']+108},1024,4);put({gr['input_history']+232},1,4)end
+ put(0x409014,0,4)
+ if k>=27 then
+  local forward=c.direction==0 and 4 or 8;local play=(k==29)and 12 or k==30 and 16 or k==31 and 32 or k==32 and 60 or forward
+  local ring=k==30 and 16 or k==31 and 32 or k==32 and 60 or k==39 and(c.direction==0 and 8 or 4)or forward
+  for j=0,26 do put({gr['input_history']}+108+4*j,ring,4)end
+  if k==28 then put({gr['input_history']}+108+4*25,0,4)end
+  put({gr['input_history']+232},k==36 and 26 or k==37 and 1 or 0,4);put({gr['input_history']+224},play|(k==38 and 0x80000000 or 0),4)
+  if k==33 then put(0x41400c,2*65536,4)end
+  if k==34 or k==35 then put(0x409014,0x414050,4);put(0x41400c,(k==34 and 4 or 5)*65536,4)end
+  if k==40 then put(0x41400c,-2*65536,4)end
+  if k==41 then put(0x41400c,0x80000000,4);put(0x416830,0x7fffffff,4)end
+ end
  if k==7 then put(0x414050,0x414050,4);put(0x40901c,0x414050,4);put(0x40c050,0,4)end
  set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
 end,emu.callbackType.exec,{fs['PlayerEarly_Begin']},{fs['PlayerEarly_Begin']},emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
- emu.log('EARLYPLAYER|'..word(INDEX)..'|'..word({pe}+2)..'|'..word({pe}+6)..'|'..dw({pe}+8)..'|'..dw({early_tail})..'|'..dw({early_tail}+12)..'|'..dw({early_tail}+20)..'|'..dw(0x43eb04)..'|'..word({co}+2)..'|'..word({ch}+2)..'|'..word({pn}+2)..'|'..dw(0x40c04c)..'|'..dw({gr['input_history']+224})..'|'..word(sy.SourceAnimationInit4086_Number)..'|'..word({pf}+2)..'|'..dw(0x42d80c)..'|'..word({jp}+2)..'|'..word({li}+2)..'|'..dw(0x40c058))
+ emu.log('EARLYPLAYER|'..word(INDEX)..'|'..word({pe}+2)..'|'..word({pe}+6)..'|'..dw({pe}+8)..'|'..dw({early_tail})..'|'..dw({early_tail}+12)..'|'..dw({early_tail}+20)..'|'..dw(0x43eb04)..'|'..word({co}+2)..'|'..word({ch}+2)..'|'..word({pn}+2)..'|'..dw(0x40c04c)..'|'..dw({gr['input_history']+224})..'|'..word(sy.SourceAnimationInit4086_Number)..'|'..word({pf}+2)..'|'..dw(0x42d80c)..'|'..word({jp}+2)..'|'..word({li}+2)..'|'..dw(0x40c058)..'|'..word({di}+2)..'|'..word({di}+8)..'|'..dw(0x42f404)..'|'..dw({gr['input_history']+232}))
 end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
 """
+    if a.early_player:
+        for name in ('run_Up','run_Down','run','attackup','attackdown','dodge_Up','dodge_Down','attackforward'):
+            address=fs['PlayerDirectional_Query_'+name]
+            lua+=f"emu.addMemoryCallback(function()emu.log('DIRECTIONQUERY|'..word(INDEX)..'|{name}')end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     if a.canonical_jump_attack:
         lua+=f"""emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1]
@@ -1588,12 +1609,22 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         expected=[]
         for i,c in enumerate(rows):
             k=c['early_case']
-            expected.append([i,5 if k>=24 else 2 if k in(2,10,13,19,20,23)else 4,0,0xfffffffd,0xfffffffd if k in(3,9)else 0,
+            expected.append([i,5 if k in(24,25,26)else 2 if k in(2,10,13,19,20,23)or k>=27 else 4,0,0xfffffffd,0xfffffffd if k in(3,9)else 0,
                 7 if k in(0,1,10)else 0,40 if k in(0,1)else 0x80000000 if k==10 else 0,7 if k==6 else 0,
                 0 if k in(0,1)else 4 if k in(8,9)else 2,2 if k in(3,4)else 0,2 if k in(5,6,7)else 0,
-                90 if k==5 else 100,320 if k==16 else 256 if k==17 else 0,0 if k==4 else role_id(config,'special')if k in(5,6,7)else role_id(config,'freespecial')if k in(8,9)else role_id(config,'jumpattack')if k==15 else role_id(config,'jumpspecial')if k in(16,17)else role_id(config,'riseattack')if k==18 else role_id(config,'select'),2 if k in(11,12,21)else 0,0xfffffffe if k==11 else 7,4 if k==26 else 2 if k in(14,15,16,17)else 0,2 if k==18 else 0,1 if k in(5,8,9,15)else 0])
+                90 if k==5 else 100,320 if k==16 else 256 if k==17 else 0,0 if k==4 else role_id(config,'special')if k in(5,6,7)else role_id(config,'freespecial')if k in(8,9)else role_id(config,'jumpattack')if k==15 else role_id(config,'jumpspecial')if k in(16,17)else role_id(config,'riseattack')if k==18 else role_id(config,'select'),2 if k in(11,12,21)else 0,0xfffffffe if k==11 else 7,4 if k==26 else 2 if k in(14,15,16,17)else 0,2 if k==18 else 0,1 if k in(5,8,9,15)else 0,2 if k in(2,10,13,19,20,23)or k>=27 else 0,0 if k not in(2,10,13,19,20,23)and k<27 or k in(33,35,40,41)else 1,1 if k in(27,29,32,34,36,37,38)else 0 if k==5 else 0xfffffffd,1 if k in(8,9)else 25 if k==36 else 26 if k in(27,29,32,34,38)else 0])
+            if k>=27:
+                forward=4 if c['direction']==0 else 8
+                expected[-1][12]=0x80000000 if k==38 else 48 if k==32 else 16 if k==30 else 32 if k==31 else 0 if k in(27,29,34,36,37)else forward
+                expected[-1][13]=role_id(config,'run')if k in(27,29,32,34,36,37,38)else role_id(config,'dodge')if k in(30,31)else role_id(config,'freespecial4')if k in(28,39)else role_id(config,'select')
         reporter.check('joined player prefix preserves entry snapshot, ordered short circuits, unsigned rush cleanup and real helper outcomes',early_results==expected)
-        r.update(canonical_player_early_dispatch_bound=True,early_results=early_results,early_actor_and_player_role_context_instrumented=True,early_helpers_and_frame_owners_real=True,player_fall_helper_bound=True,player_jump_helper_bound=True,player_lie_absence_helper_bound=True,unowned_grab_states_reject=True,jump_capability=jump_capability,busy_idle_absence_capability=idle_capability,busy_current_animation_identity_checked=True,explicit_guard_cases=['unowned_grab','stale_busy_animation_handle','unowned_air_cancel'],active_gravity_or_landing_bound=False,full_player_think_bound=False)
+        direction_queries=[line.split('DIRECTIONQUERY|',1)[1].split('|')for line in (folder/'mesen.log').read_text().splitlines()if 'DIRECTIONQUERY|'in line]
+        direction_expected=[]
+        for i,c in enumerate(rows):
+            k=c['early_case'];names=['run']if k in(27,29,34,36,37,38)else ['attackup','dodge_Up']if k==30 else ['attackdown','dodge_Down']if k==31 else ['attackup','dodge_Up','attackdown','dodge_Down','run']if k==32 else []
+            direction_expected += [[str(i),name]for name in names]
+        reporter.check('joined directional matcher and readonly animation queries follow exact source order',direction_queries==direction_expected)
+        r.update(canonical_player_early_dispatch_bound=True,early_results=early_results,early_actor_and_player_role_context_instrumented=True,early_helpers_and_frame_owners_real=True,player_fall_helper_bound=True,player_jump_helper_bound=True,player_lie_absence_helper_bound=True,unowned_grab_states_reject=True,jump_capability=jump_capability,busy_idle_absence_capability=idle_capability,busy_current_animation_identity_checked=True,directional_run_helper_bound=True,directional_queries=direction_queries,directional_capability=directional_capability,explicit_guard_cases=['unowned_grab','stale_busy_animation_handle','unowned_air_cancel'],active_gravity_or_landing_bound=False,full_player_think_bound=False)
     if a.canonical_jump_attack:
         jump_results=[list(map(int,line.split('JUMPATTACKBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'JUMPATTACKBOUND|'in line]
         expected=[]

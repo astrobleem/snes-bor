@@ -1,16 +1,16 @@
 {
   "schema": "BYOR_4086_PLAYER_COMBO_NATIVE_V1",
   "status": "PASS",
-  "cases": 54,
+  "cases": 58,
   "authored_commands": 11,
   "errors": [],
-  "rom_sha256": "af6946c02eb8e82249b79926eb75c307d49c81fc35a17486f85999d7e71d624b",
+  "rom_sha256": "40ff947dd7642142f5ba15b84cfaaf917f4ccec561c31ce8f6d7e8d1d6a4dc4e",
   "controller_layout": {
     "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
     "base": 8364032,
     "bytes": 6400,
-    "used_bytes": 5040,
-    "remaining_bytes": 1360,
+    "used_bytes": 5928,
+    "remaining_bytes": 472,
     "entities": 128,
     "players": 4,
     "regions": [
@@ -118,6 +118,132 @@
         "bytes": 64,
         "end": 8369072,
         "authority": "serialized RUN capture/read controls"
+      },
+      {
+        "name": "ground_controls",
+        "address": 8369072,
+        "bytes": 128,
+        "end": 8369200,
+        "authority": "typed ground snapshot and mandatory-service continuation"
+      },
+      {
+        "name": "ground_binding_controls",
+        "address": 8369200,
+        "bytes": 32,
+        "end": 8369232,
+        "authority": "canonical ground capture and preflighted writeback"
+      },
+      {
+        "name": "find_here_empty_controls",
+        "address": 8369232,
+        "bytes": 24,
+        "end": 8369256,
+        "authority": "live type-filtered empty candidate-set proof"
+      },
+      {
+        "name": "ground_services_controls",
+        "address": 8369256,
+        "bytes": 32,
+        "end": 8369288,
+        "authority": "serialized ground queries/search and real animation continuation"
+      },
+      {
+        "name": "common_idle_controls",
+        "address": 8369288,
+        "bytes": 24,
+        "end": 8369312,
+        "authority": "ordinary common_idle_anim prefix and real frame continuation"
+      },
+      {
+        "name": "run_cancel_controls",
+        "address": 8369312,
+        "bytes": 48,
+        "end": 8369360,
+        "authority": "typed source running predicate operands and result"
+      },
+      {
+        "name": "run_binding_controls",
+        "address": 8369360,
+        "bytes": 32,
+        "end": 8369392,
+        "authority": "oldrunning and entry-captured player row binding"
+      },
+      {
+        "name": "special_controls",
+        "address": 8369392,
+        "bytes": 192,
+        "end": 8369584,
+        "authority": "special input/resource snapshot and mandatory callback continuation"
+      },
+      {
+        "name": "special_binding_controls",
+        "address": 8369584,
+        "bytes": 64,
+        "end": 8369648,
+        "authority": "canonical special capture and preflighted publication"
+      },
+      {
+        "name": "special_services_controls",
+        "address": 8369648,
+        "bytes": 32,
+        "end": 8369680,
+        "authority": "real special queries and mandatory frame services"
+      },
+      {
+        "name": "charge_services_controls",
+        "address": 8369680,
+        "bytes": 24,
+        "end": 8369704,
+        "authority": "canonical charging cancellation and real idle continuation"
+      },
+      {
+        "name": "pain_services_controls",
+        "address": 8369704,
+        "bytes": 24,
+        "end": 8369728,
+        "authority": "pain helper through real special continuation and fresh inpain cleanup"
+      },
+      {
+        "name": "player_early_controls",
+        "address": 8369728,
+        "bytes": 32,
+        "end": 8369760,
+        "authority": "entry checks, rush expiry and ordered preinput/charge/pain dispatch"
+      },
+      {
+        "name": "player_fall_controls",
+        "address": 8369760,
+        "bytes": 24,
+        "end": 8369784,
+        "authority": "canonical player falling input and landing marker"
+      },
+      {
+        "name": "player_jump_controls",
+        "address": 8369784,
+        "bytes": 32,
+        "end": 8369816,
+        "authority": "default zero-air-control jump attack and real frame continuation"
+      },
+      {
+        "name": "player_lie_controls",
+        "address": 8369816,
+        "bytes": 16,
+        "end": 8369832,
+        "authority": "real lying first-query absence admission"
+      },
+      {
+        "name": "player_state_controls",
+        "address": 8369832,
+        "bytes": 64,
+        "end": 8369896,
+        "authority": "module-tail lifetime lease and exact integer row access"
+      },
+      {
+        "name": "player_directional_controls",
+        "address": 8369896,
+        "bytes": 64,
+        "end": 8369960,
+        "authority": "canonical air predicate and ordered directional RUN queries"
       }
     ],
     "required_lease": "SourceForeignWork B671 nonzero matching generation; retired canvas/frontpanel/water owners",
