@@ -9,6 +9,6 @@ cases, including all 128 actor slots, every player row, signed autoland values,
 sibling physics, view and input byte. Autoland and helper entry are fixture
 inputs. Active gravity/landing and complete player_think remain unbound.
 
-The controller address plan uses 5928 of 6400 bytes, leaving 472. This is an
+The controller address plan uses 5976 of 6400 bytes, leaving 424. This is an
 address plan, not a production canvas lease. No color reduction or new bank-0
 code is introduced.

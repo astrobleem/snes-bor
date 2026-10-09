@@ -5,8 +5,8 @@ player_think. Matching ENDLEVEL candidates reject until completion is owned.
 """
 
 
-def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=None,idle_profile=None,directional=None):
-    spans=((work,32),(state,64),(search,24),(combo,96),(charge,24),(pain,24))+(((fall,24),)if fall is not None else())+(((jump,32),)if jump is not None else())+(((lie,16),)if lie is not None else())+(((directional,64),)if directional is not None else())
+def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=None,idle_profile=None,directional=None,buttons=None):
+    spans=((work,32),(state,64),(search,24),(combo,96),(charge,24),(pain,24))+(((fall,24),)if fall is not None else())+(((jump,32),)if jump is not None else())+(((lie,16),)if lie is not None else())+(((directional,64),)if directional is not None else())+(((buttons,48),)if buttons is not None else())
     for i,(a,n)in enumerate(spans):
         if not 0<=a<=0x1000000-n:raise ValueError('PLAYER_EARLY_EXTENT')
         if any(a<b+m and b<a+n for b,m in spans[i+1:]):raise ValueError('PLAYER_EARLY_OVERLAP')
@@ -61,11 +61,15 @@ def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=Non
     put(f' lda.l {work}+16\n cmp #1');branch('beq','ComboFinish');put(' cmp #2');branch('beq','ChargeFinish')
     if jump is not None:
         put(' cmp #4');branch('beq','JumpFinish')
+    if buttons is not None:
+        put(' cmp #5');branch('beq','ButtonFinish')
     put(' cmp #3');branch('bne')
     put(' jsl PainServices_FinishFrame');branch('bcs');put(' jmp PlayerEarly_HelperResult')
     label('ChargeFinish');put(' jsl ChargeServices_FinishFrame');branch('bcs');put(' jmp PlayerEarly_HelperResult')
     if jump is not None:
         label('JumpFinish');put(' jsl PlayerJump_FinishFrame');branch('bcs');put(' jmp PlayerEarly_HelperResult')
+    if buttons is not None:
+        label('ButtonFinish');put(' jsl PlayerButton_FinishFrame');branch('bcs');put(' jmp PlayerEarly_ButtonResult')
     label('ComboFinish');put(f' jsl {symbols["SourceAnimationInit4086_Ack"]}');branch('bcs')
     put(' jsl SourceCombo_Finish');branch('bcs');put(' jmp PlayerEarly_ComboResult')
     for name,status in (('Continue',2),('Exit',4)):
@@ -111,6 +115,9 @@ def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=Non
             put(' jmp PlayerEarly_Exit');label('NotBusy')
         if name=='Continue' and directional is not None:
             put(f' lda.l {work}+4\n sta.l {directional}+4\n lda.l {work}+6\n sta.l {directional}+6\n jsl PlayerDirectional_Execute');branch('bcs')
+        if name=='Continue' and buttons is not None:
+            put(f' lda.l {work}+4\n sta.l {buttons}+4\n lda.l {work}+6\n sta.l {buttons}+6\n lda #5\n sta.l {work}+16\n jsl PlayerButton_Begin');branch('bcs')
+            label('ButtonResult');put(f' lda.l {buttons}+2\n cmp #4');branch('beq','Exit');put(' cmp #3');branch('beq','Pending');put(' cmp #2');branch('bne')
         put(f' lda #{status}\n sta.l {work}+2\n lda #0\n ply\n plx\n plp\n clc\n rtl')
     label('Bad');put(f' lda #5\n sta.l {work}+2\n ply\n plx\n plp\n sec\n rtl')
     return '\n'.join(lines)+'\n'

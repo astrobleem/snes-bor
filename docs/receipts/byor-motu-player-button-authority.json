@@ -1,0 +1,16 @@
+{
+  "schema": "BYOR_4086_PLAYER_BUTTON_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "player_think_sha256": "51c446918438abf6d41ba73681784bd04f79f909f34c0efcdfcdb2d4ab07f736",
+  "literal_body_sha256": "cad09819c82cd44243d87fb74676b3f482e1199eaf95fae771bbfcf10d39c9de",
+  "literal_body_unmodified": true,
+  "cases": 480,
+  "compared_bytes": 9600,
+  "actual_sha256": "5d87aafe1b6b3493e0aa83b686ee9ba65f0292f47c20c6028b64bc74c114bebd",
+  "expected_sha256": "5d87aafe1b6b3493e0aa83b686ee9ba65f0292f47c20c6028b64bc74c114bebd",
+  "animation_queries_and_special_callback_instrumented": true,
+  "present_grounded_block_owner_bound": false,
+  "full_player_think_bound": false,
+  "motu_gameplay_proven": false
+}

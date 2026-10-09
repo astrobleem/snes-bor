@@ -17,5 +17,5 @@ RUN predicates, high input bits and actual animation identity. Input/velocity
 context and helper entry are instrumented. Production jump state, wider air
 controls, gravity/landing and complete player_think remain unbound.
 
-The controller address plan uses 5928 of 6400 bytes, leaving 472. This is not a
+The controller address plan uses 5976 of 6400 bytes, leaving 424. This is not a
 production canvas lease. No color reduction or new bank-0 code is introduced.
