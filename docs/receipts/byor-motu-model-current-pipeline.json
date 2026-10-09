@@ -1,0 +1,57 @@
+{
+  "schema": "BYOR_MODEL_CURRENT_PALETTE_PIPELINE_JOIN_V1",
+  "status": "PASS",
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "bank_zero_unchanged": true,
+  "default_current_palette_emission_unchanged": true,
+  "production_memory_owner_bound": false,
+  "full_damage_callback_bound": false,
+  "unsynchronized_model_service4_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "runs": [
+    {
+      "name": "synchronized",
+      "cases": 52,
+      "peak_master_clocks": 667268,
+      "rom_sha256": "00291067d8723c6d791db898a223818fab879653b702827db3a3f695a60065af",
+      "chr_capacity": 27136,
+      "artifacts": [
+        {
+          "path": "out/byor-motu-model-current-pipeline-observer-corrected/report.json",
+          "sha256": "2c96a9af0c723fcb086fce8b25a16bbcc6b96b2dadcc44eca9bd5483b6b73838"
+        },
+        {
+          "path": "out/byor-motu-model-current-pipeline-observer-corrected/observer.lua",
+          "sha256": "d22f04fc735d15f8279153b4679db7eb4457d429f7071ec935aaee408f6bf86b"
+        },
+        {
+          "path": "out/byor-motu-model-current-pipeline-observer-corrected/fixture.bin",
+          "sha256": "5fb7c78c0809f109d15b8c8810207e8cc8ad2411c5a84aefae167cc463154b30"
+        }
+      ]
+    },
+    {
+      "name": "nested_idle",
+      "cases": 40,
+      "peak_master_clocks": 1582510,
+      "rom_sha256": "a8a597e2c4d25f29d72f9d57c35f42f41ce113c07fd8b68dde6fa3a3a4de0444",
+      "chr_capacity": 27136,
+      "artifacts": [
+        {
+          "path": "out/byor-motu-model-current-pipeline-nested-idle-native/report.json",
+          "sha256": "48caadabba61972585ff8416c96ad364edd9071d81c06cdafaee100be62eb360"
+        },
+        {
+          "path": "out/byor-motu-model-current-pipeline-nested-idle-native/observer.lua",
+          "sha256": "18f7b86cf224295e7a48702cbd62a5aa0e7dfe2b22f4fe26cbcb4acaa89b656f"
+        },
+        {
+          "path": "out/byor-motu-model-current-pipeline-nested-idle-native/fixture.bin",
+          "sha256": "3e77a7ec7a24900cfe721f506b635b90d484b2e8f42651507f6590d35743e5a6"
+        }
+      ]
+    }
+  ]
+}

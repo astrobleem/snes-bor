@@ -4,9 +4,11 @@ from source_hit_state_layout import layout as hits
 from source_move_contact_layout import layout as movement
 
 
-def emit(requirements,plan,sy,code_bank=39,phase=8):
+def emit(requirements,plan,sy,code_bank=39,phase=8,chr_capacity=None):
     if plan!=layout(plan['entities']) or requirements['schema']!='BYOR_CURRENT_COLOURMAP_REQUIREMENTS_V1':raise ValueError('CURRENT_COLOURMAP_NATIVE_PLAN')
     if not 1<=phase<=12:raise ValueError('CURRENT_COLOURMAP_PHASE')
+    capacity=plan['chr_capacity']if chr_capacity is None else chr_capacity
+    if not isinstance(capacity,int)or not 0<capacity<=plan['chr_capacity']:raise ValueError('CURRENT_COLOURMAP_CHR_CAPACITY')
     models=requirements['models'];count=len(models)
     if not 1<=count<=16 or any(m['id']!=i or m['maps_loaded']>65535 for i,m in enumerate(models)):raise ValueError('CURRENT_COLOURMAP_MODELS')
     w=plan['controls'];base=plan['base'];h=hits(plan['entities']);move=movement(plan['entities']);lines=[];serial=0;size=48
@@ -29,8 +31,8 @@ def emit(requirements,plan,sy,code_bank=39,phase=8):
     put(f' jsl {sy["SourceForeignWork_Check"]}');branch('bcs');require(w,0xb6ab)
     for op,off in (('txa',8),('tya',10)):
         put(f' {op}\n cmp.l {w}+{off}');branch('bne');put(f' cmp.l {h["controls"]}+{off}');branch('bne')
-    for at,v in ((w+16,base&65535),(w+18,0x42),(w+20,plan['chr_capacity']),(w+22,plan['entities']),
-                 (h['controls'],0xb6a0),(h['controls']+16,h['base']&65535),(h['controls']+18,0x42),(h['controls']+20,plan['chr_capacity']),(h['controls']+22,plan['entities']),
+    for at,v in ((w+16,base&65535),(w+18,0x42),(w+20,capacity),(w+22,plan['entities']),
+                 (h['controls'],0xb6a0),(h['controls']+16,h['base']&65535),(h['controls']+18,0x42),(h['controls']+20,capacity),(h['controls']+22,plan['entities']),
                  (sy['VmSourceWorld_Ready'],0xb4a3),(sy['VmSourceWorld_PoolBase'],0x4000),(sy['VmSourceWorld_SideBase'],0x6800),(sy['VmSourceWorld_TemplateCount'],count),
                  (sy['SourceCtorState4086_Ready'],0xb5c2),(sy['SourceCtorState4086_Models'],count),(sy['SourceWorldTick4086_Ready'],0xb4d5),(sy['SourceWorldTick4086_State'],1),(sy['SourceWorldTick4086_Phase'],phase),(sy['SourceWorldTick4086_Pending'],1),(sy['SourceWorldTick4086_Fault'],0)):
         require(at,v)
