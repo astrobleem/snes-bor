@@ -1,0 +1,26 @@
+{
+  "schema": "BYOR_SET_OPPONENT_NATIVE_V1",
+  "status": "PASS",
+  "cases": 661,
+  "rom_sha256": "89513797e5154626b86c484144c9ca8a530330f43b5baff5a116588772af7d1b",
+  "borrowed_control": [
+    8368656,
+    8368680
+  ],
+  "production_arena_union_bound": false,
+  "damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "report_path": "out/byor-motu-set-opponent-native-token-corrected/report.json",
+  "report_sha256": "531739cf44884f86257e948e64558c9f04cd9bce1646094e7e9638e117f72803",
+  "observer_path": "out/byor-motu-set-opponent-native-token-corrected/observer.lua",
+  "observer_sha256": "0dfdbe976e791c16e5543005f9c3fac9a2cba0e7bc61168d4bcd97ebb5818868",
+  "authority_report_path": "out/byor-motu-set-opponent-authority/report.json",
+  "authority_report_sha256": "39f367e1862d028e77fdddcb6879c78e7e1e3c5dd4be61fcc7c84d0c31ed2785",
+  "authority_cases": 4588,
+  "observed_cases": 661,
+  "observed_full_pool_rows": 661,
+  "stored_view_tokens_checked": true,
+  "bank_zero_unchanged": true
+}
