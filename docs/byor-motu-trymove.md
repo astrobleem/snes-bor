@@ -47,8 +47,30 @@ stage at +6, model count at +8, actor slot at +10, generation at +12, and zero
 hole/script requirements at +16/+18. The production root has not established
 the serialized phase lifetime needed to reuse this region.
 
-The enclosing `check_move` owner remains unbound for non-null callbacks. It
-still needs persistent `pathblocked`/`grabwalking`, linked movement handling,
-actual birth hooks, displacement/timer publication and a joined phase11 owner.
-This callback proof is not player movement or MOTU Demo certification. The
-MOTU source profile remains unregistered. No color reduction is applied.
+The emitted `check_move` capability now joins the actual flat callback with
+the actual freeze query, displacement, timer and update-mark publication.
+It passes 2,658 native cases. A second unchanged C proof joins `check_move`
+with both actual movement callbacks and `testmove`, passing 15,552 cases.
+It checks unsigned `pathblocked` wrap, callback return handling, duplicate
+updates, due timers, freeze gates, and restoration of the previous `self`.
+Its linked-move and freeze service bodies are instrumented.
+
+Persistent movement rows store unsigned `pathblocked` and signed `grabwalking`
+at 42BB80..42BF7F. Controls at 42BB40..42BB7F precede the rows. Existing pain,
+hit-identity, pending-jump and physics addresses stay fixed. The extra 1,088
+bytes reduce staging from 49,024 to 47,936 bytes. Conversion descriptors retain
+all 896 8bpp and 512 2bpp tiles by splitting transfers. All 128 pool extents
+are checked for fixed neighbors and safe descriptor boundaries.
+
+Movement storage passes 558 native cases. Pain storage passes another 558
+at the new boundary; pending-jump storage passes 1,434 across its original
+capacity and the progressively smaller hit, pain and movement boundaries.
+All reject zero capacity and overlap. Birth clears movement state; model
+changes retain it. The native joined owner reads actual movement rows and
+updates blocked-path state using the real callback return. If both grabbing
+and grabwalking are nonzero, it explicitly requires the linked-movement owner.
+
+These remain isolated, emitted capabilities. Actual constructor hooks, the
+serialized arena lifetime, production CHR grants and the full phase11 owner
+are unbound. This is not MOTU Demo certification. The MOTU source profile
+remains unregistered. No color reduction is applied.

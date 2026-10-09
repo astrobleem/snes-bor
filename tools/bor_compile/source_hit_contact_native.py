@@ -23,8 +23,11 @@ def emit(plan,sy):
         for op,off in (('txa',8),('tya',10)):
             put(f' {op}\n cmp.l {w}+{off}');branch('bne')
             put(f' cmp.l {h}+{off}');branch('bne')
-        for at,v in ((h,0xb6a0),(h+16,hp['base']&65535),(h+18,0x42),(h+22,plan['entities']),(h+20,plan['chr_capacity']),(w+16,b&65535),(w+18,0x42),(w+20,plan['chr_capacity']),(w+22,plan['entities'])):
+        for at,v in ((h,0xb6a0),(h+16,hp['base']&65535),(h+18,0x42),(h+22,plan['entities']),(w+16,b&65535),(w+18,0x42),(w+22,plan['entities'])):
             put(f' lda.l {at}\n cmp #{v}');branch('bne')
+        put(f' lda.l {w}+20');branch('beq')
+        put(f' cmp #{plan["chr_capacity"]+1}');branch('bcs')
+        put(f' cmp.l {h}+20');branch('bne')
     entry('Initialize');put(f' lda.l {w}');branch('bne')
     put(' ldx #0\n lda #0')
     label('ClearAll');put(f' sta.l {b},x\n inx\n inx\n cpx #{plan["bytes"]}\n bne HitContact_ClearAll\n lda #$B6A3\n sta.l {w}\n jmp HitContact_Good')

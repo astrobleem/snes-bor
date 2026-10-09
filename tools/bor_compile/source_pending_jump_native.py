@@ -48,7 +48,8 @@ def emit(plan,work,symbols):
     put(f' lda.l {work}+10\n cmp.l {work}+14');branch('bne','BindBad')
     put(f' lda.l {work}+16\n cmp #{base&65535}');branch('bne','BindBad')
     put(f' lda.l {work}+18\n cmp #$42');branch('bne','BindBad')
-    put(f' lda.l {work}+20\n cmp #{base-0x420000}');branch('bne','BindBad')
+    put(f' lda.l {work}+20');branch('beq','BindBad')
+    put(f' cmp #{base-0x420000+1}');branch('bcs','BindBad')
     put(f' lda.l {symbols["VmSourceWorld_Ready"]}\n cmp #$B4A3');branch('bne','BindBad')
     for key,value in(('VmSourceWorld_PoolBase',0x4000),('VmSourceWorld_SideBase',0x6800)):
         put(f' lda.l {symbols[key]}\n cmp #{value}');branch('bne','BindBad')

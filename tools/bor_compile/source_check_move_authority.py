@@ -14,7 +14,7 @@ from source_check_move_4086 import check_move
 PREAMBLE=r'''#include <stdio.h>
 #include <string.h>
 typedef struct entity entity;
-struct entity {unsigned update_mark,nextmove;entity*landed_on_platform,*link;struct {float x,z;}position;float movex,movez;int grabbing,grabwalking,idling,pathblocked;int(*trymove)(float,float);};
+struct entity {unsigned update_mark,nextmove;entity*landed_on_platform,*link;struct {float x,z;}position;float movex,movez;int grabbing,grabwalking,idling;unsigned pathblocked;int(*trymove)(float,float);};
 entity ent,previous,*self=&previous;unsigned time;int freeze,calls;
 int is_frozen(entity*e){calls++;return freeze;}
 void check_link_move(float x,float z){}

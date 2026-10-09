@@ -54,13 +54,13 @@ emu.addMemoryCallback(function()
  for j=-8,SIZE+7 do put(BASE+j,(j*13+91)&255,1)end
  local at=BASE+24*c.slot
  put(W,0xb691);put(W+4,c.slot);put(W+6,c.model);put(W+8,0x12345678,4);put(W+12,0x12345678,4)
- put(W+16,BASE%65536);put(W+18,0x42);put(W+20,BASE-0x420000);put(W+22,16);put(W+24,c.op)
+ put(W+16,BASE%65536);put(W+18,0x42);put(W+20,c.capacity or (BASE-0x420000));put(W+22,16);put(W+24,c.op)
  put(sy.VmSourceWorld_Ready,0xb4a3);put(sy.VmSourceWorld_PoolBase,0x4000);put(sy.VmSourceWorld_SideBase,0x6800);put(sy.VmSourceWorld_Count,128)
  put(0x416800+64*c.slot,c.model);put(at+16,c.op==2 and 1 or c.model+1);put(at+18,0xb691);put(at+20,0x12345678,4)
  for j=0,3 do put(W+32+4*j,c.values[j+1],4)end
  if c.bad=='ready'then put(W,0)elseif c.bad=='zero_generation'then put(W+8,0,4);put(W+12,0,4)
  elseif c.bad=='generation_low'then put(W+12,0x12345679,4)elseif c.bad=='generation_high'then put(W+14,0)
- elseif c.bad=='capacity'then put(W+20,0xd800)elseif c.bad=='base'then put(W+16,BASE%65536+2)
+ elseif c.bad=='zero_capacity'then put(W+20,0)elseif c.bad=='capacity'then put(W+20,0xd800)elseif c.bad=='base'then put(W+16,BASE%65536+2)
  elseif c.bad=='bank'then put(W+18,0x43)elseif c.bad=='world'then put(sy.VmSourceWorld_Ready,0)
  elseif c.bad=='pool'then put(sy.VmSourceWorld_PoolBase,0x4002)elseif c.bad=='side'then put(sy.VmSourceWorld_SideBase,0x6802)
  elseif c.bad=='zero_count'then put(sy.VmSourceWorld_Count,0)elseif c.bad=='large_count'then put(sy.VmSourceWorld_Count,129)
@@ -99,20 +99,25 @@ def main():
         for op in range(4):
             for model in(3,4):rows.append(dict(slot=slot,op=op,model=model,values=[0x40900000,0x3f99999a,0x80000000,0x80000001],fault=0))
     seed=rows[-1]
-    for bad in('ready','zero_generation','generation_low','generation_high','capacity','base','bank','world','pool','side','zero_count','large_count','slot','model_count','model','side_model','marker','row_generation','row_model'):
+    for bad in('zero_capacity','ready','zero_generation','generation_low','generation_high','capacity','base','bank','world','pool','side','zero_count','large_count','slot','model_count','model','side_model','marker','row_generation','row_model'):
         rows.append(dict(seed,bad=bad,fault=1))
     for bad in('marker','row_generation','zero_handle'):rows.append(dict(seed,op=2,bad=bad,fault=1))
     for values in([0x7fc01234,0xff800000,0x00000001,0xffffffff],[0x80000001,0x7f800000,0x3dcccccd,0x7fffffff]):rows.append(dict(seed,op=1,values=values,fault=0))
     rows.append(dict(seed,op=0,bad='birth_stale_model',fault=0))
+    from source_hit_state_layout import layout as hits
+    from source_hit_contact_layout import layout as pain
+    from source_move_contact_layout import layout as movement
+    for capacity in (hits()['chr_capacity'],pain()['chr_capacity'],movement()['chr_capacity']):
+        for slot in range(128):rows.append(dict(seed,slot=slot,capacity=capacity,op=3,bad='',fault=0))
     reporter=Reporter('M4-PENDING-JUMP-STORAGE',kind='GATE')
     asm=ASM.replace('W+',str(WORK)+'+')+emit(plan,WORK,sy)
     lua=LUA.replace('WORK',str(WORK)).replace('W+',str(WORK)+'+').replace('(W,','('+str(WORK)+',').replace('word(W','word('+str(WORK)).replace('W+j',str(WORK)+'+j')
     lua=lua.replace('BASE',str(plan['base'])).replace('SIZE',str(plan['bytes']))
-    _,log=run_fixture(a.rom,a.output,rows,'PendingJumpProbe','VmState_Error',0xb691,[],lua,reporter,append=asm,probes={'RETURN':'PendingJumpProbe_Return'},batch_size=16,link_pcm=False)
+    _,log=run_fixture(a.rom,a.output,rows,'PendingJumpProbe','VmState_Error',0xb691,[],lua,reporter,append=asm,probes={'RETURN':'PendingJumpProbe_Return'},batch_size=4,frame_limit=5000,link_pcm=False)
     actual=[list(map(int,l.split('PENDINGJUMP|',1)[1].split('|')))for l in log.splitlines()if 'PENDINGJUMP|'in l]
     wanted=[[i,3 if c['fault']else 2,0,0,0,8]for i,c in enumerate(rows)]
     reporter.check('all 128 pending rows preserve binary32/int bits, siblings, generation guards and CPU context',actual==wanted)
-    report=dict(schema='BYOR_SOURCE_PENDING_JUMP_NATIVE_V1',status='PASS'if actual==wanted else'FAIL',cases=len(rows),guard_cases=22,plan=plan,results=actual,expected=wanted,ram_ownership_instrumented=True,production_memory_lease=False,actual_constructor_hook_bound=False,actual_model_copy_hook_bound=False,tryjump_dojump_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
+    report=dict(schema='BYOR_SOURCE_PENDING_JUMP_NATIVE_V1',status='PASS'if actual==wanted else'FAIL',cases=len(rows),guard_cases=sum(c['fault']for c in rows),installed_capacities=sorted(set(c.get('capacity',plan['chr_capacity'])for c in rows)),plan=plan,results=actual,expected=wanted,ram_ownership_instrumented=True,production_memory_lease=False,actual_constructor_hook_bound=False,actual_model_copy_hook_bound=False,tryjump_dojump_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');assert actual==wanted
 
 

@@ -14,12 +14,19 @@ from _harness import Reporter
 
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
- plan=layout();hp=hits();sy=symbols(Path('src/main.sym'))
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--storage',choices=('pain','move'),default='pain');p.add_argument('--capacity',type=int);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+ plan=layout();hp=hits();native_emit=emit
+ if a.storage=='move':
+  from source_move_contact_layout import layout as move_layout
+  from source_move_contact_native import emit as move_emit
+  plan=move_layout();native_emit=move_emit
+ capacity=plan['chr_capacity'] if a.capacity is None else a.capacity
+ if not 0<capacity<=plan['chr_capacity']:raise ValueError('CONTACT_FIXTURE_CAPACITY')
+ sy=symbols(Path('src/main.sym'))
  rows=[dict(slot=s,op=op,attack=(0xffffffff,0x80000000,0,0x7fffffff)[s%4],hitby=(0,1,0x80000001,0xffffffff)[s%4],fault=0)for s in range(128)for op in range(4)]
  seed=dict(rows[0]);rows.append(dict(seed,op=4))
  for slot in (0,127):
-  for bad in ('ready','zero_generation','generation_low','generation_high','capacity','base','bank','world','zero_count','large_count','slot','entity_count','marker','row_generation','row_generation_high','row_slot','foreign_generation','foreign_ready','hit_capacity','hit_base','hit_slot'):
+  for bad in ('ready','zero_generation','generation_low','generation_high','capacity','base','bank','world','zero_count','large_count','slot','entity_count','marker','row_generation','row_generation_high','row_slot','foreign_generation','foreign_ready','hit_capacity','hit_base','hit_slot','zero_capacity'):
    rows.append(dict(seed,slot=slot,op=3,bad=bad,fault=1))
  rows.append(dict(seed,op=4,bad='initialized',fault=1))
  asm=BASE_ASM.replace('W+24','W+32').replace('HitState_ClearBirth','HitContact_Birth').replace('HitState_Write','HitContact_Write').replace('HitState_ResetAttack','HitContact_CopyModel').replace(' jsl HitState_Read',' cmp #4\n beq HitContactProbe_Init\n jsl HitContact_Read').replace('HitStateProbe_Return:\n','HitContactProbe_Init:\n.a16\n.i16\n jsl HitContact_Initialize\nHitStateProbe_Return:\n',1)
@@ -73,20 +80,25 @@ def main():
  lua=lua[:start]+lua[end:]
  mutations=""" if c.bad=='ready'then put(W,1)elseif c.bad=='zero_generation'then put(W+8,0,4)
  elseif c.bad=='generation_low'then put(W+8,0x12345679,4)elseif c.bad=='generation_high'then put(W+10,0)
- elseif c.bad=='capacity'then put(W+20,CAPACITY+2)elseif c.bad=='base'then put(W+16,BASE%65536+2)
+ elseif c.bad=='zero_capacity'then put(W+20,0)elseif c.bad=='capacity'then put(W+20,CAPACITY+2)elseif c.bad=='base'then put(W+16,BASE%65536+2)
  elseif c.bad=='bank'then put(W+18,0x43)elseif c.bad=='world'then put(sy.VmSourceWorld_Ready,0)
  elseif c.bad=='zero_count'then put(sy.VmSourceWorld_Count,0)elseif c.bad=='large_count'then put(sy.VmSourceWorld_Count,129)
  elseif c.bad=='slot'then put(W+4,128)elseif c.bad=='entity_count'then put(W+22,127)end
 """
  lua=lua.replace(' before={};for j=-8,SIZE+7',mutations+' before={};for j=-8,SIZE+7',1)
- replacements=dict(W=plan['controls'],BASE=plan['base'],SIZE=plan['bytes'],CAPACITY=plan['chr_capacity'],HW=hp['controls'],HB=hp['base'])
+ if a.storage=='move':
+  lua=lua.replace('0xb6a3','0xb6a6').replace('expect(at+4,c.hitby,4)','expect(at+4,0,4)',1).replace('elseif c.op==2 then expect(at+4,c.hitby,4)','elseif c.op==2 then -- entity model copies retain both movement fields')
+  asm=asm.replace('jsl HitContact_CopyModel','jsl HitContact_Read')
+ native_code=native_emit(plan,sy)
+ if a.storage=='move':native_code=native_code.replace('MoveContact_ClearBirth','HitContact_Birth').replace('MoveContact_','HitContact_')
+ replacements=dict(W=plan['controls'],BASE=plan['base'],SIZE=plan['bytes'],CAPACITY=capacity,HW=hp['controls'],HB=hp['base'])
  for n,v in replacements.items():asm=re.sub(r'\b'+n+r'\b',str(v),asm);lua=re.sub(r'\b'+n+r'\b',str(v),lua)
  extra={k:v for k,v in sy.items()if k.startswith(('SourceForeignWork_','StageFp_','StreamScrollFp_'))or k=='DmaQueue'};lua='local extra='+luav(extra)+'\nfor k,v in pairs(extra)do sy[k]=v end\n'+lua
  reporter=Reporter('M4-SOURCE-HIT-CONTACT-STORAGE',kind='GATE')
- raw,log=run_fixture(a.rom,a.output,rows,'HitStateProbe','VmState_Error',0xb6a0,[],lua,reporter,append=asm+hit_storage(hp,sy)+emit(plan,sy),probes={'RETURN':'HitStateProbe_Return'},batch_size=4,link_pcm=False)
+ raw,log=run_fixture(a.rom,a.output,rows,'HitStateProbe','VmState_Error',0xb6a0,[],lua,reporter,append=asm+hit_storage(hp,sy)+native_code,probes={'RETURN':'HitStateProbe_Return'},batch_size=4,link_pcm=False)
  actual=[list(map(int,l.split('HITCONTACT|',1)[1].split('|')))for l in log.splitlines()if 'HITCONTACT|'in l];wanted=[[i,3 if c['fault']else 2,0,0,0,8]for i,c in enumerate(rows)]
  reporter.check('all contact rows, unsigned values, birth/read/write/model-copy/init, hit identities, stale guards and CPU',actual==wanted);reporter.check('bank zero unchanged',raw[:32768]==a.rom.read_bytes()[:32768])
- report=dict(schema='BYOR_SOURCE_HIT_CONTACT_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',cases=len(rows),results=actual,expected=wanted,plan=plan,rom_sha256=hashlib.sha256(raw).hexdigest(),constructor_values_installed_by_fixture=True,production_memory_lease=False,full_damage_bound=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+ report=dict(schema='BYOR_SOURCE_CONTACT_STORAGE_NATIVE_V2',storage=a.storage,installed_chr_capacity=capacity,status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',cases=len(rows),results=actual,expected=wanted,plan=plan,rom_sha256=hashlib.sha256(raw).hexdigest(),constructor_values_installed_by_fixture=True,production_memory_lease=False,full_damage_bound=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
  (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 
