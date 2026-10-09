@@ -1,0 +1,419 @@
+{
+  "schema": "BYOR_SCOPED_CONTROL_STACK_JOIN_V1",
+  "status": "PASS",
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "bank_zero_unchanged": true,
+  "production_memory_owner_bound": false,
+  "root_constructor_scope_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "runs": [
+    {
+      "name": "storage",
+      "cases": 129,
+      "peak_master_clocks": 158480,
+      "rom_sha256": "80861b9b87531af7f1d37e78611226286d2d93a7bcb8624b476c4e8803835d32",
+      "artifacts": [
+        {
+          "path": "out/byor-motu-scoped-control-stack-palette-row-observer/report.json",
+          "sha256": "30c108fd95ce2e66e58261b956566212b7284fb53406abf2b0571a25fe426894"
+        },
+        {
+          "path": "out/byor-motu-scoped-control-stack-palette-row-observer/observer.lua",
+          "sha256": "a3f816538c8dc5f0bb67a520b2d49d339d5975b9e06f37aa879817fbd86fff22"
+        },
+        {
+          "path": "out/byor-motu-scoped-control-stack-palette-row-observer/fixture.bin",
+          "sha256": "5374054c01eddad370dd5741abfb30070cf5be0c3c0c02f63f731ecc593c819c"
+        }
+      ]
+    },
+    {
+      "name": "frame_owner",
+      "cases": 173,
+      "peak_master_clocks": 210112,
+      "rom_sha256": "a29efa6e5e88b2ad85f1a468430329b50049536ba277cd9be754212cdf62cf43",
+      "artifacts": [
+        {
+          "path": "out/byor-motu-scoped-control-frame-palette-row-observer/report.json",
+          "sha256": "8f3e33e1b6969a6147678f7dcd06e0e72cbb5a6985f66d2602e2708b65cd170e"
+        },
+        {
+          "path": "out/byor-motu-scoped-control-frame-palette-row-observer/observer.lua",
+          "sha256": "b51014d93e06dc1c0ec937bc67d7f34e98b8600c887e41c45d8b8893ce7808e4"
+        },
+        {
+          "path": "out/byor-motu-scoped-control-frame-palette-row-observer/fixture.bin",
+          "sha256": "5b59cde06c4550fff26aed7b9931c659891ededb53c4186c0ab20814ff651efc"
+        }
+      ]
+    }
+  ],
+  "layout": {
+    "schema": "BYOR_SCOPED_CONTROL_STACK_LAYOUT_V1",
+    "controls": 4352512,
+    "base": 4352576,
+    "end": 4371520,
+    "rows": 8,
+    "stride": 2368,
+    "payload_bytes": 2348,
+    "metadata_bytes": 16,
+    "bytes": 19008,
+    "regions": [
+      {
+        "name": "current_palette",
+        "address": 4371712,
+        "bytes": 64,
+        "offset": 16
+      },
+      {
+        "name": "movement",
+        "address": 4373312,
+        "bytes": 64,
+        "offset": 80
+      },
+      {
+        "name": "pain",
+        "address": 4374400,
+        "bytes": 64,
+        "offset": 144
+      },
+      {
+        "name": "hit",
+        "address": 4375488,
+        "bytes": 64,
+        "offset": 208
+      },
+      {
+        "name": "input_scratch",
+        "address": 8367616,
+        "bytes": 40,
+        "offset": 272
+      },
+      {
+        "name": "input_snapshot",
+        "address": 8367656,
+        "bytes": 56,
+        "offset": 312
+      },
+      {
+        "name": "combo_sequence",
+        "address": 8367712,
+        "bytes": 110,
+        "offset": 368
+      },
+      {
+        "name": "input_owner",
+        "address": 8367822,
+        "bytes": 2,
+        "offset": 478
+      },
+      {
+        "name": "binding_shadow",
+        "address": 8367824,
+        "bytes": 128,
+        "offset": 480
+      },
+      {
+        "name": "binding_controls",
+        "address": 8367952,
+        "bytes": 32,
+        "offset": 608
+      },
+      {
+        "name": "costmove_controls",
+        "address": 8367984,
+        "bytes": 64,
+        "offset": 640
+      },
+      {
+        "name": "combo_controls",
+        "address": 8368048,
+        "bytes": 96,
+        "offset": 704
+      },
+      {
+        "name": "attack_chain_controls",
+        "address": 8368656,
+        "bytes": 96,
+        "offset": 800
+      },
+      {
+        "name": "run_tuple_controls",
+        "address": 8369008,
+        "bytes": 64,
+        "offset": 896
+      },
+      {
+        "name": "ground_controls",
+        "address": 8369072,
+        "bytes": 128,
+        "offset": 960
+      },
+      {
+        "name": "ground_binding_controls",
+        "address": 8369200,
+        "bytes": 32,
+        "offset": 1088
+      },
+      {
+        "name": "find_here_empty_controls",
+        "address": 8369232,
+        "bytes": 24,
+        "offset": 1120
+      },
+      {
+        "name": "ground_services_controls",
+        "address": 8369256,
+        "bytes": 32,
+        "offset": 1144
+      },
+      {
+        "name": "common_idle_controls",
+        "address": 8369288,
+        "bytes": 24,
+        "offset": 1176
+      },
+      {
+        "name": "run_cancel_controls",
+        "address": 8369312,
+        "bytes": 48,
+        "offset": 1200
+      },
+      {
+        "name": "run_binding_controls",
+        "address": 8369360,
+        "bytes": 32,
+        "offset": 1248
+      },
+      {
+        "name": "special_controls",
+        "address": 8369392,
+        "bytes": 192,
+        "offset": 1280
+      },
+      {
+        "name": "special_binding_controls",
+        "address": 8369584,
+        "bytes": 64,
+        "offset": 1472
+      },
+      {
+        "name": "special_services_controls",
+        "address": 8369648,
+        "bytes": 32,
+        "offset": 1536
+      },
+      {
+        "name": "charge_services_controls",
+        "address": 8369680,
+        "bytes": 24,
+        "offset": 1568
+      },
+      {
+        "name": "pain_services_controls",
+        "address": 8369704,
+        "bytes": 24,
+        "offset": 1592
+      },
+      {
+        "name": "player_early_controls",
+        "address": 8369728,
+        "bytes": 32,
+        "offset": 1616
+      },
+      {
+        "name": "player_fall_controls",
+        "address": 8369760,
+        "bytes": 24,
+        "offset": 1648
+      },
+      {
+        "name": "player_jump_controls",
+        "address": 8369784,
+        "bytes": 32,
+        "offset": 1672
+      },
+      {
+        "name": "player_lie_controls",
+        "address": 8369816,
+        "bytes": 16,
+        "offset": 1704
+      },
+      {
+        "name": "player_state_controls",
+        "address": 8369832,
+        "bytes": 64,
+        "offset": 1720
+      },
+      {
+        "name": "player_directional_controls",
+        "address": 8369896,
+        "bytes": 64,
+        "offset": 1784
+      },
+      {
+        "name": "player_button_controls",
+        "address": 8369960,
+        "bytes": 48,
+        "offset": 1848
+      },
+      {
+        "name": "player_release_controls",
+        "address": 8370008,
+        "bytes": 128,
+        "offset": 1896
+      },
+      {
+        "name": "player_attack_controls",
+        "address": 8370136,
+        "bytes": 48,
+        "offset": 2024
+      },
+      {
+        "name": "pending_jump_controls",
+        "address": 8370184,
+        "bytes": 64,
+        "offset": 2072
+      },
+      {
+        "name": "tryjump_controls",
+        "address": 8370248,
+        "bytes": 64,
+        "offset": 2136
+      },
+      {
+        "name": "dojump_controls",
+        "address": 8370312,
+        "bytes": 80,
+        "offset": 2200
+      },
+      {
+        "name": "player_jump_entry_controls",
+        "address": 8370392,
+        "bytes": 32,
+        "offset": 2280
+      },
+      {
+        "name": "world_tick",
+        "address": 8387308,
+        "bytes": 52,
+        "offset": 2312
+      }
+    ],
+    "chr_capacity": 27136,
+    "prior_chr_capacity": 46336,
+    "conversion_descriptors": [
+      {
+        "source": 4325376,
+        "bytes": 26624,
+        "bpp": 8,
+        "columns": 16,
+        "tile_count": 416,
+        "cdma": 16,
+        "iram": 13824,
+        "vram_word_address": 0,
+        "dcnt": 176,
+        "requires_sa1_setup": true,
+        "requires_chr_irq_ready": true,
+        "forbids_other_scpu_bwram_reads": true,
+        "native_admitted": false,
+        "job": 0,
+        "tile_offset": 0,
+        "job_byte_offset": 0,
+        "workspace_capacity": 27136,
+        "requires_chunk_copy_before_setup": true,
+        "requires_previous_conversion_disabled": true
+      },
+      {
+        "source": 4325376,
+        "bytes": 26624,
+        "bpp": 8,
+        "columns": 16,
+        "tile_count": 416,
+        "cdma": 16,
+        "iram": 13824,
+        "vram_word_address": 13312,
+        "dcnt": 176,
+        "requires_sa1_setup": true,
+        "requires_chr_irq_ready": true,
+        "forbids_other_scpu_bwram_reads": true,
+        "native_admitted": false,
+        "job": 0,
+        "tile_offset": 416,
+        "job_byte_offset": 26624,
+        "workspace_capacity": 27136,
+        "requires_chunk_copy_before_setup": true,
+        "requires_previous_conversion_disabled": true
+      },
+      {
+        "source": 4325376,
+        "bytes": 4096,
+        "bpp": 8,
+        "columns": 16,
+        "tile_count": 64,
+        "cdma": 16,
+        "iram": 13824,
+        "vram_word_address": 26624,
+        "dcnt": 176,
+        "requires_sa1_setup": true,
+        "requires_chr_irq_ready": true,
+        "forbids_other_scpu_bwram_reads": true,
+        "native_admitted": false,
+        "job": 0,
+        "tile_offset": 832,
+        "job_byte_offset": 53248,
+        "workspace_capacity": 27136,
+        "requires_chunk_copy_before_setup": true,
+        "requires_previous_conversion_disabled": true
+      },
+      {
+        "source": 4325376,
+        "bytes": 8192,
+        "bpp": 2,
+        "columns": 16,
+        "tile_count": 512,
+        "cdma": 18,
+        "iram": 13824,
+        "vram_word_address": 28672,
+        "dcnt": 176,
+        "requires_sa1_setup": true,
+        "requires_chr_irq_ready": true,
+        "forbids_other_scpu_bwram_reads": true,
+        "native_admitted": false,
+        "job": 1,
+        "tile_offset": 0,
+        "job_byte_offset": 0,
+        "workspace_capacity": 27136,
+        "requires_chunk_copy_before_setup": true,
+        "requires_previous_conversion_disabled": true
+      }
+    ],
+    "excluded_persistent": [
+      "input_history",
+      "entity_movetime",
+      "entity_combo_tail",
+      "entity_combostyle",
+      "entity_run_tuple",
+      "attack_identity_sequence"
+    ],
+    "entity_palette_rows_restored": false,
+    "attack_sequence_restored": false,
+    "rng_restored": false,
+    "all_producers_must_use_reduced_capacity": true,
+    "production_memory_owner_bound": false,
+    "motu_gameplay_proven": false,
+    "no_color_reduction": true
+  },
+  "legacy_water_conflict_evidence": "out/byor-motu-scoped-control-stack-canvas-retired/report.json",
+  "legacy_water_conflict_bytes": [
+    "7FB222",
+    "7FB223",
+    "7FB224"
+  ],
+  "all_seven_legacy_water_entries_observed_retired": true,
+  "ordinary_water_body_reused_without_semantic_edits": true,
+  "source_water_body_path": "src/core/stage_water.pasm",
+  "source_water_body_sha256": "f323c6f9bcc22e1ef8f1db64d77ac5074cc3bdc7e22564d9410168a70e4a461f"
+}
