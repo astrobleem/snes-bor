@@ -1,0 +1,13 @@
+# BOR 4086 non-self damage authority
+
+The unchanged pinned common/player damage callbacks now execute with actual owner-link assignment, drop, effects, facing, score-selection, health and death checks, and actual empty damage/death script dispatchers. The authority harness passes 2,392 cases, including all 31 authored MOTU attack records. It compares scalar state, exact binary32 velocity bits and service order. Freeze changes later facing, unlink and pain/fall selection; it must remain part of the runtime callback.
+
+Colourmap lookup/application, weapon, score/rumble, unlink, toss, animation selection and kill/player-die services remain instrumented. No grab, steal, seal, damage-over-time, boss/item or non-unit factor behavior is certified by this harness. The source colourmap service returns the requested map identity in the fixture; actual palette ownership is not proven by that result. The receipt records [the authority report](receipts/byor-motu-combat-damage.json).
+
+The pinned direction-adjust enum is NONE=0, SAME=1, OPPOSITE=-1, RIGHT=2 and LEFT=-2. The prior landing harness used incorrect unused direction-adjust constants; they are corrected. A focused run of 1,296 unchanged landing callbacks with actual empty script dispatchers and score/SDL rumble bodies passes. Landing's self-facing early return made the earlier incorrect constants inert.
+
+The native facing service passes 519 cases across all 128 physical slots, including signed coordinate/direction extremes, NULL and self attackers, frozen/no-pain/drop state, and atomic rejection of stale generation, missing leases, malformed stored tokens and typed fields. It preserves CPU context and all observed actor rows except the required facing DWORD. The derived capability requires immutable zero model nopain/noflip and zero defense pain; unsupported model requirements reject. NOMOVE's second argument supplies noflip, as defined by the actual loader. The [native receipt](receipts/byor-motu-damage-flip-native.json) records report and observer hashes.
+
+This native service uses the explicit Q16 position representation; arbitrary source binary32 position equivalence is not claimed. Its caller must lease 24 foreign bytes, supply an owned source attack descriptor, and execute preceding drop/effects services in source order. Those production bindings remain unbound. The initial facing fixture failed because two observer address placeholders were unresolved; its report remains retained. The corrected observer proof passes without a native instruction change from that correction.
+
+Bank 0 remains unchanged with two bytes free. No color reduction or PCM copies were applied. These proofs do not certify the full combat callback, MOTU runtime or Demo completion.

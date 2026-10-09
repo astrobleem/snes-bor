@@ -1,0 +1,24 @@
+{
+  "schema": "BYOR_DAMAGE_FLIP_NATIVE_V1",
+  "status": "PASS",
+  "cases": 519,
+  "rom_sha256": "b2c041050f0328650a158a27d93705b020f8ed63c4e0c362030c5a24d6f2b749",
+  "borrowed_control": [
+    8368656,
+    8368680
+  ],
+  "attack_descriptor_owner_bound": false,
+  "drop_and_effects_predecessor_bound": false,
+  "production_arena_union_bound": false,
+  "damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "report_path": "out/byor-motu-damage-flip-native-observer-corrected/report.json",
+  "report_sha256": "a2db074b0ab413e099702f7ddd62b72047412b9b6f0206506897b38c80686c06",
+  "observer_path": "out/byor-motu-damage-flip-native-observer-corrected/observer.lua",
+  "observer_sha256": "5d1bbc826888f130ef44d426c7f2053b2d8c600729260a19b2368f93fc30c880",
+  "observed_cases": 519,
+  "bank_zero_unchanged": true,
+  "model_count": 16
+}
