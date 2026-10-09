@@ -78,6 +78,7 @@ def main():
     p.add_argument('--pending-jump-birth',action='store_true',help='Clear exact pending jump descriptor before actual constructor exists publication, bind after model copy.')
     p.add_argument('--canonical-common-jump',action='store_true',help='Actual common_jump landing/JUMPLAND and common_jumpland idle after completed dojump.')
     p.add_argument('--foreign-ai-jump',action='store_true',help='Run landing actions through the actual check_ai dispatcher and script validation; isolated think absent.')
+    p.add_argument('--foreign-ai-player',action='store_true',help='Run the admitted player controller as actual check_ai think callback; isolated world service.')
     p.add_argument('--canonical-jump-entry',action='store_true',help='Actual ordered source jump input branch before tryjump and real JUMPDELAY.')
     p.add_argument('--canonical-dojump',action='store_true',help='Continue actual delayed jump through mandatory sound, real entity toss and real JUMP frame.')
     p.add_argument('--canonical-tryjump',action='store_true',help='Execute actual tryjump/JUMPDELAY and common_prejump through the real frame owner; DO_JUMP stays required.')
@@ -116,6 +117,7 @@ def main():
     if a.pending_jump_birth and not a.run_tuple_birth:raise ValueError('PENDING_JUMP_BIRTH_REQUIRES_REAL_MODEL_COPIER')
     if a.canonical_common_jump and not a.canonical_dojump:raise ValueError('COMMON_JUMP_REQUIRES_COMPLETED_DOJUMP')
     if a.foreign_ai_jump and not(a.canonical_common_jump and a.script_clone):raise ValueError('FOREIGN_AI_REQUIRES_JUMP_OWNERS_AND_SCRIPT_CLONE')
+    if a.foreign_ai_player and not(a.player_controller and a.script_clone)or a.foreign_ai_player and a.foreign_ai_jump:raise ValueError('FOREIGN_AI_PLAYER_REQUIRES_ISOLATED_CONTROLLER')
     if a.canonical_jump_entry and (not a.canonical_tryjump or a.canonical_dojump):raise ValueError('JUMP_ENTRY_REQUIRES_TRYJUMP_FIXTURE')
     if a.canonical_dojump and not a.canonical_tryjump:raise ValueError('DOJUMP_REQUIRES_ACTUAL_TRYJUMP')
     if a.canonical_tryjump and not(a.pending_jump_birth and a.initial_select and a.frame_owner):raise ValueError('TRYJUMP_REQUIRES_ACTUAL_CONSTRUCTOR_AND_FRAME_OWNER')
@@ -1395,6 +1397,24 @@ CallbackFixture_ForeignLegacyDone:
 .i16
  nop
 ''',1)
+    if a.foreign_ai_player:
+        from source_foreign_ai_run_native import emit as emit_foreign_ai
+        from source_dojump_native import emit as emit_dojump
+        from source_dojump_profile import derive as derive_dojump
+        from source_common_jump_native import emit as emit_common_jump
+        from source_common_jump_profile import derive as derive_common_jump
+        from source_sound_namespace_4086 import derive as derive_jump_sound
+        dj=gr['dojump_controls'];jump_sample=derive_jump_sound(source)['specials']['SAMPLE_JUMP']['sound_index']
+        if raw[57*32768:58*32768]!=bytes(32768):raise ValueError('FOREIGN_AI_PRIVATE_BANK_OWNERSHIP')
+        # The admitted controller already nearly fills its private bank. New
+        # dispatcher/action code gets an independently checked nonzero bank.
+        start=asm.index('PlayerController_Begin:');prefix,tail=asm[:start],asm[start:]
+        for name,target in (('Begin','Begin'),('FinishFrame','Continue'),('FinishSound','FinishSound')):
+            prefix=prefix.replace(' jsl PlayerController_'+name+'\n',' jsl ForeignAIRun_'+target+'\n')
+        asm=prefix+tail+'\nCallbackFixture_MainEnd:\n.a16\n.i16\n.bank 57\n.org $8000\n'
+        asm+=emit_dojump(dj,pending_work,derive_dojump(source),sy)
+        asm+=emit_common_jump(dj,pending_work,gr['run_tuple_controls'],derive_common_jump(source),role_id(config,'jumpland'),sy,57)
+        asm+=emit_foreign_ai(tj,dj,pe,jump_sample,sy)
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -1406,9 +1426,15 @@ CallbackFixture_ForeignLegacyDone:
         str(pasm),'--output',str(folder/'callback_fixture.bin'),'--symbols',str(folder/'callback_fixture.sym')],capture_output=True,text=True)
     (folder/'build.log').write_text(built.stdout+built.stderr)
     if built.returncode:raise ValueError('CALLBACK_FIXTURE_ASSEMBLY')
-    fs=symbols(folder/'callback_fixture.sym');fixture=(folder/'callback_fixture.bin').read_bytes()[first:]
+    fs=symbols(folder/'callback_fixture.sym');compiled_fixture=(folder/'callback_fixture.bin').read_bytes()
+    if a.foreign_ai_player and fs['CallbackFixture_MainEnd']>>16!=39:raise ValueError('FOREIGN_AI_MAIN_BANK_OVERFLOW')
+    fixture=compiled_fixture[first:offset(fs['CallbackFixture_MainEnd'])]if a.foreign_ai_player else compiled_fixture[first:]
     if raw[offset(entry):offset(entry)+5]!=bytes.fromhex('08 c2 31 da 5a') or len(fixture)>32768:raise ValueError('CALLBACK_FIXTURE_GATE')
     raw[first:first+len(fixture)]=fixture
+    if a.foreign_ai_player:
+        extra=compiled_fixture[57*32768:]
+        if not 0<len(extra)<=32768:raise ValueError('FOREIGN_AI_PRIVATE_BANK_SIZE')
+        raw[57*32768:57*32768+len(extra)]=extra
     if a.player_state_birth:
         bridge_at=offset(sy['SourceAIState4086_InitializeBirth'])
         if raw[bridge_at:bridge_at+5]!=bytes.fromhex('08 c2 38 da 5a'):raise ValueError('PLAYER_STATE_BIRTH_PROLOGUE')
@@ -2036,6 +2062,11 @@ emu.addMemoryCallback(function()
 end,emu.callbackType.exec,{fs['CallbackFixture_Foreign'+phase+'GuardRejected']},{fs['CallbackFixture_Foreign'+phase+'GuardRejected']},emu.cpuType.snes,mt)
 '''
         lua+=f"emu.addMemoryCallback(function()emu.log('FOREIGNAIDONE|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceAIRun4086_PendingKind)..'|'..word(sy.SourceWorldTick4086_Pending)..'|'..dw(sy.VmSourceWorld_Time)..'|'..dw(0x42e024))end,emu.callbackType.exec,{fs['CallbackFixture_CommonJumpDone']},{fs['CallbackFixture_CommonJumpDone']},emu.cpuType.snes,mt)\n"
+    if a.foreign_ai_player:
+        settings=dict(SourceAI4086_Ready=0xb5e2,SourceAI4086_State=0,SourceAI4086_Endgame=0,SourceAI4086_SpawnID=role_id(config,'spawn'),SourceAI4086_RespawnID=role_id(config,'respawn'),SourceAIRun4086_Ready=0xb5e6,SourceAIRun4086_State=0,SourceWorldTick4086_Ready=0xb4d5,SourceWorldTick4086_State=1,SourceWorldTick4086_Pending=1,SourceWorldTick4086_Phase=6,SourceWorldTick4086_Slot=0,SourceWorldTick4086_TimeLo=48,SourceWorldTick4086_TimeHi=0,SourceFreeze4086_Ready=0xb5df,SourceLifecycle4086_Ready=0xb4fb,SourceSelf4086_Ready=0xb4f6,SourceSelf4086_Active=0,SourceSelf4086_Fault=0,SourceSelf4086_GlobalLow=0x4000,SourceSelf4086_GlobalHigh=0x41)
+        lua+='emu.addMemoryCallback(function()\n'+'\n'.join("set('"+k+"',"+str(v)+")"for k,v in settings.items())+f"\nput(0x439000,2,4);put(0x43900c,0,4);put(0x416814,48,4);put(0x42f400,0,4);put(0x42e024,0,4);put({pe},0xb688,2);put({pe}+2,0,2)\nend,emu.callbackType.exec,"+str(fs['CallbackFixture_SpecialPrepare'])+','+str(fs['CallbackFixture_SpecialPrepare'])+",emu.cpuType.snes,mt)\n"
+        lua+=f"emu.addMemoryCallback(function()emu.log('FOREIGNPLAYERDONE|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceWorldTick4086_Pending)..'|'..dw(sy.VmSourceWorld_Time))end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)\n"
+        lua+=f"emu.addMemoryCallback(function()emu.log('FOREIGNPLAYERPHASE|'..word(INDEX)..'|'..word(sy.SourceAI4086_State))end,emu.callbackType.exec,{sy['SourceAI4086_Good']},{sy['SourceAI4086_Good']},emu.cpuType.snes,mt)\n"
     if a.early_player:
         from source_player_run_4086 import KEYS as early_keys
         early_tail=player_state_plan['base']
@@ -2700,6 +2731,11 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
 
         r.update(player_controller_native_bound=True,player_controller_results=controller_results,ground_context_and_tail_mutations_instrumented=True,live_item_and_grab_states_bound=False,production_player_think_bound=False)
         r.update(native_observation_field_bound=observation_batches*60,native_observation_budget_authority='prior 1440-field run completed exactly 240 controller cases without runtime fault; six fields per case plus bounded margin')
+    if a.foreign_ai_player:
+        ai_player=[list(map(int,line.split('FOREIGNPLAYERDONE|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'FOREIGNPLAYERDONE|'in line]
+        phases=[list(map(int,line.split('FOREIGNPLAYERPHASE|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'FOREIGNPLAYERPHASE|'in line]
+        reporter.check('admitted player controller executes actual think/script sequence and retains world service; frame faults remain explicit',ai_player==[[i,3 if 'controller_guard'in c else 2,2 if 'controller_guard'in c else 5,1,48]for i,c in enumerate(rows)]and phases==[[i,p]for i,c in enumerate(rows)for p in([2]if'controller_guard'in c else[2,3,5])])
+        r.update(foreign_ai_player_dispatch_bound=True,foreign_ai_player_results=ai_player,foreign_ai_player_phase_results=phases,production_foreign_ai_bound=False,foreign_ai_private_extra_bank=57,foreign_ai_private_main_bytes=len(fixture),foreign_ai_private_extra_bytes=len(extra),production_player_think_bound=False)
     if a.canonical_jump_attack:
         jump_results=[list(map(int,line.split('JUMPATTACKBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'JUMPATTACKBOUND|'in line]
         expected=[]

@@ -1,0 +1,84 @@
+{
+  "schema": "BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1",
+  "status": "PASS",
+  "rom_sha256": "ebb4fa453fea3581d1bfbf8811b39d28e9dceaee6d1a56390c1995deddced6f8",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "no_pcm_copies": true,
+  "no_color_reduction": true,
+  "foreign_ai_player_dispatch_bound": true,
+  "foreign_ai_private_extra_bank": 57,
+  "production_foreign_ai_bound": false,
+  "production_player_think_bound": false,
+  "motu_gameplay_proven": false,
+  "native_observation_field_bound": 1620,
+  "native_cases": 248,
+  "valid_controller_cases": 240,
+  "explicit_frame_guard_cases": 8,
+  "additional_arena_bytes": 0,
+  "bank_zero_code_bytes": 0,
+  "private_main_bytes": 31016,
+  "private_extra_bytes": 4049,
+  "full_report_sha256": "065663d27d0078a75cde6d0f5452253b9400a4c9a45bf7b113a679dbbd53f66a",
+  "state_vectors_sha256": "d8217fa10b101949724b616c78ffcc8546cc040e849cb9989bc18e49eb1a4ff6",
+  "dispatcher_results_sha256": "125629ee5a37f6a61d9eacae5018ea903c72332cac2d83f651f497c5cdec159d",
+  "phase_results_sha256": "04bdf845647ad17c1256b725d250377a1e0c27b98988fc276ad20f907480979b",
+  "explicit_fault_results": [
+    [
+      240,
+      3,
+      2,
+      1,
+      48
+    ],
+    [
+      241,
+      3,
+      2,
+      1,
+      48
+    ],
+    [
+      242,
+      3,
+      2,
+      1,
+      48
+    ],
+    [
+      243,
+      3,
+      2,
+      1,
+      48
+    ],
+    [
+      244,
+      3,
+      2,
+      1,
+      48
+    ],
+    [
+      245,
+      3,
+      2,
+      1,
+      48
+    ],
+    [
+      246,
+      3,
+      2,
+      1,
+      48
+    ],
+    [
+      247,
+      3,
+      2,
+      1,
+      48
+    ]
+  ],
+  "reproduction_switches": "--effects-runner --frame-owner --initial-select --default-owner --ctor-owner --ctor-state --ctor-factors --ctor-model --script-clone --ai-state-birth --player-state-birth --run-tuple-birth --pending-jump-birth --early-player --early-attack --early-jump-entry --player-controller --foreign-ai-player"
+}

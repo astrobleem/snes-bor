@@ -31,6 +31,18 @@ and the pinned original BOR regression ROM. The bounded receipt is
 `docs/receipts/byor-motu-foreign-ai-jump-native.json`; full reproducible scratch
 is under `out/byor-motu-foreign-ai-jump-native`.
 
-Production world installation, player-think dispatcher integration, physical
-sound playback and natural jump physics remain open. The emitter's optional
-player lane is not admitted by this jump-only proof. M4 is not complete.
+The separate `--player-controller --foreign-ai-player` native proof runs 248
+constructor/controller cases through actual check_ai think callback 2. The 240
+valid cases complete think, script validation and check_ai; eight stale ground
+frame identities fault explicitly with the world service still pending. Their
+complete controller vectors match the existing source-derived reference.
+The fixture admits the same bounded controller capabilities as the prior
+controller proof, including an empty item-search result and instrumented sound.
+
+The controller occupies private ROM bank 39. Jump action and dispatcher code
+occupy independently verified empty bank 57, with both sizes checked before
+copying. The player receipt retains the hashes and bounded validation results;
+the existing controller receipt retains full state comparison vectors.
+
+Production world installation, physical sound playback, live item/grab/target
+services and natural jump physics remain open. M4 is not complete.
