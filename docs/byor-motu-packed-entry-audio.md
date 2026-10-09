@@ -1,0 +1,9 @@
+# Packed source PCM8 bank crossing
+
+The generic isolated gather worker now reads packed PCM8 words through a 24-bit ROM pointer. It retains the full source Q12 phase, including fractional bits, across 64 KiB boundaries and subsequent jobs. Source sample lengths use 32-bit byte counts. Ending subtracts the source length exactly once and deactivates the channel; looping retains the channel and resumes at the source-relative position. There is no actor-name dispatch.
+
+The two longest normalized authored sounds, namespace indices 0 and 7, contain 136,016 and 43,488 samples. Seven native cases per channel-state policy match the unmodified pinned BOR mixer: start, tail, four bank crossings, and 773 persistent jobs spanning the complete longest asset. The ending run has zero PCM, phase or active-state mismatches; the looping run also preserves an initial Q12 fractional component of 2,047. Looping is a tested channel-state domain, not a claim that these authored entry events request looping. The worker occupies 477 IRAM bytes. Peak ending job cost is 146,308 master clocks; peak looping job cost is 146,404.
+
+The source-derived namespace allocation accounts for all 30 assets: 543,632 normalized PCM8 frames require 1,087,264 ROM bytes as zero-extended words. Packed into E0..FF, they leave 1,009,888 bytes free. The allocation records each source hash, length and CPU pointer; no PCM media files were copied. This allocation proves capacity, not simultaneous admission of 30 channels.
+
+This remains an isolated equal-gain, integer-stride PCM8 projection using the existing explicit mono/11025 Hz normalization adaptation. PCM16, variable gain or pitch, source event admission, concurrent SPC transport, production RAM ownership and MOTU gameplay remain unbound. The old bounded emitter is unchanged. No color reduction occurred. See the [receipt](receipts/byor-motu-packed-entry-audio-native.json).
