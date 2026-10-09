@@ -1,0 +1,64 @@
+{
+  "schema": "BYOR_GENERATED_MIX_SPC_TRANSPORT_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out/byor-motu-generated-mix-spc-transport-native/report.json",
+  "proof_sha256": "7b994dbdc7a10992a719aef9cd0a4f56a0baf3ceccafc4c359cb0dcea1a19553",
+  "rom_sha256": "f0e88dceb80eddf711a4925695011f0d1f27f968fa594462e47965dddec4ba6d",
+  "native_producer_report_sha256": "61f46bfac77b61fa08233aee6c13e440ab17e8af7f89e6d349cc22135a9660ff",
+  "source_identities": [
+    {
+      "sound_index": 27,
+      "source_path": "data/sounds/1up.wav",
+      "source_sha256": "a6b208af4441d78254e7e6ea5be63e36b5a30de9f9562eed1191e06da0691991",
+      "normalized_frames": 14064,
+      "meaningful_frames": 14061,
+      "normalized_pcm_sha256": "c122071a8242f4081191bd005003184466dc60dba841ccd83b45e3ca96c7075e",
+      "policy": {
+        "tool": "ffmpeg",
+        "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+        "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+        "rate_hz": 11025,
+        "padded_frames": 3
+      }
+    },
+    {
+      "sound_index": 17,
+      "source_path": "data/chars/he-man/death.wav",
+      "source_sha256": "a37291fd2225028ab82ba17cfd665170ca83ffde2f852b791bcab066e20fa187",
+      "normalized_frames": 18848,
+      "meaningful_frames": 18847,
+      "normalized_pcm_sha256": "477eb839e83cab66cac2ba4003b33ac955b6e1224ec03aca5818e37c0f2a1d6d",
+      "policy": {
+        "tool": "ffmpeg",
+        "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+        "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+        "rate_hz": 11025,
+        "padded_frames": 1
+      }
+    }
+  ],
+  "meaningful_brr_bytes": 10692,
+  "chunks": 75,
+  "active_fields": 103,
+  "consumer_underruns": 0,
+  "DSP_traversal": {
+    "source_blocks": 1188,
+    "observed_blocks": 1188,
+    "skipped_blocks": 0,
+    "repeated_blocks": 0,
+    "block_fingerprint_mismatches": 0,
+    "dsp_samples": 55105,
+    "endx_sample": 55105,
+    "voice_pcm_sha256": "899e6d7dc2b24c3ec288d3e6c661a0750bea8aae13c66e97c763871dfea752fc",
+    "trace_sha256": "c90ad5bbd57dca62a841a09109f5ade6cae6667ada296575f9f04c0e7205059f"
+  },
+  "private_transport_descriptor": true,
+  "source_event_admission_bound": false,
+  "concurrent_realtime_mixer_bound": false,
+  "joint_graphics_bound": false,
+  "production_memory_lease": false,
+  "complete_backend_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_PCM_files_copied": true
+}
