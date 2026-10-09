@@ -1,0 +1,9 @@
+# Owner-root opponent service joined to source damage prefix
+
+All 460 isolated native cases pass through actual ordered scan, collision, hit prelude and block choice, followed by `set_opponent`, exact knockdown/drop, source effects and facing. Twelve additional admitted contacts contain a single owned side with one or two owner links across the three source attack samples. Both entity and resolved-root opponent fields match the real source service. A stale stored owner token rejects before opponent or damage writes. These are constructed callback-state tests using authored attack geometry, not an authored gameplay scene certification.
+
+The caller serializes the existing 24-byte opponent/facing control lease by changing its service marker. It publishes owner-root opponents before knockdown/effects, in source order. A read-only drop preflight rejects incompatible contact, palette, model/factor/counter state before the first opponent write. The opponent service itself resolves and validates both complete graphs before assignment. The normal drop emitter retains its existing code path; preflight generation uses the same checks and computes the same candidate counter without actor writes or completion publication.
+
+The previous exact counter/effects retry proof, observer scopes and stale-input cases remain included. The standalone opponent proof remains 661 passing cases and its pinned unchanged C authority remains 4,588 passing cases. No new persistent workspace allocation, bank 0 code, color reduction or PCM copy was introduced.
+
+Weapon loss, score/MP, health/death/action bodies, callback acceptance and world acknowledgement remain unjoined. CGRAM presentation and production workspace ownership are unbound. MOTU gameplay and Demo completion are not certified. The [receipt](receipts/byor-motu-combat-opponent-join.json) records the bounded reports and observer hashes.

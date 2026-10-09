@@ -6,7 +6,7 @@ from source_hit_block_native import DAMAGE_REQUIRED
 from dialect_4086 import GAME_SPEED
 
 
-def emit(req,sy,code_bank=39):
+def emit(req,sy,code_bank=39,validate_only=False):
     if req['capability']!='SOURCE_ZERO_INITIAL_UNIT_KNOCKDOWN':raise ValueError('DAMAGE_DROP_CAPABILITY')
     w=layout()['controls'];h=hits()['controls'];c=contacts()['controls'];hb=hits()['base'];lines=[];serial=0;size=64
     def put(s):lines.extend(s.strip().splitlines())
@@ -58,10 +58,14 @@ def emit(req,sy,code_bank=39):
     put(' lda $10\n clc\n adc $14\n sta $10\n lda $12\n adc $16\n sta $12\n jmp CombatDrop_WriteCounter')
     label('Limit');put(' lda $10');branch('bne');put(' lda $12\n cmp #$CB80');branch('bne');put(' jmp CombatDrop_WriteCounter')
     label('Zero');put(' lda $0C');branch('beq','WriteCounter');put(' lda #$BF80\n sta $12')
-    label('WriteCounter');put(' lda $0A\n tax\n lda $10\n sta.l $7FB900,x\n lda $12\n sta.l $7FB902,x')
+    label('WriteCounter');
+    if validate_only:put(' jmp CombatDrop_Good')
+    put(' lda $0A\n tax\n lda $10\n sta.l $7FB900,x\n lda $12\n sta.l $7FB902,x')
     put(f' lda.l {w}+12\n clc\n adc #{GAME_SPEED}\n sta.l $7FB904,x\n lda.l {w}+14\n adc #0\n sta.l $7FB906,x')
     put(' lda $12\n and #$8000\n beq CombatDrop_NoDrop\n lda #1\n bra CombatDrop_Drop\nCombatDrop_NoDrop:\n.a16\n.i16\n lda #0\nCombatDrop_Drop:\n.a16\n.i16\n ldx $08\n sta.l $437E00,x\n lda #0\n sta.l $437E02,x')
-    label('CommitType');put(f' ldx $0A\n lda $0E\n sta.l $7FB908,x\n lda #0\n sta.l $7FB90A,x\n lda #1\n sta.l {w}+44')
+    label('CommitType');
+    if validate_only:put(' jmp CombatDrop_Good')
+    put(f' ldx $0A\n lda $0E\n sta.l $7FB908,x\n lda #0\n sta.l $7FB90A,x\n lda #1\n sta.l {w}+44')
     for name,status,carry in (('Good',2,'clc'),('Bad',3,'sec')):
         label(name);put(f' lda #{status}\n sta.l {w}+42\n tay\n tsc\n clc\n adc #{size}\n tcs\n tya\n pld\n ply\n plx\n plp\n {carry}\n rtl')
     label('Attacks')
@@ -70,4 +74,4 @@ def emit(req,sy,code_bank=39):
     for exponent in range(127,151):
         step=1<<(150-exponent);mask=step-1
         put(' .dw '+','.join(str(v)for v in (step&65535,step>>16,mask&65535,mask>>16)))
-    return '\n'.join(lines)+'\n'
+    return ('\n'.join(lines)+'\n').replace('CombatDrop_','CombatDropValidate_')if validate_only else'\n'.join(lines)+'\n'

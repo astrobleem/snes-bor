@@ -21,10 +21,13 @@ from actor_s5_entity_fixture import symbols
 from m4_animation_init_native import luav
 from source_script_clone import derive as script_models
 from source_hit_block_native import DAMAGE_REQUIRED
+from source_opponent_native import emit as opponent_native
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--damagedrop',action='store_true');p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();src=Source(a.source);req=derive(src);plan=colour_layout();sy=symbols(Path('src/main.sym'));original=loop.run_fixture;w=plan['controls'];base=plan['base'];hw=loop.hits()['controls'];hc=loop.layout()['controls']
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--opponent',action='store_true');p.add_argument('--damagedrop',action='store_true');p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();
+    if a.opponent and not a.damagedrop:p.error('--opponent requires --damagedrop')
+    src=Source(a.source);req=derive(src);plan=colour_layout();sy=symbols(Path('src/main.sym'));original=loop.run_fixture;w=plan['controls'];base=plan['base'];hw=loop.hits()['controls'];hc=loop.layout()['controls']
     flipw=next(r['address']for r in arena(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES'])['regions']if r['name']=='attack_chain_controls');fr=flip_requirements(src);sr=script_models(src);effect_results=[];cases=[]
     if a.damagedrop:
         from source_combat_drop_requirements import derive as drop_requirements
@@ -55,6 +58,18 @@ def main():
         if a.damagedrop:
             for bad in ('drop_ready','drop_factor','drop_model_count','drop_reserved','drop_positive','drop_fraction','drop_nan','drop_large'):
                 cases.append(dict(seedcount,bad=bad,fault=1,ticket=-1,suspended_on_fault=True))
+        if a.opponent:
+            for owners in ({0:3},{0:3,3:4},{1:3},{1:3,3:4}):
+                for index in (2,16,30):
+                    basecase=next(c for c in cases if c['target_model']==14 and c['attack_index']==index and not c['tfrozen']and not c['air']and not c['effect_drop']and not c['effect_deadline'])
+                    cases.append(dict(basecase,owners=owners))
+            cases.append(dict(seedcount,bad='opponent_owner_token',fault=1,ticket=-1,suspended_on_fault=True))
+            for c in cases:
+                def root(i):
+                    while i in c.get('owners',{}):i=c['owners'][i]
+                    return i
+                targetroot,actorroot=root(c['first']),root(c['slot'])
+                c['opponents']={i:actorroot for i in (c['first'],targetroot)}|{i:targetroot for i in (c['slot'],actorroot)}
         rows[:]=cases
         lua=re.sub(r'\b47936\b',str(plan['chr_capacity']),lua)
         lua=lua.replace('(-50*65536)','(-20*65536)')
@@ -104,6 +119,11 @@ def main():
  end
 """
             expectation=expectation.replace(' local n=0;for a,v in pairs(before)',expected_drop+' local n=0;for a,v in pairs(before)')
+        if a.opponent:
+            opp_expected="""
+ if c.fault==0 then for i,o in pairs(c.opponents)do for j=0,3 do before[0x40900c+64*i+j]=((0x414000+80*o)>>(8*j))&255 end end end
+"""
+            expectation=expectation.replace(' local n=0;for a,v in pairs(before)',opp_expected+' local n=0;for a,v in pairs(before)')
         lua=lua.replace(' local n=0;for a,v in pairs(before)',expectation)
         lua+=f'''
 emu.addMemoryCallback(function()
@@ -123,6 +143,7 @@ emu.addMemoryCallback(function()
  elseif c.bad=='effect_palette_generation'then put(row+4,2,4)
  elseif c.bad=='effect_palette_owner'then put(row,0)
  elseif c.bad=='effect_palette_range'then put(row+2,3)
+ elseif c.bad=='opponent_owner_token'then put(0x409008+64*target,0x414000+80*3,4);put(0x414000+80*3,0x414001+80*3,4)
  elseif c.bad=='drop_ready'then set('SourceDamageState4086_Ready',0)
  elseif c.bad=='drop_factor'then put(0x43280a+32*target,0x4000)
  elseif c.bad=='drop_model_count'then put(0x439040+80*target,0x3f800000,4)
@@ -140,6 +161,8 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 '''
         if a.damagedrop:
             lua=lua.replace('for _,r in ipairs({{row,12}', 'for _,r in ipairs({{0x7fb900+12*target,12},{0x432800+32*target,32},{0x439000+80*target,80},{row,12}')
+        if a.opponent:
+            lua=lua.replace('for _,r in ipairs({{0x7fb900+12*target,12}', 'for _,r in ipairs({{0x409000,8192},{0x414000,10240},{0x7fb900+12*target,12}')
         extra={k:v for k,v in sy.items()if k.startswith(('SourceDamageState4086_','SourceCtorState4086_','SourceFreeze4086_','SourceDamageEffectsState4086_'))}
         lua='local effectSymbols='+luav(extra)+'\nfor k,v in pairs(effectSymbols)do sy[k]=v end\n'+lua
         body=kw['append'];start=body.index(' pha\n lda.l MODE',body.index('AttackGateProbe_BlockBegin:'));end=body.index('AttackGateProbe_Return:',start)
@@ -163,11 +186,29 @@ AttackGateProbe_Retry:
         if a.damagedrop:
             replacement=replacement.replace(' jsl CombatEffects_Run',' jsl CombatDrop_Run\n bcs AttackGateProbe_Return\n jsl CombatEffects_Run')
             body=body[:body.index('AttackGateProbe_EffectBegin:')]+replacement+body[body.index('AttackGateProbe_Return:',body.index('AttackGateProbe_EffectBegin:')):]
-        kw['append']=body+colour_native(req['palette_requirements'],plan,sy)+effect_code+flip_native(fr,flipw,sy)+(drop_native(dr,sy)if a.damagedrop else '')
+        if a.opponent:
+            prefix=f""" jsl CombatDropValidate_Run
+ bcs AttackGateProbe_Return
+ lda #$B6A9
+ sta.l {flipw}
+ jsl SetOpponent_Run
+ bcc AttackGateProbe_OpponentGood
+ lda #3
+ sta.l {w}+42
+ sec
+ jmp AttackGateProbe_Return
+AttackGateProbe_OpponentGood:
+.a16
+.i16
+ lda #$B6AA
+ sta.l {flipw}
+"""
+            body=body.replace('AttackGateProbe_EffectBegin:\n.a16\n.i16\n','AttackGateProbe_EffectBegin:\n.a16\n.i16\n'+prefix)
+        kw['append']=body+colour_native(req['palette_requirements'],plan,sy)+effect_code+flip_native(fr,flipw,sy)+(drop_native(dr,sy)if a.damagedrop else '')+(drop_native(dr,sy,validate_only=True)+opponent_native(flipw,sy)if a.opponent else '')
         kw['probes'].update(EFFECTBEGIN='AttackGateProbe_EffectBegin')
         kw['probes'].update(GATERESET='CheckAttack_Reset',PREPDONE='DoAttackPrepare_Done')
         lua+="\nfor _,pc in ipairs({GATERESET,PREPDONE})do emu.addMemoryCallback(function()local s=emu.getState();emu.log('EFFECTINACTIVE|'..word(INDEX)..'|'..s['cpu.a']..'|'..word(sy.SourceCollisionFrame4086_Attack)..'|'..word(sy.SourceCollisionFrame4086_Handle)..'|'..word(sy.SourceCollisionFrame4086_Frame)..'|'..word(0x437e00)..'|'..word(0x42e000))end,emu.callbackType.exec,pc,pc,emu.cpuType.snes,mt)end\n"
-        for prefix in (('CombatDrop',)if a.damagedrop else ())+('CombatEffects','CurrentPalette','DamageFlip'):
+        for prefix in (('SetOpponent','CombatDropValidate')if a.opponent else ())+ (('CombatDrop',)if a.damagedrop else ())+('CombatEffects','CurrentPalette','DamageFlip'):
             names=re.findall(r'^('+prefix+r'_Guard\d+):',kw['append'],re.M)
             kw['probes'][prefix+'BAD']=prefix+'_Bad'
             for i,name in enumerate(names):kw['probes'][prefix+'G'+str(i)]=name
@@ -185,6 +226,7 @@ AttackGateProbe_Retry:
             if e.code not in (None,0):raise
     path=a.output/'report.json';r=json.loads(path.read_text());r.update(schema='BYOR_COMBAT_DROP_JOINED_NATIVE_V1'if a.damagedrop else'BYOR_COMBAT_EFFECTS_NATIVE_V1',chr_capacity=plan['chr_capacity'],combat_effect_results=effect_results,combat_effects_requirements=req,actual_effects_and_facing_bound=True,damagedrop_predecessor_bound=a.damagedrop,full_damage_callback_bound=False,CGRAM_presentation_bound=False,production_memory_owner_bound=False)
     if a.damagedrop:r.update(damage_drop_requirements=dr,exact_binary32_counter_observed=True,damage_drop_retry_bound=True)
+    if a.opponent:r.update(schema='BYOR_COMBAT_OPPONENT_DROP_JOINED_NATIVE_V1',actual_opponent_owner_roots_bound=True,source_order_preflight_before_first_actor_write=True)
     path.write_text(json.dumps(r,indent=2)+'\n')
 
 
