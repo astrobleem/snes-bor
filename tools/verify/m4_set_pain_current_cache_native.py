@@ -7,12 +7,13 @@ import m4_model_services_pipeline_native as parent
 from actor_s5_entity_fixture import symbols
 from compiler import Source
 from source_foreign_state_layout import layout
-from source_set_pain_select_native import derive,emit
+from source_set_pain_select_native import derive,emit,emit_begin
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True)
     for k in ('rom','output'):p.add_argument('--'+k,type=Path,required=True)
+    p.add_argument('--begin-animation',action='store_true')
     a=p.parse_args();a.output=a.output.resolve();req=derive(Source(a.source));sy=symbols(Path('src/main.sym'))
     work=next(r['address']for r in layout(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES'])['regions']if r['name']=='common_idle_controls')
     original=parent.run_fixture
@@ -107,6 +108,47 @@ SetPainCacheGenerationRejected:
             return ' bcc '+skip+'\n jmp ModelPipeline_EntryBad\n'+skip+':\n.a16\n.i16'
         kw['append']=kw['append'].replace(needle,call+needle)+emit(work,req,sy)
         kw['append']=re.sub(r' bcs ModelPipeline_EntryBad',far_error,kw['append'])
+        if a.begin_animation:
+            lua=lua.replace('local ranges={','local ranges={{0x41f500,2560},{0x43e000,512},{0x43eb00,4096},')
+            prefix=''
+            for i in range(2):
+                prefix+=f''' ldx #1
+ ldy #0
+ jsl SetPainBegin_Run
+ bcc SetPainBeginCacheContinue{i}
+ jmp ModelPipeline_EntryBad
+SetPainBeginCacheContinue{i}:
+.a16
+.i16
+ cmp #1
+ beq SetPainBeginCachePending{i}
+ jmp ModelPipeline_EntryBad
+SetPainBeginCachePending{i}:
+.a16
+.i16
+'''
+                if i==0:
+                    prefix+=f'''SetPainCacheMutateVelocity:
+.a16
+.i16
+ lda.l {sy['SourceAnimationInit4086_Side']}
+ tax
+ lda #0
+ sta.l $410024,x
+ sta.l $410028,x
+ sta.l $41002C,x
+ lda #1
+ sta.l $410026,x
+ lda #2
+ sta.l $41002A,x
+ lda #3
+ sta.l $41002E,x
+'''
+            assert kw['append'].count(needle)==1
+            kw['append']=kw['append'].replace(needle,prefix+needle)+emit_begin(work,sy)
+            kw['probes']['BEGINENTRY']='SetPainBegin_Run'
+            kw['probes']['MUTATEVELOCITY']='SetPainCacheMutateVelocity'
+            kw.setdefault('bindings',{})['ANIMBEGIN']='SourceAnimationInit4086_Begin'
         anchor=' before={};for _,r in ipairs(ranges)';assert lua.count(anchor)==1
         lua=lua.replace(anchor,f' put({work}+4,c.slot);put({work}+6,c.pain_type,4)\n'+anchor)
         anchor=' local c=rows[word(INDEX)+1]\n local function expect';assert lua.count(anchor)==1
@@ -118,11 +160,36 @@ SetPainCacheGenerationRejected:
  if word({work}+2)~=2 or word({work}+12)~=c.pain_requested or word({work}+14)~=c.pain_selected or word({work}+16)~=c.pain_handle or word({work}+18)~=c.pain_count then before[{work}+2]=255 end
 '''
         lua=lua.replace(anchor,expected+anchor)
+        if a.begin_animation:
+            lua=lua.replace(f'word({work}+2)~=2',f'word({work}+2)~=3 or word(sy.SourceAnimationInit4086_State)~=1 or word(sy.SourceAnimationInit4086_Issued)~=0')
+            lua=lua.replace('value(side+4,c.wanted_handle,2);','value(side+4,c.pain_handle,2);')
+            lua=lua.replace('value(view+36,c.wanted_hp,4);','value(view+20,c.pain_selected,4);value(view+36,c.wanted_hp,4);')
+            extra=''' local side=0x416800+c.slot*64;local core=0x40c000+c.slot*96;value(core+84,11,4)
+ for off=36,44,4 do value(side+off,(1+(off-36)//4)*65536,4)end
+ value(0x41f508+c.slot*20,0,4);value(0x41f510+c.slot*20,1,2);value(0x43e000+(c.pain_handle-1)*4,0,4)
+'''
+            lua=lua.replace(' local n=0;for a,v in pairs(before)',extra+' local n=0;for a,v in pairs(before)')
+            lua+='''
+local painBeginActive=false;local painVelocityWrites=0
+emu.addMemoryCallback(function()painBeginActive=true;emu.log("PAINBEGIN|"..word(INDEX))end,emu.callbackType.exec,BEGINENTRY,BEGINENTRY,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()if painBeginActive then emu.log("PAINANIM|"..word(INDEX))end end,emu.callbackType.exec,ANIMBEGIN,ANIMBEGIN,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()painBeginActive=false;local c=rows[word(INDEX)+1];local side=0x416800+c.slot*64;local n=0;for j=36,47 do if emu.read(side+j,mt)~=0 then n=n+1 end end;emu.log("PAINZERO|"..word(INDEX).."|"..n)end,emu.callbackType.exec,MUTATEVELOCITY,MUTATEVELOCITY,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function(address)if painBeginActive then local c=rows[word(INDEX)+1];local first=0x416824+c.slot*64;if address>=first and address<first+12 then painVelocityWrites=painVelocityWrites+1 end end end,emu.callbackType.write,0x416800,0x4187ff,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()painBeginActive=false;emu.log("PAINWRITES|"..word(INDEX).."|"..painVelocityWrites);painVelocityWrites=0 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
+'''
         kw.setdefault('probes',{})['PAINSELECT']='SetPainSelect_Run'
         lua+='\nemu.addMemoryCallback(function()emu.log("PAINCACHE|"..word(INDEX))end,emu.callbackType.exec,PAINSELECT,PAINSELECT,emu.cpuType.snes,mt)\n'
         raw,log=original(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw)
         calls=[int(l.split('PAINCACHE|')[1])for l in log.splitlines()if'PAINCACHE|'in l]
-        reporter.check('selection retries and three invalid requests recover after real native model/cache services',calls==[i for i in range(len(rows))for _ in range(6)])
+        reporter.check('selection retries and three invalid requests recover after real native model/cache services',calls==[i for i in range(len(rows))for _ in range(7 if a.begin_animation else 6)])
+        if a.begin_animation:
+            calls=[int(l.split('PAINBEGIN|')[1])for l in log.splitlines()if'PAINBEGIN|'in l]
+            reporter.check('real animation begins once and retains frame-zero debt under retry',calls==[i for i in range(len(rows))for _ in range(2)])
+            actual=[int(l.split('PAINANIM|')[1])for l in log.splitlines()if'PAINANIM|'in l]
+            reporter.check('actual animation initializer executes exactly once per pain request',actual==list(range(len(rows))))
+            zero=[l.split('PAINZERO|')[1]for l in log.splitlines()if'PAINZERO|'in l]
+            writes=[l.split('PAINWRITES|')[1]for l in log.splitlines()if'PAINWRITES|'in l]
+            reporter.check('velocity clears once before the injected pending child mutation',zero==[str(i)+'|0'for i in range(len(rows))]and writes==[str(i)+'|12'for i in range(len(rows))])
         return raw,log
     argv=['m4_model_current_pipeline_native.py','--source',a.source,'--rom',str(a.rom),'--output',str(a.output)]
     with patch.object(parent,'run_fixture',fixture),patch.object(sys,'argv',argv):
@@ -131,6 +198,10 @@ SetPainCacheGenerationRejected:
             if e.code not in (None,0):raise
     path=a.output/'report.json';r=json.loads(path.read_text());r.update(schema='BYOR_SET_PAIN_CURRENT_CACHE_NATIVE_V1',pain_selection_requirements=req,actual_mutable_model_cache_queried=True,source_animation_resolve_bound=True,actor_animation_begin_bound=False,source_pain_flags_bound=False,source_unfreeze_bound=False,onpain_bound=False,source_audio_bound=False,full_damage_callback_bound=False,new_foreign_arena_bytes=0)
     path.write_text(json.dumps(r,indent=2)+'\n')
+    if a.begin_animation:
+        r.update(schema='BYOR_SET_PAIN_ANIMATION_BEGIN_NATIVE_V1',actor_animation_begin_bound=True,source_velocity_clear_once=True,frame_zero_debt_retained=True,observer_acknowledgements=False)
+        r.update(native_injected_pending_child_velocity_mutation=True,actual_source_frame_zero_execution=False,source_flags_deferred_until_frame_child_complete=True)
+        path.write_text(json.dumps(r,indent=2)+'\n')
 
 
 if __name__=='__main__':main()

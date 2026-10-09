@@ -1,0 +1,16 @@
+{
+  "schema": "BYOR_SET_PAIN_ANIMATION_BEGIN_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out/byor-motu-set-pain-animation-retry-native/report.json",
+  "proof_sha256": "87e84a3d29e401cdaca7605801b58e3c5098605a58febb91595fe1822e13179a",
+  "rom_sha256": "765cb7194706188c4a2ba422758d4138d4fa5eae5cccf1c80ca9a0bbfe5ad4e4",
+  "cases": 144,
+  "actual_initializer_calls": 144,
+  "begin_retry_calls": 288,
+  "velocity_cleared_once": true,
+  "native_injected_pending_child_velocity_mutation": true,
+  "actual_source_frame_zero_execution": false,
+  "pain_flags_applied": false,
+  "damage_world_acknowledged": false,
+  "no_color_reduction": true
+}
