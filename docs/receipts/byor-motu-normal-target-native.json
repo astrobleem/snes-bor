@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_4086_NORMAL_TARGET_NATIVE_V1",
+  "status": "PASS",
+  "cases": 653,
+  "authored_ranges": 80,
+  "failures": [],
+  "rom_sha256": "fec7e72f533fca43683473ef237ae5c6c39f6983cbd5ef0e2de246d117d8526e",
+  "range_table_sha256": "9584b5f6d432ddd5c9927d7b4c4aae0e6799dad5ab3af3d69e2e763733502aff",
+  "frame_table_sha256": "a0d0222d9d3f6d694cad18ec12c244e45c9590aa2e610b26d2cf87c38c800ee3",
+  "actual_player_think_owner": true,
+  "current_mutable_role_cache_read": true,
+  "new_state_bytes": 0,
+  "numeric_policy": "ACCEPTED_COMPAT_Q16_16",
+  "combat_attack_chain_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "full_report_sha256": "cf577ca1405f472b2cb37ef7589460573669200b473723a63ff9c7486ac236a9",
+  "normal_cases": 640,
+  "guard_cases": 13,
+  "retired_self_cases": 160,
+  "actual_results_sha256": "a6ef4e6bf10a3af039a74f186f6b38882bf9ebabccf88ed9053c11b520e000b7",
+  "no_pcm_copies": true
+}

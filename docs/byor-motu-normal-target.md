@@ -19,11 +19,21 @@ that candidate. Both result differences are retained in the receipt. This is
 not a claim of arbitrary float exactness. All five prior unbounded-target
 tests pass unchanged.
 
-The attack-chain native target service is still external. Connecting a native
-ranged provider must use current role-to-animation mappings and actual actor
-metadata, not a birth-model range or a fabricated result. Production combat
-and M4 certification remain open. No color reduction is applied.
+The generic native provider now passes 653 isolated cases: 640 queries across
+all 80 authored animation ranges and both directions, plus 13 rejected leases,
+roles, handles and coordinate tags. Actual check_ai requests player_think;
+the provider does not manufacture a common_think owner. It reads canonical
+actor metadata and the current mutable role-to-animation mapping, preserves
+the caller's CPU context and VM result scratch, and permits retired-self
+queries. It allocates no new state bytes. This proof instruments input actor
+rows and does not claim an authored combat scene.
+
+The attack-chain continuation is still external. Production combat and M4
+certification remain open. No color reduction is applied.
 
 Reproduce with `source_normal_target_authority.py --source <PAK> --output
 out/byor-motu-normal-target-authority`. The bounded receipt is
 `docs/receipts/byor-motu-normal-target-authority.json`.
+The native proof is `m4_normal_target_native.py --rom <baseline> --source <PAK>
+--output out/byor-motu-normal-target-native`; its bounded receipt is
+`docs/receipts/byor-motu-normal-target-native.json`.
