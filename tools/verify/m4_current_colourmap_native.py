@@ -82,7 +82,7 @@ emu.addMemoryCallback(function()
  elseif c.bad=='active_slot'then put(row+10,0)
  elseif c.bad=='active_owner'then put(row,0)
  elseif c.bad=='active_map'then put(row+2,3)
- elseif c.bad=='operation'then put(W+24,5)
+ elseif c.bad=='operation'then put(W+24,6)
  elseif c.bad=='birth_live'then put(0x414004+80*c.slot,1,4)end
  before={};for _,r in ipairs(ranges)do for j=0,r[2]-1 do before[r[1]+j]=emu.read(r[1]+j,mt)end end
  cpu=emu.getState()

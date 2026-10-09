@@ -1,0 +1,73 @@
+{
+  "schema": "BYOR_MODEL_CURRENT_PALETTE_RESET_JOIN_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "bank_zero_unchanged": true,
+  "phase": 8,
+  "full_transition_bound": false,
+  "production_memory_owner_bound": false,
+  "nested_control_preservation_bound": false,
+  "CGRAM_presentation_bound": false,
+  "motu_gameplay_proven": false,
+  "runs": [
+    {
+      "name": "palette",
+      "cases": 399,
+      "rom_sha256": "3b2fc8325452b01f258a36839b7aa8719937b2f5389f179e8752b32047f7e329",
+      "artifacts": [
+        {
+          "path": "out/byor-motu-model-current-palette-retry-native/report.json",
+          "sha256": "3f6d5f48579919dc64a8261489912d8221e752b3ae3a4dbc7dbc2b14cd84e46c"
+        },
+        {
+          "path": "out/byor-motu-model-current-palette-retry-native/observer.lua",
+          "sha256": "27ea89bf8c02a274cf5aa1e60ef6cec183402ad4642a3f1aedd4b980591f4ab7"
+        },
+        {
+          "path": "out/byor-motu-model-current-palette-retry-native/fixture.bin",
+          "sha256": "2fa0c4364b3607e4f3b17f95eca23287107e535ae5db3281b7f5b166770ad3ef"
+        }
+      ]
+    },
+    {
+      "name": "first_colour",
+      "cases": 451,
+      "rom_sha256": "3604f6bda224ad384a4617170e7c44bb0ea7aecb36487f4d13e13be15f54e338",
+      "artifacts": [
+        {
+          "path": "out/byor-motu-model-first-current-palette-retry-native/report.json",
+          "sha256": "33b8c71affa48691b581310dbb2b3fa1b29bf7a130711b4e2d32ac176947fc88"
+        },
+        {
+          "path": "out/byor-motu-model-first-current-palette-retry-native/observer.lua",
+          "sha256": "56574728ad40b2286d4f1c66e774016dc6731b12b21f4f5557c255595de4e3ed"
+        },
+        {
+          "path": "out/byor-motu-model-first-current-palette-retry-native/fixture.bin",
+          "sha256": "9cf855aa469d502911db058f3d6f8ca9fe753f42d0ec5df1caec565369d727a5"
+        }
+      ]
+    },
+    {
+      "name": "legacy",
+      "cases": 1046,
+      "rom_sha256": "d11542e4d5c60202cd9427473c30f97bee88b8c9b5473aeb3cde15aab518c6dc",
+      "artifacts": [
+        {
+          "path": "out/byor-motu-current-colourmap-reset-final-regression/report.json",
+          "sha256": "3feaf2a7bd441676337bcf13bff39aba59612f761657b13fc1f738a013083800"
+        },
+        {
+          "path": "out/byor-motu-current-colourmap-reset-final-regression/observer.lua",
+          "sha256": "7f4f09cef0afba36d872a7ab76bbbec4bf85cbffa934b44c4e3b2b1b4741eca9"
+        },
+        {
+          "path": "out/byor-motu-current-colourmap-reset-final-regression/fixture.bin",
+          "sha256": "4869304514986be18b4de340c9a606ca1f3516599070fc238b03bc11554bd541"
+        }
+      ]
+    }
+  ]
+}

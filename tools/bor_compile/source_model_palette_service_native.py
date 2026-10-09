@@ -52,7 +52,7 @@ def pack(report):
     return struct.pack('<4s6H',b'B5MP',1,len(models),8,16,512,0)+directory+body
 
 
-def emit(report,symbols,service=6):
+def emit(report,symbols,service=6,current_palette=None):
     if service not in(3,6):raise ValueError('MODEL_PALETTE_TRANSITION_SERVICE')
     count=len(report['models'])
     if not 1<=count<=16 or [m['id']for m in report['models']]!=list(range(count)):
@@ -220,4 +220,13 @@ ModelPaletteService_Maps:
         code=code[:start]+code[end:]
         code=code.replace('cmp #6\n','cmp #3\n').replace('lda #6\n','lda #3\n')
         code=code.replace('ModelPaletteService_','ModelPaletteService3_').replace('Apply6:','Apply3:')
+    if current_palette is not None:
+        from source_current_colourmap import layout as current_layout
+        if current_palette!=current_layout():raise ValueError('MODEL_PALETTE_CURRENT_LAYOUT')
+        w=current_palette['controls'];prefix='ModelPaletteService3_'if service==3 else'ModelPaletteService_'
+        marker=' pla\n cmp.l $433830,x'
+        if code.count(marker)!=1:raise ValueError('MODEL_PALETTE_CURRENT_HOOK_SHAPE')
+        # Preserve the parent map-count value and offsets across the child.
+        hook=f' pla\n pha\n phx\n phy\n lda #5\n sta.l {w}+24\n lda.l {w}+8\n tax\n lda.l {w}+10\n tay\n jsl CurrentPalette_Run\n ply\n plx\n pla\n bcc {prefix}CurrentGood\n jmp {prefix}Bad\n{prefix}CurrentGood:\n.a16\n.i16\n cmp.l $433830,x'
+        code=code.replace(marker,hook)
     return code
