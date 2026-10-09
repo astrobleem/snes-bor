@@ -73,6 +73,7 @@ def main():
     p.add_argument('--player-state-birth',action='store_true',help='Execute the checked VM-tail lease and actual constructor state clearing through an opt-in birth bridge.')
     p.add_argument('--run-tuple-birth',action='store_true',help='Capture exact RUN snapshot after actual constructor model-data copy; requires player-state birth bridge.')
     p.add_argument('--ground-walk',action='store_true',help='After actual SELECT construction, run canonical ground movement and real WALK frame-zero services.')
+    p.add_argument('--canonical-attack',action='store_true',help='Canonical ordinary attack with actual chain/frame owners; source sound result instrumented.')
     p.add_argument('--canonical-release',action='store_true',help='Canonical attack release after SELECT; sound results instrumented, actual frame owner.')
     p.add_argument('--canonical-lie-absence',action='store_true',help='Execute the actual RISEATTACK absence query after SELECT birth, preserving actor/input state.')
     p.add_argument('--canonical-jump-attack',action='store_true',help='Actual closed zero-air-control jump attack helper after SELECT birth.')
@@ -99,6 +100,8 @@ def main():
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
+    if a.canonical_attack and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('ORDINARY_ATTACK_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
+    if a.canonical_attack and(a.canonical_release or a.canonical_lie_absence or a.canonical_jump_attack or a.early_player or a.canonical_special or a.canonical_charge or a.ground_walk or a.attack_chain_model or a.costmove_model):raise ValueError('ORDINARY_ATTACK_FIXTURE_CONFLICT')
     if a.canonical_release and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('RELEASE_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
     if a.canonical_release and(a.canonical_lie_absence or a.canonical_jump_attack or a.early_player or a.canonical_special or a.canonical_charge or a.ground_walk or a.attack_chain_model or a.costmove_model):raise ValueError('RELEASE_FIXTURE_CONFLICT')
     if a.canonical_lie_absence and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('LIE_ABSENCE_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
@@ -119,7 +122,7 @@ def main():
         a.initial_select=True
     if a.attack_chain_model and (a.costmove_model or a.source_command):raise ValueError('ATTACK_CHAIN_FIXTURE_MODE_CONFLICT')
     if a.attack_chain_post_mutation and not a.attack_chain_model:raise ValueError('ATTACK_CHAIN_POST_REQUIRES_CHAIN_MODE')
-    if a.canonical_release or a.early_player:
+    if a.canonical_release or a.early_player or a.canonical_attack:
         from source_attack_body_profile import derive as derive_chain,pack_runtime as pack_chain
         from source_player_release_profile import derive as derive_release
         chain_report=derive_chain(source);chain_table=pack_chain(chain_report);release_capability=derive_release(source)
@@ -231,6 +234,8 @@ def main():
         rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=c)for c in range(63)for d in (0,1)]
     if a.canonical_jump_attack:
         rows=[dict(f=0,direction=d,default=default,fault=0,jump_play=play,jump_nospecial=n,jump_held=held)for d in(0,1)for play in(0,64,256,320)for n in(-1,0,2,3)for held in(0,48)]
+    if a.canonical_attack:
+        rows=[dict(f=0,direction=d,default=default,fault=0,attack_case=k,attack_port=port)for k in range(10)for port in range(4)for d in(0,1)]
     if a.canonical_release:
         rows=[dict(f=0,direction=d,default=default,fault=0,release_case=k,release_port=port)for k in range(8)for port in range(4)for d in(0,1)]
     if a.canonical_lie_absence:
@@ -311,7 +316,7 @@ def main():
         cost_energy=derive_energy(source);cost_energy_table=pack_energy(cost_energy)
         if raw[58*32768:59*32768]!=bytes(32768):raise ValueError('COSTMOVE_ENERGY_ROM_RESERVATION')
         raw[58*32768:58*32768+len(cost_energy_table)]=cost_energy_table
-    if a.attack_chain_model or a.canonical_release or a.early_player:
+    if a.attack_chain_model or a.canonical_release or a.early_player or a.canonical_attack:
         chain_at=(len(cost_energy_table)+1)&~1 if a.early_player else 0
         if chain_at+len(chain_table)>32768 or raw[58*32768+chain_at:58*32768+chain_at+len(chain_table)]!=bytes(len(chain_table)):raise ValueError('ATTACK_CHAIN_ROM_RESERVATION')
         raw[58*32768+chain_at:58*32768+chain_at+len(chain_table)]=chain_table
@@ -796,6 +801,109 @@ CallbackFixture_JumpAttackFrame:
  jsl PlayerJump_FinishFrame
  bcs CallbackFixture_Bad
 CallbackFixture_JumpAttackDone:
+.a16
+.i16
+ nop
+""")
+    if a.canonical_attack:
+        from source_player_attack_native import emit as emit_attack
+        from source_player_attack_profile import derive as derive_attack
+        from source_attack_chain_native import emit as emit_chain
+        from source_player_release_native import emit as emit_release
+        from source_find_here_empty_native import emit as emit_empty
+        gr=run_regions;ak=gr['player_attack_controls'];rl=gr['player_release_controls'];ac=gr['attack_chain_controls'];fe=gr['find_here_empty_controls'];attack_capability=derive_attack(source)
+        attack_roles={k:role_id(config,k)for k in('duckattack','runattack','attackbackward','get','throwattack')}
+        asm+=emit_release(rl,gr['input_history'],gr['input_owner'],0xb674,release_capability,chain_report,role_id(config,'chargeattack'),sy)
+        asm+=emit_chain(ac,gr['entity_combostyle'],config['arrays']['normal_attacks'],sy)+emit_empty(fe,sy)
+        asm+=emit_attack(ak,rl,ac,fe,gr['input_history'],gr['input_owner'],attack_capability,attack_roles,sy)
+        needle='CallbackFixture_ResultPublished:\n.a16\n.i16\n nop'
+        if needle not in asm:raise ValueError('ORDINARY_ATTACK_CONSTRUCTOR_RESULT_GATE')
+        asm=asm.replace(needle,needle+f"""
+CallbackFixture_AttackPrepare:
+.a16
+.i16
+ nop
+ jsl PlayerAttack_Begin
+ bcs CallbackFixture_Bad
+CallbackFixture_AttackDispatch:
+.a16
+.i16
+ lda.l {ak}+2
+ cmp #7
+ beq CallbackFixture_AttackSound
+ cmp #3
+ beq CallbackFixture_AttackStartFrame
+ cmp #2
+ beq CallbackFixture_AttackDone
+ cmp #4
+ beq CallbackFixture_AttackDone
+ jmp CallbackFixture_Bad
+CallbackFixture_AttackSound:
+.a16
+.i16
+ nop
+ jsl PlayerAttack_FinishSound
+ bcs CallbackFixture_Bad
+ jmp CallbackFixture_AttackDispatch
+CallbackFixture_AttackStartFrame:
+.a16
+.i16
+ jsl STARTFRAME
+ bcs CallbackFixture_Bad
+CallbackFixture_AttackFrame:
+.a16
+.i16
+ jsl FRAMEOWNER
+ bcs CallbackFixture_Bad
+ cmp #$8001
+ beq CallbackFixture_AttackFrame
+ cmp #10
+ beq CallbackFixture_AttackToss
+ cmp #0
+ bne CallbackFixture_Bad
+ bra CallbackFixture_AttackBeforeFinish
+CallbackFixture_AttackToss:
+.a16
+.i16
+ lda.l {sy['SourceUpdateFrame4086_Bank']}
+ cmp #60
+ bne CallbackFixture_Bad
+ lda.l {sy['SourceUpdateFrame4086_Base']}
+ cmp #$8000
+ bne CallbackFixture_Bad
+ lda #$B624
+ sta.l {sy['SourceEntityToss4086_Ready']}
+ lda #0
+ sta.l {sy['SourceEntityToss4086_Status']}
+ lda.l {sy['SourceUpdateFrame4086_Slot']}
+ sta.l {sy['SourceEntityToss4086_Slot']}
+ lda.l {sy['SourceUpdateFrame4086_AnimationData']}
+ tax
+ lda.l $3C0024,x
+ sta.l {sy['SourceEntityToss4086_Lift']}
+ lda.l $3C0026,x
+ sta.l {sy['SourceEntityToss4086_Lift']+2}
+CallbackFixture_AttackBeforeToss:
+.a16
+.i16
+ jsl {sy['SourceEntityToss4086_Execute']}
+ bcs CallbackFixture_Bad
+CallbackFixture_AttackAfterToss:
+.a16
+.i16
+ lda #10
+ sta.l EFFECTACKWORD
+ jsl EFFECTACK
+ bcs CallbackFixture_Bad
+ jmp CallbackFixture_AttackFrame
+CallbackFixture_AttackBeforeFinish:
+.a16
+.i16
+ nop
+ jsl PlayerAttack_FinishFrame
+ bcs CallbackFixture_Bad
+ jmp CallbackFixture_AttackDispatch
+CallbackFixture_AttackDone:
 .a16
 .i16
  nop
@@ -1469,6 +1577,42 @@ end,emu.callbackType.exec,{fs['CallbackFixture_JumpAttackDone']},{fs['CallbackFi
         for jump_role in jump_roles:
             addr=fs['PlayerJump_Query_'+jump_role]
             lua+=f"emu.addMemoryCallback(function()emu.log('JUMPQUERY|'..word(INDEX)..'|{jump_role}')end,emu.callbackType.exec,{addr},{addr},emu.cpuType.snes,mt)\n"
+    if a.canonical_attack:
+        lua+=f"""local attack_sounds=0;local attack_toss_before={{}}
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];local k=c.attack_case;attack_sounds=0
+ for _,r in ipairs({{{{{ak},48}},{{{rl},128}},{{{ac},96}},{{{fe},24}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
+ put({ak},0xb690,2);put({ak}+6,c.attack_port,2);put({ak}+8,k==1 and 0 or 1,2);put({ak}+12,k==5 and -1 or {release_sample},4)
+ put({rl},0xb68f,2);put({rl}+2,2,2);put({ac},0xb675,2);put({ac}+58,100,4);put({fe},0xb67d,2)
+ put({gr['entity_combostyle']},{chain_report['models'][default]['fields']['combostyle']},4)
+ for j=0,1023 do put({gr['input_history']}+j,0,1)end;put({gr['input_owner']},0xb674,2)
+ put({gr['input_history']}+256*c.attack_port+224,0x80000000|(k==0 and 0 or 64),4);put({gr['input_history']}+256*c.attack_port+216,k==4 and 32 or 0,4)
+ set('SourceClock4086_Ready',0xb4c5);put(sy.SourceClock4086_TimeLo,402,4);set('SourceFreeze4086_Ready',0xb5df)
+ put(0x42e008,99,4);put(0x43900c,9,4);put(0x40c058,-5,4);put(0x43eb00,7,4);put(0x437e08,0,4);put(0x437e0c,123,4);put(0x437e10,0xb5fb,2);put(0x437e12,0,2)
+ put(0x416824,2*65536,4);put(0x416828,3*65536,4);put(0x42f404,k==3 and -3 or 0,4);put(0x43eb1c,0,4)
+ if k==8 or k==9 then put(0x43eb1c,0x414000,4);put(0x439030,k==8 and 9 or 65545,4);set('SourceRetirement4086_Ready',0xb4f8);set('SourceRetirement4086_Status',0)end
+end,emu.callbackType.exec,{fs['CallbackFixture_AttackPrepare']},{fs['CallbackFixture_AttackPrepare']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ attack_sounds=attack_sounds+1;put({ak}+22,rows[word(INDEX)+1].attack_case==7 and 2 or 1,2)
+end,emu.callbackType.exec,{fs['CallbackFixture_AttackSound']},{fs['CallbackFixture_AttackSound']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ if rows[word(INDEX)+1].attack_case==6 then put(0x42e008,123,4);put(0x437e08,5,4);put(0x43eb00,-9,4);put(0x416824,9*65536,4);put(0x416828,-9*65536,4);put(0x42f404,55,4);put(0x40c058,0,4)end
+end,emu.callbackType.exec,{fs['CallbackFixture_AttackBeforeFinish']},{fs['CallbackFixture_AttackBeforeFinish']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1]
+ emu.log('ATTACKFRAMEBOUND|'..word(INDEX)..'|'..word({ak}+2)..'|'..attack_sounds..'|'..dw(0x43900c)..'|'..dw(0x40c058)..'|'..dw(0x43eb00)..'|'..dw(0x42e008)..'|'..dw(0x437e08)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..dw(0x414014)..'|'..dw({gr['input_history']}+256*c.attack_port+224)..'|'..dw(0x42f404)..'|'..word({ac}+2))
+end,emu.callbackType.exec,{fs['CallbackFixture_AttackDone']},{fs['CallbackFixture_AttackDone']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ attack_toss_before={{dw(0x41400c),dw(0x41682c),dw(0x41f300)}}
+end,emu.callbackType.exec,{fs['CallbackFixture_AttackBeforeToss']},{fs['CallbackFixture_AttackBeforeToss']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local unchanged=dw(0x41400c)==attack_toss_before[1] and dw(0x41682c)==attack_toss_before[2] and dw(0x41f300)==attack_toss_before[3]
+ emu.log('ATTACKTOSS|'..word(INDEX)..'|'..dw(sy.SourceEntityToss4086_Lift)..'|'..word(sy.SourceEntityToss4086_Status)..'|'..(unchanged and 1 or 0))
+end,emu.callbackType.exec,{fs['CallbackFixture_AttackAfterToss']},{fs['CallbackFixture_AttackAfterToss']},emu.cpuType.snes,mt)
+"""
+        for attack_role in attack_roles:
+            addr=fs['PlayerAttack_Query_'+attack_role]
+            lua+=f"emu.addMemoryCallback(function()emu.log('ATTACKQUERY|'..word(INDEX)..'|{attack_role}')end,emu.callbackType.exec,{addr},{addr},emu.cpuType.snes,mt)\n"
     if a.canonical_release:
         from source_sound_namespace_4086 import derive as sound_namespace
         release_sample=sound_namespace(source)['specials']['SAMPLE_PUNCH']['sound_index']
@@ -1518,7 +1662,7 @@ end,emu.callbackType.exec,{fs['CallbackFixture_LieDone']},{fs['CallbackFixture_L
     if a.ai_run:
         initialinstall+="\nset('SourceAI4086_State',0);set('SourceAI4086_Endgame',0,4);set('SourceAIRun4086_Ready',0xb5e6);set('SourceAIRun4086_State',0);put(0x439000,0,4);put(0x416814,48,4);put(0x42f400,0,4);put(0x42e024,0,4)\n"
         lua+="emu.addMemoryCallback(function()emu.log('AIRUNFRAME|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..dw(0x42e024)..'|'..dw(0x416814)..'|'..word(sy.SourceAIRun4086_PendingKind))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
-    if a.early_player:
+    if a.early_player or a.canonical_attack:
         initialinstall+="\nset('SourceDamageEffectsState4086_Ready',0);set('SourcePhysicsState4086_Ready',0)\n"
         for name in ('SourceModelAttackPolicy4086_Ready','SourceAttackTiming4086_Ready','SourceOffscreenState4086_Ready','SourceDeathFields4086_Ready','SourceDamageState4086_Ready'):
             initialinstall+=f' put({sy[name]},0,2)\n'
@@ -1827,6 +1971,29 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             query_expected += [[str(i),name]for name in names]
         reporter.check('actual readonly jump queries retain source short circuit and selection order',jump_queries==query_expected)
         r.update(canonical_jump_attack_bound=True,jump_results=jump_results,jump_queries=jump_queries,jump_capability=jump_capability,jump_input_and_velocity_context_instrumented=True,jump_frame_owner_real=True,active_gravity_or_landing_bound=False,full_player_think_bound=False)
+    if a.canonical_attack:
+        attack_results=[list(map(int,line.split('ATTACKFRAMEBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'ATTACKFRAMEBOUND|'in line]
+        attack_expected=[]
+        for i,c in enumerate(rows):
+            k=c['attack_case'];active=k>=2;run=k==3;mutated=k==6
+            attack_expected.append([i,4 if active else 2,1 if active and k not in(3,5,6)else 0,
+                17 if active else 9,0 if mutated else 1 if active else 0xfffffffb,
+                0xfffffff7 if mutated else 0 if active else 7,123 if mutated else 0 if run else 402 if active else 99,
+                1 if active and k not in(3,6)else 0,9*65536 if mutated else (2*65536 if c['direction'] else (-2*65536)&0xffffffff)if run else 0 if active else 2*65536,
+                (-9*65536)&0xffffffff if mutated else 0 if active else 3*65536,
+                role_id(config,'runattack')if run else role_id(config,'attack1')if active else role_id(config,'select'),
+                0x80000000 if k!=1 else 0x80000040,55 if mutated else 0,5 if active and not run else 0])
+        reporter.check('ordinary attack completes actual RUNATTACK/chain frames, retains high keys, and checks fresh attacking before mandatory punch',attack_results==attack_expected)
+        attack_toss=[list(map(int,line.split('ATTACKTOSS|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'ATTACKTOSS|'in line]
+        reporter.check('RUNATTACK executes actual source zero-lift toss without altitude, vertical velocity or timer writes',attack_toss==[[i,0,2,1]for i,c in enumerate(rows)if c['attack_case']==3])
+        attack_queries=[line.split('ATTACKQUERY|',1)[1].split('|')for line in (folder/'mesen.log').read_text().splitlines()if 'ATTACKQUERY|'in line]
+        query_expected=[]
+        for i,c in enumerate(rows):
+            k=c['attack_case'];names=[]if k<2 else ['runattack']if k==3 else (['duckattack']if k==4 else [])+['attackbackward','get']+(['throwattack']if k==8 else [])
+            query_expected.extend([[str(i),name]for name in names])
+        reporter.check('readonly alternate queries retain source order and full-width weapon subtype predicate',attack_queries==query_expected)
+        r.update(canonical_attack_bound=True,attack_results=attack_results,attack_expected=attack_expected,attack_capability=attack_capability,attack_frame_owner_real=True,attack_chain_owner_real=True,attack_sound_result_instrumented=True,physical_attack_sound_backend_bound=False,full_player_think_bound=False)
+        r.update(attack_toss_results=attack_toss,attack_query_results=attack_queries,attack_toss_owner_real=True,attack_jump_velocity_owner_real=True)
     if a.canonical_release:
         release_results=[list(map(int,line.split('RELEASEFRAMEBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'RELEASEFRAMEBOUND|'in line]
         expected=[]

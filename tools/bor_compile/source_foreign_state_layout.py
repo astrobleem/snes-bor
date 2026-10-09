@@ -47,7 +47,8 @@ def layout(base,size,entities=128,players=4):
            ('player_state_controls',64,'module-tail lifetime lease and exact integer row access'),
            ('player_directional_controls',64,'canonical air predicate and ordered directional RUN queries'),
            ('player_button_controls',48,'pre-attack button query and real special continuation'),
-           ('player_release_controls',128,'canonical release, sound/frame continuations and integral charge threshold')]
+           ('player_release_controls',128,'canonical release, sound/frame continuations and integral charge threshold'),
+           ('player_attack_controls',48,'ordinary attack, chain/target/frame/sound continuations')]
     cursor=base;regions=[]
     for name,count,authority in specs:
         cursor=(cursor+1)&~1
