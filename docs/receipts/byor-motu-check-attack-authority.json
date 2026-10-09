@@ -1,0 +1,63 @@
+{
+  "schema": "BYOR_4086_CHECK_ATTACK_GATE_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "function_sha256": "df69e84dae63c1289e7d7853f3f09a71df97a01a3cf259af055c7d1fa47b52c4",
+  "cases": 12348,
+  "input_axes": {
+    "falling": [
+      -2147483648,
+      -65536,
+      -1,
+      0,
+      1,
+      65536,
+      2147483647
+    ],
+    "projectile": [
+      -2147483648,
+      -65536,
+      -1,
+      0,
+      1,
+      65536,
+      2147483647
+    ],
+    "drop": [
+      -2147483648,
+      -65536,
+      -1,
+      0,
+      1,
+      65536,
+      2147483647
+    ],
+    "frozen": [
+      -2147483648,
+      0,
+      65536
+    ],
+    "attack_table": [
+      false,
+      true
+    ],
+    "frame_attack": [
+      false,
+      true
+    ],
+    "attack_id": [
+      0,
+      1,
+      4294967295
+    ]
+  },
+  "matrix_sha256": "b18066d153ac7b9cced7bb3e71d2b14a85163318fda5cf497b07efd73d99eef6",
+  "actual_sha256": "b385400856893e7e2ca28a51bb35aea13c7c8c677a5777e06d4604d7f6652864",
+  "mismatches": [],
+  "do_attack_instrumented": true,
+  "freeze_query_instrumented": true,
+  "native_attack_gate_bound": false,
+  "native_combat_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
