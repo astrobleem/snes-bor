@@ -95,3 +95,25 @@ or universal source-equivalence claim. The source-C reference itself still passe
 all cases. No palette or pixel color changes occur in this arithmetic tooling.
 Receipt: byor-motu-checkhit-q16-compatibility.json. Existing coordinate adaptation
 must remain classified in the foreign profile; native hit resolution remains open.
+
+The isolated zero-depth native collision proof passes 3,127 cases. It reads
+actual current animation cursors through the paired B4FC reader; all 48 source
+bounding boxes and 31 attack identities are covered, with normal/counter checks,
+both directions and positive/negative fractional Q16 positions. Missing boxes,
+self targets, generation/token/coordinate/table guards and bounded signed
+overflows preserve the contact record. Successful contacts publish x/y/z/type/
+confirm exactly against the explicit Q16 reference; actor arenas, hit identities,
+world pending phase and CPU/decimal context remain intact. Source models share
+the pinned immutable default grabdistance 36; all source depth offsets are zero.
+Dynamic grabdistance writers and nonzero-depth frames are outside this capability.
+
+The first native failure was a ROM-address emission defect: Poppy retained only
+the offset in local label arithmetic, so long LUT operands read bank zero. The
+emitter now qualifies each table operand with its caller-selected code bank.
+A subsequent short-window run completed 1,484 matching rows but exhausted the
+harness field limit; it remains FAIL. The complete fresh bounded run passes.
+Receipt: byor-motu-checkhit-zero-depth-native.json; ROM SHA-256
+27835b44d634c3f60dbc15560841f18660713b96e82b3083597b91da2b50423c.
+Bank zero remains byte-identical. This is an isolated native collision component,
+not full do_attack, damage resolution, a production memory lease or MOTU combat.
+The binary32/Q16 equivalence FAIL above remains unchanged. NO color reduction.
