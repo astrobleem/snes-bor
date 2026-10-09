@@ -1,0 +1,30 @@
+{
+  "schema": "BYOR_ATTACK_TARGET_FILTER_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "cases": 25136,
+  "predicate_sha256": "f0ec0c9ef281b146a01baffdf5d31c5a73f701c9210c891626ad52fd694c5039",
+  "enum_sha256": "52c9f9c0c10704bec9dac39a145b380279fb33da70cd9a736c69b04227b99a06",
+  "inputs_sha256": "915bf9dd545a9f21d505914aaf052dcf3e513534806000abf75482fc55275ab4",
+  "outputs_sha256": "a3bb022f9e00d67c820b803d745d8d1e8bc3926dd8a91e229eee90eb48ab2776",
+  "rejected": {
+    "ADMITTED": 2654,
+    "dead": 11614,
+    "exists": 5057,
+    "invincible": 743,
+    "type": 2444,
+    "pain_time": 1179,
+    "takedamage": 199,
+    "hit_id": 104,
+    "otg": 477,
+    "juggle": 310,
+    "collision": 76,
+    "attackone": 279
+  },
+  "mismatches": [],
+  "checkhit_instrumented": true,
+  "callbacks_and_damage_excluded": true,
+  "native_target_filter_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

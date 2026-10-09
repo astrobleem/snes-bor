@@ -135,3 +135,17 @@ Actual production foreign initialization and full do_attack remain unbound;
 fixtures install the memory/world leases. No production assembly changes.
 Receipts: byor-motu-attack-identity-authority.json and
 byor-motu-attack-identity-native.json. Bank zero remains unchanged.
+
+The unchanged outer do_attack target predicate passes 25,136 source-C cases.
+Coverage varies pairs of full-width fields and a deterministic 20,000-case
+combination set. Rejections retain source order: exists/dead, exact invincible
+value 1 with item exception, attackone/lasthit, type mask, strict unsigned
+pain_time < time, takedamage, hit identity, over-the-ground and juggle rules.
+Normal collision executes first; counter collision runs only after its miss
+and a nonzero counterattack value. Instrumented collision-call counts match.
+OTG and ATK_ITEM enums are read from the same pinned engine header and checked
+at C execution. This is an offline predicate proof, with callbacks and damage
+excluded; it does not certify the native target loop. Receipt:
+byor-motu-attack-target-filter-authority.json. The initial C fixture missed a
+newline after the source trailing line comment and did not build; the corrected
+fixture passes. No failed build is counted as PASS.
