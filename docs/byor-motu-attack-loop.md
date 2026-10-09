@@ -37,9 +37,15 @@ preparation matrix also passes against the repaired ROM with the new emitter.
 Bank 0 is byte-identical to that ROM in both proofs.
 
 This is not complete `do_attack`. The earlier defense-threshold expression,
-`ondoattack`, ownership/ground exclusions after confirmation, blocking, damage,
+nonempty `ondoattack`, blocking, damage,
 effects, followups, pause, pain timing, hit-ID publication and final sound/cost
 services still require their real owners. Original-binary float equivalence is
 not claimed; collision uses the explicit Q16 coordinate adaptation. The MOTU
 profile remains unregistered and gameplay is unproven. No color reduction is
 applied.
+
+The optional source-derived empty-event/zero-ground prelude now advances through
+ownership rejection and suspends at the actual hit body with ticket `8112`.
+Its 794-case native proof and staged guards are documented in
+[byor-motu-hit-prelude.md](byor-motu-hit-prelude.md). The original `8111` path
+remains available when that capability is not selected.

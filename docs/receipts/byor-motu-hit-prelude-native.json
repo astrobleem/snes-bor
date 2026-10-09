@@ -1,0 +1,370 @@
+{
+  "schema": "BYOR_MOTU_HIT_PRELUDE_PROOFS_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "schema": "BYOR_HIT_PRELUDE_AUTHORITY_V1",
+      "status": "PASS",
+      "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+      "cases": 324,
+      "prefix_sha256": "d645d3eba99bf556864f8a0213b5f1b5afc12be4323df48191cd1270d6d3bbd7",
+      "empty_dispatch_sha256": "8e25c146aadf246db5f2bfceca5d71613995f6c4f91c4514c7e8fcb1ab13e7ce",
+      "script_initialized_sha256": "3da149d87354ca87c777451ed3b57e2b4e0cef861b4f5e5e13158d95279bf269",
+      "failures": [],
+      "prefix_and_script_bodies_unmodified": true,
+      "inair_service_instrumented": true,
+      "confirm_zero_retains_target_self": true,
+      "item_blocking_damage_body_proven": false,
+      "motu_gameplay_proven": false,
+      "no_color_reduction": true,
+      "report_path": "out/byor-motu-hit-prelude-authority/report.json",
+      "report_sha256": "313b707122a2b17e0a346363affa96d8b37c69f5462f1fefe4f1dd267c94899a"
+    },
+    {
+      "schema": "BYOR_ORDERED_ATTACK_LOOP_NATIVE_V1",
+      "status": "PASS",
+      "cases": 794,
+      "failures": [],
+      "rom_sha256": "4aa37971a52b7a814cda765df9f6bf520a13488324a6436bd0c843f9ed75c37c",
+      "chr_capacity": 47936,
+      "control_tail": [
+        4374456,
+        4374464
+      ],
+      "mandatory_hit_ticket": 33042,
+      "actual_native_preparation_target_and_collision": true,
+      "empty_ondoattack_and_owner_prefix_bound": true,
+      "hit_prelude_requirements": {
+        "schema": "BYOR_HIT_PRELUDE_REQUIREMENTS_V1",
+        "capability": "SOURCE_EMPTY_ONDOATTACK_ZERO_GROUND",
+        "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+        "models": [
+          {
+            "id": 0,
+            "identity": "Shock",
+            "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e",
+            "ground": 0
+          },
+          {
+            "id": 1,
+            "identity": "Slash",
+            "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7",
+            "ground": 0
+          },
+          {
+            "id": 2,
+            "identity": "Spark",
+            "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd",
+            "ground": 0
+          },
+          {
+            "id": 3,
+            "identity": "He_Man",
+            "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+            "ground": 0
+          },
+          {
+            "id": 4,
+            "identity": "He_ManB",
+            "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+            "ground": 0
+          },
+          {
+            "id": 5,
+            "identity": "HBreath",
+            "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+            "ground": 0
+          },
+          {
+            "id": 6,
+            "identity": "HWWind",
+            "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c",
+            "ground": 0
+          },
+          {
+            "id": 7,
+            "identity": "ShWave",
+            "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181",
+            "ground": 0
+          },
+          {
+            "id": 8,
+            "identity": "Skeletor",
+            "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+            "ground": 0
+          },
+          {
+            "id": 9,
+            "identity": "GeyserN",
+            "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a",
+            "ground": 0
+          },
+          {
+            "id": 10,
+            "identity": "SkFBall",
+            "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd",
+            "ground": 0
+          },
+          {
+            "id": 11,
+            "identity": "SkGeyser",
+            "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940",
+            "ground": 0
+          },
+          {
+            "id": 12,
+            "identity": "SkGeyserT",
+            "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14",
+            "ground": 0
+          },
+          {
+            "id": 13,
+            "identity": "SkTorn",
+            "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb",
+            "ground": 0
+          },
+          {
+            "id": 14,
+            "identity": "Knightbot",
+            "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+            "ground": 0
+          },
+          {
+            "id": 15,
+            "identity": "ShockBall",
+            "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807",
+            "ground": 0
+          }
+        ],
+        "script_descriptor_sha256": "7af26fcfca114db9607d166f637ee9350a49f93771d1079e3107a606866eeaaf",
+        "model_ground_mutators_admitted": false,
+        "nonanimation_script_mutators_admitted": false,
+        "actual_item_blocking_damage_services_bound": false,
+        "production_world_owner_bound": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true
+      },
+      "self_failures": [],
+      "ondoattack_and_hit_services_bound": false,
+      "defense_threshold_expression_excluded": true,
+      "source_float_equivalence": false,
+      "production_world_owner_bound": false,
+      "motu_gameplay_proven": false,
+      "no_color_reduction": true,
+      "no_pcm_copies": true,
+      "report_path": "out/byor-motu-hit-prelude-native-guard-corrected/report.json",
+      "report_sha256": "11b70d13cf8ea21275c3c34cfa134fa89fbf078783f671955435ec56da29d0da",
+      "metadata_correction": "Optional prelude ticket is 8112; native observations unchanged."
+    },
+    {
+      "schema": "BYOR_ORDERED_ATTACK_LOOP_NATIVE_V1",
+      "status": "PASS",
+      "cases": 18,
+      "failures": [],
+      "rom_sha256": "898dd58cb1101b7f09fd112d70964c1ba82c3f5d4d3abf89b830cd555ed2c63e",
+      "chr_capacity": 47936,
+      "control_tail": [
+        4374456,
+        4374464
+      ],
+      "mandatory_hit_ticket": 33042,
+      "actual_native_preparation_target_and_collision": true,
+      "empty_ondoattack_and_owner_prefix_bound": true,
+      "hit_prelude_requirements": {
+        "schema": "BYOR_HIT_PRELUDE_REQUIREMENTS_V1",
+        "capability": "SOURCE_EMPTY_ONDOATTACK_ZERO_GROUND",
+        "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+        "models": [
+          {
+            "id": 0,
+            "identity": "Shock",
+            "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e",
+            "ground": 0
+          },
+          {
+            "id": 1,
+            "identity": "Slash",
+            "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7",
+            "ground": 0
+          },
+          {
+            "id": 2,
+            "identity": "Spark",
+            "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd",
+            "ground": 0
+          },
+          {
+            "id": 3,
+            "identity": "He_Man",
+            "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+            "ground": 0
+          },
+          {
+            "id": 4,
+            "identity": "He_ManB",
+            "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+            "ground": 0
+          },
+          {
+            "id": 5,
+            "identity": "HBreath",
+            "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+            "ground": 0
+          },
+          {
+            "id": 6,
+            "identity": "HWWind",
+            "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c",
+            "ground": 0
+          },
+          {
+            "id": 7,
+            "identity": "ShWave",
+            "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181",
+            "ground": 0
+          },
+          {
+            "id": 8,
+            "identity": "Skeletor",
+            "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+            "ground": 0
+          },
+          {
+            "id": 9,
+            "identity": "GeyserN",
+            "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a",
+            "ground": 0
+          },
+          {
+            "id": 10,
+            "identity": "SkFBall",
+            "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd",
+            "ground": 0
+          },
+          {
+            "id": 11,
+            "identity": "SkGeyser",
+            "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940",
+            "ground": 0
+          },
+          {
+            "id": 12,
+            "identity": "SkGeyserT",
+            "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14",
+            "ground": 0
+          },
+          {
+            "id": 13,
+            "identity": "SkTorn",
+            "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb",
+            "ground": 0
+          },
+          {
+            "id": 14,
+            "identity": "Knightbot",
+            "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+            "ground": 0
+          },
+          {
+            "id": 15,
+            "identity": "ShockBall",
+            "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807",
+            "ground": 0
+          }
+        ],
+        "script_descriptor_sha256": "7af26fcfca114db9607d166f637ee9350a49f93771d1079e3107a606866eeaaf",
+        "model_ground_mutators_admitted": false,
+        "nonanimation_script_mutators_admitted": false,
+        "actual_item_blocking_damage_services_bound": false,
+        "production_world_owner_bound": false,
+        "motu_gameplay_proven": false,
+        "no_color_reduction": true
+      },
+      "self_failures": [],
+      "ondoattack_and_hit_services_bound": false,
+      "defense_threshold_expression_excluded": true,
+      "source_float_equivalence": false,
+      "production_world_owner_bound": false,
+      "motu_gameplay_proven": false,
+      "no_color_reduction": true,
+      "no_pcm_copies": true,
+      "report_path": "out/byor-motu-hit-prelude-staged-guards/report.json",
+      "report_sha256": "f6bf1b3074e97553e60a2cb0c99f270b925f5c90c89f64f2e25eeae280f4d629",
+      "metadata_correction": "Optional prelude ticket is 8112; native observations unchanged."
+    },
+    {
+      "schema": "BYOR_HIT_BLOCK_AUTHORITY_V1",
+      "status": "PASS",
+      "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+      "cases": 16897,
+      "predicate_sha256": [
+        "60927ed6a5033ab25111649457fe0bb037eb1f7b3ca0cc3a0629ee4688c04efb",
+        "b44a877936ff794c1cdfc7cbff196075413f2e4909ebf04c8b03b2844bf14717",
+        "f3a1a15448b64ebeb87323f9e848fda29b79054949bca429381bc8637997a79f"
+      ],
+      "unchanged_source_predicates": true,
+      "actual_validanim_inair_random_bodies_instrumented": true,
+      "service_call_order_counts_proven": true,
+      "blocking_damage_bodies_proven": false,
+      "failures": [],
+      "output_sha256": "70f33cc7b85c35103400306b3634d7fccf0e4efd7ba572319973f1feeff6076e",
+      "motu_gameplay_proven": false,
+      "no_color_reduction": true,
+      "report_path": "out/byor-motu-hit-block-authority-final/report.json",
+      "report_sha256": "bbbe90c4956bdf0d568df0a0da28dfc8b3534179120e86223871f30bedb69df1"
+    },
+    {
+      "schema": "BYOR_HIT_BLOCK_REQUIREMENTS_V1",
+      "capability": "SOURCE_DEFAULT_BLOCK_PROPERTIES_NO_COUNTER",
+      "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+      "block_role": 13,
+      "maximum_animations": 168,
+      "counter_range": [
+        -1,
+        -1
+      ],
+      "uniform_blockpower": 0,
+      "uniform_blockthreshold": 0,
+      "initial_self_defense_threshold_requirement": "capture the actual initial self vector before the source attack prefix; this closed capability permits zero only",
+      "inair_policy": "explicit ACCEPTED_COMPAT_Q16_16 predicate; no arbitrary binary32 equivalence claim",
+      "source_rand32_required": true,
+      "model_and_counter_property_mutators_admitted": false,
+      "actual_blocking_damage_bodies_bound": false,
+      "production_world_owner_bound": false,
+      "motu_gameplay_proven": false,
+      "no_color_reduction": true,
+      "report_path": "out/byor-motu-hit-block-requirements/report.json",
+      "report_sha256": "69be1e73ee5526173847b9b3f914be30db1656a2146ccbf20d2220db10473795"
+    },
+    {
+      "schema": "BYOR_ORDERED_ATTACK_LOOP_NATIVE_V1",
+      "status": "PASS",
+      "cases": 778,
+      "failures": [],
+      "rom_sha256": "ec4e0bd250963a562fa025f7cc0b39417f0b7b1870160e6a60c2eb7c8084ae6d",
+      "chr_capacity": 47936,
+      "control_tail": [
+        4374456,
+        4374464
+      ],
+      "mandatory_hit_ticket": 33041,
+      "actual_native_preparation_target_and_collision": true,
+      "empty_ondoattack_and_owner_prefix_bound": false,
+      "hit_prelude_requirements": null,
+      "self_failures": [],
+      "ondoattack_and_hit_services_bound": false,
+      "defense_threshold_expression_excluded": true,
+      "source_float_equivalence": false,
+      "production_world_owner_bound": false,
+      "motu_gameplay_proven": false,
+      "no_color_reduction": true,
+      "no_pcm_copies": true,
+      "report_path": "out/byor-motu-attack-loop-prelude-regression/report.json",
+      "report_sha256": "4330bbddc0b5ce6a84f405ee33276c7632d90f80e7e88d5713e6c855be0e3c68"
+    }
+  ],
+  "production_world_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

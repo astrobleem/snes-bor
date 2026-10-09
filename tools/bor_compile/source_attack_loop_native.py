@@ -1,6 +1,7 @@
 """Ordered source target scan through real preparation/filter/collision.
 
-An admitted target returns a mandatory hit-service ticket before ondoattack.
+An admitted target requires hit services. The optional closed empty-event
+prelude rejects shared ownership, then suspends at the actual hit body.
 No API accepts a fabricated callback response or acknowledges phase8.
 """
 from source_hit_contact_layout import layout
@@ -8,7 +9,7 @@ from source_do_attack_prepare_native import TARGET_LOOP_REQUIRED
 HIT_SERVICE_REQUIRED=0x8111
 
 
-def emit(plan,sy):
+def emit(plan,sy,hit_prelude=False):
     if plan!=layout(plan['entities']):raise ValueError('ATTACK_LOOP_PLAN')
     from source_hit_state_layout import layout as hits
     w=plan['controls'];h=hits(plan['entities'])['controls'];lines=[];serial=0;size=16
@@ -33,7 +34,10 @@ def emit(plan,sy):
     for off in (0,2):
         put(f' lda.l {sy["SourceWorldTick4086_TimeLo"]}+{off}\n cmp.l {sy["VmSourceWorld_Time"]}+{off}');branch('bne')
     put(f' lda.l {h}+4\n cmp.l {sy["SourceWorldTick4086_Slot"]}');branch('bne')
-    put(f' lda.l {w}+60\n cmp #2');branch('beq','Pending');put(' cmp #3');branch('beq','Done');put(' cmp #1');branch('bne')
+    put(f' lda.l {w}+60')
+    if hit_prelude:
+        put(' cmp #4');branch('beq','ResponsePending')
+    put(' cmp #2');branch('beq','Pending');put(' cmp #3');branch('beq','Done');put(' cmp #1');branch('bne')
     put(f' lda.l {sy["VmSourceWorld_Count"]}');branch('beq');put(f' cmp #{plan["entities"]+1}');branch('bcs')
     put(f' lda.l {sy["SourceWorldTick4086_Slot"]}\n cmp.l {sy["VmSourceWorld_Count"]}');branch('bcs')
     put(' asl a\n asl a\n asl a\n asl a\n asl a\n asl a\n tax')
@@ -44,9 +48,25 @@ def emit(plan,sy):
     put(f' lda.l $416806,x\n cmp.l {w}+46');branch('bne')
     label('Next');put(f' lda.l {w}+56\n cmp.l {sy["VmSourceWorld_Count"]}');branch('bcs','Done')
     put(f' sta.l {h}+26\n ldx $00\n ldy $02\n jsl AttackTarget_Run');branch('bcs');put(' cmp #0');branch('bne','Admitted')
-    put(f' lda.l {w}+56\n inc a\n sta.l {w}+56\n jmp AttackLoop_Next')
+    label('Continue');put(f' lda.l {w}+56\n inc a\n sta.l {w}+56\n jmp AttackLoop_Next')
     label('Admitted');put(f' lda.l {w}+56\n sta.l {w}+58\n lda #2\n sta.l {w}+60')
-    label('Pending');put(f' lda #{HIT_SERVICE_REQUIRED}\n jmp AttackLoop_Good')
+    label('Pending')
+    if hit_prelude:
+        from source_hit_prelude_native import HIT_RESPONSE_REQUIRED
+        put(' ldx $00\n ldy $02\n jsl HitPrelude_Run');branch('bcs');put(' cmp #0');branch('beq','Continue')
+        put(f' cmp #{HIT_RESPONSE_REQUIRED}');branch('bne');put(f' lda #4\n sta.l {w}+60')
+        label('ResponsePending')
+        for at,v in ((h+42,0xb6a7),(h+40,1),(h+38,0x41)):
+            put(f' lda.l {at}\n cmp #{v}');branch('bne')
+        put(f' lda.l {w}+58\n cmp.l {sy["VmSourceWorld_Count"]}');branch('bcs')
+        put(f' cmp.l {h}+26');branch('bne')
+        put(' asl a\n asl a\n asl a\n asl a\n sta $04\n asl a\n asl a\n clc\n adc $04\n adc #$4000')
+        put(f' cmp.l {sy["SourceSelf4086_GlobalLow"]}');branch('bne')
+        put(f' lda.l {sy["SourceSelf4086_GlobalHigh"]}\n cmp #$41');branch('bne')
+        put(f' lda.l {sy["SourceWorldTick4086_Slot"]}\n asl a\n asl a\n asl a\n asl a\n sta $04\n asl a\n asl a\n clc\n adc $04\n adc #$4000\n cmp.l {h}+36');branch('bne')
+        put(f' lda #{HIT_RESPONSE_REQUIRED}\n jmp AttackLoop_Good')
+    else:
+        put(f' lda #{HIT_SERVICE_REQUIRED}\n jmp AttackLoop_Good')
     label('Done');put(f' lda #3\n sta.l {w}+60\n lda #0')
     label('Good');put(f' tay\n tsc\n clc\n adc #{size}\n tcs\n tya\n pld\n ply\n plx\n plp\n clc\n rtl')
     label('Bad');put(f' tsc\n clc\n adc #{size}\n tcs\n pld\n ply\n plx\n plp\n sec\n rtl')
