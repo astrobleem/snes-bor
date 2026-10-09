@@ -1,0 +1,58 @@
+{
+  "schema": "BYOR_SET_PAIN_AUTHORITY_RECEIPT_V1",
+  "proof_path": "out/byor-motu-set-pain-authority/report.json",
+  "proof_sha256": "5c48b4dcfc859f642f1a4c5ce5b6702b095e29a527323fdcbb9454c74e72ed8e",
+  "authority": {
+    "schema": "BYOR_SET_PAIN_4086_AUTHORITY_V1",
+    "status": "PASS",
+    "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "source_function_unmodified": true,
+    "source_function_sha256": "08e0b5c7f6d695f7a8c8adf04b5ba3e60e56e11a706423f37e2a21fce0a62275",
+    "source_macro_unmodified": true,
+    "source_macro_sha256": "1c59ef63417a546f4afc5a0a567e7aee16e8405c0b8a615fa53bc820b3875b6d",
+    "cases": 4608,
+    "mismatched_cases": [],
+    "actual_bytes": 497664,
+    "expected_bytes": 497664,
+    "actual_sha256": "0c31112dd0ecf02edaad0472b48e06c0f1afda7d59536c777420d00fac75e998",
+    "expected_sha256": "0c31112dd0ecf02edaad0472b48e06c0f1afda7d59536c777420d00fac75e998",
+    "input_sha256": "abf830b2aa2a632ba519db9010b7a72ed0716bb29799ee2c4b4f3967698ef090",
+    "source_pain_ids": [
+      4,
+      69,
+      70,
+      71,
+      4,
+      34,
+      4,
+      33,
+      4,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "source_role_ids": {
+      "ANI_IDLE": 0,
+      "ANI_GRABBED": 35,
+      "ANI_GUARDBREAK": 149
+    },
+    "negative_type_below_minus_one_admitted": false,
+    "instrumented_children": [
+      "validanim",
+      "ent_set_anim/frame callback",
+      "unfrozen",
+      "execute_onpain_script"
+    ],
+    "native_bound": false,
+    "motu_gameplay_proven": false,
+    "no_color_reduction": true
+  }
+}

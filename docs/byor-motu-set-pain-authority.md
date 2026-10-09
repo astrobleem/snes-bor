@@ -1,0 +1,7 @@
+# Source set_pain authority
+
+Unmodified pinned `set_pain` and its `painflags` macro pass 4,608 cases against an independent scalar reference. The proof covers ordinary and aliased attack-type pain roles, GRABBED selection, guard break and guard restoration, all three animation fallback outcomes, missing animations, reset values, signed frozen flags, and frame/onpain callback mutations. The source animation-ID snapshot supplies the actual enum and default pain array.
+
+Source order matters. Velocity is cleared before animation selection. An instrumented frame callback can change velocity during `ent_set_anim`, and that result survives `set_pain`; the later flags do not clear velocity again. `painflags` clears the nine listed action flags, sets `inpain`, and unfreezes only after the animation child. The original requested role, rather than the fallback animation chosen, determines the GRABBED `inpain=0` rule. The onpain callback runs last and can change those fields again. Failure to find any valid animation still retains the prior velocity clear and guard restoration, but does not execute flags or onpain.
+
+Animation/frame execution, unfreeze and onpain children are instrumented. This is source authority for the next native join, not a native full damage callback or an animation/audio acknowledgement. Types below -1 are outside this admitted domain because the source indexes the pain array with them; source damage normalization supplies nonnegative attack types. No color reduction occurred. See the [receipt](receipts/byor-motu-set-pain-authority.json).
