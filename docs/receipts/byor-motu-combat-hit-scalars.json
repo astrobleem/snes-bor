@@ -12,5 +12,13 @@
   "full_damage_callback_bound": false,
   "motu_gameplay_proven": false,
   "no_color_reduction": true,
-  "no_pcm_copies": true
+  "no_pcm_copies": true,
+  "joined_contact_proof": {
+    "path": "out/byor-motu-combat-hit-scalars-joined-native/report.json",
+    "sha256": "dfd2a246af6cfa1e26812550c80288edfa990eb8e71af8c3c13806496b1b16b1",
+    "rom_sha256": "58a872d94c31a1a79c548c0d27bd2077f28b899d7a0b1c2211f56efc3602c7ec",
+    "cases": 412,
+    "actual_score_calls": 382,
+    "admitted_health_calls": 388
+  }
 }

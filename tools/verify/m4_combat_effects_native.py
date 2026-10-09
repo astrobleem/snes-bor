@@ -216,7 +216,7 @@ AttackGateProbe_OpponentGood:
             lua+=f"emu.addMemoryCallback(function()emu.log('{prefix.upper()}FAULT|'..word(INDEX)..'|'..{prefix}Last..'|'..word({w}+44))end,emu.callbackType.exec,{prefix}BAD,{prefix}BAD,emu.cpuType.snes,mt)\n"
         raw,log=original(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw)
         effect_results.extend([list(map(int,l.split('COMBATEFFECT|',1)[1].split('|')))for l in log.splitlines()if 'COMBATEFFECT|'in l]);wanted=[]
-        for i,c in enumerate(rows):wanted.append([i,3 if c['fault']else 2,0 if c['fault']else 2,c['tfrozen']if c['fault']else c['effect_frozen'],c['effect_deadline']if c['fault']else c['effect_time'],c['effect_drop']if c['fault']else c['effect_finaldrop'],3 if c['bad']=='effect_palette_range'else c['active_map']if c['fault']else c['effect_active'],c['restore']])
+        for i,c in enumerate(rows):wanted.append([i,3 if c['fault']else 2,0 if c['fault']else c.get('common_cursor',2),c['tfrozen']if c['fault']else c['effect_frozen'],c['effect_deadline']if c['fault']else c['effect_time'],c['effect_drop']if c['fault']else c['effect_finaldrop'],3 if c['bad']=='effect_palette_range'else c['active_map']if c['fault']else c['effect_active'],c['restore']])
         reporter.check('actual freeze/unfreeze palette and drop state, frozen deadline retention and exactly once effect execution under retry',effect_results==wanted)
         return raw,log
     args=['m4_hit_block_native.py','--source',a.source,'--rom',str(a.rom),'--output',str(a.output)]
