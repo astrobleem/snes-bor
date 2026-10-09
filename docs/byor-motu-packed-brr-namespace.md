@@ -1,0 +1,9 @@
+# Packed BRR lookups and complete PCM namespace
+
+The optional native encoder packs each existing four-bit lookup value into one nibble and shares the identical shift-0 through shift-11 tables between its two lookup families. Its first-block prediction is computed as zero instead of reading a 64 KiB zero table. The default encoder path remains unchanged.
+
+All 1,703,936 lookup values compare exactly with the original ROM tables. Native output remains byte-identical to the existing codec on 8,192 edge/random samples, 8,192 minimum-value samples and the actual admitted pain/klunk mixture. Clipping repair counts also match. Lookup data falls from 1,868,193 to 557,473 bytes. The new worker is 598 IRAM bytes. Packing adds work: the edge trace takes 4,930,348 master clocks versus 3,954,048 for the original layout; the real 176-sample chunk takes 105,352 clocks. This is isolated codec cost, not a joint gameplay budget.
+
+The generic offline PCM8 namespace compiler verifies every original source hash and normalized WAV hash, then returns ROM words and PC8D descriptors in memory. It writes no PCM media copies. All 30 assets occupy 1,087,264 bytes in EB..FF, leaving 288,992 bytes in that pool. Codec reservation in E1, E3 and E4..EA occupies 589,824 bytes, leaving 420,064 bytes of the two-megabyte E window after both reservations. This layout calculation is not yet a combined live ROM installation or production RAM lease.
+
+The native admission/mixer proof now uses the complete namespace descriptor table and payload, while exercising the actual pain/klunk lifetimes. Its PCM and ending state still match pinned C exactly. Source normalization retains the previously explicit mono/11025 PCM_u8 adaptation. No source color reduction occurred. See the [receipt](receipts/byor-motu-packed-brr-namespace-native.json).

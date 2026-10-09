@@ -37,7 +37,7 @@ def residual_lookup(shift,avoid_min=False):
  return bytes(table)
 
 
-def build(samples,busy,predictor_dbr=False,clip_repair=False,worker_base=0x3200,input_bank=0xc2,persistent_jobs=0,input_offset=0,output_address=0x430000):
+def build(samples,busy,predictor_dbr=False,clip_repair=False,worker_base=0x3200,input_bank=0xc2,persistent_jobs=0,input_offset=0,output_address=0x430000,*,packed_lut=False):
  if not 0<=input_offset<=65536-len(samples)*2 or not 0x400000<=output_address<=0x440000-len(samples)//16*9:raise ValueError('BRR_WORKSPACE_RANGE')
  if (output_address&65535)+len(samples)//16*9>65536:raise ValueError('BRR_OUTPUT_BANK_CROSSING')
  raw,_,_=filter0_build(samples,busy);rom=bytearray(raw)
@@ -45,12 +45,19 @@ def build(samples,busy,predictor_dbr=False,clip_repair=False,worker_base=0x3200,
  rom[0x10000:0x20000]=struct.pack('<32768h',*prediction)
  ranges=bytes(next((s for s in range(13)if peak<=7*(1<<s)//2),12)for peak in range(32769))
  rom[0x30000:0x30000+len(ranges)]=ranges
+ if packed_lut:rom[0x40000:0x110000]=bytes([255])*0xd0000
  for shift in range(13):
-  rom[0x40000+shift*65536:0x50000+shift*65536]=residual_lookup(shift,True)
-  rom[0x110000+shift*65536:0x120000+shift*65536]=residual_lookup(shift)
+  if packed_lut:
+   for index,avoid in ([(shift,False),(13,True)]if shift==12 else [(shift,False)]):
+    table=residual_lookup(shift,avoid)
+    data=bytes(table[i]|(table[i+1]<<4)for i in range(0,len(table),2))
+    at=0x40000+index*32768;rom[at:at+32768]=data
+  else:
+   rom[0x40000+shift*65536:0x50000+shift*65536]=residual_lookup(shift,True)
+   rom[0x110000+shift*65536:0x120000+shift*65536]=residual_lookup(shift)
   residual=[((n if n<8 else n-16)<<shift)>>1 for n in range(16)]
   rom[0x39000+shift*32:0x39020+shift*32]=struct.pack('<16h',*residual)
- rom[0x1e0000:0x1f0000]=bytes(65536)
+ if not packed_lut:rom[0x1e0000:0x1f0000]=bytes(65536)
  c=Code(worker_base);c.emit('78 18 fb c2 30 a2 ff 37 9a a9 00 30 5b e2 20 a9 ff 8d 2a 22 a9 80 8d 27 22 a9 00 48 ab c2 20')
  c.label('entry');c.emit('a9 00 00 8f f2 3f 41 85 28 85 00 85 04 85 10 85 14 85 18 e2 20 a9 '+bytes([output_address>>16]).hex()+' 85 06 a9 c3 85 24 c2 20')
  if output_address&65535:c.word(0xa9,output_address&65535);c.emit('85 04')
@@ -58,16 +65,33 @@ def build(samples,busy,predictor_dbr=False,clip_repair=False,worker_base=0x3200,
  def present(name):
   c.emit('a6 10')
   if persistent_jobs:c.branch(0xd0,name);c.emit('a6 2c');c.label(name)
- c.label('block');c.emit('e2 20 a9 c1');present('predictor_present');c.branch(0xd0,'predictor_bank');c.emit('a9 de');c.label('predictor_bank');c.emit(('48 ab'if predictor_dbr else'85 1a')+' c2 20 a9 00 00 85 08 a5 14 85 12 a9 10 00 85 20')
+ c.label('block')
+ if packed_lut:
+  c.emit('e2 20 a9 00 85 30');present('predictor_present');c.branch(0xf0,'first_prediction');c.emit('a9 01 85 30');c.label('first_prediction');c.emit('a9 c1')
+ else:
+  c.emit('e2 20 a9 c1');present('predictor_present');c.branch(0xd0,'predictor_bank');c.emit('a9 de');c.label('predictor_bank')
+ c.emit(('48 ab'if predictor_dbr else'85 1a')+' c2 20 a9 00 00 85 08 a5 14 85 12 a9 10 00 85 20')
  if persistent_jobs:c.emit('a6 10')
  predictor='b9 00 00'if predictor_dbr else'b7 18'
  source_load='bf '+input_offset.to_bytes(2,'little').hex(' ')+f' {input_bank:02x}'
- c.label('peak');c.emit(source_load+' c9 00 80 6a 85 1c a5 12 29 ff 7f 0a a8 '+predictor+' 85 1e a5 1c 85 12 38 e5 1e')
+ def predict(label):
+  if packed_lut:
+   c.emit('a5 30 29 ff 00');c.branch(0xd0,label+'_lookup');c.emit('a9 00 00');c.branch(0x80,label+'_ready');c.label(label+'_lookup');c.emit(predictor);c.label(label+'_ready')
+  else:c.emit(predictor)
+ c.label('peak');c.emit(source_load+' c9 00 80 6a 85 1c a5 12 29 ff 7f 0a a8');predict('peak_predict');c.emit('85 1e a5 1c 85 12 38 e5 1e')
  c.branch(0x10,'absolute');c.emit('49 ff ff 1a');c.label('absolute');c.emit('c5 08');c.branch(0x90,'retain');c.emit('85 08');c.label('retain');c.emit('e8 e8 c6 20');c.branch(0xd0,'peak')
- c.emit('a6 08 e2 20 bf 00 00 c3 85 0a 18 69 d1');present('quant_present');c.branch(0xd0,'quant_bank');c.emit('a5 0a 18 69 c4');c.label('quant_bank');c.emit('85 02 a5 0a 0a 0a 0a 0a');present('header_present');c.branch(0xf0,'header');c.emit('09 04');c.label('header');c.emit('87 04 c2 20 e6 04 a5 0a 29 ff 00 0a 0a 0a 0a 0a 18 69 00 90 85 22 a6 10 a9 08 00 85 0c')
+ c.emit('a6 08 e2 20 bf 00 00 c3 85 0a')
+ if packed_lut:
+  present('quant_present');c.branch(0xd0,'quant_index');c.emit('c9 0c');c.branch(0xd0,'quant_index');c.emit('a9 0d');c.label('quant_index');c.emit('48 29 01 0a 0a 0a 0a 0a 0a 0a 85 01 68 4a 18 69 c4 85 02 a9 00 85 00')
+ else:
+  c.emit('18 69 d1');present('quant_present');c.branch(0xd0,'quant_bank');c.emit('a5 0a 18 69 c4');c.label('quant_bank');c.emit('85 02')
+ c.emit('a5 0a 0a 0a 0a 0a');present('header_present');c.branch(0xf0,'header');c.emit('09 04');c.label('header');c.emit('87 04 c2 20 e6 04 a5 0a 29 ff 00 0a 0a 0a 0a 0a 18 69 00 90 85 22 a6 10 a9 08 00 85 0c')
  c.label('pair')
  for side in range(2):
-  c.emit(source_load+' c9 00 80 6a 85 1c a5 14 29 ff 7f 0a a8 '+predictor+' 85 1e a5 1c 38 e5 1e a8 e2 20 b7 00 85 26')
+  c.emit(source_load+' c9 00 80 6a 85 1c a5 14 29 ff 7f 0a a8');predict('sample_predict_'+str(side));c.emit('85 1e a5 1c 38 e5 1e')
+  if packed_lut:
+   c.emit('48 29 01 00 85 2e 68 4a a8 e2 20 b7 00 48 a5 2e');c.branch(0xd0,'odd_nibble_'+str(side));c.emit('68 29 0f');c.branch(0x80,'nibble_ready_'+str(side));c.label('odd_nibble_'+str(side));c.emit('68 4a 4a 4a 4a');c.label('nibble_ready_'+str(side));c.emit('85 26')
+  else:c.emit('a8 e2 20 b7 00 85 26')
   if not clip_repair:c.emit('0a 0a 0a 0a 85 0e'if side==0 else'05 0e 87 04')
   c.emit('c2 20')
   if clip_repair:c.emit('a9 00 00 85 2a')
@@ -93,11 +117,11 @@ def build(samples,busy,predictor_dbr=False,clip_repair=False,worker_base=0x3200,
 
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);g=p.add_mutually_exclusive_group(required=True);g.add_argument('--mixed',type=Path);g.add_argument('--synthetic',choices=('minimum','edge-and-random'));p.add_argument('--output',type=Path,required=True);p.add_argument('--frames',type=int,default=192);p.add_argument('--busy-host',action='store_true');p.add_argument('--predictor-dbr',action='store_true');p.add_argument('--expect-guard',action='store_true');p.add_argument('--clip-repair',action='store_true');a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser(description=__doc__);g=p.add_mutually_exclusive_group(required=True);g.add_argument('--mixed',type=Path);g.add_argument('--synthetic',choices=('minimum','edge-and-random'));p.add_argument('--output',type=Path,required=True);p.add_argument('--frames',type=int,default=192);p.add_argument('--busy-host',action='store_true');p.add_argument('--predictor-dbr',action='store_true');p.add_argument('--expect-guard',action='store_true');p.add_argument('--clip-repair',action='store_true');p.add_argument('--packed-lut',action='store_true');a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
  if a.frames<=0 or a.frames%16 or a.frames>8192:raise ValueError('BOUNDED_BRR_BLOCK_DOMAIN')
  data=synthetic_input(a.synthetic,a.frames)if a.synthetic else a.mixed.read_bytes()[:a.frames*2]
  if len(data)!=a.frames*2:raise ValueError('MIXTURE_TOO_SHORT')
- samples=struct.unpack('<'+'h'*a.frames,data);expected=compact_encode(samples,True);rom,entries,worker=build(samples,a.busy_host,a.predictor_dbr,a.clip_repair);path=out/'proof.sfc';path.write_bytes(rom);lua=out/'observer.lua'
+ samples=struct.unpack('<'+'h'*a.frames,data);expected=compact_encode(samples,True);rom,entries,worker=build(samples,a.busy_host,a.predictor_dbr,a.clip_repair,packed_lut=a.packed_lut);path=out/'proof.sfc';path.write_bytes(rom);lua=out/'observer.lua'
  lua.write_text('\n'.join(f"emu.addMemoryCallback(function()local s=emu.getState();emu.log('BRRCOST|{name}|'..s.masterClock)end,emu.callbackType.exec,{address},{address},emu.cpuType.sa1,emu.memType.sa1Memory)"for name,address in entries.items()))
  class Observed(McpSession):
   def __enter__(self):
@@ -113,7 +137,7 @@ def main():
  elapsed=int(events[1][1])-int(events[0][1])if[e[0]for e in events]==['entry','done']else None
  encoding_exact=actual==expected and not guard
  ok=elapsed is not None and(guard if a.expect_guard else encoding_exact)
- report=dict(schema='BYOR_NATIVE_FILTER1_BRR_V1',status='PASS'if ok else'FAIL',frames=a.frames,blocks=a.frames//16,brr_bytes=len(expected),byte_mismatches=sum(x!=y for x,y in zip(actual,expected)),clipping_guard_hit=guard,master_clocks=elapsed,milliseconds=elapsed/21477.27 if elapsed else None,worker_IRAM_bytes=len(worker),predictor_DBR=a.predictor_dbr,lookup_ROM_bytes=26*65536+65536+32769+416+65536,busy_host_BWRAM_reads=a.busy_host,mixed_input_sha256=hashlib.sha256(data).hexdigest(),rom_sha256=hashlib.sha256(rom).hexdigest(),brr_sha256=hashlib.sha256(actual).hexdigest(),filter1_native=True,codec_quality_admitted=False,guard_slow_path_bound=False,PCM_gather_and_mix_in_timing=False,mixed_transport_bound=False,production_memory_lease=False,motu_gameplay_proven=False,no_color_reduction=True)
+ report=dict(schema='BYOR_NATIVE_FILTER1_BRR_V1',status='PASS'if ok else'FAIL',frames=a.frames,blocks=a.frames//16,brr_bytes=len(expected),byte_mismatches=sum(x!=y for x,y in zip(actual,expected)),clipping_guard_hit=guard,master_clocks=elapsed,milliseconds=elapsed/21477.27 if elapsed else None,worker_IRAM_bytes=len(worker),predictor_DBR=a.predictor_dbr,packed_lookup_nibbles=a.packed_lut,shared_shift_tables=list(range(12))if a.packed_lut else [],lookup_ROM_bytes=(14*32768+65536+32769+416 if a.packed_lut else 26*65536+65536+32769+416+65536),busy_host_BWRAM_reads=a.busy_host,mixed_input_sha256=hashlib.sha256(data).hexdigest(),rom_sha256=hashlib.sha256(rom).hexdigest(),brr_sha256=hashlib.sha256(actual).hexdigest(),filter1_native=True,codec_quality_admitted=False,guard_slow_path_bound=False,PCM_gather_and_mix_in_timing=False,mixed_transport_bound=False,production_memory_lease=False,motu_gameplay_proven=False,no_color_reduction=True)
  report.update(expected_clipping_guard=a.expect_guard,encoding_exact=encoding_exact,clip_repair=a.clip_repair,repair_count=repair_count,synthetic_input=a.synthetic,scope='explicit unsupported clipping guard'if a.expect_guard else'bounded exact predictive encoding')
  (out/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))
  if not ok:raise SystemExit(1)

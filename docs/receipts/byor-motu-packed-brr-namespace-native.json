@@ -1,0 +1,94 @@
+{
+  "schema": "BYOR_PACKED_BRR_PCM_NAMESPACE_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": {
+    "byor-motu-brr-unpacked-control-native": {
+      "path": "out/byor-motu-brr-unpacked-control-native/report.json",
+      "sha256": "8893b55aa43bd6130aaa3457db347187a8a041db380e0c1fd6022c3924490a7a",
+      "rom_sha256": "45d4d2a332ce52e8f4a8235d8f21e70694248fd08554505e6040651ed6d6aed1",
+      "frames": 8192,
+      "jobs": null,
+      "lookup_ROM_bytes": 1868193,
+      "master_clocks": 3954048,
+      "byte_mismatches": 0
+    },
+    "byor-motu-brr-packed-shared-native": {
+      "path": "out/byor-motu-brr-packed-shared-native/report.json",
+      "sha256": "931c059979d990e49636075d0cd4b825fe33a38d9c2bcb76800c31ebe3c2824a",
+      "rom_sha256": "300e1895e3125b9bf164bb95760f5dfdeb157e315bf522a25797bd2d362a2f44",
+      "frames": 8192,
+      "jobs": null,
+      "lookup_ROM_bytes": 557473,
+      "master_clocks": 4930348,
+      "byte_mismatches": 0
+    },
+    "byor-motu-brr-packed-shared-minimum-native": {
+      "path": "out/byor-motu-brr-packed-shared-minimum-native/report.json",
+      "sha256": "916f63270ff3e64a1ef9102f390aa381758cc8d0d9c72d5d89c2b11b90468d8d",
+      "rom_sha256": "f0170f57cb16a49f4cfa40fc9149b00122b0f9d1c80714667e898284d3b8a88c",
+      "frames": 8192,
+      "jobs": null,
+      "lookup_ROM_bytes": 557473,
+      "master_clocks": 5183228,
+      "byte_mismatches": 0
+    },
+    "byor-motu-brr-packed-shared-source-native": {
+      "path": "out/byor-motu-brr-packed-shared-source-native/report.json",
+      "sha256": "3df2f3f4ead7ecc68d5261914f5fc246d735a0f4d78d6d2c4df9980406591468",
+      "rom_sha256": "979cf0dd6db70959aa2226eda709ed94a3cdedbc750c35c4a7f06bc384bc7721",
+      "frames": 176,
+      "jobs": null,
+      "lookup_ROM_bytes": 557473,
+      "master_clocks": 105352,
+      "byte_mismatches": 0
+    },
+    "byor-motu-sound-admission-full-namespace-native": {
+      "path": "out/byor-motu-sound-admission-full-namespace-native/report.json",
+      "sha256": "5f00249872f5912a4700a7725e79f24559b1dd6c361a30911ad5d939168dba0c",
+      "rom_sha256": "f8aec5204afc620ed0268060f1079e6c5d76692a3c58e7c3cdebcaa0a6d1f5ca",
+      "frames": null,
+      "jobs": 47,
+      "lookup_ROM_bytes": null,
+      "master_clocks": null,
+      "byte_mismatches": null
+    }
+  },
+  "exhaustive_lookup_equivalence": {
+    "path": "out/byor-motu-brr-packed-shared-native/lookup-equivalence.json",
+    "sha256": "644cfbd5691db07d400589f18298b76481b66201ef4280e515b767b5917160a9",
+    "values": 1703936,
+    "mismatches": 0
+  },
+  "namespace": {
+    "path": "out/byor-motu-sound-admission-full-namespace-native/namespace.json",
+    "sha256": "4a8d480bb993155637244a30786c36f416502f07b14d02bdc4506d5a2acf489b",
+    "count": 30,
+    "payload_bytes": 1087264,
+    "CPU_pool_capacity": 1376256,
+    "pool_free_bytes": 288992
+  },
+  "codec_reserved_CPU_banks": [
+    "E1",
+    "E3",
+    "E4",
+    "E5",
+    "E6",
+    "E7",
+    "E8",
+    "E9",
+    "EA"
+  ],
+  "PCM_CPU_pool": [
+    "EB0000",
+    "FFFFFF"
+  ],
+  "codec_lookup_bytes": 557473,
+  "codec_reserved_bank_bytes": 589824,
+  "combined_reserved_and_PCM_bytes": 1677088,
+  "remaining_E_window_bytes": 420064,
+  "combined_live_ROM_installation_proven": false,
+  "concurrent_SPC_transport_bound": false,
+  "production_memory_lease": false,
+  "no_PCM_files_copied": true,
+  "no_color_reduction": true
+}

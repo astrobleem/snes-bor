@@ -8,6 +8,7 @@ from source_frame_audio import stream_wav
 from source_pcm8_packed_native import build
 from source_sound_admission_native import emit
 from source_sound_pcm8_descriptors_native import emit as descriptors
+from source_pcm8_namespace import compile_namespace
 from actor_s5_entity_fixture import symbols
 from _source_leaf_fixture import run_fixture
 from _harness import Reporter
@@ -18,7 +19,7 @@ PHASE=0x43f800;ACTIVE=0x43f840;LENGTHS=0x43f880;BASES=0x43f8b0;METADATA=0x3a8000
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  for n in ('rom','source','assets','authority-scaffold','output'):p.add_argument('--'+n,type=Path,required=True)
- p.add_argument('--indices',nargs=2,type=int,default=(3,15));p.add_argument('--jobs',type=int,default=2);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+ p.add_argument('--complete-namespace',action='store_true');p.add_argument('--indices',nargs=2,type=int,default=(3,15));p.add_argument('--jobs',type=int,default=2);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  if len(set(a.indices))!=2:raise ValueError('ADMISSION_DISTINCT_SOURCE_FIXTURE')
  if not 1<=a.jobs<=1024:raise ValueError('ADMISSION_MIX_JOBS')
  frames=176;source=Source(a.source);manifest=json.loads((a.assets/'report.json').read_text());inputs=[];identities=[]
@@ -45,6 +46,12 @@ def main():
  for i,index in enumerate(a.indices):
   n=11-i;pointer=struct.unpack_from('<I',packed,0x1a490+4*n)[0]
   struct.pack_into('<II',metadata,8+index*8,len(inputs[i])*2,pointer)
+ namespace_report=None;namespace_payload=None
+ if a.complete_namespace:
+  namespace_report,complete_metadata,namespace_payload=compile_namespace(source,manifest)
+  metadata=bytearray(complete_metadata)
+  (a.output/'namespace.json').write_text(json.dumps(namespace_report,indent=2)+'\n')
+  (a.output/'descriptors.bin').write_bytes(metadata)
  sy=symbols(Path('src/main.sym'));asm='''SoundAdmissionMixFixture:
 .a16
 .i16
@@ -137,8 +144,11 @@ SoundAdmissionMixBad:
 SoundAdmissionMixWorker:
  .db '''+','.join(str(v)for v in worker+bytes(len(worker)%2))+'\n'+emit(W,BASE,sy)+descriptors(W,BASE,LENGTHS,BASES,METADATA,sy)
  def transform(raw,linked):
-  start=0x210000;end=start+sum(len(c['values'])*2 for c in channels);assert raw[start:end]==bytes(end-start)
-  raw[start:end]=packed[start:end]
+  if a.complete_namespace:
+   start=namespace_report['cpu_base']-0xc00000;end=start+len(namespace_payload);data=namespace_payload
+  else:
+   start=0x210000;end=start+sum(len(c['values'])*2 for c in channels);data=packed[start:end]
+  assert raw[start:end]==bytes(end-start);raw[start:end]=data
  lua='local mixSymbols='+luav({k:v for k,v in sy.items()if k.startswith(('SourceForeignWork_','StageFp_','StreamScrollFp_'))or k=='DmaQueue'})+'\nfor k,v in pairs(mixSymbols)do sy[k]=v end\n'+LUA
  lua=lua.replace(' before={};for i=0,479',f' for j=0,95 do put({LENGTHS}+j,0,1)end\n before={{}};for i=0,479')
  lua=lua.replace('{active,1,25-i,priority,9,-7,8,2,12345,9}','{0,0,0,0,0,0,0,0,0,0}').replace('put(0x7eff8c+8*i,25-i)','put(0x7eff8c+8*i,0)')
@@ -158,6 +168,6 @@ SoundAdmissionMixWorker:
  (a.output/'expected.bin').write_bytes(expected[:-24]+wanted+struct.pack('<I',2));(a.output/'observed.bin').write_bytes(actual+observed.get('channels',b'')+observed.get('playid',b''))
  clocks=[int(l.split('ADMISSIONMIXCOST|')[1])for l in log.splitlines()if'ADMISSIONMIXCOST|'in l]
  reporter.check('native cost trace covers each mixer job',len(clocks)==a.jobs)
- report=dict(worker_source_descriptors_follow_native_admission=True,descriptor_metadata_sha256=hashlib.sha256(metadata).hexdigest(),descriptor_metadata_complete_namespace=False,private_worker_source_descriptors=[LENGTHS,BASES+48],batch_master_clocks=clocks,schema='BYOR_SOURCE_ADMISSION_PCM_JOIN_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',jobs=a.jobs,frames_per_job=frames,native_worker_bytes=len(worker),PCM_bytes=len(actual),PCM_sha256=hashlib.sha256(actual).hexdigest(),source_identities=identities,source_functions_sha256={n:hashlib.sha256(b.encode('latin1')).hexdigest()for n,b in bodies.items()},rom_sha256=hashlib.sha256(raw).hexdigest(),logical_source_channels=[11,10],source_phase_overridden=False,source_frame_ack_bound=False,BRR_SPC_transport_bound=False,production_memory_lease=False,private_channel_controls=[W,BASE+480],private_worker_phases=[PHASE,ACTIVE+48],no_PCM_files_copied=True,no_color_reduction=True,motu_gameplay_proven=False)
+ report=dict(worker_source_descriptors_follow_native_admission=True,descriptor_metadata_sha256=hashlib.sha256(metadata).hexdigest(),descriptor_metadata_complete_namespace=a.complete_namespace,namespace_ROM_allocation=namespace_report,private_worker_source_descriptors=[LENGTHS,BASES+48],batch_master_clocks=clocks,schema='BYOR_SOURCE_ADMISSION_PCM_JOIN_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',jobs=a.jobs,frames_per_job=frames,native_worker_bytes=len(worker),PCM_bytes=len(actual),PCM_sha256=hashlib.sha256(actual).hexdigest(),source_identities=identities,source_functions_sha256={n:hashlib.sha256(b.encode('latin1')).hexdigest()for n,b in bodies.items()},rom_sha256=hashlib.sha256(raw).hexdigest(),logical_source_channels=[11,10],source_phase_overridden=False,source_frame_ack_bound=False,BRR_SPC_transport_bound=False,production_memory_lease=False,private_channel_controls=[W,BASE+480],private_worker_phases=[PHASE,ACTIVE+48],no_PCM_files_copied=True,no_color_reduction=True,motu_gameplay_proven=False)
  (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 if __name__=='__main__':main()
