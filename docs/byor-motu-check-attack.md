@@ -66,3 +66,19 @@ byor-motu-model-world-attack-gate-native.json.
 MOTU profile admission, physical lossless presentation, audible audio backend,
 real hit resolution, sustained authored combat and Demo completion remain open.
 NO color reduction applied. No PCM copies. No TMNT work.
+
+The offline checkhit reference now matches unmodified pinned checkhit and diff
+C across 166,661 cases, with zero result or last-hit position/type mismatches.
+It covers every pair of the 31 source attack records and 48 source bounding
+boxes, both directions, normal/counter collision, seven fractional position
+pairs, the pinned default grabdistance 36 and a fractional grabdistance probe.
+Five pointer/vulnerability/self exclusions also preserve the no-hit result.
+Source endpoints, depth adjustment, integer-anchor truncation, inclusive edges
+and last-hit x/y/z publication follow source authority. The numeric domain is
+explicitly finite bounded binary32 positions and signed source endpoints; this
+is an offline reference, not native Q16 collision certification or do_attack.
+The receipt is byor-motu-checkhit-source-geometry-authority.json. Function,
+collision source data, input and complete output hashes are retained without
+giant per-case logs. The initial authority check used the wrong textual form
+of the default; the checked pinned global default and model assignment now
+match the actual source. No failed authority run is counted as PASS.

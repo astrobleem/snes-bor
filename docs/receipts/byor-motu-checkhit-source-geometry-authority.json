@@ -1,0 +1,130 @@
+{
+  "schema": "BYOR_4086_CHECKHIT_SOURCE_GEOMETRY_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "checkhit_sha256": "37ef7147d97d395b638325bdef5f4f81e0db7fa2e6fb22984d771ac4286b8b9b",
+  "diff_sha256": "b938b8d54b575d3b3b8f9cec0565799b3dea942d1f0be528efdc8990773a277b",
+  "cases": 166661,
+  "source_attack_records": 31,
+  "source_bbox_records": 48,
+  "collision_table_sha256": "a0d0222d9d3f6d694cad18ec12c244e45c9590aa2e610b26d2cf87c38c800ee3",
+  "source_models": {
+    "Shock": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e",
+    "Slash": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7",
+    "Spark": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd",
+    "He_Man": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+    "He_ManB": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+    "HBreath": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+    "HWWind": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c",
+    "ShWave": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181",
+    "Skeletor": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+    "GeyserN": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a",
+    "SkFBall": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd",
+    "SkGeyser": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940",
+    "SkGeyserT": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14",
+    "SkTorn": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb",
+    "Knightbot": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+    "ShockBall": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807"
+  },
+  "positions": [
+    [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    [
+      [
+        80.5,
+        0,
+        12.25
+      ],
+      [
+        80.5,
+        0,
+        12.25
+      ]
+    ],
+    [
+      [
+        -0.9999847412109375,
+        1.52587890625e-05,
+        0
+      ],
+      [
+        0.9999847412109375,
+        -1.52587890625e-05,
+        0
+      ]
+    ],
+    [
+      [
+        200.5,
+        0,
+        30.25
+      ],
+      [
+        201.5,
+        0,
+        42.25
+      ]
+    ],
+    [
+      [
+        200.5,
+        0.5,
+        30.25
+      ],
+      [
+        201.5,
+        0.5,
+        100.25
+      ]
+    ],
+    [
+      [
+        -80.5,
+        -1.5,
+        -12.25
+      ],
+      [
+        -80.5,
+        1.5,
+        -12.25
+      ]
+    ],
+    [
+      [
+        1,
+        5.960464477539063e-08,
+        1
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ]
+  ],
+  "grabdistances": [
+    36.0,
+    17.9
+  ],
+  "source_default_grabdistance": 36.0,
+  "input_sha256": "4c2c4fd5278c74ea12d603fccc6ab3b5c11402c93b2ee7b97c0f35682d21d973",
+  "actual_sha256": "70819eb70ebff4f5d01015b87c4741ef9b1be2e08cd5ef2c654b269651b8add3",
+  "expected_sha256": "70819eb70ebff4f5d01015b87c4741ef9b1be2e08cd5ef2c654b269651b8add3",
+  "mismatch_count": 0,
+  "mismatches": [],
+  "numeric_domain": "finite binary32 positions inside Q16 range; signed source box endpoints within 16 bits; no native numeric compatibility claim",
+  "native_checkhit_bound": false,
+  "do_attack_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
