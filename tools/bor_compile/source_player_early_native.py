@@ -5,8 +5,8 @@ player_think. Matching ENDLEVEL candidates reject until completion is owned.
 """
 
 
-def emit(work,state,search,combo,charge,pain,symbols,fall=None):
-    spans=((work,32),(state,64),(search,24),(combo,96),(charge,24),(pain,24))+(((fall,24),)if fall is not None else())
+def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=None):
+    spans=((work,32),(state,64),(search,24),(combo,96),(charge,24),(pain,24))+(((fall,24),)if fall is not None else())+(((jump,32),)if jump is not None else())+(((lie,16),)if lie is not None else())
     for i,(a,n)in enumerate(spans):
         if not 0<=a<=0x1000000-n:raise ValueError('PLAYER_EARLY_EXTENT')
         if any(a<b+m and b<a+n for b,m in spans[i+1:]):raise ValueError('PLAYER_EARLY_OVERLAP')
@@ -57,9 +57,14 @@ def emit(work,state,search,combo,charge,pain,symbols,fall=None):
     label('Pending');put(f' lda #3\n sta.l {work}+2\n lda #1\n ply\n plx\n plp\n clc\n rtl')
     label('FinishFrame');put(f' php\n rep #$39\n phx\n phy\n lda.l {work}\n cmp #$B688');branch('bne')
     put(f' lda.l {work}+2\n cmp #3');branch('bne')
-    put(f' lda.l {work}+16\n cmp #1');branch('beq','ComboFinish');put(' cmp #2');branch('beq','ChargeFinish');put(' cmp #3');branch('bne')
+    put(f' lda.l {work}+16\n cmp #1');branch('beq','ComboFinish');put(' cmp #2');branch('beq','ChargeFinish')
+    if jump is not None:
+        put(' cmp #4');branch('beq','JumpFinish')
+    put(' cmp #3');branch('bne')
     put(' jsl PainServices_FinishFrame');branch('bcs');put(' jmp PlayerEarly_HelperResult')
     label('ChargeFinish');put(' jsl ChargeServices_FinishFrame');branch('bcs');put(' jmp PlayerEarly_HelperResult')
+    if jump is not None:
+        label('JumpFinish');put(' jsl PlayerJump_FinishFrame');branch('bcs');put(' jmp PlayerEarly_HelperResult')
     label('ComboFinish');put(f' jsl {symbols["SourceAnimationInit4086_Ack"]}');branch('bcs')
     put(' jsl SourceCombo_Finish');branch('bcs');put(' jmp PlayerEarly_ComboResult')
     for name,status in (('Continue',2),('Exit',4)):
@@ -72,6 +77,25 @@ def emit(work,state,search,combo,charge,pain,symbols,fall=None):
             put(' lda.l $7EF100,x\n cmp #2');branch('bne','NoFall')
             put(f' lda.l {work}+4\n sta.l {fall}+4\n jsl PlayerFall_Execute');branch('bcs');put(' jmp PlayerEarly_Exit')
             label('NoFall')
+        if name=='Continue' and (jump is not None or lie is not None):
+            # A live grab needs its own owner; common_throw_wait is not admitted
+            # in this closed controller lane. Never fall through a grab state.
+            put(f' lda.l {work}+26\n tax\n lda.l $40C050,x\n ora.l $40C052,x');branch('beq','NoGrab')
+            put(' lda.l $40C058,x\n ora.l $40C05A,x');branch('beq')
+            label('NoGrab')
+        if name=='Continue' and jump is not None:
+            put(f' lda.l {work}+24\n tax\n lda.l $43EB08,x\n ora.l $43EB0A,x');branch('beq','NoJump')
+            put(f' lda.l {work}+4\n sta.l {jump}+4\n lda #4\n sta.l {work}+16\n jsl PlayerJump_Begin');branch('bcs')
+            put(' jmp PlayerEarly_HelperResult');label('NoJump')
+        if name=='Continue' and lie is not None:
+            put(f' lda.l {work}+24\n tax\n lda.l $43EB10,x\n ora.l $43EB12,x');branch('beq','NoLie')
+            put(f' lda.l {work}+18\n tax\n lda.l $414008,x\n cmp #2');branch('bne')
+            put(' lda.l $41400A,x');branch('bne')
+            put(f' lda.l $41400C,x\n sta.l {work}+28\n lda.l $41400E,x\n sta.l {work}+30\n lda.l {work}+20\n tax\n lda.l $416830,x\n cmp.l {work}+28');branch('bne','NoLie')
+            put(f' lda.l $416832,x\n cmp.l {work}+30');branch('bne','NoLie')
+            put(' lda.l $41682C,x\n ora.l $41682E,x');branch('bne','NoLie')
+            put(f' lda.l {work}+4\n sta.l {lie}+4\n jsl PlayerLieAbsent_Execute');branch('bcs')
+            put(' jmp PlayerEarly_Exit');label('NoLie')
         put(f' lda #{status}\n sta.l {work}+2\n lda #0\n ply\n plx\n plp\n clc\n rtl')
     label('Bad');put(f' lda #5\n sta.l {work}+2\n ply\n plx\n plp\n sec\n rtl')
     return '\n'.join(lines)+'\n'

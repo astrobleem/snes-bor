@@ -1,0 +1,17 @@
+{
+  "schema": "BYOR_4086_PLAYER_BODY_DISPATCH_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "player_think_sha256": "51c446918438abf6d41ba73681784bd04f79f909f34c0efcdfcdb2d4ab07f736",
+  "literal_body_sha256": "19e8b4b24db3a4722f2205d6350d17c76b4a1f970aeea9bfaae784a6b846b99a",
+  "literal_body_unmodified": true,
+  "cases": 2592,
+  "compared_bytes": 10368,
+  "actual_sha256": "bc01dbe6b70b1813c14fc9ada2f8e578770039bef94100e2ac0da055da41e5b4",
+  "expected_sha256": "bc01dbe6b70b1813c14fc9ada2f8e578770039bef94100e2ac0da055da41e5b4",
+  "helper_callbacks_instrumented": true,
+  "coordinates": "exact integer binary32; native Q16 accepted compatibility",
+  "native_grab_owner_bound": false,
+  "full_player_think_bound": false,
+  "motu_gameplay_proven": false
+}
