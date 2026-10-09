@@ -70,6 +70,7 @@ def main():
     p.add_argument('--scroller-owner',action='store_true',help='Resume a terminal authored spawn through the complete scroller owner; no player/camera motion or full world tick claim.')
     p.add_argument('--freeze-state',action='store_true',help='Enable canonical freeze rows and observe actual constructor reset before alive publication.')
     p.add_argument('--ai-state-birth',action='store_true',help='Observe stale AI scalar reset before constructor alive publication and retain the sibling row.')
+    p.add_argument('--player-state-birth',action='store_true',help='Execute the checked VM-tail lease and actual constructor state clearing through an opt-in birth bridge.')
     p.add_argument('--emit-only',action='store_true',help='Emit the private source-derived fixture and observer without launching or certifying it.')
     p.add_argument('--smartspawn',action='store_true',help='Apply source-derived stage properties after the complete constructor; boss music remains an explicit pending service.')
     p.add_argument('--stage-queue-index',type=int,help='Read constructor inputs from an authored stage spawn record; post-constructor overrides remain separate.')
@@ -85,6 +86,8 @@ def main():
     p.add_argument('--stationary-post',action='store_true',help='checked source-derived stationary post-update after complete NONE constructor; phase owner context supplied')
     p.add_argument('--ctor-altitude-q16',type=int,default=0,help='generic explicit constructor altitude input')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+    if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
+    if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.costmove_model or a.attack_chain_model:
         if not a.frame_owner or not a.effects_runner:raise ValueError('COSTMOVE_REQUIRES_REAL_FRAME_OWNER')
         a.initial_select=True
@@ -186,6 +189,12 @@ def main():
     if a.common_spawn:
         previous_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity'] and h['role']!='idle')
     sy=symbols(Path('src/main.sym'));raw=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate']
+    if a.player_state_birth:
+        from source_foreign_slot_tail import derive_plan
+        from source_player_state_native import emit as emit_player_state,emit_birth_bridge
+        from source_foreign_state_layout import layout as state_layout
+        player_state_plan=derive_plan(source)
+        player_state_work=next(r['address']for r in state_layout(0x7fa000,6400)['regions']if r['name']=='player_state_controls')
     physics_table=b''
     if a.adjust_base_empty:
         from source_animation_physics_4086 import derive as physics_inputs,pack as pack_physics
@@ -504,6 +513,10 @@ CallbackFixture_AfterScript:
     if a.ctor_state:values.update(CTORSTATE=sy['SourceCtorState4086_Begin'])
     if a.ctor_factors:values.update(CTORFACTORS=sy['SourceFactors4086_Apply'])
     if a.ctor_model:values.update(CTORMODEL=sy['SourceCtorModel4086_Apply'])
+    if a.player_state_birth:
+        asm=asm.replace('CallbackFixture_Init:\n.a16\n.i16\n nop',
+                        'CallbackFixture_Init:\n.a16\n.i16\n nop\n jsl SourcePlayerState_Init\n bcs CallbackFixture_Bad\nCallbackFixture_PlayerStatePoison:\n.a16\n.i16\n nop')
+        asm+=emit_player_state(player_state_plan,player_state_work,sy)+emit_birth_bridge(player_state_work,sy)
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -518,9 +531,13 @@ CallbackFixture_AfterScript:
     fs=symbols(folder/'callback_fixture.sym');fixture=(folder/'callback_fixture.bin').read_bytes()[first:]
     if raw[offset(entry):offset(entry)+5]!=bytes.fromhex('08 c2 31 da 5a') or len(fixture)>32768:raise ValueError('CALLBACK_FIXTURE_GATE')
     raw[first:first+len(fixture)]=fixture
+    if a.player_state_birth:
+        bridge_at=offset(sy['SourceAIState4086_InitializeBirth'])
+        if raw[bridge_at:bridge_at+5]!=bytes.fromhex('08 c2 38 da 5a'):raise ValueError('PLAYER_STATE_BIRTH_PROLOGUE')
+        raw[bridge_at:bridge_at+5]=b'\x5c'+struct.pack('<I',fs['SourcePlayerState_BirthBridge'])[:3]+b'\xea'
     raw[offset(entry):offset(entry)+5]=b'\x5c'+struct.pack('<I',fs['CallbackFixture_Gate'])[:3]+b'\xea'
     path=folder/'bor.sfc';path.write_bytes(raw)
-    for media in [a.rom.with_suffix('.msu'),*(a.rom.parent.glob('bor-*.pcm') if not(a.costmove_model or a.attack_chain_model) else ())]:
+    for media in [a.rom.with_suffix('.msu'),*(a.rom.parent.glob('bor-*.pcm') if not(a.costmove_model or a.attack_chain_model or a.player_state_birth) else ())]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
     pool,sides=empty_pool(128)
@@ -869,6 +886,14 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         lua=lua.replace(" set('SourceVMRun4086_Ready',0xb4d7)"," for j=0,47 do put(0x42f400+j,0xff,1)end\n set('SourceVMRun4086_Ready',0xb4d7)")
         address=sy['SourceCtorState4086_AIStateBirthDone']
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,23 do cleared=cleared+emu.read(0x42f400+slot*24+j,mt);sibling=sibling+emu.read(0x42f400+(slot+1)*24+j,mt)end;emu.log('CTORAI|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
+    if a.player_state_birth:
+        tail=player_state_plan['base']
+        lua=lua.replace(' put(0x7ffb86,c.fault,2)',
+                        f' put(0x7ffb86,c.fault,2)\n for j=0,63 do put({player_state_work}+j,0,1)end\n put({player_state_work}+8,word(INDEX)+1,4)')
+        poison=fs['CallbackFixture_PlayerStatePoison']
+        address=sy['SourceCtorState4086_AIStateBirthDone']
+        lua+=f"emu.addMemoryCallback(function()for j=0,23 do put({tail}+j,0xa5,1);put({tail}+127*24+j,0xa5,1)end end,emu.callbackType.exec,{poison},{poison},emu.cpuType.snes,mt)\n"
+        lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,23 do cleared=cleared+emu.read({tail}+slot*24+j,mt);sibling=sibling+emu.read({tail}+127*24+j,mt)end;emu.log('CTORPLAYERSTATE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x414004+slot*80)..'|'..word({player_state_work})..'|'..word(sy.VmState_SlotCount))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
     if a.freeze_state:
         address=sy['SourceCtorState4086_FreezeBirthDone']
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,39 do cleared=cleared+emu.read(0x42e000+slot*40+j,mt);sibling=sibling+emu.read(0x42e000+(slot+1)*40+j,mt)end;emu.log('CTORFREEZE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x41f300+slot*4)..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
@@ -918,7 +943,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         startup.title_to_charselect(m);exact_input_edge(m,m.BTN_START,1,port=0)
         if not startup.wait_state(m,startup.PLAYING,300):raise ValueError('CALLBACK_OWNER_BOOTSTRAP')
         run_frames_exact(m,12)
-        if a.costmove_model or a.attack_chain_model:
+        if a.costmove_model or a.attack_chain_model or a.player_state_birth:
             # Explicit isolated payload lease: retire ordinary producers. This
             # is not the previously proven whole-canvas production handoff.
             for n in ('StageWater_Enabled','StageWater_Pending','StageFp_BG2Loaded','StageFp_BG2Active','StageFp_BG2DmaPending','StageFp_BG2Booting','StreamScrollFp_ColPending','StreamScrollFp_Enabled'):m.write_u8(sy[n],0)
@@ -1085,6 +1110,13 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         reporter.check('real constructor clears all 24 stale AI bytes before exists publication and preserves sibling row',ai_birth_results==[[i,0,0,6120,0]for i in range(len(rows))])
         r.update(ai_constructor_initialization_bound=True,ai_birth_results=ai_birth_results)
         r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
+    if a.player_state_birth:
+        player_state_results=[list(map(int,line.split('CTORPLAYERSTATE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORPLAYERSTATE|'in line]
+        reporter.check('real constructor clears exact player-state row before exists publication and retains sibling',player_state_results==[[i,0,0,3960,0,0xb67b,player_state_plan['live_slot_count']]for i in range(len(rows))])
+        r.update(actual_player_state_birth_bridge=True,player_state_birth_results=player_state_results,player_state_layout=player_state_plan,
+                 player_state_payload_lease='instrumented isolated retired-producer controls; real native VM-tail extent/generation lease',
+                 production_player_state_birth_binding=False,production_full_module_loader_binding=False)
+        r['status']='PASS'if all(ok for _,ok in reporter.results)else'FAIL'
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
 

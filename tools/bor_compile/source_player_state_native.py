@@ -7,6 +7,54 @@ Generation and loaded slot extent are checked on every entity access.
 import re
 
 
+def emit_birth_bridge(work, symbols):
+    """Opt-in wrapper; replace the checked five-byte AI birth prologue.
+
+    Ready=0 retains the prior birth path. A foreign root must initialize this
+    lease before enabling constructors. The caller validates the original bytes.
+    """
+    body=symbols['SourceAIState4086_InitializeBirth']+5
+    return f'''
+SourcePlayerState_BirthBridge:
+.a16
+.i16
+ php
+ rep #$39
+ pha
+ phx
+ phy
+ lda.l {work}
+ beq SourcePlayerState_BirthDelegate
+ cmp #$B67B
+ bne SourcePlayerState_BirthBad
+ lda 5,s
+ sta.l {work}+4
+ jsl SourcePlayerState_ClearBirth
+ bcs SourcePlayerState_BirthBad
+SourcePlayerState_BirthDelegate:
+.a16
+.i16
+ ply
+ plx
+ pla
+ plp
+ php
+ rep #$38
+ phx
+ phy
+ jml {body}
+SourcePlayerState_BirthBad:
+.a16
+.i16
+ ply
+ plx
+ pla
+ plp
+ sec
+ rtl
+'''
+
+
 def emit(plan, work, symbols):
     count=plan['live_slot_count'];base=plan['base'];extent=plan['entity_state_bytes']
     if plan['entity_stride']!=24 or extent!=plan['entities']*24 or not 1<=plan['entities']<=128:

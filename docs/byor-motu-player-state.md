@@ -25,3 +25,12 @@ binding. Caller controls require 64 bytes in the explicit controller arena.
 
 This is not a MOTU gameplay/completion certificate. No color reduction or PCM
 copies are applied.
+
+An isolated actual-constructor proof now enables the native lease and an opt-in
+bridge at SourceAIState4086_InitializeBirth. It seeds the new row with stale
+bytes after lease initialization, then verifies that the real constructor clears
+all six fields before exists publication, preserves a distant sibling, and
+completes real authored SELECT initialization/scripts/effects. The original AI
+birth prologue is byte-checked before the private fixture patch. Ready=0 delegates
+to that original birth path; an active lease must validate before clearing.
+This bridge has not yet been installed in the production foreign loader.
