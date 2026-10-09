@@ -1,0 +1,2350 @@
+{
+  "schema": "BYOR_SOURCE_ATTACK_TARGET_NATIVE_V1",
+  "status": "PASS",
+  "cases": 182,
+  "requirements": {
+    "schema": "BYOR_ATTACK_TARGET_REQUIREMENTS_V1",
+    "capability": "SOURCE_NONPOSITIVE_ATTACKONE_TARGET_FILTER",
+    "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "animations": [
+      {
+        "handle": 1,
+        "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e",
+        "attackone": -1
+      },
+      {
+        "handle": 2,
+        "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7",
+        "attackone": -1
+      },
+      {
+        "handle": 3,
+        "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd",
+        "attackone": -1
+      },
+      {
+        "handle": 4,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 5,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 6,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 7,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 8,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 9,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 10,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 11,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 12,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 13,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 14,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 15,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 16,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 17,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 18,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 19,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 20,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 21,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 22,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 23,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 24,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "attackone": -1
+      },
+      {
+        "handle": 25,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 26,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 27,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 28,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 29,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 30,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 31,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 32,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 33,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 34,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 35,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 36,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 37,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 38,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 39,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 40,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 41,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 42,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 43,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 44,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 45,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 46,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "attackone": -1
+      },
+      {
+        "handle": 47,
+        "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+        "attackone": -1
+      },
+      {
+        "handle": 48,
+        "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c",
+        "attackone": -1
+      },
+      {
+        "handle": 49,
+        "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181",
+        "attackone": -1
+      },
+      {
+        "handle": 50,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 51,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 52,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 53,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 54,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 55,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 56,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 57,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 58,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 59,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 60,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 61,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 62,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 63,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 64,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 65,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 66,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 67,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "attackone": -1
+      },
+      {
+        "handle": 68,
+        "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a",
+        "attackone": -1
+      },
+      {
+        "handle": 69,
+        "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd",
+        "attackone": -1
+      },
+      {
+        "handle": 70,
+        "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940",
+        "attackone": -1
+      },
+      {
+        "handle": 71,
+        "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940",
+        "attackone": -1
+      },
+      {
+        "handle": 72,
+        "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14",
+        "attackone": -1
+      },
+      {
+        "handle": 73,
+        "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb",
+        "attackone": -1
+      },
+      {
+        "handle": 74,
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+        "attackone": -1
+      },
+      {
+        "handle": 75,
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+        "attackone": -1
+      },
+      {
+        "handle": 76,
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+        "attackone": -1
+      },
+      {
+        "handle": 77,
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+        "attackone": -1
+      },
+      {
+        "handle": 78,
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+        "attackone": -1
+      },
+      {
+        "handle": 79,
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+        "attackone": -1
+      },
+      {
+        "handle": 80,
+        "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807",
+        "attackone": -1
+      }
+    ],
+    "models": [
+      {
+        "id": 0,
+        "identity": "Shock",
+        "lookup_name": "shock",
+        "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+        "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e",
+        "registry_mode": "load",
+        "maxhealth": 0,
+        "alpha": 0,
+        "declared_type": "none"
+      },
+      {
+        "id": 1,
+        "identity": "Slash",
+        "lookup_name": "slash",
+        "source_path": "DATA\\CHARS\\MISC\\FLASH\\SLASH.TXT",
+        "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7",
+        "registry_mode": "load",
+        "maxhealth": 0,
+        "alpha": 0,
+        "declared_type": "none"
+      },
+      {
+        "id": 2,
+        "identity": "Spark",
+        "lookup_name": "spark",
+        "source_path": "DATA\\CHARS\\MISC\\FLASH\\SPARK.TXT",
+        "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd",
+        "registry_mode": "load",
+        "maxhealth": 0,
+        "alpha": 0,
+        "declared_type": "none"
+      },
+      {
+        "id": 3,
+        "identity": "He_Man",
+        "lookup_name": "he_man",
+        "source_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT",
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "registry_mode": "load",
+        "maxhealth": 150,
+        "alpha": 0,
+        "declared_type": "player"
+      },
+      {
+        "id": 4,
+        "identity": "He_ManB",
+        "lookup_name": "he_manb",
+        "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "registry_mode": "load",
+        "maxhealth": 150,
+        "alpha": 0,
+        "declared_type": "none"
+      },
+      {
+        "id": 5,
+        "identity": "HBreath",
+        "lookup_name": "hbreath",
+        "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+        "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+        "registry_mode": "load",
+        "maxhealth": 0,
+        "alpha": 1,
+        "declared_type": "none"
+      },
+      {
+        "id": 6,
+        "identity": "HWWind",
+        "lookup_name": "hwwind",
+        "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HWWIND.TXT",
+        "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c",
+        "registry_mode": "load",
+        "maxhealth": 0,
+        "alpha": 1,
+        "declared_type": "none"
+      },
+      {
+        "id": 7,
+        "identity": "ShWave",
+        "lookup_name": "shwave",
+        "source_path": "DATA\\CHARS\\HE-MAN\\FX\\SHWAVE.TXT",
+        "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181",
+        "registry_mode": "load",
+        "maxhealth": 0,
+        "alpha": 0,
+        "declared_type": "none"
+      },
+      {
+        "id": 8,
+        "identity": "Skeletor",
+        "lookup_name": "skeletor",
+        "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "registry_mode": "know",
+        "maxhealth": 400,
+        "alpha": 0,
+        "declared_type": "enemy"
+      },
+      {
+        "id": 9,
+        "identity": "GeyserN",
+        "lookup_name": "geysern",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSERN.TXT",
+        "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a",
+        "registry_mode": "know",
+        "maxhealth": 0,
+        "alpha": 0,
+        "declared_type": "none"
+      },
+      {
+        "id": 10,
+        "identity": "SkFBall",
+        "lookup_name": "skfball",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKFBALL.TXT",
+        "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd",
+        "registry_mode": "know",
+        "maxhealth": 0,
+        "alpha": 1,
+        "declared_type": "none"
+      },
+      {
+        "id": 11,
+        "identity": "SkGeyser",
+        "lookup_name": "skgeyser",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSER.TXT",
+        "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940",
+        "registry_mode": "know",
+        "maxhealth": 0,
+        "alpha": 0,
+        "declared_type": "none"
+      },
+      {
+        "id": 12,
+        "identity": "SkGeyserT",
+        "lookup_name": "skgeysert",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSERT.TXT",
+        "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14",
+        "registry_mode": "know",
+        "maxhealth": 0,
+        "alpha": 0,
+        "declared_type": "none"
+      },
+      {
+        "id": 13,
+        "identity": "SkTorn",
+        "lookup_name": "sktorn",
+        "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKTORN.TXT",
+        "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb",
+        "registry_mode": "know",
+        "maxhealth": 0,
+        "alpha": 0,
+        "declared_type": "none"
+      },
+      {
+        "id": 14,
+        "identity": "Knightbot",
+        "lookup_name": "knightbot",
+        "source_path": "DATA\\CHARS\\KNBOT\\KNBOT.TXT",
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+        "registry_mode": "know",
+        "maxhealth": 70,
+        "alpha": 0,
+        "declared_type": "enemy"
+      },
+      {
+        "id": 15,
+        "identity": "ShockBall",
+        "lookup_name": "shockball",
+        "source_path": "DATA\\CHARS\\KNBOT\\SHKBALL.TXT",
+        "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807",
+        "registry_mode": "know",
+        "maxhealth": 0,
+        "alpha": 0,
+        "declared_type": "none"
+      }
+    ],
+    "model_count": 16,
+    "collision_table_sha256": "a0d0222d9d3f6d694cad18ec12c244e45c9590aa2e610b26d2cf87c38c800ee3",
+    "collision_table_bytes": 17441,
+    "attacks": [
+      {
+        "attack_force": 12,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 12,
+        "pain_time": 0,
+        "attack_coords": [
+          58,
+          -56,
+          210,
+          -28,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          1,
+          2,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 14,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 10,
+        "pain_time": 0,
+        "attack_coords": [
+          20,
+          -62,
+          146,
+          -16,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          2.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          1,
+          2,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 14,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 10,
+        "pain_time": 0,
+        "attack_coords": [
+          77,
+          -73,
+          167,
+          -53,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          2.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          1,
+          2,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 22,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 20,
+        "pain_time": 0,
+        "attack_coords": [
+          46,
+          -96,
+          129,
+          -74,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          2.0,
+          3.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          1,
+          2,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 22,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 20,
+        "pain_time": 0,
+        "attack_coords": [
+          -42,
+          -90,
+          122,
+          -70,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          2.0,
+          3.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          1,
+          2,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 30,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 20,
+        "pain_time": 0,
+        "attack_coords": [
+          35,
+          -130,
+          66,
+          -53,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          5.0,
+          1.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          1,
+          2,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 30,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 20,
+        "pain_time": 0,
+        "attack_coords": [
+          -11,
+          -175,
+          56,
+          -74,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          5.0,
+          1.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          1,
+          2,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 10,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 10,
+        "pain_time": 0,
+        "attack_coords": [
+          31,
+          -112,
+          109,
+          -12,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          1,
+          2,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 7,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 0,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 5,
+        "pain_time": 0,
+        "attack_coords": [
+          42,
+          -90,
+          89,
+          -60,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 10,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 0,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 10,
+        "pain_time": 0,
+        "attack_coords": [
+          44,
+          -96,
+          97,
+          -70,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 20,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 20,
+        "pain_time": 0,
+        "attack_coords": [
+          30,
+          -91,
+          88,
+          -61,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          2.0,
+          3.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 7,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 5,
+        "pain_time": 0,
+        "attack_coords": [
+          35,
+          -92,
+          105,
+          -59,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          2.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 22,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 20,
+        "pain_time": 0,
+        "attack_coords": [
+          44,
+          -96,
+          97,
+          -70,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          2.0,
+          3.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 28,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 20,
+        "pain_time": 0,
+        "attack_coords": [
+          30,
+          -91,
+          88,
+          -61,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          2.0,
+          3.5,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          4,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 10,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 0,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 10,
+        "pain_time": 0,
+        "attack_coords": [
+          17,
+          -88,
+          61,
+          -43,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 20,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 1,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": -1,
+        "seal": 0,
+        "freezetime": 600,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 0,
+        "attack_type": 6,
+        "damage_on_landing": 0,
+        "pause_add": 0,
+        "pain_time": 0,
+        "attack_coords": [
+          -1,
+          1,
+          40,
+          24,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 20,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 1,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": -1,
+        "seal": 0,
+        "freezetime": 600,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 0,
+        "attack_type": 6,
+        "damage_on_landing": 0,
+        "pause_add": 0,
+        "pain_time": 0,
+        "attack_coords": [
+          -1,
+          1,
+          58,
+          31,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 20,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 1,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": -1,
+        "seal": 0,
+        "freezetime": 600,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 0,
+        "attack_type": 6,
+        "damage_on_landing": 0,
+        "pause_add": 0,
+        "pain_time": 0,
+        "attack_coords": [
+          10,
+          -5,
+          70,
+          36,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 20,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 1,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": -1,
+        "seal": 0,
+        "freezetime": 600,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 0,
+        "attack_type": 6,
+        "damage_on_landing": 0,
+        "pause_add": 0,
+        "pain_time": 0,
+        "attack_coords": [
+          11,
+          -5,
+          81,
+          38,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 20,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 1,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": -1,
+        "seal": 0,
+        "freezetime": 600,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 0,
+        "attack_type": 6,
+        "damage_on_landing": 0,
+        "pause_add": 0,
+        "pain_time": 0,
+        "attack_coords": [
+          11,
+          -5,
+          46,
+          18,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 15,
+        "no_block": 0,
+        "counterattack": 1,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 15,
+        "pain_time": 0,
+        "attack_coords": [
+          -57,
+          -92,
+          57,
+          3,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          5.0,
+          0.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 15,
+        "no_block": 0,
+        "counterattack": 1,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 15,
+        "pain_time": 0,
+        "attack_coords": [
+          -57,
+          -158,
+          57,
+          7,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          5.0,
+          0.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 15,
+        "no_block": 0,
+        "counterattack": 1,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 15,
+        "pain_time": 0,
+        "attack_coords": [
+          -57,
+          -197,
+          57,
+          8,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          5.0,
+          0.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 15,
+        "no_block": 0,
+        "counterattack": 1,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 15,
+        "pain_time": 0,
+        "attack_coords": [
+          -57,
+          -220,
+          57,
+          20,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          5.0,
+          0.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 5,
+        "no_block": 1,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 1,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 0,
+        "pain_time": 0,
+        "attack_coords": [
+          -120,
+          -10,
+          120,
+          0,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          0.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 10,
+        "no_block": 0,
+        "counterattack": 1,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 10,
+        "pain_time": 0,
+        "attack_coords": [
+          -43,
+          -123,
+          64,
+          -16,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          2.0,
+          3.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 10,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 10,
+        "pain_time": 0,
+        "attack_coords": [
+          -43,
+          -123,
+          64,
+          -16,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          1.0,
+          3.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 15,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 5,
+        "damage_on_landing": 0,
+        "pause_add": 15,
+        "pain_time": 0,
+        "attack_coords": [
+          -24,
+          -23,
+          26,
+          23,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          5,
+          6,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 25,
+        "no_block": 1,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 0,
+        "pain_time": 0,
+        "attack_coords": [
+          -34,
+          -100,
+          41,
+          0,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          4.0,
+          0.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 20,
+        "no_block": 1,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": -1,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 0,
+        "damage_on_landing": 0,
+        "pause_add": 0,
+        "pain_time": 0,
+        "attack_coords": [
+          -34,
+          -199,
+          36,
+          7,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          6.0,
+          0.0,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          3,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "attack_force": 10,
+        "no_block": 0,
+        "counterattack": 0,
+        "no_pain": 0,
+        "no_kill": 0,
+        "no_flash": 0,
+        "grab": 0,
+        "freeze": 0,
+        "steal": 0,
+        "blast": 0,
+        "force_direction": 0,
+        "forcemap": 0,
+        "seal": 0,
+        "freezetime": 0,
+        "maptime": 0,
+        "sealtime": 0,
+        "dot": 0,
+        "dot_index": 0,
+        "dot_time": 0,
+        "dot_force": 0,
+        "dot_rate": 0,
+        "otg": 0,
+        "jugglecost": 0,
+        "guardcost": 0,
+        "attack_drop": 1,
+        "attack_type": 7,
+        "damage_on_landing": 0,
+        "pause_add": 0,
+        "pain_time": 0,
+        "attack_coords": [
+          -18,
+          -15,
+          19,
+          16,
+          0,
+          0
+        ],
+        "staydown": [
+          0,
+          0,
+          0
+        ],
+        "dropv": [
+          3.0,
+          1.2000000476837158,
+          0.0
+        ],
+        "grab_distance": 0.0,
+        "media_indices": [
+          7,
+          8,
+          0,
+          0
+        ]
+      }
+    ],
+    "dynamic_attackone_writers_admitted": false,
+    "followup_policy": "a -1 followup inherits a nonpositive current value, retaining false attackone>0 predicate",
+    "native_filter_bound": false,
+    "motu_gameplay_proven": false,
+    "no_color_reduction": true
+  },
+  "rom_sha256": "2236263a8938464e4c3bc5831942ec29845b9f62f1c39921eac805baa7c54e82",
+  "memory_lease_installed_by_fixture": true,
+  "ordered_target_loop_bound": false,
+  "damage_callbacks_bound": false,
+  "production_memory_lease": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "inputs_sha256": "bc254d8baeeafcf28ab84dac1bb878ce76eb71f735374c9c53e933c29eb6f348",
+  "results_sha256": "68394b1f049e1afc79f9e53aba8afe7002dac5bb1af23a191729662a39614f14",
+  "expected_sha256": "68394b1f049e1afc79f9e53aba8afe7002dac5bb1af23a191729662a39614f14",
+  "common_lie_semantic_id": 21,
+  "common_lie_executable_ai_bound": false,
+  "initial_extended_matrix": "FAIL: mismatched extent reached collision before rejection; paired bank and exact extent guards added before target reads"
+}

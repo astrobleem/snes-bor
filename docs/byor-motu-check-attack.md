@@ -181,3 +181,29 @@ and maximum for all 16 MOTU models. Source modeldata copying replaces both
 metric values; entity pain_time is retained. This remains a derived input table,
 not a native installation claim. Receipts: byor-motu-hit-contact-capacity-native,
 byor-motu-hit-contact-native and byor-motu-juggle-metric. NO color reduction.
+
+The generic native target predicate passes 182 live-state cases. It validates
+canvas generation, actual issued world geometry/time/slot, paired collision-bank
+and extent, core/lifecycle counts, and current target model provenance. Type
+masks retain all 32 bits; exact invincibility, strict pain deadline, actual
+takedamage identity, hit-by identity, falling/juggle and OTG tests match pinned
+source. The real zero-depth native collision routine runs only after admission
+checks; observed normal/counter call counts match source short-circuit behavior.
+Contacts match the Q16 reference. Actor arenas, persistent hit/contact rows and
+issued world phase remain unchanged; attacker control slot is restored after
+paired target storage queries. Bank zero and CPU/decimal context are preserved.
+
+All 80 authored animation attackone values derive as -1 from the pinned loader
+and source directives. Positive grab defaults are derived from translate_ani_id;
+none occur in this source set. A nonpositive followup inheritance retains false
+attackone>0, so this capability does not need mutable lasthit filtering state.
+Positive or dynamic attackone sources require a different explicit capability.
+No actor-name branch selects this behavior. common_lie receives semantic ID 21,
+appended after the existing 20 stable IDs; its executable AI body remains unbound.
+
+The initial basic run passed. An expanded run failed because a bad table extent
+reached collision before rejection. The native predicate now checks the exact
+paired bank/extent before processing; the full fresh matrix passes. Registry and
+callback compiler tests pass. Receipt: byor-motu-attack-target-native.json. This
+is a synchronous target predicate, not the ordered all-target do_attack owner,
+hit callback execution, damage, world Ack or sustained MOTU combat.
