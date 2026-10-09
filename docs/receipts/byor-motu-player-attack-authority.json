@@ -1,0 +1,17 @@
+{
+  "schema": "BYOR_4086_PLAYER_ATTACK_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_body_sha256": "e388cb33abfc7fb79a8867ec01a4954ebe13da6bb16622ea8eaceff99372c364",
+  "literal_body_unmodified": true,
+  "cases": 6912,
+  "compared_bytes": 387072,
+  "actual_sha256": "96b9dcfa59a463b446c69c18904ab4177247bf66815bfc911a108dd0f2968180",
+  "expected_sha256": "96b9dcfa59a463b446c69c18904ab4177247bf66815bfc911a108dd0f2968180",
+  "item_search_result": "INSTRUMENTED_EMPTY_ONLY",
+  "nonempty_item_service_rejections": 1,
+  "chain_and_frame_mutations_instrumented": true,
+  "physical_punch_backend_bound": false,
+  "native_bound": false,
+  "motu_gameplay_proven": false
+}
