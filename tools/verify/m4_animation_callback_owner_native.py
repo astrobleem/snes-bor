@@ -79,6 +79,7 @@ def main():
     p.add_argument('--canonical-common-jump',action='store_true',help='Actual common_jump landing/JUMPLAND and common_jumpland idle after completed dojump.')
     p.add_argument('--foreign-ai-jump',action='store_true',help='Run landing actions through the actual check_ai dispatcher and script validation; isolated think absent.')
     p.add_argument('--foreign-ai-player',action='store_true',help='Run the admitted player controller as actual check_ai think callback; isolated world service.')
+    p.add_argument('--natural-jump-delay',action='store_true',help='Actual timed owner ends JUMPDELAY at its source deadline before common_prejump; controlled clock.')
     p.add_argument('--canonical-jump-entry',action='store_true',help='Actual ordered source jump input branch before tryjump and real JUMPDELAY.')
     p.add_argument('--canonical-dojump',action='store_true',help='Continue actual delayed jump through mandatory sound, real entity toss and real JUMP frame.')
     p.add_argument('--canonical-tryjump',action='store_true',help='Execute actual tryjump/JUMPDELAY and common_prejump through the real frame owner; DO_JUMP stays required.')
@@ -118,6 +119,7 @@ def main():
     if a.canonical_common_jump and not a.canonical_dojump:raise ValueError('COMMON_JUMP_REQUIRES_COMPLETED_DOJUMP')
     if a.foreign_ai_jump and not(a.canonical_common_jump and a.script_clone):raise ValueError('FOREIGN_AI_REQUIRES_JUMP_OWNERS_AND_SCRIPT_CLONE')
     if a.foreign_ai_player and not(a.player_controller and a.script_clone)or a.foreign_ai_player and a.foreign_ai_jump:raise ValueError('FOREIGN_AI_PLAYER_REQUIRES_ISOLATED_CONTROLLER')
+    if a.natural_jump_delay and not a.foreign_ai_jump:raise ValueError('NATURAL_JUMP_DELAY_REQUIRES_FOREIGN_AI')
     if a.canonical_jump_entry and (not a.canonical_tryjump or a.canonical_dojump):raise ValueError('JUMP_ENTRY_REQUIRES_TRYJUMP_FIXTURE')
     if a.canonical_dojump and not a.canonical_tryjump:raise ValueError('DOJUMP_REQUIRES_ACTUAL_TRYJUMP')
     if a.canonical_tryjump and not(a.pending_jump_birth and a.initial_select and a.frame_owner):raise ValueError('TRYJUMP_REQUIRES_ACTUAL_CONSTRUCTOR_AND_FRAME_OWNER')
@@ -301,6 +303,18 @@ def main():
         raw[58*32768:58*32768+len(physics_table)]=physics_table
     first=39*32768
     if raw[first:first+32768]!=bytes(32768) or raw[60*32768:61*32768]!=bytes(32768):raise ValueError('CALLBACK_NATIVE_RESERVED_ROM')
+    ai_world_time=48
+    if a.natural_jump_delay:
+        from source_animation_step import derive as derive_timing,pack as pack_timing,validate_update_frame_pairing
+        from source_update_animation_inputs import derive as derive_update_inputs,pack as pack_update_inputs
+        timing_profile=derive_timing(source);timing_table=pack_timing(timing_profile);update_table=pack_update_inputs(derive_update_inputs(source))
+        delay_animation=next(v for v in timing_profile['animations']if v['model']==registry['models'][default]['identity']and v['role']=='jumpdelay')
+        if delay_animation['count']!=1 or delay_animation['loop_mode']!=0:raise ValueError('NATURAL_DELAY_FIXTURE_REQUIRES_ONE_NONLOOPING_FRAME')
+        ai_world_time=48+delay_animation['delays'][0]
+        validate_update_frame_pairing(timing_table,frames)
+        for bank,table in ((55,timing_table),(56,update_table)):
+            if len(table)>32768 or raw[bank*32768:(bank+1)*32768]!=bytes(32768):raise ValueError('NATURAL_DELAY_TABLE_ROM_OWNERSHIP')
+            raw[bank*32768:bank*32768+len(table)]=table
     base=sy['SourceVM_InstructionReservation'];at=offset(base)
     if raw[at:at+32768]!=b'\xff'*32768:raise ValueError('CALLBACK_NATIVE_SCRIPT_RESERVATION')
     cursor=0;locations={}
@@ -1365,6 +1379,54 @@ CallbackFixture_ForeignFrameGuardRejected:
  jmp CallbackFixture_ForeignJumpDispatch
 '''+asm[end:]
         asm+=emit_foreign_ai(tj,dj,None,jump_sample,sy)
+        if a.natural_jump_delay:
+            asm=asm.replace('CallbackFixture_TryJumpAfterFrame:\n.a16\n.i16\n nop','CallbackFixture_TryJumpAfterFrame:\n.a16\n.i16\n nop\n jsl CallbackFixture_NaturalDelay\n bcs CallbackFixture_Bad',1)
+            asm+=f'''
+CallbackFixture_NaturalDelay:
+.a16
+.i16
+ php
+ rep #$39
+ phx
+ phy
+CallbackFixture_DelayBefore:
+.a16
+.i16
+ nop
+ jsl {sy['SourceUpdateAnimation4086_Begin']}
+ bcs CallbackFixture_DelayBad
+ cmp #0
+ bne CallbackFixture_DelayBad
+CallbackFixture_DelayBeforeDone:
+.a16
+.i16
+ nop
+CallbackFixture_DelayDue:
+.a16
+.i16
+ nop
+ jsl {sy['SourceUpdateAnimation4086_Begin']}
+ bcs CallbackFixture_DelayBad
+ cmp #0
+ bne CallbackFixture_DelayBad
+CallbackFixture_DelayDueDone:
+.a16
+.i16
+ nop
+ ply
+ plx
+ plp
+ clc
+ rtl
+CallbackFixture_DelayBad:
+.a16
+.i16
+ ply
+ plx
+ plp
+ sec
+ rtl
+'''
         needle='CallbackFixture_CommonJumpDone:\n.a16\n.i16\n nop'
         asm=asm.replace(needle,needle+'''
 CallbackFixture_ForeignLegacyPrepare:
@@ -1951,7 +2013,7 @@ end,emu.callbackType.exec,{fs['CallbackFixture_TryJumpPrepare']},{fs['CallbackFi
 emu.addMemoryCallback(function()
  local at={pending_base};emu.log('TRYJUMPFRAME|'..word(INDEX)..'|'..word({tj}+2)..'|'..dw(0x43900c)..'|'..dw(0x43eb00)..'|'..dw(0x40c058)..'|'..dw(0x42f404)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..dw(at)..'|'..dw(at+4)..'|'..dw(at+8)..'|'..dw(at+12)..'|'..dw(0x414014))
  local k=rows[word(INDEX)+1].tryjump_case
- if k>0 then put(0x41f510,0,2)end
+ if k>0 and {str(not a.natural_jump_delay).lower()} then put(0x41f510,0,2)end
  if k==2 then put(at,0x41300000,4);put(at+4,0x41400000,4);put(at+8,0x41500000,4);put(at+12,99,4)end
 end,emu.callbackType.exec,{fs['CallbackFixture_TryJumpAfterFrame']},{fs['CallbackFixture_TryJumpAfterFrame']},emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
@@ -2026,7 +2088,8 @@ end,emu.callbackType.exec,{fs['CallbackFixture_CommonJump'+phase+'LeaseRejected'
 """
     if a.foreign_ai_jump:
         settings=dict(SourceAI4086_Ready=0xb5e2,SourceAI4086_State=0,SourceAI4086_Endgame=0,SourceAI4086_SpawnID=role_id(config,'spawn'),SourceAI4086_RespawnID=role_id(config,'respawn'),SourceAIRun4086_Ready=0xb5e6,SourceAIRun4086_State=0,SourceWorldTick4086_Ready=0xb4d5,SourceWorldTick4086_State=1,SourceWorldTick4086_Pending=1,SourceWorldTick4086_Phase=6,SourceWorldTick4086_Slot=0,SourceWorldTick4086_TimeLo=48,SourceWorldTick4086_TimeHi=0,SourceFreeze4086_Ready=0xb5df,SourceLifecycle4086_Ready=0xb4fb,SourceSelf4086_Ready=0xb4f6,SourceSelf4086_Active=0,SourceSelf4086_Fault=0,SourceSelf4086_GlobalLow=0x4000,SourceSelf4086_GlobalHigh=0x41)
-        lua+='emu.addMemoryCallback(function()\n'+'\n'.join("set('"+k+"',"+str(v)+")"for k,v in settings.items())+"\nput(0x439000,0,4);put(0x416814,48,4);put(0x42f400,0,4);put(0x42e024,0,4)\nend,emu.callbackType.exec,"+str(fs['CallbackFixture_CommonJumpPrepare'])+','+str(fs['CallbackFixture_CommonJumpPrepare'])+",emu.cpuType.snes,mt)\n"
+        settings['SourceWorldTick4086_TimeLo']=ai_world_time
+        lua+='emu.addMemoryCallback(function()\n'+'\n'.join("set('"+k+"',"+str(v)+")"for k,v in settings.items())+f"\nput(0x439000,0,4);put(0x416814,{ai_world_time},4);put(0x42f400,0,4);put(0x42e024,{3 if a.natural_jump_delay else 0},4)\nend,emu.callbackType.exec,"+str(fs['CallbackFixture_CommonJumpPrepare'])+','+str(fs['CallbackFixture_CommonJumpPrepare'])+",emu.cpuType.snes,mt)\n"
         lua+='emu.addMemoryCallback(function()\n'+'\n'.join("set('"+k+"',"+str(v)+")"for k,v in settings.items())+f"\nput(0x439000,0,4);put(0x416814,48,4);put(0x42f400,0,4);put(0x42e024,0,4);put({dj}+2,2,2)\nend,emu.callbackType.exec,"+str(fs['CallbackFixture_TryJumpAfterFrame'])+','+str(fs['CallbackFixture_TryJumpAfterFrame'])+",emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()emu.log('FOREIGNPREJUMPDONE|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..word({tj}+2))end,emu.callbackType.exec,{fs['CallbackFixture_DoJumpDone']},{fs['CallbackFixture_DoJumpDone']},emu.cpuType.snes,mt)\n"
         lua+='local foreign_guard_before,foreign_guard_restore={},{}\n'
@@ -2067,6 +2130,21 @@ end,emu.callbackType.exec,{fs['CallbackFixture_Foreign'+phase+'GuardRejected']},
         lua+='emu.addMemoryCallback(function()\n'+'\n'.join("set('"+k+"',"+str(v)+")"for k,v in settings.items())+f"\nput(0x439000,2,4);put(0x43900c,0,4);put(0x416814,48,4);put(0x42f400,0,4);put(0x42e024,0,4);put({pe},0xb688,2);put({pe}+2,0,2)\nend,emu.callbackType.exec,"+str(fs['CallbackFixture_SpecialPrepare'])+','+str(fs['CallbackFixture_SpecialPrepare'])+",emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()emu.log('FOREIGNPLAYERDONE|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceWorldTick4086_Pending)..'|'..dw(sy.VmSourceWorld_Time))end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()emu.log('FOREIGNPLAYERPHASE|'..word(INDEX)..'|'..word(sy.SourceAI4086_State))end,emu.callbackType.exec,{sy['SourceAI4086_Good']},{sy['SourceAI4086_Good']},emu.cpuType.snes,mt)\n"
+    if a.natural_jump_delay:
+        lua+='local natural_delay_guard="entry";local natural_delay_prefix="entry"\n'
+        for name,address in sy.items():
+            if name.startswith('SourceUpdateAnimation4086_Guard') or name=='SourceUpdateAnimation4086_AutokillLease':
+                lua+=f"emu.addMemoryCallback(function()natural_delay_guard='{name}'end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
+            if name.startswith('SourceUpdateAnimationPrefix4086_Branch'):
+                lua+=f"emu.addMemoryCallback(function()natural_delay_prefix='{name}'end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
+        lua+=f"emu.addMemoryCallback(function()emu.log('NATURALDELAYFAULT|'..word(INDEX)..'|'..natural_delay_guard..'|'..natural_delay_prefix..'|'..word(sy.SourceUpdateFrame4086_State)..'|'..word(sy.SourceUpdateAnimationPrefix4086_Status))end,emu.callbackType.exec,{sy['SourceUpdateAnimation4086_Bad']},{sy['SourceUpdateAnimation4086_Bad']},emu.cpuType.snes,mt)\n"
+        settings=dict(SourceWorldTick4086_Phase=7,SourceWorldTick4086_View=0x4000,SourceWorldTick4086_Side=0x6800,SourceUpdateAnimationPrefix4086_Ready=0xb60d,SourceUpdateAnimationPrefix4086_Status=0,SourceUpdateAnimationPrefix4086_Base=0x8000,SourceUpdateAnimationPrefix4086_Bank=56,SourceUpdateAnimationPrefix4086_Bytes=len(update_table),SourceUpdateAnimationPrefix4086_Models=16,SourceUpdateAnimationPrefix4086_SleepID=role_id(config,'sleep'),SourceUpdateAnimation4086_Ready=0xb60f,SourceUpdateAnimation4086_State=0,SourceUpdateAnimation4086_Base=0x8000,SourceUpdateAnimation4086_Bank=55,SourceUpdateAnimation4086_Bytes=len(timing_table),SourceAutokillState4086_Ready=0xb60e,SourceAttackCostState4086_Ready=0xb609,SourceMovementState4086_Ready=0xb60b)
+        settings.update(SourceIdle4086_Ready=0xb4f3,SourceIdle4086_Status=0)
+        lua+='emu.addMemoryCallback(function()\n'+'\n'.join("set('"+k+"',"+str(v)+")"for k,v in settings.items())+f"\nset('VmSourceWorld_Time',{ai_world_time-1},4);set('SourceWorldTick4086_TimeLo',{ai_world_time-1},4)\nend,emu.callbackType.exec,"+str(fs['CallbackFixture_DelayBefore'])+','+str(fs['CallbackFixture_DelayBefore'])+",emu.cpuType.snes,mt)\n"
+        lua+=f"emu.addMemoryCallback(function()set('VmSourceWorld_Time',{ai_world_time},4);set('SourceWorldTick4086_TimeLo',{ai_world_time},4)end,emu.callbackType.exec,{fs['CallbackFixture_DelayDue']},{fs['CallbackFixture_DelayDue']},emu.cpuType.snes,mt)\n"
+        for phase in ('Before','Due'):
+            lua+=f"emu.addMemoryCallback(function()emu.log('NATURALDELAY|{phase}|'..word(INDEX)..'|'..word(sy.SourceUpdateAnimation4086_State)..'|'..word(0x41f510)..'|'..word(0x416806)..'|'..dw(0x416808)..'|'..dw(sy.VmSourceWorld_Time))end,emu.callbackType.exec,{fs['CallbackFixture_Delay'+phase+'Done']},{fs['CallbackFixture_Delay'+phase+'Done']},emu.cpuType.snes,mt)\n"
+        lua+=f"emu.addMemoryCallback(function()set('SourceWorldTick4086_Phase',6)end,emu.callbackType.exec,{fs['CallbackFixture_DelayDueDone']},{fs['CallbackFixture_DelayDueDone']},emu.cpuType.snes,mt)\n"
     if a.early_player:
         from source_player_run_4086 import KEYS as early_keys
         early_tail=player_state_plan['base']
@@ -2346,6 +2424,11 @@ end,emu.callbackType.exec,{fs['CallbackFixture_LieDone']},{fs['CallbackFixture_L
     if a.early_player or a.canonical_attack:
         for field,value in dict(SourceAttackBody4086_Ready=0xb605,SourceAttackBody4086_Status=0,SourceAttackBody4086_Bank=58,SourceAttackBody4086_Base=0x8000+chain_at,SourceAttackBody4086_Bytes=len(chain_table)).items():initialinstall+=f' put({sy[field]},{value},2)\n'
 
+    if a.natural_jump_delay:
+        # These fields must be enabled before the actual birth clear. Enabling
+        # autokill only at timed execution would expose a stale cache-tail row.
+        initialinstall+="\nset('SourceAutokillState4086_Ready',0xb60e);set('SourceAttackCostState4086_Ready',0xb609);set('SourceMovementState4086_Ready',0xb60b);put(0x43d800,0xdeadbeef,4)\n"
+        lua+=f"emu.addMemoryCallback(function()emu.log('NATURALDELAYBIRTH|'..word(INDEX)..'|'..dw(0x43d800))end,emu.callbackType.exec,{sy['SourceAutokillState4086_ClearGood']},{sy['SourceAutokillState4086_ClearGood']},emu.cpuType.snes,mt)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -2682,7 +2765,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         r.update(common_jump_action_bound=True,common_jumpland_action_bound=True,common_jump_results=results,common_jump_expected=expected,common_jump_capability=common_jump_profile,common_jump_control_temporal_reuse=True,landing_context_and_animation_state_instrumented=True,production_action_dispatch_bound=False)
     if a.foreign_ai_jump:
         ai_results=[list(map(int,line.split('FOREIGNAIDONE|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'FOREIGNAIDONE|'in line]
-        reporter.check('landing actions complete real check_ai including absent think-script validation without retiring world service',ai_results==[[i,2,5,0,1,48,2]for i in range(len(rows))])
+        reporter.check('landing actions complete real check_ai including absent think-script validation without retiring world service',ai_results==[[i,2,5,0,1,ai_world_time,3 if a.natural_jump_delay else 2]for i in range(len(rows))])
         prejump_results=[list(map(int,line.split('FOREIGNPREJUMPDONE|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'FOREIGNPREJUMPDONE|'in line]
         reporter.check('common_prejump resumes real dojump sound/frame services and releases its control lease before next AI action',prejump_results==[[i,2,5,4]for i in range(len(rows))])
         r.update(foreign_ai_prejump_dispatch_results=prejump_results)
@@ -2694,6 +2777,14 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         reporter.check('unchanged legacy common_spawn dispatcher completes real authored idle frame with CPU context restored',legacy==[[i,2,5,0,3,role_id(config,'idle'),1]for i in range(len(rows))]and legacy_cpu==[[i,0]for i in range(len(rows))])
         r.update(foreign_ai_legacy_results=legacy,foreign_ai_legacy_cpu_results=legacy_cpu)
         r.update(foreign_ai_jump_dispatch_results=ai_results,foreign_ai_jump_dispatch_bound=True,production_foreign_ai_bound=False,think_callback_absence_instrumented=True)
+    if a.natural_jump_delay:
+        delays=[line.split('NATURALDELAY|',1)[1].split('|')for line in(folder/'mesen.log').read_text().splitlines()if'NATURALDELAY|'in line]
+        expected=[[phase,str(i),'2',str(1 if phase=='Before'else 0),'0',str(ai_world_time),str(ai_world_time-1 if phase=='Before'else ai_world_time)]for i in range(len(rows))for phase in('Before','Due')]
+        reporter.check('actual timed owner retains JUMPDELAY before deadline and ends its animation at the authored deadline without host animating writes',delays==expected)
+        births=[list(map(int,line.split('NATURALDELAYBIRTH|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'NATURALDELAYBIRTH|'in line]
+        reporter.check('autokill enabled before actual constructor clears stale row; nonlooping delay stops rather than kills',births==[[i,0]for i in range(len(rows))])
+        r.update(natural_jump_delay_birth_results=births)
+        r.update(natural_jump_delay_results=delays,natural_jump_delay_expected=expected,natural_jump_delay_ticks=delay_animation['delays'][0],jump_delay_clock_instrumented=True,natural_jump_physics_bound=False)
     if a.player_controller:
         controller_results=[list(map(int,line.split('PLAYERCONTROLLER|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'PLAYERCONTROLLER|'in line]
         reporter.check('full admitted player controller completes every native constructor/input case',len(controller_results)==len(rows)and all(v[1]==(5 if 'controller_guard'in c else 4)for v,c in zip(controller_results,rows)))

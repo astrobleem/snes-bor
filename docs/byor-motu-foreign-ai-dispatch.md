@@ -46,3 +46,18 @@ the existing controller receipt retains full state comparison vectors.
 
 Production world installation, physical sound playback, live item/grab/target
 services and natural jump physics remain open. M4 is not complete.
+
+`--natural-jump-delay` replaces the forced JUMPDELAY completion with actual
+timed-animation execution. Fourteen cases retain animating=1 at tick 67 and
+stop at the source-derived deadline 68, twenty ticks after the real frame-zero
+initialization at tick 48. common_prejump then executes the real dojump path
+at tick 68. Host instrumentation supplies the clock values; it does not write
+animating. This proves the timed transition, not full world traversal/physics.
+Timing and prefix descriptors occupy verified private ROM banks 55 and 56.
+
+The timing capability requires autokill/cost/movement state enabled before
+construction. A poisoned autokill row is cleared by the actual constructor
+in all fourteen cases. Enabling that capability after birth exposes stale
+storage and incorrectly requests kill instead of the source nonlooping stop;
+the fixture now enforces the proper startup order. The existing reduced
+animation-cache capacity still contains the 4,096-byte source animation map.
