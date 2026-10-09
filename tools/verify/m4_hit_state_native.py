@@ -68,12 +68,13 @@ emu.addMemoryCallback(function()
  for j=0,63 do put(W+j,0,1)end
  for j=-8,SIZE+7 do put(BASE+j,(j*13+91)&255,1)end
  local at=BASE+16*c.slot
- put(W,0xb6a0);put(W+4,c.slot);put(W+8,0x12345678,4);put(W+16,BASE%65536);put(W+18,0x42);put(W+20,CAPACITY);put(W+22,128);put(W+24,c.op)
+ put(W,0xb6a0);put(W+4,c.slot);put(W+8,0x12345678,4);put(W+16,BASE%65536);put(W+18,0x42);put(W+20,c.capacity or CAPACITY);put(W+22,128);put(W+24,c.op)
  put(W+28,c.attack,4);put(W+32,c.hitby,4)
  put(at,0xffffffff,4);put(at+4,0x80000000,4);put(at+8,0x12345678,4);put(at+12,0xb6a1);put(at+14,c.slot)
  put(sy.VmSourceWorld_Ready,0xb4a3);put(sy.VmSourceWorld_Count,128)
  if c.bad=='ready'then put(W,0)elseif c.bad=='zero_generation'then put(W+8,0,4)
  elseif c.bad=='generation_low'then put(W+8,0x12345679,4)elseif c.bad=='generation_high'then put(W+10,0)
+ elseif c.bad=='zero_capacity'then put(W+20,0)
  elseif c.bad=='capacity'then put(W+20,CAPACITY+2)elseif c.bad=='base'then put(W+16,BASE%65536+2)
  elseif c.bad=='bank'then put(W+18,0x43)elseif c.bad=='world'then put(sy.VmSourceWorld_Ready,0)
  elseif c.bad=='zero_count'then put(sy.VmSourceWorld_Count,0)elseif c.bad=='large_count'then put(sy.VmSourceWorld_Count,129)
@@ -107,20 +108,23 @@ def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  plan=layout();sy=symbols(Path('src/main.sym'))
  rows=[dict(slot=s,op=op,attack=(0xffffffff,0x80000000,0,0x7fffffff)[s%4],hitby=(0,1,0x80000001,0xffffffff)[s%4],fault=0)for s in range(128)for op in range(4)]
+ from source_hit_contact_layout import layout as contact_layout
+ for slot in range(128):
+  for op in range(4):rows.append(dict(rows[slot*4+op],capacity=contact_layout()['chr_capacity']))
  for slot in (0,127):
-  for bad in ('ready','zero_generation','generation_low','generation_high','capacity','base','bank','world','zero_count','large_count','slot','entity_count','marker','row_generation','row_generation_high','row_slot'):
+  for bad in ('ready','zero_generation','generation_low','generation_high','capacity','base','bank','world','zero_count','large_count','slot','entity_count','marker','row_generation','row_generation_high','row_slot','zero_capacity'):
    rows.append(dict(rows[-1],slot=slot,op=3,bad=bad,fault=1))
  replacements=dict(W=plan['controls'],BASE=plan['base'],SIZE=plan['bytes'],CAPACITY=plan['chr_capacity'])
  import re
  asm=ASM;lua=LUA
  for n,v in replacements.items():asm=re.sub(r'\b'+n+r'\b',str(v),asm);lua=re.sub(r'\b'+n+r'\b',str(v),lua)
  reporter=Reporter('M4-SOURCE-HIT-IDENTITY-STORAGE',kind='GATE')
- raw,log=run_fixture(a.rom,a.output,rows,'HitStateProbe','VmState_Error',0xb6a0,[],lua,reporter,append=asm+emit(plan,sy),probes={'RETURN':'HitStateProbe_Return'},batch_size=16,link_pcm=False)
+ raw,log=run_fixture(a.rom,a.output,rows,'HitStateProbe','VmState_Error',0xb6a0,[],lua,reporter,append=asm+emit(plan,sy),probes={'RETURN':'HitStateProbe_Return'},batch_size=4,link_pcm=False)
  actual=[list(map(int,line.split('HITSTATE|',1)[1].split('|')))for line in log.splitlines()if 'HITSTATE|'in line]
  wanted=[[i,3 if c['fault']else 2,0,0,0,8]for i,c in enumerate(rows)]
  reporter.check('birth/read/write/reset, all 128 physical slots, exact unsigned identities, sibling rows and CPU',actual==wanted)
  reporter.check('bank zero unchanged',raw[:32768]==a.rom.read_bytes()[:32768])
- report=dict(schema='BYOR_SOURCE_HIT_IDENTITY_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',cases=len(rows),guard_cases=32,plan=plan,results=actual,expected=wanted,rom_sha256=hashlib.sha256(raw).hexdigest(),ram_ownership_instrumented=True,independent_register_generation=True,production_memory_lease=False,actual_constructor_hook_bound=False,actual_model_copy_hook_bound=False,hit_resolution_bound=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+ report=dict(schema='BYOR_SOURCE_HIT_IDENTITY_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',cases=len(rows),guard_cases=34,plan=plan,results=actual,expected=wanted,rom_sha256=hashlib.sha256(raw).hexdigest(),ram_ownership_instrumented=True,independent_register_generation=True,production_memory_lease=False,actual_constructor_hook_bound=False,actual_model_copy_hook_bound=False,hit_resolution_bound=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
  (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

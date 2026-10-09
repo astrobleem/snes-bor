@@ -149,3 +149,35 @@ excluded; it does not certify the native target loop. Receipt:
 byor-motu-attack-target-filter-authority.json. The initial C fixture missed a
 newline after the source trailing line comment and did not build; the corrected
 fixture passes. No failed build is counted as PASS.
+
+Pain timing and current juggle state have a separate eight-byte persistent row
+per physical entity. Controls occupy 42BF80..42BFBF; rows occupy
+42BFC0..42C3BF. Existing hit identities, hit controls and pending-jump addresses
+remain fixed. This adds 1,088 bytes and leaves 49,024 CHR staging bytes. At every
+pool capacity 1..128, both conversion jobs retain all 896 eight-bit and 512
+two-bit tiles through chunking. The compiled module has 616 live VM slots and
+only 192 spare bytes after player state; it cannot hold these 1,024 row bytes.
+
+The generic identity storage now accepts a positive staging capacity up to its
+fixed identity boundary; it rejects zero or an overlapping capacity. Native
+proof passes 1,058 cases across the prior and new staging capacities. The contact
+component requires the exact smaller boundary from both paired descriptors.
+All CHR and pending-jump producers still must adopt that boundary before a
+production lease can be granted. No existing production memory owner is enabled.
+
+Native contact storage passes 556 cases: birth/read/write/model-copy at every
+physical slot, initialization and 43 stale-input guards. Birth clears pain and
+installs a supplied source juggle current; model replacement retains pain while
+replacing current juggle; read/write retain all 32 bits. Hit identities, siblings
+and CPU/decimal context remain intact. Inputs are fixture-installed; actual
+constructor/model-metric providers and damage callers remain unbound. The first
+fixture accidentally fell through from model-copy to initialization and compared
+paired diagnostic scratch as persistent data. That run remains FAIL. Corrected
+full proof passes, with paired control diagnostics excluded and persistent
+identity/slot/ready bytes still checked. Bank zero stays byte-identical.
+
+Pinned model defaults and source directives derive zero initial juggle current
+and maximum for all 16 MOTU models. Source modeldata copying replaces both
+metric values; entity pain_time is retained. This remains a derived input table,
+not a native installation claim. Receipts: byor-motu-hit-contact-capacity-native,
+byor-motu-hit-contact-native and byor-motu-juggle-metric. NO color reduction.

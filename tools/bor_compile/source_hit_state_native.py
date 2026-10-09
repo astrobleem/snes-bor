@@ -36,8 +36,12 @@ def emit(plan,symbols):
         else:put(f' lda #0\n sta.l {base},x\n sta.l {base}+2,x')
         put(' jmp HitState_Good')
     label('Bind');put(f' lda.l {work}\n cmp #$B6A0');branch('bne','LeaseBad')
-    for off,value in ((16,base&65535),(18,0x42),(20,plan['chr_capacity']),(22,count)):
+    for off,value in ((16,base&65535),(18,0x42),(22,count)):
         put(f' lda.l {work}+{off}\n cmp #{value}');branch('bne','LeaseBad')
+    # A caller may carve more persistent state below these fixed rows.
+    # Positive staging capacity must remain within the identity boundary.
+    put(f' lda.l {work}+20');branch('beq','LeaseBad')
+    put(f' cmp #{plan["chr_capacity"]+1}');branch('bcs','LeaseBad')
     put(f' lda.l {symbols["VmSourceWorld_Ready"]}\n cmp #$B4A3');branch('bne','LeaseBad')
     put(f' lda.l {symbols["VmSourceWorld_Count"]}');branch('beq','LeaseBad');put(f' cmp #{count+1}');branch('bcs','LeaseBad')
     put(f' lda.l {work}+4\n cmp.l {symbols["VmSourceWorld_Count"]}');branch('bcs','LeaseBad')
