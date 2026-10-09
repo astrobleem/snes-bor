@@ -28,7 +28,7 @@ freespecial4 proof executes the actual compiled callbacks and native effects.
 Its instrumented post-callback playerindex/playkeys change proves that the
 finisher clears the fresh row and preserves the other row and high bits.
 
-Controller storage comes from the 5264-byte compiler address plan in the retired
+Controller storage comes from the 5288-byte compiler address plan in the retired
 canvas arena. The isolated callback fixture retires ordinary producers; full
 production canvas/player ownership has not yet been bound. This capability is
 player_preinput, not the complete player_think movement/combat controller.

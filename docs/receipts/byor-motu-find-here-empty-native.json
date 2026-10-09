@@ -1,0 +1,26 @@
+{
+  "schema": "BYOR_4086_FIND_HERE_EMPTY_NATIVE_V1",
+  "status": "PASS",
+  "cases": 334,
+  "guards": 8,
+  "observed": 334,
+  "errors": [],
+  "rom_sha256": "d5b4e6f16f386abd891d8a6241b7ff6b93a9151d11ca661a0c718dc8f4e66c67",
+  "authority": {
+    "status": "PASS",
+    "cases": 326,
+    "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "function_sha256": "8132b29ad36cc0b071b899fd1a3ea54c79ed33d59e630053726e6824570eb099",
+    "unchanged_pinned_find_ent_here": true,
+    "geometry_and_predicate_not_called_for_empty_type_candidate_set": true
+  },
+  "peak_master_clocks": 164338,
+  "live_canonical_type_scan": true,
+  "full_find_ent_here_bound": false,
+  "geometry_vulnerability_predicate_not_needed_when_candidate_set_empty": true,
+  "matching_type_candidate_rejects": true,
+  "production_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

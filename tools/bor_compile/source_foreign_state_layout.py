@@ -30,6 +30,7 @@ def layout(base,size,entities=128,players=4):
            ('run_tuple_controls',64,'serialized RUN capture/read controls'),
            ('ground_controls',128,'typed ground snapshot and mandatory-service continuation'),
            ('ground_binding_controls',32,'canonical ground capture and preflighted writeback'),
+           ('find_here_empty_controls',24,'live type-filtered empty candidate-set proof'),
            ('player_state_controls',64,'module-tail lifetime lease and exact integer row access')]
     cursor=base;regions=[]
     for name,count,authority in specs:
