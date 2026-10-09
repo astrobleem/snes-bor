@@ -5,8 +5,8 @@ player_think. Matching ENDLEVEL candidates reject until completion is owned.
 """
 
 
-def emit(work,state,search,combo,charge,pain,symbols):
-    spans=((work,32),(state,64),(search,24),(combo,96),(charge,24),(pain,24))
+def emit(work,state,search,combo,charge,pain,symbols,fall=None):
+    spans=((work,32),(state,64),(search,24),(combo,96),(charge,24),(pain,24))+(((fall,24),)if fall is not None else())
     for i,(a,n)in enumerate(spans):
         if not 0<=a<=0x1000000-n:raise ValueError('PLAYER_EARLY_EXTENT')
         if any(a<b+m and b<a+n for b,m in spans[i+1:]):raise ValueError('PLAYER_EARLY_OVERLAP')
@@ -63,6 +63,15 @@ def emit(work,state,search,combo,charge,pain,symbols):
     label('ComboFinish');put(f' jsl {symbols["SourceAnimationInit4086_Ack"]}');branch('bcs')
     put(' jsl SourceCombo_Finish');branch('bcs');put(' jmp PlayerEarly_ComboResult')
     for name,status in (('Continue',2),('Exit',4)):
-        label(name);put(f' lda #{status}\n sta.l {work}+2\n lda #0\n ply\n plx\n plp\n clc\n rtl')
+        label(name)
+        if name=='Continue' and fall is not None:
+            put(f' lda.l {symbols["SourceDamageEffectsState4086_Ready"]}\n cmp #$B62F');branch('bne')
+            put(f' lda.l {work}+22\n tax\n lda.l $7EF114,x\n cmp #$B62F');branch('bne')
+            put(f' lda.l $7EF116,x\n sta.l {work}+28\n lda.l {work}+20\n tax\n lda.l $416800,x\n cmp.l {work}+28');branch('bne')
+            put(f' lda.l {work}+22\n tax\n lda.l $7EF102,x');branch('bne','NoFall')
+            put(' lda.l $7EF100,x\n cmp #2');branch('bne','NoFall')
+            put(f' lda.l {work}+4\n sta.l {fall}+4\n jsl PlayerFall_Execute');branch('bcs');put(' jmp PlayerEarly_Exit')
+            label('NoFall')
+        put(f' lda #{status}\n sta.l {work}+2\n lda #0\n ply\n plx\n plp\n clc\n rtl')
     label('Bad');put(f' lda #5\n sta.l {work}+2\n ply\n plx\n plp\n sec\n rtl')
     return '\n'.join(lines)+'\n'

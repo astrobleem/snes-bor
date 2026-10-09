@@ -213,7 +213,7 @@ def main():
     if a.canonical_charge:
         rows=[dict(f=0,direction=d,default=default,fault=0,charge_port=port,charge_mask=mask,charge_mutation=mutation)for mutation in (0,1)for port in range(4)for mask in (0,128,256,384)for d in (0,1)]
     if a.early_player:
-        rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=c)for c in range(11)for d in (0,1)]
+        rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=c)for c in range(14)for d in (0,1)]
     if a.common_spawn:
         previous_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity'] and h['role']!='idle')
     sy=symbols(Path('src/main.sym'));raw=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate']
@@ -702,6 +702,7 @@ CallbackFixture_ChargeDone:
         pn=gr['pain_services_controls'];asm+=emit_pain(pn,sb,ss)
         if a.pain_helper:asm=asm.replace(' jsl SpecialServices_Begin',' jsl PainServices_Begin',1).replace(' jsl SpecialServices_FinishFrame',' jsl PainServices_FinishFrame',1)
     if a.early_player:
+        from source_player_fall_native import emit as emit_fall
         from source_player_early_native import emit as emit_early
         from source_player_charge_services import emit as emit_charge
         from source_player_combo_4086 import derive as derive_combos
@@ -710,8 +711,8 @@ CallbackFixture_ChargeDone:
         from source_costmove_native import emit as emit_costmove,emit_combo_energy_query
         from source_find_here_empty_native import emit as emit_empty
         pe=gr['player_early_controls'];ch=gr['charge_services_controls'];co=gr['combo_controls'];fe=gr['find_here_empty_controls']
-        early_commands=derive_combos(source)
-        asm+=emit_early(pe,player_state_work,fe,co,ch,pn,sy)+emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
+        pf=gr['player_fall_controls'];early_commands=derive_combos(source)
+        asm+=emit_early(pe,player_state_work,fe,co,ch,pn,sy,fall=pf)+emit_fall(pf,gr['input_history'],gr['input_owner'],0xb674,sy)+emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
         asm+=emit_history(gr['input_history'],gr['input_scratch'],gr['input_snapshot'],gr['combo_sequence'],gr['input_owner'],0xb674)
         asm+=emit_costmove(se,gr['entity_combo_tail'],sy)+emit_combo_energy_query(se,sy)
         asm+=emit_combo(early_commands,co,se,gr['input_history'],gr['combo_sequence'],gr['input_owner'],0xb674,sy)+emit_empty(fe,sy)
@@ -1211,24 +1212,28 @@ emu.addMemoryCallback(function()
 end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
 """
     if a.early_player:
+        from source_player_run_4086 import KEYS as early_keys
         early_tail=player_state_plan['base']
         lua+=f"""emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];local k=c.early_case
- for _,r in ipairs({{{{{pe},32}},{{{pn},24}},{{{ch},24}},{{{co},96}},{{{fe},24}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
- put({pe},0xb688,2);put({pe}+12,48,4);put({pn},0xb687,2);put({ch},0xb686,2);put({co},0xb673,2);put({fe},0xb67d,2)
+ for _,r in ipairs({{{{{pe},32}},{{{pn},24}},{{{ch},24}},{{{co},96}},{{{fe},24}},{{{pf},24}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
+ put({pe},0xb688,2);put({pe}+12,48,4);put({pf},0xb689,2);put({pf}+8,k==12 and 2 or 0,4);
+ set('SourceDamageEffectsState4086_Ready',0xb62f);set('SourcePhysicsState4086_Ready',0xb61c)
+ put(0x7ef100,(k==11 or k==12)and 2 or k==13 and 65538 or 0,4);put(0x7ef114,0xb62f,2);put(0x7ef116,{default},2);put(0x42d80c,7,4);
+put({pn},0xb687,2);put({ch},0xb686,2);put({co},0xb673,2);put({fe},0xb67d,2)
  put(0x43fd84,k==0 and 0 or 0x414000,4);put(0x439014,k==1 and -3 or 0,4);put(0x42f404,-3,4)
  put({early_tail},(k==3 or k==4 or k==9)and -3 or 0,4);put({early_tail}+12,7,4);put({early_tail}+20,k==10 and 0x80000000 or 40,4)
  put(0x43900c,17,4);put(0x43eb00,1,4);put(0x43eb04,(k==5 or k==6)and 7 or 0,4)
  if k==8 or k==9 then put(0x414008,2,4);put(0x41400c,0,4);put(0x416830,0,4);put(0x43eb08,0,4)end
  for j=0,1023 do put({gr['input_history']}+j,0,1)end
- put({gr['input_history']+216},k==3 and 384 or k==4 and 128 or 0,4)
+ put({gr['input_history']+216},k==3 and 384 or k==4 and 128 or(k==11 or k==12 or k==13)and {early_keys['moveup']|early_keys['jump']} or 0,4)
  put({gr['input_history']+224},k==5 and 256 or(k==8 or k==9)and 1024 or 0,4)
  if k==8 or k==9 then put({gr['input_history']+108},1024,4);put({gr['input_history']+232},1,4)end
  if k==7 then put(0x414050,0x414050,4);put(0x40901c,0x414050,4);put(0x40c050,0,4)end
  set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
 end,emu.callbackType.exec,{fs['PlayerEarly_Begin']},{fs['PlayerEarly_Begin']},emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
- emu.log('EARLYPLAYER|'..word(INDEX)..'|'..word({pe}+2)..'|'..word({pe}+6)..'|'..dw({pe}+8)..'|'..dw({early_tail})..'|'..dw({early_tail}+12)..'|'..dw({early_tail}+20)..'|'..dw(0x43eb04)..'|'..word({co}+2)..'|'..word({ch}+2)..'|'..word({pn}+2)..'|'..dw(0x40c04c)..'|'..dw({gr['input_history']+224})..'|'..word(sy.SourceAnimationInit4086_Number))
+ emu.log('EARLYPLAYER|'..word(INDEX)..'|'..word({pe}+2)..'|'..word({pe}+6)..'|'..dw({pe}+8)..'|'..dw({early_tail})..'|'..dw({early_tail}+12)..'|'..dw({early_tail}+20)..'|'..dw(0x43eb04)..'|'..word({co}+2)..'|'..word({ch}+2)..'|'..word({pn}+2)..'|'..dw(0x40c04c)..'|'..dw({gr['input_history']+224})..'|'..word(sy.SourceAnimationInit4086_Number)..'|'..word({pf}+2)..'|'..dw(0x42d80c))
 end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
 """
     if a.freeze_state:
@@ -1242,6 +1247,7 @@ end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixtu
     if a.ai_run:
         initialinstall+="\nset('SourceAI4086_State',0);set('SourceAI4086_Endgame',0,4);set('SourceAIRun4086_Ready',0xb5e6);set('SourceAIRun4086_State',0);put(0x439000,0,4);put(0x416814,48,4);put(0x42f400,0,4);put(0x42e024,0,4)\n"
         lua+="emu.addMemoryCallback(function()emu.log('AIRUNFRAME|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..dw(0x42e024)..'|'..dw(0x416814)..'|'..word(sy.SourceAIRun4086_PendingKind))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
+    if a.early_player:initialinstall+="\nset('SourceDamageEffectsState4086_Ready',0);set('SourcePhysicsState4086_Ready',0)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -1475,12 +1481,12 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         expected=[]
         for i,c in enumerate(rows):
             k=c['early_case']
-            expected.append([i,2 if k in(2,10)else 4,0,0xfffffffd,0xfffffffd if k in(3,9)else 0,
+            expected.append([i,2 if k in(2,10,13)else 4,0,0xfffffffd,0xfffffffd if k in(3,9)else 0,
                 7 if k in(0,1,10)else 0,40 if k in(0,1)else 0x80000000 if k==10 else 0,7 if k==6 else 0,
                 0 if k in(0,1)else 4 if k in(8,9)else 2,2 if k in(3,4)else 0,2 if k in(5,6,7)else 0,
-                90 if k==5 else 100,0,0 if k==4 else role_id(config,'special')if k in(5,6,7)else role_id(config,'freespecial')if k in(8,9)else role_id(config,'select')])
+                90 if k==5 else 100,0,0 if k==4 else role_id(config,'special')if k in(5,6,7)else role_id(config,'freespecial')if k in(8,9)else role_id(config,'select'),2 if k in(11,12)else 0,0xfffffffe if k==11 else 7])
         reporter.check('joined player prefix preserves entry snapshot, ordered short circuits, unsigned rush cleanup and real helper outcomes',early_results==expected)
-        r.update(canonical_player_early_dispatch_bound=True,early_results=early_results,early_actor_and_player_role_context_instrumented=True,early_helpers_and_frame_owners_real=True,full_player_think_bound=False)
+        r.update(canonical_player_early_dispatch_bound=True,early_results=early_results,early_actor_and_player_role_context_instrumented=True,early_helpers_and_frame_owners_real=True,player_fall_helper_bound=True,active_gravity_or_landing_bound=False,full_player_think_bound=False)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     if a.damage_state_birth:
         damage_birth_results=[list(map(int,line.split('CTORDAMAGE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORDAMAGE|'in line]
