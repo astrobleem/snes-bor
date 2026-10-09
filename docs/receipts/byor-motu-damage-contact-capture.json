@@ -1,0 +1,15 @@
+{
+  "schema": "BYOR_DAMAGE_CONTACT_CAPTURE_RECEIPT_V1",
+  "status": "PASS",
+  "cases": 412,
+  "capture_calls": 824,
+  "admitted_health_calls": 388,
+  "proof_path": "out/byor-motu-damage-contact-capture-query-native/report.json",
+  "proof_sha256": "1f75a74addbf8941416099ace4bd38b206e85bf8faf05457dfef36b93b5d725e",
+  "rom_sha256": "86dbfafb0b8aa55a512c21d1d231bfbabd45db14d0c622b59b5df6142b671662",
+  "production_globals_capture_bound": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
