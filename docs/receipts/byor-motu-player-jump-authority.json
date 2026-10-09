@@ -1,0 +1,16 @@
+{
+  "schema": "BYOR_4086_PLAYER_JUMP_ZERO_CONTROL_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_function_sha256": "dd4837b644c6987915ab1ee01d127a26eca03eff22fdc751a4f855f68a0d2927",
+  "literal_function_unmodified": true,
+  "cases": 3072,
+  "compared_bytes": 86016,
+  "actual_sha256": "e0c9c410779d107527093081954b99d6cb7e1feb97d6bf90bf31855ba9a67355",
+  "expected_sha256": "e0c9c410779d107527093081954b99d6cb7e1feb97d6bf90bf31855ba9a67355",
+  "errors": [],
+  "domain": "noaircancel=0; zero jumpmovex/z; absent alternate air moves; default attack optional; velocities -1/0/1",
+  "callbacks_instrumented": true,
+  "native_bound": false,
+  "motu_gameplay_proven": false
+}

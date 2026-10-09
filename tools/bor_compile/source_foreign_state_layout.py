@@ -42,6 +42,7 @@ def layout(base,size,entities=128,players=4):
            ('pain_services_controls',24,'pain helper through real special continuation and fresh inpain cleanup'),
            ('player_early_controls',32,'entry checks, rush expiry and ordered preinput/charge/pain dispatch'),
            ('player_fall_controls',24,'canonical player falling input and landing marker'),
+           ('player_jump_controls',32,'default zero-air-control jump attack and real frame continuation'),
            ('player_state_controls',64,'module-tail lifetime lease and exact integer row access')]
     cursor=base;regions=[]
     for name,count,authority in specs:

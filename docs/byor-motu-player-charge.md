@@ -10,5 +10,5 @@ are held, and preserves fresh callback mutations when canceling charge. The
 private fixture supplies actor/input mutations and resource leases; production
 player dispatch and complete MOTU gameplay remain unbound.
 
-The controller address plan uses 5816 of 6400 bytes, leaving 584. This plan is
+The controller address plan uses 5848 of 6400 bytes, leaving 552. This plan is
 not a production canvas lease. No bank-0 code or color reduction is introduced.
