@@ -1,0 +1,17 @@
+{
+  "schema": "BYOR_ENT_UNLINK_RECEIPT_V1",
+  "status": "PASS",
+  "cases": 63,
+  "source_C_cases": 52,
+  "guard_cases": 11,
+  "proof_path": "out/byor-motu-ent-unlink-canonical-native/report.json",
+  "proof_sha256": "6adcc8bd16d2574637045833bf2c8628cde374ea11b5f99c69fdb85ef8a245a6",
+  "rom_sha256": "13df098ffc3ea86dda6519d7c805a40bb160d210dcc95704f931c17c8abf0b85",
+  "source_function_sha256": "f2ecafca5e8d99be35eaae7045cdd144ab99e5eeccba5f918a882e7ee471502b",
+  "self_link_domain_rejected": true,
+  "common_damage_tail_bound": false,
+  "pain_fall_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

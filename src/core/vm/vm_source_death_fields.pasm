@@ -1,6 +1,6 @@
 ; B638 optional copied death modeldata. A=physical slot, X=current model.
 ; View tail +72 score int32/+76 diesound int32. Relation +56 model/+58 B638
-; owns that extension; +60 source item pointer (calloc NULL at fresh birth).
+; owns that extension; +60 cached item model index (calloc zero at fresh birth).
 ; Copy preserves item on model changes. No item/death/boss service is hidden.
 ; B4DF score rows; diesound is copied from current mutable cached model +76.
 SourceDeathFields4086_Ready = $7EFF5A
