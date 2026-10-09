@@ -1,0 +1,275 @@
+{
+  "schema": "BYOR_MOTU_DAMAGE_TAIL_SOURCE_AUTHORITY_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": {
+    "model_policy": {
+      "path": "out\\byor-motu-damage-tail-loader-closed-authority\\report.json",
+      "sha256": "61900c2e0f4d291856654ac3ffe2c3c7efb21e005a8c678d60d00bccdce15390",
+      "cases": 217
+    },
+    "damage_tail": {
+      "path": "out\\byor-motu-damage-tail-authority\\report.json",
+      "sha256": "12488ecde8ac6a243afcac3534bab7d1c43d633d128fa1cc680dc2f1a707b7b5",
+      "cases": 2008
+    },
+    "set_fall": {
+      "path": "out\\byor-motu-set-fall-authority\\report.json",
+      "sha256": "de31f3252507e05fe1dac8f2846de13233f0ba6154a5bd8c07fff34d5001573c",
+      "cases": 768
+    }
+  },
+  "tail_constants": {
+    "GAME_SPEED": "#define     GAME_SPEED          200",
+    "GRAB_STALL": "#define\t\tGRAB_STALL\t\t\t(GAME_SPEED * 8 / 10)",
+    "PIT_DEPTH": "#define\t\tPIT_DEPTH\t\t\t-250"
+  },
+  "tail_sha256": "d5132f142e9fecbcf98d4d77bd8bdf232d76eb48dd38343e5906bdec56e5df8e",
+  "set_fall_sha256": "df045c4042177ffc03f16e69f939d1baa6954ec5d2a258d20af2cc7f2d351f8e",
+  "model_policy": {
+    "schema": "BYOR_COMMON_DAMAGE_TAIL_MODEL_POLICY_V1",
+    "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "models": [
+      {
+        "id": 0,
+        "identity": "Shock",
+        "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 1,
+        "identity": "Slash",
+        "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 2,
+        "identity": "Spark",
+        "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 3,
+        "identity": "He_Man",
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 3,
+          "weaploss_model": 0
+        },
+        "declarations": [
+          {
+            "source_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT",
+            "line": 15,
+            "directive": "weaploss",
+            "values": [
+              "3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "identity": "He_ManB",
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 3,
+          "weaploss_model": 0
+        },
+        "declarations": [
+          {
+            "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+            "line": 15,
+            "directive": "weaploss",
+            "values": [
+              "3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "identity": "HBreath",
+        "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 6,
+        "identity": "HWWind",
+        "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 7,
+        "identity": "ShWave",
+        "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 8,
+        "identity": "Skeletor",
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 9,
+        "identity": "GeyserN",
+        "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 10,
+        "identity": "SkFBall",
+        "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 11,
+        "identity": "SkGeyser",
+        "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 12,
+        "identity": "SkGeyserT",
+        "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 13,
+        "identity": "SkTorn",
+        "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 14,
+        "identity": "Knightbot",
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      },
+      {
+        "id": 15,
+        "identity": "ShockBall",
+        "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807",
+        "fields": {
+          "falldie": 0,
+          "escapehits": 0,
+          "nopain": 0,
+          "weaploss_type": 0,
+          "weaploss_model": -1
+        },
+        "declarations": []
+      }
+    ],
+    "source_authority_sha256": {
+      "calloc": "888f32e63dc56cb89eaafc6b00e747dc1ed5f2fa5a99e226b2e31a280b46299e",
+      "defaults": "b62112be23cc474340e47033513ba68235cdc036fa4bf95f1eb86ea86a1b9bdc",
+      "loader_blocks": "eda04466bc3e9b91cfaba9cb5b98269f6c163bbae9ff13de8033f4d4f30f3fd6",
+      "enum": "ebcbd67cc8a11d921c6241841de75f198dfd3a2b971ecc0426914937866b4258",
+      "helpers": "7cf8419385dbacff62156ff8a98106252633648ac71ad7afd9893225e8c38722"
+    },
+    "model_policy_mutators_admitted": false,
+    "native_tail_bound": false,
+    "full_common_takedamage_bound": false,
+    "no_color_reduction": true
+  },
+  "native_tail_bound": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
