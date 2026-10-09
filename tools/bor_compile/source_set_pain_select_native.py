@@ -102,3 +102,99 @@ def emit_begin(work,sy):
     label('Good');put(' ply\n plx\n plp\n clc\n rtl')
     label('Bad');put(f' lda #4\n sta.l {work}+2\n lda #3\n ply\n plx\n plp\n sec\n rtl')
     return '\n'.join(lines)+'\n'
+
+
+def emit_frame_prefix(work,sy):
+    """Issue the retained frame zero once; leave its actual script debt pending."""
+    code=f"""SetPainFrame_Run:
+.a16
+.i16
+ php
+ rep #$39
+ phx
+ phy
+ jsl SetPainBegin_Run
+ bcs SetPainFrame_Bad
+ cmp #1
+ bne SetPainFrame_Bad
+ lda.l {sy['SourceAnimationInit4086_Issued']}
+ cmp #1
+ beq SetPainFrame_Retained
+ cmp #0
+ bne SetPainFrame_Bad
+ jsl {sy['SourceAnimationInit4086_StartFrame']}
+ bcs SetPainFrame_Bad
+SetPainFrame_Retained:
+.a16
+.i16
+ lda.l {sy['SourceUpdateFrame4086_State']}
+ cmp #1
+ bne SetPainFrame_Bad
+ lda.l {sy['SourceUpdateFrame4086_Pending']}
+ cmp #1
+ beq SetPainFrame_PendingValid
+ cmp #2
+ bne SetPainFrame_Bad
+SetPainFrame_PendingValid:
+.a16
+.i16
+ lda.l {sy['SourceUpdateFrame4086_Slot']}
+ cmp.l {work}+4
+ bne SetPainFrame_Bad
+ lda.l {sy['SourceUpdateFrame4086_Handle']}
+ cmp.l {work}+16
+ bne SetPainFrame_Bad
+ lda.l {sy['SourceUpdateFrame4086_Request']}
+ bne SetPainFrame_Bad
+ lda #1
+ ply
+ plx
+ plp
+ clc
+ rtl
+SetPainFrame_Bad:
+.a16
+.i16
+ lda #3
+ ply
+ plx
+ plp
+ sec
+ rtl
+"""
+    serial=0
+    import re
+    def relax(m):
+        nonlocal serial
+        serial+=1;l='SetPainFrame_Guard'+str(serial)
+        return ' '+dict(bcs='bcc',bne='beq')[m[1]]+' '+l+'\n jmp SetPainFrame_Bad\n'+l+':\n.a16\n.i16'
+    return re.sub(r'^ (bcs|bne) SetPainFrame_Bad$',relax,code,flags=re.M)
+
+
+def emit_frame_owner(sy):
+    """Execute real callbacks/effects; return external tickets without Ack."""
+    return f"""SetPainFrameOwner_Run:
+.a16
+.i16
+ php
+ rep #$39
+ phx
+ phy
+ jsl SetPainFrame_Run
+ bcs SetPainFrameOwner_Bad
+ jsl {sy['SourceFrameOwner4086_Run']}
+ bcs SetPainFrameOwner_Bad
+ ply
+ plx
+ plp
+ clc
+ rtl
+SetPainFrameOwner_Bad:
+.a16
+.i16
+ ply
+ plx
+ plp
+ sec
+ rtl
+"""

@@ -1,0 +1,28 @@
+{
+  "schema": "BYOR_SET_PAIN_FRAME_ZERO_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": {
+    "prefix": {
+      "path": "out/byor-motu-set-pain-frame-zero-prefix-native/report.json",
+      "sha256": "b10a3f7c75d010bd42a453c34cef0806c76e04416f8b369c6c30e596ebf87ca3",
+      "rom_sha256": "e7eff63496602b852cce8eec491749206cc93d1e72ce9cd831e1f57f2b179588",
+      "cases": 72
+    },
+    "owner": {
+      "path": "out/byor-motu-set-pain-frame-zero-owner-native/report.json",
+      "sha256": "d81f679ed68b4342b1e8d1a04693e85577385f512de87cbff33b643835b5acea",
+      "rom_sha256": "cc2e0a0e06e826a02a3b02510c24351040aa7bfabfab91502cfb79c61848898a",
+      "cases": 72
+    }
+  },
+  "actual_animation_script": true,
+  "actual_frame_motion": true,
+  "actual_frame_effects": true,
+  "source_sound_ticket": 9,
+  "source_sound_admitted": false,
+  "source_sound_acknowledged": false,
+  "pain_flags_applied": false,
+  "full_damage_callback_bound": false,
+  "new_foreign_arena_bytes": 0,
+  "no_color_reduction": true
+}
