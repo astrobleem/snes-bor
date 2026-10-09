@@ -1,0 +1,13 @@
+{
+  "schema": "BYOR_4086_PLAYER_FALL_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_function_sha256": "fb6c81d9a7115cccabb31a974c842d2d2db5590ed548240dc08d5ac7b741bc48",
+  "literal_function_unmodified": true,
+  "cases": 600,
+  "compared_bytes": 2400,
+  "actual_sha256": "e1a89b45c2b44bfb3fc1de59ea52b6f16e15609f2a61092b346a50a3a3865e94",
+  "expected_sha256": "e1a89b45c2b44bfb3fc1de59ea52b6f16e15609f2a61092b346a50a3a3865e94",
+  "native_bound": false,
+  "motu_gameplay_proven": false
+}

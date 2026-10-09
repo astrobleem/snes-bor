@@ -1,0 +1,16 @@
+{
+  "schema": "BYOR_4086_PLAYER_FALL_NATIVE_V1",
+  "status": "PASS",
+  "cases": 1298,
+  "guards": 14,
+  "observed": 1298,
+  "errors": [],
+  "rom_sha256": "9966757b4e70d6e56fc319d562d57a7fcd748ae467ed783405c027c9ba930149",
+  "peak_master_clocks": 20554,
+  "autoland_context_instrumented": true,
+  "native_marker_bound": true,
+  "active_gravity_or_landing_bound": false,
+  "full_player_think_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
