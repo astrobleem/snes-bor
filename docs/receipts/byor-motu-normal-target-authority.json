@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_NORMAL_TARGET_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_bodies_unmodified": true,
+  "literal_body_sha256": {
+    "diff": "b938b8d54b575d3b3b8f9cec0565799b3dea942d1f0be528efdc8990773a277b",
+    "normal_find_target": "c37f9e9bbecbd3de83369b58b62e7c5e2c3391fbcd86b143144029cd81415ab0"
+  },
+  "literal_range_macro_sha256": "c392fb963c9e8ec7def14e6b50c59084ad1c087ccdcae47efda3805b042b1852",
+  "cases": 9610,
+  "exact_integral_cases": 5766,
+  "accepted_compat_differences": [
+    {
+      "index": 9606,
+      "handle": 0,
+      "source": 2,
+      "q16": 3
+    },
+    {
+      "index": 9607,
+      "handle": 0,
+      "source": 2,
+      "q16": 3
+    }
+  ],
+  "actual_sha256": "21dbcc90f1de1211a2c1808ef96481ebec0019fcd69f28bd065571a4fe65fd84",
+  "adapted_sha256": "734ae586de93b398ef341bc91840f835f3bc95b16f537075fe9363b961b881d6",
+  "numeric_policy": "EXISTING_Q16_16_ACCEPTED_COMPAT",
+  "native_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

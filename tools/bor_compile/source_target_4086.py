@@ -34,6 +34,8 @@ class Target:
     vulnerable: bool = True
     detect: int = 0
     hide: int = 0
+    y: int = 0
+    base: int = 0
 
 
 def metadata(row):
@@ -60,6 +62,23 @@ def order_table(indices):
 
 
 def find(rows, token, order=None, scan_count=None):
+    return _find(rows,token,order,scan_count,None,0,True)
+
+
+def normal_find(rows,token,ranges=None,detect_adjustment=0,order=None,scan_count=None):
+    """Actual normal_find_target policy, including ranged and retired-self calls.
+
+    Geometry remains the explicit Q16.16 adaptation. A caller supplies the
+    selected current animation's immutable/mutable range tuple; no guessed
+    default animation or cached birth-model range is substituted here.
+    """
+    if not -2147483648<=detect_adjustment<=2147483647:raise ValueError('SOURCE_TARGET_DETECT_ADJUSTMENT_DOMAIN')
+    if ranges is not None and(len(ranges)!=8 or any(not isinstance(n,int)or not -32768<=n<=32767 for n in ranges)):
+        raise ValueError('SOURCE_TARGET_ANIMATION_RANGE_DOMAIN')
+    return _find(rows,token,order,scan_count,ranges,detect_adjustment,False)
+
+
+def _find(rows,token,order,scan_count,ranges,detect_adjustment,require_live_self):
     if not token: return None
     if (not 1 <= len(rows) <= CAPACITY or len({r.token for r in rows}) != len(rows)
             or any(not 0 < r.token <= 0xffffffff for r in rows)):
@@ -70,14 +89,21 @@ def find(rows, token, order=None, scan_count=None):
     order_table(order)
     scan_count = len(rows) if scan_count is None else scan_count
     if not 0 <= scan_count <= len(rows): raise ValueError('SOURCE_TARGET_SCAN_COUNT')
-    self = next((r for r in rows if r.token == token and r.alive), None)
+    self = next((r for r in rows if r.token == token and (r.alive or not require_live_self)), None)
     if self is None: raise ValueError('SOURCE_TARGET_STALE_SELF')
+    detect=self.detect+detect_adjustment
+    if not -2147483648<=detect<=2147483647:raise ValueError('SOURCE_TARGET_DETECT_SIGNED_OVERFLOW')
+    if ranges is not None:
+        from source_check_range_4086 import check
+        if any(not -2147483648<=n<=2147483647 for r in rows for n in(r.y,r.base)):
+            raise ValueError('SOURCE_TARGET_RANGE_COORDINATE_DOMAIN')
     selected = None; distance = 0
     for index in order[:scan_count]:
         row = rows[index]
         diff = abs(row.x - self.x) + abs(row.z - self.z)
-        if not (row.alive and row.token != token and row.type & self.hostile and not row.dead
-                and diff <= 9999 * 65536 and row.hide <= self.detect):
+        if not (row.alive and row.token != token and row.type & self.hostile
+                and (ranges is None or check(ranges,[self.x,self.z,self.y,self.base],[row.x,row.z,row.y,row.base],self.direction))
+                and not row.dead and diff <= 9999 * 65536 and row.hide <= detect):
             continue
         if (selected is None or not selected.vulnerable or selected.invincible == 1
                 or ((self.x < row.x) == (self.direction == 1) and diff < distance)):
