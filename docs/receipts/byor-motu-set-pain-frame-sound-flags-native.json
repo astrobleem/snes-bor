@@ -1,0 +1,60 @@
+{
+  "schema": "BYOR_SET_PAIN_FRAME_SOUND_FLAGS_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": {
+    "byor-motu-set-pain-source-sound-disjoint-native": {
+      "path": "out/byor-motu-set-pain-source-sound-disjoint-native/report.json",
+      "sha256": "c89f94da1f47c1fbdee62188c99fa5ad9d7a308f6314b13b0282171246d6aae8",
+      "ROM_sha256": "b836504fe0c48be121afebc1a710c3534f8f30cac7443c7ea953c32065b7fd54",
+      "cases": 72,
+      "schema": "BYOR_SET_PAIN_FRAME_SOUND_ADMISSION_NATIVE_V1"
+    },
+    "byor-motu-set-pain-flags-observed-native": {
+      "path": "out/byor-motu-set-pain-flags-observed-native/report.json",
+      "sha256": "76059a3b63181fabab61bf7451aaf7509b82a46b2489ec1be25cd8daeecef0db",
+      "ROM_sha256": "afc026842284d6a354db9e97c329a8ad299b22cf04b36b8f47a7dccf461e6764",
+      "cases": 72,
+      "schema": "BYOR_SET_PAIN_FLAGS_AFTER_FRAME_NATIVE_V1"
+    }
+  },
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_update_frame_sha256": "6541a8003ab410b3fcb07e6ada5c1483a0cf443e9cab06a8891971e60c8ccc5d",
+  "source_set_pain_sha256": "08e0b5c7f6d695f7a8c8adf04b5ba3e60e56e11a706423f37e2a21fce0a62275",
+  "source_painflags_sha256": "1c59ef63417a546f4afc5a0a567e7aee16e8405c0b8a615fa53bc820b3875b6d",
+  "source_unfrozen_sha256": "042b6010be536f964e567e84482e16599b1bba253ebbb6789e79522970dba800",
+  "native_source_sound_admission": true,
+  "source_frame_effect_ACK": true,
+  "source_frame_completion": true,
+  "animation_initializer_ACK": true,
+  "source_painflags_once_under_retry": true,
+  "unconditional_frozen_and_deadline_clear": true,
+  "colourmap_restore_only_if_frozen_truth": true,
+  "source_GRABBED_rule_uses_requested_role": true,
+  "private_source_sound_controls": [
+    4272128,
+    4272192
+  ],
+  "private_logical_channels": [
+    4272384,
+    4272864
+  ],
+  "private_PCM_descriptors": [
+    4272864,
+    4272960
+  ],
+  "source_backend_period": 4096,
+  "source_backend_gains": [
+    64,
+    64
+  ],
+  "production_SPC_consumption_in_frame_proof": false,
+  "onpain_bound": false,
+  "full_set_pain": false,
+  "full_damage_callback_bound": false,
+  "production_memory_lease": false,
+  "bank0_byte_identical": true,
+  "new_foreign_arena_bytes": 0,
+  "no_color_reduction": true,
+  "no_PCM_files_copied": true,
+  "motu_gameplay_proven": false
+}
