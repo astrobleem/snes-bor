@@ -1,16 +1,17 @@
 """Serialized ground services; caller executes requested real frame owners.
 
-Idle and a registered common_turn action require separate owners. Every request
-for either rejects explicitly; no missing service is acknowledged as a no-op.
+Idle requires the optional ordinary common-idle owner. A registered common_turn
+action is still required. Missing services reject explicitly.
 """
 import re
 from source_animation_ids import role_id
 
 
-def emit(work,ground,binding,empty,configuration,symbols):
+def emit(work,ground,binding,empty,configuration,symbols,idle_work=None):
     if configuration['limits']['max_walks']!=1:
         raise ValueError('GROUND_SERVICES_WALK_SERIES_OWNER_REQUIRED')
     extents=((work,32),(ground,128),(binding,32),(empty,24))
+    if idle_work is not None:extents+=((idle_work,24),)
     for i,(a,n)in enumerate(extents):
         if not 0<=a<=0x1000000-n:raise ValueError('GROUND_SERVICES_EXTENT')
         if any(a<b+m and b<a+n for b,m in extents[i+1:]):raise ValueError('GROUND_SERVICES_OVERLAP')
@@ -32,6 +33,9 @@ def emit(work,ground,binding,empty,configuration,symbols):
         else:
             put(f' lda.l {work}+2\n cmp #3');branch('bne','Bad')
             put(' jsl SourceAnimationInit4086_Ack');branch('bcs','Bad')
+            if idle_work is not None:
+                put(f' lda.l {ground}+90\n cmp #7');branch('bne','FinishNotIdle')
+                put(' jsl SourceCommonIdle_Finish');branch('bcs','Bad');label('FinishNotIdle')
             put(' jmp GroundServices_ServiceReturned')
     label('Drive');put(f' lda #1\n sta.l {work}+2\n lda.l {ground}+2\n cmp #2');branch('beq','Complete')
     put(' cmp #5');branch('beq','Query')
@@ -42,11 +46,16 @@ def emit(work,ground,binding,empty,configuration,symbols):
     put(f' lda.l {ground}+90\n cmp #1');branch('beq','SetAnimation')
     for service,role in ((3,'walk'),(4,'backwalk'),(5,'up'),(6,'down')):
         put(f' cmp #{service}');branch('beq','Walk_'+role)
+    if idle_work is not None:
+        put(' cmp #7');branch('beq','Idle')
     put(' jmp GroundServices_Bad')  # common_idle_anim is not set_idle.
     for service,role in ((3,'walk'),(4,'backwalk'),(5,'up'),(6,'down')):
         label('Walk_'+role)
         put(f' lda #{role_id(configuration,role)}\n sta.l SourceAnimationInit4086_Number\n lda.l {binding}+4\n sta.l SourceDefaultPlayer4086_Slot\n jsl SourceWalk4086_BeginDefaultOnly')
         branch('bcs','Bad');put(' jmp GroundServices_AnimationResult')
+    if idle_work is not None:
+        label('Idle');put(f' lda.l {binding}+4\n sta.l {idle_work}+4\n jsl SourceCommonIdle_Begin');branch('bcs','Bad')
+        put(' jmp GroundServices_AnimationResult')
     label('SetAnimation');put(' jsr GroundServices_SetRole');branch('bcs','Bad')
     put(' jsl SourceAnimationInit4086_Begin');branch('bcs','Bad')
     label('AnimationResult');put(' lda.l SourceAnimationInit4086_State\n cmp #1');branch('beq','Pending')

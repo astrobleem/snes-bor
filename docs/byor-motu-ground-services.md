@@ -21,19 +21,28 @@ actual frame/effect owner, then calls FinishFrame, which acknowledges that
 frame through the actual animation owner and resumes ground execution.
 Requests are serialized. Failure sets state 4 and carry.
 
-Common idle is intentionally a separate required service: source ground calls
-common_idle_anim, whose flag behavior differs from set_idle. A request for it
-fails explicitly. TURN also requires a registered native action before its
+Common idle uses an optional separate owner: source ground calls
+common_idle_anim, whose flag behavior differs from set_idle. A request without
+that owner fails explicitly. The B680 owner preserves other flags, ORs idling
+with two when it is nonzero, and stops X/Z velocity according to the current
+model pointer's cached type. It does not substitute the entity's copied type.
+It requires the closed ordinary subtype/idle-series capability and executes
+the real animation initializer and frame owner. TURN requires a registered native action before its
 snapshot wire value can be published. All authored MOTU models lack TURN; the
 live validity query still determines the path. No missing service is silently
 acknowledged.
 
 The isolated callback proof uses native constructor state clearing, fresh model
 copy, RUN tuple birth capture, authored SELECT completion, canonical ground
-capture/publication and real WALK frame-zero execution. Its input and level
+capture/publication and real WALK/IDLE frame-zero execution. Its input and level
 context and foreign root installation are instrumented. It does not prove the
 full earlier player_think gates, production dispatcher, live graphics, stage
 traversal or MOTU completion. Sound tickets remain the callback fixture's
 explicit external service boundary.
+
+The prefix observer additionally mutates copied type, signed idling, other
+flags and velocities at the common-idle entry, then checks the exact prefix
+before animation initialization. These are explicit fixture mutations, not
+authored gameplay or proof of the earlier player controller gates.
 
 No production assembly or bank 0 is changed. No color reduction is applied.

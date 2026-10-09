@@ -194,7 +194,7 @@ def main():
         if a.ground_walk:
             from source_player_run_4086 import KEYS
             rows=[dict(f=0,direction=d,default=default,fault=0,ground_keys=mask)for d in (0,1)
-                  for mask in (KEYS['moveleft']if d==0 else KEYS['moveright'],KEYS['moveup'],KEYS['movedown'],
+                  for mask in (0,KEYS['moveleft']if d==0 else KEYS['moveright'],KEYS['moveup'],KEYS['movedown'],
                                (KEYS['moveleft']if d==0 else KEYS['moveright'])|KEYS['moveup'])]
     if a.common_spawn:
         previous_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity'] and h['role']!='idle')
@@ -540,11 +540,14 @@ CallbackFixture_AfterScript:
         from source_player_ground_binding import emit as emit_ground_binding
         from source_find_here_empty_native import emit as emit_empty
         from source_player_ground_services import emit as emit_ground_services
+        from source_common_idle_native import emit as emit_common_idle
         gr=run_regions;g=gr['ground_controls'];b=gr['ground_binding_controls'];e=gr['find_here_empty_controls']
         # This serialized proof control is an explicit private lease, not a root allocation.
         service_work=gr['ground_services_controls']
+        common_idle_work=gr['common_idle_controls']
         asm+=emit_ground(g)+emit_ground_binding(b,g,player_state_work,run_work,run_handles,model_core_inputs(source)['models'],run_tuple_report,sy)
-        asm+=emit_empty(e,sy)+emit_ground_services(service_work,g,b,e,config,sy)
+        asm+=emit_empty(e,sy)+emit_common_idle(common_idle_work,default_idle_capability(animation_identities(source),model_core_inputs(source)),sy)
+        asm+=emit_ground_services(service_work,g,b,e,config,sy,idle_work=common_idle_work)
         needle='CallbackFixture_ResultPublished:\n.a16\n.i16\n nop'
         if needle not in asm:raise ValueError('GROUND_WALK_CONSTRUCTOR_RESULT_GATE')
         asm=asm.replace(needle,needle+'''
@@ -969,8 +972,9 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         prepare=fs['CallbackFixture_GroundPrepare'];done=fs['CallbackFixture_GroundDone']
         lua+=f'''emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1]
- for _,r in ipairs({{{{{g},128}},{{{b},32}},{{{e},24}},{{{service_work},32}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
+ for _,r in ipairs({{{{{g},128}},{{{b},32}},{{{e},24}},{{{service_work},32}},{{{common_idle_work},24}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
  put({g},0xb679,2);put({b},0xb67c,2);put({e},0xb67d,2);put({service_work},0xb67e,2)
+ put({common_idle_work},0xb680,2);put(0x43eb00,1,4)
  put({g}+16,c.ground_keys,4);put({g}+20,1,2);put({g}+22,1,2);put({g}+40,48,4)
  set('SourceDefaultPlayer4086_Ready',0xb503);set('SourceDefaultPlayer4086_Status',0)
  set('SourceLifecycle4086_Ready',0xb4fb);set('SourceLifecycle4086_Status',2)
@@ -978,6 +982,16 @@ end,emu.callbackType.exec,{prepare},{prepare},emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  emu.log('GROUNDWALK|'..word(INDEX)..'|'..word({service_work}+2)..'|'..word({g}+2)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..dw(0x43900c)..'|'..dw(0x43eb00)..'|'..word(sy.SourceAnimationInit4086_Number)..'|'..word(sy.SourceAnimationInit4086_State)..'|'..word(sy.SourceUpdateFrame4086_State))
 end,emu.callbackType.exec,{done},{done},emu.cpuType.snes,mt)
+'''
+        lua+=f'''emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];if c.ground_keys~=0 then return end
+ put(0x40c048,c.direction,4);put(0x43eb00,-4,4);put(0x40c058,-5,4)
+ put(0x43eb04,7,4);put(0x43eb08,3,4);put(0x43eb0c,-1,4)
+ put(0x416824,9*65536,4);put(0x416828,-7*65536,4)
+end,emu.callbackType.exec,{fs['SourceCommonIdle_Begin']},{fs['SourceCommonIdle_Begin']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('COMMONIDLEPREFIX|'..word(INDEX)..'|'..dw(0x43eb00)..'|'..dw(0x40c058)..'|'..dw(0x43eb04)..'|'..dw(0x43eb08)..'|'..dw(0x43eb0c)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..dw(0x40c048))
+end,emu.callbackType.exec,{fs['SourceCommonIdle_Animate']},{fs['SourceCommonIdle_Animate']},emu.cpuType.snes,mt)
 '''
     if a.freeze_state:
         address=sy['SourceCtorState4086_FreezeBirthDone']
@@ -1177,10 +1191,14 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         ground_results=[list(map(int,line.split('GROUNDWALK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'GROUNDWALK|'in line]
         walk_id=role_id(config,'walk');speed=project_q16(struct.unpack('<I',struct.pack('<f',model_core_inputs(source)['models'][default]['fields']['speed']))[0])
         expected=[[i,2,2,(-speed if c['ground_keys']&KEYS['moveleft']else speed if c['ground_keys']&KEYS['moveright']else 0)&0xffffffff,
-                   (-speed//2 if c['ground_keys']&KEYS['moveup']else speed//2 if c['ground_keys']&KEYS['movedown']else 0)&0xffffffff,0,1,walk_id,2,2]for i,c in enumerate(rows)]
+                   (-speed//2 if c['ground_keys']&KEYS['moveup']else speed//2 if c['ground_keys']&KEYS['movedown']else 0)&0xffffffff,
+                   0,1 if c['ground_keys']else 0xfffffffe,walk_id if c['ground_keys']else role_id(config,'idle'),2,2]for i,c in enumerate(rows)]
         reporter.check('actual constructor RUN/state feeds ground movement, live item type scan and real WALK frame owner',ground_results==expected)
+        prefix_results=[list(map(int,line.split('COMMONIDLEPREFIX|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'COMMONIDLEPREFIX|'in line]
+        prefix_expected=[[i,0xfffffffe,0xfffffffb,7,3,0xffffffff,0,0,c['direction']]for i,c in enumerate(rows)if not c['ground_keys']]
+        reporter.check('common idle keeps other flags and signed idling; model-pointer cached type controls velocity independently of copied type',prefix_results==prefix_expected)
         r.update(canonical_ground_walk_bound=True,ground_walk_results=ground_results,ground_services_frame_callbacks_real=True,
-                 ground_level_and_input_context_instrumented=True,production_full_player_think_bound=False)
+                 ground_level_and_input_context_instrumented=True,common_idle_prefix_results=prefix_results,common_idle_prefix_input_mutations_instrumented=True,production_full_player_think_bound=False)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     if a.damage_state_birth:
         damage_birth_results=[list(map(int,line.split('CTORDAMAGE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORDAMAGE|'in line]

@@ -2,8 +2,8 @@
   "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
   "base": 8364032,
   "bytes": 6400,
-  "used_bytes": 5320,
-  "remaining_bytes": 1080,
+  "used_bytes": 5344,
+  "remaining_bytes": 1056,
   "entities": 128,
   "players": 4,
   "regions": [
@@ -141,10 +141,17 @@
       "authority": "serialized ground queries/search and real animation continuation"
     },
     {
-      "name": "player_state_controls",
+      "name": "common_idle_controls",
       "address": 8369288,
+      "bytes": 24,
+      "end": 8369312,
+      "authority": "ordinary common_idle_anim prefix and real frame continuation"
+    },
+    {
+      "name": "player_state_controls",
+      "address": 8369312,
       "bytes": 64,
-      "end": 8369352,
+      "end": 8369376,
       "authority": "module-tail lifetime lease and exact integer row access"
     }
   ],
