@@ -20,7 +20,7 @@ def derive(source):
                 renderer_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
 
 
-def emit(report,styles,symbols,effects_report=None):
+def emit(report,styles,symbols,effects_report=None,code_bank=39):
     from source_foreign_state_layout import layout
     arena=layout(symbols['SOURCE_FOREIGN_WORK_BASE'],symbols['SOURCE_FOREIGN_WORK_BYTES'])
     if styles!=next(r['address']for r in arena['regions']if r['name']=='entity_combostyle'):
@@ -244,6 +244,7 @@ ModelScalarService_Alpha:
  lda.l SourceModelTransition4086_New
  sta.l $7EF116,x
 '''
+        effect=effect.replace('ModelScalarService_EffectGuard+2,x',f'ModelScalarService_EffectGuard+{(code_bank<<16)+2},x')
         code=code.replace(anchor,effect.replace('EFFECTCOUNT',str(count))+anchor)
         code+='ModelScalarService_EffectGuard:\n .dw '+','.join(str(v)for g in guards for v in(g&65535,(g>>16)&65535))+'\n'
     serial=[0]

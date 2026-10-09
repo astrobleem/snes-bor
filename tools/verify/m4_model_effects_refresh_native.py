@@ -8,9 +8,12 @@ from source_damage_inputs_4086 import derive
 
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--synthetic-guard-words',action='store_true')
  for k in ('rom','output'):p.add_argument('--'+k,type=Path,required=True)
  a=p.parse_args();a.output=a.output.resolve();effects=derive(Source(a.source));original=parent.run_fixture;emit=parent.emit
+ if a.synthetic_guard_words:
+  values=(0,1,65535,65536,-1,-65536,-2147483648,2147483647)
+  for i,m in enumerate(effects['models']):m['fields']['guardpoints']=values[i%len(values)]
  def fixture(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw):
   for c in rows:c['guard']=effects['models'][c['model']]['fields']['guardpoints']
   rows.extend(dict(rows[0],slot=s,bad=bad,fault=1)for s in(0,1,127)for bad in('effect_ready','effect_marker','effect_owner','effect_old'))
@@ -34,7 +37,7 @@ def main():
   try:parent.main()
   except SystemExit as e:
    if e.code not in(None,0):raise
- path=a.output/'report.json';r=json.loads(path.read_text());r.update(schema='BYOR_MODEL_EFFECTS_REFRESH_NATIVE_V1',damage_effect_model_refresh=True,damage_effect_dynamics_retained=True,damage_counters_and_toexplode_retained=True,damage_inputs=effects);path.write_text(json.dumps(r,indent=2)+'\n')
+ path=a.output/'report.json';r=json.loads(path.read_text());r.update(schema='BYOR_MODEL_EFFECTS_REFRESH_NATIVE_V1',synthetic_guard_word_fixture=a.synthetic_guard_words,damage_effect_model_refresh=True,damage_effect_dynamics_retained=True,damage_counters_and_toexplode_retained=True,damage_inputs=effects);path.write_text(json.dumps(r,indent=2)+'\n')
 
 
 if __name__=='__main__':main()

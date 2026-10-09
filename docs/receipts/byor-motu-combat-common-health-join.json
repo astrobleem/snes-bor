@@ -1,0 +1,28 @@
+{
+  "schema": "BYOR_COMBAT_COMMON_HEALTH_JOIN_RECEIPT_V1",
+  "status": "PASS",
+  "cases": 412,
+  "health_calls": 388,
+  "synthetic_guard_word_cases": 136,
+  "source_enemy_models": [
+    8,
+    14
+  ],
+  "source_enemy_types_and_attack_masks_installed_by_fixture": true,
+  "authored_combat_scene": false,
+  "full_damage_callback_bound": false,
+  "player_damage_filter_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "proofs": [
+    {
+      "path": "out/byor-motu-combat-enemy-health-join-native/report.json",
+      "sha256": "414d0f210ae27f5d597327efaad21e78fdc6dabf34bf02a3b520768e9eeb6110"
+    },
+    {
+      "path": "out/byor-motu-model-effects-guard-words-native/report.json",
+      "sha256": "a47d91b1e628a32202e9d268f2c63487c0fcd1fa2c0aa9efc23872c2ba104497"
+    }
+  ]
+}
