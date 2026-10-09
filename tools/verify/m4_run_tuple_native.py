@@ -9,7 +9,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_compile'))
 from compiler import Source
 from source_model_core_4086 import derive as cores, CACHED_FIELDS, FLOAT_FIELDS
 from source_run_tuple_profile import derive, pack
-from source_run_tuple_native import emit
+from source_run_tuple_native import emit,emit_entity_copy_bridge
 from actor_s5_entity_fixture import symbols
 from m4_animation_init_native import luav
 from _source_leaf_fixture import run_fixture
@@ -106,7 +106,10 @@ for _,a in ipairs({COPYRETURN,INHERITRETURN})do emu.addMemoryCallback(function()
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ('source','rom','output'):p.add_argument('--'+k,type=Path,required=True)
+    p.add_argument('--entity-copy-hook',action='store_true',help='Invoke the real copier through its byte-checked RUN snapshot bridge.')
+    p.add_argument('--disabled-copy-hook',action='store_true',help='Prove Ready=0 delegates to the original copier and leaves RUN handles/control state unchanged.')
     a=p.parse_args();source=Source(a.source);r=derive(source);core=cores(source)
+    if a.disabled_copy_hook and not a.entity_copy_hook:raise ValueError('DISABLED_COPY_REQUIRES_HOOK')
     cache=b''.join(b''.join(struct.pack('<f'if f in FLOAT_FIELDS else'<i',m['fields'][f])for f in CACHED_FIELDS)+struct.pack('<i',m['fields']['type'])for m in core['models'])
     inherited=r['tuples'][r['models'][3]['initial_tuple']-1]
     rows=[dict(model=m['id'],slot=slot,handle=m['initial_tuple'],raw=r['tuples'][m['initial_tuple']-1],inherited=inherited,bad='',fault=0)
@@ -124,18 +127,37 @@ def main():
     import re
     for k,v in dict(WORK=WORK,HANDLES=HANDLES,CACHE=luav(cache.hex()),OPTIONAL=luav(names)).items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     asm=ASM.replace('INHERIT',str(sy['SourceModelCachedCopy4086_Apply']))+emit(WORK,HANDLES,r,sy)
+    transform=None
+    if a.entity_copy_hook:
+        rows=[c for c in rows if c['bad']!='ready']
+        # These inputs now belong to the actual public copier, rather than a
+        # caller invoking SourceRunTuple_Copy explicitly.
+        lua=lua.replace(' baseline=snap();'," set('SourceModelEntityCopy4086_Slot',c.bad=='slot'and 128 or c.slot);set('SourceModelEntityCopy4086_Model',c.bad=='model'and 16 or c.model)\n baseline=snap();")
+        asm=ASM.replace('INHERIT',str(sy['SourceModelCachedCopy4086_Apply'])).replace(' jsl SourceRunTuple_Copy',' jsl '+str(sy['SourceModelEntityCopy4086_Apply']))+emit(WORK,HANDLES,r,sy,copy_entry='SourceRunTuple_EntityCopyOriginal')+emit_entity_copy_bridge(WORK,sy)
+        def transform(raw,all_symbols):
+            from m4_input_controller_native import offset
+            at=offset(sy['SourceModelEntityCopy4086_Apply'])
+            if raw[at:at+5]!=bytes.fromhex('08 c2 38 da 5a'):raise ValueError('RUN_ENTITY_COPY_BRIDGE_PROLOGUE')
+            raw[at:at+5]=b'\x5c'+struct.pack('<I',all_symbols['SourceRunTuple_EntityCopyBridge'])[:3]+b'\xea'
+        if a.disabled_copy_hook:
+            rows=[dict(c,handle=0xa5a5,raw='00'*20)for c in rows if not c['fault']or c['bad']in('slot','model','world','owner','health')]
+            lua=lua.replace(' baseline=snap();'," put("+str(WORK)+",0)\n baseline=snap();")
+            lua='local disabledBefore={}\n'+lua
+            lua=lua.replace(' baseline=snap();',' disabledBefore={};for j=0,63 do disabledBefore[j]=emu.read('+str(WORK)+'+j,mt)end\n baseline=snap();')
+            lua=lua.replace('local errors=0','local errors=0;for j,value in pairs(disabledBefore)do if emu.read('+str(WORK)+'+j,mt)~=value then errors=errors+1 end end')
+            asm=asm.replace(' jsl SourceRunTuple_Read',' lda #0')
     reporter=Reporter('M4-RUN-TUPLE-SNAPSHOT',kind='GATE');folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     raw,log=run_fixture(a.rom,folder,rows,'TupleProbe','SourceModelEntityCopy4086_Ready',0xb4eb,[],lua,reporter,
                         append=asm,probes=dict(INHERITPOINT='TupleProbe_Inherit',BEFOREREAD='TupleProbe_BeforeRead',FAULT='SourceRunTuple_Fault',COPYRETURN='TupleProbe_Copied',INHERITRETURN='TupleProbe_Inherited'),
-                        batch_size=2,frame_limit=600,link_pcm=False)
+                        batch_size=2,frame_limit=600,link_pcm=False,rom_transform=transform)
     actual=[list(map(int,line.split('RUNTUPLE|')[1].split('|')))for line in log.splitlines()if 'RUNTUPLE|'in line]
-    errors=[dict(case=i,input=rows[i],actual=v)for i,v in enumerate(actual)if v[:4]!=[i,3 if rows[i]['fault']else 2,0,0]]
+    errors=[dict(case=i,input=rows[i],actual=v)for i,v in enumerate(actual)if v[:4]!=[i,0 if a.disabled_copy_hook else 3 if rows[i]['fault']else 2,0,0]]
     reporter.check('real model-data copy, actual cached inheritance, stable exact RUN snapshot and sibling/CPU/guard retention',len(actual)==len(rows)and not errors)
     report=dict(schema='BYOR_4086_RUN_TUPLE_NATIVE_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',
-                cases=len(rows),guards=9,errors=errors[:10],rom_sha256=hashlib.sha256(raw).hexdigest(),
+                cases=len(rows),guards=sum(c['fault']for c in rows),errors=errors[:10],rom_sha256=hashlib.sha256(raw).hexdigest(),
                 table_sha256=hashlib.sha256(pack(r)).hexdigest(),tuple_count=r['tuple_count'],entity_handle_bytes=256,
                 actual_model_entity_copy_executed=True,actual_cached_inheritance_executed=True,source_float_bits_preserved=True,
-                production_model_copy_binding=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+                actual_entity_copy_hook_bound=a.entity_copy_hook,disabled_copy_delegation_proven=a.disabled_copy_hook,production_model_copy_binding=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8');reporter.finish()
 
 

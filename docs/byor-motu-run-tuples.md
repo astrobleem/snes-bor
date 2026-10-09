@@ -48,6 +48,25 @@ the earlier zero-initialization boundary; reading the old side model there
 would capture the wrong RUN tuple. The corrected proof observes tuple 2,
 unchanged sibling handles and real authored SELECT completion in both directions.
 
+The actual entity model-data copier now has an opt-in bridge. With the tuple
+capability enabled, it validates the current cached tuple before copying and
+publishes the snapshot only after the real copier succeeds. The native proof
+passes 136 cases across all sixteen models and eight physical slots, including
+eight guards and later shared-cache inheritance. The bridge rejects bad
+input before changing actor rows. It uses the existing snapshot controls.
+
+Ready zero delegates to the original copier. Another 133 cases cover ordinary
+copies and five original copier faults, checking every byte of the 64-byte
+snapshot controls and all 128 handles remains unchanged. Both paths preserve
+CPU context and decimal flags. The original copier prologue is byte-checked
+before the private fixture installs its jump; production assembly is unchanged.
+The prior tuple emitter produces identical text when no hook is requested.
+
+Reproduce with `m4_run_tuple_native.py --entity-copy-hook` and additionally
+`--disabled-copy-hook` for delegation. Bounded receipts are
+`docs/receipts/byor-motu-run-tuple-entity-copy-native.json` and
+`docs/receipts/byor-motu-run-tuple-copy-disabled-native.json`.
+
 The complete production constructor/model-switch owner still must initialize
 and bind this capability under a real foreign workspace lease. The isolated
 proofs do not register MOTU, bind player movement, or certify its Demo. No color
