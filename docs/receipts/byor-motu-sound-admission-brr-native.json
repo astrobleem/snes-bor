@@ -1,0 +1,59 @@
+{
+  "schema": "BYOR_SOURCE_ADMISSION_PCM_BRR_JOIN_RECEIPT_V1",
+  "status": "PASS",
+  "report_path": "out/byor-motu-sound-admission-brr-native/report.json",
+  "report_sha256": "49b8c972a6edb5b321235b8b41530e3b4aeee099ae3b63e20a0e47175e326495",
+  "ROM_sha256": "73362c8cb728e8c57761cf03e16fb8957e7dfec0acb436e1583246bf85fceecb",
+  "jobs": 47,
+  "source_identities": [
+    {
+      "sound_index": 3,
+      "path": "data/chars/he-man/pain.wav",
+      "source_sha256": "f00053c02678f25c1df84d13f8e7382ccad953fd8b4ec0b3b374a8388c458dd5",
+      "normalized_pcm_sha256": "a79d95a391cfe9b7843bea984fb30db88c556e4891f74aecf86d76996c30a964",
+      "normalized_frames": 5952,
+      "policy": {
+        "tool": "ffmpeg",
+        "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+        "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+        "rate_hz": 11025,
+        "padded_frames": 9
+      }
+    },
+    {
+      "sound_index": 15,
+      "path": "data/sounds/klunk.wav",
+      "source_sha256": "b056422cd959b8a5ef57a697cdc9a41923b1a0fb51e4a2fcda177978dacffc75",
+      "normalized_pcm_sha256": "3ec217a75574ffa91dd035dc50d6f5b0af6df0f753a4d5c5ff4b81c076acf881",
+      "normalized_frames": 8128,
+      "policy": {
+        "tool": "ffmpeg",
+        "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+        "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+        "rate_hz": 11025,
+        "padded_frames": 8
+      }
+    }
+  ],
+  "namespace_count": 30,
+  "namespace_payload_bytes": 1087264,
+  "PCM_stereo_bytes": 33088,
+  "PCM_mono_bytes": 16544,
+  "PCM_mono_sha256": "fe9793d27dede68f5fc6e89b5f65e383eeabafb1b999d5ecff523f3501d7639a",
+  "BRR_bytes": 4653,
+  "BRR_sha256": "2f68ee23c236f646212bf10e954dd9683d88b4e5d7c5c7658b8d1ea6570e714c",
+  "peak_job_master_clocks": 257214,
+  "encoder_IRAM_bytes": 658,
+  "gather_IRAM_bytes": 459,
+  "packed_codec_lookup_bytes": 557473,
+  "native_logical_admission": true,
+  "complete_namespace_in_ROM": true,
+  "source_phases_overridden": false,
+  "production_SPC_bound": false,
+  "production_RAM_lease": false,
+  "source_frame_ACK_bound": false,
+  "joint_graphics_bound": false,
+  "MOTU_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_PCM_files_copied": true
+}
