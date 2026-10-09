@@ -33,6 +33,8 @@ def layout(base,size,entities=128,players=4):
            ('find_here_empty_controls',24,'live type-filtered empty candidate-set proof'),
            ('ground_services_controls',32,'serialized ground queries/search and real animation continuation'),
            ('common_idle_controls',24,'ordinary common_idle_anim prefix and real frame continuation'),
+           ('run_cancel_controls',48,'typed source running predicate operands and result'),
+           ('run_binding_controls',32,'oldrunning and entry-captured player row binding'),
            ('player_state_controls',64,'module-tail lifetime lease and exact integer row access')]
     cursor=base;regions=[]
     for name,count,authority in specs:

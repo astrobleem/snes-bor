@@ -2,8 +2,8 @@
   "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
   "base": 8364032,
   "bytes": 6400,
-  "used_bytes": 5344,
-  "remaining_bytes": 1056,
+  "used_bytes": 5424,
+  "remaining_bytes": 976,
   "entities": 128,
   "players": 4,
   "regions": [
@@ -148,10 +148,24 @@
       "authority": "ordinary common_idle_anim prefix and real frame continuation"
     },
     {
-      "name": "player_state_controls",
+      "name": "run_cancel_controls",
       "address": 8369312,
+      "bytes": 48,
+      "end": 8369360,
+      "authority": "typed source running predicate operands and result"
+    },
+    {
+      "name": "run_binding_controls",
+      "address": 8369360,
+      "bytes": 32,
+      "end": 8369392,
+      "authority": "oldrunning and entry-captured player row binding"
+    },
+    {
+      "name": "player_state_controls",
+      "address": 8369392,
       "bytes": 64,
-      "end": 8369376,
+      "end": 8369456,
       "authority": "module-tail lifetime lease and exact integer row access"
     }
   ],
