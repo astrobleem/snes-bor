@@ -119,10 +119,12 @@ def main():
         a.initial_select=True
     if a.attack_chain_model and (a.costmove_model or a.source_command):raise ValueError('ATTACK_CHAIN_FIXTURE_MODE_CONFLICT')
     if a.attack_chain_post_mutation and not a.attack_chain_model:raise ValueError('ATTACK_CHAIN_POST_REQUIRES_CHAIN_MODE')
-    if a.canonical_release:
+    if a.canonical_release or a.early_player:
         from source_attack_body_profile import derive as derive_chain,pack_runtime as pack_chain
         from source_player_release_profile import derive as derive_release
         chain_report=derive_chain(source);chain_table=pack_chain(chain_report);release_capability=derive_release(source)
+        from source_sound_namespace_4086 import derive as derive_sound_namespace
+        release_sample=derive_sound_namespace(source)['specials']['SAMPLE_PUNCH']['sound_index']
     if a.attack_chain_model:
         from source_attack_body_profile import derive as derive_chain,pack_runtime as pack_chain
         chain_report=derive_chain(source);chain_table=pack_chain(chain_report)
@@ -226,7 +228,7 @@ def main():
     if a.canonical_charge:
         rows=[dict(f=0,direction=d,default=default,fault=0,charge_port=port,charge_mask=mask,charge_mutation=mutation)for mutation in (0,1)for port in range(4)for mask in (0,128,256,384)for d in (0,1)]
     if a.early_player:
-        rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=c)for c in range(50)for d in (0,1)]
+        rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=c)for c in range(63)for d in (0,1)]
     if a.canonical_jump_attack:
         rows=[dict(f=0,direction=d,default=default,fault=0,jump_play=play,jump_nospecial=n,jump_held=held)for d in(0,1)for play in(0,64,256,320)for n in(-1,0,2,3)for held in(0,48)]
     if a.canonical_release:
@@ -309,9 +311,10 @@ def main():
         cost_energy=derive_energy(source);cost_energy_table=pack_energy(cost_energy)
         if raw[58*32768:59*32768]!=bytes(32768):raise ValueError('COSTMOVE_ENERGY_ROM_RESERVATION')
         raw[58*32768:58*32768+len(cost_energy_table)]=cost_energy_table
-    if a.attack_chain_model or a.canonical_release:
-        if raw[58*32768:59*32768]!=bytes(32768):raise ValueError('ATTACK_CHAIN_ROM_RESERVATION')
-        raw[58*32768:58*32768+len(chain_table)]=chain_table
+    if a.attack_chain_model or a.canonical_release or a.early_player:
+        chain_at=(len(cost_energy_table)+1)&~1 if a.early_player else 0
+        if chain_at+len(chain_table)>32768 or raw[58*32768+chain_at:58*32768+chain_at+len(chain_table)]!=bytes(len(chain_table)):raise ValueError('ATTACK_CHAIN_ROM_RESERVATION')
+        raw[58*32768+chain_at:58*32768+chain_at+len(chain_table)]=chain_table
     if queue_table:
         if len(plan)+len(queue_table)>32768:raise ValueError('STAGE_QUEUE_PRIVATE_ROM_CAPACITY')
         locations['stagequeue']=(59<<16)+0x8000+len(plan)
@@ -749,12 +752,17 @@ CallbackFixture_ChargeDone:
         asm+=emit_buttons(bu,di,sp,sb,ss,gr['input_history'],gr['input_owner'],0xb674,button_capability,button_roles,sy)
         jump_roles={n:role_id(config,n)for n in('jumpspecial','jumpattack','jumpattack2','jumpattack3','runjumpattack','jumpforward')}
         asm+=emit_jump(jp,gr['input_history'],gr['input_owner'],0xb674,jump_capability,jump_roles,sy)+emit_lie(li,role_id(config,'riseattack'),sy)
-        asm+=emit_early(pe,player_state_work,fe,co,ch,pn,sy,fall=pf,jump=jp,lie=li,idle_profile=idle_capability,directional=di,buttons=bu)+emit_fall(pf,gr['input_history'],gr['input_owner'],0xb674,sy)+emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
+        from source_player_release_native import emit as emit_release
+        rl=gr['player_release_controls']
+        asm+=emit_release(rl,gr['input_history'],gr['input_owner'],0xb674,release_capability,chain_report,role_id(config,'chargeattack'),sy)
+        asm+=emit_early(pe,player_state_work,fe,co,ch,pn,sy,fall=pf,jump=jp,lie=li,idle_profile=idle_capability,directional=di,buttons=bu,release=rl)+emit_fall(pf,gr['input_history'],gr['input_owner'],0xb674,sy)+emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
         asm+=emit_history(gr['input_history'],gr['input_scratch'],gr['input_snapshot'],gr['combo_sequence'],gr['input_owner'],0xb674)
         asm+=emit_costmove(se,gr['entity_combo_tail'],sy)+emit_combo_energy_query(se,sy)
         asm+=emit_combo(early_commands,co,se,gr['input_history'],gr['combo_sequence'],gr['input_owner'],0xb674,sy)+emit_empty(fe,sy)
         asm=asm.replace(' jsl SpecialServices_Begin',' jsl PlayerEarly_Begin',1).replace(' jsl SpecialServices_FinishFrame',' jsl PlayerEarly_FinishFrame',1)
         asm=asm.replace(' jsl PlayerEarly_Begin\n bcs CallbackFixture_Bad',f' jsl PlayerEarly_Begin\n bcc CallbackFixture_EarlyAdmitted\n lda.l {pe}+2\n cmp #5\n bne CallbackFixture_Bad\n jmp CallbackFixture_SpecialDone\nCallbackFixture_EarlyAdmitted:\n.a16\n.i16',1)
+        asm=asm.replace('CallbackFixture_SpecialDispatch:\n.a16\n.i16\n cmp #0',f'CallbackFixture_SpecialDispatch:\n.a16\n.i16\n cmp #$8001\n bne CallbackFixture_EarlyNoSound\nCallbackFixture_EarlySound:\n.a16\n.i16\n nop\n jsl PlayerEarly_FinishSound\n bcs CallbackFixture_Bad\n jmp CallbackFixture_SpecialDispatch\nCallbackFixture_EarlyNoSound:\n.a16\n.i16\n cmp #0',1)
+        asm=asm.replace(' jsl PlayerEarly_FinishSound\n bcs CallbackFixture_Bad',f' jsl PlayerEarly_FinishSound\n bcc CallbackFixture_EarlySoundAdmitted\n lda.l {pe}+2\n cmp #5\n bne CallbackFixture_Bad\n jmp CallbackFixture_SpecialDone\nCallbackFixture_EarlySoundAdmitted:\n.a16\n.i16',1)
     if a.canonical_jump_attack:
         from source_player_jump_profile import derive as jump_profile
         from source_player_jump_native import emit as emit_jump
@@ -914,6 +922,7 @@ local function put(a,v,n)for j=0,n-1 do emu.write(a+j,(v>>(8*j))&255,mt)end end
 local function set(k,v,n)put(sy[k],v,n or 2)end
 local function copy(a,data)for i,v in ipairs(data)do emu.write(a+i-1,v,mt)end end
 emu.addMemoryCallback(function()
+ local ok,err=xpcall(function()
  local c=rows[word(INDEX)+1];spans=0;context_faults=0;init_faults=0;copy_checks=0
  put(0x7ffb86,c.fault,2)
  copy(sy.VmCode_Wram,metadata);copy(0x414000,pool)
@@ -962,6 +971,8 @@ emu.addMemoryCallback(function()
  put(0x416800,ACTORID,2);put(0x416802,c.default,2);put(0x416804,HANDLE,2)
  put(0x41f510,1,2)
  INSTALL_INITIAL_SELECT
+end,debug.traceback)
+ if not ok then emu.log('FIXTURELUAFAIL|'..tostring(err))end
 end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1]
@@ -1368,8 +1379,8 @@ end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixtu
         early_tail=player_state_plan['base']
         lua+=f"""emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];local k=c.early_case
- for _,r in ipairs({{{{{pe},32}},{{{pn},24}},{{{ch},24}},{{{co},96}},{{{fe},24}},{{{pf},24}},{{{jp},32}},{{{li},16}},{{{di},64}},{{{bu},48}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
- put({bu},0xb68d,2);put({di},0xb68c,2);put({jp},0xb68a,2);put({li},0xb68b,2);put({pe},0xb688,2);put({pe}+12,48,4);put({pf},0xb689,2);put({pf}+8,k==12 and 2 or 0,4);
+ for _,r in ipairs({{{{{pe},32}},{{{pn},24}},{{{ch},24}},{{{co},96}},{{{fe},24}},{{{pf},24}},{{{jp},32}},{{{li},16}},{{{di},64}},{{{bu},48}},{{{rl},128}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
+ put({rl},0xb68f,2);put({rl}+12,{release_sample},4);put({bu},0xb68d,2);put({di},0xb68c,2);put({jp},0xb68a,2);put({li},0xb68b,2);put({pe},0xb688,2);put({pe}+12,48,4);put({pf},0xb689,2);put({pf}+8,k==12 and 2 or 0,4);
  set('SourceDamageEffectsState4086_Ready',0xb62f);set('SourcePhysicsState4086_Ready',0xb61c)
  put(0x7ef100,(k==11 or k==12)and 2 or k==13 and 65538 or 0,4);put(0x7ef114,0xb62f,2);put(0x7ef116,{default},2);put(0x42d80c,7,4);
 put({pn},0xb687,2);put({ch},0xb686,2);put({co},0xb673,2);put({fe},0xb67d,2)
@@ -1398,16 +1409,40 @@ put({pn},0xb687,2);put({ch},0xb686,2);put({co},0xb673,2);put({fe},0xb67d,2)
   if k==41 then put(0x41400c,0x80000000,4);put(0x416830,0x7fffffff,4)end
  end
  put({sp}+24,k==45 and 1 or 0,4);put({sp}+32,(k==46 or k==47 or k==49)and 1 or 0,4)
- if k>=42 then
+ if k>=42 and k<=49 then
   local play=(k==44 or k==45 or k==48)and 256 or 128
   put({gr['input_history']+224},play,4);put({gr['input_history']+216},(k==43 or k==46)and 64 or k==47 and 256 or 0,4)
   if k==48 then put(0x41400c,2*65536,4)end
+ end
+ set('SourceFreeze4086_Ready',0xb5df);put(0x42e008,0,4)
+ put({sy['SourceAttackBody4086_Ready']},0xb605,2);put({sy['SourceAttackBody4086_Status']},0,2);put({sy['SourceAttackBody4086_Bank']},58,2);put({sy['SourceAttackBody4086_Base']},{0x8000+chain_at},2);put({sy['SourceAttackBody4086_Bytes']},{len(chain_table)},2)
+
+ if k>=50 then
+  put({gr['input_history']+224},k==58 and 256 or 0,4);put({gr['input_history']+228},k==50 and 0 or 0x80000040,4)
+  put(0x42e008,k==51 and 0 or k==53 and 2 or 1,4);put(sy.SourceClock4086_TimeLo,402,4)
+  if k==52 then put(0x41400c,2*65536,4)end
+  if k==55 then put({rl}+12,-1,4)end
+  if k==59 then put(0x43eb00,0,4)end
+  if k==60 then put(0x435989,0,2)end
  end
  if k==7 then put(0x414050,0x414050,4);put(0x40901c,0x414050,4);put(0x40c050,0,4)end
  set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
 end,emu.callbackType.exec,{fs['PlayerEarly_Begin']},{fs['PlayerEarly_Begin']},emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  emu.log('EARLYPLAYER|'..word(INDEX)..'|'..word({pe}+2)..'|'..word({pe}+6)..'|'..dw({pe}+8)..'|'..dw({early_tail})..'|'..dw({early_tail}+12)..'|'..dw({early_tail}+20)..'|'..dw(0x43eb04)..'|'..word({co}+2)..'|'..word({ch}+2)..'|'..word({pn}+2)..'|'..dw(0x40c04c)..'|'..dw({gr['input_history']+224})..'|'..word(sy.SourceAnimationInit4086_Number)..'|'..word({pf}+2)..'|'..dw(0x42d80c)..'|'..word({jp}+2)..'|'..word({li}+2)..'|'..dw(0x40c058)..'|'..word({di}+2)..'|'..word({di}+8)..'|'..dw(0x42f404)..'|'..dw({gr['input_history']+232})..'|'..word({bu}+2)..'|'..word({ss}+2))
+end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
+"""
+    if a.early_player:
+        lua+=f"""emu.addMemoryCallback(function()
+ local k=rows[word(INDEX)+1].early_case;put({rl}+42,k==56 and 2 or 1,2)
+ if k==61 then put({rl}+4,1,2)elseif k==62 then put({rl}+6,1,2)end
+ emu.log('RELEASEJOINEDSOUND|'..word(INDEX))
+end,emu.callbackType.exec,{fs['CallbackFixture_EarlySound']},{fs['CallbackFixture_EarlySound']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ if rows[word(INDEX)+1].early_case==57 then put(0x42e008,123,4);put(0x437e08,5,4);put(0x43eb00,-9,4);put(0x416824,9*65536,4);put(0x416828,-9*65536,4)end
+end,emu.callbackType.exec,{fs['PlayerRelease_FinishFrame']},{fs['PlayerRelease_FinishFrame']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ if rows[word(INDEX)+1].early_case>=50 then emu.log('RELEASEJOINED|'..word(INDEX)..'|'..word({rl}+2)..'|'..dw(0x42e008)..'|'..dw({gr['input_history']+228})..'|'..dw(0x437e08)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..dw(0x43eb00))end
 end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
 """
     if a.early_player:
@@ -1445,7 +1480,7 @@ emu.addMemoryCallback(function()
  set('SourceClock4086_Ready',0xb4c5);put(sy.SourceClock4086_TimeLo,k==4 and 401 or 402,4);set('SourceFreeze4086_Ready',0xb5df)
  put(0x42e008,k==1 and 0 or 1,4);put(0x43900c,9,4);put(0x40c058,-5,4);put(0x43eb00,7,4);put(0x437e08,3,4);put(0x437e0c,123,4);put(0x437e10,0xb5fb,2);put(0x437e12,0,2)
  put(0x416824,2*65536,4);put(0x416828,3*65536,4)
- put({sy['SourceAttackBody4086_Ready']},0xb605,2);put({sy['SourceAttackBody4086_Status']},0,2);put({sy['SourceAttackBody4086_Bank']},58,2);put({sy['SourceAttackBody4086_Base']},0x8000,2);put({sy['SourceAttackBody4086_Bytes']},{len(chain_table)},2)
+ put({sy['SourceAttackBody4086_Ready']},0xb605,2);put({sy['SourceAttackBody4086_Status']},0,2);put({sy['SourceAttackBody4086_Bank']},58,2);put({sy['SourceAttackBody4086_Base']},{0x8000+chain_at},2);put({sy['SourceAttackBody4086_Bytes']},{len(chain_table)},2)
  copy(0x435980,{{{','.join(map(str,chain_table[16+default*9:25+default*9]))}}});put(0x435989,0xb605,2)
 end,emu.callbackType.exec,{fs['CallbackFixture_ReleasePrepare']},{fs['CallbackFixture_ReleasePrepare']},emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
@@ -1483,7 +1518,12 @@ end,emu.callbackType.exec,{fs['CallbackFixture_LieDone']},{fs['CallbackFixture_L
     if a.ai_run:
         initialinstall+="\nset('SourceAI4086_State',0);set('SourceAI4086_Endgame',0,4);set('SourceAIRun4086_Ready',0xb5e6);set('SourceAIRun4086_State',0);put(0x439000,0,4);put(0x416814,48,4);put(0x42f400,0,4);put(0x42e024,0,4)\n"
         lua+="emu.addMemoryCallback(function()emu.log('AIRUNFRAME|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..dw(0x42e024)..'|'..dw(0x416814)..'|'..word(sy.SourceAIRun4086_PendingKind))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
-    if a.early_player:initialinstall+="\nset('SourceDamageEffectsState4086_Ready',0);set('SourcePhysicsState4086_Ready',0)\n"
+    if a.early_player:
+        initialinstall+="\nset('SourceDamageEffectsState4086_Ready',0);set('SourcePhysicsState4086_Ready',0)\n"
+        for name in ('SourceModelAttackPolicy4086_Ready','SourceAttackTiming4086_Ready','SourceOffscreenState4086_Ready','SourceDeathFields4086_Ready','SourceDamageState4086_Ready'):
+            initialinstall+=f' put({sy[name]},0,2)\n'
+        for field,value in dict(SourceAttackBody4086_Ready=0xb605,SourceAttackBody4086_Status=0,SourceAttackBody4086_Bank=58,SourceAttackBody4086_Base=0x8000+chain_at,SourceAttackBody4086_Bytes=len(chain_table)).items():initialinstall+=f' put({sy[field]},{value},2)\n'
+
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -1534,6 +1574,8 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             run_frames_exact(m,60)
             if startup.u16(m,INDEX)==len(rows) or startup.u16(m,ERROR):break
         reporter.check('native authored callback batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,ERROR)==0)
+    fixture_lua_errors=[line for line in (folder/'mesen.log').read_text().splitlines()if 'FIXTURELUAFAIL|'in line]
+    reporter.check('fixture initialization has no Lua exception',not fixture_lua_errors)
     results=[];faults=[];costs=[];initializers=[];frame_results=[];core_results=[];select_results=[];jump_results=[]
     for line in (folder/'mesen.log').read_text().splitlines():
         for marker,target in [('CALLBACKOWNER|',results),('CALLBACKBAD|',faults),('CALLBACKCOST|',costs),('CALLBACKINIT|',initializers),('CALLBACKFRAME|',frame_results),('CALLBACKBIRTHCORE|',core_results),('CALLBACKSELECTINIT|',select_results),('CALLBACKJUMP|',jump_results)]:
@@ -1728,7 +1770,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             enters_buttons=k in(2,10,13,19,20,23)or k>=27
             expected[-1]+=[4 if k in(44,46)else 2 if enters_buttons else 0,4 if k in(5,44,46)else 2 if k in(6,7)or enters_buttons and k not in(33,35,40,41,48)else 0]
             if enters_buttons and k not in(33,35,40,41,48):expected[-1][13]=role_id(config,'block')if k in(47,49)else role_id(config,'special')
-            if k>=42:
+            if 42<=k<=49:
                 expected[-1][1]=4 if k in(44,46)else 2
                 expected[-1][11]=90 if k in(44,46)else 100
                 expected[-1][12]=0 if k in(44,46)else 256 if k in(45,48)else 128
@@ -1736,6 +1778,11 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
                 expected[-1][20]=0 if k==48 else 1
                 expected[-1][21]=0 if k in(44,46)else 0xfffffffd
                 expected[-1][13]=role_id(config,'block')if k in(47,48,49)else role_id(config,'special')
+            if k>=50:
+                active=k in(54,55,56,57,61,62);special=k==58;busy=k==59
+                expected[-1]=[i,5 if k in(60,61,62)else 4 if active or special or busy else 2,0,0xfffffffd,0,0,0,0,2,0,0,90 if special else 100,0,
+                    release_capability['models'][default]['final_attack']if active and k not in(61,62)else role_id(config,'chargeattack')if k in(53,60,61,62)else role_id(config,'select')if busy or k==52 else role_id(config,'special'),
+                    0,7,0,0,1 if active or special else 0,0 if busy else 2,0 if k==52 or busy else 1,0 if special else 0xfffffffd,0,0 if busy else 4 if special else 2,4 if special else 0 if busy or k==52 else 2]
         reporter.check('joined player prefix preserves entry snapshot, ordered short circuits, unsigned rush cleanup and real helper outcomes',early_results==expected)
         direction_queries=[line.split('DIRECTIONQUERY|',1)[1].split('|')for line in (folder/'mesen.log').read_text().splitlines()if 'DIRECTIONQUERY|'in line]
         direction_expected=[]
@@ -1746,10 +1793,23 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         button_queries=[line.split('BUTTONQUERY|',1)[1].split('|')for line in (folder/'mesen.log').read_text().splitlines()if 'BUTTONQUERY|'in line]
         button_expected=[]
         for i,c in enumerate(rows):
-            k=c['early_case'];names=['attackboth','charge']if k in(42,43)else ['special2','block']if k in(44,45,48)else ['charge']if k in(46,47,49)else []
+            k=c['early_case'];names=['attackboth','charge']if k in(42,43)else ['special2','block']if k in(44,45,48,58)else ['charge']if k in(46,47,49)else []
             button_expected += [[str(i),name]for name in names]
         reporter.check('joined pre-attack button queries preserve source short circuit order',button_queries==button_expected)
-        r.update(canonical_player_early_dispatch_bound=True,early_results=early_results,early_actor_and_player_role_context_instrumented=True,early_helpers_and_frame_owners_real=True,player_fall_helper_bound=True,player_jump_helper_bound=True,player_lie_absence_helper_bound=True,unowned_grab_states_reject=True,jump_capability=jump_capability,busy_idle_absence_capability=idle_capability,busy_current_animation_identity_checked=True,directional_run_helper_bound=True,directional_queries=direction_queries,button_precheck_helper_bound=True,button_queries=button_queries,button_capability=button_capability,directional_capability=directional_capability,explicit_guard_cases=['unowned_grab','stale_busy_animation_handle','unowned_air_cancel'],active_gravity_or_landing_bound=False,full_player_think_bound=False)
+        release_joined=[list(map(int,line.split('RELEASEJOINED|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'RELEASEJOINED|'in line]
+        release_expected=[]
+        for i,c in enumerate(rows):
+            k=c['early_case']
+            if k<50:continue
+            active=k in(54,55,56,57)
+            release_expected.append([i,3 if k in(61,62)else 5 if k==60 else 4 if active else 0 if k in(58,59)else 2,
+                123 if k==57 else 1 if k in(50,59,60)else 0,0 if k==50 else 0x80000040,
+                5 if k==57 else 0,9*65536 if k==57 else 0,(-9*65536)&0xffffffff if k==57 else 0,
+                0xfffffff7 if k==57 else 0 if active or k in(58,59,61,62)else 1])
+        reporter.check('joined release follows special/busy short circuits, finishes actual frame and retains fresh post-frame state',release_joined==release_expected)
+        release_sounds=[int(line.split('RELEASEJOINEDSOUND|',1)[1])for line in (folder/'mesen.log').read_text().splitlines()if 'RELEASEJOINEDSOUND|'in line]
+        reporter.check('joined punch continuation occurs only for activated release with a present source sample',release_sounds==[i for i,c in enumerate(rows)if c['early_case']in(54,56,57,61,62)])
+        r.update(canonical_player_early_dispatch_bound=True,early_results=early_results,early_expected=expected,release_helper_bound=True,release_joined_results=release_joined,release_joined_expected=release_expected,release_sound_results_instrumented=True,physical_release_sound_backend_bound=False,early_actor_and_player_role_context_instrumented=True,early_helpers_and_frame_owners_real=True,player_fall_helper_bound=True,player_jump_helper_bound=True,player_lie_absence_helper_bound=True,unowned_grab_states_reject=True,jump_capability=jump_capability,busy_idle_absence_capability=idle_capability,busy_current_animation_identity_checked=True,directional_run_helper_bound=True,directional_queries=direction_queries,button_precheck_helper_bound=True,button_queries=button_queries,button_capability=button_capability,directional_capability=directional_capability,explicit_guard_cases=['unowned_grab','stale_busy_animation_handle','unowned_air_cancel','stale_release_chain_marker','stale_release_sound_slot','stale_release_sound_port'],active_gravity_or_landing_bound=False,full_player_think_bound=False)
     if a.canonical_jump_attack:
         jump_results=[list(map(int,line.split('JUMPATTACKBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'JUMPATTACKBOUND|'in line]
         expected=[]

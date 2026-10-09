@@ -5,12 +5,13 @@ player_think. Matching ENDLEVEL candidates reject until completion is owned.
 """
 
 
-def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=None,idle_profile=None,directional=None,buttons=None):
-    spans=((work,32),(state,64),(search,24),(combo,96),(charge,24),(pain,24))+(((fall,24),)if fall is not None else())+(((jump,32),)if jump is not None else())+(((lie,16),)if lie is not None else())+(((directional,64),)if directional is not None else())+(((buttons,48),)if buttons is not None else())
+def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=None,idle_profile=None,directional=None,buttons=None,release=None):
+    spans=((work,32),(state,64),(search,24),(combo,96),(charge,24),(pain,24))+(((fall,24),)if fall is not None else())+(((jump,32),)if jump is not None else())+(((lie,16),)if lie is not None else())+(((directional,64),)if directional is not None else())+(((buttons,48),)if buttons is not None else())+(((release,128),)if release is not None else())
     for i,(a,n)in enumerate(spans):
         if not 0<=a<=0x1000000-n:raise ValueError('PLAYER_EARLY_EXTENT')
         if any(a<b+m and b<a+n for b,m in spans[i+1:]):raise ValueError('PLAYER_EARLY_OVERLAP')
     if idle_profile is not None and(idle_profile.get('capability')!='IMMUTABLE_ABSENT_ANIMATION_IDLE_ARRAY' or not idle_profile.get('models')):raise ValueError('PLAYER_EARLY_IDLE_CAPABILITY')
+    if release is not None and(directional is None or buttons is None):raise ValueError('PLAYER_EARLY_RELEASE_REQUIRES_PRIOR_OWNERS')
     lines=[];serial=0
     def put(s):lines.extend(s.strip().splitlines())
     def label(n):put('PlayerEarly_'+n+':\n.a16\n.i16')
@@ -63,6 +64,8 @@ def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=Non
         put(' cmp #4');branch('beq','JumpFinish')
     if buttons is not None:
         put(' cmp #5');branch('beq','ButtonFinish')
+    if release is not None:
+        put(' cmp #6');branch('beq','ReleaseFinish')
     put(' cmp #3');branch('bne')
     put(' jsl PainServices_FinishFrame');branch('bcs');put(' jmp PlayerEarly_HelperResult')
     label('ChargeFinish');put(' jsl ChargeServices_FinishFrame');branch('bcs');put(' jmp PlayerEarly_HelperResult')
@@ -70,6 +73,18 @@ def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=Non
         label('JumpFinish');put(' jsl PlayerJump_FinishFrame');branch('bcs');put(' jmp PlayerEarly_HelperResult')
     if buttons is not None:
         label('ButtonFinish');put(' jsl PlayerButton_FinishFrame');branch('bcs');put(' jmp PlayerEarly_ButtonResult')
+    if release is not None:
+        label('ReleaseFinish')
+        put(f' lda.l {release}+4\n cmp.l {work}+4');branch('bne')
+        put(f' lda.l {release}+6\n cmp.l {work}+6');branch('bne')
+        put(' jsl PlayerRelease_FinishFrame');branch('bcs');put(' jmp PlayerEarly_ReleaseResult')
+        label('FinishSound');put(f' php\n rep #$39\n phx\n phy\n lda.l {work}\n cmp #$B688');branch('bne')
+        put(f' lda.l {work}+2\n cmp #7');branch('bne')
+        put(f' lda.l {work}+16\n cmp #6');branch('bne')
+        put(f' lda.l {release}+4\n cmp.l {work}+4');branch('bne')
+        put(f' lda.l {release}+6\n cmp.l {work}+6');branch('bne')
+        put(' jsl PlayerRelease_FinishSound');branch('bcs');put(' jmp PlayerEarly_ReleaseResult')
+        label('SoundPending');put(f' lda #7\n sta.l {work}+2\n lda #$8001\n ply\n plx\n plp\n clc\n rtl')
     label('ComboFinish');put(f' jsl {symbols["SourceAnimationInit4086_Ack"]}');branch('bcs')
     put(' jsl SourceCombo_Finish');branch('bcs');put(' jmp PlayerEarly_ComboResult')
     for name,status in (('Continue',2),('Exit',4)):
@@ -118,6 +133,9 @@ def emit(work,state,search,combo,charge,pain,symbols,fall=None,jump=None,lie=Non
         if name=='Continue' and buttons is not None:
             put(f' lda.l {work}+4\n sta.l {buttons}+4\n lda.l {work}+6\n sta.l {buttons}+6\n lda #5\n sta.l {work}+16\n jsl PlayerButton_Begin');branch('bcs')
             label('ButtonResult');put(f' lda.l {buttons}+2\n cmp #4');branch('beq','Exit');put(' cmp #3');branch('beq','Pending');put(' cmp #2');branch('bne')
+        if name=='Continue' and release is not None:
+            put(f' lda.l {work}+4\n sta.l {release}+4\n lda.l {work}+6\n sta.l {release}+6\n lda.l {directional}+8\n sta.l {release}+8\n lda #6\n sta.l {work}+16\n jsl PlayerRelease_Begin');branch('bcs')
+            label('ReleaseResult');put(f' lda.l {release}+2\n cmp #4');branch('beq','Exit');put(' cmp #3');branch('beq','SoundPending');put(' cmp #6');branch('beq','Pending');put(' cmp #2');branch('bne')
         put(f' lda #{status}\n sta.l {work}+2\n lda #0\n ply\n plx\n plp\n clc\n rtl')
     label('Bad');put(f' lda #5\n sta.l {work}+2\n ply\n plx\n plp\n sec\n rtl')
     return '\n'.join(lines)+'\n'
