@@ -82,6 +82,7 @@ def main():
     p.add_argument('--canonical-release',action='store_true',help='Canonical attack release after SELECT; sound results instrumented, actual frame owner.')
     p.add_argument('--canonical-lie-absence',action='store_true',help='Execute the actual RISEATTACK absence query after SELECT birth, preserving actor/input state.')
     p.add_argument('--canonical-jump-attack',action='store_true',help='Actual closed zero-air-control jump attack helper after SELECT birth.')
+    p.add_argument('--early-jump-entry',action='store_true',help='Join actual source jump entry after ordinary attack in the player prefix.')
     p.add_argument('--early-player',action='store_true',help='Join real empty search, preinput, charging and pain in player_think source order.')
     p.add_argument('--pain-helper',action='store_true',help='Wrap canonical special with actual source pain cleanup.')
     p.add_argument('--canonical-charge',action='store_true',help='Actual charging helper and real idle after SELECT birth.')
@@ -106,6 +107,7 @@ def main():
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
     if a.canonical_attack and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('ORDINARY_ATTACK_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
+    if a.early_jump_entry and not(a.early_attack and a.pending_jump_birth):raise ValueError('JOINED_JUMP_REQUIRES_ATTACK_AND_PENDING_BIRTH')
     if a.early_attack and not a.early_player:raise ValueError('JOINED_ATTACK_REQUIRES_EARLY_PLAYER')
     if a.pending_jump_birth and not a.run_tuple_birth:raise ValueError('PENDING_JUMP_BIRTH_REQUIRES_REAL_MODEL_COPIER')
     if a.canonical_jump_entry and (not a.canonical_tryjump or a.canonical_dojump):raise ValueError('JUMP_ENTRY_REQUIRES_TRYJUMP_FIXTURE')
@@ -246,6 +248,9 @@ def main():
         if a.early_attack:
             rows += [dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=63+k,attack_case=k,attack_port=port)for k in range(10)for port in range(4)for d in(0,1)]
             rows += [dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=73+g,attack_case=2,attack_port=0,attack_guard=g)for g in range(4)for d in(0,1)]
+    if a.early_jump_entry:
+        rows += [dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=77+k,joined_jump_case=k,joined_jump_port=port)for k in range(6)for port in range(4)for d in(0,1)]
+        rows += [dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=83+g,joined_jump_case=1,joined_jump_port=0,joined_jump_guard=g)for g in range(4)for d in(0,1)]
     if a.canonical_jump_attack:
         rows=[dict(f=0,direction=d,default=default,fault=0,jump_play=play,jump_nospecial=n,jump_held=held)for d in(0,1)for play in(0,64,256,320)for n in(-1,0,2,3)for held in(0,48)]
     if a.canonical_attack:
@@ -799,7 +804,15 @@ CallbackFixture_ChargeDone:
             ak=gr['player_attack_controls'];ac=gr['attack_chain_controls'];attack_capability=derive_attack(source)
             attack_roles={k:role_id(config,k)for k in('duckattack','runattack','attackbackward','get','throwattack')}
             asm+=emit_attack(ak,rl,ac,fe,gr['input_history'],gr['input_owner'],attack_capability,attack_roles,sy)+emit_chain(ac,gr['entity_combostyle'],config['arrays']['normal_attacks'],sy)
-        asm+=emit_early(pe,player_state_work,fe,co,ch,pn,sy,fall=pf,jump=jp,lie=li,idle_profile=idle_capability,directional=di,buttons=bu,release=rl,attack=ak)+emit_fall(pf,gr['input_history'],gr['input_owner'],0xb674,sy)+emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
+        je=None
+        if a.early_jump_entry:
+            from source_player_jump_entry_native import emit as emit_jump_entry
+            from source_player_jump_entry_profile import derive as derive_jump_entry
+            from source_tryjump_native import emit as emit_tryjump
+            je=gr['player_jump_entry_controls'];tj=gr['tryjump_controls'];jump_entry_profile=derive_jump_entry(source)
+            entry_roles={n:role_id(config,n)for n in('slide','runslide','runjump','forwardjump','jump')}
+            asm+=emit_tryjump(tj,pending_work,role_id(config,'jumpdelay'),sy)+emit_jump_entry(je,pending_work,tj,gr['input_history'],gr['input_owner'],0xb674,jump_entry_profile,entry_roles,sy,39)
+        asm+=emit_early(pe,player_state_work,fe,co,ch,pn,sy,fall=pf,jump=jp,lie=li,idle_profile=idle_capability,directional=di,buttons=bu,release=rl,attack=ak,jump_entry=je)+emit_fall(pf,gr['input_history'],gr['input_owner'],0xb674,sy)+emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
         asm+=emit_history(gr['input_history'],gr['input_scratch'],gr['input_snapshot'],gr['combo_sequence'],gr['input_owner'],0xb674)
         asm+=emit_costmove(se,gr['entity_combo_tail'],sy)+emit_combo_energy_query(se,sy)
         asm+=emit_combo(early_commands,co,se,gr['input_history'],gr['combo_sequence'],gr['input_owner'],0xb674,sy)+emit_empty(fe,sy)
@@ -1823,7 +1836,7 @@ end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixtu
         lua=lua.replace(' JOINED_ATTACK_SETUP',f"""
  for _,r in ipairs({{{{{ak},48}},{{{ac},96}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
  put({ak},0xb690,2);put({ak}+12,{release_sample},4);put({ac},0xb675,2);put({ac}+58,100,4);put({gr['entity_combostyle']},{chain_report['models'][default]['fields']['combostyle']},4)
- if k>=63 then
+ if k>=63 and k<77 then
   local n=c.attack_case;local port=c.attack_port
   for j=0,1023 do put({gr['input_history']}+j,0,1)end
   for j=0,3 do put(0x43fd84+4*j,0,4)end;put(0x43fd84+4*port,0x414000,4);put(0x41402c,port,4)
@@ -1848,11 +1861,35 @@ emu.addMemoryCallback(function()
  if c.attack_guard==2 then put({ak}+4,1,2)elseif c.attack_guard==3 then put({ak}+6,1,2)end
 end,emu.callbackType.exec,{fs['PlayerEarly_AttackFinish']},{fs['PlayerEarly_AttackFinish']},emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
- local c=rows[word(INDEX)+1];if c.early_case<63 then return end
+ local c=rows[word(INDEX)+1];if c.early_case<63 or c.early_case>=77 then return end
  emu.log('ATTACKJOINED|'..word(INDEX)..'|'..word({pe}+2)..'|'..word({pe}+6)..'|'..dw({pe}+8)..'|'..word({ak}+2)..'|'..dw(0x43900c)..'|'..dw(0x40c058)..'|'..dw(0x43eb00)..'|'..dw(0x42e008)..'|'..dw(0x437e08)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..dw(0x414014)..'|'..dw({gr['input_history']}+256*c.attack_port+224)..'|'..dw(0x42f404)..'|'..word({ac}+2)..'|'..word({rl}+2))
 end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
 """
     else:lua=lua.replace(' JOINED_ATTACK_SETUP','').replace(' JOINED_ATTACK_SOUND','')
+    if a.early_jump_entry:
+        lua+=f"""
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1]
+ for j=0,31 do put({je}+j,0,1)end;put({je},0xb694,2)
+ for j=0,63 do put({tj}+j,0,1)end;put({tj},0xb692,2)
+ if c.joined_jump_case==nil then return end
+ local k=c.joined_jump_case;local port=c.joined_jump_port
+ for j=0,1023 do put({gr['input_history']}+j,0,1)end
+ for j=0,3 do put(0x43fd84+4*j,0,4)end;put(0x43fd84+4*port,0x414000,4);put(0x41402c,port,4)
+ local at={gr['input_history']}+port*256
+ put(at+224,k==0 and 0x80000000 or 0x80000080,4);put(at+216,k==2 and 12 or(k==3 or k==4)and 32 or 0,4)
+ put(0x42f404,k==3 and 0xfffffffd or 0,4);put(0x43900c,9,4);put(0x43eb00,1,4);put(0x40c058,-5,4)
+ put(0x41400c,k==5 and 2*65536 or 0,4);put(0x416830,0,4);put(0x416824,2*65536,4);put(0x416828,3*65536,4);put(0x43eb1c,0,4)
+end,emu.callbackType.exec,{fs['PlayerEarly_Begin']},{fs['PlayerEarly_Begin']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];if c.joined_jump_case==nil then return end
+ emu.log('JUMPENTRYJOINED|'..word(INDEX)..'|'..word({pe}+2)..'|'..word({pe}+6)..'|'..dw({pe}+8)..'|'..word({je}+2)..'|'..dw({gr['input_history']}+c.joined_jump_port*256+224)..'|'..dw(0x43900c)..'|'..dw(0x41401c)..'|'..dw({pending_base})..'|'..dw({pending_base}+4)..'|'..dw({pending_base}+8)..'|'..word(0x414014)..'|'..dw(0x40c058))
+end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];local g=c.joined_jump_guard
+ if g==0 then put({je}+4,1,2)elseif g==1 then put({je}+6,1,2)elseif g==2 then put({tj}+4,1,2)elseif g==3 then put({tj}+6,99,2)end
+end,emu.callbackType.exec,{fs['PlayerEarly_JumpEntryFinish']},{fs['PlayerEarly_JumpEntryFinish']},emu.cpuType.snes,mt)
+"""
     if a.canonical_jump_attack:
         lua+=f"""emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1]
@@ -2222,6 +2259,8 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
                 expected[-1]=[i,5 if k in(60,61,62)else 4 if active or special or busy else 2,0,0xfffffffd,0,0,0,0,2,0,0,90 if special else 100,0,
                     release_capability['models'][default]['final_attack']if active and k not in(61,62)else role_id(config,'chargeattack')if k in(53,60,61,62)else role_id(config,'select')if busy or k==52 else role_id(config,'special'),
                     0,7,0,0,1 if active or special else 0,0 if busy else 2,0 if k==52 or busy else 1,0 if special else 0xfffffffd,0,0 if busy else 4 if special else 2,4 if special else 0 if busy or k==52 else 2]
+            if a.early_jump_entry and k in(42,43,47,49):
+                expected[-1][1]=4;expected[-1][12]=0;expected[-1][13]=role_id(config,'jumpdelay')
         reporter.check('joined player prefix preserves entry snapshot, ordered short circuits, unsigned rush cleanup and real helper outcomes',early_results[:len(expected)]==expected)
         direction_queries=[line.split('DIRECTIONQUERY|',1)[1].split('|')for line in (folder/'mesen.log').read_text().splitlines()if 'DIRECTIONQUERY|'in line]
         direction_expected=[]
@@ -2232,7 +2271,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         button_queries=[line.split('BUTTONQUERY|',1)[1].split('|')for line in (folder/'mesen.log').read_text().splitlines()if 'BUTTONQUERY|'in line]
         button_expected=[]
         for i,c in enumerate(rows):
-            k=c['early_case'];names=['attackboth','charge']if k in(42,43)else ['special2','block']if k in(44,45,48,58)else ['charge']if k in(46,47,49)else []
+            k=c['early_case'];names=['attackboth','charge']if k in(42,43,78,79,80,81,82,83,84,85,86)else ['special2','block']if k in(44,45,48,58)else ['charge']if k in(46,47,49)else []
             button_expected += [[str(i),name]for name in names]
         reporter.check('joined pre-attack button queries preserve source short circuit order',button_queries==button_expected)
         release_joined=[list(map(int,line.split('RELEASEJOINED|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'RELEASEJOINED|'in line]
@@ -2253,7 +2292,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             attack_joined=[list(map(int,line.split('ATTACKJOINED|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'ATTACKJOINED|'in line]
             attack_expected=[]
             for i,c in enumerate(rows):
-                if c['early_case']<63:continue
+                if c['early_case']<63 or c['early_case']>=77:continue
                 k=c['attack_case'];active=k>=2;run=k==3;mutated=k==6
                 attack_expected.append([i,4 if active else 2,c['attack_port'],0xfffffffd if run else 0,4 if active else 2,
                     17 if active else 9,0 if mutated else 1 if active else 0xfffffffb,0xfffffff7 if mutated else 0 if active else 1,
@@ -2271,6 +2310,17 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             reporter.check('joined ordinary punch follows fresh attacking, missing-sample and RUNATTACK short circuits',attack_sounds==[i for i,c in enumerate(rows)if c.get('attack_case')in(2,4,7,8,9)and c.get('attack_guard',0)<2])
             r.update(ordinary_attack_joined_bound=True,attack_joined_results=attack_joined,attack_joined_expected=attack_expected,attack_joined_sound_results=attack_sounds,attack_sound_results_instrumented=True,physical_attack_sound_backend_bound=False,full_player_think_bound=False)
             r['explicit_guard_cases']+=['stale_attack_sound_slot','stale_attack_sound_port','stale_attack_frame_slot','stale_attack_frame_port']
+    if a.early_jump_entry:
+        joined_jumps=[list(map(int,line.split('JUMPENTRYJOINED|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'JUMPENTRYJOINED|'in line]
+        expected_jumps=[]
+        for i,c in enumerate(rows):
+            if 'joined_jump_case'not in c:continue
+            k=c['joined_jump_case'];active=k in(1,2,3,4)
+            expected_jumps.append([i,4 if active else 2,c['joined_jump_port'],0xfffffffd if k==3 else 0,4 if active else 2,0x80000080 if k==5 else 0x80000000,18 if active else 9,0 if k==2 else c['direction'],0x40900000 if active else 0,0x40000000 if k==3 else 0x3f800000 if k==2 else 0,0,role_id(config,'jumpdelay')if active else role_id(config,'select'),0xfffffffb])
+            if 'joined_jump_guard'in c:
+                expected_jumps[-1][1]=5;expected_jumps[-1][4]=3 if c['joined_jump_guard']<2 else 6
+        reporter.check('jump input joins after release and ordinary attack with preserved entry port/oldrunning and actual delayed frame',joined_jumps==expected_jumps)
+        r.update(jump_entry_joined_bound=True,jump_entry_joined_results=joined_jumps,jump_entry_joined_expected=expected_jumps,dojump_dispatch_bound=False,production_player_think_bound=False)
     if a.canonical_jump_attack:
         jump_results=[list(map(int,line.split('JUMPATTACKBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'JUMPATTACKBOUND|'in line]
         expected=[]

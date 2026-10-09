@@ -55,3 +55,13 @@ acknowledgement. Target continuation is exposed for a future real target owner;
 these closed player cases take the source direct-chain branch. Continue still
 requires jump entry and the remaining movement/item/completion body. Physical
 audio and production player control remain unbound.
+
+Jump entry now joins after ordinary attack in the actual prefix. A 270-case
+native proof retains the earlier release/attack outcomes and adds all four
+entry player rows, standing/moving/running jump arguments, cached air rejection
+and eight stale child slot/port/role checks. Eligible jump input completes the
+real JUMPDELAY frame and returns from player_think. Absent JUMPDELAY exposes
+an explicit DO_JUMP pending state; it is never acknowledged by this prefix.
+The pending descriptor survives for common_prejump on the next source tick.
+Actual common_jump landing/action dispatch and the remaining ground body are
+still required before production player_think admission.
