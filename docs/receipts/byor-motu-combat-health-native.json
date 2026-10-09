@@ -1,0 +1,17 @@
+{
+  "schema": "BYOR_COMBAT_HEALTH_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "cases": 808,
+  "source_checkdamage_sha256": "c199aa31ccd140f64de8a624eb1c7163af779ff3b733350c409655023e71f62e",
+  "proof_path": "out/byor-motu-combat-health-life-native/report.json",
+  "proof_sha256": "99ae1bd208880951f9eccccf21928215bfa338be0b83e160feebd121c803cd87",
+  "rom_sha256": "2bb6550bdc8cdb028eb9448f3cfa8718ab22e774967f335a743f28fd356899c8",
+  "bank_zero_unchanged": true,
+  "bank_zero_free_bytes": 2,
+  "protected_files_unchanged": 17,
+  "production_binding": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
