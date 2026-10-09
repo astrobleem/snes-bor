@@ -133,13 +133,16 @@ ScriptedProjectileAudioArmGuardDone:
  rtl
 '''
 
-def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_driver=None,prefill=False,arm_guard=False,generic_rom=None,external_observer=None):
+def configure(folder,source_audio,sound_path,isolate=False,idle_pump=False,spc_driver=None,prefill=False,arm_guard=False,generic_rom=None,external_observer=None,prefill_chunks=None):
     r=json.loads((source_audio/'report.json').read_text())
     row=next(x for x in r['compiled']if x['source_path'].lower()==sound_path.lower())
     assert row['normalized_sample_rate']==11025 and (generic_rom or row['brr_bytes']<=32768)
     payload=(source_audio/row['brr_path']).read_bytes()
     assert hashlib.sha256(payload).hexdigest()==row['brr_sha256']
     prefill_target=min(7,max(0,math.ceil(len(payload)/144)-1))
+    if prefill_chunks is not None:
+        if not prefill or not isinstance(prefill_chunks,int)or not 1<=prefill_chunks<=7:raise ValueError('SOURCE_AUDIO_PREFILL_CHUNK_DOMAIN')
+        prefill_target=min(prefill_target,prefill_chunks)
     observations=[];received=[]
     def transform(raw,sy):
         # Candidate linking relocates stream assets; main.sym's legacy data
