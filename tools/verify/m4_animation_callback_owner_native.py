@@ -219,7 +219,7 @@ def main():
     if a.canonical_charge:
         rows=[dict(f=0,direction=d,default=default,fault=0,charge_port=port,charge_mask=mask,charge_mutation=mutation)for mutation in (0,1)for port in range(4)for mask in (0,128,256,384)for d in (0,1)]
     if a.early_player:
-        rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=c)for c in range(22)for d in (0,1)]
+        rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=c)for c in range(27)for d in (0,1)]
     if a.canonical_jump_attack:
         rows=[dict(f=0,direction=d,default=default,fault=0,jump_play=play,jump_nospecial=n,jump_held=held)for d in(0,1)for play in(0,64,256,320)for n in(-1,0,2,3)for held in(0,48)]
     if a.canonical_lie_absence:
@@ -726,13 +726,16 @@ CallbackFixture_ChargeDone:
         from source_player_jump_native import emit as emit_jump
         from source_player_lie_absence_native import emit as emit_lie
         jp=gr['player_jump_controls'];li=gr['player_lie_controls'];jump_capability=jump_profile(source)
+        from source_animation_idle_absence_4086 import derive as idle_profile
+        idle_capability=idle_profile(source)
         jump_roles={n:role_id(config,n)for n in('jumpspecial','jumpattack','jumpattack2','jumpattack3','runjumpattack','jumpforward')}
         asm+=emit_jump(jp,gr['input_history'],gr['input_owner'],0xb674,jump_capability,jump_roles,sy)+emit_lie(li,role_id(config,'riseattack'),sy)
-        asm+=emit_early(pe,player_state_work,fe,co,ch,pn,sy,fall=pf,jump=jp,lie=li)+emit_fall(pf,gr['input_history'],gr['input_owner'],0xb674,sy)+emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
+        asm+=emit_early(pe,player_state_work,fe,co,ch,pn,sy,fall=pf,jump=jp,lie=li,idle_profile=idle_capability)+emit_fall(pf,gr['input_history'],gr['input_owner'],0xb674,sy)+emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
         asm+=emit_history(gr['input_history'],gr['input_scratch'],gr['input_snapshot'],gr['combo_sequence'],gr['input_owner'],0xb674)
         asm+=emit_costmove(se,gr['entity_combo_tail'],sy)+emit_combo_energy_query(se,sy)
         asm+=emit_combo(early_commands,co,se,gr['input_history'],gr['combo_sequence'],gr['input_owner'],0xb674,sy)+emit_empty(fe,sy)
         asm=asm.replace(' jsl SpecialServices_Begin',' jsl PlayerEarly_Begin',1).replace(' jsl SpecialServices_FinishFrame',' jsl PlayerEarly_FinishFrame',1)
+        asm=asm.replace(' jsl PlayerEarly_Begin\n bcs CallbackFixture_Bad',f' jsl PlayerEarly_Begin\n bcc CallbackFixture_EarlyAdmitted\n lda.l {pe}+2\n cmp #5\n bne CallbackFixture_Bad\n jmp CallbackFixture_SpecialDone\nCallbackFixture_EarlyAdmitted:\n.a16\n.i16',1)
     if a.canonical_jump_attack:
         from source_player_jump_profile import derive as jump_profile
         from source_player_jump_native import emit as emit_jump
@@ -1294,10 +1297,11 @@ end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixtu
 put({pn},0xb687,2);put({ch},0xb686,2);put({co},0xb673,2);put({fe},0xb67d,2)
  put(0x43fd84,k==0 and 0 or 0x414000,4);put(0x439014,k==1 and -3 or 0,4);put(0x42f404,-3,4)
  put({early_tail},(k==3 or k==4 or k==9)and -3 or 0,4);put({early_tail}+12,7,4);put({early_tail}+20,k==10 and 0x80000000 or 40,4)
- put(0x43900c,17,4);put(0x43eb00,1,4);put(0x43eb04,(k==5 or k==6)and 7 or 0,4)
- put(0x40c050,0,4);put(0x40c058,0,4);put(0x43eb08,(k==14 or k==15 or k==16 or k==17 or k==21)and -3 or 0,4);put(0x43eb10,k>=18 and -5 or 0,4)
+ put(0x43900c,17,4);put(0x43eb00,(k==22 or k==25)and 0 or k==23 and -2147483648 or 1,4);put(0x43eb04,(k==5 or k==6)and 7 or 0,4)
+ put(0x40c050,k==24 and -3 or 0,4);put(0x40c058,0,4);put(0x43eb08,(k==14 or k==15 or k==16 or k==17 or k==21 or k==26)and -3 or 0,4);put(0x43eb10,(k>=18 and k<=21)and -5 or 0,4)
  put(0x414008,2,4);put(0x41400c,k==19 and 65536 or 0,4);put(0x416830,0,4);put(0x41682c,k==20 and 1 or 0,4)
  if k==21 then put(0x7ef100,2,4)end
+ if k==25 then put(0x416804,0,2)end;if k==26 then put({jp}+8,1,4)end
  if k==8 or k==9 then put(0x414008,2,4);put(0x41400c,0,4);put(0x416830,0,4);put(0x43eb08,0,4)end
  for j=0,1023 do put({gr['input_history']}+j,0,1)end
  put({gr['input_history']+216},k==3 and 384 or k==4 and 128 or(k==11 or k==12 or k==13)and {early_keys['moveup']|early_keys['jump']} or 0,4)
@@ -1580,16 +1584,16 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         r.update(canonical_pain_bound=True,pain_results=pain_results,pain_post_callback_inpain_mutation_instrumented=True,production_full_player_think_bound=False)
     if a.early_player:
         early_results=[list(map(int,line.split('EARLYPLAYER|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'EARLYPLAYER|'in line]
-        reporter.check('source-order joined player prefix completes all cases without admission faults',len(early_results)==len(rows)and all(v[1]in(2,4)for v in early_results))
+        reporter.check('source-order joined player prefix completes admitted cases and exposes explicit capability faults',len(early_results)==len(rows)and all(v[1]in(2,4,5)for v in early_results))
         expected=[]
         for i,c in enumerate(rows):
             k=c['early_case']
-            expected.append([i,2 if k in(2,10,13,19,20)else 4,0,0xfffffffd,0xfffffffd if k in(3,9)else 0,
+            expected.append([i,5 if k>=24 else 2 if k in(2,10,13,19,20,23)else 4,0,0xfffffffd,0xfffffffd if k in(3,9)else 0,
                 7 if k in(0,1,10)else 0,40 if k in(0,1)else 0x80000000 if k==10 else 0,7 if k==6 else 0,
                 0 if k in(0,1)else 4 if k in(8,9)else 2,2 if k in(3,4)else 0,2 if k in(5,6,7)else 0,
-                90 if k==5 else 100,320 if k==16 else 256 if k==17 else 0,0 if k==4 else role_id(config,'special')if k in(5,6,7)else role_id(config,'freespecial')if k in(8,9)else role_id(config,'jumpattack')if k==15 else role_id(config,'jumpspecial')if k in(16,17)else role_id(config,'riseattack')if k==18 else role_id(config,'select'),2 if k in(11,12,21)else 0,0xfffffffe if k==11 else 7,2 if k in(14,15,16,17)else 0,2 if k==18 else 0,1 if k in(5,8,9,15)else 0])
+                90 if k==5 else 100,320 if k==16 else 256 if k==17 else 0,0 if k==4 else role_id(config,'special')if k in(5,6,7)else role_id(config,'freespecial')if k in(8,9)else role_id(config,'jumpattack')if k==15 else role_id(config,'jumpspecial')if k in(16,17)else role_id(config,'riseattack')if k==18 else role_id(config,'select'),2 if k in(11,12,21)else 0,0xfffffffe if k==11 else 7,4 if k==26 else 2 if k in(14,15,16,17)else 0,2 if k==18 else 0,1 if k in(5,8,9,15)else 0])
         reporter.check('joined player prefix preserves entry snapshot, ordered short circuits, unsigned rush cleanup and real helper outcomes',early_results==expected)
-        r.update(canonical_player_early_dispatch_bound=True,early_results=early_results,early_actor_and_player_role_context_instrumented=True,early_helpers_and_frame_owners_real=True,player_fall_helper_bound=True,player_jump_helper_bound=True,player_lie_absence_helper_bound=True,unowned_grab_states_reject=True,jump_capability=jump_capability,active_gravity_or_landing_bound=False,full_player_think_bound=False)
+        r.update(canonical_player_early_dispatch_bound=True,early_results=early_results,early_actor_and_player_role_context_instrumented=True,early_helpers_and_frame_owners_real=True,player_fall_helper_bound=True,player_jump_helper_bound=True,player_lie_absence_helper_bound=True,unowned_grab_states_reject=True,jump_capability=jump_capability,busy_idle_absence_capability=idle_capability,busy_current_animation_identity_checked=True,explicit_guard_cases=['unowned_grab','stale_busy_animation_handle','unowned_air_cancel'],active_gravity_or_landing_bound=False,full_player_think_bound=False)
     if a.canonical_jump_attack:
         jump_results=[list(map(int,line.split('JUMPATTACKBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'JUMPATTACKBOUND|'in line]
         expected=[]

@@ -6,7 +6,7 @@ require the complete scoring/reached/branch owner. Continue status requires the
 remaining controller body; it does not certify a complete player_think.
 
 The unchanged literal C prefix passes 4608 comparisons, including callback-time
-state changes. Forty-four native cases join the existing real source command,
+state changes. Fifty-four native cases join the existing real source command,
 charge and pain services and actual animation frame owner after SELECT birth.
 They verify role/dead early returns, unsigned rush retention/expiry, charge
 hold/cancellation, accepted/rejected special during pain, and successful authored
@@ -19,3 +19,5 @@ controller body, combat and MOTU Demo completion remain unbound.
 
 The compiler address plan uses 5864 of 6400 bytes, leaving 536. It does not grant
 a production canvas lease. No color reduction or bank-0 code is introduced.
+
+The busy gate derives IMMUTABLE_ABSENT_ANIMATION_IDLE_ARRAY from every source model. BOR 4086 alloc_anim clears the structure; loader idle is zero initially and at each animation declaration; CMD_MODEL_IDLE is its only input and addframe allocates the array only for nonzero idle. MOTU has no such declaration. For idling zero the native gate resolves the current animation and verifies its copied handle before returning. Nonzero full-width idling continues. Native guards prove rejection of live unowned grab, stale busy handle and nonzero unsupported noaircancel. No frame idle array is guessed or silently discarded.
