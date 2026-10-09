@@ -33,8 +33,8 @@ exact short-circuit query order, and zero actor-byte mutation. Link validity and
 signed debit overflow belong to the later mutating costmove; they do not turn
 this pure eligibility query into an actor mutation preflight.
 
-The compiler-owned controller address plan consumes 5736 of the 6400 leased
-bytes, leaving 664. It includes input histories, entity movetime, combo tails,
+The compiler-owned controller address plan consumes 5760 of the 6400 leased
+bytes, leaving 640. It includes input histories, entity movetime, combo tails,
 input binding/snapshot/sequence controls, costmove and command continuations.
 It reserves no extra animhits array: shared source animation hits already have
 an initializer-owned canonical store. Layout generation alone grants no lease.

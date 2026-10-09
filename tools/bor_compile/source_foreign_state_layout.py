@@ -39,6 +39,7 @@ def layout(base,size,entities=128,players=4):
            ('special_binding_controls',64,'canonical special capture and preflighted publication'),
            ('special_services_controls',32,'real special queries and mandatory frame services'),
            ('charge_services_controls',24,'canonical charging cancellation and real idle continuation'),
+           ('pain_services_controls',24,'pain helper through real special continuation and fresh inpain cleanup'),
            ('player_state_controls',64,'module-tail lifetime lease and exact integer row access')]
     cursor=base;regions=[]
     for name,count,authority in specs:

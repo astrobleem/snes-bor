@@ -1,0 +1,14 @@
+{
+  "schema": "BYOR_4086_PLAYER_PAIN_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_function_sha256": "bbd149082078050c1b3beb230a23909baad0a1d4fef004ddc41c17d4993f2dfb",
+  "literal_function_unmodified": true,
+  "cases": 36,
+  "compared_bytes": 288,
+  "actual_sha256": "5a09f0a2e93a4150c9d4a2e6bc9303bbae3368eaac33307ab3e6212d774a2609",
+  "expected_sha256": "5a09f0a2e93a4150c9d4a2e6bc9303bbae3368eaac33307ab3e6212d774a2609",
+  "callback_instrumented": true,
+  "native_canonical_binding_proven": false,
+  "motu_gameplay_proven": false
+}

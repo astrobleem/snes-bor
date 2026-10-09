@@ -73,6 +73,7 @@ def main():
     p.add_argument('--player-state-birth',action='store_true',help='Execute the checked VM-tail lease and actual constructor state clearing through an opt-in birth bridge.')
     p.add_argument('--run-tuple-birth',action='store_true',help='Capture exact RUN snapshot after actual constructor model-data copy; requires player-state birth bridge.')
     p.add_argument('--ground-walk',action='store_true',help='After actual SELECT construction, run canonical ground movement and real WALK frame-zero services.')
+    p.add_argument('--pain-helper',action='store_true',help='Wrap canonical special with actual source pain cleanup.')
     p.add_argument('--canonical-charge',action='store_true',help='Actual charging helper and real idle after SELECT birth.')
     p.add_argument('--canonical-special',action='store_true',help='Actual SPECIAL queries, canonical snapshot and real frame owner after SELECT birth.')
     p.add_argument('--emit-only',action='store_true',help='Emit the private source-derived fixture and observer without launching or certifying it.')
@@ -94,6 +95,7 @@ def main():
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
+    if a.pain_helper and not a.canonical_special:raise ValueError('PAIN_REQUIRES_CANONICAL_SPECIAL')
     if a.canonical_charge and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('CHARGE_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
     if a.canonical_charge and(a.canonical_special or a.ground_walk):raise ValueError('CHARGE_FIXTURE_MODE_CONFLICT')
     if a.canonical_special and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('SPECIAL_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
@@ -689,6 +691,10 @@ CallbackFixture_ChargeDone:
 .i16
  nop
 """)
+    if a.pain_helper:
+        from source_player_pain_services import emit as emit_pain
+        pn=gr['pain_services_controls'];asm+=emit_pain(pn,sb,ss)
+        asm=asm.replace(' jsl SpecialServices_Begin',' jsl PainServices_Begin',1).replace(' jsl SpecialServices_FinishFrame',' jsl PainServices_FinishFrame',1)
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -1133,6 +1139,7 @@ end,emu.callbackType.exec,{fs['SourceCommonIdle_Animate']},{fs['SourceCommonIdle
  put(0x43905c,17,4);put(0x43eb20,-4,4);put(0x40c0b8,-3,4);put(0x416864,9*65536,4);put(0x416868,-7*65536,4)
  set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
  end
+ if {1 if a.pain_helper else 0}==1 then put(0x43eb04,7,4)end
  special_before={{}};if c.special_mode>=5 and c.special_mode<=7 then
  for _,r in ipairs({{{{0x414000,80}},{{0x416800,64}},{{0x40c000,96}},{{0x439000,80}},{{0x43eb00,32}},{{0x409000,64}},{{0x42e000,40}},{{0x42f400,24}},{{0x437e00,20}},{{{gr['input_history']},1024}}}})do for j=0,r[2]-1 do special_before[r[1]+j]=emu.read(r[1]+j,mt)end end end
 end,emu.callbackType.exec,{fs['CallbackFixture_SpecialPrepare']},{fs['CallbackFixture_SpecialPrepare']},emu.cpuType.snes,mt)
@@ -1170,6 +1177,17 @@ emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];if c.charge_mutation==0 then return end
  put({charge_tail},7,4);put(0x43900c,9,4);put(0x43eb00,-5,4)
 end,emu.callbackType.exec,{fs['ChargeServices_FinishFrame']},{fs['ChargeServices_FinishFrame']},emu.cpuType.snes,mt)
+"""
+    if a.pain_helper:
+        lua+=f"""emu.addMemoryCallback(function()
+ for j=0,23 do put({pn}+j,0,1)end;put({pn},0xb687,2)
+end,emu.callbackType.exec,{fs['PainServices_Begin']},{fs['PainServices_Begin']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ if word({pn}+2)==3 then put(0x43eb04,-7,4)end
+end,emu.callbackType.exec,{fs['PainServices_FinishFrame']},{fs['PainServices_FinishFrame']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('PAINBOUND|'..word(INDEX)..'|'..word({pn}+2)..'|'..word({pn}+6)..'|'..dw(0x43eb04))
+end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
 """
     if a.freeze_state:
         address=sy['SourceCtorState4086_FreezeBirthDone']
@@ -1405,6 +1423,10 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         expected=[[i,2,0xfffffffd,17,0xfffffffc,0xfffffffb,7,3,0xffffffff,9*65536,(-7*65536)&0xffffffff,role_id(config,'select'),2,2]if c['charge_mask']==384 else [i,2,7 if c['charge_mutation']else 0,9 if c['charge_mutation']else 0,0xfffffffb if c['charge_mutation']else 3,0,0,0,0,0,0,0,2,2]for i,c in enumerate(rows)]
         reporter.check('charging retains all state only with both held keys, otherwise clears charge and completes actual idle frame',charge_results==expected)
         r.update(canonical_charge_bound=True,charge_results=charge_results,charge_idle_capability=charge_idle_capability,charge_context_and_actor_input_mutations_instrumented=True,charge_idle_frame_owner_real=True,production_full_player_think_bound=False)
+    if a.pain_helper:
+        pain_results=[list(map(int,line.split('PAINBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'PAINBOUND|'in line]
+        reporter.check('pain clears fresh inpain only after actual special succeeds; rejection retains it',pain_results==[[i,2,0,7]if 5<=c['special_mode']<=7 else [i,2,1,0]for i,c in enumerate(rows)])
+        r.update(canonical_pain_bound=True,pain_results=pain_results,pain_post_callback_inpain_mutation_instrumented=True,production_full_player_think_bound=False)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     if a.damage_state_birth:
         damage_birth_results=[list(map(int,line.split('CTORDAMAGE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORDAMAGE|'in line]
