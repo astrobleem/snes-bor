@@ -2,8 +2,8 @@
   "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
   "base": 8364032,
   "bytes": 6400,
-  "used_bytes": 5288,
-  "remaining_bytes": 1112,
+  "used_bytes": 5320,
+  "remaining_bytes": 1080,
   "entities": 128,
   "players": 4,
   "regions": [
@@ -134,10 +134,17 @@
       "authority": "live type-filtered empty candidate-set proof"
     },
     {
-      "name": "player_state_controls",
+      "name": "ground_services_controls",
       "address": 8369256,
+      "bytes": 32,
+      "end": 8369288,
+      "authority": "serialized ground queries/search and real animation continuation"
+    },
+    {
+      "name": "player_state_controls",
+      "address": 8369288,
       "bytes": 64,
-      "end": 8369320,
+      "end": 8369352,
       "authority": "module-tail lifetime lease and exact integer row access"
     }
   ],

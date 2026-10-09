@@ -72,6 +72,7 @@ def main():
     p.add_argument('--ai-state-birth',action='store_true',help='Observe stale AI scalar reset before constructor alive publication and retain the sibling row.')
     p.add_argument('--player-state-birth',action='store_true',help='Execute the checked VM-tail lease and actual constructor state clearing through an opt-in birth bridge.')
     p.add_argument('--run-tuple-birth',action='store_true',help='Capture exact RUN snapshot after actual constructor model-data copy; requires player-state birth bridge.')
+    p.add_argument('--ground-walk',action='store_true',help='After actual SELECT construction, run canonical ground movement and real WALK frame-zero services.')
     p.add_argument('--emit-only',action='store_true',help='Emit the private source-derived fixture and observer without launching or certifying it.')
     p.add_argument('--smartspawn',action='store_true',help='Apply source-derived stage properties after the complete constructor; boss music remains an explicit pending service.')
     p.add_argument('--stage-queue-index',type=int,help='Read constructor inputs from an authored stage spawn record; post-constructor overrides remain separate.')
@@ -91,6 +92,7 @@ def main():
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
+    if a.ground_walk and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('GROUND_WALK_REQUIRES_CONSTRUCTOR_RUN_AND_FRAME_OWNERS')
     if a.costmove_model or a.attack_chain_model:
         if not a.frame_owner or not a.effects_runner:raise ValueError('COSTMOVE_REQUIRES_REAL_FRAME_OWNER')
         a.initial_select=True
@@ -189,6 +191,11 @@ def main():
         for row in init_report['animations']:
             model=next(m['id'] for m in registry['models'] if m['identity']==row['model']);struct.pack_into('<H',cache,(model*init_report['maximum_animations']+row['engine_animation_id'])*2,row['handle'])
         animation_cache=bytes(cache);rows=[dict(f=0,direction=d,default=default,fault=0) for d in (0,1)]
+        if a.ground_walk:
+            from source_player_run_4086 import KEYS
+            rows=[dict(f=0,direction=d,default=default,fault=0,ground_keys=mask)for d in (0,1)
+                  for mask in (KEYS['moveleft']if d==0 else KEYS['moveright'],KEYS['moveup'],KEYS['movedown'],
+                               (KEYS['moveleft']if d==0 else KEYS['moveright'])|KEYS['moveup'])]
     if a.common_spawn:
         previous_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity'] and h['role']!='idle')
     sy=symbols(Path('src/main.sym'));raw=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate']
@@ -528,6 +535,51 @@ CallbackFixture_AfterScript:
         asm+=emit_player_state(player_state_plan,player_state_work,sy)+emit_birth_bridge(player_state_work,sy)
         if a.run_tuple_birth:
             asm+=emit_run_tuples(run_work,run_handles,run_tuple_report,sy)+emit_ctor_model_bridge(run_work,sy)
+    if a.ground_walk:
+        from source_player_ground_native import emit as emit_ground
+        from source_player_ground_binding import emit as emit_ground_binding
+        from source_find_here_empty_native import emit as emit_empty
+        from source_player_ground_services import emit as emit_ground_services
+        gr=run_regions;g=gr['ground_controls'];b=gr['ground_binding_controls'];e=gr['find_here_empty_controls']
+        # This serialized proof control is an explicit private lease, not a root allocation.
+        service_work=gr['ground_services_controls']
+        asm+=emit_ground(g)+emit_ground_binding(b,g,player_state_work,run_work,run_handles,model_core_inputs(source)['models'],run_tuple_report,sy)
+        asm+=emit_empty(e,sy)+emit_ground_services(service_work,g,b,e,config,sy)
+        needle='CallbackFixture_ResultPublished:\n.a16\n.i16\n nop'
+        if needle not in asm:raise ValueError('GROUND_WALK_CONSTRUCTOR_RESULT_GATE')
+        asm=asm.replace(needle,needle+'''
+CallbackFixture_GroundPrepare:
+.a16
+.i16
+ nop
+ jsl GroundServices_Begin
+ bcs CallbackFixture_Bad
+CallbackFixture_GroundDispatch:
+.a16
+.i16
+ cmp #0
+ beq CallbackFixture_GroundDone
+ cmp #1
+ bne CallbackFixture_Bad
+ jsl STARTFRAME
+ bcs CallbackFixture_Bad
+CallbackFixture_GroundFrame:
+.a16
+.i16
+ jsl FRAMEOWNER
+ bcs CallbackFixture_Bad
+ cmp #$8001
+ beq CallbackFixture_GroundFrame
+ cmp #0
+ bne CallbackFixture_Bad
+ jsl GroundServices_FinishFrame
+ bcs CallbackFixture_Bad
+ jmp CallbackFixture_GroundDispatch
+CallbackFixture_GroundDone:
+.a16
+.i16
+ nop
+''')
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -913,6 +965,20 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
             lua=lua.replace(' put(0x7ffb86,c.fault,2)',f' put(0x7ffb86,c.fault,2)\n for j=0,63 do put({run_work}+j,0,1)end\n put({run_work},0xb678,2)\n for j=0,255 do put({run_handles}+j,0xa5,1)end')
             run_done=fs['SourceRunTuple_CtorModelDone']
             lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);emu.log('CTORRUNTUPLE|'..word(INDEX)..'|'..slot..'|'..word({run_handles}+slot*2)..'|'..word({run_handles}+127*2)..'|'..dw(0x414004+slot*80)..'|'..word({run_work}+2))end,emu.callbackType.exec,{run_done},{run_done},emu.cpuType.snes,mt)\n"
+    if a.ground_walk:
+        prepare=fs['CallbackFixture_GroundPrepare'];done=fs['CallbackFixture_GroundDone']
+        lua+=f'''emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1]
+ for _,r in ipairs({{{{{g},128}},{{{b},32}},{{{e},24}},{{{service_work},32}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
+ put({g},0xb679,2);put({b},0xb67c,2);put({e},0xb67d,2);put({service_work},0xb67e,2)
+ put({g}+16,c.ground_keys,4);put({g}+20,1,2);put({g}+22,1,2);put({g}+40,48,4)
+ set('SourceDefaultPlayer4086_Ready',0xb503);set('SourceDefaultPlayer4086_Status',0)
+ set('SourceLifecycle4086_Ready',0xb4fb);set('SourceLifecycle4086_Status',2)
+end,emu.callbackType.exec,{prepare},{prepare},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('GROUNDWALK|'..word(INDEX)..'|'..word({service_work}+2)..'|'..word({g}+2)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..dw(0x43900c)..'|'..dw(0x43eb00)..'|'..word(sy.SourceAnimationInit4086_Number)..'|'..word(sy.SourceAnimationInit4086_State)..'|'..word(sy.SourceUpdateFrame4086_State))
+end,emu.callbackType.exec,{done},{done},emu.cpuType.snes,mt)
+'''
     if a.freeze_state:
         address=sy['SourceCtorState4086_FreezeBirthDone']
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,39 do cleared=cleared+emu.read(0x42e000+slot*40+j,mt);sibling=sibling+emu.read(0x42e000+(slot+1)*40+j,mt)end;emu.log('CTORFREEZE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x41f300+slot*4)..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
@@ -966,6 +1032,9 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             # Explicit isolated payload lease: retire ordinary producers. This
             # is not the previously proven whole-canvas production handoff.
             for n in ('StageWater_Enabled','StageWater_Pending','StageFp_BG2Loaded','StageFp_BG2Active','StageFp_BG2DmaPending','StageFp_BG2Booting','StreamScrollFp_ColPending','StreamScrollFp_Enabled'):m.write_u8(sy[n],0)
+        # The request may precede the next foreground gate by more than one
+        # field. Uninitialized fixture counters are not an early failure.
+        m.write_u16(INDEX,0);m.write_u16(ERROR,0)
         m.write_u16(REQUEST,0xb4e7)
         for _ in range(24):
             run_frames_exact(m,60)
@@ -1104,6 +1173,14 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         physics_birth_results=[list(map(int,line.split('CTORPHYSICS|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORPHYSICS|'in line]
         reporter.check('native physics state clears before actual constructor exists publication and preserves sibling row',physics_birth_results==[[i,0,2640,0]for i in range(len(rows))])
         r.update(native_physics_birth_bound=True,physics_birth_results=physics_birth_results,native_active_gravity_or_landing_bound=False)
+    if a.ground_walk:
+        ground_results=[list(map(int,line.split('GROUNDWALK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'GROUNDWALK|'in line]
+        walk_id=role_id(config,'walk');speed=project_q16(struct.unpack('<I',struct.pack('<f',model_core_inputs(source)['models'][default]['fields']['speed']))[0])
+        expected=[[i,2,2,(-speed if c['ground_keys']&KEYS['moveleft']else speed if c['ground_keys']&KEYS['moveright']else 0)&0xffffffff,
+                   (-speed//2 if c['ground_keys']&KEYS['moveup']else speed//2 if c['ground_keys']&KEYS['movedown']else 0)&0xffffffff,0,1,walk_id,2,2]for i,c in enumerate(rows)]
+        reporter.check('actual constructor RUN/state feeds ground movement, live item type scan and real WALK frame owner',ground_results==expected)
+        r.update(canonical_ground_walk_bound=True,ground_walk_results=ground_results,ground_services_frame_callbacks_real=True,
+                 ground_level_and_input_context_instrumented=True,production_full_player_think_bound=False)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     if a.damage_state_birth:
         damage_birth_results=[list(map(int,line.split('CTORDAMAGE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORDAMAGE|'in line]
