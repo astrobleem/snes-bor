@@ -16,6 +16,16 @@ the pinned set_attacking macro. It compares ordered queries/services and final
 state. Five callback modes cover resource, descriptor, dofreeze, cost-flag,
 player-index and velocity mutations. Callback services are instrumented here.
 
-Native binding, smartbomb/freeze services, production input ownership and full
-player_think still remain. This is not MOTU gameplay/completion certification.
+The native 192-byte continuation passes all 4,096 authority cases and eight
+guards with the same ordered queries/services and callback mutations. HP/MP and
+BLOCK queries remain readonly external services; linked idle, smartbomb and
+SPECIAL animation remain mandatory callback services. It retains the selected
+key through callbacks, debits fresh resources after animation, and clears only
+that key from the fresh player-index row. Missing post-callback descriptors,
+invalid player indices and signed debit overflow reject explicitly. Decimal
+entry and CPU retention are checked natively. The clock peak includes fixture
+runtime/NMI activity and is not a production frame-budget admission.
+
+Native canonical binding, smartbomb/freeze services, production input ownership
+and full player_think still remain. This is not MOTU gameplay/completion certification.
 No color reduction is applied.

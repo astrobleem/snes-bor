@@ -1,0 +1,18 @@
+{
+  "schema": "BYOR_4086_PLAYER_SPECIAL_NATIVE_V1",
+  "status": "PASS",
+  "cases": 4104,
+  "guards": 8,
+  "observed": 4104,
+  "errors": [],
+  "rom_sha256": "bbf2f0665c51981c9e1881cd0ef51b6252b44fe4aa9316b266decec1cd9bed63",
+  "peak_master_clocks": 30480,
+  "snapshot_bytes": 192,
+  "queries_and_services_instrumented": true,
+  "canonical_actor_binding": false,
+  "smartbomb_and_freeze_owner_bound": false,
+  "production_player_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

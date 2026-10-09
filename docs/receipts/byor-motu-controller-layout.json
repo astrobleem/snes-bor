@@ -2,8 +2,8 @@
   "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
   "base": 8364032,
   "bytes": 6400,
-  "used_bytes": 5424,
-  "remaining_bytes": 976,
+  "used_bytes": 5616,
+  "remaining_bytes": 784,
   "entities": 128,
   "players": 4,
   "regions": [
@@ -162,10 +162,17 @@
       "authority": "oldrunning and entry-captured player row binding"
     },
     {
-      "name": "player_state_controls",
+      "name": "special_controls",
       "address": 8369392,
+      "bytes": 192,
+      "end": 8369584,
+      "authority": "special input/resource snapshot and mandatory callback continuation"
+    },
+    {
+      "name": "player_state_controls",
+      "address": 8369584,
       "bytes": 64,
-      "end": 8369456,
+      "end": 8369648,
       "authority": "module-tail lifetime lease and exact integer row access"
     }
   ],
