@@ -52,7 +52,8 @@ def pack(report):
     return struct.pack('<4s6H',b'B5MP',1,len(models),8,16,512,0)+directory+body
 
 
-def emit(report,symbols):
+def emit(report,symbols,service=6):
+    if service not in(3,6):raise ValueError('MODEL_PALETTE_TRANSITION_SERVICE')
     count=len(report['models'])
     if not 1<=count<=16 or [m['id']for m in report['models']]!=list(range(count)):
         raise ValueError('MODEL_PALETTE_IDENTITY_DIRECTORY')
@@ -213,4 +214,10 @@ ModelPaletteService_Maps:
     code=re.sub(r'^(\s+)(beq|bne|bcc|bcs) (ModelPaletteService_\w+)$',relax,code,flags=re.M)
     for name in sorted(symbols,key=len,reverse=True):
         if name.startswith(('Source','Vm')):code=re.sub(r'\b'+re.escape(name)+r'\b',str(symbols[name]),code)
+    if service==3:
+        start=code.index(' lda.l $400048,x')
+        end=code.index(' lda.l '+str(symbols['SourceModelTransition4086_New']),start)
+        code=code[:start]+code[end:]
+        code=code.replace('cmp #6\n','cmp #3\n').replace('lda #6\n','lda #3\n')
+        code=code.replace('ModelPaletteService_','ModelPaletteService3_').replace('Apply6:','Apply3:')
     return code

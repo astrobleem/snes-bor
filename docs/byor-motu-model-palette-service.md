@@ -27,8 +27,26 @@ the two intended map/owner words. The source tables and native ROM are hashed
 in `receipts/byor-motu-model-palette-service-native.json`. The compiled palette
 table is 9,872 bytes and retains all nineteen source palette vectors.
 
+The first colour service now also publishes that map/owner pair and invokes
+the actual transition Ack, which calls the actual model-animation owner. Its
+438-case native proof uses all authored B4AI/B4FE descriptors and the source
+animation cache. It covers retained and clamped synchronized frames, exact
+next-frame delays, restoration of previous entity type 1 from each new authored
+type (including TYPE_NONE), and the service-5 continuation. Forty-six stale
+owner/row requests are rejected before publication. Eight deliberately stale
+animation children fault after successful map publication; the proof retains
+that ordered partial state and does not claim transactional rollback. The
+receipt is `receipts/byor-motu-model-first-palette-service-native.json`.
+
+First-service core validation checks the physical address; original-type
+matching applies only to the second service because ent_set_model must run
+initialization under the newly installed type before restoring the original.
+The synchronized branch does not execute frame-zero effects. Unsynchronized
+initialization and its nested frame continuation remain separately owned.
+The default service-6 emitted assembly is byte-identical to the prior commit.
+
 This proves identity selection, not palette hardware admission or upload. The
-first colour service, complete weapon transition, live presentation and Demo
-remain open. The isolated fixture installs the request lease. The foreign
+complete weapon transition, live presentation and Demo remain open. The
+isolated fixture installs the request lease. The foreign
 profile remains unregistered. No production assembly, bank-0 code, new mutable
 state, color reduction or PCM copies are added.

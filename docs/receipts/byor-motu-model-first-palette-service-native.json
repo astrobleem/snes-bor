@@ -1,0 +1,30 @@
+{
+  "schema": "BYOR_4086_MODEL_PALETTE_SERVICE_NATIVE_V1",
+  "status": "PASS",
+  "rom_sha256": "57d236c317c5b28b95a1a0ff34bca6020aba931db3db18b40d4652ea7f9cfd8d",
+  "cases": 438,
+  "palette_table_sha256": "04afe707a0559fbec4df2f481a322dea1a01bf8c72d683c5aace655572ce1fcb",
+  "palette_table_bytes": 9872,
+  "real_transition_ack": true,
+  "cgram_admission_bound": false,
+  "first_colour_service_bound": true,
+  "synchronized_animation_bound": true,
+  "full_transition_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "palette_identity_report_sha256": "8e0d02a0cd4a41efa1483a82159335a5bfbf521ed925736a32ee641a68510cbc",
+  "full_report_sha256": "5bbb6ae70c2355e16e326133887536bb3c0ae3dec70e2a8d313f6ee837a1285b",
+  "reproduce_argv": [
+    "python",
+    "tools/verify/m4_model_palette_service_native.py",
+    "--first-colour",
+    "--source",
+    "Masters of the Universe [v.3.0 Build 4086].pak",
+    "--rom",
+    "out/byor-motu-vm-regression/bor.sfc",
+    "--output",
+    "out/byor-motu-model-first-palette-service-native"
+  ]
+}
