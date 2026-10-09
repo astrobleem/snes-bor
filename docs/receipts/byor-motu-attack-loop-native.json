@@ -1,0 +1,70 @@
+{
+  "schema": "BYOR_MOTU_ORDERED_ATTACK_LOOP_PROOFS_V1",
+  "status": "PASS",
+  "proofs": [
+    {
+      "schema": "BYOR_4086_ORDERED_ATTACK_LOOP_AUTHORITY_V1",
+      "status": "PASS",
+      "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+      "cases": 768,
+      "loop_header_unmodified": true,
+      "outer_predicate_unmodified": true,
+      "loop_header_sha256": "4aba29bd8124e68b04610906dac265baa6a80346762622d014a11ee97aced4aa",
+      "predicate_sha256": "f0ec0c9ef281b146a01baffdf5d31c5a73f701c9210c891626ad52fd694c5039",
+      "mismatches": [],
+      "collision_results_instrumented": true,
+      "hit_body_instrumented": true,
+      "followed_stop_simulated_by_animation_pointer_change": true,
+      "ondoattack_and_damage_proven": false,
+      "motu_gameplay_proven": false,
+      "no_color_reduction": true,
+      "report_path": "out/byor-motu-attack-loop-authority/report.json",
+      "report_sha256": "9a71ee2b5efabec6d2ef3fbbeae2b89a19c36b61269a24e7f517e9cc00031c8e"
+    },
+    {
+      "schema": "BYOR_ORDERED_ATTACK_LOOP_NATIVE_V1",
+      "status": "PASS",
+      "cases": 778,
+      "rom_sha256": "ec4e0bd250963a562fa025f7cc0b39417f0b7b1870160e6a60c2eb7c8084ae6d",
+      "chr_capacity": 47936,
+      "control_tail": [
+        4374456,
+        4374464
+      ],
+      "mandatory_hit_ticket": 33041,
+      "actual_native_preparation_target_and_collision": true,
+      "ondoattack_and_hit_services_bound": false,
+      "defense_threshold_expression_excluded": true,
+      "source_float_equivalence": false,
+      "production_world_owner_bound": false,
+      "motu_gameplay_proven": false,
+      "no_color_reduction": true,
+      "no_pcm_copies": true,
+      "report_path": "out/byor-motu-attack-loop-native-corrected/report.json",
+      "report_sha256": "d0a5314e49c420684ded83e8c59c3d272b33893c835dea0990aa26fb07d5f9d2"
+    },
+    {
+      "schema": "BYOR_DO_ATTACK_PREPARE_NATIVE_V1",
+      "status": "PASS",
+      "cases": 310,
+      "rom_sha256": "20dbe31f9608e4d7e655b2e7f5c897d923a85bb289803b181b9b04831d4dce94",
+      "ready_ticket": 33040,
+      "record_control_range": [
+        4374432,
+        4374456
+      ],
+      "memory_lease_installed_by_fixture": true,
+      "defense_threshold_expression_excluded": true,
+      "ordered_target_loop_bound": false,
+      "damage_bound": false,
+      "production_memory_lease": false,
+      "motu_gameplay_proven": false,
+      "no_color_reduction": true,
+      "no_pcm_copies": true,
+      "report_path": "out/byor-motu-do-attack-prepare-capacity-regression/report.json",
+      "report_sha256": "c04fc7feeae1104a6acfa52e63413b97b9761b71d3e15878354c29c0e32690d0"
+    }
+  ],
+  "no_color_reduction": true,
+  "motu_gameplay_proven": false
+}

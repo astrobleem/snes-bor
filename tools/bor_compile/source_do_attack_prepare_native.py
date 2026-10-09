@@ -24,7 +24,10 @@ def emit(requirements,plan,sy,code_bank=39,collision_bank=58):
     put(' jsl CheckAttack_Run');branch('bcs');put(' cmp #0');branch('beq','Done');put(f' cmp #{DO_ATTACK}');branch('bne')
     require(sy['SourceRetirement4086_Ready'],0xb4f8)
     put(f' lda.l {sy["SOURCE_RETIREMENT_ROLES"]}+28\n ora.l {sy["SOURCE_RETIREMENT_ROLES"]}+30');branch('bne','Done')
-    require(w,0xb6a3);require(w+20,plan['chr_capacity']);require(h+20,plan['chr_capacity'])
+    require(w,0xb6a3)
+    put(f' lda.l {w}+20');branch('beq')
+    put(f' cmp #{plan["chr_capacity"]+1}');branch('bcs')
+    put(f' cmp.l {h}+20');branch('bne')
     for op,off in (('txa',8),('tya',10)):
         put(f' {op}\n cmp.l {w}+{off}');branch('bne')
     put(f' lda.l {h}+4\n sta $00\n sta $02\n lda #0\n sta $04')
