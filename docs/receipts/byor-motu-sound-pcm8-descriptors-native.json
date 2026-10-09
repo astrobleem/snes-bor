@@ -1,0 +1,31 @@
+{
+  "schema": "BYOR_SOUND_PCM8_DESCRIPTORS_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": {
+    "fixed": {
+      "path": "out/byor-motu-sound-admission-descriptors-fixed-native/report.json",
+      "sha256": "a02fad15b3607e6722e66ed67603059cc4026beff71816f4c5b943b848261d9b",
+      "rom_sha256": "dadd7b9593d7c445139b7b23e2d21ee3afb5cc86a62839db456b32a4dc34864c",
+      "jobs": 2,
+      "PCM_bytes": 1408,
+      "peak_master_clocks": 152364,
+      "descriptor_metadata_sha256": "48a068b31ec82504ec37baf3612000bfc63784d7fd9d6576fcfc2a4e98219bea"
+    },
+    "ending": {
+      "path": "out/byor-motu-sound-admission-descriptors-ending-native/report.json",
+      "sha256": "a7d5b24518112507e29ab169175c1b8da18c9224aefd9bebcaa184483877aa62",
+      "rom_sha256": "4a445f55b163fb90f2622fb4921a7669f346cc1c2ed23726a1dfbdf9a3a009bc",
+      "jobs": 47,
+      "PCM_bytes": 33088,
+      "peak_master_clocks": 152358,
+      "descriptor_metadata_sha256": "48a068b31ec82504ec37baf3612000bfc63784d7fd9d6576fcfc2a4e98219bea"
+    }
+  },
+  "mutable_per_channel_descriptors": true,
+  "source_namespace_identity_retained": true,
+  "descriptor_metadata_complete_namespace": false,
+  "production_memory_lease": false,
+  "source_frame_ack_bound": false,
+  "BRR_SPC_transport_bound": false,
+  "no_color_reduction": true
+}
