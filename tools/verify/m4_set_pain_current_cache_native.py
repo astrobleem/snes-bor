@@ -13,14 +13,18 @@ from source_set_pain_select_native import derive,emit,emit_begin,emit_frame_pref
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True)
     for k in ('rom','output'):p.add_argument('--'+k,type=Path,required=True)
-    p.add_argument('--pain-flags',action='store_true');p.add_argument('--frame-sound-admission',action='store_true');p.add_argument('--assets',type=Path);p.add_argument('--begin-animation',action='store_true');p.add_argument('--frame-zero-prefix',action='store_true');p.add_argument('--frame-zero-owner',action='store_true')
-    a=p.parse_args();a.frame_sound_admission=a.frame_sound_admission or a.pain_flags;a.frame_zero_owner=a.frame_zero_owner or a.frame_sound_admission;a.frame_zero_prefix=a.frame_zero_prefix or a.frame_zero_owner;a.begin_animation=a.begin_animation or a.frame_zero_prefix;a.output=a.output.resolve();req=derive(Source(a.source));sy=symbols(Path('src/main.sym'))
+    p.add_argument('--finish-uninitialized-onpain',action='store_true');p.add_argument('--pain-flags',action='store_true');p.add_argument('--frame-sound-admission',action='store_true');p.add_argument('--assets',type=Path);p.add_argument('--begin-animation',action='store_true');p.add_argument('--frame-zero-prefix',action='store_true');p.add_argument('--frame-zero-owner',action='store_true')
+    a=p.parse_args();a.pain_flags=a.pain_flags or a.finish_uninitialized_onpain;a.frame_sound_admission=a.frame_sound_admission or a.pain_flags;a.frame_zero_owner=a.frame_zero_owner or a.frame_sound_admission;a.frame_zero_prefix=a.frame_zero_prefix or a.frame_zero_owner;a.begin_animation=a.begin_animation or a.frame_zero_prefix;a.output=a.output.resolve();req=derive(Source(a.source));sy=symbols(Path('src/main.sym'))
     if a.frame_sound_admission and a.assets is None:raise ValueError('FRAME_SOUND_NAMESPACE_REQUIRED')
     namespace=None
     if a.frame_sound_admission:
         from source_pcm8_namespace import compile_namespace
         manifest=json.loads((a.assets/'report.json').read_text())
         namespace,pcm_metadata,pcm_payload=compile_namespace(Source(a.source),manifest)
+    onpain_requirements=None
+    if a.finish_uninitialized_onpain:
+        from source_uninitialized_onpain import derive as derive_onpain
+        onpain_requirements=derive_onpain(Source(a.source))
     work=next(r['address']for r in layout(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES'])['regions']if r['name']=='common_idle_controls')
     original=parent.run_fixture
     def fixture(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw):
@@ -294,6 +298,25 @@ PainFlagsGood{i}:
 .i16
 '''
                 consume+='PainFlagsComplete:\n.a16\n.i16\n nop\n'
+                if a.finish_uninitialized_onpain:
+                    from source_uninitialized_onpain import emit as finish_pain
+                    kw['append']+=finish_pain(work,onpain_requirements,sy)
+                    for i in range(2):consume+=f''' ldx #1
+ ldy #0
+ jsl SetPainFinish_Run
+ bcc PainFinishGood{i}
+ jmp ModelPipeline_EntryBad
+PainFinishGood{i}:
+.a16
+.i16
+ cmp #1
+ beq PainFinishReturn{i}
+ jmp ModelPipeline_EntryBad
+PainFinishReturn{i}:
+.a16
+.i16
+'''
+                    consume+='PainFinishComplete:\n.a16\n.i16\n nop\n'
             assert kw['append'].count(needle)==1;kw['append']=kw['append'].replace(needle,consume+needle)
             original_hook=kw.get('rom_transform')
             def install_pcm(raw,linked):
@@ -316,7 +339,7 @@ PainFlagsGood{i}:
                 from m4_animation_init_native import luav
                 lua='local flagSymbols='+luav({k:v for k,v in sy.items()if k.startswith(('SourceFreeze4086_','SourcePhysicsState4086_','SourceDamageEffectsState4086_'))})+'\nfor k,v in pairs(flagSymbols)do sy[k]=v end\n'+lua
                 lua=lua.replace('local ranges={','local ranges={{0x42e000,5120},{0x42d800,2048},{0x7ef100,3072},{0x437e00,2560},')
-                lua=lua.replace(f'word({work}+2)~=3',f'word({work}+2)~=6')
+                lua=lua.replace(f'word({work}+2)~=3',f'word({work}+2)~='+str(7 if a.finish_uninitialized_onpain else 6))
                 expected=f''' local fl=0x43eb00+c.slot*32
  for _,off in ipairs({{0,8,12,16,20}})do value(fl+off,0,4)end
  value(fl+4,c.pain_requested=={req['grabbed']} and 0 or 1,4)
@@ -345,7 +368,13 @@ emu.addMemoryCallback(function()local c=rows[word(INDEX)+1];emu.log("PAINFLAGSDO
             lua+='''\nemu.addMemoryCallback(function()emu.log("PAINSOUNDADMITTED|"..word(INDEX).."|"..word(0x413002).."|"..word(0x413022).."|"..word(0x413038).."|"..word(0x413024).."|"..word(sy.SourceFrameEffectPlan4086_Service).."|"..word(sy.SourceFrameEffectPlan4086_Acknowledged))end,emu.callbackType.exec,SOUNDADMITTED,SOUNDADMITTED,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()local b={};for i=0,479 do b[#b+1]=string.format("%02x",emu.read(0x413100+i,mt))end;emu.log("PAINSOUNDDONE|"..word(INDEX).."|"..word(0x413002).."|"..word(sy.SourceAnimationInit4086_State).."|"..word(sy.SourceUpdateFrame4086_State).."|"..word(sy.SourceUpdateFrame4086_Pending).."|"..table.concat(b))end,emu.callbackType.exec,SOUNDDONE,SOUNDDONE,emu.cpuType.snes,mt)
 '''
+        if a.finish_uninitialized_onpain:
+            kw['probes']['PAINFINISH']='PainFinishComplete'
+            lua+='\nemu.addMemoryCallback(function()emu.log("PAINFINISHED|"..word(INDEX).."|"..word('+str(work+2)+').."|"..emu.getState()["cpu.a"])end,emu.callbackType.exec,PAINFINISH,PAINFINISH,emu.cpuType.snes,mt)\n'
         raw,log=original(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw)
+        if a.finish_uninitialized_onpain:
+            finished=[l.split('PAINFINISHED|')[1]for l in log.splitlines()if'PAINFINISHED|'in l]
+            reporter.check('source uninitialized onpain completes set_pain and returns one without replaying frame or flags',finished==[str(i)+'|7|1'for i in range(len(rows))])
         if a.pain_flags:
             flags_done=[l.split('PAINFLAGSDONE|')[1]for l in log.splitlines()if'PAINFLAGSDONE|'in l]
             # Two palette reset calls belong to model transition; only frozen
@@ -397,7 +426,10 @@ emu.addMemoryCallback(function()local b={};for i=0,479 do b[#b+1]=string.format(
         r.update(schema='BYOR_SET_PAIN_FRAME_ZERO_PREFIX_NATIVE_V1',actual_source_frame_zero_prefix=True,actual_source_frame_zero_execution=False,source_animation_script_debt_pending=True,observer_acknowledgements=False)
         path.write_text(json.dumps(r,indent=2)+'\n')
 
-    if a.pain_flags:
+    if a.finish_uninitialized_onpain:
+        r.update(schema='BYOR_SET_PAIN_UNINITIALIZED_ONPAIN_NATIVE_V1',source_set_pain_bound=True,source_pain_flags_bound=True,source_unfreeze_bound=True,source_onpain_uninitialized_branch_bound=True,onpain_requirements=onpain_requirements,source_onpain_initialized_branch_bound=False,full_set_pain_for_closed_source_capability=True,source_set_pain_return=1,source_sound_admission_bound=True,source_frame_completion_bound=True,production_SPC_consumption_bound=False,production_memory_lease=False,full_damage_callback_bound=False)
+        path.write_text(json.dumps(r,indent=2)+'\n')
+    elif a.pain_flags:
         r.update(schema='BYOR_SET_PAIN_FLAGS_AFTER_FRAME_NATIVE_V1',source_pain_flags_bound=True,source_unfreeze_bound=True,source_colourmap_restore_conditional=True,source_freeze_deadline_clear_unconditional=True,painflags_once_under_retry=True,actual_source_frame_completion=True,actual_source_sound_admission=True,onpain_pending=True,onpain_bound=False,production_SPC_consumption_bound=False,production_memory_lease=False)
         path.write_text(json.dumps(r,indent=2)+'\n')
     elif a.frame_sound_admission:

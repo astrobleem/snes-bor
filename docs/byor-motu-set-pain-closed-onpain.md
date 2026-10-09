@@ -1,0 +1,9 @@
+# Closed source onpain capability
+
+All 16 source models lack an onpainscript declaration. The closure checks every model directive, including those after animation declarations, and rejects subclass inheritance or another script kind. The script AST closure includes every library function and inline block. Its 41 changeentityproperty calls use literal admitted keys for velocity, animation, frame, direction, AI flags, position and speed. Dynamic keys, another property capability or an API outside the closed mutation set fail explicitly.
+
+The pinned allocator zero-initializes Script objects. The unmodified Script_IsInitialized and execute_onpain_script functions pass 88 C cases. The initialized branch's variant/interpreter children are instrumented; it is not admitted natively. For the source-derived uninitialized branch, the engine performs no variant mutation or script execution.
+
+The generic native finish owner checks the source generation, completed pain frame and initializer, restored self, the script-clone lease and the animation-only initialized mask. It admits only the derived UNINITIALIZED_ONPAIN capability, then completes set_pain with return value one. A second finish call preserves that result without replaying frame or flags. No actor-name condition selects this behavior.
+
+All 72 native pain cases pass after actual model/cache changes, source sound admission, frame completion, literal painflags and conditional map restoration. Actor/cache/script-variable sibling rows and CPU context remain exact. This completes set_pain for the measured zero-guard, available-animation, uninitialized-onpain source capability. Nonzero guardpoints, initialized onpain and a model with no pain/default/idle animation retain explicit unsupported paths. Full common_takedamage, production audio ownership and MOTU gameplay remain unproven. No color reduction or PCM copies occurred. See the [receipt](receipts/byor-motu-set-pain-closed-onpain-native.json).
