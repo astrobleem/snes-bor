@@ -1,0 +1,28 @@
+{
+  "schema": "BYOR_4086_MODEL_SCRIPTS_SERVICE_NATIVE_V1",
+  "status": "PASS",
+  "rom_sha256": "d5efac83ef580555cb91ccd0bf86ac3af817eebc111711a8f79a8380ec5d1315",
+  "cases": 158,
+  "script_table_sha256": "7af26fcfca114db9607d166f637ee9350a49f93771d1079e3107a606866eeaaf",
+  "factor_table_sha256": "144001f99c49b77f7577943990a556cb89dd18c68ef86ecf4edf20ec16d48055",
+  "callback_table_sha256": "cce1ac775e84a8eaba1014cf73de7ba0f8f1cad9eedc9c7dd2297f2c853532a2",
+  "real_transition_ack": true,
+  "absent_callback_finish_bound": true,
+  "full_transition_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "full_report_sha256": "0dd6885d2d6574ae51306301881f51e4d5893c56ee7fd0053c3d1f450b0835a5",
+  "reproduce_argv": [
+    "python",
+    "tools/verify/m4_model_scripts_service_native.py",
+    "--finish-absent",
+    "--source",
+    "Masters of the Universe [v.3.0 Build 4086].pak",
+    "--rom",
+    "out/byor-motu-vm-regression/bor.sfc",
+    "--output",
+    "out/byor-motu-model-callback-finish-native"
+  ]
+}
