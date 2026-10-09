@@ -9,7 +9,7 @@ import re
 from source_engine_function_ids import function_id
 
 
-def emit(symbols,repository=None):
+def emit(symbols,repository=None,chain=None):
     root=Path(repository)if repository is not None else Path(__file__).resolve().parents[2]
     ai=(root/'src/core/vm/vm_source_ai_target.pasm').read_text(encoding='cp1252')
     scan=(root/'src/core/vm/vm_source_target.pasm').read_text(encoding='cp1252')
@@ -160,7 +160,71 @@ NormalTarget_Vm_NativeVariantDispatch__null_ok:
  clc
  rtl
 '''
-    code=prefix+ai+'\n'+scan+tail
+    bridge=''
+    if chain is not None:
+        if not 0<=chain<=0x1000000-96:raise ValueError('NORMAL_TARGET_CHAIN_EXTENT')
+        bridge=f'''
+NormalTarget_AttackChain:
+.a16
+.i16
+ php
+ rep #$39
+ phx
+ phy
+ jsr NormalTarget_CheckPlayerOwner
+ bcs NormalTarget_ChainBad
+ lda.l {chain}
+ cmp #$B675
+ bne NormalTarget_ChainBad
+ lda.l {chain}+2
+ cmp #3
+ bne NormalTarget_ChainBad
+ lda.l {chain}+4
+ cmp.l SourceAI4086_Slot
+ bne NormalTarget_ChainBad
+ lda.l {chain}+18
+ bne NormalTarget_ChainBad
+ lda.l {chain}+12
+ cmp #2
+ bcs NormalTarget_ChainBad
+ lda.l {chain}+50
+ cmp.l {chain}+6
+ bne NormalTarget_ChainBad
+ cmp.l SourceModelAnimationCopy4086_Maximum
+ bcs NormalTarget_ChainBad
+ ldx #0
+ ldy #0
+ jsl NormalTarget_Begin
+ bcs NormalTarget_ChainBad
+ lda.l SourceAITarget4086_Status
+ cmp #2
+ bne NormalTarget_ChainBad
+ lda.l SourceAITarget4086_Result
+ sta.l {chain}+14
+ lda.l SourceAITarget4086_Result+2
+ sta.l {chain}+16
+ lda.l {chain}+4
+ sta.l {chain}+52
+ lda.l {chain}+50
+ sta.l {chain}+54
+ ; Publish the response marker only after its complete identity and pointer.
+ lda #$B676
+ sta.l {chain}+18
+ ply
+ plx
+ plp
+ clc
+ rtl
+NormalTarget_ChainBad:
+.a16
+.i16
+ ply
+ plx
+ plp
+ sec
+ rtl
+'''
+    code=prefix+ai+'\n'+scan+tail+bridge
     # Every local branch stays in the compiled provider bank; public calls and
     # globals use resolved full addresses from the current native runtime.
     serial=[0]

@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_4086_NORMAL_TARGET_CHAIN_NATIVE_V1",
+  "status": "PASS",
+  "cases": 288,
+  "failures": [],
+  "rom_sha256": "36b9a124f74fd5bfe595d36af61e52b0bf8cd58e1a067159bef3f0833f59d185",
+  "native_target_queries": 248,
+  "target_results_instrumented": false,
+  "source_chain_geometry_preserved": true,
+  "combostyle_and_type_inputs_instrumented": true,
+  "source_animation_begin_executed": true,
+  "frame_zero_pending_only": true,
+  "production_player_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "full_report_sha256": "d4a2de4062aaf12a6ee8698de863fdc31b04c9b66b7495780f9ac279de1c5330",
+  "guard_cases": 248,
+  "guard_forms": 8,
+  "actual_results_sha256": "71ac76934980d27bd3aee04918f0b28584fe7bb21fa4b323a61c334f222400e5",
+  "default_ai_dispatch_text_unchanged": true,
+  "foreign_ai_target_service_native_integration_proven": false
+}

@@ -7,8 +7,12 @@ explicit; a frame acknowledgment cannot retire either service.
 from source_engine_function_ids import function_id
 
 
-def emit(tryjump,dojump,player,sample_jump,symbols):
+def emit(tryjump,dojump,player,sample_jump,symbols,target_service=None):
     if not -2147483648<=sample_jump<=2147483647:raise ValueError('FOREIGN_AI_JUMP_SOUND_DOMAIN')
+    if target_service is not None:
+        import re
+        if player is None or not (isinstance(target_service,int)and 0<=target_service<=0xffffff or isinstance(target_service,str)and re.fullmatch(r'[A-Za-z_]\w*',target_service)):
+            raise ValueError('FOREIGN_AI_TARGET_SERVICE')
     spans=((tryjump,64),(dojump,80))+(((player,32),)if player is not None else())
     for i,(a,n)in enumerate(spans):
         if not 0<=a<=0x1000000-n or any(a<b+m and b<a+n for b,m in spans[i+1:]):raise ValueError('FOREIGN_AI_CONTROL_LAYOUT')
@@ -48,7 +52,10 @@ def emit(tryjump,dojump,player,sample_jump,symbols):
     if player is not None:
         label('PlayerSound');put(' jsl ForeignAIRun_CheckPlayerOwner');branch('bcs');put(' jsl PlayerController_FinishSound');branch('bcs');put(' jmp ForeignAIRun_PlayerResult')
         entry('ResumeTarget');put(f' lda.l {state}\n cmp #5');branch('bne');put(f' lda.l {pending}\n cmp #$0202');branch('bne')
-        put(f' jsl {symbols["SourceAI4086_CheckOwner"]}');branch('bcs');put(' jsl ForeignAIRun_CheckPlayerOwner');branch('bcs');put(' jsl PlayerController_ResumeTarget');branch('bcs');put(' jmp ForeignAIRun_PlayerResult')
+        put(f' jsl {symbols["SourceAI4086_CheckOwner"]}');branch('bcs');put(' jsl ForeignAIRun_CheckPlayerOwner');branch('bcs')
+        if target_service is not None:
+            put(f' jsl {target_service}');branch('bcs')
+        put(' jsl PlayerController_ResumeTarget');branch('bcs');put(' jmp ForeignAIRun_PlayerResult')
     label('Dispatch');put(' cmp #0');branch('beq','Done')
     put(f' lda.l {symbols["SourceAI4086_Callback"]}+2');branch('bne','Legacy')
     put(f' lda.l {symbols["SourceAI4086_State"]}\n cmp #1');branch('bne','Think')

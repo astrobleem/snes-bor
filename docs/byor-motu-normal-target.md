@@ -28,8 +28,19 @@ the caller's CPU context and VM result scratch, and permits retired-self
 queries. It allocates no new state bytes. This proof instruments input actor
 rows and does not claim an authored combat scene.
 
-The attack-chain continuation is still external. Production combat and M4
-certification remain open. No color reduction is applied.
+The native attack-chain bridge now supplies actual target results in 288
+isolated chain cases. It validates the current player owner and chain slot,
+phase, role and empty response marker before publishing the pointer and
+response identity. Each target query also rejects one of eight stale-owner
+or stale-chain forms without changing chain or VM result state. The proof
+uses the actual source chain geometry and real animation initialization;
+combostyle, actor type and geometry are instrumented inputs. Frame zero is
+pending, so this does not certify animation callbacks or production combat.
+
+The foreign AI emitter can bind this synchronous bridge before resuming its
+player target continuation. With that option omitted its generated dispatcher
+text is unchanged. Full dispatcher integration and M4 certification remain
+open. No color reduction is applied.
 
 Reproduce with `source_normal_target_authority.py --source <PAK> --output
 out/byor-motu-normal-target-authority`. The bounded receipt is
@@ -37,3 +48,5 @@ out/byor-motu-normal-target-authority`. The bounded receipt is
 The native proof is `m4_normal_target_native.py --rom <baseline> --source <PAK>
 --output out/byor-motu-normal-target-native`; its bounded receipt is
 `docs/receipts/byor-motu-normal-target-native.json`.
+The joined chain proof is `m4_normal_target_chain_native.py` with the same
+arguments; its receipt is `docs/receipts/byor-motu-normal-target-chain-native.json`.
