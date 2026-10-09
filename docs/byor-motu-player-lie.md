@@ -10,6 +10,6 @@ direction values and arbitrary input contents. The complete source animation
 universe has no RISEATTACK. Wider rise-attack behavior and complete player_think
 remain unbound; this is not gameplay or combat certification.
 
-The controller address plan uses 6280 of 6400 bytes, leaving 120. This plan does
+The controller address plan uses 6360 of 6400 bytes, leaving 40. This plan does
 not grant a production canvas lease. No color reduction or new bank-0 code is
 introduced.

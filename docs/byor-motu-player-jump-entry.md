@@ -40,7 +40,7 @@ through three chunks of 52224, 5120 and 8192 bytes. Native observer checks retai
 the entire 3072-byte reservation, neighboring physics and source heaps. This
 is a bounded transfer/storage proof, not production IRQ/NMI timing admission.
 The 64-byte control block appends at 7FB808. The controller address plan now
-uses 6280 of 6400 bytes, leaving 120. The real root must enforce reduced CHR
+uses 6360 of 6400 bytes, leaving 40. The real root must enforce reduced CHR
 capacity and drain its producers/DMA before leasing persistent state. Live
 model-switch hooks, tryjump/dojump execution, physical audio and the production
 memory lease remain open. No color reduction or gameplay completion is claimed.
@@ -54,3 +54,19 @@ descriptor and posts DO_JUMP_REQUIRED. It cannot acknowledge sound, toss or a
 jump frame. Argument mutation in this boundary test is instrumented. The
 3,167-case default-init C regression still passes with existing callback ids
 unchanged. Production action dispatch for common_prejump remains required.
+
+The complete unchanged dojump body and set_jumping macro pass 4,608 C
+comparisons, including sound/spawn/onspawn/toss mutations and negative zero.
+The native readonly jump-dust-absence lane derives all 16 model documents
+from the pinned -1 default, rejects dust declarations, retains by-value
+binary32 arguments, posts mandatory sound and then executes the actual
+entity toss and JUMP frame. Eight real constructor/frame cases pass, including
+source sound priority acceptance/rejection and fresh direction after toss.
+Physical sound results and the post-toss direction mutation are instrumented.
+Q16.16 movement remains an explicit ACCEPTED_COMPAT adaptation; nonfinite,
+out-of-range and nonzero lift that projects to zero fail explicitly.
+The 80-byte continuation appends at 7FB888, leaving 40 arena bytes. Registered
+common_jump identity 19 retains all prior ids. The 3,167-case default-init C
+regression and width guard pass. Production action dispatch, complete input
+entry binding, live memory leases and audible jump playback remain open.
+No color reduction has been applied.

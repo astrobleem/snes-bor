@@ -1,0 +1,17 @@
+{
+  "schema": "BYOR_4086_DOJUMP_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_body_sha256": "652f93ff3514892ea0c2e1f9669fca4aec0a90f7665cbe50cd3a737bc83ab311",
+  "literal_set_jumping_sha256": "549e3366bc62c9cedcd8e6d2422eeb5a37bff3cec45be4c1107f907b82708ce2",
+  "literal_body_unmodified": true,
+  "cases": 4608,
+  "compared_bytes": 313344,
+  "actual_sha256": "5c5174edd524f019375be43fdd805951870ba4b3b161e4c4635673ebd21b4f0e",
+  "expected_sha256": "5c5174edd524f019375be43fdd805951870ba4b3b161e4c4635673ebd21b4f0e",
+  "external_services_instrumented": true,
+  "callback_mutations_instrumented": true,
+  "native_bound": false,
+  "physical_audio_bound": false,
+  "motu_gameplay_proven": false
+}

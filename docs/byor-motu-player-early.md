@@ -17,7 +17,7 @@ projectile bits are checked. Role, input and idle/ground state are
 instrumented fixture inputs. The unchanged post-pain dispatch fragment also passes 2592 crossed branch comparisons. The joined jump executes the real frame owner; absent JUMPSPECIAL suppresses ATTACK without clearing its key. Lying requires matching Q16 height/base and zero full-width vertical velocity before its actual RISEATTACK query. Coordinates retain the existing explicit ACCEPTED_COMPAT_Q16_16 policy. Live grabbing without attacking explicitly rejects because its owner and common_throw_wait continuation are not admitted; absence of authored GRAB is not treated as a live-state no-op. The real SELECT-to-play transition, remaining
 controller body, combat and MOTU Demo completion remain unbound.
 
-The compiler address plan uses 6280 of 6400 bytes, leaving 120. It does not grant
+The compiler address plan uses 6360 of 6400 bytes, leaving 40. It does not grant
 a production canvas lease. No color reduction or bank-0 code is introduced.
 
 The busy gate derives IMMUTABLE_ABSENT_ANIMATION_IDLE_ARRAY from every source model. BOR 4086 alloc_anim clears the structure; loader idle is zero initially and at each animation declaration; CMD_MODEL_IDLE is its only input and addframe allocates the array only for nonzero idle. MOTU has no such declaration. For idling zero the native gate resolves the current animation and verifies its copied handle before returning. Nonzero full-width idling continues. Native guards prove rejection of live unowned grab, stale busy handle and nonzero unsupported noaircancel. No frame idle array is guessed or silently discarded.

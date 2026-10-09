@@ -76,6 +76,7 @@ def main():
     p.add_argument('--canonical-attack',action='store_true',help='Canonical ordinary attack with actual chain/frame owners; source sound result instrumented.')
     p.add_argument('--early-attack',action='store_true',help='Join ordinary attack after release in the real early player prefix.')
     p.add_argument('--pending-jump-birth',action='store_true',help='Clear exact pending jump descriptor before actual constructor exists publication, bind after model copy.')
+    p.add_argument('--canonical-dojump',action='store_true',help='Continue actual delayed jump through mandatory sound, real entity toss and real JUMP frame.')
     p.add_argument('--canonical-tryjump',action='store_true',help='Execute actual tryjump/JUMPDELAY and common_prejump through the real frame owner; DO_JUMP stays required.')
     p.add_argument('--canonical-release',action='store_true',help='Canonical attack release after SELECT; sound results instrumented, actual frame owner.')
     p.add_argument('--canonical-lie-absence',action='store_true',help='Execute the actual RISEATTACK absence query after SELECT birth, preserving actor/input state.')
@@ -106,6 +107,7 @@ def main():
     if a.canonical_attack and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('ORDINARY_ATTACK_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
     if a.early_attack and not a.early_player:raise ValueError('JOINED_ATTACK_REQUIRES_EARLY_PLAYER')
     if a.pending_jump_birth and not a.run_tuple_birth:raise ValueError('PENDING_JUMP_BIRTH_REQUIRES_REAL_MODEL_COPIER')
+    if a.canonical_dojump and not a.canonical_tryjump:raise ValueError('DOJUMP_REQUIRES_ACTUAL_TRYJUMP')
     if a.canonical_tryjump and not(a.pending_jump_birth and a.initial_select and a.frame_owner):raise ValueError('TRYJUMP_REQUIRES_ACTUAL_CONSTRUCTOR_AND_FRAME_OWNER')
     if a.canonical_tryjump and(a.early_player or a.canonical_attack or a.canonical_release):raise ValueError('TRYJUMP_FIXTURE_MODE_CONFLICT')
     if a.canonical_attack and(a.canonical_release or a.canonical_lie_absence or a.canonical_jump_attack or a.early_player or a.canonical_special or a.canonical_charge or a.ground_walk or a.attack_chain_model or a.costmove_model):raise ValueError('ORDINARY_ATTACK_FIXTURE_CONFLICT')
@@ -250,6 +252,8 @@ def main():
         rows=[dict(f=0,direction=d,default=default,fault=0,release_case=k,release_port=port)for k in range(8)for port in range(4)for d in(0,1)]
     if a.canonical_tryjump:
         rows=[dict(f=0,direction=d,default=default,fault=0,tryjump_case=k)for k in range(3)for d in(0,1)]
+    if a.canonical_dojump:
+        rows=[dict(f=0,direction=d,default=default,fault=0,tryjump_case=1,dojump_case=k)for k in range(4)for d in(0,1)]
     if a.canonical_lie_absence:
         rows=[dict(f=0,direction=d,default=default,fault=0,lie_port=port,lie_health=health)for port in range(4)for health in(-2147483648,0,150)for d in(0,1)]
     if a.common_spawn:
@@ -1090,6 +1094,57 @@ CallbackFixture_TryJumpAfterPrejump:
 .i16
  nop
 """)
+    if a.canonical_dojump:
+        from source_dojump_native import emit as emit_dojump
+        from source_dojump_profile import derive as derive_dojump
+        from source_sound_namespace_4086 import derive as derive_jump_sound
+        dj=run_regions['dojump_controls'];dust_profile=derive_dojump(source)
+        jump_sample=derive_jump_sound(source)['specials']['SAMPLE_JUMP']['sound_index']
+        asm+=emit_dojump(dj,pending_work,dust_profile,sy)
+        needle='CallbackFixture_TryJumpAfterPrejump:\n.a16\n.i16\n nop'
+        body=''
+        for src,dst in ((4,4),(6,6),(8,8),(10,10),(12,12),(14,14),(16,16),(18,18)):
+            body+=f' lda.l {tj}+{src}\n sta.l {dj}+{dst}\n'
+        asm=asm.replace(needle,needle+'\n'+body+f"""
+CallbackFixture_DoJumpPrepare:
+.a16
+.i16
+ nop
+ jsl DoJump_Begin
+ bcs CallbackFixture_Bad
+ lda.l {dj}+2
+ cmp #3
+ bne CallbackFixture_DoJumpStartFrame
+CallbackFixture_DoJumpSound:
+.a16
+.i16
+ nop
+ jsl DoJump_FinishSound
+ bcs CallbackFixture_Bad
+CallbackFixture_DoJumpStartFrame:
+.a16
+.i16
+ lda.l {dj}+2
+ cmp #4
+ bne CallbackFixture_Bad
+ jsl STARTFRAME
+ bcs CallbackFixture_Bad
+CallbackFixture_DoJumpFrame:
+.a16
+.i16
+ jsl FRAMEOWNER
+ bcs CallbackFixture_Bad
+ cmp #$8001
+ beq CallbackFixture_DoJumpFrame
+ cmp #0
+ bne CallbackFixture_Bad
+ jsl DoJump_FinishFrame
+ bcs CallbackFixture_Bad
+CallbackFixture_DoJumpDone:
+.a16
+.i16
+ nop
+""")
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -1626,6 +1681,28 @@ end,emu.callbackType.exec,{fs['CallbackFixture_TryJumpAfterFrame']},{fs['Callbac
 emu.addMemoryCallback(function()
  emu.log('PREJUMPRESULT|'..word(INDEX)..'|'..word({tj}+2)..'|'..dw({tj}+8)..'|'..dw({tj}+12)..'|'..dw({tj}+16)..'|'..word({tj}+6))
 end,emu.callbackType.exec,{fs['CallbackFixture_TryJumpAfterPrejump']},{fs['CallbackFixture_TryJumpAfterPrejump']},emu.cpuType.snes,mt)
+"""
+    if a.canonical_dojump:
+        lua+=f"""
+emu.addMemoryCallback(function()
+ for j=0,79 do put({dj}+j,0,1)end;put({dj},0xb693,2)
+ local c=rows[word(INDEX)+1];put({dj}+4,0,2);put({dj}+6,{role_id(config,'jump')},2)
+ put({dj}+8,0x40900000,4);put({dj}+12,0x3f99999a,4);put({dj}+16,0x80000000,4)
+ put({dj}+20,c.dojump_case==0 and 0xffffffff or {jump_sample},4)
+end,emu.callbackType.exec,{fs['CallbackFixture_DoJumpPrepare']},{fs['CallbackFixture_DoJumpPrepare']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];put({dj}+24,c.dojump_case==2 and 2 or 1,2)
+ emu.log('DOJUMPSOUND|'..word(INDEX)..'|'..word({dj}+2)..'|'..dw(0x43900c)..'|'..dw(0x43eb08)..'|'..dw(0x43eb00)..'|'..dw({dj}+20))
+end,emu.callbackType.exec,{fs['CallbackFixture_DoJumpSound']},{fs['CallbackFixture_DoJumpSound']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];if c.dojump_case==3 then put(0x41401c,1-c.direction,4)end
+end,emu.callbackType.exec,{fs['DoJump_BeforeDirection']},{fs['DoJump_BeforeDirection']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('DOJUMPFRAME|'..word(INDEX)..'|'..word({dj}+2)..'|'..dw(0x43900c)..'|'..dw(0x43eb08)..'|'..dw(0x43eb00)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..dw(0x41682c)..'|'..dw(0x41400c)..'|'..dw(0x41f300)..'|'..dw({sy['VmSourceWorld_Time']})..'|'..dw(0x414014))
+end,emu.callbackType.exec,{fs['DoJump_BeforeAnimation']},{fs['DoJump_BeforeAnimation']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('DOJUMPDONE|'..word(INDEX)..'|'..word({dj}+2)..'|'..dw(0x414014))
+end,emu.callbackType.exec,{fs['CallbackFixture_DoJumpDone']},{fs['CallbackFixture_DoJumpDone']},emu.cpuType.snes,mt)
 """
     if a.early_player:
         from source_player_run_4086 import KEYS as early_keys
@@ -2214,6 +2291,16 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         pj_expected=[[i,4 if c['tryjump_case']==0 else 5,0x41300000 if c['tryjump_case']==2 else 0x40900000,0x41400000 if c['tryjump_case']==2 else 0x3f99999a,0x41500000 if c['tryjump_case']==2 else 0x80000000,99 if c['tryjump_case']==2 else role_id(config,'jump')]for i,c in enumerate(rows)]
         reporter.check('common_prejump waits for animation, then exposes mandatory dojump with fresh pending descriptor',pj_results==pj_expected)
         r.update(tryjump_delay_frame_bound=True,tryjump_frame_results=tj_frames,common_prejump_results=pj_results,dojump_owner_bound=False,pending_mutation_instrumented=True,production_player_think_bound=False)
+    if a.canonical_dojump:
+        log=(folder/'mesen.log').read_text().splitlines()
+        dj_frames=[list(map(int,line.split('DOJUMPFRAME|',1)[1].split('|')))for line in log if 'DOJUMPFRAME|'in line]
+        dj_done=[list(map(int,line.split('DOJUMPDONE|',1)[1].split('|')))for line in log if 'DOJUMPDONE|'in line]
+        dj_sound=[list(map(int,line.split('DOJUMPSOUND|',1)[1].split('|')))for line in log if 'DOJUMPSOUND|'in line]
+        reporter.check('dojump executes actual source toss, sets jumping/idle, preserves source action and finishes real JUMP frame',len(dj_frames)==len(rows) and all(v[0]==i and v[1:5]==[1,19,1,0] and v[6:9]==[0,294912,32768] and v[9]==((v[10]+1)&0xffffffff) and v[11]==role_id(config,'jumpdelay') for i,v in enumerate(dj_frames)) and dj_done==[[i,2,role_id(config,'jump')]for i in range(len(rows))])
+        reporter.check('jump sound remains mandatory before jumping and source priority acceptance/rejection both continue',dj_sound==[[i,3,19,0,0,jump_sample]for i,c in enumerate(rows)if c['dojump_case']!=0])
+        reporter.check('horizontal source jump uses actual direction and Q16 compatibility projection',all(v[5]==((-78643 if (1-c['direction'] if c['dojump_case']==3 else c['direction'])==0 else 78643)&0xffffffff)for v,c in zip(dj_frames,rows)))
+        r.update(dojump_owner_bound=True,dojump_frame_results=dj_frames,dojump_completion_results=dj_done,dojump_sound_results=dj_sound,dojump_dust_capability=dust_profile,dojump_sound_result_instrumented=True,physical_jump_sound_backend_bound=False,dojump_numeric_policy='EXISTING_Q16_16_ACCEPTED_COMPAT',production_player_think_bound=False)
+
     if a.canonical_release:
         release_results=[list(map(int,line.split('RELEASEFRAMEBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'RELEASEFRAMEBOUND|'in line]
         expected=[]
