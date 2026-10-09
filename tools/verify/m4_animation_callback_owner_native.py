@@ -73,6 +73,7 @@ def main():
     p.add_argument('--player-state-birth',action='store_true',help='Execute the checked VM-tail lease and actual constructor state clearing through an opt-in birth bridge.')
     p.add_argument('--run-tuple-birth',action='store_true',help='Capture exact RUN snapshot after actual constructor model-data copy; requires player-state birth bridge.')
     p.add_argument('--ground-walk',action='store_true',help='After actual SELECT construction, run canonical ground movement and real WALK frame-zero services.')
+    p.add_argument('--canonical-charge',action='store_true',help='Actual charging helper and real idle after SELECT birth.')
     p.add_argument('--canonical-special',action='store_true',help='Actual SPECIAL queries, canonical snapshot and real frame owner after SELECT birth.')
     p.add_argument('--emit-only',action='store_true',help='Emit the private source-derived fixture and observer without launching or certifying it.')
     p.add_argument('--smartspawn',action='store_true',help='Apply source-derived stage properties after the complete constructor; boss music remains an explicit pending service.')
@@ -93,6 +94,8 @@ def main():
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
+    if a.canonical_charge and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('CHARGE_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
+    if a.canonical_charge and(a.canonical_special or a.ground_walk):raise ValueError('CHARGE_FIXTURE_MODE_CONFLICT')
     if a.canonical_special and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('SPECIAL_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
     if a.canonical_special and a.ground_walk:raise ValueError('SPECIAL_GROUND_FIXTURE_CONFLICT')
     if a.ground_walk and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('GROUND_WALK_REQUIRES_CONSTRUCTOR_RUN_AND_FRAME_OWNERS')
@@ -201,6 +204,8 @@ def main():
                                (KEYS['moveleft']if d==0 else KEYS['moveright'])|KEYS['moveup'])]
     if a.canonical_special:
         rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=m)for m in range(10)for d in (0,1)]
+    if a.canonical_charge:
+        rows=[dict(f=0,direction=d,default=default,fault=0,charge_port=port,charge_mask=mask,charge_mutation=mutation)for mutation in (0,1)for port in range(4)for mask in (0,128,256,384)for d in (0,1)]
     if a.common_spawn:
         previous_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity'] and h['role']!='idle')
     sy=symbols(Path('src/main.sym'));raw=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate']
@@ -641,6 +646,45 @@ CallbackFixture_SpecialFrame:
  bcs CallbackFixture_Bad
  jmp CallbackFixture_SpecialDispatch
 CallbackFixture_SpecialDone:
+.a16
+.i16
+ nop
+""")
+    if a.canonical_charge:
+        from source_player_charge_services import emit as emit_charge
+        gr=run_regions;ch=gr['charge_services_controls'];charge_idle_capability=default_idle_capability(animation_identities(source),model_core_inputs(source))
+        asm+=emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
+        needle='CallbackFixture_ResultPublished:\n.a16\n.i16\n nop'
+        if needle not in asm:raise ValueError('CHARGE_CONSTRUCTOR_RESULT_GATE')
+        asm=asm.replace(needle,needle+"""
+CallbackFixture_ChargePrepare:
+.a16
+.i16
+ nop
+ jsl ChargeServices_Begin
+ bcs CallbackFixture_Bad
+CallbackFixture_ChargeDispatch:
+.a16
+.i16
+ cmp #0
+ beq CallbackFixture_ChargeDone
+ cmp #1
+ bne CallbackFixture_Bad
+ jsl STARTFRAME
+ bcs CallbackFixture_Bad
+CallbackFixture_ChargeFrame:
+.a16
+.i16
+ jsl FRAMEOWNER
+ bcs CallbackFixture_Bad
+ cmp #$8001
+ beq CallbackFixture_ChargeFrame
+ cmp #0
+ bne CallbackFixture_Bad
+ jsl ChargeServices_FinishFrame
+ bcs CallbackFixture_Bad
+ jmp CallbackFixture_ChargeDispatch
+CallbackFixture_ChargeDone:
 .a16
 .i16
  nop
@@ -1107,6 +1151,26 @@ end,emu.callbackType.exec,{fs['SpecialServices_FinishFrame']},{fs['SpecialServic
 emu.addMemoryCallback(function()emu.log('SPECIALQUERY|'..word(INDEX)..'|'..dw(sy.SourceCheckEnergy4086_Which))end,emu.callbackType.exec,{sy['SourceCheckEnergy4086_Execute']},{sy['SourceCheckEnergy4086_Execute']},emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()emu.log('SPECIALSERVICEFRAME|'..word(INDEX)..'|'..word({sp}+6)..'|'..word(sy.SourceAnimationInit4086_Slot)..'|'..word(sy.SourceAnimationInit4086_Number))end,emu.callbackType.exec,{fs['CallbackFixture_SpecialFrame']},{fs['CallbackFixture_SpecialFrame']},emu.cpuType.snes,mt)
 """
+    if a.canonical_charge:
+        charge_tail=player_state_plan['base']
+        lua+=f"""emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1]
+ for j=0,23 do put({ch}+j,0,1)end;put({ch},0xb686,2)
+ for j=0,1023 do put({gr['input_history']}+j,0,1)end;put({gr['input_owner']},0xb674,2)
+ put({gr['input_history']}+256*c.charge_port+216,c.charge_mask|0x80000000,4)
+ put(0x414028,1,4);put(0x41402c,c.charge_port,4);put({charge_tail},-3,4);put(0x43900c,17,4)
+ put(0x43eb00,-4,4);put(0x40c058,-5,4);put(0x43eb04,7,4);put(0x43eb08,3,4);put(0x43eb0c,-1,4)
+ put(0x416824,9*65536,4);put(0x416828,-7*65536,4)
+ set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
+end,emu.callbackType.exec,{fs['CallbackFixture_ChargePrepare']},{fs['CallbackFixture_ChargePrepare']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('CHARGEBOUND|'..word(INDEX)..'|'..word({ch}+2)..'|'..dw({charge_tail})..'|'..dw(0x43900c)..'|'..dw(0x43eb00)..'|'..dw(0x40c058)..'|'..dw(0x43eb04)..'|'..dw(0x43eb08)..'|'..dw(0x43eb0c)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..word(sy.SourceAnimationInit4086_Number)..'|'..word(sy.SourceAnimationInit4086_State)..'|'..word(sy.SourceUpdateFrame4086_State))
+end,emu.callbackType.exec,{fs['CallbackFixture_ChargeDone']},{fs['CallbackFixture_ChargeDone']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];if c.charge_mutation==0 then return end
+ put({charge_tail},7,4);put(0x43900c,9,4);put(0x43eb00,-5,4)
+end,emu.callbackType.exec,{fs['ChargeServices_FinishFrame']},{fs['ChargeServices_FinishFrame']},emu.cpuType.snes,mt)
+"""
     if a.freeze_state:
         address=sy['SourceCtorState4086_FreezeBirthDone']
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,39 do cleared=cleared+emu.read(0x42e000+slot*40+j,mt);sibling=sibling+emu.read(0x42e000+(slot+1)*40+j,mt)end;emu.log('CTORFREEZE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x41f300+slot*4)..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
@@ -1336,6 +1400,11 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         special_service_frames=[list(map(int,line.split('SPECIALSERVICEFRAME|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'SPECIALSERVICEFRAME|'in line]
         reporter.check('linked peer requiring animation executes its real IDLE frame before root SPECIAL frame',all([v[1:]for v in special_service_frames if v[0]==i]==[[1,1,0],[3,0,special_role]]for i,c in enumerate(rows)if c['special_mode']==9))
         r.update(canonical_special_bound=True,special_results=special_results,special_queries=special_queries,special_rejected_retention=special_retained,special_link_results=special_links,special_service_frames=special_service_frames,special_idle_capability=special_idle_capability,special_profile=special_profile,special_frame_owner_real=True,special_context_and_input_instrumented=True,production_full_player_think_bound=False)
+    if a.canonical_charge:
+        charge_results=[list(map(int,line.split('CHARGEBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CHARGEBOUND|'in line]
+        expected=[[i,2,0xfffffffd,17,0xfffffffc,0xfffffffb,7,3,0xffffffff,9*65536,(-7*65536)&0xffffffff,role_id(config,'select'),2,2]if c['charge_mask']==384 else [i,2,7 if c['charge_mutation']else 0,9 if c['charge_mutation']else 0,0xfffffffb if c['charge_mutation']else 3,0,0,0,0,0,0,0,2,2]for i,c in enumerate(rows)]
+        reporter.check('charging retains all state only with both held keys, otherwise clears charge and completes actual idle frame',charge_results==expected)
+        r.update(canonical_charge_bound=True,charge_results=charge_results,charge_idle_capability=charge_idle_capability,charge_context_and_actor_input_mutations_instrumented=True,charge_idle_frame_owner_real=True,production_full_player_think_bound=False)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     if a.damage_state_birth:
         damage_birth_results=[list(map(int,line.split('CTORDAMAGE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORDAMAGE|'in line]

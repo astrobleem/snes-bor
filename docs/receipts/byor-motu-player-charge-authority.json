@@ -1,0 +1,15 @@
+{
+  "schema": "BYOR_4086_PLAYER_CHARGE_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_function_sha256": "9ba6d253f05b39f35f45548542fdbe6204c2dcb62f0bc5373f52566a770956a7",
+  "literal_function_unmodified": true,
+  "cases": 256,
+  "compared_bytes": 4096,
+  "actual_sha256": "296e11cb127b7f332375a06534a6f98fc45baeca4db5633199f18aa7dac922fa",
+  "expected_sha256": "296e11cb127b7f332375a06534a6f98fc45baeca4db5633199f18aa7dac922fa",
+  "callback_instrumented": true,
+  "callback_prefix_observed": true,
+  "native_canonical_binding_proven": false,
+  "motu_gameplay_proven": false
+}
