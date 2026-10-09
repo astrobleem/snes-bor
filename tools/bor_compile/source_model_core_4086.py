@@ -11,6 +11,7 @@ MOVE_NAMES=dict(normal=0,chase=1,chasez=2,chasex=4,avoid=8,avoidz=16,avoidx=32,w
 MOVE2_NAMES=dict(normal=0,ignoreholes=0x10000,notargetidle=0x20000)
 ATTACK_NAMES=dict(normal=0,noattack=4,always=8)
 FLOAT_FIELDS={'speed','runspeed','runjumpheight','runjumpdist'}
+GROUND_FIELDS=['facing','turndelay']
 PHYSICS=[f for f in ENTITY_CORE_FIELDS if f.startswith('subject_to_')]
 
 
@@ -32,7 +33,7 @@ def number(values,index=0):
 
 
 def defaults(jumpheight=4,model_ids=None):
-    d=dict.fromkeys(CACHED_FIELDS,0);d.update(type=0,subtype=0)
+    d=dict.fromkeys(CACHED_FIELDS+GROUND_FIELDS,0);d.update(type=0,subtype=0)
     for f in GLOBAL_NEGATIVE:
         if f!='shadow':d[f]=-1
     for f in PHYSICS+['no_adjust_base','hostile','candamage','projectilehit','aimove','aiattack','risetime.rise']:d[f]=-1
@@ -86,7 +87,7 @@ def load(rows,jumpheight=4,model_ids=None):
             if len(v)!=1:raise ValueError('MODEL_CORE_TYPE_ARITY')
             apply_type(d,v[0].lower())
         elif name=='subtype':raise ValueError('MODEL_CORE_SUBTYPE_BACKEND_REQUIRED')
-        elif name in ('health','mp','shadow','weapnum'):d[name]=integer(v)
+        elif name in ('health','mp','shadow','weapnum',*GROUND_FIELDS):d[name]=integer(v)
         elif name=='score':d['multiple']=integer(v,1)
         elif name=='risetime':d['risetime.rise']=integer(v)
         elif name in PHYSICS or name=='no_adjust_base':d[name]=int(integer(v)!=0)

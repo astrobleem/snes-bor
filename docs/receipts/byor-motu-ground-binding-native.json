@@ -1,0 +1,18 @@
+{
+  "schema": "BYOR_4086_GROUND_CANONICAL_BINDING_NATIVE_V1",
+  "status": "PASS",
+  "cases": 282,
+  "guards": 16,
+  "observed": 282,
+  "errors": [],
+  "rom_sha256": "5d4bd41e4619e215dc08fbdc896ca9276933881bf729cf1491b2351e9dc803d2",
+  "peak_master_clocks": 45918,
+  "canonical_actor_storage_bound": true,
+  "module_lease_installer_instrumented": true,
+  "ground_services_bound": false,
+  "common_turn_publication_rejected": true,
+  "production_player_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

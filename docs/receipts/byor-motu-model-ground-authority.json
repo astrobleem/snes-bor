@@ -1,0 +1,1368 @@
+{
+  "schema": "BYOR_4086_MODEL_CORE_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "authority_sha256": "ed92af928523e5abd9f9859c70614b59eea20077a8998557905e00520343e203",
+  "cases": 226,
+  "results": [
+    {
+      "case": 0,
+      "identity": "Shock",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 1,
+      "identity": "Slash",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 2,
+      "identity": "Spark",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 3,
+      "identity": "He_Man",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 4,
+      "identity": "He_ManB",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 5,
+      "identity": "HBreath",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 6,
+      "identity": "HWWind",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 7,
+      "identity": "ShWave",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 8,
+      "identity": "Skeletor",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 9,
+      "identity": "GeyserN",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 10,
+      "identity": "SkFBall",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 11,
+      "identity": "SkGeyser",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 12,
+      "identity": "SkGeyserT",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 13,
+      "identity": "SkTorn",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 14,
+      "identity": "Knightbot",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 15,
+      "identity": "ShockBall",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 16,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 17,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 18,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 19,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 20,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 21,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 22,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 23,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 24,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 25,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 26,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 27,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 28,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 29,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 30,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 31,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 32,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 33,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 34,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 35,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 36,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 37,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 38,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 39,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 40,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 41,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 42,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 43,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 44,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 45,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 46,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 47,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 48,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 49,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 50,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 51,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 52,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 53,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 54,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 55,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 56,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 57,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 58,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 59,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 60,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 61,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 62,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 63,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 64,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 65,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 66,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 67,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 68,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 69,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 70,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 71,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 72,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 73,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 74,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 75,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 76,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 77,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 78,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 79,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 80,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 81,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 82,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 83,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 84,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 85,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 86,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 87,
+      "identity": "synthetic-type",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 88,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 89,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 90,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 91,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 92,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 93,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 94,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 95,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 96,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 97,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 98,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 99,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 100,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 101,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 102,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 103,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 104,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 105,
+      "identity": "synthetic-speed",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 106,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 107,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 108,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 109,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 110,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 111,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 112,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 113,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 114,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 115,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 116,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 117,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 118,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 119,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 120,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 121,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 122,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 123,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 124,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 125,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 126,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 127,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 128,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 129,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 130,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 131,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 132,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 133,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 134,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 135,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 136,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 137,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 138,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 139,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 140,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 141,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 142,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 143,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 144,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 145,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 146,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 147,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 148,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 149,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 150,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 151,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 152,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 153,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 154,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 155,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 156,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 157,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 158,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 159,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 160,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 161,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 162,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 163,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 164,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 165,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 166,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 167,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 168,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 169,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 170,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 171,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 172,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 173,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 174,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 175,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 176,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 177,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 178,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 179,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 180,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 181,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 182,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 183,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 184,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 185,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 186,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 187,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 188,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 189,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 190,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 191,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 192,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 193,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 194,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 195,
+      "identity": "synthetic-int",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 196,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 197,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 198,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 199,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 200,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 201,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 202,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 203,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 204,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 205,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 206,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 207,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 208,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 209,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 210,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 211,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 212,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 213,
+      "identity": "synthetic-mask",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 214,
+      "identity": "synthetic-command",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 215,
+      "identity": "synthetic-command",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 216,
+      "identity": "synthetic-command",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 217,
+      "identity": "synthetic-command",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 218,
+      "identity": "synthetic-command",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 219,
+      "identity": "synthetic-command",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 220,
+      "identity": "synthetic-command",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 221,
+      "identity": "synthetic-binding",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 222,
+      "identity": "synthetic-binding",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 223,
+      "identity": "synthetic-binding",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 224,
+      "identity": "synthetic-binding",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "case": 225,
+      "identity": "synthetic-binding",
+      "passed": true,
+      "mismatches": []
+    }
+  ],
+  "media_loader_instrumented": true,
+  "complete_model_constructor_bound": false,
+  "motu_gameplay_proven": false
+}

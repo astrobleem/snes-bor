@@ -3,7 +3,7 @@ import argparse,hashlib,json,os,re,struct,subprocess
 from pathlib import Path
 from compiler import Source,key
 from source_profile import document,discover
-from source_model_core_4086 import CACHED_FIELDS,FLOAT_FIELDS,TYPE_NAMES,PHYSICS,load,number
+from source_model_core_4086 import CACHED_FIELDS,GROUND_FIELDS,FLOAT_FIELDS,TYPE_NAMES,PHYSICS,load,number
 from dialect_4086 import ENGINE_COMMIT
 from script_nested_authority import extract
 
@@ -23,7 +23,7 @@ def fixtures(source):
     for n in ('speed','speedf'):
         for v in ('-0','0','-100','4.99999','5','300','301','1.17549435e-38','10.1234567'):
             rows.append(dict(identity='synthetic-speed',rows=[row(n,v)],jumpheight=4,ids={}))
-    for n in PHYSICS+['no_adjust_base','health','mp','shadow','weapnum']:
+    for n in PHYSICS+['no_adjust_base','health','mp','shadow','weapnum',*GROUND_FIELDS]:
         for v in (-2147483648,-2,-1,0,1,2147483647):
             rows.append(dict(identity='synthetic-int',rows=[row(n,v)],jumpheight=4,ids={}))
     for n in ('hostile','candamage','projectilehit'):
@@ -43,7 +43,7 @@ def run(engine,source,folder):
     enums='\n'.join(re.search(r'typedef enum\s*\{[^}]*\}\s*'+n+r'\s*;',header,re.S)[0] for n in ('e_entity_type','e_entity_type_sub','e_aimove_1','e_aimove_2','e_aiattack_1'))
     funcs='\n'.join(extract(raw,'lcmHandleCommand'+n) for n in ('Type','Hostile','Candamage','Projectilehit','Aimove','Aiattack'))
     mapping={n:n.upper() for n in ('health','mp','shadow','weapnum','score','risetime','speed','speedf','running','diesound','icon','iconpain','icondie','iconget','flash','bflash','knife','fireb','playshot','playshotw','playshotno','star','bomb','playbomb','dust')}
-    mapping.update({n:n.upper() for n in PHYSICS+['no_adjust_base']})
+    mapping.update({n:n.upper() for n in PHYSICS+['no_adjust_base',*GROUND_FIELDS]})
     # Preserve shared case labels exactly as grouped in the pinned loader.
     groups=[]
     for block in re.findall(r'((?:            case CMD_MODEL_[^\n]*\n)+.*?                break;)',raw,re.S):
@@ -56,7 +56,7 @@ def run(engine,source,folder):
         if re.match(r'\s*newchar->('+ '|'.join(re.escape(f) for f in CACHED_FIELDS)+r')\s*=',line):defaults.append(line)
     post=raw[raw.index('    if(newchar->risetime.rise == -1)',raw.index('s_model *load_cached_model(')):]
     post=post[:post.index('    if(newchar->jumpspeed < 0)')]
-    fields=[f for f in CACHED_FIELDS if '.' not in f]
+    fields=[f for f in CACHED_FIELDS+GROUND_FIELDS if '.' not in f]
     declarations=';'.join(('float ' if f in FLOAT_FIELDS else 'int ')+f for f in fields)+';'
     c='''#include <stdio.h>
 #include <stdlib.h>
@@ -103,7 +103,7 @@ int sound_load_sample(char *s,int p,int n){return media_index(s);}
                 if v[0] not in media:media[v[0]]=len(media)
         c+='finish(newchar);printf("CORE|'+str(i)+'");\n'
         values=[]
-        for f in CACHED_FIELDS+['type']:
+        for f in CACHED_FIELDS+GROUND_FIELDS+['type']:
             val=media[bindings[f]] if f in bindings else d[f]
             values.append(struct.unpack('<I',struct.pack('<f' if f in FLOAT_FIELDS else '<i',val))[0])
             c+='memcpy(&bits,&newchar->'+f+',4);printf("|%u",bits);\n'
@@ -116,7 +116,7 @@ int sound_load_sample(char *s,int p,int n){return media_index(s);}
     output=subprocess.check_output([str((folder/'model_core_authority.exe').resolve())],cwd=folder,text=True);results=[]
     for line in output.splitlines():
         if not line.startswith('CORE|'):continue
-        parts=line.split('|');i=int(parts[1]);actual=list(map(int,parts[2:]));results.append(dict(case=i,identity=cases[i]['identity'],passed=actual==expected[i],mismatches=[dict(field=f,actual=a,expected=e) for f,a,e in zip(CACHED_FIELDS+['type'],actual,expected[i]) if a!=e]))
+        parts=line.split('|');i=int(parts[1]);actual=list(map(int,parts[2:]));results.append(dict(case=i,identity=cases[i]['identity'],passed=actual==expected[i],mismatches=[dict(field=f,actual=a,expected=e) for f,a,e in zip(CACHED_FIELDS+GROUND_FIELDS+['type'],actual,expected[i]) if a!=e]))
     authority=enums+funcs+selected+'\n'.join(defaults)+post
     report=dict(schema='BYOR_4086_MODEL_CORE_AUTHORITY_V1',status='PASS' if len(results)==len(cases) and all(r['passed'] for r in results) else 'FAIL',engine_commit=ENGINE_COMMIT,authority_sha256=hashlib.sha256(authority.encode('latin1')).hexdigest(),cases=len(cases),results=results,media_loader_instrumented=True,complete_model_constructor_bound=False,motu_gameplay_proven=False)
     (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n');return report

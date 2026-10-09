@@ -29,6 +29,7 @@ def layout(base,size,entities=128,players=4):
            ('entity_run_tuple',entities*2,'lossless immutable RUN snapshot handle'),
            ('run_tuple_controls',64,'serialized RUN capture/read controls'),
            ('ground_controls',128,'typed ground snapshot and mandatory-service continuation'),
+           ('ground_binding_controls',32,'canonical ground capture and preflighted writeback'),
            ('player_state_controls',64,'module-tail lifetime lease and exact integer row access')]
     cursor=base;regions=[]
     for name,count,authority in specs:
