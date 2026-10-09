@@ -65,3 +65,24 @@ an explicit DO_JUMP pending state; it is never acknowledged by this prefix.
 The pending descriptor survives for common_prejump on the next source tick.
 Actual common_jump landing/action dispatch and the remaining ground body are
 still required before production player_think admission.
+
+The admitted controller wrapper now joins the remaining running cancellation
+and ground body without another allocation. It uses the prefix's original
+running value and entry player row, fresh actor velocity/running fields at
+cancellation, the original cached air predicate, and current source time.
+Ground movement, real empty item search, walk/run/idle frames and source
+endthinkcheck return execute through the existing owners.
+
+A 248-case native proof compares complete source-derived output vectors over
+all four input rows, both directions, three running modes and ordinary movement,
+opposing keys, attack and jump input. The live player index changes after entry
+and live running changes at the tail in one mode; the original input row and
+oldrunning remain retained. Eight stale ground slot/role/port cases fail before
+frame acknowledgment. The larger test uses a 1,620-field observation bound;
+the prior 1,440-field run ended exactly after case 239 without a runtime fault
+and was reported FAIL. It is not counted as a successful run.
+
+Level/Z/facing and actor/input mutations are instrumented fixture contexts.
+Live item pickup, linked/grab states, arbitrary numeric lowering, physical
+punch playback, full action dispatch and the production world installer remain
+required. This component receipt is not a MOTU gameplay certification.

@@ -83,6 +83,7 @@ def main():
     p.add_argument('--canonical-release',action='store_true',help='Canonical attack release after SELECT; sound results instrumented, actual frame owner.')
     p.add_argument('--canonical-lie-absence',action='store_true',help='Execute the actual RISEATTACK absence query after SELECT birth, preserving actor/input state.')
     p.add_argument('--canonical-jump-attack',action='store_true',help='Actual closed zero-air-control jump attack helper after SELECT birth.')
+    p.add_argument('--player-controller',action='store_true',help='Join admitted prefix with actual running cancellation and ground services.')
     p.add_argument('--early-jump-entry',action='store_true',help='Join actual source jump entry after ordinary attack in the player prefix.')
     p.add_argument('--early-player',action='store_true',help='Join real empty search, preinput, charging and pain in player_think source order.')
     p.add_argument('--pain-helper',action='store_true',help='Wrap canonical special with actual source pain cleanup.')
@@ -108,6 +109,7 @@ def main():
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
     if a.canonical_attack and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('ORDINARY_ATTACK_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
+    if a.player_controller and not a.early_jump_entry:raise ValueError('PLAYER_CONTROLLER_REQUIRES_JOINED_JUMP_ENTRY')
     if a.early_jump_entry and not(a.early_attack and a.pending_jump_birth):raise ValueError('JOINED_JUMP_REQUIRES_ATTACK_AND_PENDING_BIRTH')
     if a.early_attack and not a.early_player:raise ValueError('JOINED_ATTACK_REQUIRES_EARLY_PLAYER')
     if a.pending_jump_birth and not a.run_tuple_birth:raise ValueError('PENDING_JUMP_BIRTH_REQUIRES_REAL_MODEL_COPIER')
@@ -253,6 +255,9 @@ def main():
     if a.early_jump_entry:
         rows += [dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=77+k,joined_jump_case=k,joined_jump_port=port)for k in range(6)for port in range(4)for d in(0,1)]
         rows += [dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=83+g,joined_jump_case=1,joined_jump_port=0,joined_jump_guard=g)for g in range(4)for d in(0,1)]
+    if a.player_controller:
+        rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=87+k,controller_case=k,controller_port=port,controller_run_mode=mode)for k in range(10)for mode in range(3)for port in range(4)for d in(0,1)]
+        rows += [dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=97+g,controller_case=1,controller_port=0,controller_run_mode=0,controller_guard=g)for g in range(4)for d in(0,1)]
     if a.canonical_jump_attack:
         rows=[dict(f=0,direction=d,default=default,fault=0,jump_play=play,jump_nospecial=n,jump_held=held)for d in(0,1)for play in(0,64,256,320)for n in(-1,0,2,3)for held in(0,48)]
     if a.canonical_attack:
@@ -820,6 +825,20 @@ CallbackFixture_ChargeDone:
         asm+=emit_history(gr['input_history'],gr['input_scratch'],gr['input_snapshot'],gr['combo_sequence'],gr['input_owner'],0xb674)
         asm+=emit_costmove(se,gr['entity_combo_tail'],sy)+emit_combo_energy_query(se,sy)
         asm+=emit_combo(early_commands,co,se,gr['input_history'],gr['combo_sequence'],gr['input_owner'],0xb674,sy)+emit_empty(fe,sy)
+        if a.player_controller:
+            from source_player_controller_native import emit as emit_controller
+            from source_player_ground_native import emit as emit_ground
+            from source_player_ground_binding import emit as emit_ground_binding
+            from source_player_ground_services import emit as emit_ground_services
+            from source_common_idle_native import emit as emit_common_idle
+            from source_player_run_native import emit as emit_run_cancel
+            from source_player_run_binding import emit as emit_run_binding
+            g=gr['ground_controls'];b=gr['ground_binding_controls'];service_work=gr['ground_services_controls'];common_idle_work=gr['common_idle_controls'];run_cancel_work=gr['run_cancel_controls'];run_binding_work=gr['run_binding_controls']
+            asm+=emit_ground(g)+emit_ground_binding(b,g,player_state_work,run_work,run_handles,model_core_inputs(source)['models'],run_tuple_report,sy)
+            asm+=emit_common_idle(common_idle_work,default_idle_capability(animation_identities(source),model_core_inputs(source)),sy)+emit_ground_services(service_work,g,b,fe,config,sy,idle_work=common_idle_work)
+            asm+=emit_run_cancel(run_cancel_work)+emit_run_binding(run_binding_work,run_cancel_work,run_work,g,b,gr['input_history'],gr['input_owner'],0xb674)
+            asm+=emit_controller(pe,run_binding_work,service_work,g,b,di,gr['input_history'],gr['input_owner'],0xb674,sy)
+
         asm=asm.replace(' jsl SpecialServices_Begin',' jsl PlayerEarly_Begin',1).replace(' jsl SpecialServices_FinishFrame',' jsl PlayerEarly_FinishFrame',1)
         asm=asm.replace(' jsl PlayerEarly_Begin\n bcs CallbackFixture_Bad',f' jsl PlayerEarly_Begin\n bcc CallbackFixture_EarlyAdmitted\n lda.l {pe}+2\n cmp #5\n bne CallbackFixture_Bad\n jmp CallbackFixture_SpecialDone\nCallbackFixture_EarlyAdmitted:\n.a16\n.i16',1)
         asm=asm.replace('CallbackFixture_SpecialDispatch:\n.a16\n.i16\n cmp #0',f'CallbackFixture_SpecialDispatch:\n.a16\n.i16\n cmp #$8001\n bne CallbackFixture_EarlyNoSound\nCallbackFixture_EarlySound:\n.a16\n.i16\n nop\n jsl PlayerEarly_FinishSound\n bcs CallbackFixture_Bad\n jmp CallbackFixture_SpecialDispatch\nCallbackFixture_EarlyNoSound:\n.a16\n.i16\n cmp #0',1)
@@ -859,6 +878,12 @@ CallbackFixture_EarlyToss:
  bcs CallbackFixture_Bad
  jmp CallbackFixture_SpecialFrame
 """
+    if a.player_controller:
+        start=asm.index('PlayerController_Begin:')
+        prefix,tail=asm[:start],asm[start:]
+        for n in('Begin','FinishFrame','FinishSound'):
+            prefix=prefix.replace(' jsl PlayerEarly_'+n+'\n',' jsl PlayerController_'+n+'\n')
+        asm=prefix+tail
     if a.canonical_jump_attack:
         from source_player_jump_profile import derive as jump_profile
         from source_player_jump_native import emit as emit_jump
@@ -1991,6 +2016,36 @@ emu.addMemoryCallback(function()
  if g==0 then put({je}+4,1,2)elseif g==1 then put({je}+6,1,2)elseif g==2 then put({tj}+4,1,2)elseif g==3 then put({tj}+6,99,2)end
 end,emu.callbackType.exec,{fs['PlayerEarly_JumpEntryFinish']},{fs['PlayerEarly_JumpEntryFinish']},emu.cpuType.snes,mt)
 """
+    if a.player_controller:
+        lua+=f"""
+emu.addMemoryCallback(function()
+ for j=0,31 do put({pe}+j,0,1)end;put({pe},0xb688,2)
+end,emu.callbackType.exec,{fs['PlayerController_Begin']},{fs['PlayerController_Begin']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];local k=c.controller_case;local port=c.controller_port
+ for _,r in ipairs({{{{{g},128}},{{{b},32}},{{{service_work},32}},{{{common_idle_work},24}},{{{run_binding_work},32}},{{{run_cancel_work},48}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
+ put({g},0xb679,2);put({g}+20,1,2);put({g}+76,1,2);put({g}+80,0,2);put({g}+82,2,2)
+ put({b},0xb67c,2);put({service_work},0xb67e,2);put({common_idle_work},0xb680,2);put({run_binding_work},0xb681,2);put({run_cancel_work},0xb677,2)
+ for j=0,1023 do put({gr['input_history']}+j,0,1)end
+ for j=0,3 do put(0x43fd84+4*j,0,4)end;put(0x43fd84+4*port,0x414000,4);put(0x41402c,port,4)
+ local held=({{0,4,8,16,32,20,12,48,0,0}})[k+1]
+ put({gr['input_history']}+port*256+216,held,4);put({gr['input_history']}+port*256+224,0x80000000|(k==8 and 64 or k==9 and 128 or 0),4)
+ put(0x42f404,c.controller_run_mode==0 and 0 or 0xfffffffd,4);put(0x43900c,9,4);put(0x43eb00,1,4);put(0x40c058,0,4);put(0x41400c,0,4);put(0x416830,0,4);put(0x416824,c.direction==0 and 0xffff0000 or 65536,4);put(0x416828,0,4);put(0x43eb1c,0,4)
+ set('SourceDefaultPlayer4086_Ready',0xb503);set('SourceDefaultPlayer4086_Status',0);set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
+end,emu.callbackType.exec,{fs['PlayerEarly_Begin']},{fs['PlayerEarly_Begin']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];if c.controller_run_mode==2 then put(0x42f404,0,4)end
+ put(0x41402c,(c.controller_port+1)%4,4)
+end,emu.callbackType.exec,{fs['PlayerController_Tail']},{fs['PlayerController_Tail']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1]
+ emu.log('PLAYERCONTROLLER|'..word(INDEX)..'|'..word({pe}+2)..'|'..word({pe}+6)..'|'..dw({pe}+8)..'|'..dw(0x42f404)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..dw(0x43900c)..'|'..dw(0x43eb00)..'|'..word(0x414014)..'|'..dw({gr['input_history']}+c.controller_port*256+224)..'|'..word({service_work}+2))
+end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];local n=c.controller_guard
+ if n==0 then put({b}+4,1,2)elseif n==1 then put(sy.SourceAnimationInit4086_Slot,1,2)elseif n==2 then put(sy.SourceAnimationInit4086_Number,99,2)elseif n==3 then put({pe}+6,1,2)end
+end,emu.callbackType.exec,{fs['PlayerController_GroundFinish']},{fs['PlayerController_GroundFinish']},emu.cpuType.snes,mt)
+"""
     if a.canonical_jump_attack:
         lua+=f"""emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1]
@@ -2146,7 +2201,8 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         # field. Uninitialized fixture counters are not an early failure.
         m.write_u16(INDEX,0);m.write_u16(ERROR,0)
         m.write_u16(REQUEST,0xb4e7)
-        for _ in range(24):
+        observation_batches=max(24,(len(rows)*6+59)//60+2)if a.player_controller else 24
+        for _ in range(observation_batches):
             run_frames_exact(m,60)
             if startup.u16(m,INDEX)==len(rows) or startup.u16(m,ERROR):break
         reporter.check('native authored callback batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,ERROR)==0)
@@ -2329,7 +2385,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         pain_results=[list(map(int,line.split('PAINBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'PAINBOUND|'in line]
         reporter.check('pain clears fresh inpain only after actual special succeeds; rejection retains it',pain_results==[[i,2,0,7]if 5<=c['special_mode']<=7 else [i,2,1,0]for i,c in enumerate(rows)])
         r.update(canonical_pain_bound=True,pain_results=pain_results,pain_post_callback_inpain_mutation_instrumented=True,production_full_player_think_bound=False)
-    if a.early_player:
+    if a.early_player and not a.player_controller:
         early_results=[list(map(int,line.split('EARLYPLAYER|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'EARLYPLAYER|'in line]
         reporter.check('source-order joined player prefix completes admitted cases and exposes explicit capability faults',len(early_results)==len(rows)and all(v[1]in(2,4,5)for v in early_results))
         expected=[]
@@ -2411,7 +2467,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             reporter.check('joined ordinary punch follows fresh attacking, missing-sample and RUNATTACK short circuits',attack_sounds==[i for i,c in enumerate(rows)if c.get('attack_case')in(2,4,7,8,9)and c.get('attack_guard',0)<2])
             r.update(ordinary_attack_joined_bound=True,attack_joined_results=attack_joined,attack_joined_expected=attack_expected,attack_joined_sound_results=attack_sounds,attack_sound_results_instrumented=True,physical_attack_sound_backend_bound=False,full_player_think_bound=False)
             r['explicit_guard_cases']+=['stale_attack_sound_slot','stale_attack_sound_port','stale_attack_frame_slot','stale_attack_frame_port']
-    if a.early_jump_entry:
+    if a.early_jump_entry and not a.player_controller:
         joined_jumps=[list(map(int,line.split('JUMPENTRYJOINED|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'JUMPENTRYJOINED|'in line]
         expected_jumps=[]
         for i,c in enumerate(rows):
@@ -2433,6 +2489,43 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         reporter.check('pending sound and pending frame reject common_jump control takeover without changing any of 80 owner bytes',leases==[v for i,c in enumerate(rows)for v in([['Sound',str(i),'0']]+([['Frame',str(i),'0']]if c['common_jump_case']in(2,4,5)else []))])
         r.update(common_jump_temporal_lease_results=leases)
         r.update(common_jump_action_bound=True,common_jumpland_action_bound=True,common_jump_results=results,common_jump_expected=expected,common_jump_capability=common_jump_profile,common_jump_control_temporal_reuse=True,landing_context_and_animation_state_instrumented=True,production_action_dispatch_bound=False)
+    if a.player_controller:
+        controller_results=[list(map(int,line.split('PLAYERCONTROLLER|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'PLAYERCONTROLLER|'in line]
+        reporter.check('full admitted player controller completes every native constructor/input case',len(controller_results)==len(rows)and all(v[1]==(5 if 'controller_guard'in c else 4)for v,c in zip(controller_results,rows)))
+        from source_player_run_4086 import retain as source_retain
+        from source_player_ground_4086 import execute as source_ground,Service as ground_service
+        controller_expected=[];fields=model_core_inputs(source)['models'][default]['fields']
+        declared={a['role']for a in compile_source(source)['animation_handles']if a['model']==registry['models'][default]['identity']}
+        for i,c in enumerate(rows):
+            k=c['controller_case'];mode=c['controller_run_mode'];old=0 if mode==0 else 0xfffffffd
+            if k==8:
+                role=role_id(config,'runattack')if mode else role_id(config,'attack1')
+                vx=(2*65536 if c['direction']else -2*65536)if mode else 0
+                controller_expected.append([i,4,c['controller_port'],old,0,vx&0xffffffff,0,17,0,role,0x80000000,0]);continue
+            if k==9:
+                controller_expected.append([i,4,c['controller_port'],old,old,0,0,18,0,role_id(config,'jumpdelay'),0x80000000,0]);continue
+            held=(0,4,8,16,32,20,12,48)[k];vx=-1 if c['direction']==0 else 1
+            running=source_retain(-3 if mode==1 else 0,-3 if mode else 0,fields['runupdown'],held,vx,0)
+            entity=dict(velocity=dict(x=vx,z=0),modeldata=fields.copy(),running=running,direction=c['direction'],turntime=0,takeaction=9,idling=1)
+            context=dict(min_z=0,max_z=1,notinair=1,time=48,level=dict(facing=0,scrolldir=2),facing_right=1,facing_left=2,facing_level=3,scroll_left=8,scroll_right=2)
+            gen=source_ground(entity,dict(keys=held),context,lambda role:role in declared);last_role=role_id(config,'select')
+            while True:
+                try:request=next(gen)
+                except StopIteration:break
+                kind=request[0]
+                if kind==ground_service.TOUCH_ITEM:continue
+                if kind==ground_service.SET_ANIMATION:last_role=role_id(config,request[2])
+                elif kind==ground_service.IDLE:
+                    entity['idling']|=2;entity['velocity']['x']=entity['velocity']['z']=0;last_role=role_id(config,'idle')
+                else:last_role=role_id(config,{ground_service.WALK:'walk',ground_service.BACKWALK:'backwalk',ground_service.UP:'up',ground_service.DOWN:'down'}[kind])
+            controller_expected.append([i,4,c['controller_port'],old,running&0xffffffff,int(entity['velocity']['x']*65536)&0xffffffff,int(entity['velocity']['z']*65536)&0xffffffff,int(entity['takeaction']or 0),entity['idling'],last_role,0x80000000,2])
+            if 'controller_guard'in c:
+                controller_expected[-1][1]=5;controller_expected[-1][2]=1 if c['controller_guard']==3 else c['controller_port'];controller_expected[-1][11]=3
+        reporter.check('complete source-derived controller vectors preserve entry input/oldrunning, fresh cancellation and exact admitted ground velocities/frame identity',controller_results==controller_expected)
+        r.update(player_controller_expected=controller_expected)
+
+        r.update(player_controller_native_bound=True,player_controller_results=controller_results,ground_context_and_tail_mutations_instrumented=True,live_item_and_grab_states_bound=False,production_player_think_bound=False)
+        r.update(native_observation_field_bound=observation_batches*60,native_observation_budget_authority='prior 1440-field run completed exactly 240 controller cases without runtime fault; six fields per case plus bounded margin')
     if a.canonical_jump_attack:
         jump_results=[list(map(int,line.split('JUMPATTACKBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'JUMPATTACKBOUND|'in line]
         expected=[]
