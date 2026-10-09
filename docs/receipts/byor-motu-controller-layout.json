@@ -2,8 +2,8 @@
   "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
   "base": 8364032,
   "bytes": 6400,
-  "used_bytes": 6360,
-  "remaining_bytes": 40,
+  "used_bytes": 6392,
+  "remaining_bytes": 8,
   "entities": 128,
   "players": 4,
   "regions": [
@@ -279,6 +279,13 @@
       "bytes": 80,
       "end": 8370392,
       "authority": "readonly dust absence, mandatory sound and actual toss/jump frame"
+    },
+    {
+      "name": "player_jump_entry_controls",
+      "address": 8370392,
+      "bytes": 32,
+      "end": 8370424,
+      "authority": "ordered jump input queries and real tryjump/frame continuation"
     }
   ],
   "required_lease": "SourceForeignWork B671 nonzero matching generation; retired canvas/frontpanel/water owners",

@@ -12,7 +12,7 @@ special query/frame/resource/input services run at this source position;
 airborne input skips that helper after the earlier button queries. Accepted
 SPECIAL and jump-plus-attack retain real post-frame resource/key cleanup.
 
-Controls append 48 bytes to the address plan: 6360 of 6400 bytes, leaving 40.
+Controls append 48 bytes to the address plan: 6392 of 6400 bytes, leaving 8.
 No production canvas lease is implied. Attack release, ordinary attack/jump
 entry, full player controller, combat and Demo completion remain unbound.
 No color reduction or bank-0 code is introduced.

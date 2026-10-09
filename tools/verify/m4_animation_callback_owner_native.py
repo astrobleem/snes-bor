@@ -76,6 +76,7 @@ def main():
     p.add_argument('--canonical-attack',action='store_true',help='Canonical ordinary attack with actual chain/frame owners; source sound result instrumented.')
     p.add_argument('--early-attack',action='store_true',help='Join ordinary attack after release in the real early player prefix.')
     p.add_argument('--pending-jump-birth',action='store_true',help='Clear exact pending jump descriptor before actual constructor exists publication, bind after model copy.')
+    p.add_argument('--canonical-jump-entry',action='store_true',help='Actual ordered source jump input branch before tryjump and real JUMPDELAY.')
     p.add_argument('--canonical-dojump',action='store_true',help='Continue actual delayed jump through mandatory sound, real entity toss and real JUMP frame.')
     p.add_argument('--canonical-tryjump',action='store_true',help='Execute actual tryjump/JUMPDELAY and common_prejump through the real frame owner; DO_JUMP stays required.')
     p.add_argument('--canonical-release',action='store_true',help='Canonical attack release after SELECT; sound results instrumented, actual frame owner.')
@@ -107,6 +108,7 @@ def main():
     if a.canonical_attack and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('ORDINARY_ATTACK_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
     if a.early_attack and not a.early_player:raise ValueError('JOINED_ATTACK_REQUIRES_EARLY_PLAYER')
     if a.pending_jump_birth and not a.run_tuple_birth:raise ValueError('PENDING_JUMP_BIRTH_REQUIRES_REAL_MODEL_COPIER')
+    if a.canonical_jump_entry and (not a.canonical_tryjump or a.canonical_dojump):raise ValueError('JUMP_ENTRY_REQUIRES_TRYJUMP_FIXTURE')
     if a.canonical_dojump and not a.canonical_tryjump:raise ValueError('DOJUMP_REQUIRES_ACTUAL_TRYJUMP')
     if a.canonical_tryjump and not(a.pending_jump_birth and a.initial_select and a.frame_owner):raise ValueError('TRYJUMP_REQUIRES_ACTUAL_CONSTRUCTOR_AND_FRAME_OWNER')
     if a.canonical_tryjump and(a.early_player or a.canonical_attack or a.canonical_release):raise ValueError('TRYJUMP_FIXTURE_MODE_CONFLICT')
@@ -254,6 +256,8 @@ def main():
         rows=[dict(f=0,direction=d,default=default,fault=0,tryjump_case=k)for k in range(3)for d in(0,1)]
     if a.canonical_dojump:
         rows=[dict(f=0,direction=d,default=default,fault=0,tryjump_case=1,dojump_case=k)for k in range(4)for d in(0,1)]
+    if a.canonical_jump_entry:
+        rows=[dict(f=0,direction=d,default=default,fault=0,tryjump_case=1,jump_entry_case=k,jump_entry_port=port)for k in range(8)for port in range(4)for d in(0,1)]
     if a.canonical_lie_absence:
         rows=[dict(f=0,direction=d,default=default,fault=0,lie_port=port,lie_health=health)for port in range(4)for health in(-2147483648,0,150)for d in(0,1)]
     if a.common_spawn:
@@ -1094,6 +1098,17 @@ CallbackFixture_TryJumpAfterPrejump:
 .i16
  nop
 """)
+    if a.canonical_jump_entry:
+        from source_player_jump_entry_native import emit as emit_jump_entry
+        from source_player_jump_entry_profile import derive as derive_jump_entry
+        je=run_regions['player_jump_entry_controls'];jump_entry_profile=derive_jump_entry(source)
+        entry_roles={n:role_id(config,n)for n in ('slide','runslide','runjump','forwardjump','jump')}
+        asm+=emit_jump_entry(je,pending_work,tj,run_regions['input_history'],run_regions['input_owner'],0xb674,jump_entry_profile,entry_roles,sy,39)
+        # Use the same actual frame owner. Skipped source branches have no frame.
+        asm=asm.replace(' jsl TryJump_Begin\n bcs CallbackFixture_Bad\n lda.l '+str(tj)+'+2',f' jsl PlayerJumpEntry_Begin\n bcs CallbackFixture_Bad\n lda.l {je}+2\n cmp #2\n beq CallbackFixture_JumpEntryDone\n lda.l {tj}+2',1)
+        asm=asm.replace(' jsl TryJump_FinishFrame\n bcs CallbackFixture_Bad',' jsl PlayerJumpEntry_FinishFrame\n bcs CallbackFixture_Bad',1)
+        needle='CallbackFixture_TryJumpAfterPrejump:\n.a16\n.i16\n nop'
+        asm=asm.replace(needle,needle+'\nCallbackFixture_JumpEntryDone:\n.a16\n.i16\n nop',1)
     if a.canonical_dojump:
         from source_dojump_native import emit as emit_dojump
         from source_dojump_profile import derive as derive_dojump
@@ -1682,6 +1697,24 @@ emu.addMemoryCallback(function()
  emu.log('PREJUMPRESULT|'..word(INDEX)..'|'..word({tj}+2)..'|'..dw({tj}+8)..'|'..dw({tj}+12)..'|'..dw({tj}+16)..'|'..word({tj}+6))
 end,emu.callbackType.exec,{fs['CallbackFixture_TryJumpAfterPrejump']},{fs['CallbackFixture_TryJumpAfterPrejump']},emu.cpuType.snes,mt)
 """
+    if a.canonical_jump_entry:
+        from source_player_run_4086 import KEYS as jump_keys
+        hist=run_regions['input_history'];input_ready=run_regions['input_owner']
+        lua+=f"""
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];local k=c.jump_entry_case;local at={hist}+c.jump_entry_port*256
+ for j=0,31 do put({je}+j,0,1)end;put({je},0xb694,2);put({je}+6,c.jump_entry_port,2);put({je}+8,k==1 and 0 or 1,2);put({input_ready},0xb674,2)
+ local held=k==3 and 12 or k==4 and 32 or k==5 and 16 or k==6 and 32 or k==7 and 4 or 0
+ put(at+216,held,4);put(at+224,k==0 and 0x80000000 or 0x80000080,4)
+ put(0x42f404,(k==4 or k==5)and 0xfffffffd or 0,4)
+end,emu.callbackType.exec,{fs['CallbackFixture_TryJumpPrepare']},{fs['CallbackFixture_TryJumpPrepare']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];emu.log('JUMPENTRYRESULT|'..word(INDEX)..'|'..word({je}+2)..'|'..dw({hist}+c.jump_entry_port*256+224)..'|'..dw(0x41401c))
+end,emu.callbackType.exec,{fs['CallbackFixture_JumpEntryDone']},{fs['CallbackFixture_JumpEntryDone']},emu.cpuType.snes,mt)
+"""
+        for n in ('runslide','runjump','forwardjumpRunning','forwardjumpMoving','slide','jumpRunning','jumpStanding','jumpMoving'):
+            label='PlayerJumpEntry_Query_'+n
+            lua+=f"emu.addMemoryCallback(function()emu.log('JUMPENTRYQUERY|'..word(INDEX)..'|{n}')end,emu.callbackType.exec,{fs[label]},{fs[label]},emu.cpuType.snes,mt)\n"
     if a.canonical_dojump:
         lua+=f"""
 emu.addMemoryCallback(function()
@@ -2284,13 +2317,35 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         reporter.check('real constructor clears pending source jump descriptor before exists publication and retains sibling',pending_birth==[[i,0,0,3960,0,c['default']+1,0xb691,i+1]for i,c in enumerate(rows)])
         reporter.check('actual fresh model copy binds pending row before script/frame callbacks without changing source descriptor',pending_copy==[[i,0,c['default']+1,0xb691,i+1,2]for i,c in enumerate(rows)])
         r.update(pending_jump_birth_hook_bound=True,pending_jump_model_constructor_hook_bound=True,pending_jump_birth_results=pending_birth,pending_jump_copy_results=pending_copy,pending_jump_layout=pending_plan,pending_jump_ram_ownership_instrumented=True,production_pending_jump_memory_lease=False,tryjump_dojump_bound=False)
-    if a.canonical_tryjump:
+    if a.canonical_tryjump and not a.canonical_jump_entry:
         tj_frames=[list(map(int,line.split('TRYJUMPFRAME|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'TRYJUMPFRAME|'in line]
         pj_results=[list(map(int,line.split('PREJUMPRESULT|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'PREJUMPRESULT|'in line]
         reporter.check('actual tryjump retains argument bits, sets common_prejump, clears only idle/horizontal velocity and finishes real JUMPDELAY frame',tj_frames==[[i,4,18,0,0xfffffffb,0xfffffffd,0,0,0x40900000,0x3f99999a,0x80000000,role_id(config,'jump'),role_id(config,'jumpdelay')]for i in range(len(rows))])
         pj_expected=[[i,4 if c['tryjump_case']==0 else 5,0x41300000 if c['tryjump_case']==2 else 0x40900000,0x41400000 if c['tryjump_case']==2 else 0x3f99999a,0x41500000 if c['tryjump_case']==2 else 0x80000000,99 if c['tryjump_case']==2 else role_id(config,'jump')]for i,c in enumerate(rows)]
         reporter.check('common_prejump waits for animation, then exposes mandatory dojump with fresh pending descriptor',pj_results==pj_expected)
         r.update(tryjump_delay_frame_bound=True,tryjump_frame_results=tj_frames,common_prejump_results=pj_results,dojump_owner_bound=False,pending_mutation_instrumented=True,production_player_think_bound=False)
+    if a.canonical_jump_entry:
+        import struct as jump_struct
+        def floatbits(value):return jump_struct.unpack('<I',jump_struct.pack('<f',value))[0]
+        log=(folder/'mesen.log').read_text().splitlines()
+        entry_results=[list(map(int,line.split('JUMPENTRYRESULT|',1)[1].split('|')))for line in log if 'JUMPENTRYRESULT|'in line]
+        entry_frames=[list(map(int,line.split('TRYJUMPFRAME|',1)[1].split('|')))for line in log if 'TRYJUMPFRAME|'in line]
+        queries=[line.split('JUMPENTRYQUERY|',1)[1].split('|')for line in log if 'JUMPENTRYQUERY|'in line]
+        entry_expected=[];frame_expected=[];query_expected=[]
+        from source_model_core_4086 import binary32 as jump_binary32
+        for i,c in enumerate(rows):
+            k=c['jump_entry_case'];active=k>=2;f=jump_entry_profile['models'][c['default']]['fields']
+            direction=0 if k in(3,7)else c['direction']
+            entry_expected.append([i,4 if active else 2,0x80000000 if k!=1 else 0x80000080,direction])
+            if active:
+                y=f['runjumpheight']if k in(4,5)else f['jumpheight'];x=jump_binary32(f['jumpspeed']*f['runjumpdist'])if k in(4,5)else f['jumpspeed']if k in(3,7)else 0
+                frame_expected.append([i,4,18,0,0xfffffffb,0xfffffffd if k in(4,5)else 0,0,0,floatbits(y),floatbits(x),0,role_id(config,'jump'),role_id(config,'jumpdelay')])
+                names=(['runslide']if k==4 else [])+['runjump','forwardjumpRunning','jumpRunning']if k in(4,5)else ['forwardjumpMoving','jumpMoving']if k in(3,7)else (['slide']if k==6 else [])+['jumpStanding']
+                query_expected.extend([[str(i),n]for n in names])
+        reporter.check('ordered source jump entry clears only JUMP and keeps entry player row, source left precedence and cached air predicate',entry_results==entry_expected)
+        reporter.check('source-derived standing/moving/running arguments execute actual tryjump and real JUMPDELAY',entry_frames==frame_expected)
+        reporter.check('real source jump/slide queries retain authored branch order',queries==query_expected)
+        r.update(jump_entry_native_bound=True,jump_entry_results=entry_results,jump_entry_frame_results=entry_frames,jump_entry_query_results=queries,jump_entry_capability=jump_entry_profile,dojump_owner_bound=False,production_player_think_bound=False)
     if a.canonical_dojump:
         log=(folder/'mesen.log').read_text().splitlines()
         dj_frames=[list(map(int,line.split('DOJUMPFRAME|',1)[1].split('|')))for line in log if 'DOJUMPFRAME|'in line]

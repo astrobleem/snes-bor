@@ -42,7 +42,7 @@ an actual peer IDLE frame completing before the root SPECIAL frame. The peer
 state and post-callback mutations are instrumented; this is not a full linked
 actor constructor or production gameplay proof.
 
-The controller address plan uses 6360 of 6400 bytes, leaving 40. It does not
+The controller address plan uses 6392 of 6400 bytes, leaving 8. It does not
 grant the production canvas lease. Production input ownership, full player_think,
 model smartbomb/freeze services and MOTU gameplay/completion still remain.
 No color reduction is applied.

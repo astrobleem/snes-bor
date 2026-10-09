@@ -10,5 +10,5 @@ frames. Fresh inpain mutations are instrumented; complete player dispatch,
 combat and MOTU gameplay remain unbound. The first fixture run had a retention
 snapshot taken before its inpain setup; the corrected final gate passes.
 
-The controller address plan uses 6360 of 6400 bytes, leaving 40. This does not
+The controller address plan uses 6392 of 6400 bytes, leaving 8. This does not
 grant a production canvas lease. No color reduction or bank-0 code is introduced.

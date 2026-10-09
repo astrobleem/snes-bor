@@ -17,6 +17,6 @@ thresholds and signed coordinate extremes. Query order is separately observed.
 RUN starts here; later running cancellation and movement still require joining.
 The full player controller, combat and Demo completion remain unbound.
 
-The controller address plan uses 6360 of 6400 bytes, leaving 40. Existing
+The controller address plan uses 6392 of 6400 bytes, leaving 8. Existing
 region addresses are retained; the new 64-byte work region is appended. This is
 not a production canvas lease. No color reduction or bank-0 code is introduced.
