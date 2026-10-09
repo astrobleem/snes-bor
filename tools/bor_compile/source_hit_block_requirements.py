@@ -10,6 +10,7 @@ from source_damage_inputs_4086 import load as damage
 from source_model_attack_policy import load as policy
 from source_animation_init_4086 import derive as animations
 from source_animation_ids import configure
+from source_frame_state_4086 import derive as frames,pack,unpack
 
 
 def derive(source,engine='E:/gh/openbor-bcec'):
@@ -35,9 +36,12 @@ def derive(source,engine='E:/gh/openbor-bcec'):
         block=[a for a in ar['animations']if a['model']==m['declaration'] and a['engine_animation_id']==config['authority']['enum']['ANI_BLOCK']]
         models.append(dict(id=i,identity=m['declaration'],source_sha256=doc['sha256'],properties=properties,guardpoints_max=0,
             policy=policy(rows),authored_block_handles=[a['handle']for a in block if a['numframes']]))
+    ft=pack(frames(source));attacks=unpack(ft)['attacks']
+    if any(a['jugglecost'] or a['attack_type']==15 for a in attacks):
+        raise ValueError('HIT_BLOCK_ITEM_OR_JUGGLE_OWNER_REQUIRED')
     return dict(schema='BYOR_HIT_BLOCK_REQUIREMENTS_V1',capability='SOURCE_DEFAULT_BLOCK_PROPERTIES_NO_COUNTER',engine_commit=ENGINE_COMMIT,
         block_role=config['authority']['enum']['ANI_BLOCK'],maximum_animations=ar['maximum_animations'],models=models,
-        animations=ar['animations'],counter_range=[-1,-1],uniform_blockpower=0,uniform_blockthreshold=0,
+        animations=ar['animations'],attacks=attacks,collision_table_bytes=len(ft),counter_range=[-1,-1],uniform_blockpower=0,uniform_blockthreshold=0,
         initial_self_defense_threshold_requirement='capture the actual initial self vector before the source attack prefix; this closed capability permits zero only',
         inair_policy='explicit ACCEPTED_COMPAT_Q16_16 predicate; no arbitrary binary32 equivalence claim',
         source_rand32_required=True,model_and_counter_property_mutators_admitted=False,

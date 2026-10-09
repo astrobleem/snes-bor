@@ -1,0 +1,38 @@
+{
+  "schema": "BYOR_SOURCE_HIT_BLOCK_CHOICE_NATIVE_V1",
+  "status": "PASS",
+  "cases": 175,
+  "failures": [],
+  "rom_sha256": "24548c29523865396876f17ab67be4a209d8ad09ae062def459d90b8cb00ad36",
+  "chr_capacity": 47936,
+  "control_tail": [
+    4374456,
+    4374464
+  ],
+  "mandatory_hit_ticket": null,
+  "actual_native_preparation_target_and_collision": true,
+  "empty_ondoattack_and_owner_prefix_bound": true,
+  "self_failures": [],
+  "ondoattack_and_hit_services_bound": false,
+  "defense_threshold_expression_excluded": true,
+  "source_float_equivalence": false,
+  "production_world_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "block_choice_bound": true,
+  "blocking_damage_bodies_bound": false,
+  "required_action_tickets": [
+    33043,
+    33044,
+    33045
+  ],
+  "report_path": "out/byor-motu-hit-block-native-final/report.json",
+  "report_sha256": "06d71e2c5aa3b082262959c345741e3e79b51a5e1bad22177d56aa4cc3004dfb",
+  "observer_path": "out/byor-motu-hit-block-native-final/observer.lua",
+  "observer_sha256": "d606caa90fffdcb16e7b7065e6be278790740b27e0605cadde3fc116a148dfee",
+  "rand32_observer_records": 175,
+  "source_models": 16,
+  "source_animations": 80,
+  "source_attacks": 31
+}

@@ -212,7 +212,7 @@ end,emu.callbackType.exec,RETRY,RETRY,emu.cpuType.snes,mt)
         selfs=[list(map(int,l.split('HITSELF|',1)[1].split('|')))for l in log.splitlines()if 'HITSELF|'in l]
         self_failures=[]
         for i,c in enumerate(rows):
-            v=0x4000+80*c['slot'];accepted=c['hit'] and not c['fault']
+            v=0x4000+80*c['slot'];accepted=c['hit'] and (not c['fault'] or c.get('suspended_on_fault',False))
             wanted=[i,0x4000+80*c['first'],0x41,v,0x41,1,0xb6a7] if accepted else [i,v,0x41]
             if c.get('bad','').startswith('retry_'):
                 wanted=[i,0x4000+80*c['first'],0x41,v,0x41,1,0xb6a7]

@@ -65,3 +65,7 @@ animation services, effects, followups, pause, pain timing, hit-ID publication,
 post-loop sound/cost handling and production world integration. The foreign
 profile is unregistered and real MOTU gameplay is unproven. No color reduction
 has been applied.
+
+The closed native pre-block side effects and branch selector are now proven
+separately in [byor-motu-hit-block.md](byor-motu-hit-block.md). The selected
+action bodies and full do_attack continuation remain required.
