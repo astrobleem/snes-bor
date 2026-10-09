@@ -1,0 +1,99 @@
+{
+  "schema": "BYOR_SOURCE_ADMISSION_PCM_JOIN_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": {
+    "observed": {
+      "path": "out/byor-motu-sound-admission-mix-observed-native/report.json",
+      "sha256": "b6e1a0072f0b113914291dbc4c39bb0f5e0e54272683419f9b2e5b2afffe60d7",
+      "rom_sha256": "5066c7017eb2b93800aa14269044798fc2bb8d9b77f739f4c624f13e15bc2100",
+      "jobs": 2,
+      "PCM_bytes": 1408,
+      "peak_master_clocks": 152298,
+      "source_identities": [
+        {
+          "sound_index": 3,
+          "path": "data/chars/he-man/pain.wav",
+          "source_sha256": "f00053c02678f25c1df84d13f8e7382ccad953fd8b4ec0b3b374a8388c458dd5",
+          "normalized_pcm_sha256": "a79d95a391cfe9b7843bea984fb30db88c556e4891f74aecf86d76996c30a964",
+          "normalized_frames": 5952,
+          "policy": {
+            "tool": "ffmpeg",
+            "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+            "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+            "rate_hz": 11025,
+            "padded_frames": 9
+          }
+        },
+        {
+          "sound_index": 15,
+          "path": "data/sounds/klunk.wav",
+          "source_sha256": "b056422cd959b8a5ef57a697cdc9a41923b1a0fb51e4a2fcda177978dacffc75",
+          "normalized_pcm_sha256": "3ec217a75574ffa91dd035dc50d6f5b0af6df0f753a4d5c5ff4b81c076acf881",
+          "normalized_frames": 8128,
+          "policy": {
+            "tool": "ffmpeg",
+            "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+            "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+            "rate_hz": 11025,
+            "padded_frames": 8
+          }
+        }
+      ],
+      "expected_sha256": "fe2bfc76bcf2e6bc93424c6189b98d4a8ff73a28823247e5125d949079287d24",
+      "observed_sha256": "fe2bfc76bcf2e6bc93424c6189b98d4a8ff73a28823247e5125d949079287d24"
+    },
+    "ending": {
+      "path": "out/byor-motu-sound-admission-mix-ending-native/report.json",
+      "sha256": "d1cb74f12358341333468ed7bca9d4bc86cf53ee9beeacaad8304845501b5ea3",
+      "rom_sha256": "fb7faf2c0a8032c82524b4a52334655bd60bd20bb632520f5dfaf15243da8401",
+      "jobs": 47,
+      "PCM_bytes": 33088,
+      "peak_master_clocks": 152366,
+      "source_identities": [
+        {
+          "sound_index": 3,
+          "path": "data/chars/he-man/pain.wav",
+          "source_sha256": "f00053c02678f25c1df84d13f8e7382ccad953fd8b4ec0b3b374a8388c458dd5",
+          "normalized_pcm_sha256": "a79d95a391cfe9b7843bea984fb30db88c556e4891f74aecf86d76996c30a964",
+          "normalized_frames": 5952,
+          "policy": {
+            "tool": "ffmpeg",
+            "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+            "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+            "rate_hz": 11025,
+            "padded_frames": 9
+          }
+        },
+        {
+          "sound_index": 15,
+          "path": "data/sounds/klunk.wav",
+          "source_sha256": "b056422cd959b8a5ef57a697cdc9a41923b1a0fb51e4a2fcda177978dacffc75",
+          "normalized_pcm_sha256": "3ec217a75574ffa91dd035dc50d6f5b0af6df0f753a4d5c5ff4b81c076acf881",
+          "normalized_frames": 8128,
+          "policy": {
+            "tool": "ffmpeg",
+            "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+            "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+            "rate_hz": 11025,
+            "padded_frames": 8
+          }
+        }
+      ],
+      "expected_sha256": "fbcb0ecb2231ab795ccac85650c4090b065b6a2a0a863b8e75e06f69cc04c2cb",
+      "observed_sha256": "fbcb0ecb2231ab795ccac85650c4090b065b6a2a0a863b8e75e06f69cc04c2cb"
+    }
+  },
+  "bank_zero_unchanged": true,
+  "source_start_phase_override": false,
+  "logical_channels": [
+    11,
+    10
+  ],
+  "play_identity_commits": 2,
+  "ending_both_inactive": true,
+  "BRR_SPC_transport_bound": false,
+  "source_frame_ack_bound": false,
+  "production_memory_lease": false,
+  "no_color_reduction": true,
+  "no_PCM_files_copied": true
+}
