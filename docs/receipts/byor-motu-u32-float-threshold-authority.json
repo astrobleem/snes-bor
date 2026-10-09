@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_4086_U32_FLOAT_THRESHOLD_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "player_think_sha256": "51c446918438abf6d41ba73681784bd04f79f909f34c0efcdfcdb2d4ab07f736",
+  "literal_expression": "self->stalltime + (GAME_SPEED * self->modeldata.animation[animattacks[self->modeldata.atchain[self->modeldata.chainlength - 1] - 1]]->chargetime) < time",
+  "literal_expression_sha256": "02c221ab37cc8a5286a4af2450788c2396334b4d2bb616ea2135c5f98948807c",
+  "literal_expression_unmodified": true,
+  "cases": 7420,
+  "compared_bytes": 29680,
+  "actual_sha256": "e5f744c4a6eb47b8da16e9f2189ceedea88f29d770fbe3b8a2b3dd11231a8a8f",
+  "expected_sha256": "e5f744c4a6eb47b8da16e9f2189ceedea88f29d770fbe3b8a2b3dd11231a8a8f",
+  "tested_chargetime_products": {
+    "0": 0,
+    "200": 1,
+    "400": 2,
+    "800": 4,
+    "8000": 40,
+    "25600": 128,
+    "65500": 327.5
+  },
+  "evaluation_policy": "WIN32_X87_EXTENDED",
+  "makefile_sha256": "2f7318ce1ba951b493e47f8dec6270cef984c42dc6545c774565bcbb8ab89361",
+  "gcc_probe_sha256": "c5ec22c65de7175b526d07c7b2a1c5cffd4d48f84b30c710ea3fb8c9c5e76154",
+  "gcc_probe_compiler_version": "gcc.exe (Rev13, Built by MSYS2 project) 15.2.0",
+  "gcc_eval_method": 2,
+  "gcc_pointer_bytes": 4,
+  "original_engine_binary_disassembly_proven": false,
+  "binary32_result_differences": 1588,
+  "native_bound": false,
+  "release_attack_body_bound": false,
+  "motu_gameplay_proven": false
+}

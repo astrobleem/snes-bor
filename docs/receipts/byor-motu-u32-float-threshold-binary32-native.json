@@ -1,0 +1,16 @@
+{
+  "schema": "BYOR_4086_U32_FLOAT_THRESHOLD_NATIVE_V1",
+  "status": "PASS",
+  "evaluation_policy": "BINARY32",
+  "cases": 1062,
+  "guards": 2,
+  "observed": 1062,
+  "errors": [],
+  "rom_sha256": "2954ee93bd88b33bfbebcac9b47e145287f151e33d7ba4b814bf7cca428fb94b",
+  "peak_master_clocks": 23358,
+  "release_attack_body_bound": false,
+  "full_player_think_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
