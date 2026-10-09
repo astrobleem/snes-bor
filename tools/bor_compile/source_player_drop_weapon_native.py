@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 
-def emit(sy):
+def emit(sy,model_pipeline=False):
     raw=Path('src/core/vm/vm_source_drop_weapon.pasm').read_text()
     old=' lda #2\n jmp SourceDropWeapon4086_Return\nSourceDropWeapon4086_Nonplayer:'
     if raw.count(old)!=1:raise ValueError('PLAYER_DROP_NATIVE_SOURCE_SHAPE')
@@ -72,8 +72,34 @@ SourceDropWeapon4086_PlayerSelected:
  jmp SourceDropWeapon4086_Resolve
 SourceDropWeapon4086_Nonplayer:'''
     raw=raw.replace(old,player).replace(' beq SourceDropWeapon4086_Nonplayer\n',' bne SourceDropWeapon4086_PlayerBegin\n jmp SourceDropWeapon4086_Nonplayer\nSourceDropWeapon4086_PlayerBegin:\n.a16\n.i16\n').replace('rep #$38','rep #$39').replace('SourceDropWeapon4086_','SourcePlayerDropWeapon4086_')
+    if model_pipeline:
+        anchor=' lda #3\n jmp SourcePlayerDropWeapon4086_Return\nSourcePlayerDropWeapon4086_Same:'
+        if raw.count(anchor)!=1:raise ValueError('PLAYER_DROP_PIPELINE_SOURCE_SHAPE')
+        body=''' lda.l SourceWeapon4086_Selected
+ sta.l SourceModelTransition4086_New
+ lda.l SourceWeapon4086_Sync
+ sta.l SourceModelAnimation4086_Sync
+ jsl SourceModelTransition4086_Begin
+ bcc SourcePlayerDropWeapon4086_PipelineBegin
+ jmp SourcePlayerDropWeapon4086_Bad
+SourcePlayerDropWeapon4086_PipelineBegin:
+.a16
+.i16
+ lda.l SourceForeignWork_Generation
+ tax
+ lda.l SourceForeignWork_Generation+2
+ tay
+ jsl ModelPipeline_Resume
+ bcc SourcePlayerDropWeapon4086_PipelineComplete
+ jmp SourcePlayerDropWeapon4086_Bad
+SourcePlayerDropWeapon4086_PipelineComplete:
+.a16
+.i16
+ jmp SourcePlayerDropWeapon4086_G10
+SourcePlayerDropWeapon4086_Same:'''
+        raw=raw.replace(anchor,body)
     def replace(m):
         n=m[0]
         return str(sy[n])if n in sy else n
-    raw=re.sub(r'\bSource(?:Weapon|ModelEntityCopy|ModelTransition|Lifecycle)4086_[A-Za-z0-9_]+\b',replace,raw)
+    raw=re.sub(r'\b(?:Source(?:Weapon|ModelEntityCopy|ModelTransition|ModelAnimation|Lifecycle)4086_|SourceForeignWork_)[A-Za-z0-9_]+\b',replace,raw)
     return raw

@@ -17,7 +17,7 @@ def main():
  p=argparse.ArgumentParser(description=__doc__)
  p.add_argument('--source',required=True)
  for k in ('rom','output'):p.add_argument('--'+k,type=Path,required=True)
- p.add_argument('--nested-idle',action='store_true');a=p.parse_args();a.output=a.output.resolve();src=Source(a.source);req=derive(src);plan=layout();h=hit();sc=stack();sy=symbols(Path('src/main.sym'));original=parent.run_fixture
+ p.add_argument('--nested-idle',action='store_true');p.add_argument('--fast-animation-inheritance',action='store_true');a=p.parse_args();a.output=a.output.resolve();src=Source(a.source);req=derive(src);plan=layout();h=hit();sc=stack();sy=symbols(Path('src/main.sym'));original=parent.run_fixture
  def fixture(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw):
   for c in rows:c['old_active']=req['models'][c['old']]['maps_loaded']
   for service in (3,6):
@@ -51,7 +51,7 @@ def main():
   anchor=' value(0x433830+c.slot*64,0,2);';assert lua.count(anchor)==1
   lua=lua.replace(anchor,f' value({plan["base"]}+12*c.slot,c.new,2);value({plan["base"]}+12*c.slot+2,0,2);'+anchor)
   return original(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw)
- args=['m4_model_services_pipeline_native.py','--source',a.source,'--rom',str(a.rom),'--output',str(a.output)]+(['--nested-idle']if a.nested_idle else [])
+ args=['m4_model_services_pipeline_native.py','--source',a.source,'--rom',str(a.rom),'--output',str(a.output)]+(['--nested-idle']if a.nested_idle else [])+(['--fast-animation-inheritance']if a.fast_animation_inheritance else [])
  with patch.object(parent,'run_fixture',fixture),patch.object(sys,'argv',args):
   try:parent.main()
   except SystemExit as e:

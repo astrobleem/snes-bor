@@ -1,0 +1,90 @@
+{
+  "schema": "BYOR_PLAYER_DROP_MODEL_SYNC_JOIN_RECEIPT_V1",
+  "status": "PASS",
+  "cases": 328,
+  "capability": {
+    "schema": "BYOR_PLAYER_DROP_MODEL_SYNC_CAPABILITY_V1",
+    "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "transitions": [
+      {
+        "default_model": 3,
+        "old_model": 4,
+        "new_model": 3,
+        "old_identity": "He_ManB",
+        "new_identity": "He_Man",
+        "target_model_flag": 0,
+        "current_roles": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          8,
+          9,
+          10,
+          14,
+          16,
+          21,
+          22,
+          25,
+          26,
+          28,
+          37,
+          38,
+          44,
+          45,
+          46,
+          59,
+          107,
+          108
+        ],
+        "roles_inherited_into_weapon_before_drop": [
+          21,
+          25,
+          59
+        ],
+        "roles_inherited_before_animation_selection": [
+          9,
+          10,
+          45,
+          46
+        ],
+        "unresolved_roles": [],
+        "synchronized": true
+      }
+    ],
+    "all_declared_current_roles_synchronize": true,
+    "direct_model_animation_mutators_admitted": false,
+    "source_cache_inheritance_required": true,
+    "production_binding": false,
+    "motu_gameplay_proven": false,
+    "no_color_reduction": true
+  },
+  "peak_master_clocks": 548562,
+  "effect_refresh_guard_cases": 136,
+  "bank_zero_unchanged": true,
+  "bank_zero_bytes_free": 2,
+  "width_guard": {
+    "labels": 9825,
+    "new": 0,
+    "baselined": 0,
+    "stale": 0
+  },
+  "production_binding": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "proofs": [
+    {
+      "path": "out/byor-motu-player-drop-model-inherited-fast-native/report.json",
+      "sha256": "a9c18bad6960c4b07ae4418946543a3f58ae4c87bdaa99f4c954683cba57ccff"
+    },
+    {
+      "path": "out/byor-motu-model-effects-refresh-native/report.json",
+      "sha256": "b60e60f60443ec2c170900dab70b6560006798d5cfa50f11ebe3818124e1a11f"
+    }
+  ]
+}

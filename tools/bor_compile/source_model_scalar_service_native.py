@@ -20,7 +20,7 @@ def derive(source):
                 renderer_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True)
 
 
-def emit(report,styles,symbols):
+def emit(report,styles,symbols,effects_report=None):
     from source_foreign_state_layout import layout
     arena=layout(symbols['SOURCE_FOREIGN_WORK_BASE'],symbols['SOURCE_FOREIGN_WORK_BYTES'])
     if styles!=next(r['address']for r in arena['regions']if r['name']=='entity_combostyle'):
@@ -197,6 +197,55 @@ ModelScalarService_Alpha:
     if any(not 0<=m['alpha']<=6 or not -2147483648<=m['combostyle']<=2147483647 for m in report['models']):
         raise ValueError('MODEL_SCALAR_DOMAIN')
     code+=' .dw '+','.join(str(m['alpha'])for m in report['models'])+'\nModelScalarService_Styles:\n .dw '+','.join(str(v)for m in report['models']for v in(m['combostyle']&65535,(m['combostyle']>>16)&65535))+'\n'
+    if effects_report is not None:
+        if [(m['id'],m['identity'],m['source_sha256'])for m in effects_report['models']]!=[(m['id'],m['identity'],m['source_sha256'])for m in report['models']]:
+            raise ValueError('MODEL_SCALAR_EFFECT_SOURCE_PAIR')
+        guards=[m['fields']['guardpoints']for m in effects_report['models']]
+        if any(not isinstance(v,int)or not -2147483648<=v<=2147483647 for v in guards):
+            raise ValueError('MODEL_SCALAR_EFFECT_GUARD_DOMAIN')
+        # ent_set_model shallow-copies modeldata; projectile and staydown are
+        # entity dynamics and must survive. The identity word is our lease.
+        anchor=' lda.l SourceModelTransition4086_New\n asl a\n tax\n lda.l ModelScalarService_Alpha,x'
+        if code.count(anchor)!=1:raise ValueError('MODEL_SCALAR_EFFECT_SOURCE_SHAPE')
+        effect=''' lda.l SourceDamageEffectsState4086_Ready
+ cmp #$B62F
+ bne ModelScalarService_Bad
+ lda.l SourceModelTransition4086_Old
+ cmp #EFFECTCOUNT
+ bcs ModelScalarService_Bad
+ lda.l SourceModelTransition4086_Slot
+ asl a
+ asl a
+ asl a
+ pha
+ asl a
+ clc
+ adc 1,s
+ tax
+ pla
+ lda.l $7EF114,x
+ cmp #$B62F
+ bne ModelScalarService_Bad
+ lda.l $7EF116,x
+ cmp.l SourceModelTransition4086_Old
+ bne ModelScalarService_Bad
+ phx
+ lda.l SourceModelTransition4086_New
+ asl a
+ asl a
+ tax
+ lda.l ModelScalarService_EffectGuard,x
+ tay
+ lda.l ModelScalarService_EffectGuard+2,x
+ plx
+ sta.l $7EF112,x
+ tya
+ sta.l $7EF110,x
+ lda.l SourceModelTransition4086_New
+ sta.l $7EF116,x
+'''
+        code=code.replace(anchor,effect.replace('EFFECTCOUNT',str(count))+anchor)
+        code+='ModelScalarService_EffectGuard:\n .dw '+','.join(str(v)for g in guards for v in(g&65535,(g>>16)&65535))+'\n'
     serial=[0]
     def relax(m):
         serial[0]+=1;label='ModelScalarService_Guard'+str(serial[0])
