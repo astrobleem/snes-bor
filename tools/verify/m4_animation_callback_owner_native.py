@@ -73,6 +73,7 @@ def main():
     p.add_argument('--player-state-birth',action='store_true',help='Execute the checked VM-tail lease and actual constructor state clearing through an opt-in birth bridge.')
     p.add_argument('--run-tuple-birth',action='store_true',help='Capture exact RUN snapshot after actual constructor model-data copy; requires player-state birth bridge.')
     p.add_argument('--ground-walk',action='store_true',help='After actual SELECT construction, run canonical ground movement and real WALK frame-zero services.')
+    p.add_argument('--early-player',action='store_true',help='Join real empty search, preinput, charging and pain in player_think source order.')
     p.add_argument('--pain-helper',action='store_true',help='Wrap canonical special with actual source pain cleanup.')
     p.add_argument('--canonical-charge',action='store_true',help='Actual charging helper and real idle after SELECT birth.')
     p.add_argument('--canonical-special',action='store_true',help='Actual SPECIAL queries, canonical snapshot and real frame owner after SELECT birth.')
@@ -95,6 +96,9 @@ def main():
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
+    if a.early_player:
+        if a.ground_walk or a.canonical_charge or a.pain_helper:raise ValueError('EARLY_PLAYER_FIXTURE_CONFLICT')
+        a.canonical_special=True
     if a.pain_helper and not a.canonical_special:raise ValueError('PAIN_REQUIRES_CANONICAL_SPECIAL')
     if a.canonical_charge and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('CHARGE_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
     if a.canonical_charge and(a.canonical_special or a.ground_walk):raise ValueError('CHARGE_FIXTURE_MODE_CONFLICT')
@@ -208,6 +212,8 @@ def main():
         rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=m)for m in range(10)for d in (0,1)]
     if a.canonical_charge:
         rows=[dict(f=0,direction=d,default=default,fault=0,charge_port=port,charge_mask=mask,charge_mutation=mutation)for mutation in (0,1)for port in range(4)for mask in (0,128,256,384)for d in (0,1)]
+    if a.early_player:
+        rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=0,early_case=c)for c in range(11)for d in (0,1)]
     if a.common_spawn:
         previous_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity'] and h['role']!='idle')
     sy=symbols(Path('src/main.sym'));raw=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate']
@@ -691,10 +697,25 @@ CallbackFixture_ChargeDone:
 .i16
  nop
 """)
-    if a.pain_helper:
+    if a.pain_helper or a.early_player:
         from source_player_pain_services import emit as emit_pain
         pn=gr['pain_services_controls'];asm+=emit_pain(pn,sb,ss)
-        asm=asm.replace(' jsl SpecialServices_Begin',' jsl PainServices_Begin',1).replace(' jsl SpecialServices_FinishFrame',' jsl PainServices_FinishFrame',1)
+        if a.pain_helper:asm=asm.replace(' jsl SpecialServices_Begin',' jsl PainServices_Begin',1).replace(' jsl SpecialServices_FinishFrame',' jsl PainServices_FinishFrame',1)
+    if a.early_player:
+        from source_player_early_native import emit as emit_early
+        from source_player_charge_services import emit as emit_charge
+        from source_player_combo_4086 import derive as derive_combos
+        from source_player_combo_native import emit as emit_combo
+        from source_player_input_native import emit as emit_history
+        from source_costmove_native import emit as emit_costmove,emit_combo_energy_query
+        from source_find_here_empty_native import emit as emit_empty
+        pe=gr['player_early_controls'];ch=gr['charge_services_controls'];co=gr['combo_controls'];fe=gr['find_here_empty_controls']
+        early_commands=derive_combos(source)
+        asm+=emit_early(pe,player_state_work,fe,co,ch,pn,sy)+emit_charge(ch,player_state_work,gr['input_history'],gr['input_owner'],0xb674,sy)
+        asm+=emit_history(gr['input_history'],gr['input_scratch'],gr['input_snapshot'],gr['combo_sequence'],gr['input_owner'],0xb674)
+        asm+=emit_costmove(se,gr['entity_combo_tail'],sy)+emit_combo_energy_query(se,sy)
+        asm+=emit_combo(early_commands,co,se,gr['input_history'],gr['combo_sequence'],gr['input_owner'],0xb674,sy)+emit_empty(fe,sy)
+        asm=asm.replace(' jsl SpecialServices_Begin',' jsl PlayerEarly_Begin',1).replace(' jsl SpecialServices_FinishFrame',' jsl PlayerEarly_FinishFrame',1)
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -1189,6 +1210,27 @@ emu.addMemoryCallback(function()
  emu.log('PAINBOUND|'..word(INDEX)..'|'..word({pn}+2)..'|'..word({pn}+6)..'|'..dw(0x43eb04))
 end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
 """
+    if a.early_player:
+        early_tail=player_state_plan['base']
+        lua+=f"""emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];local k=c.early_case
+ for _,r in ipairs({{{{{pe},32}},{{{pn},24}},{{{ch},24}},{{{co},96}},{{{fe},24}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
+ put({pe},0xb688,2);put({pe}+12,48,4);put({pn},0xb687,2);put({ch},0xb686,2);put({co},0xb673,2);put({fe},0xb67d,2)
+ put(0x43fd84,k==0 and 0 or 0x414000,4);put(0x439014,k==1 and -3 or 0,4);put(0x42f404,-3,4)
+ put({early_tail},(k==3 or k==4 or k==9)and -3 or 0,4);put({early_tail}+12,7,4);put({early_tail}+20,k==10 and 0x80000000 or 40,4)
+ put(0x43900c,17,4);put(0x43eb00,1,4);put(0x43eb04,(k==5 or k==6)and 7 or 0,4)
+ if k==8 or k==9 then put(0x414008,2,4);put(0x41400c,0,4);put(0x416830,0,4);put(0x43eb08,0,4)end
+ for j=0,1023 do put({gr['input_history']}+j,0,1)end
+ put({gr['input_history']+216},k==3 and 384 or k==4 and 128 or 0,4)
+ put({gr['input_history']+224},k==5 and 256 or(k==8 or k==9)and 1024 or 0,4)
+ if k==8 or k==9 then put({gr['input_history']+108},1024,4);put({gr['input_history']+232},1,4)end
+ if k==7 then put(0x414050,0x414050,4);put(0x40901c,0x414050,4);put(0x40c050,0,4)end
+ set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
+end,emu.callbackType.exec,{fs['PlayerEarly_Begin']},{fs['PlayerEarly_Begin']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('EARLYPLAYER|'..word(INDEX)..'|'..word({pe}+2)..'|'..word({pe}+6)..'|'..dw({pe}+8)..'|'..dw({early_tail})..'|'..dw({early_tail}+12)..'|'..dw({early_tail}+20)..'|'..dw(0x43eb04)..'|'..word({co}+2)..'|'..word({ch}+2)..'|'..word({pn}+2)..'|'..dw(0x40c04c)..'|'..dw({gr['input_history']+224})..'|'..word(sy.SourceAnimationInit4086_Number))
+end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
+"""
     if a.freeze_state:
         address=sy['SourceCtorState4086_FreezeBirthDone']
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,39 do cleared=cleared+emu.read(0x42e000+slot*40+j,mt);sibling=sibling+emu.read(0x42e000+(slot+1)*40+j,mt)end;emu.log('CTORFREEZE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x41f300+slot*4)..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
@@ -1406,7 +1448,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         r.update(canonical_ground_walk_bound=True,ground_walk_results=ground_results,ground_services_frame_callbacks_real=True,
                  ground_level_and_input_context_instrumented=True,common_idle_prefix_results=prefix_results,common_idle_prefix_input_mutations_instrumented=True,
                  canonical_run_binding_results=run_results,preinput_actor_playerindex_velocity_and_cached_run_mutations_instrumented=True,production_full_player_think_bound=False)
-    if a.canonical_special:
+    if a.canonical_special and not a.early_player:
         special_results=[list(map(int,line.split('SPECIALBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'SPECIALBOUND|'in line]
         reporter.check('canonical special executes real frame before current resource debit and input cleanup',[v for v in special_results if rows[v[0]]['special_mode']<5 or rows[v[0]]['special_mode']>=8]==[[i,4,5,0 if c['special_mode']==1 else 123 if c['special_mode']==3 else 123-special_fields['cost']if c['special_mode']==2 else 100-special_fields['cost'],151-special_fields['cost']if c['special_mode']==1 else 151 if c['special_mode']in(2,3)else 1 if c['special_mode']==4 else 150,17,1,0x80000100 if c['special_mode']in(1,2,3)else 0,0x80000000 if c['special_mode']in(1,2,3)else 0,special_role,2,2]for i,c in enumerate(rows)if c['special_mode']<5 or c['special_mode']>=8])
         special_queries=[list(map(int,line.split('SPECIALQUERY|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'SPECIALQUERY|'in line]
@@ -1427,6 +1469,18 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         pain_results=[list(map(int,line.split('PAINBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'PAINBOUND|'in line]
         reporter.check('pain clears fresh inpain only after actual special succeeds; rejection retains it',pain_results==[[i,2,0,7]if 5<=c['special_mode']<=7 else [i,2,1,0]for i,c in enumerate(rows)])
         r.update(canonical_pain_bound=True,pain_results=pain_results,pain_post_callback_inpain_mutation_instrumented=True,production_full_player_think_bound=False)
+    if a.early_player:
+        early_results=[list(map(int,line.split('EARLYPLAYER|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'EARLYPLAYER|'in line]
+        reporter.check('source-order joined player prefix completes all cases without admission faults',len(early_results)==len(rows)and all(v[1]in(2,4)for v in early_results))
+        expected=[]
+        for i,c in enumerate(rows):
+            k=c['early_case']
+            expected.append([i,2 if k in(2,10)else 4,0,0xfffffffd,0xfffffffd if k in(3,9)else 0,
+                7 if k in(0,1,10)else 0,40 if k in(0,1)else 0x80000000 if k==10 else 0,7 if k==6 else 0,
+                0 if k in(0,1)else 4 if k in(8,9)else 2,2 if k in(3,4)else 0,2 if k in(5,6,7)else 0,
+                90 if k==5 else 100,0,0 if k==4 else role_id(config,'special')if k in(5,6,7)else role_id(config,'freespecial')if k in(8,9)else role_id(config,'select')])
+        reporter.check('joined player prefix preserves entry snapshot, ordered short circuits, unsigned rush cleanup and real helper outcomes',early_results==expected)
+        r.update(canonical_player_early_dispatch_bound=True,early_results=early_results,early_actor_and_player_role_context_instrumented=True,early_helpers_and_frame_owners_real=True,full_player_think_bound=False)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     if a.damage_state_birth:
         damage_birth_results=[list(map(int,line.split('CTORDAMAGE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORDAMAGE|'in line]

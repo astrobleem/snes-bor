@@ -33,7 +33,7 @@ data, executes actual cached-model inheritance, and verifies that the existing
 entity snapshot remains unchanged while the shared cached RUN values change.
 Sibling handles, actor bytes during Read, registers and stack are retained.
 
-The controller arena plan uses 5760 bytes with 640 remaining. RUN handles and
+The controller arena plan uses 5792 bytes with 608 remaining. RUN handles and
 their 64-byte controls are appended; previous controller addresses are retained.
 The controls contain B678 ready at +0, status at +2, slot/model at +4/+6,
 captured handle at +8 and expanded tuple at +20..+39. Status 2 is complete and
