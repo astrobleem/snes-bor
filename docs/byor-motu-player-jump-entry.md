@@ -82,3 +82,26 @@ The lane requires readonly jump fields and zero jumpmovez; it does not solve
 allocation during gameplay. Entry controls append 32 bytes at 7FB8D8.
 common_prejump now validates the actual world count before reading animating.
 Production player prefix joining and common_jump action dispatch remain open.
+
+Complete common_jump/common_jumpland references pass 3,840 unchanged C
+comparisons, including the actual diff/inair predicate and fresh metadata after
+landing callbacks. Source inair uses diff(y,base)>=0.1, separately from the
+player input branch's cached air predicate. He_Man and He_ManB both have actual
+JUMPLAND animations; five animations across the full source set carry landframe
+metadata. The compiler retains model/handle/landframe identity for all 80
+animations and derives readonly jump-land dust absence from the loader.
+
+Fourteen native cases execute actual JUMPLAND and idle frames, airborne/upward
+waits, landframe waits and common_jumpland's animation wait. Numeric execution
+uses the existing explicit Q16.16 inair adaptation (unsigned difference>=6554).
+set_idle executes the real common-idle owner, including its source idling|=2.
+common_jumpland retains running because set_idle does not clear that field.
+The landing owner reuses the completed 80-byte dojump control block, with a
+B695 typed handoff. Pending sound/frame takeover attempts preserve all 80
+bytes. No further arena storage or bank-0 code is consumed.
+
+Landing position, current animation and sound-result contexts are instrumented;
+this is not natural jump/gravity playback or production action dispatch. The
+new common_jumpland identity is 20; all prior callback ids remain unchanged.
+The default-init 3,167-case regression and width guard pass. Full source root,
+physical sound and the remaining ground body are still required.

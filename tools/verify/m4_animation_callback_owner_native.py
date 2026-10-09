@@ -76,6 +76,7 @@ def main():
     p.add_argument('--canonical-attack',action='store_true',help='Canonical ordinary attack with actual chain/frame owners; source sound result instrumented.')
     p.add_argument('--early-attack',action='store_true',help='Join ordinary attack after release in the real early player prefix.')
     p.add_argument('--pending-jump-birth',action='store_true',help='Clear exact pending jump descriptor before actual constructor exists publication, bind after model copy.')
+    p.add_argument('--canonical-common-jump',action='store_true',help='Actual common_jump landing/JUMPLAND and common_jumpland idle after completed dojump.')
     p.add_argument('--canonical-jump-entry',action='store_true',help='Actual ordered source jump input branch before tryjump and real JUMPDELAY.')
     p.add_argument('--canonical-dojump',action='store_true',help='Continue actual delayed jump through mandatory sound, real entity toss and real JUMP frame.')
     p.add_argument('--canonical-tryjump',action='store_true',help='Execute actual tryjump/JUMPDELAY and common_prejump through the real frame owner; DO_JUMP stays required.')
@@ -110,6 +111,7 @@ def main():
     if a.early_jump_entry and not(a.early_attack and a.pending_jump_birth):raise ValueError('JOINED_JUMP_REQUIRES_ATTACK_AND_PENDING_BIRTH')
     if a.early_attack and not a.early_player:raise ValueError('JOINED_ATTACK_REQUIRES_EARLY_PLAYER')
     if a.pending_jump_birth and not a.run_tuple_birth:raise ValueError('PENDING_JUMP_BIRTH_REQUIRES_REAL_MODEL_COPIER')
+    if a.canonical_common_jump and not a.canonical_dojump:raise ValueError('COMMON_JUMP_REQUIRES_COMPLETED_DOJUMP')
     if a.canonical_jump_entry and (not a.canonical_tryjump or a.canonical_dojump):raise ValueError('JUMP_ENTRY_REQUIRES_TRYJUMP_FIXTURE')
     if a.canonical_dojump and not a.canonical_tryjump:raise ValueError('DOJUMP_REQUIRES_ACTUAL_TRYJUMP')
     if a.canonical_tryjump and not(a.pending_jump_birth and a.initial_select and a.frame_owner):raise ValueError('TRYJUMP_REQUIRES_ACTUAL_CONSTRUCTOR_AND_FRAME_OWNER')
@@ -261,6 +263,8 @@ def main():
         rows=[dict(f=0,direction=d,default=default,fault=0,tryjump_case=k)for k in range(3)for d in(0,1)]
     if a.canonical_dojump:
         rows=[dict(f=0,direction=d,default=default,fault=0,tryjump_case=1,dojump_case=k)for k in range(4)for d in(0,1)]
+    if a.canonical_common_jump:
+        rows=[dict(f=0,direction=d,default=default,fault=0,tryjump_case=1,dojump_case=1,common_jump_case=k)for k in range(7)for d in(0,1)]
     if a.canonical_jump_entry:
         rows=[dict(f=0,direction=d,default=default,fault=0,tryjump_case=1,jump_entry_case=k,jump_entry_port=port)for k in range(8)for port in range(4)for d in(0,1)]
     if a.canonical_lie_absence:
@@ -1173,6 +1177,77 @@ CallbackFixture_DoJumpDone:
 .i16
  nop
 """)
+    if a.canonical_common_jump:
+        from source_common_jump_native import emit as emit_common_jump
+        from source_common_jump_profile import derive as derive_common_jump
+        common_jump_profile=derive_common_jump(source)
+        asm+=emit_common_jump(dj,pending_work,run_regions['run_tuple_controls'],common_jump_profile,role_id(config,'jumpland'),sy,39)
+        asm=asm.replace('CallbackFixture_DoJumpSound:\n.a16\n.i16\n nop',"""CallbackFixture_DoJumpSound:
+.a16
+.i16
+ nop
+CallbackFixture_CommonJumpSoundLeaseAttempt:
+.a16
+.i16
+ nop
+ jsl CommonJump_Begin
+ bcc CallbackFixture_Bad
+CallbackFixture_CommonJumpSoundLeaseRejected:
+.a16
+.i16
+ nop""",1)
+
+        fall_handle=next(a['handle']for a in common_jump_profile['animations']if a['model']==default and a['role']=='fall')
+        needle='CallbackFixture_DoJumpDone:\n.a16\n.i16\n nop'
+        asm=asm.replace(needle,needle+f"""
+CallbackFixture_CommonJumpPrepare:
+.a16
+.i16
+ nop
+ lda.l {dj}+72
+ cmp #5
+ bcc CallbackFixture_CommonJumpBegin
+ jsl CommonJump_Jumpland
+ jmp CallbackFixture_CommonJumpDispatch
+CallbackFixture_CommonJumpBegin:
+.a16
+.i16
+ jsl CommonJump_Begin
+CallbackFixture_CommonJumpDispatch:
+.a16
+.i16
+ bcs CallbackFixture_Bad
+ lda.l {dj}+2
+ cmp #3
+ bne CallbackFixture_CommonJumpDone
+ jsl STARTFRAME
+ bcs CallbackFixture_Bad
+CallbackFixture_CommonJumpFrame:
+.a16
+.i16
+ jsl FRAMEOWNER
+ bcs CallbackFixture_Bad
+ cmp #$8001
+ beq CallbackFixture_CommonJumpFrame
+ cmp #0
+ bne CallbackFixture_Bad
+CallbackFixture_CommonJumpFrameLeaseAttempt:
+.a16
+.i16
+ nop
+ jsl CommonJump_Begin
+ bcc CallbackFixture_Bad
+CallbackFixture_CommonJumpFrameLeaseRejected:
+.a16
+.i16
+ nop
+ jsl CommonJump_FinishFrame
+ bcs CallbackFixture_Bad
+CallbackFixture_CommonJumpDone:
+.a16
+.i16
+ nop
+""")
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -1750,6 +1825,32 @@ emu.addMemoryCallback(function()
  emu.log('DOJUMPDONE|'..word(INDEX)..'|'..word({dj}+2)..'|'..dw(0x414014))
 end,emu.callbackType.exec,{fs['CallbackFixture_DoJumpDone']},{fs['CallbackFixture_DoJumpDone']},emu.cpuType.snes,mt)
 """
+    if a.canonical_common_jump:
+        lua+=f"""
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];local k=c.common_jump_case;put({dj}+72,k,2)
+ put(0x41400c,k==0 and 65536 or 0,4);put(0x416830,0,4);put(0x41682c,k==1 and 65536 or 0xffff0000,4)
+ put(0x43eb08,-7,4);put(0x43eb00,6,4);put(0x40c058,-3,4);put(0x42f404,-5,4);put(0x416824,4*65536,4);put(0x416828,5*65536,4)
+ if k==3 or k==4 then put(0x416804,{fall_handle},2);put(0x414014,{role_id(config,'fall')},4);put(0x41f510,k==3 and -3 or 0,2)end
+ if k>=5 then put(0x43900c,20,4);put(0x41f510,k==6 and -3 or 0,2)end
+ set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
+end,emu.callbackType.exec,{fs['CallbackFixture_CommonJumpPrepare']},{fs['CallbackFixture_CommonJumpPrepare']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ emu.log('COMMONJUMPRESULT|'..word(INDEX)..'|'..word({dj})..'|'..word({dj}+2)..'|'..dw(0x43900c)..'|'..dw(0x41400c)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..dw(0x41682c)..'|'..dw(0x43eb08)..'|'..dw(0x40c058)..'|'..dw(0x42f404)..'|'..dw(0x43eb00)..'|'..word(0x414014))
+end,emu.callbackType.exec,{fs['CallbackFixture_CommonJumpDone']},{fs['CallbackFixture_CommonJumpDone']},emu.cpuType.snes,mt)
+"""
+    if a.canonical_common_jump:
+        lua+='local common_jump_lease_before={}\n'
+        for phase in ('Sound','Frame'):
+            lua+=f"""
+emu.addMemoryCallback(function()
+ for j=0,79 do common_jump_lease_before[j]=emu.read({dj}+j,mt)end
+end,emu.callbackType.exec,{fs['CallbackFixture_CommonJump'+phase+'LeaseAttempt']},{fs['CallbackFixture_CommonJump'+phase+'LeaseAttempt']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local delta=0;for j=0,79 do if common_jump_lease_before[j]~=emu.read({dj}+j,mt)then delta=delta+1 end end
+ emu.log('COMMONJUMPLEASE|{phase}|'..word(INDEX)..'|'..delta)
+end,emu.callbackType.exec,{fs['CallbackFixture_CommonJump'+phase+'LeaseRejected']},{fs['CallbackFixture_CommonJump'+phase+'LeaseRejected']},emu.cpuType.snes,mt)
+"""
     if a.early_player:
         from source_player_run_4086 import KEYS as early_keys
         early_tail=player_state_plan['base']
@@ -2321,6 +2422,17 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
                 expected_jumps[-1][1]=5;expected_jumps[-1][4]=3 if c['joined_jump_guard']<2 else 6
         reporter.check('jump input joins after release and ordinary attack with preserved entry port/oldrunning and actual delayed frame',joined_jumps==expected_jumps)
         r.update(jump_entry_joined_bound=True,jump_entry_joined_results=joined_jumps,jump_entry_joined_expected=expected_jumps,dojump_dispatch_bound=False,production_player_think_bound=False)
+    if a.canonical_common_jump:
+        results=[list(map(int,line.split('COMMONJUMPRESULT|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'COMMONJUMPRESULT|'in line]
+        expected=[]
+        for i,c in enumerate(rows):
+            k=c['common_jump_case'];wait=k in(0,1,6);land=k==2;still_land=k==3
+            expected.append([i,0xb695,2,20 if land or k==6 else 19 if k in(0,1,3)else 0,65536 if k==0 else 0,4*65536 if wait else 0,5*65536 if wait else 0,65536 if k==1 else 0xffff0000 if k in(0,5,6)else 0,0xfffffff9 if wait else 0,0xfffffffd if wait else 0,0xfffffffb if wait or k==5 else 0,6 if wait or still_land or land else 3,role_id(config,'jumpland')if land else role_id(config,'fall')if still_land else role_id(config,'jump')if wait else role_id(config,'idle')])
+        reporter.check('actual common_jump honors airborne/upward waits, landframe waits, real JUMPLAND and real idle; common_jumpland waits or returns to idle',results==expected)
+        leases=[line.split('COMMONJUMPLEASE|',1)[1].split('|')for line in(folder/'mesen.log').read_text().splitlines()if'COMMONJUMPLEASE|'in line]
+        reporter.check('pending sound and pending frame reject common_jump control takeover without changing any of 80 owner bytes',leases==[v for i,c in enumerate(rows)for v in([['Sound',str(i),'0']]+([['Frame',str(i),'0']]if c['common_jump_case']in(2,4,5)else []))])
+        r.update(common_jump_temporal_lease_results=leases)
+        r.update(common_jump_action_bound=True,common_jumpland_action_bound=True,common_jump_results=results,common_jump_expected=expected,common_jump_capability=common_jump_profile,common_jump_control_temporal_reuse=True,landing_context_and_animation_state_instrumented=True,production_action_dispatch_bound=False)
     if a.canonical_jump_attack:
         jump_results=[list(map(int,line.split('JUMPATTACKBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'JUMPATTACKBOUND|'in line]
         expected=[]

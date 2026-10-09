@@ -1,0 +1,19 @@
+{
+  "schema": "BYOR_4086_COMMON_JUMP_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_bodies_unmodified": true,
+  "literal_body_sha256": {
+    "diff": "b938b8d54b575d3b3b8f9cec0565799b3dea942d1f0be528efdc8990773a277b",
+    "inair": "7507c466f8c6d5ff8377be71952a91570ae6823a80db44afc3daf478c561d649",
+    "common_jump": "82f57ddbfe18a69011e8630252c269d941dc0b674119afb1a1d4f8842b886ae4",
+    "common_jumpland": "529705a9cc3f7b85e7992d23ee91ab534385b0e7540874c93c51502b6ba9ae3d"
+  },
+  "cases": 3840,
+  "compared_bytes": 261120,
+  "actual_sha256": "f62ca7bd1c25cfea2d0134911e9871fb6cbee7bef1ae83b19990754d772daa0f",
+  "expected_sha256": "f62ca7bd1c25cfea2d0134911e9871fb6cbee7bef1ae83b19990754d772daa0f",
+  "external_services_and_callback_mutations_instrumented": true,
+  "native_bound": false,
+  "motu_gameplay_proven": false
+}
