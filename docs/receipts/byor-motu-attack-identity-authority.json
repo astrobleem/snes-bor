@@ -1,0 +1,17 @@
+{
+  "schema": "BYOR_ATTACK_ID_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "cases": 81,
+  "block_sha256": "a43047119336c41ba84cac16e1c702bdd590a24c51fb07fb92cc844421a6e5c8",
+  "input_sha256": "ae3153b9e4fca676f35569126ed875b0f8c98c22f87269cf3b5aa017d379d346",
+  "output_sha256": "d6b31d9a1750800f88a65957cd649b88aa61627cb58113812dd19df347392dd0",
+  "initial_sequence": 1,
+  "first_assigned_id": 2,
+  "zero_wrap_skipped": true,
+  "entity_signed_storage_bits_preserved": true,
+  "production_sequence_storage_bound": false,
+  "native_combat_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

@@ -117,3 +117,21 @@ Receipt: byor-motu-checkhit-zero-depth-native.json; ROM SHA-256
 Bank zero remains byte-identical. This is an isolated native collision component,
 not full do_attack, damage resolution, a production memory lease or MOTU combat.
 The binary32/Q16 equivalence FAIL above remains unchanged. NO color reduction.
+
+Pinned do_attack identity assignment passes 81 unmodified source-C boundary
+cases. The native identity component passes 246 cases across slots 0, 1 and 127,
+including initialize then assign, double assignment, high-bit identities and
+unsigned wrap. Existing nonzero entity IDs remain unchanged; zero IDs increment
+the global sequence, skipping zero. Initial sequence 1 makes the first new ID 2.
+The native path validates canvas generation, issued world phase/slot/time/relative
+geometry, live canonical token and independent hit-row generation. Sibling rows,
+hit-by IDs, actor state and CPU context remain unchanged. No world Ack is faked.
+
+The sequence plus initialization marker consumes six of the existing eight spare
+foreign controller bytes. Capacity stays 6,400, with 6,398 used and two remaining.
+All preceding region addresses remain identical at capacities 1..128. Repeated
+initialization rejects, and zero/uninitialized sequences reject assignment.
+Actual production foreign initialization and full do_attack remain unbound;
+fixtures install the memory/world leases. No production assembly changes.
+Receipts: byor-motu-attack-identity-authority.json and
+byor-motu-attack-identity-native.json. Bank zero remains unchanged.
