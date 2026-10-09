@@ -17,7 +17,7 @@ projectile bits are checked. Role, input and idle/ground state are
 instrumented fixture inputs. The unchanged post-pain dispatch fragment also passes 2592 crossed branch comparisons. The joined jump executes the real frame owner; absent JUMPSPECIAL suppresses ATTACK without clearing its key. Lying requires matching Q16 height/base and zero full-width vertical velocity before its actual RISEATTACK query. Coordinates retain the existing explicit ACCEPTED_COMPAT_Q16_16 policy. Live grabbing without attacking explicitly rejects because its owner and common_throw_wait continuation are not admitted; absence of authored GRAB is not treated as a live-state no-op. The real SELECT-to-play transition, remaining
 controller body, combat and MOTU Demo completion remain unbound.
 
-The compiler address plan uses 6104 of 6400 bytes, leaving 296. It does not grant
+The compiler address plan uses 6152 of 6400 bytes, leaving 248. It does not grant
 a production canvas lease. No color reduction or bank-0 code is introduced.
 
 The busy gate derives IMMUTABLE_ABSENT_ANIMATION_IDLE_ARRAY from every source model. BOR 4086 alloc_anim clears the structure; loader idle is zero initially and at each animation declaration; CMD_MODEL_IDLE is its only input and addframe allocates the array only for nonzero idle. MOTU has no such declaration. For idling zero the native gate resolves the current animation and verifies its copied handle before returning. Nonzero full-width idling continues. Native guards prove rejection of live unowned grab, stale busy handle and nonzero unsupported noaircancel. No frame idle array is guessed or silently discarded.
@@ -43,3 +43,15 @@ The full player owner must serialize sound/frame continuations within the same
 source invocation; the world cannot advance or recycle the slot in between.
 Fixture initialization explicitly retires unused optional constructor owners
 and reports Lua setup exceptions as failures.
+
+Ordinary attack can now follow release in the same source invocation. Its
+mandatory chain, frame and sound continuations retain the entry player port
+and oldrunning snapshot. The joined native proof passes 214 cases: 126 prior
+prefix cases, 80 ordinary attacks across four ports and both directions, and
+eight slot/port guard cases at frame and sound completion. RUNATTACK executes
+the actual zero-lift toss and jump velocity leaf. A post-chain callback that
+clears attacking suppresses punch sound. Changed child identity faults before
+acknowledgement. Target continuation is exposed for a future real target owner;
+these closed player cases take the source direct-chain branch. Continue still
+requires jump entry and the remaining movement/item/completion body. Physical
+audio and production player control remain unbound.
