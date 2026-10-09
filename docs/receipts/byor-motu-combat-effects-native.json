@@ -1,0 +1,41 @@
+{
+  "schema": "BYOR_COMBAT_EFFECTS_NATIVE_V1",
+  "status": "PASS",
+  "cases": 159,
+  "rom_sha256": "9b350f4281453ac8f7fda847b3ff65c3027937c6155005888fd447fbafca79cd",
+  "chr_capacity": 46336,
+  "actual_native_preparation_target_and_collision": true,
+  "block_choice_bound": true,
+  "actual_effects_and_facing_bound": true,
+  "damagedrop_predecessor_bound": false,
+  "full_damage_callback_bound": false,
+  "CGRAM_presentation_bound": false,
+  "production_memory_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "nominal_cases": 144,
+  "guard_cases": 15,
+  "target_models": [
+    0,
+    8,
+    14
+  ],
+  "source_attacks": [
+    2,
+    16,
+    30
+  ],
+  "bank_zero_unchanged": true,
+  "authority_report_path": "out/byor-motu-combat-damage-final-authority/report.json",
+  "authority_cases": 2392,
+  "geometry": "source HBreath spawned at authored altitude 93; source frame coordinates are already origin-relative",
+  "fixed_point_policy": "explicit ACCEPTED_COMPAT_Q16_16; arbitrary binary32 equivalence unclaimed",
+  "report_path": "out/byor-motu-combat-effects-native-model-pair-corrected/report.json",
+  "report_sha256": "b6adc5d3cbda3aa1cb31c82af3cf0aef4e4e4be0fd1e365585b72e12e869431d",
+  "observer_path": "out/byor-motu-combat-effects-native-model-pair-corrected/observer.lua",
+  "observer_sha256": "a970567fb6678744526e572b54b5e365e711c984758a5c8bfa90cf80fc8d6712",
+  "fixture_path": "out/byor-motu-combat-effects-native-model-pair-corrected/fixture.bin",
+  "fixture_sha256": "0c143683a674de972ea8dab30b3a388f2d485274affef4a458a7a8e4a56923d2",
+  "authority_report_sha256": "0251c1b40691ebf4658960649d0ea9d6c2253e43c42e3fed2d24475524c760db"
+}
