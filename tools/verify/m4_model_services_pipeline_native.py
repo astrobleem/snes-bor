@@ -61,7 +61,8 @@ def rows_for(reports,data):
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--warm-parent',action='store_true');p.add_argument('--fast-animation-copy',action='store_true');p.add_argument('--generic-frame-owner',action='store_true');p.add_argument('--animated-parent',action='store_true');p.add_argument('--nested-idle',action='store_true');p.add_argument('--effects-owner',action='store_true');p.add_argument('--frame-prefix',action='store_true');p.add_argument('--frame-binding',action='store_true');p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--fast-animation-inheritance',action='store_true');p.add_argument('--warm-parent',action='store_true');p.add_argument('--fast-animation-copy',action='store_true');p.add_argument('--generic-frame-owner',action='store_true');p.add_argument('--animated-parent',action='store_true');p.add_argument('--nested-idle',action='store_true');p.add_argument('--effects-owner',action='store_true');p.add_argument('--frame-prefix',action='store_true');p.add_argument('--frame-binding',action='store_true');p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+    if a.fast_animation_inheritance:a.fast_animation_copy=True
     if a.warm_parent:a.generic_frame_owner=True
     if a.generic_frame_owner:a.animated_parent=True
     if a.animated_parent:a.nested_idle=True
@@ -246,7 +247,7 @@ ModelPipeline_WarmComplete:
         assembly+=frame_models(sy)
     if a.fast_animation_copy:
         from source_model_animation_copy_fast_native import emit as fast_copy
-        assembly+=fast_copy(sy)
+        assembly+=fast_copy(sy,copy_loop=a.fast_animation_inheritance)
     lua='local data='+luav({k:list(v)for k,v in data.items()if k in('core','animation_cache','weapon_cache','policy','timing')})+'\nlocal reports='+luav({k:reports[k]for k in('scripts','factors','lifecycle','policy','timing','body','offscreen','death','scalars','run')})+'\nlocal address='+luav(addresses)+'\nlocal extra='+luav({k:v for k,v in sy.items()if k.startswith('SourceForeignWork_')or k.startswith(('StageFp_','StreamScrollFp_'))or k in('DmaQueue',)})+'\nfor k,v in pairs(extra)do sy[k]=v end\n'
     lua+=r'''
 local mt=emu.memType.snesMemory
@@ -424,6 +425,10 @@ end,emu.callbackType.exec,FAULT,FAULT,emu.cpuType.snes,mt)
             expected=b'\xaf'+struct.pack('<I',sy['SourceModelAnimationCopy4086_OldOffset'])[:3]+b'\x18'
             if raw[at:at+5]!=expected or linked['ModelAnimationFast_Done']>>16!=39:raise ValueError('ANIMATION_FAST_PREFLIGHT_HOOK')
             raw[at:at+5]=b'\x5c'+struct.pack('<I',linked['ModelAnimationFast_Preflight'])[:3]+b'\xea'
+        if a.fast_animation_inheritance:
+            at=offset(sy['SourceModelAnimationCopy4086_Copy'])
+            if raw[at:at+5]!=b'\xaf'+struct.pack('<I',sy['SourceModelAnimationCopy4086_NewOffset'])[:3]+b'\x18' or linked['ModelAnimationFast_CopyDone']>>16!=39:raise ValueError('ANIMATION_FAST_COPY_HOOK')
+            raw[at:at+5]=b'\x5c'+struct.pack('<I',linked['ModelAnimationFast_Copy'])[:3]+b'\xea'
         at=offset(sy['SourceModelEntityCopy4086_Apply'])
         if raw[at:at+5]!=bytes.fromhex('08 c2 38 da 5a'):raise ValueError('MODEL_PIPELINE_COPY_HOOK')
         raw[at:at+5]=b'\x5c'+struct.pack('<I',linked['SourceRunTuple_EntityCopyBridge'])[:3]+b'\xea'
@@ -437,7 +442,7 @@ end,emu.callbackType.exec,FAULT,FAULT,emu.cpuType.snes,mt)
     phases=[line.split('PIPELINEPHASE|',1)[1].split('|')for line in log.splitlines()if 'PIPELINEPHASE|'in line]
     r.check('native cost samples complete',len(costs)==len(rows))
     warm_costs=[list(map(int,line.split('PIPELINEWARM|',1)[1].split('|')))for line in log.splitlines()if 'PIPELINEWARM|'in line]
-    report=dict(native_frame_zero_warmup=a.warm_parent,warmup_costs=warm_costs,cpu_phases=phases,cpu_costs=costs,fast_animation_copy=a.fast_animation_copy,generic_frame_model_owner=a.generic_frame_owner,schema='BYOR_4086_MODEL_SERVICES_PIPELINE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,bundle=manifest,all_services_native=True,observer_acknowledgements=False,source_request_registers_poisoned=a.frame_binding,source_effect_cursor_after_weapon=4 if a.frame_binding else None,update_frame_completion_bound=a.nested_idle,actual_frame_event_dispatch=a.frame_binding,update_frame_prefix_instrumented=a.frame_binding and not a.frame_prefix,actual_update_frame_begin=a.frame_prefix,actual_frame_effect_owner=a.effects_owner,actual_set_idle_prepare=a.effects_owner,animation_callback_invoked=a.nested_idle,source_animating_zero_fixture=a.frame_prefix and not a.animated_parent,actual_parent_animation_callback=a.animated_parent,idle_frame_zero_bound=a.nested_idle,pool_and_leases_installed_by_fixture=True,full_gameplay_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+    report=dict(native_frame_zero_warmup=a.warm_parent,warmup_costs=warm_costs,cpu_phases=phases,cpu_costs=costs,fast_animation_inheritance=a.fast_animation_inheritance,fast_animation_copy=a.fast_animation_copy,generic_frame_model_owner=a.generic_frame_owner,schema='BYOR_4086_MODEL_SERVICES_PIPELINE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,bundle=manifest,all_services_native=True,observer_acknowledgements=False,source_request_registers_poisoned=a.frame_binding,source_effect_cursor_after_weapon=4 if a.frame_binding else None,update_frame_completion_bound=a.nested_idle,actual_frame_event_dispatch=a.frame_binding,update_frame_prefix_instrumented=a.frame_binding and not a.frame_prefix,actual_update_frame_begin=a.frame_prefix,actual_frame_effect_owner=a.effects_owner,actual_set_idle_prepare=a.effects_owner,animation_callback_invoked=a.nested_idle,source_animating_zero_fixture=a.frame_prefix and not a.animated_parent,actual_parent_animation_callback=a.animated_parent,idle_frame_zero_bound=a.nested_idle,pool_and_leases_installed_by_fixture=True,full_gameplay_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');r.finish()
 
 if __name__=='__main__':main()

@@ -61,3 +61,14 @@ matrix receipt is `byor-motu-animation-fast-preflight-native.json`.
 NO color reduction applied. No PCM copies. No TMNT work. MOTU profile admission,
 physical lossless presentation, audible backend, real combat and Demo completion
 remain open.
+
+The optional register-cursor inheritance loop also passes all 2,062 cases. It
+reads each candidate's actual B4FE frame count with the existing mapped-ROM
+semantics, preserving the empty-animation check, every populated destination,
+bank register and original return-stack contract. No profile-specific frame
+count truth table replaces source data. The joined warm-parent proof remains
+PASS across twelve cases at 950,888–1,025,614 master clocks, spanning two or three
+video frames. The thirteen malformed-input rejections remain PASS. This improves
+the cost but does not establish a one-frame gameplay budget. Receipts are
+`byor-motu-animation-fast-copy-native.json` and
+`byor-motu-model-fast-inheritance-native.json`.
