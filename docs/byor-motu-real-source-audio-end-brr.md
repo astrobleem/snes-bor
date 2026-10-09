@@ -1,0 +1,7 @@
+# Complete source mixing through native predictive BRR
+
+Actual normalized 1UP and He-Man death assets now pass through the native gather/mixer and predictive BRR encoder in one isolated ROM. The generic input-bank parameter places complete PCM8 assets in E0/E1, avoiding the encoder's lookup banks. Descriptor relocation is explicitly bounded against the first asset's occupied bytes. Each 176-frame job is eleven complete BRR blocks. Normal DMA exchanges the two immutable SA-1 workers in IRAM while source phase, active state and predictor history persist.
+
+The 108-job native chain covers both complete asset lifetimes and final silence. Every observed PCM byte matches the unmodified pinned C mixer. All 10,692 generated BRR bytes match the predictive codec reference. Final Q12 positions, active state and job count match; no clipping guard fires. The measured peak gather/mix, code-exchange and encoding job is 190,948 master clocks. Audio retains the existing explicit mono/11025 Hz adaptation. The proof produces a bounded native BRR artifact for the next transport join.
+
+This is a finite isolated producer chain, not realtime pacing, SPC playback, source event admission, a production memory lease or a joint graphics deadline. The production ASAD stream still has its single-stream admission policy; the death callback is not yet bound to a concurrent mixer backend. No MOTU gameplay or completion is claimed. No color reduction or PCM file copying occurred. See the [receipt](receipts/byor-motu-real-source-audio-end-brr-native.json).

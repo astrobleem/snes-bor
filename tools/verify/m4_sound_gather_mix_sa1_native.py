@@ -16,7 +16,7 @@ from _harness import McpSession,MESEN_EXE,_free_tcp_port,run_frames_exact
 from m4_sound_mix_sa1_native import Code,build as kernel_build
 
 
-def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup=0,unroll=1,input_channels=None,packed_mono=False,phase_address=0x435000,output_address=0x420000,*,completion=False,sample_length=257,active_mode=1,batches=1,channel_count=12,fixed_loop_bias=False):
+def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup=0,unroll=1,input_channels=None,packed_mono=False,phase_address=0x435000,output_address=0x420000,*,completion=False,sample_length=257,active_mode=1,batches=1,channel_count=12,fixed_loop_bias=False,source_bank=0xc2):
  if fixed_loop_bias and(not completion or active_mode!=2):raise ValueError('FIXED_BIAS_REQUIRES_IMMUTABLE_LOOPING_CHANNELS')
  if not isinstance(batches,int)or not 1<=batches<=128 or batches>1 and not completion:raise ValueError('GATHER_BATCH_DOMAIN')
  if completion and(not expanded_byte_sum or pcm_dma or not 0<frames<=184 or warmup!=0 or not 1<=sample_length<=257 or active_mode not in(1,2) or not 0<period<=4096):raise ValueError('COMPLETING_GATHER_DOMAIN')
@@ -41,14 +41,16 @@ def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup
    if any((row['initial_Q12']>>12)+frames>=len(row['values'])for row in input_channels):raise ValueError('BOUNDED_SOURCE_STRIDE_CACHE_END')
  raw,_,_=kernel_build(frames,busy,12,volume,True,True);rom=bytearray(raw)
  banked=completion and input_channels is not None
+ if not 0xc0<=source_bank<=256-count or source_bank!=0xc2 and not banked:raise ValueError('BANKED_SOURCE_CPU_WINDOW')
+ source_rom_base=(source_bank-0xc0)*65536
  if banked:
-  needed=0x20000+count*65536;size=1<<(needed-1).bit_length()
+  needed=source_rom_base+count*65536;size=1<<(needed-1).bit_length()
   rom.extend(bytes([255])*max(0,size-len(rom)));rom[0x7fd7]=size.bit_length()-11
   rom[0x1a460:0x1a490]=b''.join(struct.pack('<I',len(row['values'])*2)for row in input_channels)+bytes(48-count*4)
  for channel in range(count):
   values=input_channels[channel]['values']if input_channels is not None else[(i*37+channel*13)&255 for i in range(257)]
   data=struct.pack('<'+'H'*len(values),*values)if expanded_byte_sum else bytes(values)
-  rom[0x20000+channel*source_stride:0x20000+channel*source_stride+len(data)]=data
+  rom[source_rom_base+channel*source_stride:source_rom_base+channel*source_stride+len(data)]=data
  phase=b''.join(struct.pack('<I',input_channels[channel]['initial_Q12']if input_channels is not None else ((channel*4)%sample_length)*4096+warmup*period)for channel in range(count));rom[0x1a400:0x1a430]=phase+bytes(48-len(phase))
  bank_fixups=[];bank_loads=[]
  c=Code(0x3500);c.emit('78 18 fb c2 30 a2 ff 37 9a a9 e0 34 5b e2 20 a9 ff 8d 2a 22 a9 80 8d 27 22 a9 00 48 ab c2 20')
@@ -65,7 +67,7 @@ def build(frames,period,volume,busy,pcm_dma=False,expanded_byte_sum=False,warmup
  if expanded_byte_sum:c.emit('a5 02 0a 85 02 a6 06 8a')
  c.emit('0a '*(source_stride.bit_length()-3));c.emit('85 04')
  if banked:
-  c.emit('a5 06 4a 4a 18 69 c2 00 e2 20')
+  c.emit('a5 06 4a 4a 18');c.word(0x69,source_bank);c.emit('e2 20')
   for _ in range(unroll):c.word(0x8d,0);bank_fixups.append(len(c.data)-2)
   c.emit('c2 20 a5 04')
 

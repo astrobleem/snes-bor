@@ -1,0 +1,58 @@
+{
+  "schema": "BYOR_REAL_SOURCE_AUDIO_END_BRR_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out/byor-motu-real-source-audio-end-brr-native/report.json",
+  "proof_sha256": "61f46bfac77b61fa08233aee6c13e440ab17e8af7f89e6d349cc22135a9660ff",
+  "rom_sha256": "eb839925c1d8202835deb3625d81c14b6d5c2860e1e3b9e4c07266e914d7bc60",
+  "jobs": 108,
+  "frames_per_job": 176,
+  "PCM_observed_bytes": 38016,
+  "PCM_mismatches": 0,
+  "BRR_bytes": 10692,
+  "BRR_mismatches": 0,
+  "BRR_sha256": "78e2576f90d3fc9a7a26d38651289b716b305b540b05fcd71b36eebed6b2ed96",
+  "peak_job_master_clocks": 190948,
+  "gather_worker_bytes": 535,
+  "encoder_worker_bytes": 551,
+  "source_identities": [
+    {
+      "sound_index": 27,
+      "source_path": "data/sounds/1up.wav",
+      "source_sha256": "a6b208af4441d78254e7e6ea5be63e36b5a30de9f9562eed1191e06da0691991",
+      "normalized_frames": 14064,
+      "meaningful_frames": 14061,
+      "normalized_pcm_sha256": "c122071a8242f4081191bd005003184466dc60dba841ccd83b45e3ca96c7075e",
+      "policy": {
+        "tool": "ffmpeg",
+        "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+        "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+        "rate_hz": 11025,
+        "padded_frames": 3
+      }
+    },
+    {
+      "sound_index": 17,
+      "source_path": "data/chars/he-man/death.wav",
+      "source_sha256": "a37291fd2225028ab82ba17cfd665170ca83ffde2f852b791bcab066e20fa187",
+      "normalized_frames": 18848,
+      "meaningful_frames": 18847,
+      "normalized_pcm_sha256": "477eb839e83cab66cac2ba4003b33ac955b6e1224ec03aca5818e37c0f2a1d6d",
+      "policy": {
+        "tool": "ffmpeg",
+        "tool_sha256": "b9fb1e0934e04b91b6924de97edd2e1b80fc5dfa0a7f08c32b9c5cca3a12717b",
+        "policy": "ACCEPTED_COMPAT full-duration mono PCM_u8 at existing fixed stream pitch; no clipping",
+        "rate_hz": 11025,
+        "padded_frames": 1
+      }
+    }
+  ],
+  "source_event_admission_bound": false,
+  "SPC_transport_bound": false,
+  "joint_graphics_bound": false,
+  "realtime_pacing_bound": false,
+  "production_memory_lease": false,
+  "complete_backend_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_PCM_files_copied": true
+}
