@@ -1,0 +1,15 @@
+{
+  "schema": "BYOR_4086_PLAYER_JUMP_MODEL_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_defaults_sha256": "e6324a139e4281344547a9367b18825a8b7b34443225f37714c1e9c8091ed165",
+  "literal_commands_sha256": "26fe64274b1eb7c921da0545a0bd1d2b62bfc12ee9147e973207b6dcda964dcc",
+  "literal_postload_sha256": "18620a104b9e4ee85a65d2f28f081ec81f21e74f0103bb7a3109226e9b046d26",
+  "literal_blocks_unmodified": true,
+  "cases": 47,
+  "compared_bytes": 940,
+  "actual_sha256": "bc6e00e657fbeeb4eca6963554294184f191446cfea5a4c15d2e6cb7476cc87d",
+  "expected_sha256": "bc6e00e657fbeeb4eca6963554294184f191446cfea5a4c15d2e6cb7476cc87d",
+  "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "native_model_fields_bound": false
+}

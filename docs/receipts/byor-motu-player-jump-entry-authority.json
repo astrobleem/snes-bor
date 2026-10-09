@@ -1,0 +1,20 @@
+{
+  "schema": "BYOR_4086_PLAYER_JUMP_ENTRY_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "literal_entry_sha256": "3b283e22f87729ba4b92259f00fc4d9e2d97d30d7bb703af1be3c877c92fdfb5",
+  "literal_helper_sha256": {
+    "tryjump": "99718abc2cf8521be97d705ae1b0872d1a447aeeedd0e69be645183198860adf",
+    "common_prejump": "ec1bdbfbeee8e58473bd5e83e2e501d17759646b112808f298be87592549b783"
+  },
+  "literal_bodies_unmodified": true,
+  "cases": 4608,
+  "compared_bytes": 350208,
+  "actual_sha256": "8310551bad4fd9a505ea8268fd3af34a0bcb41e06f251a8dbe3fea345523c87f",
+  "expected_sha256": "8310551bad4fd9a505ea8268fd3af34a0bcb41e06f251a8dbe3fea345523c87f",
+  "dojump_service_instrumented": true,
+  "frame_mutations_instrumented": true,
+  "pending_descriptor_owner_bound": false,
+  "native_bound": false,
+  "motu_gameplay_proven": false
+}
