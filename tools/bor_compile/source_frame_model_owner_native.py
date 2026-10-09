@@ -98,7 +98,7 @@ ModelFrameOwner_Bad:
     return assembly
 
 
-def emit_timed(symbols):
+def emit_timed(symbols, *, world_relative=False):
     """Run the actual phase-7 operator; caller retains world Ack/clock ownership."""
     code="""ModelTimedFrameOwner_Run:
 .a16
@@ -209,6 +209,9 @@ ModelTimedFrameOwner_Bad:
  sec
  rtl
 """
+    if world_relative:
+        code=code.replace(' jsl SourceUpdateAnimation4086_Begin',' jsl TimedWorldGeometry_Begin')
+        code=code.replace(' cmp.l SourceWorldTick4086_Side',' sec\n sbc #$6800\n cmp.l SourceWorldTick4086_Side')
     serial=[0]
     def relax(match):
         serial[0]+=1;label='ModelTimedFrameOwner_Guard'+str(serial[0])

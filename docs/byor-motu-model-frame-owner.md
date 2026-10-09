@@ -97,3 +97,38 @@ byor-motu-model-generic-timed-owner-native.json,
 byor-motu-model-world-phase7-native.json and
 byor-motu-model-timed-guards-native.json under docs/receipts. These are isolated
 native semantic proofs, not MOTU admission or a gameplay timing certification.
+
+Actual world-issued phase 7 now passes twelve cases. The fixture installs a
+completed prior phase 6, not phase 7. Actual Poll captures the physical slot
+through the source order array and issues phase 7; its actual prime operation
+clears stale timed completion. Poisoned world view/side captures are replaced
+by the native owner. World self remains the actor selected by the fixture;
+prior world phases, entity birth and clock commitment are still unproven here.
+
+This exposed a real integration defect hidden by the earlier isolated fixture:
+world traversal publishes relative view/side offsets, whereas the timed operator
+and its prefix compared bank addresses directly with those offsets. The initial
+actual-issued proof rejected before frame execution. A private emitted copy of
+the repository operators normalizes four comparisons, retains bank addresses
+for actor reads, and retains the absolute self comparison. The generic timed
+resume guard uses the same relative world convention in this mode. The original
+production operators have not yet been changed. Checked text patterns and source
+operator hashes record authority; native code and branch relaxation remain in
+private bank 39. The temporary assembly failure from an unresolved constant was
+corrected, and neither failed run is counted as PASS.
+
+Eight additional world-issued geometry guards pass at physical slots 0 and 127:
+wrong captured world side/view and wrong resumed timed side/frame slot. They
+reject without actor/cache/variable or CPU changes. Native frame control scratch
+may capture preflight state before rejection; the proof does not claim that
+scratch is transactionally restored.
+
+The generic WorldModelOwner continuation also passes twelve cases. It polls the
+actual world owner, services timed phase 7, acknowledges that phase only after
+actual completion, and polls again. It returns the real attack phase 8 with
+pending=1; the caller must execute it. Other world services and external frame
+tickets are returned unchanged. No automatic attack acknowledgement or clock
+commit exists in this module. Receipts are byor-motu-model-world-issued-native,
+byor-motu-model-world-issued-guards-native and
+byor-motu-model-generic-world-owner-native JSON files under docs/receipts.
+This is progress toward a joined world root, not a full MOTU tick or Demo proof.
