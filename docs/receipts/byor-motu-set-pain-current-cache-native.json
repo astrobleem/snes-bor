@@ -1,0 +1,149 @@
+{
+  "schema": "BYOR_SET_PAIN_CURRENT_CACHE_RECEIPT_V1",
+  "status": "PASS",
+  "proof_path": "out/byor-motu-set-pain-current-cache-guards-native/report.json",
+  "proof_sha256": "d013594aaa88fc15574f5c60041d24c835ab8e58ac65b3ff1885b0eb70f918a5",
+  "rom_sha256": "6264eff742a9e3b05c1bb603dc52d8098d9a5f07c698e9cf95446a08cfc79c9e",
+  "cases": 144,
+  "native_calls": 864,
+  "expected_failures": 432,
+  "requirements": {
+    "schema": "BYOR_ZERO_GUARD_PAIN_SELECTION_V1",
+    "models": [
+      {
+        "id": 0,
+        "identity": "Shock",
+        "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 1,
+        "identity": "Slash",
+        "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 2,
+        "identity": "Spark",
+        "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 3,
+        "identity": "He_Man",
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 4,
+        "identity": "He_ManB",
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 5,
+        "identity": "HBreath",
+        "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 6,
+        "identity": "HWWind",
+        "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 7,
+        "identity": "ShWave",
+        "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 8,
+        "identity": "Skeletor",
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 9,
+        "identity": "GeyserN",
+        "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 10,
+        "identity": "SkFBall",
+        "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 11,
+        "identity": "SkGeyser",
+        "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 12,
+        "identity": "SkGeyserT",
+        "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 13,
+        "identity": "SkTorn",
+        "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 14,
+        "identity": "Knightbot",
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+        "guardpoints_max": 0
+      },
+      {
+        "id": 15,
+        "identity": "ShockBall",
+        "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807",
+        "guardpoints_max": 0
+      }
+    ],
+    "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "guard_default_authority_sha256": "58cf7c69813e5448ca15abd676aa3aafc451a5dc85c9b22eae27d9de77ab3bc2",
+    "pains": [
+      4,
+      69,
+      70,
+      71,
+      4,
+      34,
+      4,
+      33,
+      4,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "grabbed": 35,
+    "idle": 0,
+    "maximum": 168,
+    "guardpoint_model_mutators_admitted": false,
+    "full_set_pain_bound": false
+  },
+  "new_foreign_arena_bytes": 0,
+  "chosen_handles": [
+    21,
+    43
+  ],
+  "full_set_pain_bound": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

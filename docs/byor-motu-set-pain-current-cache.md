@@ -1,0 +1,9 @@
+# Pain selection from the current mutable cache
+
+The generic zero-guard pain selector uses the source animation-ID array and actual native `SourceAnimationInit4086_Resolve`. It tries the requested pain role, ordinary pain, then idle, preserving the original requested role separately from the chosen fallback. It queries the current mutable model cache after default animation inheritance. There is no model-name dispatch and no authored-handle substitution.
+
+The native join passes 144 cases after actual weapon resolution and all six model services, with two normal selections, three rejected requests and recovery in each case. Tests cover ordinary pain, a missing numbered role, an aliased attack type, GRABBED, and full-width positive types above the source attack-type count. Negative types below -1, disabled controls and stale generation are rejected. Current cache handles 21 and 43 resolve correctly across the source model transitions. The parent's full actor/cache, sibling, variable and CPU checks still pass; bank 0 is byte-identical.
+
+The fixture serially borrows the existing 24-byte common-idle caller buffer after its parent service completes. It allocates zero new foreign-arena bytes. That arena has only two bytes free; this is not a claim that independent or nested pain/idle owners can share controls without the existing scoped-control protocol. Nonzero authored guardpoints and subclasses fail this capability's derivation explicitly. Guardpoint model mutation is not admitted.
+
+This is the animation-choice boundary of `set_pain`. It does not begin animation, clear velocity, execute frame/audio children, apply pain flags, unfreeze, execute onpain or acknowledge damage/world completion. Those remain required in the full tail. See the [receipt](receipts/byor-motu-set-pain-current-cache-native.json). No color reduction occurred.
