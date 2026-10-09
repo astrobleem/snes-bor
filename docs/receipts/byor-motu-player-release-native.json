@@ -1,0 +1,18 @@
+{
+  "schema": "BYOR_4086_PLAYER_RELEASE_NATIVE_V1",
+  "status": "PASS",
+  "cases": 544,
+  "guards": 25,
+  "errors": [],
+  "rom_sha256": "af9d1f8e91793e378ad0c12ab95a5c53f143ea599912da7065c66230fed52348",
+  "peak_master_clocks": 128330,
+  "actual_body_and_animation_query_owners": true,
+  "source_animation_begin_executed": true,
+  "sound_results_and_post_sound_model_mutation_instrumented": true,
+  "physical_sound_backend_bound": false,
+  "frame_zero_callbacks_executed": false,
+  "production_player_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

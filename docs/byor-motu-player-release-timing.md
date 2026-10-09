@@ -37,4 +37,26 @@ The source-derived INTEGRAL_CHARGETIME_WIN32_X87_ABSENT_CHARGEATTACK profile
 records final source chain roles and exact 400-tick durations for authored
 attackers. Effect models lacking a final attack retain an explicit undefined
 active-release requirement, rather than silently selecting attack one. Native
-release actor/query/audio/frame binding remains required.
+release now has canonical native actor/query writes and explicit sound/frame continuations. Physical source audio and the full player controller remain required.
+
+
+The B68F native release continuation uses the actual immutable chain reader and
+animation resolver. Its 544-case native proof covers all 128 actor slots,
+unsigned timer boundaries, repeated queries, exact prefix writes, source
+priority rejection, fresh post-sound model selection and 25 admission guards.
+The sound result and model mutation are instrumented; this is not physical
+12-channel audio certification.
+
+A separate 64-case proof constructs the actual source player, executes release
+through the real animation and frame-zero owner, and completes the native
+acknowledgement. It retains released input and instrumented post-frame changes
+to the timer, combo, idle flag and velocities. A backend-busy result cannot
+acknowledge the punch service; the source sound owner must accept the call or
+reject it under the source priority rule before release resumes. These are
+serialized continuations within one source controller invocation, not a grant
+to advance the world or recycle its entity slot while a service is pending.
+
+The controller address plan appends 128 bytes, including the threshold's 64
+bytes: 6104 of 6400 bytes, leaving 296. Existing addresses remain unchanged.
+The production arena lease and full player controller are still unbound. No
+bank-0 code or source color changes are introduced.
