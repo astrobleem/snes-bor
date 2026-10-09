@@ -82,3 +82,16 @@ collision source data, input and complete output hashes are retained without
 giant per-case logs. The initial authority check used the wrong textual form
 of the default; the checked pinned global default and model assignment now
 match the actual source. No failed authority run is counted as PASS.
+
+A separate existing-Q16 compatibility measurement retains a FAIL for equivalence.
+Against the same 166,661 source-C cases, projected collision differs in 8,682
+results, including 512 hit decisions. Every difference in this matrix comes from
+coordinate projection; the cases whose input coordinates retain binary32
+identity show no fixed-arithmetic difference. With the actual default grabdistance
+36 alone, 4,341 results and 256 hit decisions differ. The retained tiny-altitude
+probe is below Q16 resolution and can affect source integer-anchor truncation.
+This is an explicit coordinate adaptation boundary, not a native geometry pass
+or universal source-equivalence claim. The source-C reference itself still passes
+all cases. No palette or pixel color changes occur in this arithmetic tooling.
+Receipt: byor-motu-checkhit-q16-compatibility.json. Existing coordinate adaptation
+must remain classified in the foreign profile; native hit resolution remains open.

@@ -12,7 +12,7 @@ def bits(v):return struct.unpack('<I',struct.pack('<f',v))[0]
 
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--engine',type=Path,default=Path('E:/gh/openbor-bcec'));p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--q16-compat',action='store_true');p.add_argument('--source',required=True);p.add_argument('--engine',type=Path,default=Path('E:/gh/openbor-bcec'));p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
  raw=subprocess.check_output(['git','show',ENGINE_COMMIT+':engine/openbor.c'],cwd=a.engine).decode('latin1');body=extract(raw,'checkhit');diff=extract(raw,'diff')
  ir=derive(Source(a.source));table=pack(ir);d=unpack(table);attacks=d['attacks'];boxes=d['boxes']
  # Positions are x/y/z, matching the engine's 3D coordinate record.
@@ -54,18 +54,33 @@ int main(void){int ai,bi,ti,ad,td,counter,flags,vulnerable,hit;unsigned ax,ay,az
  env=dict(os.environ,WATCOM='C:/WATCOM',INCLUDE='C:/WATCOM/H;C:/WATCOM/H/NT')
  build=subprocess.run(['C:/WATCOM/BINNT/wcl386.exe','-q','-bt=nt','checkhit.c','-fe=checkhit.exe'],cwd=a.output,env=env,capture_output=True,text=True);(a.output/'build.log').write_text(build.stdout+build.stderr)
  if build.returncode:raise ValueError('CHECKHIT_C_BUILD:'+build.stdout+build.stderr)
- input_rows=[];expected=[]
+ input_rows=[];expected=[];compat_results=[]
+ if a.q16_compat:from source_checkhit_q16 import checkhit as q16_checkhit
  for ai,bi,ti,ad,td,pi,counter,flags,gi in rows:
   ap,tp=poses[pi];grab=grabs[gi]
   input_rows.append(' '.join(map(str,[ai,bi,ti,ad,td,counter,flags,*[bits(v)for v in ap],*[bits(v)for v in tp],bits(grab)])))
   attacker=dict(token=1,position=ap,direction=ad,grabdistance=grab,attack_table=not(flags&4),attack=attacks[ai])
   target=dict(token=1 if flags&1 else 2,position=tp,direction=td,bbox_table=not(flags&2),vulnerable=not(flags&8),bbox=boxes[bi],attack_table=True,attack=None if flags&16 else attacks[ti])
+  if a.q16_compat:
+   q=q16_checkhit(attacker,target,counter);compat_results.append([1,bits(q['x']/65536),bits(q['y']/65536),bits(q['z']/65536),q['type'],1]if q else[0,0,0,0,0,0])
   r=checkhit(attacker,target,counter);expected.append([1,bits(r['x']),bits(r['y']),bits(r['z']),r['type'],1]if r else[0,0,0,0,0,0])
  input_text='\n'.join(input_rows)+'\n';proc=subprocess.run([str(a.output/'checkhit.exe')],input=input_text,capture_output=True,text=True)
  if proc.returncode:raise ValueError('CHECKHIT_C_EXECUTION')
  actual=[list(map(int,s.split()))for s in proc.stdout.splitlines()]
  mismatches=[dict(index=i,input=rows[i],actual=actual[i]if i<len(actual)else None,expected=e)for i,e in enumerate(expected)if i>=len(actual)or actual[i]!=e]
  report=dict(schema='BYOR_4086_CHECKHIT_SOURCE_GEOMETRY_AUTHORITY_V1',status='PASS'if len(actual)==len(rows)and not mismatches else'FAIL',engine_commit=ENGINE_COMMIT,checkhit_sha256=hashlib.sha256(body.encode('latin1')).hexdigest(),diff_sha256=hashlib.sha256(diff.encode('latin1')).hexdigest(),cases=len(rows),source_attack_records=len(attacks),source_bbox_records=len(boxes),collision_table_sha256=hashlib.sha256(table).hexdigest(),source_models={x['model']:x['source_sha256']for x in ir['animations']},positions=poses,grabdistances=list(grabs),source_default_grabdistance=36.0,input_sha256=hashlib.sha256(input_text.encode()).hexdigest(),actual_sha256=hashlib.sha256(proc.stdout.encode()).hexdigest(),expected_sha256=hashlib.sha256((''.join(' '.join(map(str,e))+'\n'for e in expected)).encode()).hexdigest(),mismatch_count=len(mismatches),mismatches=mismatches[:32],numeric_domain='finite binary32 positions inside Q16 range; signed source box endpoints within 16 bits; no native numeric compatibility claim',native_checkhit_bound=False,do_attack_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
+ if a.q16_compat:
+  differences=[dict(index=i,input=rows[i],q16=q,source=e)for i,(q,e)in enumerate(zip(compat_results,expected))if q!=e]
+  decisions=sum(q[0]!=e[0]for q,e in zip(compat_results,expected))
+  categories={'coordinate_projection':0,'fixed_arithmetic':0};default_differences=0;default_decisions=0
+  for diffrow in differences:
+   ai,bi,ti,ad,td,pi,counter,flags,gi=diffrow['input'];ap,tp=poses[pi]
+   from source_checkhit_q16 import q16
+   changed=any(bits(q16(v)/65536)!=bits(v)for v in ap+tp)
+   categories['coordinate_projection'if changed else'fixed_arithmetic']+=1
+   if gi==0:default_differences+=1;default_decisions+=int(diffrow['q16'][0]!=diffrow['source'][0])
+  report.update(q16_difference_categories=categories,q16_default_grabdistance_differences=default_differences,q16_default_grabdistance_hit_decision_differences=default_decisions,q16_compatibility_measured=True,q16_difference_count=len(differences),q16_hit_decision_differences=decisions,q16_differences=differences[:32],q16_equivalence_status='PASS'if not differences else'FAIL',q16_boundary_classification='EXISTING_Q16_COORDINATE_ADAPTATION',q16_source_exact_claim=False,native_q16_bound=False)
+  print('Q16 differences:',len(differences),'hit decisions:',decisions)
  (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(report['status'],len(rows),'source collision geometry cases;',len(mismatches),'mismatches')
  if report['status']!='PASS':raise SystemExit(1)
 
