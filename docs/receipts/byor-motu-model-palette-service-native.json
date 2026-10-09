@@ -1,0 +1,176 @@
+{
+  "schema": "BYOR_4086_MODEL_PALETTE_SERVICE_NATIVE_V1",
+  "status": "PASS",
+  "rom_sha256": "2ec69c991f3933b4fcd338470e83a908ca35e2aecf8a19970d8ef222e69b8f69",
+  "cases": 386,
+  "real_transition_ack": true,
+  "cgram_admission_bound": false,
+  "first_colour_service_bound": false,
+  "full_transition_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "palette_table_sha256": "04afe707a0559fbec4df2f481a322dea1a01bf8c72d683c5aace655572ce1fcb",
+  "palette_table_bytes": 9872,
+  "source_palette_identities": [
+    {
+      "id": 0,
+      "identity": "Shock",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "774b9ca4163c63d3c2ffd2b74a1e7e3f72ce8b15138cd528c0505af9c55ea58b"
+      ]
+    },
+    {
+      "id": 1,
+      "identity": "Slash",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "774b9ca4163c63d3c2ffd2b74a1e7e3f72ce8b15138cd528c0505af9c55ea58b"
+      ]
+    },
+    {
+      "id": 2,
+      "identity": "Spark",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "774b9ca4163c63d3c2ffd2b74a1e7e3f72ce8b15138cd528c0505af9c55ea58b"
+      ]
+    },
+    {
+      "id": 3,
+      "identity": "He_Man",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "43eea8a578461812006390ed2e39952e61a63296acef47b1d45133e1b444d64f"
+      ]
+    },
+    {
+      "id": 4,
+      "identity": "He_ManB",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "334630c6a6a983c3c706de805ec3402325b0c04643323f4f9cced0eb1d51726a"
+      ]
+    },
+    {
+      "id": 5,
+      "identity": "HBreath",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "60a0628e6eea116d7d89f08c9ac8c37fb14631f28af7a5b944e4e361eb3f0d6d"
+      ]
+    },
+    {
+      "id": 6,
+      "identity": "HWWind",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "ed2dfc10f5a13515e9b071340fcf53f4ad9cd1072267aa8f0c14933dc62da9c5"
+      ]
+    },
+    {
+      "id": 7,
+      "identity": "ShWave",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "774b9ca4163c63d3c2ffd2b74a1e7e3f72ce8b15138cd528c0505af9c55ea58b"
+      ]
+    },
+    {
+      "id": 8,
+      "identity": "Skeletor",
+      "maps_loaded": 1,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "b6aac321ae04aad80b1d42ce9491600201e3816fe05b458015fb58460a297d8c",
+        "47c4e8c167e1af83b538dfbab6a2a918afac4b5a11c740416b09af54c2d03150"
+      ]
+    },
+    {
+      "id": 9,
+      "identity": "GeyserN",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "774b9ca4163c63d3c2ffd2b74a1e7e3f72ce8b15138cd528c0505af9c55ea58b"
+      ]
+    },
+    {
+      "id": 10,
+      "identity": "SkFBall",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "8df74eede42f82038a6f2eb8261d5ec6922ce3ae6eb8f086b766eb8b00240139"
+      ]
+    },
+    {
+      "id": 11,
+      "identity": "SkGeyser",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "c06d3bbca3818cfe8246deae15f8653e0530d8b451276821ba89f59c6ce2f168"
+      ]
+    },
+    {
+      "id": 12,
+      "identity": "SkGeyserT",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "c06d3bbca3818cfe8246deae15f8653e0530d8b451276821ba89f59c6ce2f168"
+      ]
+    },
+    {
+      "id": 13,
+      "identity": "SkTorn",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "774b9ca4163c63d3c2ffd2b74a1e7e3f72ce8b15138cd528c0505af9c55ea58b"
+      ]
+    },
+    {
+      "id": 14,
+      "identity": "Knightbot",
+      "maps_loaded": 2,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "3dfff17c839416a8ef1689cdaa5a0f9afa45b3ff97bda08c700497346e0da1ba",
+        "eb52cd5b757cf532e8d6134b3c9bed7f1eef94aa7fb07ee4162796b58c2e818d",
+        "08bcd161c21d42c2d06156f27215d73c305336d1b4ab673e735f22629613e83e"
+      ]
+    },
+    {
+      "id": 15,
+      "identity": "ShockBall",
+      "maps_loaded": 0,
+      "policy": "SOURCE_MODEL_INDEXED",
+      "colors_sha256": [
+        "cc4aa122ec7d18d8491ba4950d23c7a3275e49f98370db8deab4e33f2d51055f"
+      ]
+    }
+  ],
+  "full_report_sha256": "39a980eba3c51d5472b9a3def5f38ce52554719308ac91d7d3b80e64471d8276",
+  "reproduce_argv": [
+    "python",
+    "tools/verify/m4_model_palette_service_native.py",
+    "--source",
+    "Masters of the Universe [v.3.0 Build 4086].pak",
+    "--rom",
+    "out/byor-motu-vm-regression/bor.sfc",
+    "--output",
+    "out/byor-motu-model-palette-service-native"
+  ]
+}
