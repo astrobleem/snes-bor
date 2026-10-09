@@ -49,7 +49,8 @@ def layout(base,size,entities=128,players=4):
            ('player_button_controls',48,'pre-attack button query and real special continuation'),
            ('player_release_controls',128,'canonical release, sound/frame continuations and integral charge threshold'),
            ('player_attack_controls',48,'ordinary attack, chain/target/frame/sound continuations'),
-           ('pending_jump_controls',64,'generation-bound pending jump storage and constructor model binding')]
+           ('pending_jump_controls',64,'generation-bound pending jump storage and constructor model binding'),
+           ('tryjump_controls',64,'pending jump arguments, actual JUMPDELAY query and frame continuation')]
     cursor=base;regions=[]
     for name,count,authority in specs:
         cursor=(cursor+1)&~1

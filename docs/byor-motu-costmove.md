@@ -10,7 +10,7 @@ must issue StartFrame, execute the native script/effects owner, and acknowledge
 that completed animation before Finish can publish success. Neither service
 silently acknowledges a callback.
 
-The verbatim pinned C authority compares 2304 cases and 184320 state bytes.
+The verbatim pinned C authority compares 2304 cases and 120320 state bytes.
 The native prefix proof compares 195 cases, including 14 admission/overflow
 guards, over actual source entity stores and the full 16x168 animation cache.
 Its private immutable energy descriptor variants are explicitly instrumented.
@@ -33,8 +33,8 @@ exact short-circuit query order, and zero actor-byte mutation. Link validity and
 signed debit overflow belong to the later mutating costmove; they do not turn
 this pure eligibility query into an actor mutation preflight.
 
-The compiler-owned controller address plan consumes 6216 of the 6400 leased
-bytes, leaving 184. It includes input histories, entity movetime, combo tails,
+The compiler-owned controller address plan consumes 6280 of the 6400 leased
+bytes, leaving 120. It includes input histories, entity movetime, combo tails,
 input binding/snapshot/sequence controls, costmove and command continuations.
 It reserves no extra animhits array: shared source animation hits already have
 an initializer-owned canonical store. Layout generation alone grants no lease.

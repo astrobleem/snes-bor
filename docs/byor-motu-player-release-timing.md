@@ -57,6 +57,6 @@ serialized continuations within one source controller invocation, not a grant
 to advance the world or recycle its entity slot while a service is pending.
 
 The controller address plan appends 128 bytes, including the threshold's 64
-bytes: 6216 of 6400 bytes, leaving 184. Existing addresses remain unchanged.
+bytes: 6280 of 6400 bytes, leaving 120. Existing addresses remain unchanged.
 The production arena lease and full player controller are still unbound. No
 bank-0 code or source color changes are introduced.

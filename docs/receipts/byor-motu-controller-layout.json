@@ -2,8 +2,8 @@
   "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
   "base": 8364032,
   "bytes": 6400,
-  "used_bytes": 6216,
-  "remaining_bytes": 184,
+  "used_bytes": 6280,
+  "remaining_bytes": 120,
   "entities": 128,
   "players": 4,
   "regions": [
@@ -265,6 +265,13 @@
       "bytes": 64,
       "end": 8370248,
       "authority": "generation-bound pending jump storage and constructor model binding"
+    },
+    {
+      "name": "tryjump_controls",
+      "address": 8370248,
+      "bytes": 64,
+      "end": 8370312,
+      "authority": "pending jump arguments, actual JUMPDELAY query and frame continuation"
     }
   ],
   "required_lease": "SourceForeignWork B671 nonzero matching generation; retired canvas/frontpanel/water owners",

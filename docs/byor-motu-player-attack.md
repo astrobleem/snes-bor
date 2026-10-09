@@ -28,7 +28,7 @@ Post-frame attacking changes suppress ordinary punch sound. Sound acceptance
 and source priority rejection are fixture inputs; physical sound is unbound.
 
 Its 48-byte control block appends to the foreign arena at 7FB7D8. The complete
-address plan uses 6216 of 6400 bytes with 184 remaining. Production canvas
+address plan uses 6280 of 6400 bytes with 120 remaining. Production canvas
 ownership, full player_think and physical sound remain required. This is a
 component proof, not combat or MOTU gameplay certification. No color reduction,
 bank-0 code or PCM copies are introduced.

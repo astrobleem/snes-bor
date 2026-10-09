@@ -40,7 +40,17 @@ through three chunks of 52224, 5120 and 8192 bytes. Native observer checks retai
 the entire 3072-byte reservation, neighboring physics and source heaps. This
 is a bounded transfer/storage proof, not production IRQ/NMI timing admission.
 The 64-byte control block appends at 7FB808. The controller address plan now
-uses 6216 of 6400 bytes, leaving 184. The real root must enforce reduced CHR
+uses 6280 of 6400 bytes, leaving 120. The real root must enforce reduced CHR
 capacity and drain its producers/DMA before leasing persistent state. Live
 model-switch hooks, tryjump/dojump execution, physical audio and the production
 memory lease remain open. No color reduction or gameplay completion is claimed.
+
+Native tryjump uses another 64-byte continuation at 7FB848. Six real-constructor
+cases execute He_Man's actual JUMPDELAY frame in both directions, retain the
+binary32 arguments and publish registered common_prejump identity 18. They
+clear horizontal velocity and idling while retaining attacking and running.
+common_prejump waits on the actual animation flag, then reads the fresh stored
+descriptor and posts DO_JUMP_REQUIRED. It cannot acknowledge sound, toss or a
+jump frame. Argument mutation in this boundary test is instrumented. The
+3,167-case default-init C regression still passes with existing callback ids
+unchanged. Production action dispatch for common_prejump remains required.
