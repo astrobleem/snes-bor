@@ -39,6 +39,14 @@ def emit(work,sy):
  put(' lda $08\n tax');require('$410028,x',1);require('$41002A,x',0)
  for a,v in((sy['SourceScore4086_Ready'],0xb631),(sy['SourceScore4086_StatsReady'],0xb633),(sy['SourceScore4086_NoScriptsReady'],0xb632),(sy['SourceScore4086_ScriptMask'],0)):
   require(a,v)
+ # A required score child owns its retained controls. Retrying checkdeath must
+ # neither restart addscore nor duplicate already accepted extra lives.
+ put(f' lda.l {work}+94\n cmp #1');jump('bne','ScoreStart')
+ for off in(0,2):put(f' lda.l $41002C+{off},x\n cmp.l {sy["SourceScore4086_Index"]}+{off}');guard('bne')
+ put(' lda $02\n tax')
+ for off in(0,2):put(f' lda.l $414048+{off},x\n cmp.l {sy["SourceScore4086_Add"]}+{off}');guard('bne')
+ put(f' lda.l {sy["SourceScore4086_Status"]}');jump('beq','ScoreDone');put(' cmp #3');guard('bcs');put(' jmp CombatDeath_Required')
+ label('ScoreStart');put(' lda $08\n tax')
  for off in(0,2):put(f' lda.l $41002C+{off},x\n sta.l {sy["SourceScore4086_Index"]}+{off}')
  put(' lda $02\n tax')
  for off in(0,2):put(f' lda.l $414048+{off},x\n sta.l {sy["SourceScore4086_Add"]}+{off}')
@@ -48,7 +56,7 @@ def emit(work,sy):
  put(' lda $02\n tax\n lda #1\n sta.l $439010,x\n lda #0\n sta.l $439012,x\n lda $00\n asl a\n asl a\n asl a\n asl a\n asl a\n tax\n lda #0\n sta.l $43EB00,x\n sta.l $43EB02,x');put(f' lda #8\n sta.l {w}+44\n sta $06')
  label('Sound');put(' lda $06\n cmp #8');jump('bne','Item');put(' lda $02\n tax\n lda.l $41404E,x');jump('bpl','Required');put(f' lda #9\n sta.l {w}+44\n sta $06')
  label('Item');put(' lda $06\n cmp #9');jump('bne','Boss');put(' lda $04\n tax\n lda.l $40903C,x\n ora.l $40903E,x');jump('bne','Required')
- # Item NULL is a source no-op. Non-NULL needs its count/drop child.
+ # A zero cached item-model index is a source no-op; otherwise count/drop is required.
  label('Boss');put(' lda $04\n tax\n lda.l $433838,x\n ora.l $43383A,x');jump('bne','Required')
  label('Complete');put(f' lda #10\n sta.l {w}+44')
  for n,status,carry in(('Good',0,'clc'),('Required',1,'clc'),('Bad',3,'sec')):

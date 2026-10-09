@@ -43,7 +43,7 @@ def emit(attacks,work,sy,code_bank=39):
  for off in(0,2):put(f' lda.l {hb}+{off},x\n sta.l {w}+{56+off}')
  put(f' lda.l {w}+50\n dec a\n asl a\n asl a\n tax')
  for off in(0,2):put(f' lda.l DamageContactCapture_Forces+{(code_bank<<16)+off},x\n sta.l {work}+{68+off}\n sta.l {work}+{80+off}')
- put(f' lda #0\n sta.l {w}+42\n sta.l {w}+44\n sta.l {work}+66\n lda #$B6AD\n sta.l {w}+40\n lda #$B6B2\n sta.l {work}+64')
+ put(f' lda #0\n sta.l {w}+42\n sta.l {w}+44\n sta.l {work}+66\n sta.l {work}+94\n lda #$B6AD\n sta.l {w}+40\n lda #$B6B2\n sta.l {work}+64')
  label('Good');put(' ply\n plx\n plp\n clc\n rtl');label('Bad');put(' ply\n plx\n plp\n sec\n rtl')
  label('Forces');put(' .dw '+','.join(str(v)for a in attacks for v in(a['attack_force']&65535,(a['attack_force']>>16)&65535)))
  return '\n'.join(lines)+'\n'

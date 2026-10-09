@@ -23,7 +23,7 @@ def authority(folder,rows):
 #define VT_INTEGER 1
 typedef struct {long lVal;int type;}ScriptVariant;
 typedef struct {int initialized;}Script;
-typedef struct entity {int health,dead,nograb,idling,boss,playerindex,itemplayer_count,exists;struct{int type,score,diesound;}modeldata;struct entity *opponent,*item;}entity;
+typedef struct entity {int health,dead,nograb,idling,boss,playerindex,itemplayer_count,exists,item;struct{int type,score,diesound;}modeldata;struct entity *opponent;}entity;
 entity target,root,*self=&target;struct{unsigned score;int lives;}player[4];Script score_script[4];unsigned lifescore=50000;int SAMPLE_1UP=27;struct{int effectvol;}savedata;struct{int bosses;}lev,*level=&lev;int level_completed,request; jmp_buf pause;
 void sound_play_sample(int sample,int loop,int l,int r,int speed){request=sample==27?1:2;longjmp(pause,1);}
 int Script_IsInitialized(Script*s){return 0;}
@@ -40,7 +40,7 @@ int main(void){int i,j;int rows[][7]={
 '''+',\n'.join('{'+','.join(str(c[k])for k in ('source_health','root_kind','score_index','death_score','death_sound','death_item','player'))+'}'for c in rows)+'''};
 for(i=0;i<sizeof(rows)/sizeof(rows[0]);i++){
 memset(&target,0,sizeof(target));memset(&root,0,sizeof(root));for(j=0;j<4;j++){player[j].score=49999+j*50000;player[j].lives=5;}request=0;
-target.health=rows[i][0];target.exists=1;target.idling=1;target.modeldata.type=rows[i][6];target.playerindex=rows[i][2];target.modeldata.score=rows[i][3];target.modeldata.diesound=rows[i][4];root.modeldata.type=rows[i][1]==0?1:2;root.playerindex=rows[i][2];target.opponent=rows[i][1]==2?0:rows[i][1]==3?&target:&root;target.item=rows[i][5]?&root:0;
+target.health=rows[i][0];target.exists=1;target.idling=1;target.modeldata.type=rows[i][6];target.playerindex=rows[i][2];target.modeldata.score=rows[i][3];target.modeldata.diesound=rows[i][4];root.modeldata.type=rows[i][1]==0?1:2;root.playerindex=rows[i][2];target.opponent=rows[i][1]==2?0:rows[i][1]==3?&target:&root;target.item=rows[i][5]?1:0;
 if(!setjmp(pause))checkdeath();printf("%d,%d,%d,%d",target.dead,target.nograb,target.idling,request);for(j=0;j<4;j++)printf(",%u,%d",player[j].score,player[j].lives);puts("");
 }return 0;}
 '''
@@ -109,7 +109,14 @@ def main():
 end,emu.callbackType.exec,DEATHBEGIN,DEATHBEGIN,emu.cpuType.snes,mt)
 '''
   kw['probes']['DBAD']='CombatDeath_Bad';lua+='\nemu.addMemoryCallback(function()emu.log("DEATHFAULT|"..word(INDEX))end,emu.callbackType.exec,DBAD,DBAD,emu.cpuType.snes,mt)\n'
+  kw.setdefault('bindings',{})['DEATHSCORE']='SourceScore4086_Execute'
+  lua+=f'\nemu.addMemoryCallback(function()if word({w}+44)==6 then emu.log("DEATHSCORECALL|"..word(INDEX))end end,emu.callbackType.exec,DEATHSCORE,DEATHSCORE,emu.cpuType.snes,mt)\n'
   raw,log=original(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw)
+  calls=[int(l.split('DEATHSCORECALL|')[1])for l in log.splitlines()if'DEATHSCORECALL|'in l]
+  expected=[i for i,c in enumerate(rows)if not c['fault']and c['source_health']<=0 and(c['root_kind']==0 or c['root_kind']==3 and c['player']&1)]
+  reporter.check('retained kill-score executes once even while its extra-life child remains required',calls==expected)
+  proof['score_calls']=calls
+
   proof['required_counts']={k:sum(c['death_request']==v for c in rows)for k,v in dict(extra_life_audio=1,death_audio=2,item_count=3).items()};return raw,log
  old_contact=parent.player.contact
  def death_contact(*args,**kwargs):return old_contact(*args,**kwargs,advance_cursor=5)
@@ -118,7 +125,7 @@ end,emu.callbackType.exec,DEATHBEGIN,DEATHBEGIN,emu.cpuType.snes,mt)
   try:parent.main()
   except SystemExit as e:
    if e.code not in(None,0):raise
- path=a.output/'report.json';r=json.loads(path.read_text());r.update(schema='BYOR_COMBAT_DEATH_PREFIX_NATIVE_V1',death_authority_sha256=proof['authority_sha256'],death_source_C_cases=proof['authority_cases'],death_required_counts=proof['required_counts'],source_checkdeath_and_addscore_unmodified=True,source_audio_and_item_count_pause_boundaries_instrumented=True,source_exists_preserved=True,positive_sound_item_boss_services_bound=False,full_damage_callback_bound=False,motu_gameplay_proven=False);path.write_text(json.dumps(r,indent=2)+'\n')
+ path=a.output/'report.json';r=json.loads(path.read_text());r.update(schema='BYOR_COMBAT_DEATH_PREFIX_NATIVE_V1',death_authority_sha256=proof['authority_sha256'],death_source_C_cases=proof['authority_cases'],death_required_counts=proof['required_counts'],death_score_calls=proof['score_calls'],retained_score_not_restarted=True,source_checkdeath_and_addscore_unmodified=True,source_audio_and_item_count_pause_boundaries_instrumented=True,source_exists_preserved=True,positive_sound_item_boss_services_bound=False,full_damage_callback_bound=False,motu_gameplay_proven=False);path.write_text(json.dumps(r,indent=2)+'\n')
 
 
 if __name__=='__main__':main()

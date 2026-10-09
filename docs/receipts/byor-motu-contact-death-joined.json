@@ -1,0 +1,38 @@
+{
+  "schema": "BYOR_CONTACT_DEATH_RETAINED_JOIN_RECEIPT_V1",
+  "status": "PASS",
+  "proofs": {
+    "contact": {
+      "proof_path": "out/byor-motu-contact-death-retained-native/report.json",
+      "proof_sha256": "ae4595c7fb715d2b6149be0303f4275308033fd06c598f27227a35a7106b8db9",
+      "rom_sha256": "c97dd8c4ca58a143605dbdc38748d606aea56ad565dab665ed8104009b5d813d",
+      "cases": 412,
+      "source_C_cases": 388,
+      "authority_sha256": "196e7f649a59415d35414c63daaa6c0fbd3dd3c29d4a021859f301eab5f9d7ea",
+      "lethal_contacts": 194
+    },
+    "score_retry": {
+      "proof_path": "out/byor-motu-combat-death-retained-score-native/report.json",
+      "proof_sha256": "5831687e9de4de9de889488f93b96726e66f061a824ef58f0cb21afd362d334e",
+      "rom_sha256": "e9fa634dcec4bd50c325519a15d11a89b2884484ec11b5536f1364cf9f0b81c1",
+      "cases": 211,
+      "source_C_cases": 204,
+      "authority_sha256": "217c6d909f4c598e409d427620f383c538d2b90b2fb164dcf684fa6cf3d3f405",
+      "required_children": {
+        "extra_life_audio": 36,
+        "death_audio": 43,
+        "item_count": 12
+      },
+      "kill_score_calls": 100
+    }
+  },
+  "actual_contact_capture": true,
+  "health_published_once": true,
+  "retained_score_not_restarted": true,
+  "fixture_world_globals": true,
+  "positive_audio_item_boss_services_bound": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
