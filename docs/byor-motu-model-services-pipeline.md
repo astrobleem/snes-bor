@@ -34,7 +34,9 @@ assembly remains unchanged. Native bank 0 is byte-identical to the baseline.
 
 The installed source pool, metadata leases, input requests and retired canvas
 are fixture inputs. Authored event arguments are proven through the native
-model service pipeline; actual update_frame weapon-event emission remains open.
+model service pipeline; the separate frame-prefix receipt now proves native weapon-event emission in
+the explicit `animating=0` source branch. Animation callback execution and
+parent/nested idle frame completion remain open.
 Unsynchronized initialization requires its existing nested frame owner and is
 outside this synchronized capability. This proof does not certify physical
 presentation, audible playback, combat, a production MOTU boot or Demo completion.
@@ -43,3 +45,26 @@ The bounded receipt is `receipts/byor-motu-model-services-pipeline-native.json`.
 Reproduce with `m4_model_services_pipeline_native.py`; its receipt contains exact
 arguments and source-table/asset hashes. No production assembly, new mutable
 arena storage, color reduction or PCM copies are added. No TMNT work is begun.
+
+The continuation is emitted by `source_model_pipeline_native.py`. Its caller
+supplies an independent expected canvas generation in X/Y; it preserves that
+value across the native children. It rejects unsupported service 4, malformed
+transition leases and a completed state with a nonzero service. No actor-name
+branch selects this continuation.
+
+`--frame-prefix` passes 40 cases: twelve authored transitions and the same
+28 stale snapshot guards. Actual update_frame Begin captures the source frame,
+sets engine self, and enters effect service 2. The real paired plan issues drop
+and set-weapon operations. Binding reads the immutable frame weapon number,
+replacing deliberately poisoned request/target registers, starts the native
+transition, then acknowledges only its matching completion. The cursor advances
+to source SET_IDLE. All source-state and foreign-row comparisons still pass.
+Bank 0 stays byte-identical. This proof deliberately uses source animating=0,
+which requires no animation callback; it does not claim normal timed playback.
+The parent frame remains pending, engine self remains active, and idle frame 0
+has not been executed. Those are required continuations, not accepted no-ops.
+
+The initial request-path regression after extraction failed to enter its leaf
+fixture after reaching TITLE; it emitted no transition results. A fresh run
+completed all 52 cases. The failed run was not counted as PASS. Receipts retain
+the successful ROM identities, and scratch logs remain bounded.

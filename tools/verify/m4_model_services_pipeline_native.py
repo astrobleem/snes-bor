@@ -1,7 +1,8 @@
 """Authored weapon arguments through every native synchronized model service.
 
-Exclusive, installed source pool; request emission, graphics and audio remain
-outside this proof. No service acknowledgement is written by the observer.
+Exclusive, installed source pool. Optional frame modes dispatch the authored
+weapon event; graphics, audio, nested idle and frame completion remain outside
+this proof. No service acknowledgement is written by the observer.
 """
 import argparse,hashlib,itertools,json,struct,sys
 from pathlib import Path
@@ -15,6 +16,7 @@ from source_model_callback_service_native import emit as callbacks
 from source_model_scalar_service_native import emit as scalars
 from source_model_palette_service_native import emit as palettes
 from source_model_scripts_service_native import emit as scripts
+from source_model_pipeline_native import emit as pipeline
 from source_run_tuple_native import emit as run,emit_entity_copy_bridge
 from source_foreign_state_layout import layout
 from actor_s5_entity_fixture import symbols
@@ -59,11 +61,19 @@ def rows_for(reports,data):
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--frame-prefix',action='store_true');p.add_argument('--frame-binding',action='store_true');p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+    if a.frame_prefix:a.frame_binding=True
     source=Source(a.source);reports,data,manifest=compile_bundle(source);rows=rows_for(reports,data);sy=symbols(Path('src/main.sym'));arena=layout(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES']);regions={r['name']:r['address']for r in arena['regions']};styles=regions['entity_combostyle'];rw=regions['run_tuple_controls'];rh=regions['entity_run_tuple'];maximum=reports['requirements']['maximum_animations']
     small=bytearray();addresses={}
     for name in('scripts','callbacks','factors','lifecycle','weapon','body','offscreen','death','timing'):
         addresses[name]=0x8000+len(small);small.extend(data[name]);small.extend(bytes(len(small)%2))
+    if a.frame_binding:
+        from source_frame_effect_plan import derive as derive_plan,pack as pack_plan
+        rows=[r for r in rows if r['frame']==r['source_event']['frame']]
+        addresses['plan']=0x8000+len(small);plan=pack_plan(derive_plan(reports['effects']));small.extend(plan)
+        for r in rows:
+            handle=r['source_event']['frame_handle'];r['effect_offset']=struct.unpack_from('<H',data['effects'],16+8*(handle-1)+4)[0]
+            r['effect_count']=len(reports['effects']['animations'][handle-1]['frames'])
     wrapper='''
 ModelPipeline_Apply:
 .a16
@@ -73,82 +83,25 @@ ModelPipeline_Apply:
  phx
  phy
  jsl SourceAttackTiming4086_Load
- bcs ModelPipeline_Bad
+ bcs ModelPipeline_EntryBad
  jsl SourceWeapon4086_Resolve
- bcs ModelPipeline_Bad
+ bcs ModelPipeline_EntryBad
  lda.l SourceWeapon4086_Selected
  sta.l SourceModelTransition4086_New
  lda.l SourceWeapon4086_Sync
  sta.l SourceModelAnimation4086_Sync
  jsl SourceModelTransition4086_Begin
- bcs ModelPipeline_Bad
-ModelPipeline_Loop:
-.a16
-.i16
- lda.l SourceModelTransition4086_State
- cmp #2
- beq ModelPipeline_Done
- cmp #1
- bne ModelPipeline_Bad
- lda.l SourceModelTransition4086_Service
- cmp #1
- beq ModelPipeline_Snapshot
- cmp #2
- beq ModelPipeline_Scalars
- cmp #3
- beq ModelPipeline_FirstMap
- cmp #5
- beq ModelPipeline_Scripts
- cmp #6
- beq ModelPipeline_LastMap
- cmp #7
- beq ModelPipeline_Callback
- jmp ModelPipeline_Bad
-ModelPipeline_Snapshot:
-.a16
-.i16
- jsl ModelSnapshotService_BeginAbsent
- bra ModelPipeline_After
-ModelPipeline_Scalars:
-.a16
-.i16
+ bcs ModelPipeline_EntryBad
  ldx #1
  ldy #0
- jsl ModelScalarService_Apply2
- bra ModelPipeline_After
-ModelPipeline_FirstMap:
-.a16
-.i16
- jsl ModelPaletteService3_Apply3
- bra ModelPipeline_After
-ModelPipeline_Scripts:
-.a16
-.i16
- jsl ModelScriptsService_Apply
- bra ModelPipeline_After
-ModelPipeline_LastMap:
-.a16
-.i16
- jsl ModelPaletteService_Apply6
- bra ModelPipeline_After
-ModelPipeline_Callback:
-.a16
-.i16
- jsl ModelCallbackService_FinishAbsent
-ModelPipeline_After:
-.a16
-.i16
- bcs ModelPipeline_Bad
- jmp ModelPipeline_Loop
-ModelPipeline_Done:
-.a16
-.i16
+ jsl ModelPipeline_Resume
+ bcs ModelPipeline_EntryBad
  ply
  plx
  plp
  clc
  rtl
-ModelPipeline_Bad:
+ModelPipeline_EntryBad:
 .a16
 .i16
  ply
@@ -157,16 +110,32 @@ ModelPipeline_Bad:
  sec
  rtl
 '''
+    if a.frame_binding:
+        start=wrapper.index(' jsl SourceWeapon4086_Resolve')
+        end=wrapper.index(' ldx #1')
+        wrapper=wrapper[:start]+''' jsl SourceFrameEffectPlan4086_Begin
+ bcs ModelPipeline_EntryBad
+ jsl SourceFrameEffectBinding4086_Begin
+ bcs ModelPipeline_EntryBad
+ lda.l SourceFrameEffectPlan4086_Service
+ cmp #3
+ bne ModelPipeline_EntryBad
+ jsl SourceFrameEffectBinding4086_Begin
+ bcs ModelPipeline_EntryBad
+'''+wrapper[end:]
+        wrapper=wrapper.replace(' jsl ModelPipeline_Resume\n bcs ModelPipeline_EntryBad', ' jsl ModelPipeline_Resume\n bcs ModelPipeline_EntryBad\n jsl SourceFrameEffectBinding4086_Finish\n bcs ModelPipeline_EntryBad')
+    if a.frame_prefix:
+        wrapper=wrapper.replace(' jsl SourceFrameEffectPlan4086_Begin',' jsl SourceUpdateFrame4086_Begin\n bcs ModelPipeline_EntryBad\n cmp #2\n bne ModelPipeline_EntryBad\n jsl SourceFrameEffectPlan4086_Begin')
     import re
     serial=[0]
     def relax(m):
-        serial[0]+=1;label='ModelPipeline_Guard'+str(serial[0])
+        serial[0]+=1;label='ModelPipeline_EntryGuard'+str(serial[0])
         return ' '+dict(beq='bne',bne='beq',bcc='bcs',bcs='bcc')[m[1]]+' '+label+'\n jmp '+m[2]+'\n'+label+':\n.a16\n.i16'
     wrapper=re.sub(r'^ (beq|bne|bcc|bcs) (ModelPipeline_\w+)$',relax,wrapper,flags=re.M)
     wrapper=re.sub(r'^ bra (ModelPipeline_\w+)$',r' jmp \1',wrapper,flags=re.M)
     for name in sorted(sy,key=len,reverse=True):
         if name.startswith('Source'):wrapper=__import__('re').sub(r'\b'+name+r'\b',str(sy[name]),wrapper)
-    assembly=wrapper+callbacks(sy,1)+callbacks(sy)+scalars(reports['scalars'],styles,sy)+palettes(reports['palettes'],sy,3)+palettes(reports['palettes'],sy)+scripts(sy)+run(rw,rh,reports['run'],sy,copy_entry='SourceRunTuple_EntityCopyOriginal')+emit_entity_copy_bridge(rw,sy)+'\nModelPipeline_CodeEnd:\n.a16\n.i16\n'
+    assembly=wrapper+pipeline(sy)+callbacks(sy,1)+callbacks(sy)+scalars(reports['scalars'],styles,sy)+palettes(reports['palettes'],sy,3)+palettes(reports['palettes'],sy)+scripts(sy)+run(rw,rh,reports['run'],sy,copy_entry='SourceRunTuple_EntityCopyOriginal')+emit_entity_copy_bridge(rw,sy)+'\nModelPipeline_CodeEnd:\n.a16\n.i16\n'
     lua='local data='+luav({k:list(v)for k,v in data.items()if k in('core','animation_cache','weapon_cache','policy','timing')})+'\nlocal reports='+luav({k:reports[k]for k in('scripts','factors','lifecycle','policy','timing','body','offscreen','death','scalars','run')})+'\nlocal address='+luav(addresses)+'\nlocal extra='+luav({k:v for k,v in sy.items()if k.startswith('SourceForeignWork_')or k.startswith(('StageFp_','StreamScrollFp_'))or k in('DmaQueue',)})+'\nfor k,v in pairs(extra)do sy[k]=v end\n'
     lua+=r'''
 local mt=emu.memType.snesMemory
@@ -268,6 +237,24 @@ emu.addMemoryCallback(function()
  emu.log('PIPELINEFAULT|'..table.concat(parts,','))
 end,emu.callbackType.exec,FAULT,FAULT,emu.cpuType.snes,mt)
 '''
+    if a.frame_binding:
+        lua=lua.replace(" before={};for _,r in ipairs(ranges)",''' put(sy.SourceWeapon4086_NumberLo,2147483647,4);set('SourceModelTransition4086_New',65535)
+ set('SourceIdle4086_Ready',0xb4f3);put(0x43eb1c+c.slot*32,0,4)
+ set('SourceFrameEffectBinding4086_Ready',0xb4f5)
+ set('SourceFrameEffectPlan4086_Ready',0xb4f2);set('SourceFrameEffectPlan4086_State',0);set('SourceFrameEffectPlan4086_Base',address.plan);set('SourceFrameEffectPlan4086_Bank',58);set('SourceFrameEffectPlan4086_Bytes',PLANBYTES);set('SourceFrameEffectPlan4086_Animations',ANIMATIONS)
+ set('SourceFrameEffectPlan4086_PairedCrcLo',PLANPAIREDLO);set('SourceFrameEffectPlan4086_PairedCrcHi',PLANPAIREDHI);set('SourceFrameEffectPlan4086_BodyCrcLo',PLANBODYLO);set('SourceFrameEffectPlan4086_BodyCrcHi',PLANBODYHI)
+ set('SourceUpdateFrame4086_State',1);set('SourceUpdateFrame4086_Pending',2);set('SourceUpdateFrame4086_Slot',c.slot);set('SourceUpdateFrame4086_Handle',c.source_event.frame_handle);set('SourceUpdateFrame4086_Request',c.source_event.frame);set('SourceUpdateFrame4086_Count',c.effect_count);set('SourceUpdateFrame4086_AnimationData',0x8000+c.effect_offset)
+ before={};for _,r in ipairs(ranges)''')
+        lua=lua.replace(" emu.log('PIPELINERESULT|'",''' if c.fault==0 and (word(sy.SourceFrameEffectPlan4086_Index)~=2 or word(sy.SourceFrameEffectPlan4086_Service)~=4 or word(sy.SourceFrameEffectBinding4086_State)~=0)then n=n+1 end
+ emu.log('PIPELINERESULT|' ''')
+        for k,v in dict(PLANBYTES=len(plan),PLANPAIREDLO=struct.unpack_from('<H',plan,24)[0],PLANPAIREDHI=struct.unpack_from('<H',plan,26)[0],PLANBODYLO=struct.unpack_from('<H',plan,28)[0],PLANBODYHI=struct.unpack_from('<H',plan,30)[0]).items():lua=lua.replace(k,str(v))
+    if a.frame_prefix:
+        lua=lua.replace(" before={};for _,r in ipairs(ranges)",''' set('SourceUpdateFrame4086_State',0);set('SourceUpdateFrame4086_Pending',0)
+ set('SourceSelf4086_Ready',0xb4f6);set('SourceSelf4086_Active',0);set('SourceSelf4086_Fault',0);put(sy.SourceSelf4086_GlobalLow,0x414000+80*((c.slot+1)%128),4)
+ emu.write(sy.VmState_Status,0,mt);set('VmState_Error',0);put(sy.VmSourceWorld_Time,48,4)
+ put(0x41f510+c.slot*20,0);set('SourceFrameMotion4086_Ready',0)
+ before={};for _,r in ipairs(ranges)''')
+        lua=lua.replace(" if c.fault==0 and (word(sy.SourceFrameEffectPlan4086_Index)"," if word(sy.SourceSelf4086_Active)~=1 or word(sy.SourceSelf4086_GlobalLow)~=0x4000+80*c.slot then n=n+1 end\n if c.fault==0 and (word(sy.SourceFrameEffectPlan4086_Index)")
     lua='local LIFE_KNOCKDOWN='+luav([list(struct.pack('<f',m['fields']['knockdowncount']))for m in reports['lifecycle']['models']])+'\nlocal FACTOR_VECTORS='+luav([list(bytes.fromhex(m['vector_hex']))for m in reports['factors']['models']])+'\nlocal BODY_ROWS='+luav([list(data['body'][16+i*9:25+i*9])for i in range(16)])+'\n'+lua
     values=dict(CACHEBYTES=len(data['animation_cache']),MAXIMUM=maximum,AIBYTES=len(data['animations']),FEBYTES=len(data['effects']),ANIMATIONS=len(reports['animations']['animations']),SCRIPTBYTES=len(data['scripts']),CALLBACKBYTES=len(data['callbacks']),PROGRAMS=reports['callbacks']['program_count'],FACTORBYTES=len(data['factors']),LIFEBYTES=len(data['lifecycle']),BODYBYTES=len(data['body']),OFFSCREENBYTES=len(data['offscreen']),DEATHBYTES=len(data['death']),TIMINGBYTES=len(data['timing']),WEAPONBYTES=len(data['weapon']),DEFAULTMODEL=rows[0]['old'],STYLES=styles,HANDLES=rh,RUNWORK=rw)
     import re
@@ -279,9 +266,10 @@ end,emu.callbackType.exec,FAULT,FAULT,emu.cpuType.snes,mt)
         raw[at:at+5]=b'\x5c'+struct.pack('<I',linked['SourceRunTuple_EntityCopyBridge'])[:3]+b'\xea'
         if linked['SourceRunTuple_EntityCopyOriginal']>>16!=39 or linked['ModelPipeline_CodeEnd']>>16!=39:raise ValueError('MODEL_PIPELINE_CODE_BANK')
     r=Reporter('M4-MODEL-SERVICES-PIPELINE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'ModelPipeline_Apply','SourceModelTransition4086_Ready',0xb4f0,[(58,0,bytes(small)),(59,0,data['animations']),(60,0,data['effects'])],lua,r,batch_size=4,append=assembly,rom_transform=hook,probes={'SERVICE':'ModelPipeline_Loop','FAULT':'ModelPipeline_Bad','SNAPSHOT':'ModelSnapshotService_BeginAbsent'},link_pcm=False)
+    r.check('bank 0 remains byte-identical',raw[:32768]==a.rom.read_bytes()[:32768])
     results=[line.split('PIPELINERESULT|',1)[1].split('|')for line in log.splitlines()if 'PIPELINERESULT|'in line]
     r.check('actual weapon resolve, all six native services, exact copied source state and unchanged foreign rows/variables/CPU',results==[[str(i),'0','0','3'if c['fault']else'2','1'if c['fault']else'1,2,3,5,6,7,0']for i,c in enumerate(rows)])
-    report=dict(schema='BYOR_4086_MODEL_SERVICES_PIPELINE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,bundle=manifest,all_services_native=True,observer_acknowledgements=False,actual_frame_event_dispatch=False,pool_and_leases_installed_by_fixture=True,full_gameplay_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+    report=dict(schema='BYOR_4086_MODEL_SERVICES_PIPELINE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,bundle=manifest,all_services_native=True,observer_acknowledgements=False,source_request_registers_poisoned=a.frame_binding,source_effect_cursor_after_weapon=4 if a.frame_binding else None,update_frame_completion_bound=False,actual_frame_event_dispatch=a.frame_binding,update_frame_prefix_instrumented=a.frame_binding and not a.frame_prefix,actual_update_frame_begin=a.frame_prefix,animation_callback_invoked=False,source_animating_zero_fixture=a.frame_prefix,idle_frame_zero_bound=False,pool_and_leases_installed_by_fixture=True,full_gameplay_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');r.finish()
 
 if __name__=='__main__':main()
