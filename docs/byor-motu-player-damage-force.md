@@ -1,0 +1,9 @@
+# Source player damage force snapshot
+
+Pinned BOR 4086 `player_takedamage` copies the attack, then zeros only its force when healthcheat is nonzero or when the current level's nohurt is nonzero and the physical attacker has TYPE_ENEMY. The opponent owner root does not substitute for the physical attacker in this test. The original attack and its other fields remain unchanged before the copied attack reaches `common_takedamage`.
+
+The generic private service reads the actual physical source core type and captured global inputs inside the existing 96-byte attack-chain control region. B6B2 at +64 leases this snapshot; +66 is status, +68 original force, +72 healthcheat, +76 nohurt, +80 copied effective force. It validates canvas generation, source self, tick phase/time, physical bounds and tokens, and the target's player type bit. It changes only the copied force and status, preserving inputs, actors and CPU context. Scoped control-stack descriptors already cover this region.
+
+The 1,060-case native proof compares with unmodified source `player_takedamage` compiled as C, instrumenting its common callback to observe the copied force and verify the original attack remains unchanged. It covers full signed force/flag boundaries, physical type masks, two edge slots and ten stale/malformed snapshot guards. The native batch completed; a report-parser error was repaired by reparsing retained evidence after verifying identical emitted assembly and unchanged bank 0. Every expected native result is present and matches. No emulator rerun was needed for that parser correction.
+
+The production producer of captured world globals and the full player/common callback continuation remain unbound. This proves the wrapper's force decision, not player combat gameplay or MOTU completion. No color reduction or PCM copying occurred. See the [receipt](receipts/byor-motu-player-damage-force.json).

@@ -1,0 +1,15 @@
+{
+  "schema": "BYOR_PLAYER_DAMAGE_FORCE_RECEIPT_V1",
+  "status": "PASS",
+  "cases": 1060,
+  "source_function_sha256": "79f299cdf88499a28fee1ec7300d06e6cb0796816b93276f64c316735870ae6c",
+  "proof_path": "out/byor-motu-player-damage-force-native/report.json",
+  "proof_sha256": "52694219efe7f3417093a127c925c21698f7b13bd8ed6e18aee9477314a75e5f",
+  "rom_sha256": "2c232d94115423cb8b653745569ed61c2bcd55f3308a5ea3e93a7baf69169205",
+  "retained_native_evidence_reparsed": true,
+  "production_globals_capture_bound": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
