@@ -10,7 +10,7 @@ from source_hit_state_layout import layout as hits
 from source_hit_block_native import DAMAGE_REQUIRED
 
 
-def emit(req,sy,code_bank=39):
+def emit(req,sy,code_bank=39,damagedrop=False):
     if req['capability']!='SOURCE_FREEZE_UNFREEZE_NO_STEAL_SEAL_DOT':raise ValueError('COMBAT_EFFECTS_CAPABILITY')
     plan=colours();w=plan['controls'];c=contacts()['controls'];h=hits()['controls'];hb=hits()['base'];lines=[];serial=0;size=64
     def put(s):lines.extend(s.strip().splitlines())
@@ -47,7 +47,7 @@ def emit(req,sy,code_bank=39):
     put(f' lda.l {w}+36\n sta $06')
     offset(2,24,8);put(' tax\n lda.l $7EF114,x\n cmp #$B62F');branch('bne');put(' lda.l $7EF116,x\n cmp $06');branch('bne')
     offset(2,20,10);put(' tax\n lda.l $437E10,x\n cmp #$B5FB');branch('bne')
-    put(f' lda.l {w}+44\n cmp #2');branch('beq','Good');put(' cmp #0');branch('bne')
+    put(f' lda.l {w}+44\n cmp #2');branch('beq','Good');put(' cmp #'+str(1 if damagedrop else 0));branch('bne')
     require(sy['SourceCollisionFrame4086_Bank'],58);require(sy['SourceCollisionFrame4086_Bytes'],req['collision_table_bytes'])
     put(f' lda.l {sy["SourceCollisionFrame4086_Status"]}\n cmp #3');branch('beq');put(f' lda #0\n sta.l {sy["SourceCollisionFrame4086_Status"]}\n lda $00\n jsl {sy["SourceCollisionFrame4086_QueryEntity"]}');branch('bcs')
     put(f' lda.l {sy["SourceCollisionFrame4086_Attack"]}\n cmp.l {w}+50');branch('bne');put(' cmp #1');branch('bcc');put(f' cmp #{len(req["attacks"])+1}');branch('bcs')
