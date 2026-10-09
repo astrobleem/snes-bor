@@ -7,7 +7,8 @@ copy callback to execute or snapshot to release. No other service is admitted.
 import re
 
 
-def emit(symbols):
+def emit(symbols,service=7):
+    if service not in(1,7):raise ValueError('MODEL_CALLBACK_ABSENT_SERVICE')
     code='''
 ModelCallbackService_FinishAbsent:
 .a16
@@ -98,6 +99,17 @@ ModelCallbackService_Bad:
         serial[0]+=1;label='ModelCallbackService_Guard'+str(serial[0])
         return m[1]+dict(beq='bne',bne='beq',bcc='bcs',bcs='bcc')[m[2]]+' '+label+'\n jmp '+m[3]+'\n'+label+':\n.a16\n.i16'
     code=re.sub(r'^(\s+)(beq|bne|bcc|bcs) (ModelCallbackService_\w+)$',relax,code,flags=re.M)
+    if service==1:
+        start=code.index(' lda.l SourceScriptClone4086_Status')
+        end=code.index(' jsl SourceScriptClone4086_CheckModelProgram',start)
+        code=code[:start]+''' lda.l SourceModelTransition4086_Slot
+ sta.l SourceScriptClone4086_Slot
+ lda.l SourceModelTransition4086_New
+ sta.l SourceScriptClone4086_Model
+'''+code[end:]
+        code=code.replace('cmp #7\n','cmp #1\n').replace('lda #7\n','lda #1\n')
+        code=code.replace(' lda.l $410000,x\n cmp.l SourceModelTransition4086_New',' lda.l $410000,x\n cmp.l SourceModelTransition4086_Old')
+        code=code.replace('ModelCallbackService_','ModelSnapshotService_').replace('FinishAbsent:','BeginAbsent:')
     for name in sorted(symbols,key=len,reverse=True):
         if name.startswith(('Source','Vm')):code=re.sub(r'\b'+re.escape(name)+r'\b',str(symbols[name]),code)
     return code
