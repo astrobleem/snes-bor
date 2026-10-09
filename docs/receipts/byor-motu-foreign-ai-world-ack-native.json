@@ -1,0 +1,86 @@
+{
+  "schema": "BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1",
+  "status": "PASS",
+  "rom_sha256": "7888c1eb9f7a711206744d768465688c2d2f8612fc8b59446c701c1d761ddb40",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "no_pcm_copies": true,
+  "no_color_reduction": true,
+  "foreign_ai_world_ack_bound": true,
+  "whole_world_traversal_bound": false,
+  "production_foreign_ai_bound": false,
+  "production_player_think_bound": false,
+  "motu_gameplay_proven": false,
+  "native_cases": 248,
+  "completed_phase_cases": 240,
+  "explicit_fault_retention_cases": 8,
+  "full_report_sha256": "d65f8181de95eb69772dc5aa519b924d9dcb1336aa2db7cdd8b8ff5d33f2f5da",
+  "world_results_sha256": "11a654630e2bd00d71e4a3fbd4915a4c4338427a74e7778fcbab6283624b75a6",
+  "fault_results": [
+    [
+      240,
+      1,
+      6,
+      1,
+      1,
+      48
+    ],
+    [
+      241,
+      1,
+      6,
+      1,
+      1,
+      48
+    ],
+    [
+      242,
+      1,
+      6,
+      1,
+      1,
+      48
+    ],
+    [
+      243,
+      1,
+      6,
+      1,
+      1,
+      48
+    ],
+    [
+      244,
+      1,
+      6,
+      1,
+      1,
+      48
+    ],
+    [
+      245,
+      1,
+      6,
+      1,
+      1,
+      48
+    ],
+    [
+      246,
+      1,
+      6,
+      1,
+      1,
+      48
+    ],
+    [
+      247,
+      1,
+      6,
+      1,
+      1,
+      48
+    ]
+  ],
+  "world_clock_committed": false,
+  "reproduction_switches": "--effects-runner --frame-owner --initial-select --default-owner --ctor-owner --ctor-state --ctor-factors --ctor-model --script-clone --ai-state-birth --player-state-birth --run-tuple-birth --pending-jump-birth --early-player --early-attack --early-jump-entry --player-controller --foreign-ai-player --foreign-ai-world-ack"
+}

@@ -61,3 +61,9 @@ in all fourteen cases. Enabling that capability after birth exposes stale
 storage and incorrectly requests kill instead of the source nonlooping stop;
 the fixture now enforces the proper startup order. The existing reduced
 animation-cache capacity still contains the 4,096-byte source animation map.
+
+`--foreign-ai-world-ack` connects the player dispatch result to the actual
+world phase-6 acknowledgment. All 240 completed controller cases release
+the pending AI phase. All eight stale-frame faults retain pending=1 and set
+the world fault. The clock stays at 48 in both cases; the proof neither skips
+the remaining world services nor commits an incomplete tick.

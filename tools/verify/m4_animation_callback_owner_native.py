@@ -80,6 +80,7 @@ def main():
     p.add_argument('--foreign-ai-jump',action='store_true',help='Run landing actions through the actual check_ai dispatcher and script validation; isolated think absent.')
     p.add_argument('--foreign-ai-player',action='store_true',help='Run the admitted player controller as actual check_ai think callback; isolated world service.')
     p.add_argument('--natural-jump-delay',action='store_true',help='Actual timed owner ends JUMPDELAY at its source deadline before common_prejump; controlled clock.')
+    p.add_argument('--foreign-ai-world-ack',action='store_true',help='Actual world phase-6 acknowledgment after foreign player dispatch, including explicit fault rejection.')
     p.add_argument('--canonical-jump-entry',action='store_true',help='Actual ordered source jump input branch before tryjump and real JUMPDELAY.')
     p.add_argument('--canonical-dojump',action='store_true',help='Continue actual delayed jump through mandatory sound, real entity toss and real JUMP frame.')
     p.add_argument('--canonical-tryjump',action='store_true',help='Execute actual tryjump/JUMPDELAY and common_prejump through the real frame owner; DO_JUMP stays required.')
@@ -120,6 +121,7 @@ def main():
     if a.foreign_ai_jump and not(a.canonical_common_jump and a.script_clone):raise ValueError('FOREIGN_AI_REQUIRES_JUMP_OWNERS_AND_SCRIPT_CLONE')
     if a.foreign_ai_player and not(a.player_controller and a.script_clone)or a.foreign_ai_player and a.foreign_ai_jump:raise ValueError('FOREIGN_AI_PLAYER_REQUIRES_ISOLATED_CONTROLLER')
     if a.natural_jump_delay and not a.foreign_ai_jump:raise ValueError('NATURAL_JUMP_DELAY_REQUIRES_FOREIGN_AI')
+    if a.foreign_ai_world_ack and not a.foreign_ai_player:raise ValueError('WORLD_AI_ACK_REQUIRES_PLAYER_DISPATCH')
     if a.canonical_jump_entry and (not a.canonical_tryjump or a.canonical_dojump):raise ValueError('JUMP_ENTRY_REQUIRES_TRYJUMP_FIXTURE')
     if a.canonical_dojump and not a.canonical_tryjump:raise ValueError('DOJUMP_REQUIRES_ACTUAL_TRYJUMP')
     if a.canonical_tryjump and not(a.pending_jump_birth and a.initial_select and a.frame_owner):raise ValueError('TRYJUMP_REQUIRES_ACTUAL_CONSTRUCTOR_AND_FRAME_OWNER')
@@ -1473,6 +1475,27 @@ CallbackFixture_ForeignLegacyDone:
         start=asm.index('PlayerController_Begin:');prefix,tail=asm[:start],asm[start:]
         for name,target in (('Begin','Begin'),('FinishFrame','Continue'),('FinishSound','FinishSound')):
             prefix=prefix.replace(' jsl PlayerController_'+name+'\n',' jsl ForeignAIRun_'+target+'\n')
+        if a.foreign_ai_world_ack:
+            needle='CallbackFixture_SpecialDone:\n.a16\n.i16\n nop'
+            prefix=prefix.replace(needle,needle+f'''
+ lda #6
+ jsl {sy['SourceWorldTick4086_Ack']}
+ bcs CallbackFixture_WorldAIRejected
+ lda.l {sy['SourceAIRun4086_State']}
+ cmp #2
+ bne CallbackFixture_Bad
+ jmp CallbackFixture_WorldAIComplete
+CallbackFixture_WorldAIRejected:
+.a16
+.i16
+ lda.l {sy['SourceAIRun4086_State']}
+ cmp #3
+ bne CallbackFixture_Bad
+CallbackFixture_WorldAIComplete:
+.a16
+.i16
+ nop
+''',1)
         asm=prefix+tail+'\nCallbackFixture_MainEnd:\n.a16\n.i16\n.bank 57\n.org $8000\n'
         asm+=emit_dojump(dj,pending_work,derive_dojump(source),sy)
         asm+=emit_common_jump(dj,pending_work,gr['run_tuple_controls'],derive_common_jump(source),role_id(config,'jumpland'),sy,57)
@@ -2127,9 +2150,12 @@ end,emu.callbackType.exec,{fs['CallbackFixture_Foreign'+phase+'GuardRejected']},
         lua+=f"emu.addMemoryCallback(function()emu.log('FOREIGNAIDONE|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceAIRun4086_PendingKind)..'|'..word(sy.SourceWorldTick4086_Pending)..'|'..dw(sy.VmSourceWorld_Time)..'|'..dw(0x42e024))end,emu.callbackType.exec,{fs['CallbackFixture_CommonJumpDone']},{fs['CallbackFixture_CommonJumpDone']},emu.cpuType.snes,mt)\n"
     if a.foreign_ai_player:
         settings=dict(SourceAI4086_Ready=0xb5e2,SourceAI4086_State=0,SourceAI4086_Endgame=0,SourceAI4086_SpawnID=role_id(config,'spawn'),SourceAI4086_RespawnID=role_id(config,'respawn'),SourceAIRun4086_Ready=0xb5e6,SourceAIRun4086_State=0,SourceWorldTick4086_Ready=0xb4d5,SourceWorldTick4086_State=1,SourceWorldTick4086_Pending=1,SourceWorldTick4086_Phase=6,SourceWorldTick4086_Slot=0,SourceWorldTick4086_TimeLo=48,SourceWorldTick4086_TimeHi=0,SourceFreeze4086_Ready=0xb5df,SourceLifecycle4086_Ready=0xb4fb,SourceSelf4086_Ready=0xb4f6,SourceSelf4086_Active=0,SourceSelf4086_Fault=0,SourceSelf4086_GlobalLow=0x4000,SourceSelf4086_GlobalHigh=0x41)
+        settings['SourceWorldTick4086_Fault']=0
         lua+='emu.addMemoryCallback(function()\n'+'\n'.join("set('"+k+"',"+str(v)+")"for k,v in settings.items())+f"\nput(0x439000,2,4);put(0x43900c,0,4);put(0x416814,48,4);put(0x42f400,0,4);put(0x42e024,0,4);put({pe},0xb688,2);put({pe}+2,0,2)\nend,emu.callbackType.exec,"+str(fs['CallbackFixture_SpecialPrepare'])+','+str(fs['CallbackFixture_SpecialPrepare'])+",emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()emu.log('FOREIGNPLAYERDONE|'..word(INDEX)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceWorldTick4086_Pending)..'|'..dw(sy.VmSourceWorld_Time))end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()emu.log('FOREIGNPLAYERPHASE|'..word(INDEX)..'|'..word(sy.SourceAI4086_State))end,emu.callbackType.exec,{sy['SourceAI4086_Good']},{sy['SourceAI4086_Good']},emu.cpuType.snes,mt)\n"
+        if a.foreign_ai_world_ack:
+            lua+=f"emu.addMemoryCallback(function()emu.log('WORLDACKAI|'..word(INDEX)..'|'..word(sy.SourceWorldTick4086_State)..'|'..word(sy.SourceWorldTick4086_Phase)..'|'..word(sy.SourceWorldTick4086_Pending)..'|'..word(sy.SourceWorldTick4086_Fault)..'|'..dw(sy.VmSourceWorld_Time))end,emu.callbackType.exec,{fs['CallbackFixture_WorldAIComplete']},{fs['CallbackFixture_WorldAIComplete']},emu.cpuType.snes,mt)\n"
     if a.natural_jump_delay:
         lua+='local natural_delay_guard="entry";local natural_delay_prefix="entry"\n'
         for name,address in sy.items():
@@ -2827,6 +2853,10 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         phases=[list(map(int,line.split('FOREIGNPLAYERPHASE|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'FOREIGNPLAYERPHASE|'in line]
         reporter.check('admitted player controller executes actual think/script sequence and retains world service; frame faults remain explicit',ai_player==[[i,3 if 'controller_guard'in c else 2,2 if 'controller_guard'in c else 5,1,48]for i,c in enumerate(rows)]and phases==[[i,p]for i,c in enumerate(rows)for p in([2]if'controller_guard'in c else[2,3,5])])
         r.update(foreign_ai_player_dispatch_bound=True,foreign_ai_player_results=ai_player,foreign_ai_player_phase_results=phases,production_foreign_ai_bound=False,foreign_ai_private_extra_bank=57,foreign_ai_private_main_bytes=len(fixture),foreign_ai_private_extra_bytes=len(extra),production_player_think_bound=False)
+        if a.foreign_ai_world_ack:
+            world_ack=[list(map(int,line.split('WORLDACKAI|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'WORLDACKAI|'in line]
+            reporter.check('actual world owner acknowledges completed AI phase and retains faulted AI without committing clock',world_ack==[[i,1,6,1 if'controller_guard'in c else 0,1 if'controller_guard'in c else 0,48]for i,c in enumerate(rows)])
+            r.update(foreign_ai_world_ack_bound=True,foreign_ai_world_ack_results=world_ack,whole_world_traversal_bound=False)
     if a.canonical_jump_attack:
         jump_results=[list(map(int,line.split('JUMPATTACKBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'JUMPATTACKBOUND|'in line]
         expected=[]
