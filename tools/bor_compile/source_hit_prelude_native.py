@@ -48,6 +48,8 @@ def emit(requirements, plan, sy, script_bank=59, script_bytes=152):
     for off,n in ((0,'Low'),(2,'High')):
         put(f' lda.l {sy["SourceSelf4086_Global"+n]}\n sta ${8+off:02X}\n sta.l {sy["SourceRetirement4086_Arg"+("Lo" if off==0 else "Hi")]}')
     put(f' jsl {sy["SourceRetirement4086_ResolvePointer"]}');branch('bcs')
+    put(' cmp #$FFFF');branch('beq')
+    put(' lda $08\n tax\n cmp.l $410000,x');branch('bne');put(' lda $0A\n cmp.l $410002,x');branch('bne')
     # Every relevant live entity must retain the closed animation-only mask and
     # its actual model's immutable program pairing. No fabricated callback.
     for src in (0,2):

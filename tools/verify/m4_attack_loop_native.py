@@ -35,6 +35,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--hit-prelude',action='store_true')
     p.add_argument('--guard-only',action='store_true',help='Focused prelude/resumption guards, retaining nominal hit and ownership rejection controls.')
+    p.add_argument('--prior-self-cases',action='store_true',help='Focused pending hits whose saved self is a valid preceding defender.')
     a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
     src=Source(a.source);req=derive_requirements(src);gr=geometry(src);plan=layout();hp=hits();cap=movement()['chr_capacity'];table=pack(frames(src));sy=symbols(Path('src/main.sym'))
     previous=json.load(open('out/byor-motu-attack-target-native/report.json'))
@@ -72,6 +73,10 @@ def main():
     if a.guard_only:
         if not a.hit_prelude:raise ValueError('ATTACK_LOOP_GUARD_ONLY_REQUIRES_PRELUDE')
         rows=[dict(seedcase),dict(seedcase,repeat=True),*rows[prelude_extra_start:]]
+    if a.prior_self_cases:
+        if not a.hit_prelude:raise ValueError('PRIOR_SELF_CASES_REQUIRE_PRELUDE')
+        rows=[dict(seedcase,old_self=i,repeat=repeat)for i in (0,1,2,127)for repeat in (False,True)]
+        rows.append(dict(seedcase,old_self=2,bad='retry_old_self_token',repeat=True,fault=1,ticket=-1))
     setup=r'''
  set('VmSourceWorld_Count',c.count);set('VmSourceWorld_TemplateCount',16)
  set('SourceModelEntityCopy4086_Ready',0xb4eb);set('SourceModelEntityCopy4086_Entities',128);set('SourceModelEntityCopy4086_Models',16)
@@ -126,7 +131,7 @@ def main():
                     ' if c.fault==0 or c.bad==\'target_generation\'then for i=0,3 do before[HB+16*c.slot+i]=(2>>(8*i))&255 end end')
     if a.hit_prelude:
         post_prepare_faults=('script_ready','script_bytes','script_sticky','event_mask','script_side_model','clear_entry','owner_cycle','owner_pointer',
-                             'retry_marker','retry_didhit','retry_old_self','retry_target','retry_self')
+                             'retry_marker','retry_didhit','retry_old_self','retry_old_self_token','retry_target','retry_self')
         lua=lua.replace(" if c.fault==0 or c.bad=='target_generation'then", " if c.fault==0 or c.bad=='target_generation' or "+' or '.join("c.bad=='"+v+"'"for v in post_prepare_faults)+'then')
     lua=lua.replace("'ATTACKGATE|'","'ATTACKLOOP|'")
     lua=lua.replace("..word(sy.SourceWorldTick4086_Pending))", "..word(sy.SourceWorldTick4086_Pending)..'|'..word(CW+56)..'|'..word(CW+58)..'|'..word(CW+60))\n emu.log('ATTACKVISITS|'..word(INDEX)..'|'..table.concat(visited,','))")
@@ -169,9 +174,16 @@ AttackGateProbe_NoHit:
         lua+=r'''
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1]
+ if c.old_self~=nil then put(sy.SourceSelf4086_GlobalLow,0x414000+80*c.old_self,4)end
+end,emu.callbackType.exec,PRELUDEENTRY,PRELUDEENTRY,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1]
  if c.bad=='retry_marker'then put(HW+42,0)
  elseif c.bad=='retry_didhit'then put(HW+40,0)
  elseif c.bad=='retry_old_self'then put(HW+36,0)
+ elseif c.bad=='retry_old_self_token'then
+  local at=0x414000+80*c.old_self;put(at,at+1,4)
+  for j=0,3 do before[at+j]=emu.read(at+j,mt)end
  elseif c.bad=='retry_target'then put(CW+58,c.count)
  elseif c.bad=='retry_self'then put(sy.SourceSelf4086_GlobalLow,0,4)end
 end,emu.callbackType.exec,RETRY,RETRY,emu.cpuType.snes,mt)
@@ -183,8 +195,10 @@ end,emu.callbackType.exec,RETRY,RETRY,emu.cpuType.snes,mt)
     extra={k:v for k,v in sy.items() if k.startswith(('SourceForeignWork_','StageFp_','StreamScrollFp_','SourceScriptClone4086_','SourceAnimationCallback4086_','VmSourceVars_')) or k=='DmaQueue'}
     lua='local extra='+luav(extra)+'\nfor k,v in pairs(extra)do sy[k]=v end\n'+lua
     reporter=Reporter('M4-ORDERED-ATTACK-LOOP',kind='GATE')
+    probes=dict(RETURN='AttackGateProbe_Return',TRACE='AttackTarget_Run',RETRY='AttackGateProbe_Retry')
+    if a.hit_prelude:probes['PRELUDEENTRY']='HitPrelude_Run'
     raw,log=run_fixture(a.rom,a.output,rows,'AttackGateProbe','VmState_Error',0xb6a0,tables,lua,reporter,
-        append=asm+native,probes=dict(RETURN='AttackGateProbe_Return',TRACE='AttackTarget_Run',RETRY='AttackGateProbe_Retry'),batch_size=4,frame_limit=7000,link_pcm=False)
+        append=asm+native,probes=probes,batch_size=4,frame_limit=7000,link_pcm=False)
     actual=[list(map(int,l.split('ATTACKLOOP|',1)[1].split('|'))) for l in log.splitlines() if 'ATTACKLOOP|' in l]
     visits=[]
     for l in log.splitlines():
@@ -212,7 +226,7 @@ end,emu.callbackType.exec,RETRY,RETRY,emu.cpuType.snes,mt)
         selfs=[list(map(int,l.split('HITSELF|',1)[1].split('|')))for l in log.splitlines()if 'HITSELF|'in l]
         self_failures=[]
         for i,c in enumerate(rows):
-            v=0x4000+80*c['slot'];accepted=c['hit'] and (not c['fault'] or c.get('suspended_on_fault',False))
+            v=0x4000+80*c.get('old_self',c['slot']);accepted=c['hit'] and (not c['fault'] or c.get('suspended_on_fault',False))
             wanted=[i,0x4000+80*c['first'],0x41,v,0x41,1,0xb6a7] if accepted else [i,v,0x41]
             if c.get('bad','').startswith('retry_'):
                 wanted=[i,0x4000+80*c['first'],0x41,v,0x41,1,0xb6a7]

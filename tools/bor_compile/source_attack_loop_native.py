@@ -63,7 +63,13 @@ def emit(plan,sy,hit_prelude=False):
         put(' asl a\n asl a\n asl a\n asl a\n sta $04\n asl a\n asl a\n clc\n adc $04\n adc #$4000')
         put(f' cmp.l {sy["SourceSelf4086_GlobalLow"]}');branch('bne')
         put(f' lda.l {sy["SourceSelf4086_GlobalHigh"]}\n cmp #$41');branch('bne')
-        put(f' lda.l {sy["SourceWorldTick4086_Slot"]}\n asl a\n asl a\n asl a\n asl a\n sta $04\n asl a\n asl a\n clc\n adc $04\n adc #$4000\n cmp.l {h}+36');branch('bne')
+        # A rejected damage callback continues before self=temp. A later
+        # contact may therefore save a preceding defender, not the attacker.
+        put(f' lda.l {sy["SourceRetirement4086_Ready"]}\n cmp #$B4F8');branch('bne')
+        for off,n in ((0,'Lo'),(2,'Hi')):put(f' lda.l {h}+{36+off}\n sta.l {sy["SourceRetirement4086_Arg"+n]}')
+        put(f' jsl {sy["SourceRetirement4086_ResolvePointer"]}');branch('bcs');put(' cmp #$FFFF');branch('beq')
+        put(f' lda.l {h}+36\n tax\n cmp.l $410000,x');branch('bne')
+        put(' lda.l $410002,x\n cmp #$41');branch('bne')
         put(f' lda #{HIT_RESPONSE_REQUIRED}\n jmp AttackLoop_Good')
     else:
         put(f' lda #{HIT_SERVICE_REQUIRED}\n jmp AttackLoop_Good')

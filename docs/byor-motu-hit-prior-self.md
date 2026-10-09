@@ -1,0 +1,7 @@
+# Retained source self across pending contacts
+
+BOR 4086 `do_attack` executes `continue` when the damage callback returns zero, before the later `self = temp` restoration. A later contact can therefore save a preceding defender as its old self. Both the pending target-loop and block-choice guards now validate a source pointer instead of requiring that pointer to equal the attacker. They require an aligned pointer in the actual entity count and a matching stored view token; dead but valid physical rows remain permitted. The prelude applies the same stored-token check before publishing defender self.
+
+Nine focused native cases pass with attacker, current defender, other physical rows and a corrupted saved-self token under retry. Eighteen existing prelude/ownership/stale guards pass. The joined preparation/filter/collision/prelude/block-choice proof passes 176 cases with a preceding physical entity as old self, including RNG call gating, retries and corrupted old-self-token rejection. The [receipt](receipts/byor-motu-hit-prior-self-native.json) identifies retained reports and hashes. These are validated suspended-state inputs; an actual failed damage callback and subsequent body continuation are not yet bound.
+
+The helper changes no world acknowledgement behavior and accepts no fabricated damage response. Bank 0 remains unchanged. Full combat callback, MOTU gameplay and Demo completion remain unproven. No color reduction or PCM copies were applied.

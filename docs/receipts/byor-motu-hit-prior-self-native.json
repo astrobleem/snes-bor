@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_HIT_PRIOR_SELF_NATIVE_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "path": "out/byor-motu-hit-prelude-prior-self-final-native/report.json",
+      "sha256": "72502ff68fe0d00b65c33afb8820bea115c42a7de9226664869b80404291ad91",
+      "cases": 9,
+      "observed_cases": 9,
+      "rom_sha256": "5b37bcac2ec1375bfb8efd0023e381e974765abc9529a472e208a1c0300a819c"
+    },
+    {
+      "path": "out/byor-motu-hit-prelude-prior-self-guards/report.json",
+      "sha256": "f4689f9b0424f7a9bd0d7c4670771bb210879d0ba74b154cd481b612bc38dd1f",
+      "cases": 18,
+      "observed_cases": 18,
+      "rom_sha256": "fb45e4d79cd101b20d9f286d655fc56291c72a54aa214eaaf7d799b3973cd502"
+    },
+    {
+      "path": "out/byor-motu-hit-block-prior-self-native/report.json",
+      "sha256": "4b91e6bb8801db32b224cd9e6ce8e6121dfbcea8fd67eaf4fc43c48de3d216cd",
+      "cases": 176,
+      "observed_cases": 176,
+      "rom_sha256": "433125740f5c5d852922db655d0c004bb0417537a58cf392ac13576d1bfe0f11"
+    }
+  ],
+  "source_reason": "do_attack failed takedamage callback continues before self=temp; a later contact can save a preceding defender",
+  "saved_self_requires_aligned_domain_and_stored_view_token": true,
+  "bank_zero_unchanged": true,
+  "source_damage_resume_body_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

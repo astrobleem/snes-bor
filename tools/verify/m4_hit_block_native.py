@@ -26,6 +26,7 @@ def main():
         for slot,valid,mode,seed_value in itertools.product((0,1,127),(0,1),range(9),(0,1,0xffffffff)):
             target=(slot+1)%128
             c=dict(seed,slot=slot,count=128,first=target,cursor=target,targets=[target],state=5,repeat=True,bad='',fault=0,
+                old_self=(slot+2)%128,
                 valid_block=valid,nopassive=0,blocking=0,tdir=1,adir=0,air=0,tfrozen=0,tidling=1,tattacking=0,tlink=0,odds=1,seed_value=seed_value,bomb_attacker=1,bomb_target=1)
             if mode==1:c.update(nopassive=1,blocking=1)
             elif mode==2:c.update(tdir=0)
@@ -42,7 +43,7 @@ def main():
             c.update(ticket={'PASSIVE_BLOCK':PASSIVE_BLOCK_REQUIRED,'ACTIVE_BLOCK':ACTIVE_BLOCK_REQUIRED,'DAMAGE':DAMAGE_REQUIRED}[result],expected_seed=next_seed if calls else seed_value,expected_calls=len(calls))
             custom.append(c)
         nominal=next(c for c in custom if c['slot']==0 and c['valid_block']==1 and not c['nopassive'] and c['tdir']==1 and not c['tfrozen'] and not c['tlink'] and not c['air'] and c['tidling'] and c['odds']==1)
-        for bad in ('factor_ready','factor_marker','factor_model','factor_power','initial_threshold','cache_bytes','cache_max','block_handle','attack_frame','random_ready','random_busy','direction_tag'):
+        for bad in ('factor_ready','factor_marker','factor_model','factor_power','initial_threshold','cache_bytes','cache_max','block_handle','attack_frame','random_ready','random_busy','direction_tag','old_self_token'):
             custom.append(dict(nominal,bad='block_'+bad,fault=1,ticket=-1,state=4,repeat=False,suspended_on_fault=True,expected_seed=nominal['seed_value'],expected_calls=0))
         skipped=next(c for c in custom if c['slot']==0 and c['valid_block']==0 and not c['nopassive'] and not c['tfrozen'] and not c['tlink'] and c['tidling'])
         custom.append(dict(skipped,bad='block_random_ready',repeat=True))
@@ -84,8 +85,9 @@ emu.addMemoryCallback(function()
  elseif c.bad=='block_random_ready'then set('SourceRandom4086_Ready',0)
  elseif c.bad=='block_random_busy'then set('SourceRandom4086_Busy',1)
  elseif c.bad=='block_direction_tag'then put(0x414018+80*target,2,4)end
+ if c.bad=='block_old_self_token'then local at=0x414000+80*c.old_self;put(at,at+1,4)end
  -- Deliberate fault injection changes are part of the fixture input snapshot.
- for _,base in ipairs({0x43b900+4*target,0x432800+32*target,0x432800+32*c.slot,0x416800+64*c.slot,0x414000+80*target})do
+ for _,base in ipairs({0x43b900+4*target,0x432800+32*target,0x432800+32*c.slot,0x416800+64*c.slot,0x414000+80*target,0x414000+80*c.old_self})do
   for j=0,(base>=0x414000 and base<0x416800 and 79 or base>=0x416800 and base<0x418800 and 63 or base>=0x432800 and base<0x433800 and 31 or 3)do
    if before[base+j]~=nil then before[base+j]=emu.read(base+j,mt)end
   end
