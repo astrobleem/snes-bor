@@ -17,11 +17,22 @@ def emit(work, handles, report, symbols):
     if [m['id']for m in report['models']]!=list(range(count)):
         raise ValueError('RUN_TUPLE_NATIVE_MODEL_ORDER')
     code='''
+SourceRunTuple_CaptureCurrent:
+ php
+ rep #$39
+ phx
+ phy
+ lda #1
+ sta.l W+58
+ jmp SourceRunTuple_Start
 SourceRunTuple_Copy:
  php
  rep #$39
  phx
  phy
+ lda #0
+ sta.l W+58
+SourceRunTuple_Start:
  jsl SourceRunTuple_Guard
  bcs SourceRunTuple_Fault
  lda.l SourceModelEntityCopy4086_Ready
@@ -53,12 +64,15 @@ SourceRunTuple_Copy:
  MATCH
 SourceRunTuple_Matched:
  sta.l W+8
+ lda.l W+58
+ bne SourceRunTuple_Publish
  lda.l W+4
  sta.l SourceModelEntityCopy4086_Slot
  lda.l W+6
  sta.l SourceModelEntityCopy4086_Model
  jsl SourceModelEntityCopy4086_Apply
  bcs SourceRunTuple_Fault
+SourceRunTuple_Publish:
  lda.l W+4
  asl a
  tax
@@ -145,3 +159,60 @@ SourceRunTuple_GuardBad:
     code=re.sub(r'^ (beq|bne|bcc|bcs) (SourceRunTuple_\w+)$',lambda m:f' {inverse[m[1]]} SourceRunTuple_Skip{m.start()}\n jmp {m[2]}\nSourceRunTuple_Skip{m.start()}:',code,flags=re.M)
     code=re.sub(r'^ bra (SourceRunTuple_\w+)$',r' jmp \1',code,flags=re.M)
     return re.sub(r'^(SourceRunTuple_\w+:)$',r'\1\n.a16\n.i16',code,flags=re.M)
+
+
+def emit_ctor_model_bridge(work, symbols):
+    """Capture after the real fresh copier; AI birth happens before this copy."""
+    body=symbols['SourceCtorModel4086_Apply']+5
+    slot=symbols['SourceScriptClone4086_Slot'];model=symbols['SourceScriptClone4086_Model']
+    return f'''
+SourceRunTuple_CtorModelBridge:
+.a16
+.i16
+ php
+ rep #$39
+ phx
+ phy
+ jsl SourceRunTuple_CtorModelOriginal
+ bcs SourceRunTuple_CtorModelBad
+ pha
+ lda.l {work}
+ beq SourceRunTuple_CtorModelDone
+ cmp #$B678
+ bne SourceRunTuple_CtorCaptureBad
+ lda.l {slot}
+ sta.l {work}+4
+ lda.l {model}
+ sta.l {work}+6
+ jsl SourceRunTuple_CaptureCurrent
+ bcs SourceRunTuple_CtorCaptureBad
+SourceRunTuple_CtorModelDone:
+.a16
+.i16
+ pla
+ ply
+ plx
+ plp
+ clc
+ rtl
+SourceRunTuple_CtorCaptureBad:
+.a16
+.i16
+ pla
+SourceRunTuple_CtorModelBad:
+.a16
+.i16
+ ply
+ plx
+ plp
+ sec
+ rtl
+SourceRunTuple_CtorModelOriginal:
+.a16
+.i16
+ php
+ rep #$38
+ phx
+ phy
+ jml {body}
+'''

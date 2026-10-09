@@ -39,7 +39,16 @@ The controls contain B678 ready at +0, status at +2, slot/model at +4/+6,
 captured handle at +8 and expanded tuple at +20..+39. Status 2 is complete and
 3 is fault. Handle zero is uninitialized and fails Read.
 
-The complete constructor/model-switch owner still must initialize and bind
-this capability under a real foreign workspace lease before callbacks/alive
-publication. The isolated wrapper proof does not register MOTU, bind player
-movement, or certify its Demo. No color reduction is applied.
+CaptureCurrent validates and snapshots the current cached tuple without a
+second entity core copy. Its isolated actual-constructor bridge runs after the
+fresh model copier and before script binding/default callbacks. It preserves
+the source's earlier exists=1 write: pinned spawn writes exists and increments
+ent_count before copying modeldata. Clearing AI/player scalar state belongs at
+the earlier zero-initialization boundary; reading the old side model there
+would capture the wrong RUN tuple. The corrected proof observes tuple 2,
+unchanged sibling handles and real authored SELECT completion in both directions.
+
+The complete production constructor/model-switch owner still must initialize
+and bind this capability under a real foreign workspace lease. The isolated
+proofs do not register MOTU, bind player movement, or certify its Demo. No color
+reduction is applied.

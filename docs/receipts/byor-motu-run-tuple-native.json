@@ -4,7 +4,7 @@
   "cases": 137,
   "guards": 9,
   "errors": [],
-  "rom_sha256": "17fce37a43d6a12867cee87a3fb7dfaed7dee1e50ee5e5581db97044eb4eb542",
+  "rom_sha256": "ce5e35144bb8a9a10405716d894c527057ef710e55bc7c4a928c6b40bc593db3",
   "table_sha256": "118755dd2b65b639e250a08e33723c2a15954278b2948be47a37664282d89564",
   "tuple_count": 2,
   "entity_handle_bytes": 256,

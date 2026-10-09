@@ -1,0 +1,349 @@
+{
+  "schema": "BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1",
+  "status": "PASS",
+  "rom_sha256": "987a2dcca3a3f3133c619b3ba5162cdc4c4122759cd086fc9ca134f17a95c088",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "owner_table_sha256": "cce1ac775e84a8eaba1014cf73de7ba0f8f1cad9eedc9c7dd2297f2c853532a2",
+  "cases": [
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0
+    }
+  ],
+  "results": [
+    [
+      0,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "expected": [
+    [
+      0,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "faults": [],
+  "source_frame_handle": 5,
+  "script_programs": 7,
+  "callback_cpu_costs": [
+    [
+      0,
+      301454,
+      508,
+      509
+    ],
+    [
+      1,
+      301252,
+      512,
+      513
+    ]
+  ],
+  "cost_scope": "Before native callback Begin through callback completion/fault and instrumented frame-service acknowledgement; includes intervening NMI/runtime, excludes debugger initialization",
+  "initializer_copy_checks": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0
+    ]
+  ],
+  "remaining_effect_service_instrumented": false,
+  "native_effect_runner": true,
+  "native_frame_owner": true,
+  "sound_service_instrumented": true,
+  "frame_results": [
+    [
+      0,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      1,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ]
+  ],
+  "player_initialization_bound": false,
+  "source_effect_presentation_proven": false,
+  "combat_proven": false,
+  "motu_gameplay_proven": false,
+  "no_pcm_copies": true,
+  "no_color_reduction": true,
+  "native_birth_core": false,
+  "birth_core_results": [],
+  "initial_select": true,
+  "initial_select_results": [
+    [
+      0,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      1,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ]
+  ],
+  "initial_jump": false,
+  "initial_jump_results": [],
+  "empty_environment_tail_bound": false,
+  "tail_results": [],
+  "initial_idle": false,
+  "initial_idle_results": [],
+  "default_idle_registry_capability": null,
+  "default_walk_registry_capability": null,
+  "initial_walk": false,
+  "initial_walk_results": [],
+  "initial_none_walk": false,
+  "initial_none_walk_results": [],
+  "initial_none_model": null,
+  "initial_none_model_results": [],
+  "ctor_owner_bound": true,
+  "ctor_state_bound": true,
+  "ctor_factors_bound": true,
+  "ctor_model_bound": true,
+  "ctor_media_bindings_bound": false,
+  "script_clone_bound": true,
+  "script_clone_results": [
+    [
+      0,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      1,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ]
+  ],
+  "script_clone_table_sha256": "7af26fcfca114db9607d166f637ee9350a49f93771d1079e3107a606866eeaaf",
+  "default_owner_bound": true,
+  "default_owner_results": [
+    [
+      0,
+      6,
+      0,
+      1
+    ],
+    [
+      1,
+      6,
+      0,
+      1
+    ]
+  ],
+  "initial_enemy": null,
+  "initial_enemy_role": null,
+  "initial_enemy_results": [],
+  "enemy_drop_context_instrumented": false,
+  "full_default_init_bound": false,
+  "stage_queue_index": null,
+  "stage_queue_row": null,
+  "stage_queue_table_sha256": null,
+  "stage_queue_constructor_inputs_bound": false,
+  "stage_queue_post_constructor_properties_bound": false,
+  "smartspawn_results": [],
+  "smartspawn_music_execution_bound": false,
+  "queue_producer_bound": false,
+  "queue_producer_results": [],
+  "queue_music_service_instrumented": false,
+  "scroller_owner_bound": false,
+  "scroller_no_player_return_only": false,
+  "scroller_results": [],
+  "ai_constructor_initialization_bound": true,
+  "ai_birth_results": [
+    [
+      0,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      6120,
+      0
+    ]
+  ],
+  "actual_player_state_birth_bridge": true,
+  "player_state_birth_results": [
+    [
+      0,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      1,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ]
+  ],
+  "player_state_layout": {
+    "schema": "BYOR_FOREIGN_VM_SLOT_TAIL_LAYOUT_V1",
+    "live_slot_count": 616,
+    "live_slot_bytes": 4928,
+    "base": 8377152,
+    "bytes": 3264,
+    "end": 8380416,
+    "entity_fields": [
+      "charging",
+      "turning",
+      "getting",
+      "rush.count.current",
+      "rush.count.max",
+      "rush.time"
+    ],
+    "entity_stride": 24,
+    "entities": 128,
+    "entity_state_bytes": 3072,
+    "remaining_bytes": 192,
+    "integer_fields_lossless": true,
+    "live_slots_overlapped": false,
+    "required_lease": "compiled slot count equals loaded VmState_SlotCount; immutable module extent and nonzero matching lifetime generation",
+    "runtime_owner_bound": false,
+    "canonical_entity_state_bound": false,
+    "motu_gameplay_proven": false,
+    "no_color_reduction": true,
+    "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+    "module_code_sha256": "a8ec41e909c46c45d6a185ce3641766e34a5e2647a2868fdbe9022fdba19e2bf",
+    "module_metadata_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+    "live_slot_identity_preserved": true
+  },
+  "player_state_payload_lease": "instrumented isolated retired-producer controls; real native VM-tail extent/generation lease",
+  "production_player_state_birth_binding": false,
+  "production_full_module_loader_binding": false,
+  "actual_run_tuple_birth_capture": true,
+  "run_tuple_birth_results": [
+    [
+      0,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      1,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ]
+  ],
+  "run_tuple_handle": 2,
+  "source_exists_set_before_model_copy": true,
+  "run_capture_before_script_binding": true,
+  "production_run_tuple_birth_binding": false
+}

@@ -71,6 +71,7 @@ def main():
     p.add_argument('--freeze-state',action='store_true',help='Enable canonical freeze rows and observe actual constructor reset before alive publication.')
     p.add_argument('--ai-state-birth',action='store_true',help='Observe stale AI scalar reset before constructor alive publication and retain the sibling row.')
     p.add_argument('--player-state-birth',action='store_true',help='Execute the checked VM-tail lease and actual constructor state clearing through an opt-in birth bridge.')
+    p.add_argument('--run-tuple-birth',action='store_true',help='Capture exact RUN snapshot after actual constructor model-data copy; requires player-state birth bridge.')
     p.add_argument('--emit-only',action='store_true',help='Emit the private source-derived fixture and observer without launching or certifying it.')
     p.add_argument('--smartspawn',action='store_true',help='Apply source-derived stage properties after the complete constructor; boss music remains an explicit pending service.')
     p.add_argument('--stage-queue-index',type=int,help='Read constructor inputs from an authored stage spawn record; post-constructor overrides remain separate.')
@@ -86,8 +87,10 @@ def main():
     p.add_argument('--stationary-post',action='store_true',help='checked source-derived stationary post-update after complete NONE constructor; phase owner context supplied')
     p.add_argument('--ctor-altitude-q16',type=int,default=0,help='generic explicit constructor altitude input')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+    (folder/'report.json').write_text(json.dumps(dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='RUNNING'))+'\n')
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
+    if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
     if a.costmove_model or a.attack_chain_model:
         if not a.frame_owner or not a.effects_runner:raise ValueError('COSTMOVE_REQUIRES_REAL_FRAME_OWNER')
         a.initial_select=True
@@ -195,6 +198,12 @@ def main():
         from source_foreign_state_layout import layout as state_layout
         player_state_plan=derive_plan(source)
         player_state_work=next(r['address']for r in state_layout(0x7fa000,6400)['regions']if r['name']=='player_state_controls')
+        if a.run_tuple_birth:
+            from source_run_tuple_profile import derive as derive_run_tuples
+            from source_run_tuple_native import emit as emit_run_tuples,emit_ctor_model_bridge
+            run_tuple_report=derive_run_tuples(source)
+            run_regions={r['name']:r['address']for r in state_layout(0x7fa000,6400)['regions']}
+            run_work=run_regions['run_tuple_controls'];run_handles=run_regions['entity_run_tuple']
     physics_table=b''
     if a.adjust_base_empty:
         from source_animation_physics_4086 import derive as physics_inputs,pack as pack_physics
@@ -517,6 +526,8 @@ CallbackFixture_AfterScript:
         asm=asm.replace('CallbackFixture_Init:\n.a16\n.i16\n nop',
                         'CallbackFixture_Init:\n.a16\n.i16\n nop\n jsl SourcePlayerState_Init\n bcs CallbackFixture_Bad\nCallbackFixture_PlayerStatePoison:\n.a16\n.i16\n nop')
         asm+=emit_player_state(player_state_plan,player_state_work,sy)+emit_birth_bridge(player_state_work,sy)
+        if a.run_tuple_birth:
+            asm+=emit_run_tuples(run_work,run_handles,run_tuple_report,sy)+emit_ctor_model_bridge(run_work,sy)
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -535,6 +546,10 @@ CallbackFixture_AfterScript:
         bridge_at=offset(sy['SourceAIState4086_InitializeBirth'])
         if raw[bridge_at:bridge_at+5]!=bytes.fromhex('08 c2 38 da 5a'):raise ValueError('PLAYER_STATE_BIRTH_PROLOGUE')
         raw[bridge_at:bridge_at+5]=b'\x5c'+struct.pack('<I',fs['SourcePlayerState_BirthBridge'])[:3]+b'\xea'
+        if a.run_tuple_birth:
+            run_bridge_at=offset(sy['SourceCtorModel4086_Apply'])
+            if raw[run_bridge_at:run_bridge_at+5]!=bytes.fromhex('08 c2 38 da 5a'):raise ValueError('RUN_TUPLE_CTOR_MODEL_PROLOGUE')
+            raw[run_bridge_at:run_bridge_at+5]=b'\x5c'+struct.pack('<I',fs['SourceRunTuple_CtorModelBridge'])[:3]+b'\xea'
     raw[offset(entry):offset(entry)+5]=b'\x5c'+struct.pack('<I',fs['CallbackFixture_Gate'])[:3]+b'\xea'
     path=folder/'bor.sfc';path.write_bytes(raw)
     for media in [a.rom.with_suffix('.msu'),*(a.rom.parent.glob('bor-*.pcm') if not(a.costmove_model or a.attack_chain_model or a.player_state_birth) else ())]:
@@ -894,6 +909,10 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         address=sy['SourceCtorState4086_AIStateBirthDone']
         lua+=f"emu.addMemoryCallback(function()for j=0,23 do put({tail}+j,0xa5,1);put({tail}+127*24+j,0xa5,1)end end,emu.callbackType.exec,{poison},{poison},emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,23 do cleared=cleared+emu.read({tail}+slot*24+j,mt);sibling=sibling+emu.read({tail}+127*24+j,mt)end;emu.log('CTORPLAYERSTATE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x414004+slot*80)..'|'..word({player_state_work})..'|'..word(sy.VmState_SlotCount))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
+        if a.run_tuple_birth:
+            lua=lua.replace(' put(0x7ffb86,c.fault,2)',f' put(0x7ffb86,c.fault,2)\n for j=0,63 do put({run_work}+j,0,1)end\n put({run_work},0xb678,2)\n for j=0,255 do put({run_handles}+j,0xa5,1)end')
+            run_done=fs['SourceRunTuple_CtorModelDone']
+            lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);emu.log('CTORRUNTUPLE|'..word(INDEX)..'|'..slot..'|'..word({run_handles}+slot*2)..'|'..word({run_handles}+127*2)..'|'..dw(0x414004+slot*80)..'|'..word({run_work}+2))end,emu.callbackType.exec,{run_done},{run_done},emu.cpuType.snes,mt)\n"
     if a.freeze_state:
         address=sy['SourceCtorState4086_FreezeBirthDone']
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,39 do cleared=cleared+emu.read(0x42e000+slot*40+j,mt);sibling=sibling+emu.read(0x42e000+(slot+1)*40+j,mt)end;emu.log('CTORFREEZE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x41f300+slot*4)..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
@@ -1116,6 +1135,13 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         r.update(actual_player_state_birth_bridge=True,player_state_birth_results=player_state_results,player_state_layout=player_state_plan,
                  player_state_payload_lease='instrumented isolated retired-producer controls; real native VM-tail extent/generation lease',
                  production_player_state_birth_binding=False,production_full_module_loader_binding=False)
+        r['status']='PASS'if all(ok for _,ok in reporter.results)else'FAIL'
+    if a.run_tuple_birth:
+        run_birth_results=[list(map(int,line.split('CTORRUNTUPLE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'CTORRUNTUPLE|'in line]
+        expected_run_handle=run_tuple_report['models'][default]['initial_tuple']
+        reporter.check('real fresh model-data constructor captures exact RUN tuple before script binding and callbacks without another core copy',run_birth_results==[[i,0,expected_run_handle,0xa5a5,1,2]for i in range(len(rows))])
+        r.update(actual_run_tuple_birth_capture=True,run_tuple_birth_results=run_birth_results,run_tuple_handle=expected_run_handle,
+                 source_exists_set_before_model_copy=True,run_capture_before_script_binding=True,production_run_tuple_birth_binding=False)
         r['status']='PASS'if all(ok for _,ok in reporter.results)else'FAIL'
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 
