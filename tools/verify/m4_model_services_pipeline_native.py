@@ -61,7 +61,12 @@ def rows_for(reports,data):
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--frame-prefix',action='store_true');p.add_argument('--frame-binding',action='store_true');p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--warm-parent',action='store_true');p.add_argument('--fast-animation-copy',action='store_true');p.add_argument('--generic-frame-owner',action='store_true');p.add_argument('--animated-parent',action='store_true');p.add_argument('--nested-idle',action='store_true');p.add_argument('--effects-owner',action='store_true');p.add_argument('--frame-prefix',action='store_true');p.add_argument('--frame-binding',action='store_true');p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+    if a.warm_parent:a.generic_frame_owner=True
+    if a.generic_frame_owner:a.animated_parent=True
+    if a.animated_parent:a.nested_idle=True
+    if a.nested_idle:a.effects_owner=True
+    if a.effects_owner:a.frame_prefix=True
     if a.frame_prefix:a.frame_binding=True
     source=Source(a.source);reports,data,manifest=compile_bundle(source);rows=rows_for(reports,data);sy=symbols(Path('src/main.sym'));arena=layout(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES']);regions={r['name']:r['address']for r in arena['regions']};styles=regions['entity_combostyle'];rw=regions['run_tuple_controls'];rh=regions['entity_run_tuple'];maximum=reports['requirements']['maximum_animations']
     small=bytearray();addresses={}
@@ -69,11 +74,26 @@ def main():
         addresses[name]=0x8000+len(small);small.extend(data[name]);small.extend(bytes(len(small)%2))
     if a.frame_binding:
         from source_frame_effect_plan import derive as derive_plan,pack as pack_plan
-        rows=[r for r in rows if r['frame']==r['source_event']['frame']]
+        rows=[r for r in rows if r['frame']==r['source_event']['frame'] and (not a.animated_parent or not r['fault'])]
         addresses['plan']=0x8000+len(small);plan=pack_plan(derive_plan(reports['effects']));small.extend(plan)
         for r in rows:
             handle=r['source_event']['frame_handle'];r['effect_offset']=struct.unpack_from('<H',data['effects'],16+8*(handle-1)+4)[0]
             r['effect_count']=len(reports['effects']['animations'][handle-1]['frames'])
+            r['wanted_idle_handle']=struct.unpack_from('<H',bytes(r['wanted_animation']))[0]
+            r['new_cached_type']=struct.unpack_from('<i',bytes(r['wanted_cache']),156)[0]
+    script_tables=[]
+    if a.nested_idle:
+        from script_callback_owner import derive as derive_callbacks
+        from source_model_registry import derive as derive_registry,pack as pack_registry
+        owners,code,metadata,dispatch=derive_callbacks(source);registry=pack_registry(derive_registry(source))
+        instructions=bytearray(code);script_address={}
+        for name,table in [('dispatch',dispatch),('registry',registry)]:
+            script_address[name]=0x8000+len(instructions);instructions.extend(table)
+        if len(instructions)>32768:raise ValueError('MODEL_PIPELINE_SCRIPT_BANK_CAPACITY')
+        script_tables=[(38,0,bytes(instructions))];offs=struct.unpack_from('<6I',metadata,24)
+        for r in rows:
+            idle=reports['effects']['animations'][r['wanted_idle_handle']-1]
+            r['wanted_idle_nextanim']=48+idle['frames'][0]['delay_ticks']
     wrapper='''
 ModelPipeline_Apply:
 .a16
@@ -126,6 +146,91 @@ ModelPipeline_EntryBad:
         wrapper=wrapper.replace(' jsl ModelPipeline_Resume\n bcs ModelPipeline_EntryBad', ' jsl ModelPipeline_Resume\n bcs ModelPipeline_EntryBad\n jsl SourceFrameEffectBinding4086_Finish\n bcs ModelPipeline_EntryBad')
     if a.frame_prefix:
         wrapper=wrapper.replace(' jsl SourceFrameEffectPlan4086_Begin',' jsl SourceUpdateFrame4086_Begin\n bcs ModelPipeline_EntryBad\n cmp #2\n bne ModelPipeline_EntryBad\n jsl SourceFrameEffectPlan4086_Begin')
+    if a.effects_owner:
+        start=wrapper.index(' jsl SourceFrameEffectPlan4086_Begin');end=wrapper.index(' ldx #1')
+        wrapper=wrapper[:start]+''' jsl SourceFrameOwner4086_Run
+ bcs ModelPipeline_EntryBad
+ cmp #3
+ bne ModelPipeline_EntryBad
+'''+wrapper[end:]
+        wrapper=wrapper.replace(' jsl SourceFrameEffectBinding4086_Finish\n bcs ModelPipeline_EntryBad',' jsl SourceFrameOwner4086_Run\n bcs ModelPipeline_EntryBad\n cmp #4\n bne ModelPipeline_EntryBad')
+    if a.nested_idle:
+        wrapper=wrapper.replace(' cmp #4\n bne ModelPipeline_EntryBad', ''' cmp #4
+ bne ModelPipeline_EntryBad
+ jsl SourceAnimationInit4086_StartNestedFrame
+ bcs ModelPipeline_EntryBad
+ModelPipeline_NestedLoop:
+.a16
+.i16
+ jsl SourceFrameOwner4086_Run
+ bcs ModelPipeline_EntryBad
+ cmp #$8001
+ beq ModelPipeline_NestedLoop
+ cmp #0
+ bne ModelPipeline_EntryBad
+ jsl SourceAnimationInit4086_FinishNestedFrame
+ bcs ModelPipeline_EntryBad
+ jsl SourceFrameOwner4086_Run
+ bcs ModelPipeline_EntryBad
+ cmp #0
+ bne ModelPipeline_EntryBad''')
+    if a.animated_parent:
+        wrapper=wrapper.replace(' jsl SourceUpdateFrame4086_Begin\n bcs ModelPipeline_EntryBad\n cmp #2',' jsl SourceUpdateFrame4086_Begin\n bcs ModelPipeline_EntryBad\n cmp #1')
+        wrapper=wrapper.replace(' jsl SourceFrameOwner4086_Run\n bcs ModelPipeline_EntryBad\n cmp #3', '''ModelPipeline_ParentLoop:
+.a16
+.i16
+ jsl SourceFrameOwner4086_Run
+ bcs ModelPipeline_EntryBad
+ cmp #$8001
+ beq ModelPipeline_ParentLoop
+ cmp #3''',1)
+    if a.generic_frame_owner:
+        start=wrapper.index('ModelPipeline_ParentLoop:');end=wrapper.index(' ply',start)
+        wrapper=wrapper[:start]+''' ldx #1
+ ldy #0
+ModelPipeline_GenericLoop:
+.a16
+.i16
+ jsl ModelFrameOwner_Run
+ bcs ModelPipeline_EntryBad
+ cmp #$8001
+ beq ModelPipeline_GenericLoop
+ cmp #0
+ bne ModelPipeline_EntryBad
+'''+wrapper[end:]
+    if a.warm_parent:
+        warm=''' lda.l SourceUpdateFrame4086_Request
+ pha
+ lda #0
+ sta.l SourceUpdateFrame4086_Request
+ jsl SourceUpdateFrame4086_Begin
+ bcs ModelPipeline_WarmBad
+ ldx #1
+ ldy #0
+ModelPipeline_WarmLoop:
+.a16
+.i16
+ jsl ModelFrameOwner_Run
+ bcs ModelPipeline_WarmBad
+ cmp #$8001
+ beq ModelPipeline_WarmLoop
+ cmp #0
+ bne ModelPipeline_WarmBad
+ pla
+ sta.l SourceUpdateFrame4086_Request
+ jmp ModelPipeline_WarmComplete
+ModelPipeline_WarmBad:
+.a16
+.i16
+ pla
+ jmp ModelPipeline_EntryBad
+ModelPipeline_WarmComplete:
+.a16
+.i16
+ nop
+'''
+        at=wrapper.index(' jsl SourceUpdateFrame4086_Begin')
+        wrapper=wrapper[:at]+warm+wrapper[at:]
     import re
     serial=[0]
     def relax(m):
@@ -136,6 +241,12 @@ ModelPipeline_EntryBad:
     for name in sorted(sy,key=len,reverse=True):
         if name.startswith('Source'):wrapper=__import__('re').sub(r'\b'+name+r'\b',str(sy[name]),wrapper)
     assembly=wrapper+pipeline(sy)+callbacks(sy,1)+callbacks(sy)+scalars(reports['scalars'],styles,sy)+palettes(reports['palettes'],sy,3)+palettes(reports['palettes'],sy)+scripts(sy)+run(rw,rh,reports['run'],sy,copy_entry='SourceRunTuple_EntityCopyOriginal')+emit_entity_copy_bridge(rw,sy)+'\nModelPipeline_CodeEnd:\n.a16\n.i16\n'
+    if a.generic_frame_owner:
+        from source_frame_model_owner_native import emit as frame_models
+        assembly+=frame_models(sy)
+    if a.fast_animation_copy:
+        from source_model_animation_copy_fast_native import emit as fast_copy
+        assembly+=fast_copy(sy)
     lua='local data='+luav({k:list(v)for k,v in data.items()if k in('core','animation_cache','weapon_cache','policy','timing')})+'\nlocal reports='+luav({k:reports[k]for k in('scripts','factors','lifecycle','policy','timing','body','offscreen','death','scalars','run')})+'\nlocal address='+luav(addresses)+'\nlocal extra='+luav({k:v for k,v in sy.items()if k.startswith('SourceForeignWork_')or k.startswith(('StageFp_','StreamScrollFp_'))or k in('DmaQueue',)})+'\nfor k,v in pairs(extra)do sy[k]=v end\n'
     lua+=r'''
 local mt=emu.memType.snesMemory
@@ -144,7 +255,7 @@ local function word(a)return emu.read(a,mt)|(emu.read(a+1,mt)<<8)end
 local function set(k,v)put(sy[k],v)end
 local function bytes(a,b)for i,v in ipairs(b)do emu.write(a+i-1,v,mt)end end
 local ranges={{0x40b000,2560},{0x40ba00,512},{0x40c000,12288},{0x414000,18432},{0x409000,8192},{0x418800,24576},{0x432800,4096},{0x433800,8192},{0x439000,10240},{0x43b900,512},{0x43c000,CACHEBYTES},{0x42f400,3072},{0x438800,1792},{0x435980,1056},{0x40bdcc,352},{0x43d600,512},{0x43e200,2048},{STYLES,512},{HANDLES,256}}
-local before,cpu,trace,ctx={}, {},{},0
+local before,cpu,trace,ctx={}, {},{},0;local begin_clock,begin_field=0,0
 emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];trace={};put(EXPECTFAULT,c.fault)
  for _,r in ipairs(ranges)do for i=0,r[2]-1 do emu.write(r[1]+i,165,mt)end end
@@ -227,10 +338,10 @@ emu.addMemoryCallback(function()
  emu.log('PIPELINERESULT|'..word(INDEX)..'|'..n..'|'..ctx..'|'..word(sy.SourceModelTransition4086_State)..'|'..table.concat(trace,','))
 end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
- local state=emu.getState();ctx=0;for _,k in ipairs({'x','y','d','dbr','sp'})do if cpu[k]~=state['cpu.'..k]then ctx=ctx+1 end end;if(cpu.ps&254)~=(state['cpu.ps']&254)then ctx=ctx+1 end
+ local state=emu.getState();emu.log('PIPELINECOST|'..word(INDEX)..'|'..(state.masterClock-begin_clock)..'|'..(state['ppu.frameCount']-begin_field));ctx=0;for _,k in ipairs({'x','y','d','dbr','sp'})do if cpu[k]~=state['cpu.'..k]then ctx=ctx+1 end end;if(cpu.ps&254)~=(state['cpu.ps']&254)then ctx=ctx+1 end
 end,emu.callbackType.exec,AFTER,AFTER,emu.cpuType.snes,mt)
-emu.addMemoryCallback(function()local s=emu.getState();cpu={};for _,k in ipairs({'x','y','d','dbr','sp','ps'})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,APPLY,APPLY,emu.cpuType.snes,mt)
-emu.addMemoryCallback(function()trace[#trace+1]=word(sy.SourceModelTransition4086_Service)end,emu.callbackType.exec,SERVICE,SERVICE,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()local s=emu.getState();begin_clock=s.masterClock;begin_field=s['ppu.frameCount'];cpu={};for _,k in ipairs({'x','y','d','dbr','sp','ps'})do cpu[k]=s['cpu.'..k]end;cpu.sp=cpu.sp+3 end,emu.callbackType.exec,APPLY,APPLY,emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()trace[#trace+1]=word(sy.SourceModelTransition4086_Service);emu.log('PIPELINEPHASE|'..word(INDEX)..'|service'..word(sy.SourceModelTransition4086_Service)..'|'..(emu.getState().masterClock-begin_clock))end,emu.callbackType.exec,SERVICE,SERVICE,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()local c=rows[word(INDEX)+1];if c.bad=='old_type'then put(sy.SourceModelTransition4086_OldTypeHi,1)end end,emu.callbackType.exec,SNAPSHOT,SNAPSHOT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
  local parts={};for _,name in ipairs({'SourceModelTransition4086_Service','SourceModelEntityCopy4086_Status','SourceModelCachedCopy4086_Status','SourceModelAnimationCopy4086_Status','SourceLifecycle4086_Status','SourceModelAttackPolicy4086_Status','SourceAttackTiming4086_Status','SourceAttackBody4086_Status'})do parts[#parts+1]=name..'='..word(sy[name])end
@@ -255,21 +366,78 @@ end,emu.callbackType.exec,FAULT,FAULT,emu.cpuType.snes,mt)
  put(0x41f510+c.slot*20,0);set('SourceFrameMotion4086_Ready',0)
  before={};for _,r in ipairs(ranges)''')
         lua=lua.replace(" if c.fault==0 and (word(sy.SourceFrameEffectPlan4086_Index)"," if word(sy.SourceSelf4086_Active)~=1 or word(sy.SourceSelf4086_GlobalLow)~=0x4000+80*c.slot then n=n+1 end\n if c.fault==0 and (word(sy.SourceFrameEffectPlan4086_Index)")
+    if a.effects_owner:
+        lua=lua.replace('local ranges={{','local ranges={{0x41f500,2560},{0x43eb00,4096},{0x43e000,512},{')
+        lua=lua.replace(" before={};for _,r in ipairs(ranges)",''' set('SourceFrameMotion4086_Ready',0xb4e8);set('VmSourceWorld_Level',0)
+ put(v+24,1,4);put(v+28,1,4);for i=0,31 do emu.write(0x43eb00+c.slot*32+i,0,mt)end
+ for i=0,19 do emu.write(0x41f500+c.slot*20+i,0,mt)end
+ before={};for _,r in ipairs(ranges)''')
+        lua=lua.replace(" value(side,c.new,2);",''' value(side+4,c.wanted_idle_handle,2);value(view+20,0,4);value(0x40c054+c.slot*96,11,4);value(0x40c058+c.slot*96,0,4)
+ if c.new_cached_type~=0 then value(side+36,0,4);value(side+40,0,4)end
+ value(0x43eb00+c.slot*32,3,4);for i=4,15 do before[0x43eb00+c.slot*32+i]=0 end
+ value(0x43e000+(c.wanted_idle_handle-1)*4,0,4);value(0x41f510+c.slot*20,1,2)
+ value(side,c.new,2);''')
+        lua=lua.replace('value(side+4,c.wanted_handle,2);','')
+        lua=lua.replace('word(sy.SourceFrameEffectBinding4086_State)~=0','word(sy.SourceFrameEffectBinding4086_State)~=2 or word(sy.SourceAnimationInit4086_State)~=1 or word(sy.SourceAnimationInit4086_Handle)~=c.wanted_idle_handle or word(sy.SourceUpdateFrame4086_Handle)~=c.source_event.frame_handle or word(sy.SourceUpdateFrame4086_Request)~=c.source_event.frame')
+    if a.nested_idle:
+        install=''' bytes(sy.VmCode_Wram,SCRIPTMETADATA)
+ set('SourceFrameStack4086_Ready',0xb4ed);set('SourceFrameStack4086_Depth',0);set('SourceFrameStack4086_Fault',0)
+ set('SourceAnimationCallback4086_State',0);set('SourceVMRun4086_Ready',0xb4d7);set('SourceVMRun4086_Busy',0)
+ set('VmSourceCallback_Ready',0xb4a5);set('VmSourceCallback_Active',0);set('VmSourceCallback_Request',0)
+ set('VmSourceFrame_Ready',0xb4fd);set('VmSourceFrame_Base',DISPATCHBASE);set('VmSourceFrame_Bank',38);set('VmSourceFrame_Bytes',DISPATCHBYTES);set('VmSourceFrame_Programs',PROGRAMS);set('VmSourceFrame_Handles',ANIMATIONS);set('VmSourceFrame_Pending',0)
+ set('VmSourceModels_Ready',0xb4a1);set('VmSourceModels_Base',REGISTRYBASE);set('VmSourceModels_Bank',38);set('VmSourceModels_Count',16);set('VmSourceModels_Bytes',REGISTRYBYTES)
+ for i=0,63 do emu.write(sy.VmSourceModels_Loaded+i,i<2 and 255 or 0,mt)end
+ set('VmSourceEntity_Ready',0xb48b);set('VmSourceEntity_Base',0x4000);set('VmSourceEntity_Bank',0x41);set('VmSourceEntity_Count',128)
+ set('VmSourceMutation_Ready',0xb4a2);set('VmNativeVariant_ContextValid',0)
+ set('VmSourceInstr_Ready',0xb48e);set('VmSourceInstr_Base',0x8000);set('VmSourceInstr_Bank',38)
+ set('VmPriv_InstrOff',0);set('VmCall_CallsitesOff',CALLSITES);set('VmCall_ArgSlotsOff',ARGS);set('VmStr_StringsOff',STRINGS)
+ set('VmState_InstrCount',INSTRUCTIONS);set('VmState_SlotCount',SLOTS);set('VmState_FrameTop',0)
+ set('SourceFrameEffectLeaf4086_Ready',0xb4f4)
+ before={};for _,r in ipairs(ranges)'''
+        vals=dict(SCRIPTMETADATA=luav(list(metadata)),DISPATCHBASE=script_address['dispatch'],DISPATCHBYTES=len(dispatch),REGISTRYBASE=script_address['registry'],REGISTRYBYTES=len(registry),CALLSITES=offs[2],ARGS=offs[3],STRINGS=offs[4],INSTRUCTIONS=len(code)//8,SLOTS=struct.unpack_from('<H',metadata,10)[0])
+        import re
+        for k,v in vals.items():install=re.sub(r'\b'+k+r'\b',str(v),install)
+        lua=lua.replace(' bytes(0x40b000,data.core);',' for i=0,24575 do emu.write(0x418800+i,0,mt)end\n bytes(0x40b000,data.core);')
+        lua=lua.replace(" before={};for _,r in ipairs(ranges)",install)
+        lua=lua.replace(' value(side+4,c.wanted_idle_handle,2);', ''' for i,name in ipairs({'self','frame','animnum','animhandle'})do local at=0x418800+(i+3)*64;value(at,view,4);value(at+4,1,2);value(at+6,#name,2);for j=1,#name do before[at+15+j]=name:byte(j)end end
+ value(side+4,c.wanted_idle_handle,2);''')
+        for phase,label in [('callbackBegin','SourceAnimationCallback4086_Begin'),('callbackRun','SourceAnimationCallback4086_Run'),('callbackEnd','SourceAnimationCallback4086_Done'),('cachedCopy','SourceModelCachedCopy4086_Apply'),('animationCopy','SourceModelAnimationCopy4086_Apply'),('entityCopy','SourceModelEntityCopy4086_Apply'),('lifecycle','SourceLifecycle4086_Apply'),('attackPolicy','SourceModelAttackPolicy4086_Apply'),('attackTiming','SourceAttackTiming4086_CopyEntity'),('attackBody','SourceAttackBody4086_CopyEntity'),('offscreen','SourceOffscreenState4086_ApplyModel'),('deathFields','SourceDeathFields4086_Copy'),('weaponMetadata','SourceWeapon4086_InstallMetadata')]:
+            lua+='\nemu.addMemoryCallback(function()emu.log("PIPELINEPHASE|"..word(INDEX).."|'+phase+'|"..(emu.getState().masterClock-begin_clock))end,emu.callbackType.exec,'+str(sy[label])+','+str(sy[label])+',emu.cpuType.snes,mt)\n'
+        lua+='\nemu.addMemoryCallback(function()emu.log("NESTEDFAULT|"..word(INDEX).."|error="..word(sy.VmState_Error).."|callback="..word(sy.SourceAnimationCallback4086_Fault).."|vm="..word(sy.SourceVMRun4086_Status).."|context="..word(sy.VmNativeVariant_ContextValid))end,emu.callbackType.exec,'+str(sy['SourceAnimationCallback4086_Bad'])+','+str(sy['SourceAnimationCallback4086_Bad'])+',emu.cpuType.snes,mt)\n'
+        lua=lua.replace('value(side+6,c.wanted_frame,2);value(side+8,c.wanted_nextanim,4);','value(side+6,0,2);value(side+8,c.wanted_idle_nextanim,4);')
+        lua=lua.replace(" if word(sy.SourceSelf4086_Active)~=1 or word(sy.SourceSelf4086_GlobalLow)~=0x4000+80*c.slot then n=n+1 end", " if c.fault==0 and (word(sy.SourceSelf4086_Active)~=0 or word(sy.SourceSelf4086_GlobalLow)~=0x4000+80*((c.slot+1)%128) or word(sy.SourceFrameStack4086_Depth)~=0 or word(sy.SourceFrameStack4086_Fault)~=0)then n=n+1 end")
+        start=lua.index(' if c.fault==0 and (word(sy.SourceFrameEffectPlan4086_Index)');end=lua.index(" emu.log('PIPELINERESULT|'",start)
+        lua=lua[:start]+''' if c.fault==0 and (word(sy.SourceUpdateFrame4086_State)~=2 or word(sy.SourceUpdateFrame4086_Pending)~=0 or word(sy.SourceFrameEffectPlan4086_State)~=2 or word(sy.SourceFrameEffectPlan4086_Service)~=0 or word(sy.SourceUpdateFrame4086_Handle)~=c.source_event.frame_handle or word(sy.SourceUpdateFrame4086_Request)~=c.source_event.frame)then n=n+1 end
+'''+lua[end:]
+    if a.animated_parent:
+        lua=lua.replace(' for i=0,19 do emu.write(0x41f500+c.slot*20+i,0,mt)end',' for i=0,19 do emu.write(0x41f500+c.slot*20+i,0,mt)end;put(0x41f510+c.slot*20,1)')
+    if a.warm_parent:
+        lua+='\nemu.addMemoryCallback(function()local s=emu.getState();emu.log("PIPELINEWARM|"..word(INDEX).."|"..(s.masterClock-begin_clock).."|"..(s["ppu.frameCount"]-begin_field));begin_clock=s.masterClock;begin_field=s["ppu.frameCount"]end,emu.callbackType.exec,WARM,WARM,emu.cpuType.snes,mt)\n'
     lua='local LIFE_KNOCKDOWN='+luav([list(struct.pack('<f',m['fields']['knockdowncount']))for m in reports['lifecycle']['models']])+'\nlocal FACTOR_VECTORS='+luav([list(bytes.fromhex(m['vector_hex']))for m in reports['factors']['models']])+'\nlocal BODY_ROWS='+luav([list(data['body'][16+i*9:25+i*9])for i in range(16)])+'\n'+lua
     values=dict(CACHEBYTES=len(data['animation_cache']),MAXIMUM=maximum,AIBYTES=len(data['animations']),FEBYTES=len(data['effects']),ANIMATIONS=len(reports['animations']['animations']),SCRIPTBYTES=len(data['scripts']),CALLBACKBYTES=len(data['callbacks']),PROGRAMS=reports['callbacks']['program_count'],FACTORBYTES=len(data['factors']),LIFEBYTES=len(data['lifecycle']),BODYBYTES=len(data['body']),OFFSCREENBYTES=len(data['offscreen']),DEATHBYTES=len(data['death']),TIMINGBYTES=len(data['timing']),WEAPONBYTES=len(data['weapon']),DEFAULTMODEL=rows[0]['old'],STYLES=styles,HANDLES=rh,RUNWORK=rw)
     import re
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     def hook(raw,linked):
         from m4_input_controller_native import offset
+        if a.fast_animation_copy:
+            at=offset(sy['SourceModelAnimationCopy4086_Preflight'])
+            expected=b'\xaf'+struct.pack('<I',sy['SourceModelAnimationCopy4086_OldOffset'])[:3]+b'\x18'
+            if raw[at:at+5]!=expected or linked['ModelAnimationFast_Done']>>16!=39:raise ValueError('ANIMATION_FAST_PREFLIGHT_HOOK')
+            raw[at:at+5]=b'\x5c'+struct.pack('<I',linked['ModelAnimationFast_Preflight'])[:3]+b'\xea'
         at=offset(sy['SourceModelEntityCopy4086_Apply'])
         if raw[at:at+5]!=bytes.fromhex('08 c2 38 da 5a'):raise ValueError('MODEL_PIPELINE_COPY_HOOK')
         raw[at:at+5]=b'\x5c'+struct.pack('<I',linked['SourceRunTuple_EntityCopyBridge'])[:3]+b'\xea'
+        if a.generic_frame_owner and linked['ModelFrameOwner_Bad']>>16!=39:raise ValueError('MODEL_FRAME_OWNER_CODE_BANK')
         if linked['SourceRunTuple_EntityCopyOriginal']>>16!=39 or linked['ModelPipeline_CodeEnd']>>16!=39:raise ValueError('MODEL_PIPELINE_CODE_BANK')
-    r=Reporter('M4-MODEL-SERVICES-PIPELINE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'ModelPipeline_Apply','SourceModelTransition4086_Ready',0xb4f0,[(58,0,bytes(small)),(59,0,data['animations']),(60,0,data['effects'])],lua,r,batch_size=4,append=assembly,rom_transform=hook,probes={'SERVICE':'ModelPipeline_Loop','FAULT':'ModelPipeline_Bad','SNAPSHOT':'ModelSnapshotService_BeginAbsent'},link_pcm=False)
+    r=Reporter('M4-MODEL-SERVICES-PIPELINE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'ModelPipeline_Apply','SourceModelTransition4086_Ready',0xb4f0,script_tables+[(58,0,bytes(small)),(59,0,data['animations']),(60,0,data['effects'])],lua,r,batch_size=4,append=assembly,rom_transform=hook,probes={**({'WARM':'ModelPipeline_WarmComplete'}if a.warm_parent else{}),'SERVICE':'ModelPipeline_Loop','FAULT':'ModelPipeline_Bad','SNAPSHOT':'ModelSnapshotService_BeginAbsent'},link_pcm=False)
     r.check('bank 0 remains byte-identical',raw[:32768]==a.rom.read_bytes()[:32768])
     results=[line.split('PIPELINERESULT|',1)[1].split('|')for line in log.splitlines()if 'PIPELINERESULT|'in line]
     r.check('actual weapon resolve, all six native services, exact copied source state and unchanged foreign rows/variables/CPU',results==[[str(i),'0','0','3'if c['fault']else'2','1'if c['fault']else'1,2,3,5,6,7,0']for i,c in enumerate(rows)])
-    report=dict(schema='BYOR_4086_MODEL_SERVICES_PIPELINE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,bundle=manifest,all_services_native=True,observer_acknowledgements=False,source_request_registers_poisoned=a.frame_binding,source_effect_cursor_after_weapon=4 if a.frame_binding else None,update_frame_completion_bound=False,actual_frame_event_dispatch=a.frame_binding,update_frame_prefix_instrumented=a.frame_binding and not a.frame_prefix,actual_update_frame_begin=a.frame_prefix,animation_callback_invoked=False,source_animating_zero_fixture=a.frame_prefix,idle_frame_zero_bound=False,pool_and_leases_installed_by_fixture=True,full_gameplay_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+    costs=[list(map(int,line.split('PIPELINECOST|',1)[1].split('|')))for line in log.splitlines()if 'PIPELINECOST|'in line]
+    phases=[line.split('PIPELINEPHASE|',1)[1].split('|')for line in log.splitlines()if 'PIPELINEPHASE|'in line]
+    r.check('native cost samples complete',len(costs)==len(rows))
+    warm_costs=[list(map(int,line.split('PIPELINEWARM|',1)[1].split('|')))for line in log.splitlines()if 'PIPELINEWARM|'in line]
+    report=dict(native_frame_zero_warmup=a.warm_parent,warmup_costs=warm_costs,cpu_phases=phases,cpu_costs=costs,fast_animation_copy=a.fast_animation_copy,generic_frame_model_owner=a.generic_frame_owner,schema='BYOR_4086_MODEL_SERVICES_PIPELINE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,bundle=manifest,all_services_native=True,observer_acknowledgements=False,source_request_registers_poisoned=a.frame_binding,source_effect_cursor_after_weapon=4 if a.frame_binding else None,update_frame_completion_bound=a.nested_idle,actual_frame_event_dispatch=a.frame_binding,update_frame_prefix_instrumented=a.frame_binding and not a.frame_prefix,actual_update_frame_begin=a.frame_prefix,actual_frame_effect_owner=a.effects_owner,actual_set_idle_prepare=a.effects_owner,animation_callback_invoked=a.nested_idle,source_animating_zero_fixture=a.frame_prefix and not a.animated_parent,actual_parent_animation_callback=a.animated_parent,idle_frame_zero_bound=a.nested_idle,pool_and_leases_installed_by_fixture=True,full_gameplay_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');r.finish()
 
 if __name__=='__main__':main()

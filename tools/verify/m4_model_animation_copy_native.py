@@ -17,7 +17,7 @@ REQUEST,INDEX,ERROR=0x7ffb80,0x7ffb82,0x7ffb84
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--fast-preflight',action='store_true');p.add_argument('--source',required=True)
     p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--attack-cost',action='store_true');p.add_argument('--autokill-state',action='store_true');p.add_argument('--movement-state',action='store_true')
     a=p.parse_args();a.movement_state=a.movement_state or a.autokill_state;a.attack_cost=a.attack_cost or a.movement_state;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     requirements=derive(source);cache=pack_animation_cache(requirements);count=len(requirements['models']);maximum=requirements['maximum_animations']
@@ -105,6 +105,9 @@ ModelCopyFixture_Return:
  phy
  jml RESUME
 '''
+    if a.fast_preflight:
+        from source_model_animation_copy_fast_native import emit
+        asm+=emit(sy)
     values=dict(REQUEST=REQUEST,INDEX=INDEX,ERROR=ERROR,APPLY=sy['SourceModelAnimationCopy4086_Apply'],
         EXPECTFAULT=REQUEST+6,CASES=len(rows),OWNERREADY=sy['SourceModelAnimationCopy4086_Ready'],
         FRAMEREADY=sy['SourceUpdateFrame4086_Ready'],RESUME=entry+5)
@@ -118,8 +121,13 @@ ModelCopyFixture_Return:
     if raw[offset(entry):offset(entry)+5]!=bytes.fromhex('08 c2 31 da 5a'):raise ValueError('MODEL_ANIMATION_PROOF_GATE')
     raw[first:first+len(code)]=code;raw[60*32768:60*32768+len(table)]=table
     raw[offset(entry):offset(entry)+5]=b'\x5c'+struct.pack('<I',fs['ModelCopyFixture_Gate'])[:3]+b'\xea'
+    if a.fast_preflight:
+        at=offset(sy['SourceModelAnimationCopy4086_Preflight'])
+        if raw[at:at+5]!=b'\xaf'+struct.pack('<I',sy['SourceModelAnimationCopy4086_OldOffset'])[:3]+b'\x18':raise ValueError('ANIMATION_FAST_PREFLIGHT_HOOK')
+        raw[at:at+5]=b'\x5c'+struct.pack('<I',fs['ModelAnimationFast_Preflight'])[:3]+b'\xea'
+        if fs['ModelAnimationFast_Done']>>16!=39:raise ValueError('ANIMATION_FAST_CODE_BANK')
     rom=folder/'bor.sfc';rom.write_bytes(raw)
-    for media in [a.rom.with_suffix('.msu'),*a.rom.parent.glob('bor-*.pcm')]:
+    for media in [a.rom.with_suffix('.msu')]:
         target=folder/media.name
         if not target.exists():os.link(media.resolve(),target)
     words=list(struct.unpack('<'+'H'*(len(cache)//2),cache));words+=[0xa5a5]*((8192-len(cache))//2)
@@ -232,7 +240,7 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
             if marker in line:target.append(list(map(int,line.split(marker,1)[1].split('|'))))
     reporter.check('every cached handle and guard byte matches source policy',len(results)==len(rows) and
         all(r==[i,2 if c['fault'] else 1,0,0,0] for i,(r,c) in enumerate(zip(results,rows))))
-    r=dict(schema='BYOR_4086_MODEL_ANIMATION_COPY_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
+    r=dict(fast_preflight=a.fast_preflight,schema='BYOR_4086_MODEL_ANIMATION_COPY_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',
         rom_sha256=hashlib.sha256(raw).hexdigest(),cache_sha256=hashlib.sha256(cache).hexdigest(),table_sha256=hashlib.sha256(table).hexdigest(),
         models=count,maximum_animations=maximum,cache_bytes=len(cache),reserved_cache_bytes=8192,
         cases=len(rows),rejection_cases=sum(c['fault'] for c in rows),case_inputs=rows,results=results,cpu_costs=costs,

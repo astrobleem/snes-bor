@@ -36,7 +36,9 @@ The installed source pool, metadata leases, input requests and retired canvas
 are fixture inputs. Authored event arguments are proven through the native
 model service pipeline; the separate frame-prefix receipt now proves native weapon-event emission in
 the explicit `animating=0` source branch. Animation callback execution and
-parent/nested idle frame completion remain open.
+parent/nested idle frame completion are proven separately by the joined
+frame-owner receipt. Physical presentation and world-clock integration remain
+open.
 Unsynchronized initialization requires its existing nested frame owner and is
 outside this synchronized capability. This proof does not certify physical
 presentation, audible playback, combat, a production MOTU boot or Demo completion.
