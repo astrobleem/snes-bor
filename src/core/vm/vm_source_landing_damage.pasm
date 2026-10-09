@@ -1,7 +1,7 @@
 ; B629 source NULL-takedamage, unit-defense, nonlethal landing damage.
 ; Exact source binary32 domain: positive health and force below 2^23.
 ; Pending statuses1 callback,4 kill,5 other arithmetic backend. No fake Ack.
-; Canonical current life fields: takedamage DWORD+8, dead DWORD+20.
+; Canonical current life fields: takedamage DWORD+4, dead DWORD+20.
 ; Requires the immutable uniform factor snapshot and its current model lease.
 SourceLandingDamage4086_Ready = $43FDDC
 SourceLandingDamage4086_Status = $43FDDE
@@ -151,8 +151,8 @@ SourceLandingDamage4086_HasForce:
 .i16
  lda.l SourceLandingDamage4086_View
  tax
- lda.l $439008,x
- ora.l $43900A,x
+ lda.l $439000+SOURCE_LIFECYCLE_TAKEDAMAGE,x
+ ora.l $439002+SOURCE_LIFECYCLE_TAKEDAMAGE,x
  beq SourceLandingDamage4086_NullCallback
  lda.l SourceLandingCallback4086_Ready
  beq SourceLandingDamage4086_CallbackUnbound

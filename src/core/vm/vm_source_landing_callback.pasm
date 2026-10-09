@@ -133,14 +133,14 @@ SourceLandingCallback4086_Resume4:
 .i16
  lda.l SourceLandingCallback4086_View
  tax
- lda.l $439008,x
+ lda.l $439000+SOURCE_LIFECYCLE_TAKEDAMAGE,x
  cmp.l SourceLandingCallback4086_Callback
  beq SourceLandingCallback4086_Resume5
  jmp SourceLandingCallback4086_Bad
 SourceLandingCallback4086_Resume5:
 .a16
 .i16
- lda.l $43900A,x
+ lda.l $439002+SOURCE_LIFECYCLE_TAKEDAMAGE,x
  bne SourceLandingCallback4086_ResumeBad
  jmp SourceLandingCallback4086_Dispatch
 SourceLandingCallback4086_ResumeBad:
@@ -161,13 +161,13 @@ SourceLandingCallback4086_Start:
  lda.l SourceLandingDamage4086_View
  sta.l SourceLandingCallback4086_View
  tax
- lda.l $43900A,x
+ lda.l $439002+SOURCE_LIFECYCLE_TAKEDAMAGE,x
  beq SourceLandingCallback4086_IdLow
  jmp SourceLandingCallback4086_Required
 SourceLandingCallback4086_IdLow:
 .a16
 .i16
- lda.l $439008,x
+ lda.l $439000+SOURCE_LIFECYCLE_TAKEDAMAGE,x
  sta.l SourceLandingCallback4086_Callback
  cmp #1
  beq SourceLandingCallback4086_IdGood

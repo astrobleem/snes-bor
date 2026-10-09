@@ -24,12 +24,12 @@ emu.addMemoryCallback(function()
  set('SourceEmptyInitEnvironment4086_Ready',0xb504);set('SourceEmptyInitEnvironment4086_Status',0);set('SourceEmptyInitEnvironment4086_Models',1);set('SourceEmptyInitEnvironment4086_Stage',1)
  set('SourceEnvironment4086_Ready',0xb4d1);set('SourceEnvironment4086_Stage',1);set('SourceEnvironment4086_WallCount',0)
  put(v,v,4);put(v+4,1,4);put(v+48,2);put(v+50,0);put(v+52,c.x,4);put(v+56,2);put(v+58,0);put(v+60,c.z,4)
- put(side,0);put(side+24,c.nextmove,4);put(aux,c.mx,4);put(aux+4,c.mz,4);put(life+4,0,4);put(life+72,0);put(life+74,0xb4fb)
+ put(side,0);put(side+24,c.nextmove,4);put(aux,c.mx,4);put(aux+4,c.mz,4);put(life+8,0,4);put(life+72,0);put(life+74,0xb4fb)
  put(freeze,c.freeze,4);put(freeze+4,c.freeze==1 and c.time<0xffffffff and (c.time+1) or 0,4);put(freeze+36,c.mark,4)
  put(0x40c048+s*96,32,4);put(0x43fd94,0,4);put(0x43fd98,c.freeze==1 and c.time==0xffffffff and 1 or 0,4)
  local faults={ready={'SourceCheckMove4086_Ready',0},status={'SourceCheckMove4086_Status',3},world={'VmSourceWorld_Ready',0},tick={'SourceWorldTick4086_Ready',0},state={'SourceWorldTick4086_State',3},phase={'SourceWorldTick4086_Phase',10},pending={'SourceWorldTick4086_Pending',0},tickfault={'SourceWorldTick4086_Fault',1},count={'VmSourceWorld_Count',0},slot={'SourceWorldTick4086_Slot',128},time={'SourceWorldTick4086_TimeLo',(c.time+1)&0xffff},self={'SourceSelf4086_GlobalLow',0},selffault={'SourceSelf4086_Fault',1},selfactive={'SourceSelf4086_Active',1},freeze={'SourceFreeze4086_Ready',0},aux={'SourceUpdateFrame4086_Ready',0},platform={'SourceEmptyInitEnvironment4086_Ready',0},walls={'SourceEnvironment4086_WallCount',1},stage={'SourceEnvironment4086_Stage',2}}
  if faults[c.bad]then local f=faults[c.bad];set(f[1],f[2])end
- if c.bad=='trymove'then put(life+4,1,4)elseif c.bad=='lifelease'then put(life+74,0)elseif c.bad=='modelrange'then put(side,1)elseif c.bad=='modelidentity'then put(life+72,1)elseif c.bad=='xtag'then put(v+48,1)elseif c.bad=='zreserved'then put(v+58,1)elseif c.bad=='token'then put(v,0,4)elseif c.bad=='exists'then put(v+4,0,4)end
+ if c.bad=='trymove'then put(life+8,1,4)elseif c.bad=='lifelease'then put(life+74,0)elseif c.bad=='modelrange'then put(side,1)elseif c.bad=='modelidentity'then put(life+72,1)elseif c.bad=='xtag'then put(v+48,1)elseif c.bad=='zreserved'then put(v+58,1)elseif c.bad=='token'then put(v,0,4)elseif c.bad=='exists'then put(v+4,0,4)end
  before={};for _,r in ipairs({{0x414000,18432},{0x41f500,2560},{0x42e000,5120},{0x439000,10240},{0x40c000,12288},{sy.SourceWorldTick4086_Ready,52},{sy.SourceSelf4086_GlobalLow,4}})do for i=0,r[2]-1 do before[r[1]+i]=emu.read(r[1]+i,mt)end end
 end,emu.callbackType.exec,INIT,INIT,emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
@@ -72,7 +72,7 @@ def main():
         rows.append(dict(base,x=x,z=z,mx=mx,mz=mz,fault=1,bad='',expected=[x,z,mx,mz,48,0]))
     rows=[dict(c,world_state=state)for state in (1,2)for c in rows]
     reporter=Reporter('M4-CHECK-MOVE',kind='GATE')
-    raw,log=run_fixture(a.rom,a.output,rows,'SourceCheckMove4086_Execute','SourceCheckMove4086_Ready',0xb617,[],LUA,reporter,batch_size=2)
+    raw,log=run_fixture(a.rom,a.output,rows,'SourceCheckMove4086_Execute','SourceCheckMove4086_Ready',0xb617,[],LUA,reporter,batch_size=2,link_pcm=False)
     results=[list(map(int,line.split('CHECKMOVE|',1)[1].split('|')))for line in log.splitlines()if'CHECKMOVE|'in line]
     expected=[[i,0,0,3 if c['fault']else 2,*c['expected']]for i,c in enumerate(rows)]
     failures=[dict(index=i,input=rows[i],actual=v,expected=w)for i,(v,w)in enumerate(zip(results,expected))if v!=w]

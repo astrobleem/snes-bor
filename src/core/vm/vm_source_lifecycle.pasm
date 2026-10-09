@@ -5,6 +5,11 @@
 ; Model scalar replacement invalidates this identity; checked model copy or
 ; an admitted speed property write rebinds it. Q16 zero alone is insufficient.
 ; Reset=1 clears the full entity lifecycle row; Reset=0 preserves lifecycle fields.
+; Shared callback ABI, paired with the B4FB lifecycle contract.
+SOURCE_LIFECYCLE_THINK = 0
+SOURCE_LIFECYCLE_TAKEDAMAGE = 4
+SOURCE_LIFECYCLE_TRYMOVE = 8
+SOURCE_LIFECYCLE_TAKEACTION = 12
 SourceLifecycle4086_Ready = $7FFE9C
 SourceLifecycle4086_Slot = $7FFE9E
 SourceLifecycle4086_Model = $7FFEA0

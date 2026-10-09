@@ -63,7 +63,7 @@ def main():
  set('SourceLandingKill4086_Ready',0);set('SourceLandingKill4086_Status',0)
  set('SourceFactors4086_Ready',0xb5f1);put(0x43b900+s*4,0);put(0x43b902+s*4,0xb5f1);put(0x432800+s*32,c.factor_bits,4)
  set('SourceSelf4086_GlobalLow',0,4);set('SourceUpdateFrame4086_State',0);set('SourceUpdateFrame4086_Pending',0);set('SourceUpdateFrame4086_Fault',0)
- put(aux,0,4);put(aux+4,0,4);put(aux+16,0);put(life+4,0,4);put(life+8,c.callback,4);put(core+72,0,4)
+ put(aux,0,4);put(aux+4,0,4);put(aux+16,0);put(life+8,0,4);put(life+4,c.callback,4);put(core+72,0,4)
  put(view+48,2);put(view+50,0);put(view+52,10*65536,4);put(view+56,2);put(view+58,0);put(view+60,20*65536,4);put(side+24,48,4)
  put(view+32,1);put(view+34,0);put(view+36,c.health,4);put(view+64,1);put(view+66,0);put(view+68,123456,4)
  if c.bad=='factor_ready'then set('SourceFactors4086_Ready',0)
@@ -135,7 +135,7 @@ def main():
  reporter=Reporter('M4-LANDING-DAMAGE',kind='GATE')
  raw,log=run_fixture(a.rom,a.output,rows,'PostPendingFixture_Run','SourcePostAir4086_Ready',0xb628,
   [(58,0,ph),(59,0,lp)],lua,reporter,append=asm,
-  bindings=dict(POSTBEGIN='SourcePostAir4086_Begin',POSTCONTINUE='SourcePostAir4086_Continue',POSTCHECK='SourcePostAir4086_CheckAck',DAMAGE='SourceLandingDamage4086_Execute',WORLDACK='SourceWorldTick4086_Ack',MOVE='SourceCheckMove4086_Execute'),frame_limit=4000)
+  bindings=dict(POSTBEGIN='SourcePostAir4086_Begin',POSTCONTINUE='SourcePostAir4086_Continue',POSTCHECK='SourcePostAir4086_CheckAck',DAMAGE='SourceLandingDamage4086_Execute',WORLDACK='SourceWorldTick4086_Ack',MOVE='SourceCheckMove4086_Execute'),frame_limit=4000,link_pcm=False)
  actual=[list(map(int,l.split('LANDDAMAGE|',1)[1].split('|')))for l in log.splitlines()if'LANDDAMAGE|'in l]
  expected=[]
  for i,r in enumerate(rows):

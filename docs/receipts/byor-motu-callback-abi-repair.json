@@ -1,0 +1,123 @@
+{
+  "schema": "BYOR_CALLBACK_ABI_REPAIR_V1",
+  "status": "PASS",
+  "authority": "B4FB lifecycle contract and actual default-player/enemy callback installers",
+  "contract": {
+    "think": 0,
+    "takedamage": 4,
+    "trymove": 8,
+    "takeaction": 12
+  },
+  "changed_source_operands": [
+    {
+      "offset": 1549958,
+      "before": 8,
+      "after": 4
+    },
+    {
+      "offset": 1549962,
+      "before": 10,
+      "after": 6
+    },
+    {
+      "offset": 1553880,
+      "before": 8,
+      "after": 4
+    },
+    {
+      "offset": 1553893,
+      "before": 10,
+      "after": 6
+    },
+    {
+      "offset": 1553946,
+      "before": 10,
+      "after": 6
+    },
+    {
+      "offset": 1553955,
+      "before": 8,
+      "after": 4
+    },
+    {
+      "offset": 2088753,
+      "before": 4,
+      "after": 8
+    },
+    {
+      "offset": 2088757,
+      "before": 6,
+      "after": 10
+    },
+    {
+      "offset": 2088761,
+      "before": 10,
+      "after": 6
+    },
+    {
+      "offset": 2088780,
+      "before": 8,
+      "after": 4
+    },
+    {
+      "offset": 2090055,
+      "before": 4,
+      "after": 8
+    },
+    {
+      "offset": 2090059,
+      "before": 6,
+      "after": 10
+    }
+  ],
+  "linked_rom_sha256": "25be190edc3d19541a8078ed77767ad3e7118df31b769027f7389f62bce94f27",
+  "bank_zero_growth_bytes": 0,
+  "source_operand_sizes_unchanged": true,
+  "proofs": [
+    {
+      "kind": "movement",
+      "path": "out/byor-motu-callback-abi-movement-native/report.json",
+      "sha256": "f2055e1fe90da301d1d1b17e6d7646131cef3492c3a712bb8e38e9086773cbb9",
+      "status": "PASS",
+      "cases": 444,
+      "rom_sha256": "89f52757c0e3a4ce8309ba2fc05033efc834638ad78f4d1c4b35ac36e1c05b3d"
+    },
+    {
+      "kind": "knife",
+      "path": "out/byor-motu-callback-abi-knife-native/report.json",
+      "sha256": "b1dcb06a70276904950c10de3e501382404ec8182b400de3eb8b6c8d33e9b37f",
+      "status": "PASS",
+      "cases": 286,
+      "rom_sha256": "31d976222a7f16be9b843d4ffc8fc12186372c403ca1d5bb39aa055bfcae4940"
+    },
+    {
+      "kind": "landing",
+      "path": "out/byor-motu-callback-abi-landing-native/report.json",
+      "sha256": "253c92edf3e4d6134bb6474b3e5b1ac21a68e9d6adde0ac1a254032f5a8f7ea2",
+      "status": "PASS",
+      "cases": 264,
+      "rom_sha256": "872c5ab182674e64e826909ecb86d3af72b779d493c116cc7513244a7d0c8329"
+    },
+    {
+      "kind": "null-landing",
+      "path": "out/byor-motu-callback-abi-null-landing-native/report.json",
+      "sha256": "3c9c2cfca06da77cbdab5180f289c08cefbb8834c7422225eb0cd077c49be87f",
+      "status": "PASS",
+      "cases": 678,
+      "rom_sha256": "4a3ea39257cf63526e425da83c6625618953720d741ab2ad4bc8a4f7ecbec589"
+    },
+    {
+      "kind": "bor-static-smoke",
+      "path": "out/byor-motu-callback-abi-bor-static-smoke/report.json",
+      "sha256": "f4bc3aef7885200aaecba982dd7b8fe976ca7144f3b08d1be4c4733ab56151af",
+      "status": "PASS",
+      "cases": null,
+      "rom_sha256": "25be190edc3d19541a8078ed77767ad3e7118df31b769027f7389f62bce94f27"
+    }
+  ],
+  "world_phase_callbacks_root_bound": false,
+  "full_player_trymove_backend_proven": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

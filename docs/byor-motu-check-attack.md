@@ -233,3 +233,21 @@ landing damage/callback, named knife and movement consumers use conflicting
 offsets. Their prior fixture inputs repeated those offsets. These component
 proofs do not establish joined callback correctness; reconciliation and focused
 joined regression are required before production M4 certification.
+
+The callback ABI audit is reconciled against B4FB and actual default producer
+code. Shared constants now declare think0/takedamage4/trymove8/takeaction12.
+Landing damage and callback readers use takedamage4; check_move uses trymove8;
+named knife clears trymove8 and installs arrow_takedamage8 at takedamage4.
+The assembler changes exactly 12 operand bytes, with unchanged code sizes,
+all outside bank zero. The focused repaired-ROM matrix passes movement444,
+named projectile286, landing callbacks264 and null-callback landing678 cases.
+Their fixture fields now use the declared contract.
+
+Bounded original BOR cold intro/title, actual KULA selection, first stage and
+ordinary static OBJ presentation pass against this repaired linked code. No
+complete campaign is rerun. Existing source static presentation is unchanged.
+The width guard has 9,825 labels, zero new/baselined/stale violations. All 17
+protected tracked files remain byte-identical. Receipt:
+byor-motu-callback-abi-repair.json. Full foreign constructor/world integration
+and the non-null player_trymove backend remain open; these component proofs
+do not substitute for an actual MOTU Demo route. NO color reduction applied.

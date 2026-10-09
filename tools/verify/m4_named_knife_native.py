@@ -72,7 +72,7 @@ def main():
         if not c['fail']:
             expected=[[cc+72,v[1],4],[cv+8,2,4],[cv+12,q16(v[3]),4],[cs+60,q16(v[4]),4],[cr+8,ov,4],[cl+16,v[6],4],[cc+88,v[7],4],
                       [cs+20,v[8],4],[cc+52,v[9],4],[off,v[10],4],[cc+56,v[11],4],[auto,v[13],4],[cs+32,q16(v[14]),4],[cs+48,q16(v[15]),4],
-                      [cc+40,v[16],4],[cc+44,v[17],4],[body+48,v[23],2],[pr+32,v[24],4],[cl,6,4],[cl+8,8,4],[cl+4,0,4],[cl+12,0,4]]
+                      [cc+40,v[16],4],[cc+44,v[17],4],[body+48,v[23],2],[pr+32,v[24],4],[cl,6,4],[cl+4,8,4],[cl+8,0,4],[cl+12,0,4]]
             expected += [[cc+off0,v[j],4]for off0,j in zip((4,8,16,20,36),range(18,23))]
             if c['nomove']or not c['cached_speed']:expected += [[cl+68,int(bool(v[4])),4],[cl+76,0xb508,2]]
         rows.append(dict(c,authority_index=i,owner=owner,child=child,altitude_q16=q16(c['altitude']),fault=0,initial=initial,expected=expected,guard=[],actor_guard=[]))
@@ -84,7 +84,7 @@ def main():
     for address,value in [(0x414004+base['owner']*80,0),(0x414002+base['child']*80,0),(0x414004+base['child']*80,2),(0x43904a+base['child']*80,0),(0x43904c+base['child']*80,0),(0x439048+base['child']*80,1),(0x416800+base['child']*64,16)]:
         rows.append(dict(base,fault=1,actor_guard=[[address,value,2]]))
     r=Reporter('M4-NAMED-KNIFE-POST',kind='GATE')
-    raw,log=run_fixture(a.rom,a.output,rows,'SourceNamedKnife4086_Apply','SourceNamedKnife4086_Ready',0xb611,[],LUA,r,batch_size=2)
+    raw,log=run_fixture(a.rom,a.output,rows,'SourceNamedKnife4086_Apply','SourceNamedKnife4086_Ready',0xb611,[],LUA,r,batch_size=2,link_pcm=False)
     actual=[list(map(int,l.split('KNIFEPOST|',1)[1].split('|')))for l in log.splitlines()if'KNIFEPOST|'in l]
     expected=[[i,0,0,3 if c['fault']else 2]for i,c in enumerate(rows)]
     r.check('literal named knife mutations, source type/cached speed identity, signed nomove/offscreen/autokill, NULL no-op and guards; siblings/cache/idling/self/CPU preserved',actual==expected)

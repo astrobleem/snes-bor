@@ -494,14 +494,14 @@ SourceNamedKnife4086_SpeedDone:
  sta.l $439000,x
  lda #0
  sta.l $439002,x
- sta.l $439004,x
- sta.l $439006,x
- sta.l $43900A,x
+ sta.l $439000+SOURCE_LIFECYCLE_TRYMOVE,x
+ sta.l $439002+SOURCE_LIFECYCLE_TRYMOVE,x
+ sta.l $439002+SOURCE_LIFECYCLE_TAKEDAMAGE,x
  sta.l $43900C,x
  sta.l $43900E,x
  sta.l $439012,x
  lda #8
- sta.l $439008,x
+ sta.l $439000+SOURCE_LIFECYCLE_TAKEDAMAGE,x
  lda #1
  sta.l $439010,x
  lda.l SourceNamedKnife4086_ChildSide

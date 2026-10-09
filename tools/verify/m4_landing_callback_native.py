@@ -36,7 +36,7 @@ INSTALL=r'''
  set('VmSourceWorld_TemplateCount',16);set('SourceModelEntityCopy4086_Models',16);set('SourceEmptyInitEnvironment4086_Models',16);set('SourceGravityAir4086_ZeroModels',16)
  set('VmSourceVars_Ready',0xb4a4);set('VmSourceVars_Base',0x8800);set('VmSourceVars_Bank',0x41);set('VmSourceVars_Count',384)
  set('SourceSelf4086_GlobalLow',0,4);set('SourceUpdateFrame4086_State',0);set('SourceUpdateFrame4086_Pending',0);set('SourceUpdateFrame4086_Fault',0)
- put(aux,0,4);put(aux+4,0,4);put(aux+16,0);put(life+4,0,4);put(life+8,c.callback,4);put(life+16,0,4);put(life+20,0,4)
+ put(aux,0,4);put(aux+4,0,4);put(aux+16,0);put(life+8,0,4);put(life+4,c.callback,4);put(life+16,0,4);put(life+20,0,4)
  put(life+64,0x40400000,4)
  put(life+24,c.invincible,4);put(side+16,0,4)
  put(core+72,c.callback==1 and 1 or 2,4)
@@ -51,7 +51,7 @@ INSTALL=r'''
  local es=0x7ef100+s*24;for j=0,23 do emu.write(es+j,0,mt)end;put(es,3,4);put(es+4,11,4);put(es+8,12,4);put(es+12,13,4);put(es+20,0xb62f);put(es+22,0)
  put(0x7efd00+s*4,0,4);put(0x43e200+s*16,0);put(0x43e204+s*16,3,4)
  local ov=0x414000+((s+1)%128)*80
- local changes={owner_inputs={sy.SourceLandingCallback4086_InputsReady,0},core_ready={sy.SourceModelEntityCopy4086_Ready,0},weapon_ready={sy.SourceWeapon4086_Ready,0},weapon_owner={0x43e200+s*16,1},damage_inputs={sy.SourceLandingDrop4086_Ready,0},damage_bank={sy.SourceLandingDrop4086_Bank,0x40},damage_bank_high={sy.SourceLandingDrop4086_Bank,0x13a},damage_bytes={sy.SourceLandingDrop4086_Bytes,DIBYTES-1},effects_ready={sy.SourceDamageEffectsState4086_Ready,0},effects_marker={es+20,0},effects_model={es+22,1},rumble_ready={sy.SourceBounceEffects4086_NoRumbleReady,0},script_ready={sy.SourceScriptClone4086_Ready,0},script_mask={rel+44,2},factor_ready={sy.SourceFactors4086_Ready,0},factor_model={0x43b900+s*4,1},factor_marker={0x43b902+s*4,0},health_tag={view+32,2},max_tag={view+64,2},health_reserved={view+34,1},max_reserved={view+66,1},opponent_bank={rel+14,0x42},opponent_alignment={rel+12,0x4001},opponent_token={ov,0},opponent_life_marker={0x43904a+((s+1)%128)*80,0},opponent_model={0x416800+((s+1)%128)*64,1},opponent_player_tag={ov+40,2},magic_MP={sy.SourceLandingCallback4086_MagicType,1},nonunit_offense={0x43281e+s*32,0x4000},unknown_callback={life+8,65535},exploding={0x7efd00+s*4,2}}
+ local changes={owner_inputs={sy.SourceLandingCallback4086_InputsReady,0},core_ready={sy.SourceModelEntityCopy4086_Ready,0},weapon_ready={sy.SourceWeapon4086_Ready,0},weapon_owner={0x43e200+s*16,1},damage_inputs={sy.SourceLandingDrop4086_Ready,0},damage_bank={sy.SourceLandingDrop4086_Bank,0x40},damage_bank_high={sy.SourceLandingDrop4086_Bank,0x13a},damage_bytes={sy.SourceLandingDrop4086_Bytes,DIBYTES-1},effects_ready={sy.SourceDamageEffectsState4086_Ready,0},effects_marker={es+20,0},effects_model={es+22,1},rumble_ready={sy.SourceBounceEffects4086_NoRumbleReady,0},script_ready={sy.SourceScriptClone4086_Ready,0},script_mask={rel+44,2},factor_ready={sy.SourceFactors4086_Ready,0},factor_model={0x43b900+s*4,1},factor_marker={0x43b902+s*4,0},health_tag={view+32,2},max_tag={view+64,2},health_reserved={view+34,1},max_reserved={view+66,1},opponent_bank={rel+14,0x42},opponent_alignment={rel+12,0x4001},opponent_token={ov,0},opponent_life_marker={0x43904a+((s+1)%128)*80,0},opponent_model={0x416800+((s+1)%128)*64,1},opponent_player_tag={ov+40,2},magic_MP={sy.SourceLandingCallback4086_MagicType,1},nonunit_offense={0x43281e+s*32,0x4000},unknown_callback={life+4,65535},exploding={0x7efd00+s*4,2}}
  if c.bad and c.bad~='core_ready'and changes[c.bad]then local r=changes[c.bad];put(r[1],r[2])end
  emu.log('CALLBACKINIT|'..word(INDEX)..'|'..word(sy.SourcePostAir4086_Ready)..'|'..word(sy.SourceLandingCallback4086_Ready))
 '''
@@ -131,7 +131,7 @@ def main():
  asm=ASM.replace(' jsl POSTCHECK\n bcs PostPendingFixture_Bad',' jsl POSTCHECK\n bcs PostPendingFixture_Bad\n lda #11\n jsl WORLDACK\n bcs PostPendingFixture_Bad')
  reporter=Reporter('M4-LANDING-CALLBACK',kind='GATE')
  raw,log=run_fixture(a.rom,a.output,rows,'PostPendingFixture_Run','SourcePostAir4086_Ready',0xb628,[(58,0,ph),(58,0x800,tables[0]),(58,0x1000,tables[1]),(59,0,lp),(60,0x800,ct),(60,0x2000,bt)],lua,reporter,append=asm,
-  bindings=dict(POSTBEGIN='SourcePostAir4086_Begin',POSTCONTINUE='SourcePostAir4086_Continue',POSTCHECK='SourcePostAir4086_CheckAck',WORLDACK='SourceWorldTick4086_Ack',CALLSTATUS='SourceLandingCallback4086_Status',CALLRETURN='SourceLandingCallback4086_ReturnValue'),frame_limit=4000)
+  bindings=dict(POSTBEGIN='SourcePostAir4086_Begin',POSTCONTINUE='SourcePostAir4086_Continue',POSTCHECK='SourcePostAir4086_CheckAck',WORLDACK='SourceWorldTick4086_Ack',CALLSTATUS='SourceLandingCallback4086_Status',CALLRETURN='SourceLandingCallback4086_ReturnValue'),frame_limit=4000,link_pcm=False)
  actual=[[int(lpart)for lpart in l.split('LANDCALLBACK|',1)[1].split('|')]for l in log.splitlines()if'LANDCALLBACK|'in l]
  expected=[[i,0,0,3 if c['fault']else 1 if c['pending']else 2,1 if c['pending']else 2,2 if c['pending']else 0,3 if c['fault']else 1 if c['pending']else 2,c['return_value'],1 if c['pending']else 0,0 if c['pending']else 1]for i,c in enumerate(rows)]
  ok=actual==expected;reporter.check('actual callback IDs, services, source health and force, scalar guardbreak/cheat, source return, actor fences and real POST/world Ack',ok)

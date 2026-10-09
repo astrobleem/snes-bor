@@ -334,8 +334,8 @@ SourceCheckMove4086_IsDue:
 SourceCheckMove4086_Guard27:
 .a16
 .i16
- lda.l $439004,x
- ora.l $439006,x
+ lda.l $439000+SOURCE_LIFECYCLE_TRYMOVE,x
+ ora.l $439002+SOURCE_LIFECYCLE_TRYMOVE,x
  beq SourceCheckMove4086_Guard28
  jmp SourceCheckMove4086_Bad
 SourceCheckMove4086_Guard28:
