@@ -41,13 +41,17 @@ def reference(row, pains, enum):
         result=1
     bits=lambda v:struct.unpack('<I',struct.pack('<f',v))[0]
     values=[result,requested,chosen,current,*map(bits,velocity),*[flags[f]for f in FIELDS],len(events),*events]
-    return struct.pack('<'+'I'*27,*[v&0xffffffff for v in values+[0]*(27-len(values))])
+    unfreeze_called=3000 in events
+    values=values+[0]*(27-len(values))+[0 if chosen!=-1 else 0x12345678,7 if unfreeze_called else 99]
+    return struct.pack('<'+'I'*29,*[v&0xffffffff for v in values])
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True)
     a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
     raw=subprocess.check_output(['git','-C','E:/gh/openbor-bcec','show',ENGINE_COMMIT+':engine/openbor.c']).decode('latin1')
+    header=subprocess.check_output(['git','-C','E:/gh/openbor-bcec','show',ENGINE_COMMIT+':engine/openbor.h']).decode('latin1')
+    at=header.index('#define unfrozen(');unfreeze=header[at:header.index('\n\n',at)]
     function=extract(raw,'set_pain');at=raw.index('#define painflags(');macro=raw[at:raw.index('\n\n',at)]
     ids=configure([]);pains=ids['arrays']['pains'];enum=ids['authority']['enum']
     rows=list(itertools.product((-1,0,1,3,19,20),range(8),((0,0),(5,-1),(5,3),(-1,-1)),(-3,0,1),(0,1),(0,1),(0,1)))
@@ -58,7 +62,7 @@ def main():
 #include <io.h>
 #include <fcntl.h>
 typedef struct entity {struct{float x,y,z;}velocity;struct{struct{int max,current;}guardpoints;}modeldata;
-'''+','.join(['int '+FIELDS[0],*FIELDS[1:]])+''';}entity;
+'''+','.join(['int '+FIELDS[0],*FIELDS[1:]])+''';unsigned freezetime;int map,visiblemap;}entity;
 int max_attack_types=20,animpains[20]={'''+','.join(map(str,pains))+'''};
 enum {ANI_IDLE='''+str(enum['ANI_IDLE'])+',ANI_GRABBED='+str(enum['ANI_GRABBED'])+',ANI_GUARDBREAK='+str(enum['ANI_GUARDBREAK'])+'''};
 int candidate,validmask,frame_mutation,script_mutation,selected,event_count,events[8];
@@ -67,21 +71,21 @@ int validanim(entity*e,int n){event(1000+n);if(n==ANI_IDLE)return !!(validmask&4
 void ent_set_anim(entity*e,int n,int reset){selected=n;event(2000+n);
 if(frame_mutation){e->velocity.x=73;e->velocity.y=74;e->velocity.z=75;
 '''+''.join('e->'+f+'=17;'for f in FIELDS)+'''}}
-void unfrozen(entity*e){event(3000);e->frozen=0;}
+void ent_set_colourmap(entity*e,int n){event(3000);e->visiblemap=n;}
 void execute_onpain_script(entity*e,int t,int r){event(4000);if(script_mutation){e->inpain=-9;e->drop=23;}}
-'''+macro+'\n'+function+'''
-int main(void){int row[8],i,returned;unsigned output[27];entity e;
+'''+unfreeze+'\n'+macro+'\n'+function+'''
+int main(void){int row[8],i,returned;unsigned output[29];entity e;
 setmode(fileno(stdin),O_BINARY);setmode(fileno(stdout),O_BINARY);
 if(sizeof(int)!=4||sizeof(float)!=4)return 1;
 while(fread(row,sizeof(row),1,stdin)==1){memset(&e,0,sizeof(e));memset(output,0,sizeof(output));
 '''+''.join('e.'+f+'=-7;'for f in FIELDS)+'''
-e.velocity.x=37;e.velocity.y=38;e.velocity.z=39;e.modeldata.guardpoints.max=row[2];e.modeldata.guardpoints.current=row[3];e.frozen=row[4];
+e.velocity.x=37;e.velocity.y=38;e.velocity.z=39;e.modeldata.guardpoints.max=row[2];e.modeldata.guardpoints.current=row[3];e.frozen=row[4];e.freezetime=0x12345678;e.map=7;e.visiblemap=99;
 validmask=row[1];frame_mutation=row[5];script_mutation=row[6];selected=-1;event_count=0;
 candidate=row[2]>0&&row[3]<=0?ANI_GUARDBREAK:row[0]==-1||row[0]>=max_attack_types?ANI_GRABBED:animpains[row[0]];
 returned=set_pain(&e,row[0],row[7]);output[0]=returned;output[1]=candidate;output[2]=selected;output[3]=e.modeldata.guardpoints.current;
 memcpy(output+4,&e.velocity.x,4);memcpy(output+5,&e.velocity.y,4);memcpy(output+6,&e.velocity.z,4);
 '''+''.join('output['+str(7+i)+']=e.'+f+';'for i,f in enumerate(FIELDS))+'''
-output[18]=event_count;for(i=0;i<event_count;i++)output[19+i]=events[i];if(fwrite(output,sizeof(output),1,stdout)!=1)return 2;
+output[27]=e.freezetime;output[28]=e.visiblemap;output[18]=event_count;for(i=0;i<event_count;i++)output[19+i]=events[i];if(fwrite(output,sizeof(output),1,stdout)!=1)return 2;
 }return 0;}
 '''
     (out/'set-pain.c').write_text(code)
@@ -91,9 +95,9 @@ output[18]=event_count;for(i=0;i<event_count;i++)output[19+i]=events[i];if(fwrit
     if run.returncode:raise ValueError('SET_PAIN_AUTHORITY_BUILD')
     actual=subprocess.check_output([str(out/'set-pain.exe')],input=payload,cwd=out)
     expected=b''.join(reference(row,pains,enum)for row in rows)
-    mismatches=[i for i in range(len(rows))if actual[i*108:(i+1)*108]!=expected[i*108:(i+1)*108]]
+    mismatches=[i for i in range(len(rows))if actual[i*116:(i+1)*116]!=expected[i*116:(i+1)*116]]
     (out/'inputs.bin').write_bytes(payload);(out/'actual.bin').write_bytes(actual);(out/'expected.bin').write_bytes(expected)
-    report=dict(schema='BYOR_SET_PAIN_4086_AUTHORITY_V1',status='PASS'if actual==expected else'FAIL',engine_commit=ENGINE_COMMIT,source_function_unmodified=True,source_function_sha256=hashlib.sha256(function.encode('latin1')).hexdigest(),source_macro_unmodified=True,source_macro_sha256=hashlib.sha256(macro.encode('latin1')).hexdigest(),cases=len(rows),mismatched_cases=mismatches[:20],actual_bytes=len(actual),expected_bytes=len(expected),actual_sha256=hashlib.sha256(actual).hexdigest(),expected_sha256=hashlib.sha256(expected).hexdigest(),input_sha256=hashlib.sha256(payload).hexdigest(),source_pain_ids=pains,source_role_ids={k:enum[k]for k in('ANI_IDLE','ANI_GRABBED','ANI_GUARDBREAK')},negative_type_below_minus_one_admitted=False,instrumented_children=['validanim','ent_set_anim/frame callback','unfrozen','execute_onpain_script'],native_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
+    report=dict(schema='BYOR_SET_PAIN_4086_AUTHORITY_V1',status='PASS'if actual==expected else'FAIL',engine_commit=ENGINE_COMMIT,source_function_unmodified=True,source_function_sha256=hashlib.sha256(function.encode('latin1')).hexdigest(),source_macro_unmodified=True,source_macro_sha256=hashlib.sha256(macro.encode('latin1')).hexdigest(),cases=len(rows),mismatched_cases=mismatches[:20],actual_bytes=len(actual),expected_bytes=len(expected),actual_sha256=hashlib.sha256(actual).hexdigest(),expected_sha256=hashlib.sha256(expected).hexdigest(),input_sha256=hashlib.sha256(payload).hexdigest(),source_pain_ids=pains,source_role_ids={k:enum[k]for k in('ANI_IDLE','ANI_GRABBED','ANI_GUARDBREAK')},negative_type_below_minus_one_admitted=False,instrumented_children=['validanim','ent_set_anim/frame callback','ent_set_colourmap','execute_onpain_script'],unfreeze_macro_unmodified=True,unfreeze_macro_sha256=hashlib.sha256(unfreeze.encode('latin1')).hexdigest(),unfreeze_authority_path='engine/openbor.h',native_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
     (out/'report.json').write_text(json.dumps(report,indent=2)+'\n')
     print(report['status'],len(rows),'literal set_pain cases','mismatches',len(mismatches))
     if report['status']!='PASS':raise SystemExit(1)

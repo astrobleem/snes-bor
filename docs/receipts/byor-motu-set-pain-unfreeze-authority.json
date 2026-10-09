@@ -1,0 +1,36 @@
+{
+  "schema": "BYOR_SET_PAIN_4086_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_function_unmodified": true,
+  "source_function_sha256": "08e0b5c7f6d695f7a8c8adf04b5ba3e60e56e11a706423f37e2a21fce0a62275",
+  "source_macro_unmodified": true,
+  "source_macro_sha256": "1c59ef63417a546f4afc5a0a567e7aee16e8405c0b8a615fa53bc820b3875b6d",
+  "cases": 4608,
+  "mismatched_cases": [],
+  "actual_bytes": 534528,
+  "expected_bytes": 534528,
+  "actual_sha256": "6fc14726c5f4e1c7b4088502e2ae7b359b186a91e87da534773282b44051d51f",
+  "expected_sha256": "6fc14726c5f4e1c7b4088502e2ae7b359b186a91e87da534773282b44051d51f",
+  "input_sha256": "abf830b2aa2a632ba519db9010b7a72ed0716bb29799ee2c4b4f3967698ef090",
+  "source_role_ids": {
+    "ANI_IDLE": 0,
+    "ANI_GRABBED": 35,
+    "ANI_GUARDBREAK": 149
+  },
+  "negative_type_below_minus_one_admitted": false,
+  "instrumented_children": [
+    "validanim",
+    "ent_set_anim/frame callback",
+    "ent_set_colourmap",
+    "execute_onpain_script"
+  ],
+  "unfreeze_macro_unmodified": true,
+  "unfreeze_macro_sha256": "042b6010be536f964e567e84482e16599b1bba253ebbb6789e79522970dba800",
+  "unfreeze_authority_path": "engine/openbor.h",
+  "native_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "proof_path": "out/byor-motu-set-pain-unfreeze-authority/report.json",
+  "proof_sha256": "f51475168618b75fec08b935a679e08bf67d2a9933ddd206a42beb462bd78c1f"
+}
