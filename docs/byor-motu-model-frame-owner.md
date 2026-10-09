@@ -72,3 +72,28 @@ video frames. The thirteen malformed-input rejections remain PASS. This improves
 the cost but does not establish a one-frame gameplay budget. Receipts are
 `byor-motu-animation-fast-copy-native.json` and
 `byor-motu-model-fast-inheritance-native.json`.
+
+The generic timed owner now joins actual SourceUpdateAnimation Begin/Continue
+with the frame/model continuation. It derives the authored weapon frame from
+its animation deadline instead of installing an update-frame request. Actual
+prefix execution updates the source sleep deadline to 1048 (time 48 plus the
+old model sleepwait 1000). Both authored weapon directions, physical slots
+0/1/127 and colour-map boundaries pass twelve cases. Completion preserves the
+original world self and CPU context while restoring the nested frame stack.
+
+A separate twelve-case proof executes the pure phase-7 completion check before
+Begin and requires rejection. After actual timed completion, the real world Ack
+retires phase 7 without an observer acknowledgement. The fixture still installs
+the world phase: full world traversal and clock commit remain open. The timed
+owner returns external continuation tickets to its caller and leaves world Ack
+ownership there.
+
+Twenty-eight stale entry/resume cases pass at slots 0 and 127. They cover world
+and timed readiness, world fault/time, phase/pending/state, independent canvas
+generation, captured slot/time/side/frame-slot and completed-state slot. Each
+rejects before actor, cache, variable or CPU mutation. These guards do not invoke
+model services. Receipts are byor-motu-model-timed-weapon-native.json,
+byor-motu-model-generic-timed-owner-native.json,
+byor-motu-model-world-phase7-native.json and
+byor-motu-model-timed-guards-native.json under docs/receipts. These are isolated
+native semantic proofs, not MOTU admission or a gameplay timing certification.

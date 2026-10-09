@@ -61,7 +61,13 @@ def rows_for(reports,data):
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--fast-animation-inheritance',action='store_true');p.add_argument('--warm-parent',action='store_true');p.add_argument('--fast-animation-copy',action='store_true');p.add_argument('--generic-frame-owner',action='store_true');p.add_argument('--animated-parent',action='store_true');p.add_argument('--nested-idle',action='store_true');p.add_argument('--effects-owner',action='store_true');p.add_argument('--frame-prefix',action='store_true');p.add_argument('--frame-binding',action='store_true');p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--timed-guards',action='store_true');p.add_argument('--timed-world-ack',action='store_true');p.add_argument('--generic-timed-owner',action='store_true');p.add_argument('--timed-weapon',action='store_true');p.add_argument('--fast-animation-inheritance',action='store_true');p.add_argument('--warm-parent',action='store_true');p.add_argument('--fast-animation-copy',action='store_true');p.add_argument('--generic-frame-owner',action='store_true');p.add_argument('--animated-parent',action='store_true');p.add_argument('--nested-idle',action='store_true');p.add_argument('--effects-owner',action='store_true');p.add_argument('--frame-prefix',action='store_true');p.add_argument('--frame-binding',action='store_true');p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+    if a.timed_guards and a.timed_world_ack:raise ValueError('TIMED_GUARD_ACK_CONFLICT')
+    if a.timed_guards:a.generic_timed_owner=True
+    if a.timed_world_ack:a.generic_timed_owner=True
+    if a.generic_timed_owner:a.timed_weapon=True
+    if a.timed_weapon:a.generic_frame_owner=True
+    if a.timed_weapon and a.warm_parent:raise ValueError('TIMED_WEAPON_WARMUP_CONFLICT')
     if a.fast_animation_inheritance:a.fast_animation_copy=True
     if a.warm_parent:a.generic_frame_owner=True
     if a.generic_frame_owner:a.animated_parent=True
@@ -82,6 +88,18 @@ def main():
             r['effect_count']=len(reports['effects']['animations'][handle-1]['frames'])
             r['wanted_idle_handle']=struct.unpack_from('<H',bytes(r['wanted_animation']))[0]
             r['new_cached_type']=struct.unpack_from('<i',bytes(r['wanted_cache']),156)[0]
+    if a.timed_weapon:
+        from source_animation_step import derive as derive_timing,pack as pack_timing,validate_update_frame_pairing
+        from source_update_animation_inputs import derive as derive_update,pack as pack_update
+        tt=pack_timing(derive_timing(source));validate_update_frame_pairing(tt,data['effects']);update_report=derive_update(source);up=pack_update(update_report)
+        for r in rows:r['wanted_sleep_deadline']=(48+update_report['models'][r['old']]['fields']['sleepwait'])&0xffffffff
+        for name,table in [('animation_timing',tt),('animation_prefix',up)]:
+            addresses[name]=0x8000+len(small);small.extend(table)
+    if a.timed_guards:
+        base=rows[0];rows=[]
+        for slot in (0,127):
+            for bad in ('tick_ready','world_ready','world_fault','world_time','phase','pending','state','timed_ready','canvas_generation','captured_slot','captured_time','captured_side','captured_frame_slot','done_slot'):
+                rows.append(dict(base,slot=slot,fault=1,bad='timed_'+bad))
     script_tables=[]
     if a.nested_idle:
         from script_callback_owner import derive as derive_callbacks
@@ -232,6 +250,36 @@ ModelPipeline_WarmComplete:
 '''
         at=wrapper.index(' jsl SourceUpdateFrame4086_Begin')
         wrapper=wrapper[:at]+warm+wrapper[at:]
+    if a.timed_weapon:
+        wrapper=wrapper.replace(' jsl SourceUpdateFrame4086_Begin\n bcs ModelPipeline_EntryBad\n cmp #1',' jsl SourceUpdateAnimation4086_Begin\n bcs ModelPipeline_EntryBad\n cmp #1')
+        end=wrapper.index(' ply',wrapper.index('ModelPipeline_GenericLoop:'))
+        wrapper=wrapper[:end]+''' jsl SourceUpdateAnimation4086_Continue
+ bcs ModelPipeline_EntryBad
+'''+wrapper[end:]
+    if a.generic_timed_owner:
+        start=wrapper.index(' jsl SourceUpdateAnimation4086_Begin');end=wrapper.index(' ply',start)
+        wrapper=wrapper[:start]+''' ldx #1
+ ldy #0
+ModelPipeline_TimedLoop:
+.a16
+.i16
+ jsl ModelTimedFrameOwner_Run
+ bcs ModelPipeline_EntryBad
+ cmp #$8001
+ beq ModelPipeline_TimedLoop
+ cmp #0
+ bne ModelPipeline_EntryBad
+'''+wrapper[end:]
+    if a.timed_world_ack:
+        at=wrapper.index(' ldx #1',wrapper.index(' jsl SourceAttackTiming4086_Load'))
+        wrapper=wrapper[:at]+''' jsl SourceUpdateAnimation4086_CheckWorldAck
+ bcc ModelPipeline_EntryBad
+'''+wrapper[at:]
+        at=wrapper.index(' ply',wrapper.index('ModelPipeline_TimedLoop:'))
+        wrapper=wrapper[:at]+''' lda #7
+ jsl SourceWorldTick4086_Ack
+ bcs ModelPipeline_EntryBad
+'''+wrapper[at:]
     import re
     serial=[0]
     def relax(m):
@@ -245,6 +293,9 @@ ModelPipeline_WarmComplete:
     if a.generic_frame_owner:
         from source_frame_model_owner_native import emit as frame_models
         assembly+=frame_models(sy)
+    if a.generic_timed_owner:
+        from source_frame_model_owner_native import emit_timed
+        assembly+=emit_timed(sy)
     if a.fast_animation_copy:
         from source_model_animation_copy_fast_native import emit as fast_copy
         assembly+=fast_copy(sy,copy_loop=a.fast_animation_inheritance)
@@ -414,6 +465,42 @@ end,emu.callbackType.exec,FAULT,FAULT,emu.cpuType.snes,mt)
         lua=lua.replace(' for i=0,19 do emu.write(0x41f500+c.slot*20+i,0,mt)end',' for i=0,19 do emu.write(0x41f500+c.slot*20+i,0,mt)end;put(0x41f510+c.slot*20,1)')
     if a.warm_parent:
         lua+='\nemu.addMemoryCallback(function()local s=emu.getState();emu.log("PIPELINEWARM|"..word(INDEX).."|"..(s.masterClock-begin_clock).."|"..(s["ppu.frameCount"]-begin_field));begin_clock=s.masterClock;begin_field=s["ppu.frameCount"]end,emu.callbackType.exec,WARM,WARM,emu.cpuType.snes,mt)\n'
+    if a.timed_weapon:
+        install=''' set('SourceWorldTick4086_Ready',0xb4d5);set('SourceWorldTick4086_State',1);set('SourceWorldTick4086_Fault',0);set('SourceWorldTick4086_Pending',1);set('SourceWorldTick4086_Phase',7);set('SourceWorldTick4086_Slot',c.slot);set('SourceWorldTick4086_View',0x4000+c.slot*80);set('SourceWorldTick4086_Side',0x6800+c.slot*64);put(sy.SourceWorldTick4086_TimeLo,48,4)
+ put(sy.SourceSelf4086_GlobalLow,v,4);set('SourceFreeze4086_Ready',0xb5df)
+ set('SourceUpdateAnimationPrefix4086_Ready',0xb60d);set('SourceUpdateAnimationPrefix4086_Status',0);set('SourceUpdateAnimationPrefix4086_Base',address.animation_prefix);set('SourceUpdateAnimationPrefix4086_Bank',58);set('SourceUpdateAnimationPrefix4086_Bytes',UPBYTES);set('SourceUpdateAnimationPrefix4086_Models',16);set('SourceUpdateAnimationPrefix4086_SleepID',SLEEPID)
+ set('SourceUpdateAnimation4086_Ready',0xb60f);set('SourceUpdateAnimation4086_State',0);set('SourceUpdateAnimation4086_Base',address.animation_timing);set('SourceUpdateAnimation4086_Bank',58);set('SourceUpdateAnimation4086_Bytes',TTBYTES)
+ put(side+6,c.source_event.frame-1);put(side+8,48,4);put(side+16,0,4)
+ for i=0,47 do emu.write(0x439000+c.slot*80+i,0,mt)end
+ for i=0,39 do emu.write(0x42e000+c.slot*40+i,0,mt)end
+ put(0x43d800+c.slot*4,0,4)
+ before={};for _,r in ipairs(ranges)'''
+        install=install.replace('UPBYTES',str(len(up))).replace('TTBYTES',str(len(tt))).replace('SLEEPID',str(update_report['sleep_animation_id']))
+        lua=lua.replace(" before={};for _,r in ipairs(ranges)",install)
+        lua=lua.replace(' value(side+4,c.wanted_idle_handle,2);',' value(0x43eb18+c.slot*32,c.wanted_sleep_deadline,4);\n value(side+4,c.wanted_idle_handle,2);')
+        lua=lua.replace('word(sy.SourceSelf4086_GlobalLow)~=0x4000+80*((c.slot+1)%128)', 'word(sy.SourceSelf4086_GlobalLow)~=0x4000+80*c.slot')
+        lua=lua.replace(" if c.fault==0 and (word(sy.SourceUpdateFrame4086_State)"," if word(sy.SourceUpdateAnimation4086_State)~=2 or word(sy.SourceUpdateAnimation4086_Action)~=1 or word(sy.SourceWorldTick4086_Phase)~=7 or word(sy.SourceWorldTick4086_Pending)~=1 then n=n+1 end\n if c.fault==0 and (word(sy.SourceUpdateFrame4086_State)")
+        lua+='\nemu.addMemoryCallback(function()emu.log("TIMEDFAULT|"..word(INDEX).."|prefix="..word(sy.SourceUpdateAnimationPrefix4086_Status).."|frame="..word(sy.SourceUpdateFrame4086_State))end,emu.callbackType.exec,'+str(sy['SourceUpdateAnimation4086_Bad'])+','+str(sy['SourceUpdateAnimation4086_Bad'])+',emu.cpuType.snes,mt)\n'
+    if a.timed_world_ack:
+        lua=lua.replace('word(sy.SourceWorldTick4086_Pending)~=1','word(sy.SourceWorldTick4086_Pending)~=0 or word(sy.SourceWorldTick4086_Fault)~=0')
+    if a.timed_guards:
+        lua=lua.replace(" before={};for _,r in ipairs(ranges)",''' set('SourceUpdateAnimation4086_Slot',c.slot);set('SourceUpdateAnimation4086_Side',0x6800+c.slot*64);put(sy.SourceUpdateAnimation4086_TimeLo,48,4)
+ if c.bad=='timed_tick_ready'then set('SourceWorldTick4086_Ready',0)
+ elseif c.bad=='timed_world_ready'then set('VmSourceWorld_Ready',0)
+ elseif c.bad=='timed_world_fault'then set('SourceWorldTick4086_Fault',1)
+ elseif c.bad=='timed_world_time'then put(sy.SourceWorldTick4086_TimeLo,49,4)
+ elseif c.bad=='timed_phase'then set('SourceWorldTick4086_Phase',6)
+ elseif c.bad=='timed_pending'then set('SourceWorldTick4086_Pending',0)
+ elseif c.bad=='timed_state'then set('SourceWorldTick4086_State',2)
+ elseif c.bad=='timed_timed_ready'then set('SourceUpdateAnimation4086_Ready',0)
+ elseif c.bad=='timed_canvas_generation'then put(sy.SourceForeignWork_Generation,2,4)
+ elseif c.bad=='timed_captured_slot'then set('SourceUpdateAnimation4086_State',1);set('SourceUpdateAnimation4086_Slot',(c.slot+1)%128)
+ elseif c.bad=='timed_captured_time'then set('SourceUpdateAnimation4086_State',1);put(sy.SourceUpdateAnimation4086_TimeLo,49,4)
+ elseif c.bad=='timed_captured_side'then set('SourceUpdateAnimation4086_State',1);set('SourceUpdateAnimation4086_Side',0x6802+c.slot*64)
+ elseif c.bad=='timed_captured_frame_slot'then set('SourceUpdateAnimation4086_State',1);set('SourceUpdateFrame4086_Slot',(c.slot+1)%128)
+ elseif c.bad=='timed_done_slot'then set('SourceUpdateAnimation4086_State',2);set('SourceUpdateAnimation4086_Slot',(c.slot+1)%128)end
+ before={};for _,r in ipairs(ranges)''')
+        lua=lua.replace(' if word(sy.SourceUpdateAnimation4086_State)~=2 or word(sy.SourceUpdateAnimation4086_Action)~=1 or word(sy.SourceWorldTick4086_Phase)~=7 or word(sy.SourceWorldTick4086_Pending)~=1 then n=n+1 end','')
     lua='local LIFE_KNOCKDOWN='+luav([list(struct.pack('<f',m['fields']['knockdowncount']))for m in reports['lifecycle']['models']])+'\nlocal FACTOR_VECTORS='+luav([list(bytes.fromhex(m['vector_hex']))for m in reports['factors']['models']])+'\nlocal BODY_ROWS='+luav([list(data['body'][16+i*9:25+i*9])for i in range(16)])+'\n'+lua
     values=dict(CACHEBYTES=len(data['animation_cache']),MAXIMUM=maximum,AIBYTES=len(data['animations']),FEBYTES=len(data['effects']),ANIMATIONS=len(reports['animations']['animations']),SCRIPTBYTES=len(data['scripts']),CALLBACKBYTES=len(data['callbacks']),PROGRAMS=reports['callbacks']['program_count'],FACTORBYTES=len(data['factors']),LIFEBYTES=len(data['lifecycle']),BODYBYTES=len(data['body']),OFFSCREENBYTES=len(data['offscreen']),DEATHBYTES=len(data['death']),TIMINGBYTES=len(data['timing']),WEAPONBYTES=len(data['weapon']),DEFAULTMODEL=rows[0]['old'],STYLES=styles,HANDLES=rh,RUNWORK=rw)
     import re
@@ -432,17 +519,18 @@ end,emu.callbackType.exec,FAULT,FAULT,emu.cpuType.snes,mt)
         at=offset(sy['SourceModelEntityCopy4086_Apply'])
         if raw[at:at+5]!=bytes.fromhex('08 c2 38 da 5a'):raise ValueError('MODEL_PIPELINE_COPY_HOOK')
         raw[at:at+5]=b'\x5c'+struct.pack('<I',linked['SourceRunTuple_EntityCopyBridge'])[:3]+b'\xea'
+        if a.generic_timed_owner and linked['ModelTimedFrameOwner_Bad']>>16!=39:raise ValueError('MODEL_TIMED_FRAME_OWNER_BANK')
         if a.generic_frame_owner and linked['ModelFrameOwner_Bad']>>16!=39:raise ValueError('MODEL_FRAME_OWNER_CODE_BANK')
         if linked['SourceRunTuple_EntityCopyOriginal']>>16!=39 or linked['ModelPipeline_CodeEnd']>>16!=39:raise ValueError('MODEL_PIPELINE_CODE_BANK')
     r=Reporter('M4-MODEL-SERVICES-PIPELINE',kind='GATE');raw,log=run_fixture(a.rom,a.output,rows,'ModelPipeline_Apply','SourceModelTransition4086_Ready',0xb4f0,script_tables+[(58,0,bytes(small)),(59,0,data['animations']),(60,0,data['effects'])],lua,r,batch_size=4,append=assembly,rom_transform=hook,probes={**({'WARM':'ModelPipeline_WarmComplete'}if a.warm_parent else{}),'SERVICE':'ModelPipeline_Loop','FAULT':'ModelPipeline_Bad','SNAPSHOT':'ModelSnapshotService_BeginAbsent'},link_pcm=False)
     r.check('bank 0 remains byte-identical',raw[:32768]==a.rom.read_bytes()[:32768])
     results=[line.split('PIPELINERESULT|',1)[1].split('|')for line in log.splitlines()if 'PIPELINERESULT|'in line]
-    r.check('actual weapon resolve, all six native services, exact copied source state and unchanged foreign rows/variables/CPU',results==[[str(i),'0','0','3'if c['fault']else'2','1'if c['fault']else'1,2,3,5,6,7,0']for i,c in enumerate(rows)])
+    r.check('actual weapon resolve, all six native services, exact copied source state and unchanged foreign rows/variables/CPU',results==[[str(i),'0','0','0'if a.timed_guards else'3'if c['fault']else'2',''if a.timed_guards else'1'if c['fault']else'1,2,3,5,6,7,0']for i,c in enumerate(rows)])
     costs=[list(map(int,line.split('PIPELINECOST|',1)[1].split('|')))for line in log.splitlines()if 'PIPELINECOST|'in line]
     phases=[line.split('PIPELINEPHASE|',1)[1].split('|')for line in log.splitlines()if 'PIPELINEPHASE|'in line]
     r.check('native cost samples complete',len(costs)==len(rows))
     warm_costs=[list(map(int,line.split('PIPELINEWARM|',1)[1].split('|')))for line in log.splitlines()if 'PIPELINEWARM|'in line]
-    report=dict(native_frame_zero_warmup=a.warm_parent,warmup_costs=warm_costs,cpu_phases=phases,cpu_costs=costs,fast_animation_inheritance=a.fast_animation_inheritance,fast_animation_copy=a.fast_animation_copy,generic_frame_model_owner=a.generic_frame_owner,schema='BYOR_4086_MODEL_SERVICES_PIPELINE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,bundle=manifest,all_services_native=True,observer_acknowledgements=False,source_request_registers_poisoned=a.frame_binding,source_effect_cursor_after_weapon=4 if a.frame_binding else None,update_frame_completion_bound=a.nested_idle,actual_frame_event_dispatch=a.frame_binding,update_frame_prefix_instrumented=a.frame_binding and not a.frame_prefix,actual_update_frame_begin=a.frame_prefix,actual_frame_effect_owner=a.effects_owner,actual_set_idle_prepare=a.effects_owner,animation_callback_invoked=a.nested_idle,source_animating_zero_fixture=a.frame_prefix and not a.animated_parent,actual_parent_animation_callback=a.animated_parent,idle_frame_zero_bound=a.nested_idle,pool_and_leases_installed_by_fixture=True,full_gameplay_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+    report=dict(timed_entry_guards=a.timed_guards,actual_world_phase7_ack=a.timed_world_ack,early_phase7_completion_guard_executed=a.timed_world_ack,full_world_tick_committed=False,generic_timed_frame_owner=a.generic_timed_owner,actual_timed_animation_owner=a.timed_weapon,world_phase_installed_by_fixture=a.timed_weapon,native_frame_zero_warmup=a.warm_parent,warmup_costs=warm_costs,cpu_phases=phases,cpu_costs=costs,fast_animation_inheritance=a.fast_animation_inheritance,fast_animation_copy=a.fast_animation_copy,generic_frame_model_owner=a.generic_frame_owner,schema='BYOR_4086_MODEL_SERVICES_PIPELINE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,bundle=manifest,all_services_native=True,observer_acknowledgements=False,source_request_registers_poisoned=a.frame_binding,source_effect_cursor_after_weapon=4 if a.frame_binding else None,update_frame_completion_bound=a.nested_idle,actual_frame_event_dispatch=a.frame_binding,update_frame_prefix_instrumented=a.frame_binding and not a.frame_prefix,actual_update_frame_begin=a.frame_prefix,actual_frame_effect_owner=a.effects_owner,actual_set_idle_prepare=a.effects_owner,animation_callback_invoked=a.nested_idle,source_animating_zero_fixture=a.frame_prefix and not a.animated_parent,actual_parent_animation_callback=a.animated_parent,idle_frame_zero_bound=a.nested_idle,pool_and_leases_installed_by_fixture=True,full_gameplay_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');r.finish()
 
 if __name__=='__main__':main()
