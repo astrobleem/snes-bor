@@ -1,0 +1,15 @@
+{
+  "schema": "BYOR_COUNT_ENTITIES_RECEIPT_V1",
+  "status": "PASS",
+  "cases": 173,
+  "source_ent_max_domain": 128,
+  "source_function_sha256": "727838ce7586987e7106d1dab78093c5e7b20f181b24af3d429a4221c644ea53",
+  "proof_path": "out/byor-motu-count-entities-generation-native/report.json",
+  "proof_sha256": "b671cb443edf851bf57652bb816d4546c4e2a92614bce05786dc6adf3ae8565e",
+  "rom_sha256": "38e10579d77f5d62013994b0da4d10d72cbac0aacdc4f2514fe0db366c46789f",
+  "native_item_drop_bound": false,
+  "native_boss_completion_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
