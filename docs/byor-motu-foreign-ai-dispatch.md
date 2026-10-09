@@ -82,3 +82,19 @@ type, and does not admit a live pickup implementation. A matching live
 candidate still fails explicitly, as checked by the retained 334-case native
 empty-search proof. Source-defined items are not an outstanding MOTU model
 requirement; full combat targeting and live world traversal remain open.
+
+`--foreign-ai-native-target` now binds the generic ranged target service to
+the player dispatcher before its target continuation. All 248 constructor
+and controller cases pass, including eight actual target queries followed by
+real attack frame-zero callbacks, think-script validation and world phase-6
+acknowledgment. The eight existing stale-frame faults still retain the world
+service and set its fault. Current candidate rows and the core-type override
+that forces the ranged conditional branch are explicit instrumented inputs;
+this is not an authored concurrent combat scene. The clock remains at 48.
+
+The added code occupies private bank 57; derived frame and range descriptors
+occupy verified private banks 54 and 55. No arena allocation or bank-0 code
+is added. The width guard passes all 9,825 labels with zero violations and
+zero baseline entries. Reproduction flags and the bounded result are in
+`docs/receipts/byor-motu-foreign-ai-native-target.json`. Full world traversal,
+production installation, authored combat and Demo completion remain open.

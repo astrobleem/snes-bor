@@ -81,6 +81,7 @@ def main():
     p.add_argument('--foreign-ai-player',action='store_true',help='Run the admitted player controller as actual check_ai think callback; isolated world service.')
     p.add_argument('--natural-jump-delay',action='store_true',help='Actual timed owner ends JUMPDELAY at its source deadline before common_prejump; controlled clock.')
     p.add_argument('--foreign-ai-world-ack',action='store_true',help='Actual world phase-6 acknowledgment after foreign player dispatch, including explicit fault rejection.')
+    p.add_argument('--foreign-ai-native-target',action='store_true',help='Bind actual ranged target service before player continuation; target input rows instrumented.')
     p.add_argument('--canonical-jump-entry',action='store_true',help='Actual ordered source jump input branch before tryjump and real JUMPDELAY.')
     p.add_argument('--canonical-dojump',action='store_true',help='Continue actual delayed jump through mandatory sound, real entity toss and real JUMP frame.')
     p.add_argument('--canonical-tryjump',action='store_true',help='Execute actual tryjump/JUMPDELAY and common_prejump through the real frame owner; DO_JUMP stays required.')
@@ -122,6 +123,7 @@ def main():
     if a.foreign_ai_player and not(a.player_controller and a.script_clone)or a.foreign_ai_player and a.foreign_ai_jump:raise ValueError('FOREIGN_AI_PLAYER_REQUIRES_ISOLATED_CONTROLLER')
     if a.natural_jump_delay and not a.foreign_ai_jump:raise ValueError('NATURAL_JUMP_DELAY_REQUIRES_FOREIGN_AI')
     if a.foreign_ai_world_ack and not a.foreign_ai_player:raise ValueError('WORLD_AI_ACK_REQUIRES_PLAYER_DISPATCH')
+    if a.foreign_ai_native_target and not a.foreign_ai_player:raise ValueError('NATIVE_TARGET_REQUIRES_PLAYER_DISPATCH')
     if a.canonical_jump_entry and (not a.canonical_tryjump or a.canonical_dojump):raise ValueError('JUMP_ENTRY_REQUIRES_TRYJUMP_FIXTURE')
     if a.canonical_dojump and not a.canonical_tryjump:raise ValueError('DOJUMP_REQUIRES_ACTUAL_TRYJUMP')
     if a.canonical_tryjump and not(a.pending_jump_birth and a.initial_select and a.frame_owner):raise ValueError('TRYJUMP_REQUIRES_ACTUAL_CONSTRUCTOR_AND_FRAME_OWNER')
@@ -385,6 +387,15 @@ def main():
         for i in range(len(context_report['stages'])):
             pointer=struct.unpack_from('<I',context_bundle,i*32+24)[0];struct.pack_into('<I',context_bundle,i*32+24,(58<<16)|(pointer&65535))
         raw[58*32768:58*32768+len(context_bundle)]=context_bundle
+    if a.foreign_ai_native_target:
+        from source_frame_state_4086 import derive as derive_target_frames,pack as pack_target_frames
+        from source_animation_range_4086 import derive as derive_target_ranges,pack as pack_target_ranges
+        target_frame_ir=derive_target_frames(source);target_frame_table=pack_target_frames(target_frame_ir);target_range_table=pack_target_ranges(derive_target_ranges(source))
+        for bank,table in((54,target_frame_table),(55,target_range_table)):
+            if len(table)>32768 or raw[bank*32768:(bank+1)*32768]!=bytes(32768):raise ValueError('FOREIGN_AI_TARGET_TABLE_OWNERSHIP')
+            raw[bank*32768:bank*32768+len(table)]=table
+        enemy_names={m['identity']:m['id']for m in model_core_inputs(source)['models']if m['fields']['type']==2}
+        target_frame=next((enemy_names[an['model']],an['handle'],i)for an in target_frame_ir['animations']if an['model']in enemy_names for i,f in enumerate(an['frames'])if f['vulnerable'])
     asm='''.snes
 .bank 39
 .org $8000
@@ -1475,6 +1486,18 @@ CallbackFixture_ForeignLegacyDone:
         start=asm.index('PlayerController_Begin:');prefix,tail=asm[:start],asm[start:]
         for name,target in (('Begin','Begin'),('FinishFrame','Continue'),('FinishSound','FinishSound')):
             prefix=prefix.replace(' jsl PlayerController_'+name+'\n',' jsl ForeignAIRun_'+target+'\n')
+        if a.foreign_ai_native_target:
+            needle='CallbackFixture_SpecialDispatch:\n.a16\n.i16\n'
+            if prefix.count(needle)!=1:raise ValueError('FOREIGN_TARGET_DISPATCH_GATE')
+            prefix=prefix.replace(needle,needle+''' cmp #$8002
+ bne CallbackFixture_NoForeignTarget
+ jsl ForeignAIRun_ResumeTarget
+ bcs CallbackFixture_Bad
+ jmp CallbackFixture_SpecialDispatch
+CallbackFixture_NoForeignTarget:
+.a16
+.i16
+''',1)
         if a.foreign_ai_world_ack:
             needle='CallbackFixture_SpecialDone:\n.a16\n.i16\n nop'
             prefix=prefix.replace(needle,needle+f'''
@@ -1499,7 +1522,10 @@ CallbackFixture_WorldAIComplete:
         asm=prefix+tail+'\nCallbackFixture_MainEnd:\n.a16\n.i16\n.bank 57\n.org $8000\n'
         asm+=emit_dojump(dj,pending_work,derive_dojump(source),sy)
         asm+=emit_common_jump(dj,pending_work,gr['run_tuple_controls'],derive_common_jump(source),role_id(config,'jumpland'),sy,57)
-        asm+=emit_foreign_ai(tj,dj,pe,jump_sample,sy)
+        asm+=emit_foreign_ai(tj,dj,pe,jump_sample,sy,target_service='NormalTarget_AttackChain'if a.foreign_ai_native_target else None)
+        if a.foreign_ai_native_target:
+            from source_normal_target_native import emit as emit_native_target
+            asm+=emit_native_target(sy,chain=ac)
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -2341,6 +2367,28 @@ emu.addMemoryCallback(function()
  if n==0 then put({b}+4,1,2)elseif n==1 then put(sy.SourceAnimationInit4086_Slot,1,2)elseif n==2 then put(sy.SourceAnimationInit4086_Number,99,2)elseif n==3 then put({pe}+6,1,2)end
 end,emu.callbackType.exec,{fs['PlayerController_GroundFinish']},{fs['PlayerController_GroundFinish']},emu.cpuType.snes,mt)
 """
+    if a.foreign_ai_native_target:
+        target_model,target_handle,target_pos=target_frame
+        lua+=f'''
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1]
+ set('SourceTargetMeta4086_Ready',0xb5f2);set('SourceTargetMeta4086_Status',0);set('SourceTarget4086_OrderReady',0xb4d3)
+ set('SourceCollisionFrame4086_Ready',0xb5ee);set('SourceCollisionFrame4086_Bank',54);set('SourceCollisionFrame4086_Bytes',{len(target_frame_table)})
+ set('SourceModelAttackPolicy4086_Ready',0xb5f0);set('SourceModelAttackPolicy4086_Models',16);set('SourceModelEntityCopy4086_Entities',128);set('SourceLifecycle4086_Models',16)
+ set('SourceAITarget4086_Ready',0xb5f3);set('SourceAITarget4086_Status',0);set('SourceEntityRange4086_Ready',0xb5f9);set('SourceEntityRange4086_Status',0)
+ set('SourceAnimationRange4086_Ready',0xb5f8);set('SourceAnimationRange4086_Status',0);set('SourceAnimationRange4086_Bank',55);set('SourceAnimationRange4086_Bytes',{len(target_range_table)})
+ set('SourceCheckRange4086_Ready',0xb5f7);set('SourceCheckRange4086_Status',0);set('VmSourceEntity_Ready',0xb5ef);set('VmSourceEntity_Base',0x4000);set('VmSourceEntity_Bank',0x41);set('VmSourceEntity_Count',128)
+ for j=0,127 do put(0x41f200+2*j,j,2)end
+ if c.controller_case~=8 or c.controller_run_mode~=0 then return end
+ -- Force the source's conditional ranged branch through an explicit core
+ -- type input. This is an isolated controller vector, not an authored scene.
+ put(0x40c048,2,4)
+ local v=0x414050;put(v,v,4);put(v+4,1,4);put(v+8,2,4);put(v+12,dw(0x41400c),4);put(v+24,1,4);put(v+28,1,4);put(v+48,2,4);put(v+52,(dw(0x414034)+(c.direction==0 and -10 or 10)*65536)&0xffffffff,4);put(v+56,2,4);put(v+60,dw(0x41403c),4)
+ put(0x416840,{target_model},2);put(0x416844,{target_handle},2);put(0x416846,{target_pos},2);put(0x416870,dw(0x416830),4)
+ put(0x40c0a8,2,4);put(0x40c088,1,4);put(0x439064,0,4);put(0x439068,0,4);put(0x439098,{target_model},2);put(0x43909a,0xb4fb,2);put(0x42f42c,0,4)
+end,emu.callbackType.exec,{fs['PlayerEarly_Begin']},{fs['PlayerEarly_Begin']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()emu.log('FOREIGNNATIVETARGET|'..word(INDEX)..'|'..word(sy.SourceAITarget4086_Status)..'|'..dw(sy.SourceAITarget4086_Result)..'|'..word({ac}+18)..'|'..word({pe}+2)..'|'..word({ak}+2))end,emu.callbackType.exec,{fs['PlayerController_ResumeTarget']},{fs['PlayerController_ResumeTarget']},emu.cpuType.snes,mt)
+'''
     if a.canonical_jump_attack:
         lua+=f"""emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1]
@@ -2853,6 +2901,11 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         phases=[list(map(int,line.split('FOREIGNPLAYERPHASE|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'FOREIGNPLAYERPHASE|'in line]
         reporter.check('admitted player controller executes actual think/script sequence and retains world service; frame faults remain explicit',ai_player==[[i,3 if 'controller_guard'in c else 2,2 if 'controller_guard'in c else 5,1,48]for i,c in enumerate(rows)]and phases==[[i,p]for i,c in enumerate(rows)for p in([2]if'controller_guard'in c else[2,3,5])])
         r.update(foreign_ai_player_dispatch_bound=True,foreign_ai_player_results=ai_player,foreign_ai_player_phase_results=phases,production_foreign_ai_bound=False,foreign_ai_private_extra_bank=57,foreign_ai_private_main_bytes=len(fixture),foreign_ai_private_extra_bytes=len(extra),production_player_think_bound=False)
+        if a.foreign_ai_native_target:
+            native_targets=[list(map(int,line.split('FOREIGNNATIVETARGET|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'FOREIGNNATIVETARGET|'in line]
+            target_expected=[[i,2,0x414050,0xb676,8,6]for i,c in enumerate(rows)if c['controller_case']==8 and c['controller_run_mode']==0]
+            reporter.check('actual player dispatcher publishes native ranged target then runs real attack frame and completes world AI service',native_targets==target_expected)
+            r.update(foreign_ai_native_target_bound=True,foreign_ai_native_target_results=native_targets,target_candidate_inputs_and_self_type_instrumented=True,authored_concurrent_combat_scene_proven=False)
         if a.foreign_ai_world_ack:
             world_ack=[list(map(int,line.split('WORLDACKAI|',1)[1].split('|')))for line in(folder/'mesen.log').read_text().splitlines()if'WORLDACKAI|'in line]
             reporter.check('actual world owner acknowledges completed AI phase and retains faulted AI without committing clock',world_ack==[[i,1,6,1 if'controller_guard'in c else 0,1 if'controller_guard'in c else 0,48]for i,c in enumerate(rows)])

@@ -1,0 +1,98 @@
+{
+  "schema": "BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1",
+  "status": "PASS",
+  "rom_sha256": "6287f7b07ec605a92d6b2757ed0dce7db9988eeb08b0c7475165bc0a2d6ce5dc",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "foreign_ai_native_target_bound": true,
+  "foreign_ai_native_target_results": [
+    [
+      192,
+      2,
+      4276304,
+      46710,
+      8,
+      6
+    ],
+    [
+      193,
+      2,
+      4276304,
+      46710,
+      8,
+      6
+    ],
+    [
+      194,
+      2,
+      4276304,
+      46710,
+      8,
+      6
+    ],
+    [
+      195,
+      2,
+      4276304,
+      46710,
+      8,
+      6
+    ],
+    [
+      196,
+      2,
+      4276304,
+      46710,
+      8,
+      6
+    ],
+    [
+      197,
+      2,
+      4276304,
+      46710,
+      8,
+      6
+    ],
+    [
+      198,
+      2,
+      4276304,
+      46710,
+      8,
+      6
+    ],
+    [
+      199,
+      2,
+      4276304,
+      46710,
+      8,
+      6
+    ]
+  ],
+  "target_candidate_inputs_and_self_type_instrumented": true,
+  "authored_concurrent_combat_scene_proven": false,
+  "foreign_ai_world_ack_bound": true,
+  "whole_world_traversal_bound": false,
+  "production_foreign_ai_bound": false,
+  "production_player_think_bound": false,
+  "no_color_reduction": true,
+  "motu_gameplay_proven": false,
+  "foreign_ai_private_main_bytes": 31076,
+  "foreign_ai_private_extra_bytes": 5670,
+  "full_report_sha256": "3643c3e67920fb98892b7c29530d7c4884c3eb498c174712ffa71e02a54c56a8",
+  "native_cases": 248,
+  "native_target_queries": 8,
+  "valid_controller_cases": 240,
+  "explicit_frame_guard_cases": 8,
+  "additional_arena_bytes": 0,
+  "bank_zero_code_bytes": 0,
+  "no_pcm_copies": true,
+  "width_guard": {
+    "labels": 9825,
+    "new": 0,
+    "baselined": 0,
+    "stale": 0
+  },
+  "reproduce_flags": "--effects-runner --frame-owner --initial-select --default-owner --ctor-owner --freeze-state --ai-state-birth --player-state-birth --run-tuple-birth --pending-jump-birth --early-player --early-attack --early-jump-entry --player-controller --foreign-ai-player --foreign-ai-world-ack --foreign-ai-native-target --ctor-state --ctor-factors --ctor-model --script-clone"
+}
