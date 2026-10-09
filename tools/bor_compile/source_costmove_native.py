@@ -604,3 +604,52 @@ SourceComboEnergy_Fault:
     code=re.sub(r'^ (beq|bcc) SourceComboEnergy_FalseNear$',
         lambda m:' '+dict(beq='bne',bcc='bcs')[m[1]]+' SourceComboEnergy_Absent_'+str(m.start())+'\n jmp SourceComboEnergy_FalseNear\nSourceComboEnergy_Absent_'+str(m.start())+':\n.a16\n.i16',code,flags=re.M)
     return code
+
+
+def emit_single_energy_query(work,symbols):
+    """Pure check_energy for caller-selected HP(0) or MP(1), at work+58.
+
+    Share canonical capture and validation, not the MP-first combo policy.
+    The special continuation controls query order and invokes exactly one test.
+    """
+    code=emit_combo_energy_query(work,symbols).replace('SourceComboEnergy_','SourceSingleEnergy_')
+    start=code.index('SourceSingleEnergy_EnergyFields:')
+    end=code.index('SourceSingleEnergy_FalseNear:',start)
+    code=code[:start]+f'''SourceSingleEnergy_EnergyFields:
+.a16
+.i16
+ lda.l {work}+58
+ cmp #2
+ bcc SourceSingleEnergy_WhichValid
+ jmp SourceSingleEnergy_Fault
+SourceSingleEnergy_WhichValid:
+.a16
+.i16
+ sta.l {symbols['SourceCheckEnergy4086_Which']}
+ lda #1
+ sta.l {symbols['SourceCheckEnergy4086_Present']}
+ lda #0
+ sta.l {symbols['SourceCheckEnergy4086_Present']}+2
+ sta.l {symbols['SourceCheckEnergy4086_Which']}+2
+ jsl {symbols['SourceCheckEnergy4086_Execute']}
+ bcc SourceSingleEnergy_Result
+ jmp SourceSingleEnergy_Fault
+SourceSingleEnergy_Result:
+.a16
+.i16
+ lda.l {symbols['SourceCheckEnergy4086_Result']}
+ ora.l {symbols['SourceCheckEnergy4086_Result']}+2
+ bne SourceSingleEnergy_True
+'''+code[end:]
+    # Validate Which even when the animation is absent and capture returns early.
+    code=code.replace('SourceSingleEnergy_Lease:\n.a16\n.i16',f'''SourceSingleEnergy_Lease:
+.a16
+.i16
+ lda.l {work}+58
+ cmp #2
+ bcc SourceSingleEnergy_EntryWhichValid
+ jmp SourceSingleEnergy_Fault
+SourceSingleEnergy_EntryWhichValid:
+.a16
+.i16''')
+    return code

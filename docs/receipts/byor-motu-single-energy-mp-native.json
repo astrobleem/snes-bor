@@ -1,0 +1,15 @@
+{
+  "schema": "BYOR_4086_SINGLE_ENERGY_NATIVE_V1",
+  "which": 1,
+  "status": "PASS",
+  "cases": 196,
+  "errors": [],
+  "rom_sha256": "fd76bb0b36b33a60e3eb15580dcc685645d135b1684cdba67e30501f44290b0c",
+  "peak_master_clocks": 45534,
+  "private_energy_descriptors_instrumented": true,
+  "production_player_owner_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "decimal_entry_preserved": true,
+  "no_pcm_copies": true
+}

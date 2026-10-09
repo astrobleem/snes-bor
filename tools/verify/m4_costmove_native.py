@@ -4,7 +4,7 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'bor_compile'))
 from compiler import Source
 from source_costmove_authority import cases
-from source_costmove_native import emit,emit_combo_energy_query
+from source_costmove_native import emit,emit_combo_energy_query,emit_single_energy_query
 from source_animation_energy_4086 import derive as energies,pack as pack_energies
 from source_animation_init_4086 import derive as animations,pack as pack_animations
 from source_frame_effects_4086 import derive as effects,pack as pack_effects
@@ -99,8 +99,11 @@ end,emu.callbackType.exec,DECIMALAFTER,DECIMALAFTER,emu.cpuType.snes,mt)
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--combo-query',action='store_true',help='Prove pure MP-first combo energy selection; no debit or actor mutation.')
+    p.add_argument('--single-energy-query',type=int,choices=(0,1),help='Prove exactly one canonical HP(0) or MP(1) query, preserving caller query order.')
     for n in ('rom','source','output'):p.add_argument('--'+n,type=Path,required=True)
     a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source);sy=symbols(Path('src/main.sym'))
+    (folder/'report.json').write_text('{"status":"RUNNING"}\n')
+    if a.single_energy_query is not None:a.combo_query=True
     energy=energies(source);ai=animations(source);fe=effects(source);model=models(source)
     energytable=pack_energies(energy);aitable=pack_animations(ai);fetable=pack_effects(fe);cache=pack_animation_cache(model)
     choices=[an for an in ai['animations']if an['role'].lower().startswith(('freespecial','special'))]
@@ -134,6 +137,12 @@ def main():
             c['query_expected']=0 if c['fault'] or c['bad']=='role_absent' else int(mp or hp)
             c['query_trace']='' if c['fault'] or c['bad']=='role_absent' else '1' if mp else '1,0'
             if c['bad']=='numeric_ready':c['query_trace']='1'
+        if a.single_energy_query is not None:
+            for c in rows:
+                e=c['original'];c['which']=a.single_energy_query
+                c['query_expected']=0 if c['fault']or c['bad']=='role_absent'else int(check(c['which'],e['fields'],e['type'],e['seal'],e['mp'],e['health']))
+                c['query_trace']=''if c['fault']and c['bad']!='numeric_ready'or c['bad']=='role_absent'else str(c['which'])
+            rows.append(dict(base,bad='which_invalid',fault=1,which=2,query_expected=0,query_trace=''))
     lua=LUA
     if a.combo_query:
         begin=lua.index('emu.addMemoryCallback(function()\n local c=rows[word(INDEX)+1];local s=c.slot;local p=(s+1)%128;local w=c.wanted;')
@@ -156,9 +165,10 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
     for k,v in dict(WORKADDR=WORK,TAILADDR=TAIL,AIBYTES=len(aitable),FEBYTES=len(fetable),HANDLES=len(ai['animations']),AEBYTES=len(energytable)).items():lua=lua.replace(k,str(v))
     lua=lua.replace('CACHE',json.dumps(cache.hex()))
     if a.combo_query:lua=lua.replace('QUERYEXEC',str(sy['SourceCheckEnergy4086_Execute']))
+    if a.single_energy_query is not None:lua=lua.replace(f' put({WORK},0xb670)',f' put({WORK}+58,c.which);put({WORK},0xb670)')
     reporter=Reporter('M4-COSTMOVE-NATIVE',kind='GATE')
-    entry='SourceComboEnergy_Query' if a.combo_query else 'SourceCostMove_Begin'
-    asm=(emit_combo_energy_query(WORK,sy) if a.combo_query else emit(WORK,TAIL,sy))+decimal_probe(entry)
+    entry='SourceSingleEnergy_Query'if a.single_energy_query is not None else'SourceComboEnergy_Query' if a.combo_query else 'SourceCostMove_Begin'
+    asm=(emit_single_energy_query(WORK,sy)if a.single_energy_query is not None else emit_combo_energy_query(WORK,sy) if a.combo_query else emit(WORK,TAIL,sy))+decimal_probe(entry)
     probes=dict(DECIMALAFTER='DecimalProbe_After')
     if not a.combo_query:probes['PREFIX']='SourceCostMove_BeforeAnimation'
     raw,log=run_fixture(a.rom,folder,rows,'DecimalProbe','VmSourceInput_Ready',0xb670,
@@ -169,8 +179,8 @@ end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)
     if a.combo_query:
         actual=[l.split('COMBOENERGYNATIVE|',1)[1].strip().split('|') for l in log.splitlines() if 'COMBOENERGYNATIVE|' in l]
         errors=[v for i,v in enumerate(actual) if v[:5]!=[str(i),str(rows[i]['query_expected']),str(rows[i]['fault']),'0',rows[i]['query_trace']]]
-        reporter.check('pure canonical combo energy query preserves actor state and MP-first short circuit',len(actual)==len(rows) and not errors)
-        report=dict(schema='BYOR_4086_COMBO_ENERGY_NATIVE_V1',status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',cases=len(rows),errors=errors[:10],rom_sha256=hashlib.sha256(raw).hexdigest(),peak_master_clocks=max(int(v[5]) for v in actual),private_energy_descriptors_instrumented=True,production_player_owner_bound=False,motu_gameplay_proven=False,no_color_reduction=True,decimal_entry_preserved=True,no_pcm_copies=True)
+        reporter.check('pure canonical single energy query preserves actor state and caller query order'if a.single_energy_query is not None else'pure canonical combo energy query preserves actor state and MP-first short circuit',len(actual)==len(rows) and not errors)
+        report=dict(schema='BYOR_4086_SINGLE_ENERGY_NATIVE_V1'if a.single_energy_query is not None else'BYOR_4086_COMBO_ENERGY_NATIVE_V1',which=a.single_energy_query,status='PASS' if all(ok for _,ok in reporter.results) else 'FAIL',cases=len(rows),errors=errors[:10],rom_sha256=hashlib.sha256(raw).hexdigest(),peak_master_clocks=max((int(v[5]) for v in actual),default=0),private_energy_descriptors_instrumented=True,production_player_owner_bound=False,motu_gameplay_proven=False,no_color_reduction=True,decimal_entry_preserved=True,no_pcm_copies=True)
         (folder/'report.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8');reporter.finish();return
     actual=[list(map(int,l.split('COSTMOVENATIVE|',1)[1].split('|')))for l in log.splitlines()if 'COSTMOVENATIVE|'in l]
     errors=[v for i,v in enumerate(actual)if v[:4]!=[i,0,0,5 if rows[i]['fault']else 3 if rows[i]['wanted'][0]else 2]]
