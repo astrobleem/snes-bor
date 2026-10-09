@@ -2,8 +2,8 @@
   "schema": "BYOR_FOREIGN_CONTROLLER_ARENA_LAYOUT_V1",
   "base": 8364032,
   "bytes": 6400,
-  "used_bytes": 5168,
-  "remaining_bytes": 1232,
+  "used_bytes": 5232,
+  "remaining_bytes": 1168,
   "entities": 128,
   "players": 4,
   "regions": [
@@ -118,6 +118,13 @@
       "bytes": 128,
       "end": 8369200,
       "authority": "typed ground snapshot and mandatory-service continuation"
+    },
+    {
+      "name": "player_state_controls",
+      "address": 8369200,
+      "bytes": 64,
+      "end": 8369264,
+      "authority": "module-tail lifetime lease and exact integer row access"
     }
   ],
   "required_lease": "SourceForeignWork B671 nonzero matching generation; retired canvas/frontpanel/water owners",
