@@ -1,0 +1,467 @@
+{
+  "schema": "BYOR_SOURCE_TYPE_FILTER_ABSENCE_V1",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "mask": 4,
+  "capability": "SOURCE_DECLARED_TYPE_ABSENCE_WITH_RUNTIME_CHECK",
+  "declared_types_absent": true,
+  "matching_models": [],
+  "script_mutation_blockers": [],
+  "models": [
+    {
+      "id": 0,
+      "identity": "Shock",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e"
+    },
+    {
+      "id": 1,
+      "identity": "Slash",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SLASH.TXT",
+      "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7"
+    },
+    {
+      "id": 2,
+      "identity": "Spark",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SPARK.TXT",
+      "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd"
+    },
+    {
+      "id": 3,
+      "identity": "He_Man",
+      "type": 1,
+      "source_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT",
+      "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40"
+    },
+    {
+      "id": 4,
+      "identity": "He_ManB",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+      "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea"
+    },
+    {
+      "id": 5,
+      "identity": "HBreath",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36"
+    },
+    {
+      "id": 6,
+      "identity": "HWWind",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HWWIND.TXT",
+      "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c"
+    },
+    {
+      "id": 7,
+      "identity": "ShWave",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\SHWAVE.TXT",
+      "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181"
+    },
+    {
+      "id": 8,
+      "identity": "Skeletor",
+      "type": 2,
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+      "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b"
+    },
+    {
+      "id": 9,
+      "identity": "GeyserN",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSERN.TXT",
+      "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a"
+    },
+    {
+      "id": 10,
+      "identity": "SkFBall",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKFBALL.TXT",
+      "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd"
+    },
+    {
+      "id": 11,
+      "identity": "SkGeyser",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSER.TXT",
+      "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940"
+    },
+    {
+      "id": 12,
+      "identity": "SkGeyserT",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKGEYSERT.TXT",
+      "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14"
+    },
+    {
+      "id": 13,
+      "identity": "SkTorn",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\SKTORN.TXT",
+      "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb"
+    },
+    {
+      "id": 14,
+      "identity": "Knightbot",
+      "type": 2,
+      "source_path": "DATA\\CHARS\\KNBOT\\KNBOT.TXT",
+      "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610"
+    },
+    {
+      "id": 15,
+      "identity": "ShockBall",
+      "type": 0,
+      "source_path": "DATA\\CHARS\\KNBOT\\SHKBALL.TXT",
+      "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807"
+    }
+  ],
+  "property_writes": [
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "dasher",
+      "line": 11,
+      "api": "changeentityproperty",
+      "property": "velocity"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "keyint",
+      "line": 56,
+      "api": "changeentityproperty",
+      "property": "animation"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "keyint",
+      "line": 57,
+      "api": "changeentityproperty",
+      "property": "animpos"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "keyflip",
+      "line": 68,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "keyflip",
+      "line": 70,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "keyflip",
+      "line": 74,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "keyflip",
+      "line": 76,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "flip",
+      "line": 87,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "flip",
+      "line": 89,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "block",
+      "line": 96,
+      "api": "changeentityproperty",
+      "property": "aiflag"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "spawn01",
+      "line": 125,
+      "api": "changeentityproperty",
+      "property": "position"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "spawn01",
+      "line": 126,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "shooter",
+      "line": 141,
+      "api": "changeentityproperty",
+      "property": "velocity"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "function": "shooter",
+      "line": 142,
+      "api": "changeentityproperty",
+      "property": "speed"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "dasher",
+      "line": 10,
+      "api": "changeentityproperty",
+      "property": "velocity"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "shooter",
+      "line": 58,
+      "api": "changeentityproperty",
+      "property": "velocity"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "shooter",
+      "line": 59,
+      "api": "changeentityproperty",
+      "property": "speed"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "spawn01",
+      "line": 88,
+      "api": "changeentityproperty",
+      "property": "position"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "spawn01",
+      "line": 89,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "target",
+      "line": 119,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "target",
+      "line": 121,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "shootT",
+      "line": 188,
+      "api": "changeentityproperty",
+      "property": "velocity"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "shootT",
+      "line": 190,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "shootT",
+      "line": 192,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "shootT",
+      "line": 197,
+      "api": "changeentityproperty",
+      "property": "speed"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "function": "teledodgez",
+      "line": 274,
+      "api": "changeentityproperty",
+      "property": "position"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\FX.C",
+      "function": "teletarget",
+      "line": 19,
+      "api": "changeentityproperty",
+      "property": "position"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\TORNADO.C",
+      "function": "target",
+      "line": 26,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\TORNADO.C",
+      "function": "target",
+      "line": 28,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\TORNADO.C",
+      "function": "dash",
+      "line": 83,
+      "api": "changeentityproperty",
+      "property": "velocity"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\ENEMY.C",
+      "function": "dasher",
+      "line": 10,
+      "api": "changeentityproperty",
+      "property": "velocity"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\ENEMY.C",
+      "function": "flip",
+      "line": 19,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\ENEMY.C",
+      "function": "flip",
+      "line": 21,
+      "api": "changeentityproperty",
+      "property": "direction"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\ENEMY.C",
+      "function": "shooter",
+      "line": 47,
+      "api": "changeentityproperty",
+      "property": "velocity"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\ENEMY.C",
+      "function": "shooter",
+      "line": 48,
+      "api": "changeentityproperty",
+      "property": "speed"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+      "function": "inline",
+      "line": 9,
+      "api": "changeentityproperty",
+      "property": "animation"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+      "function": "inline",
+      "line": 7,
+      "api": "changeentityproperty",
+      "property": "animation"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+      "function": "inline",
+      "line": 11,
+      "api": "changeentityproperty",
+      "property": "animation"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+      "function": "inline",
+      "line": 13,
+      "api": "changeentityproperty",
+      "property": "animation"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+      "function": "inline",
+      "line": 9,
+      "api": "changeentityproperty",
+      "property": "animation"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.TXT",
+      "function": "inline",
+      "line": 13,
+      "api": "changeentityproperty",
+      "property": "animation"
+    }
+  ],
+  "script_libraries": [
+    {
+      "source_path": "DATA\\SCRIPTS\\SCRIPT.C",
+      "source_sha256": "fdf517b371ce1d5a3beb55df748972041ca6fe4830d5ef7b163666367ce9d9ba"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\SKELETOR.C",
+      "source_sha256": "983edc927f5b7dd821488171abed37fd37d39db05c08205460c0e65c255686b8"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\FX.C",
+      "source_sha256": "6f2fb352819e0c2e033cf88ed221badbdefac4180927c5da34f0302694969925"
+    },
+    {
+      "source_path": "DATA\\CHARS\\SKELETOR\\FX\\TORNADO.C",
+      "source_sha256": "ffce8e0f6b983e06b43d5a9a01a9cefb77a03f6aef358f29c34dd7c6c0fa3b3c"
+    },
+    {
+      "source_path": "DATA\\SCRIPTS\\ENEMY.C",
+      "source_sha256": "b57248ac56f362df3fb62dbb4f49a2b4bf3fdde5dc8100ad8775492f1d6653e7"
+    }
+  ],
+  "inline_blocks": 5,
+  "authored_bindings": 65,
+  "script_diagnostics": [],
+  "unknown_engine_calls": [],
+  "engine_api_requirements": [
+    "NULL",
+    "changeentityproperty",
+    "checkwall",
+    "clearlocalvar",
+    "clearspawnentry",
+    "findtarget",
+    "getentityproperty",
+    "getlocalvar",
+    "killentity",
+    "openborconstant",
+    "performattack",
+    "playerkeys",
+    "projectile",
+    "rand",
+    "setlocalvar",
+    "setspawnentry",
+    "spawn",
+    "tossentity",
+    "updateframe"
+  ],
+  "runtime_candidate_check_required": true,
+  "matching_runtime_candidate_must_fault": true,
+  "arbitrary_engine_type_mutation_proven_absent": false,
+  "full_pickup_owner_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0"
+}

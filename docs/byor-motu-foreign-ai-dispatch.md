@@ -67,3 +67,18 @@ world phase-6 acknowledgment. All 240 completed controller cases release
 the pending AI phase. All eight stale-frame faults retain pending=1 and set
 the world fault. The clock stays at 48 in both cases; the proof neither skips
 the remaining world services nor commits an incomplete tick.
+
+The generic source type-filter inventory derives the actual 16-model declared
+namespace and scans parsed functions and inline blocks. ITEM (4) and ENDLEVEL
+(256) have no declared models. All 41 property writes across five libraries
+and five inline blocks use known constant keys that neither replace model
+data nor change type; the 65 script bindings have no diagnostics. Escaped,
+dynamic, model/type keys, unknown APIs and binding diagnostics prevent this
+inventory capability from being selected.
+
+This supports the existing runtime-checked empty-candidate search for these
+authored filters. It does not claim arbitrary engine services cannot mutate
+type, and does not admit a live pickup implementation. A matching live
+candidate still fails explicitly, as checked by the retained 334-case native
+empty-search proof. Source-defined items are not an outstanding MOTU model
+requirement; full combat targeting and live world traversal remain open.
