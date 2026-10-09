@@ -1,0 +1,252 @@
+{
+  "capability": "INTEGRAL_CHARGETIME_WIN32_X87_ABSENT_CHARGEATTACK",
+  "evaluation_policy": "WIN32_X87_EXTENDED",
+  "models": [
+    {
+      "id": 0,
+      "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    },
+    {
+      "id": 1,
+      "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    },
+    {
+      "id": 2,
+      "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    },
+    {
+      "id": 3,
+      "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": 400,
+      "durations": {
+        "59": 400,
+        "25": 400,
+        "0": 400,
+        "1": 400,
+        "16": 400,
+        "37": 400,
+        "8": 400,
+        "38": 400,
+        "21": 400,
+        "22": 400,
+        "26": 400,
+        "28": 400,
+        "44": 400,
+        "108": 400,
+        "2": 400,
+        "14": 400,
+        "107": 400,
+        "4": 400,
+        "5": 400,
+        "6": 400,
+        "3": 400
+      },
+      "missing_active_release_animation_is_source_undefined": false
+    },
+    {
+      "id": 4,
+      "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+      "chainlength": 6,
+      "final_attack": 10,
+      "final_attack_duration": 400,
+      "durations": {
+        "0": 400,
+        "1": 400,
+        "16": 400,
+        "37": 400,
+        "8": 400,
+        "9": 400,
+        "10": 400,
+        "38": 400,
+        "22": 400,
+        "26": 400,
+        "28": 400,
+        "44": 400,
+        "45": 400,
+        "46": 400,
+        "108": 400,
+        "2": 400,
+        "14": 400,
+        "107": 400,
+        "4": 400,
+        "5": 400,
+        "6": 400,
+        "3": 400
+      },
+      "missing_active_release_animation_is_source_undefined": false
+    },
+    {
+      "id": 5,
+      "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    },
+    {
+      "id": 6,
+      "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    },
+    {
+      "id": 7,
+      "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    },
+    {
+      "id": 8,
+      "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": 400,
+      "durations": {
+        "23": 400,
+        "162": 400,
+        "0": 400,
+        "1": 400,
+        "84": 400,
+        "163": 400,
+        "4": 400,
+        "5": 400,
+        "6": 400,
+        "13": 400,
+        "8": 400,
+        "81": 400,
+        "22": 400,
+        "9": 400,
+        "82": 400,
+        "10": 400,
+        "83": 400,
+        "28": 400
+      },
+      "missing_active_release_animation_is_source_undefined": false
+    },
+    {
+      "id": 9,
+      "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    },
+    {
+      "id": 10,
+      "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    },
+    {
+      "id": 11,
+      "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400,
+        "23": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    },
+    {
+      "id": 12,
+      "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    },
+    {
+      "id": 13,
+      "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    },
+    {
+      "id": 14,
+      "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": 400,
+      "durations": {
+        "0": 400,
+        "1": 400,
+        "4": 400,
+        "5": 400,
+        "6": 400,
+        "8": 400
+      },
+      "missing_active_release_animation_is_source_undefined": false
+    },
+    {
+      "id": 15,
+      "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807",
+      "chainlength": 1,
+      "final_attack": 8,
+      "final_attack_duration": null,
+      "durations": {
+        "0": 400
+      },
+      "missing_active_release_animation_is_source_undefined": true
+    }
+  ],
+  "source_default_chargetime": 2,
+  "nonintegral_duration_admitted": false,
+  "punch_sound_service_required": true,
+  "direct_chain_and_chargetime_mutation_admitted": false,
+  "native_bound": false,
+  "motu_gameplay_proven": false
+}

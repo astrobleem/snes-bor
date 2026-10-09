@@ -1,0 +1,18 @@
+{
+  "schema": "BYOR_4086_PLAYER_RELEASE_AUTHORITY_V1",
+  "status": "PASS",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "player_think_sha256": "51c446918438abf6d41ba73681784bd04f79f909f34c0efcdfcdb2d4ab07f736",
+  "literal_body_sha256": "77537d4566138120a4ff61c518a99cdc317457259e8e7e8999185f2e3c0d6d67",
+  "literal_body_unmodified": true,
+  "cases": 1914,
+  "compared_bytes": 99528,
+  "actual_sha256": "c36702ad4255dc0cc6e220a4b53b9775714758fc1e25bb029656d1be0b7b44f4",
+  "expected_sha256": "c36702ad4255dc0cc6e220a4b53b9775714758fc1e25bb029656d1be0b7b44f4",
+  "query_sound_frame_and_callback_mutations_instrumented": true,
+  "evaluation_policy": "WIN32_X87_EXTENDED",
+  "excluded_source_undefined_post_sound_chain_reads": 6,
+  "undefined_source_domain_rejections": 6,
+  "native_release_body_bound": false,
+  "motu_gameplay_proven": false
+}

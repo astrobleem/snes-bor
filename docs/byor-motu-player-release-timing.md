@@ -25,3 +25,16 @@ These primitives do not bind the release-attack actor/query/frame/audio body,
 the full player controller or MOTU gameplay. The proof leases private fixture
 storage and does not add controller arena allocation. No color reduction,
 PCM copies or bank-0 code are introduced.
+
+The unchanged full release body passes 1914 C comparisons through mandatory
+punch and frame services. It preserves the repeated CHARGEATTACK query order,
+clears only combostep[0], and retains callback changes after frame execution.
+Six synthetic post-sound mutations make the source read an undefined chain
+index; those cases are excluded from C comparison and separately reject in the
+reference continuation. They are not reported as source equivalence.
+
+The source-derived INTEGRAL_CHARGETIME_WIN32_X87_ABSENT_CHARGEATTACK profile
+records final source chain roles and exact 400-tick durations for authored
+attackers. Effect models lacking a final attack retain an explicit undefined
+active-release requirement, rather than silently selecting attack one. Native
+release actor/query/audio/frame binding remains required.
