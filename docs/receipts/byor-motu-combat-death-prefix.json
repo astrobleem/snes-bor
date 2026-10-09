@@ -1,0 +1,22 @@
+{
+  "schema": "BYOR_COMBAT_DEATH_PREFIX_RECEIPT_V1",
+  "status": "PASS",
+  "cases": 211,
+  "source_C_cases": 204,
+  "malformed_death_guards": 7,
+  "required_children": {
+    "extra_life_audio": 36,
+    "death_audio": 43,
+    "item_count": 12
+  },
+  "proof_path": "out/byor-motu-combat-death-threshold-native/report.json",
+  "proof_sha256": "3fa97b13226a841b3be0e3ef141ad48205a4d34b19fb70959e2a7767d78d9111",
+  "rom_sha256": "3a38133601722423a088704304cb6e21c5515902fac4d3770af210b7bafe882b",
+  "authority_sha256": "b2579f081479696335997a4870dc2ae5c6d02d3e999305b9c07a8f4e5b80554c",
+  "rumble_policy": "SOURCE_EXACT_EMPTY_PINNED_SDL_RUMBLE",
+  "positive_sound_item_boss_services_bound": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}

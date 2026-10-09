@@ -1,7 +1,7 @@
 """Nonself source MP/hit-score predecessor for zero model multipliers.
 
 An explicit capability covers absent score scripts and magic_type != 1.
-Rumble has a declared SNES controller adaptation; extra-life/death scoring
+Rumble requires the pinned SDL empty-body authority; extra-life/death scoring
 is separate and is not certified by this zero-add hit score service.
 """
 import hashlib,subprocess
@@ -10,14 +10,16 @@ from script_nested_authority import extract
 from source_model_core_4086 import derive as core
 from source_score_inputs_4086 import derive as globals_inputs
 from source_current_colourmap import layout
+from source_sound_namespace_4086 import derive as sounds
 
 
 def derive(source):
- c=core(source);g=globals_inputs(source)
+ c=core(source);g=globals_inputs(source);rumble=sounds(source)['controller_rumble_source']
+ if not rumble['native_no_op_is_source_equivalent']:raise ValueError('SOURCE_CONTROLLER_RUMBLE_SERVICE_REQUIRED')
  if any(m['fields']['multiple'] for m in c['models']):raise ValueError('HIT_SCORE_MULTIPLICATION_REQUIRED')
  if not g['absent_score_scripts_capability']:raise ValueError('HIT_SCORE_SCRIPT_REQUIRED')
  raw=subprocess.check_output(['git','-C','E:/gh/openbor-bcec','show',ENGINE_COMMIT+':engine/openbor.c']).decode('latin1')
- return dict(schema='BYOR_COMBAT_HIT_SCALARS_REQUIREMENTS_V1',capability='NONSELF_ZERO_HIT_MULTIPLIER',models=c['models'],globals=g,engine_commit=ENGINE_COMMIT,source_hashes={n:hashlib.sha256(extract(raw,n).encode('latin1')).hexdigest() for n in ('checkhitscore','checkmpadd')},rumble_policy='ACCEPTED_COMPAT_NO_SNES_CONTROLLER_RUMBLE',full_damage_callback_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
+ return dict(schema='BYOR_COMBAT_HIT_SCALARS_REQUIREMENTS_V1',capability='NONSELF_ZERO_HIT_MULTIPLIER',models=c['models'],globals=g,engine_commit=ENGINE_COMMIT,source_hashes={n:hashlib.sha256(extract(raw,n).encode('latin1')).hexdigest() for n in ('checkhitscore','checkmpadd')},rumble_policy='SOURCE_EXACT_EMPTY_PINNED_SDL_RUMBLE',rumble_source=rumble,full_damage_callback_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
 
 
 def emit(req,work,sy):

@@ -7,7 +7,7 @@
   "proof_sha256": "fe334ae47c9fd22aa25edd842f80baca51246ef9a22ec2f769d90c8017928011",
   "rom_sha256": "48cc1c42b8955f947e487f70ded71514181a5d83a6801d8d17342dce3b0ec15e",
   "authority_sha256": "e05e2a904608214140bbf30258e044eb0f4f729699f3fddda0c2e8f1fc29641b",
-  "rumble_policy": "ACCEPTED_COMPAT_NO_SNES_CONTROLLER_RUMBLE",
+  "rumble_policy": "SOURCE_EXACT_EMPTY_PINNED_SDL_RUMBLE",
   "extra_life_and_death_score_proven": false,
   "full_damage_callback_bound": false,
   "motu_gameplay_proven": false,
@@ -20,5 +20,11 @@
     "cases": 412,
     "actual_score_calls": 382,
     "admitted_health_calls": 388
+  },
+  "rumble_classification_correction_source": {
+    "path": "engine/sdl/control.c",
+    "function_sha256": "0230ec58b709f5f5714e87a3c0406a15fdda22408272a649b6e73929a3af8a49",
+    "body_empty": true,
+    "native_no_op_is_source_equivalent": true
   }
 }

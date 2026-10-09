@@ -76,9 +76,9 @@ def main():
    lua+=f'\nemu.addMemoryCallback(function()if word(INDEX)==0 then emu.log("SCALARGUARD|{n}|"..emu.getState()["cpu.a"])end end,emu.callbackType.exec,SG{n},SG{n},emu.cpuType.snes,mt)\n'
   kw['probes']['SCALARFAIL']='CombatHitScalars_Bad'
   lua+='\nemu.addMemoryCallback(function()emu.log("SCALARFAIL|"..word(INDEX))end,emu.callbackType.exec,SCALARFAIL,SCALARFAIL,emu.cpuType.snes,mt)\n'
-  lua+=f'''\nemu.addMemoryCallback(function()emu.log('HITSCORECALL|'..word(INDEX)..'|'..word({sy['SourceScore4086_Index']})..'|'..word({sy['SourceScore4086_Add']}))end,emu.callbackType.exec,SCORECALL,SCORECALL,emu.cpuType.snes,mt)\n'''
+  lua+=f'''\nemu.addMemoryCallback(function()if word({w}+44)==2 then emu.log('HITSCORECALL|'..word(INDEX)..'|'..word({sy['SourceScore4086_Index']})..'|'..word({sy['SourceScore4086_Add']}))end end,emu.callbackType.exec,SCORECALL,SCORECALL,emu.cpuType.snes,mt)\n'''
   raw,log=original(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw)
-  calls=[list(map(int,l.split('HITSCORECALL|')[1].split('|')))for l in log.splitlines()if'HITSCORECALL|'in l];expected=[[i,c['called_index']&65535,0]for i,c in enumerate(rows)if not c['fault']and c['score_calls']]
+  calls=[list(map(int,l.split('HITSCORECALL|')[1].split('|')))for l in log.splitlines()if'HITSCORECALL|'in l];expected=[[i,c['called_index']&65535,0]for i,c in enumerate(rows)if (not c['fault']or c.get('hit_stage_completed'))and c['score_calls']]
   reporter.check('source player opponent scoring calls actual B631 exactly once under retry; source MP remains unchanged',calls==expected and all(c['source_mp']==8 for c in rows if not c['fault']));proof['calls']=calls;return raw,log
  old_contact=player.contact
  def scoring_contact(*args,**kwargs):return old_contact(*args,**kwargs,common_cursor=4)

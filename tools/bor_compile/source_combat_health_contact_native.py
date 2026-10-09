@@ -2,7 +2,7 @@
 from source_current_colourmap import layout
 
 
-def emit(attacks,work,sy,code_bank=39,*,captured_force=False,common_cursor=2):
+def emit(attacks,work,sy,code_bank=39,*,captured_force=False,common_cursor=2,advance_cursor=None):
  w=layout()['controls'];lines=[];serial=0
  def put(s):lines.extend(s.strip().splitlines())
  def guard(op):
@@ -32,6 +32,7 @@ def emit(attacks,work,sy,code_bank=39,*,captured_force=False,common_cursor=2):
  else:
   for off,dst in((0,12),(2,14),(4,16),(6,18)):put(f' lda.l HealthContact_Attacks+{(code_bank<<16)+off},x\n sta.l {work}+{dst}')
  put(f' lda #$B6B0\n sta.l {work}\n lda 3,s\n tax\n lda 1,s\n tay\n jsl CombatHealth_Run');guard('bcs')
+ if advance_cursor is not None:put(f' lda #{advance_cursor}\n sta.l {w}+44')
  put(' ply\n plx\n plp\n clc\n rtl\nHealthContact_Bad:\n.a16\n.i16\n ply\n plx\n plp\n sec\n rtl\nHealthContact_Attacks:')
  put(' .dw '+','.join(str(v)for a in attacks for n in('attack_force','no_kill')for v in(a[n]&65535,(a[n]>>16)&65535)))
  return '\n'.join(lines)+'\n'
