@@ -1,0 +1,7 @@
+# Retained logical source sound admission
+
+The native admission step uses the existing measured twelve-channel selector and writes the complete pinned 40-byte channel state: active, paused, sample, unsigned priority, play identity, both gains, channel count, Q12 phase and prepared period. It mirrors the existing compact admission rows. A second call with the retained completed request cannot increment play identity or restart phase. Priority rejection remains a source return value; malformed leases fail before channel writes.
+
+The native proof compares representative highest-free and full-priority cases, gain clamps and source phase against the pinned sound-play authority. Additional sample-length cases exercise the literal channel-times-four modulus through one-frame, 16-bit-boundary and maximum admitted lengths. Backend, sample, length, generation, compact count/active and replay-selection guards preserve all channel rows. Prepared periods are supplied by the fixture from source authority; this emitter does not compute arbitrary pitch at runtime.
+
+The caller supplies a private 480-byte channel lease and 32-byte request controls. This is not a production memory allocation, physical playback, source-frame acknowledgement or full backend admission. Those joins remain required. No PCM media copies or color reduction occurred. See the [receipt](receipts/byor-motu-sound-admission-native.json).

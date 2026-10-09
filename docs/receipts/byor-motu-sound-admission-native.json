@@ -1,0 +1,25 @@
+{
+  "schema": "BYOR_SOUND_ADMISSION_NATIVE_V1",
+  "status": "PASS",
+  "cases": 51,
+  "rom_sha256": "f383ef1b0b337145a031925c1b519f7e173d2145571788fb540128694e5a6472",
+  "authority_sha256": "6b91a1ff918dae782b6f2b75903061936c709ffca02e2ed8d25ef714846bdc57",
+  "native_logical_channel_state": true,
+  "physical_playback_bound": false,
+  "source_frame_ack_bound": false,
+  "production_memory_lease": false,
+  "private_channel_lease": [
+    4452608,
+    4453088
+  ],
+  "private_controls": [
+    4452352,
+    4452384
+  ],
+  "period_metadata_supplied_by_fixture": true,
+  "no_pcm_copies": true,
+  "no_color_reduction": true,
+  "motu_gameplay_proven": false,
+  "proof_path": "out/byor-motu-sound-admission-guards-native/report.json",
+  "proof_sha256": "493f2db99a975374eecff040ee1d11f3d6462b02bfadc9ee6eb52123c8d9c7e6"
+}
