@@ -26,6 +26,23 @@ invalid player indices and signed debit overflow reject explicitly. Decimal
 entry and CPU retention are checked natively. The clock peak includes fixture
 runtime/NMI activity and is not a production frame-budget admission.
 
-Native canonical binding, smartbomb/freeze services, production input ownership
-and full player_think still remain. This is not MOTU gameplay/completion certification.
+The canonical binding now captures current HP/MP, action/flags, link/grabbing,
+RUN velocities, combo state, stalltime, source player index and all four input
+rows. It validates typed actor tokens, current model and linked pointers before
+publication. Source-derived `NO_MODEL_SMARTBOMB` admission establishes the calloc
+smartbomb/dofreeze values for these models; a smartbomb declaration rejects this
+capability. Context flags remain explicit caller inputs.
+
+Twenty native cases use actual SELECT construction, independent canonical HP/MP
+queries and the real SPECIAL frame owner. They cover both directions, HP-first
+short circuit, callback-time HP/MP/player-index changes, no-cost bypass, and
+three rejection paths retaining every observed actor/input byte. Linked peers
+exercise actual unlink and set_idle, both with IDLE already retained and with
+an actual peer IDLE frame completing before the root SPECIAL frame. The peer
+state and post-callback mutations are instrumented; this is not a full linked
+actor constructor or production gameplay proof.
+
+The controller address plan uses 5712 of 6400 bytes, leaving 688. It does not
+grant the production canvas lease. Production input ownership, full player_think,
+model smartbomb/freeze services and MOTU gameplay/completion still remain.
 No color reduction is applied.

@@ -73,6 +73,7 @@ def main():
     p.add_argument('--player-state-birth',action='store_true',help='Execute the checked VM-tail lease and actual constructor state clearing through an opt-in birth bridge.')
     p.add_argument('--run-tuple-birth',action='store_true',help='Capture exact RUN snapshot after actual constructor model-data copy; requires player-state birth bridge.')
     p.add_argument('--ground-walk',action='store_true',help='After actual SELECT construction, run canonical ground movement and real WALK frame-zero services.')
+    p.add_argument('--canonical-special',action='store_true',help='Actual SPECIAL queries, canonical snapshot and real frame owner after SELECT birth.')
     p.add_argument('--emit-only',action='store_true',help='Emit the private source-derived fixture and observer without launching or certifying it.')
     p.add_argument('--smartspawn',action='store_true',help='Apply source-derived stage properties after the complete constructor; boss music remains an explicit pending service.')
     p.add_argument('--stage-queue-index',type=int,help='Read constructor inputs from an authored stage spawn record; post-constructor overrides remain separate.')
@@ -92,6 +93,8 @@ def main():
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
+    if a.canonical_special and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('SPECIAL_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
+    if a.canonical_special and a.ground_walk:raise ValueError('SPECIAL_GROUND_FIXTURE_CONFLICT')
     if a.ground_walk and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('GROUND_WALK_REQUIRES_CONSTRUCTOR_RUN_AND_FRAME_OWNERS')
     if a.costmove_model or a.attack_chain_model:
         if not a.frame_owner or not a.effects_runner:raise ValueError('COSTMOVE_REQUIRES_REAL_FRAME_OWNER')
@@ -196,6 +199,8 @@ def main():
             rows=[dict(f=0,direction=d,default=default,fault=0,ground_keys=mask,run_mode=run_mode)for run_mode in (0,1,2)for d in (0,1)
                   for mask in (0,KEYS['moveleft']if d==0 else KEYS['moveright'],KEYS['moveup'],KEYS['movedown'],
                                (KEYS['moveleft']if d==0 else KEYS['moveright'])|KEYS['moveup'])]
+    if a.canonical_special:
+        rows=[dict(f=0,direction=d,default=default,fault=0,special_mode=m)for m in range(10)for d in (0,1)]
     if a.common_spawn:
         previous_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity'] and h['role']!='idle')
     sy=symbols(Path('src/main.sym'));raw=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate']
@@ -267,7 +272,7 @@ def main():
     if a.effects_runner:
         if raw[59*32768:60*32768]!=bytes(32768):raise ValueError('CALLBACK_PLAN_PRIVATE_BANK')
         raw[59*32768:59*32768+len(plan)]=plan
-    if a.costmove_model:
+    if a.costmove_model or a.canonical_special:
         from source_animation_energy_4086 import derive as derive_energy,pack as pack_energy
         cost_energy=derive_energy(source);cost_energy_table=pack_energy(cost_energy)
         if raw[58*32768:59*32768]!=bytes(32768):raise ValueError('COSTMOVE_ENERGY_ROM_RESERVATION')
@@ -596,6 +601,50 @@ CallbackFixture_GroundDone:
 .i16
  nop
 ''')
+    if a.canonical_special:
+        from source_player_special_native import emit as emit_special
+        from source_player_special_binding import emit as emit_special_binding,capability as special_capability
+        from source_player_special_services import emit as emit_special_services
+        from source_costmove_native import emit_single_energy_query
+        gr=run_regions;sp=gr['special_controls'];sb=gr['special_binding_controls'];ss=gr['special_services_controls'];se=gr['costmove_controls']
+        special_profile=special_capability(source);special_idle_capability=default_idle_capability(animation_identities(source),model_core_inputs(source));special_role=role_id(config,'special')
+        asm+=emit_special(sp)+emit_special_binding(sb,sp,gr['entity_combo_tail'],gr['input_history'],gr['input_owner'],0xb674,special_profile,special_role,sy)
+        asm+=emit_single_energy_query(se,sy)+emit_special_services(ss,sp,sb,se,special_role,role_id(config,'block'),sy)
+        needle='CallbackFixture_ResultPublished:\n.a16\n.i16\n nop'
+        if needle not in asm:raise ValueError('SPECIAL_CONSTRUCTOR_RESULT_GATE')
+        asm=asm.replace(needle,needle+"""
+CallbackFixture_SpecialPrepare:
+.a16
+.i16
+ nop
+ jsl SpecialServices_Begin
+ bcs CallbackFixture_Bad
+CallbackFixture_SpecialDispatch:
+.a16
+.i16
+ cmp #0
+ beq CallbackFixture_SpecialDone
+ cmp #1
+ bne CallbackFixture_Bad
+ jsl STARTFRAME
+ bcs CallbackFixture_Bad
+CallbackFixture_SpecialFrame:
+.a16
+.i16
+ jsl FRAMEOWNER
+ bcs CallbackFixture_Bad
+ cmp #$8001
+ beq CallbackFixture_SpecialFrame
+ cmp #0
+ bne CallbackFixture_Bad
+ jsl SpecialServices_FinishFrame
+ bcs CallbackFixture_Bad
+ jmp CallbackFixture_SpecialDispatch
+CallbackFixture_SpecialDone:
+.a16
+.i16
+ nop
+""")
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -1019,6 +1068,45 @@ emu.addMemoryCallback(function()
  emu.log('COMMONIDLEPREFIX|'..word(INDEX)..'|'..dw(0x43eb00)..'|'..dw(0x40c058)..'|'..dw(0x43eb04)..'|'..dw(0x43eb08)..'|'..dw(0x43eb0c)..'|'..dw(0x416824)..'|'..dw(0x416828)..'|'..dw(0x40c048))
 end,emu.callbackType.exec,{fs['SourceCommonIdle_Animate']},{fs['SourceCommonIdle_Animate']},emu.cpuType.snes,mt)
 '''
+    if a.canonical_special:
+        special_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity']and h['role']=='special')
+        special_idle=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity']and h['role']=='idle')
+        special_fields=next(an['fields']for an in cost_energy['animations']if an['handle']==special_animation['handle'])
+        lua+=f"""emu.addMemoryCallback(function()
+ for _,r in ipairs({{{{{sp},192}},{{{sb},64}},{{{ss},32}},{{{se},64}},{{{gr['input_history']},1024}}}})do for j=0,r[2]-1 do put(r[1]+j,0,1)end end
+ put({sp},0xb682,2);put({sb},0xb684,2);put({ss},0xb685,2);put({se},0xb670,2);put({gr['input_owner']},0xb674,2)
+ set('SourceAnimationEnergy4086_Ready',0xb5fc);set('SourceAnimationEnergy4086_Bank',58);set('SourceAnimationEnergy4086_Bytes',{len(cost_energy_table)})
+ set('SourceCheckEnergy4086_Ready',0xb5fa);set('SourceRetirement4086_Ready',0xb4f8);set('SourceRetirement4086_Status',0)
+ local c=rows[word(INDEX)+1]
+ put(0x414028,1,4);put(0x41402c,0,4);put(0x40c04c,100,4);put(0x414024,c.special_mode==4 and 1 or 150,4);put(0x40901c,0,4);put(0x409020,0,4)
+ put(0x437e04,0,4);put(0x437e10,0xb5fb,2);put(0x437e12,0,2);put(0x43fd94,0,4)
+ put({gr['input_history']+224},256,4)
+ if c.special_mode==5 then put(0x40c04c,0,4);put(0x414024,0,4)elseif c.special_mode==6 then put(0x409020,1,4)elseif c.special_mode==7 then put({sp}+24,1,4)end
+ if c.special_mode>=8 then
+ for _,r in ipairs({{{{0x414000,80}},{{0x416800,64}},{{0x40c000,96}},{{0x439000,80}},{{0x43eb00,32}},{{0x409000,64}},{{0x41f500,20}}}})do for j=0,r[2]-1 do put(r[1]+r[2]+j,emu.read(r[1]+j,mt),1)end end
+ put(0x414050,0x414050,4);if c.special_mode==8 then put(0x414064,0,4);put(0x416844,{special_idle['handle']},2)end
+ put(0x40901c,0x414050,4);put(0x40905c,0x414000,4);put(0x40c050,-3,4);put(0x40c0b0,-4,4)
+ put(0x43905c,17,4);put(0x43eb20,-4,4);put(0x40c0b8,-3,4);put(0x416864,9*65536,4);put(0x416868,-7*65536,4)
+ set('SourceIdle4086_Ready',0xb4f3);set('SourceIdle4086_Status',0)
+ end
+ special_before={{}};if c.special_mode>=5 and c.special_mode<=7 then
+ for _,r in ipairs({{{{0x414000,80}},{{0x416800,64}},{{0x40c000,96}},{{0x439000,80}},{{0x43eb00,32}},{{0x409000,64}},{{0x42e000,40}},{{0x42f400,24}},{{0x437e00,20}},{{{gr['input_history']},1024}}}})do for j=0,r[2]-1 do special_before[r[1]+j]=emu.read(r[1]+j,mt)end end end
+end,emu.callbackType.exec,{fs['CallbackFixture_SpecialPrepare']},{fs['CallbackFixture_SpecialPrepare']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];if c.special_mode>=8 then emu.log('SPECIALLINK|'..word(INDEX)..'|'..dw(0x40901c)..'|'..dw(0x40c050)..'|'..dw(0x40905c)..'|'..dw(0x40c0b0)..'|'..dw(0x43905c)..'|'..dw(0x43eb20)..'|'..dw(0x40c0b8)..'|'..dw(0x416864)..'|'..dw(0x416868)..'|'..word(0x416844))end
+ local failures=0;for a,v in pairs(special_before)do if emu.read(a,mt)~=v then failures=failures+1 end end
+ emu.log('SPECIALRETAIN|'..word(INDEX)..'|'..failures)
+ emu.log('SPECIALBOUND|'..word(INDEX)..'|'..word({ss}+2)..'|'..word({sp}+2)..'|'..dw(0x40c04c)..'|'..dw(0x414024)..'|'..dw(0x43900c)..'|'..dw(0x40c058)..'|'..dw({gr['input_history']+224})..'|'..dw({gr['input_history']+480})..'|'..word(sy.SourceAnimationInit4086_Number)..'|'..word(sy.SourceAnimationInit4086_State)..'|'..word(sy.SourceUpdateFrame4086_State))
+end,emu.callbackType.exec,{fs['CallbackFixture_SpecialDone']},{fs['CallbackFixture_SpecialDone']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local c=rows[word(INDEX)+1];if c.special_mode<1 or c.special_mode>3 then return end
+ put(0x40c04c,c.special_mode==1 and 0 or 123,4);put(0x414024,151,4);put(0x41402c,1,4)
+ put({gr['input_history']+224},0x80000100,4);put({gr['input_history']+480},0x80000100,4)
+ if c.special_mode==3 then put({sp}+36,1,4)end
+end,emu.callbackType.exec,{fs['SpecialServices_FinishFrame']},{fs['SpecialServices_FinishFrame']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()emu.log('SPECIALQUERY|'..word(INDEX)..'|'..dw(sy.SourceCheckEnergy4086_Which))end,emu.callbackType.exec,{sy['SourceCheckEnergy4086_Execute']},{sy['SourceCheckEnergy4086_Execute']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()emu.log('SPECIALSERVICEFRAME|'..word(INDEX)..'|'..word({sp}+6)..'|'..word(sy.SourceAnimationInit4086_Slot)..'|'..word(sy.SourceAnimationInit4086_Number))end,emu.callbackType.exec,{fs['CallbackFixture_SpecialFrame']},{fs['CallbackFixture_SpecialFrame']},emu.cpuType.snes,mt)
+"""
     if a.freeze_state:
         address=sy['SourceCtorState4086_FreezeBirthDone']
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,39 do cleared=cleared+emu.read(0x42e000+slot*40+j,mt);sibling=sibling+emu.read(0x42e000+(slot+1)*40+j,mt)end;emu.log('CTORFREEZE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x41f300+slot*4)..'|'..dw(0x414004+slot*80))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
@@ -1236,6 +1324,18 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         r.update(canonical_ground_walk_bound=True,ground_walk_results=ground_results,ground_services_frame_callbacks_real=True,
                  ground_level_and_input_context_instrumented=True,common_idle_prefix_results=prefix_results,common_idle_prefix_input_mutations_instrumented=True,
                  canonical_run_binding_results=run_results,preinput_actor_playerindex_velocity_and_cached_run_mutations_instrumented=True,production_full_player_think_bound=False)
+    if a.canonical_special:
+        special_results=[list(map(int,line.split('SPECIALBOUND|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'SPECIALBOUND|'in line]
+        reporter.check('canonical special executes real frame before current resource debit and input cleanup',[v for v in special_results if rows[v[0]]['special_mode']<5 or rows[v[0]]['special_mode']>=8]==[[i,4,5,0 if c['special_mode']==1 else 123 if c['special_mode']==3 else 123-special_fields['cost']if c['special_mode']==2 else 100-special_fields['cost'],151-special_fields['cost']if c['special_mode']==1 else 151 if c['special_mode']in(2,3)else 1 if c['special_mode']==4 else 150,17,1,0x80000100 if c['special_mode']in(1,2,3)else 0,0x80000000 if c['special_mode']in(1,2,3)else 0,special_role,2,2]for i,c in enumerate(rows)if c['special_mode']<5 or c['special_mode']>=8])
+        special_queries=[list(map(int,line.split('SPECIALQUERY|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'SPECIALQUERY|'in line]
+        reporter.check('actual special queries preserve HP-first short circuit and post-callback MP policy',special_queries==[[i,q]for i,c in enumerate(rows)for q in ([]if c['special_mode']in(6,7)else [0,1,1]if c['special_mode']==4 else [0]if c['special_mode']==3 else [0,1])])
+        special_retained=[list(map(int,line.split('SPECIALRETAIN|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'SPECIALRETAIN|'in line]
+        reporter.check('insufficient energy, cantfire and nospecial reject without changing canonical actor or input bytes',len(special_results)==len(rows)and all(v[1:3]==[2,2]for v in special_results if 5<=rows[v[0]]['special_mode']<=7)and special_retained==[[i,0]for i in range(len(rows))])
+        special_links=[list(map(int,line.split('SPECIALLINK|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'SPECIALLINK|'in line]
+        reporter.check('linked peer unlinks through real set_idle and handles both retained IDLE and an actual peer IDLE frame callback',special_links==[[i,0,0,0,0,0,3,0,0,0,special_idle['handle']]for i,c in enumerate(rows)if c['special_mode']>=8])
+        special_service_frames=[list(map(int,line.split('SPECIALSERVICEFRAME|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if 'SPECIALSERVICEFRAME|'in line]
+        reporter.check('linked peer requiring animation executes its real IDLE frame before root SPECIAL frame',all([v[1:]for v in special_service_frames if v[0]==i]==[[1,1,0],[3,0,special_role]]for i,c in enumerate(rows)if c['special_mode']==9))
+        r.update(canonical_special_bound=True,special_results=special_results,special_queries=special_queries,special_rejected_retention=special_retained,special_link_results=special_links,special_service_frames=special_service_frames,special_idle_capability=special_idle_capability,special_profile=special_profile,special_frame_owner_real=True,special_context_and_input_instrumented=True,production_full_player_think_bound=False)
     r['status']='PASS' if all(ok for _,ok in reporter.results) else 'FAIL'
     if a.damage_state_birth:
         damage_birth_results=[list(map(int,line.split('CTORDAMAGE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORDAMAGE|'in line]

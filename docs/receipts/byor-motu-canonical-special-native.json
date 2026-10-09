@@ -1,0 +1,3180 @@
+{
+  "schema": "BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1",
+  "status": "PASS",
+  "rom_sha256": "5d58f1505c3da5cb37b54521fdd5f29d95847281566ee78a40a923ab75a81ccc",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "owner_table_sha256": "cce1ac775e84a8eaba1014cf73de7ba0f8f1cad9eedc9c7dd2297f2c853532a2",
+  "cases": [
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 0
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 0
+    },
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 1
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 1
+    },
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 2
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 2
+    },
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 3
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 3
+    },
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 4
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 4
+    },
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 5
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 5
+    },
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 6
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 6
+    },
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 7
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 7
+    },
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 8
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 8
+    },
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 9
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0,
+      "special_mode": 9
+    }
+  ],
+  "results": [
+    [
+      0,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      3,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      4,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      5,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      6,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      7,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      8,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      9,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      10,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      11,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      12,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      13,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      14,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      15,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      16,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      17,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      18,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      19,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "expected": [
+    [
+      0,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      3,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      4,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      5,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      6,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      7,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      8,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      9,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      10,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      11,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      12,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      13,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      14,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      15,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      16,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      17,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      18,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      19,
+      3,
+      4,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      null,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "faults": [],
+  "source_frame_handle": 5,
+  "script_programs": 7,
+  "callback_cpu_costs": [
+    [
+      0,
+      301454,
+      508,
+      509
+    ],
+    [
+      1,
+      301292,
+      513,
+      514
+    ],
+    [
+      2,
+      301456,
+      517,
+      518
+    ],
+    [
+      3,
+      301292,
+      522,
+      523
+    ],
+    [
+      4,
+      301454,
+      527,
+      528
+    ],
+    [
+      5,
+      290984,
+      532,
+      532
+    ],
+    [
+      6,
+      301454,
+      536,
+      537
+    ],
+    [
+      7,
+      301292,
+      541,
+      542
+    ],
+    [
+      8,
+      291186,
+      546,
+      546
+    ],
+    [
+      9,
+      301292,
+      550,
+      551
+    ],
+    [
+      10,
+      301454,
+      555,
+      556
+    ],
+    [
+      11,
+      301292,
+      559,
+      560
+    ],
+    [
+      12,
+      301454,
+      563,
+      564
+    ],
+    [
+      13,
+      301292,
+      567,
+      568
+    ],
+    [
+      14,
+      301454,
+      571,
+      572
+    ],
+    [
+      15,
+      301292,
+      575,
+      576
+    ],
+    [
+      16,
+      301454,
+      579,
+      580
+    ],
+    [
+      17,
+      301292,
+      584,
+      585
+    ],
+    [
+      18,
+      301454,
+      589,
+      590
+    ],
+    [
+      19,
+      301292,
+      595,
+      596
+    ]
+  ],
+  "cost_scope": "Before native callback Begin through callback completion/fault and instrumented frame-service acknowledgement; includes intervening NMI/runtime, excludes debugger initialization",
+  "initializer_copy_checks": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      0
+    ],
+    [
+      3,
+      0,
+      0
+    ],
+    [
+      4,
+      0,
+      0
+    ],
+    [
+      5,
+      0,
+      0
+    ],
+    [
+      6,
+      0,
+      0
+    ],
+    [
+      7,
+      0,
+      0
+    ],
+    [
+      8,
+      0,
+      0
+    ],
+    [
+      9,
+      0,
+      0
+    ],
+    [
+      10,
+      0,
+      0
+    ],
+    [
+      11,
+      0,
+      0
+    ],
+    [
+      12,
+      0,
+      0
+    ],
+    [
+      13,
+      0,
+      0
+    ],
+    [
+      14,
+      0,
+      0
+    ],
+    [
+      15,
+      0,
+      0
+    ],
+    [
+      16,
+      0,
+      0
+    ],
+    [
+      17,
+      0,
+      0
+    ],
+    [
+      18,
+      0,
+      0
+    ],
+    [
+      19,
+      0,
+      0
+    ]
+  ],
+  "remaining_effect_service_instrumented": false,
+  "native_effect_runner": true,
+  "native_frame_owner": true,
+  "sound_service_instrumented": true,
+  "frame_results": [
+    [
+      0,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      1,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      2,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      3,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      4,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      5,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      6,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      7,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      8,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      9,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      10,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      11,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      12,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      13,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      14,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      15,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      16,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      17,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      18,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ],
+    [
+      19,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      49,
+      0
+    ]
+  ],
+  "player_initialization_bound": false,
+  "source_effect_presentation_proven": false,
+  "combat_proven": false,
+  "motu_gameplay_proven": false,
+  "no_pcm_copies": true,
+  "no_color_reduction": true,
+  "native_birth_core": false,
+  "birth_core_results": [],
+  "initial_select": true,
+  "initial_select_results": [
+    [
+      0,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      1,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      2,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      3,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      4,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      5,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      6,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      7,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      8,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      9,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      10,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      11,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      12,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      13,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      14,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      15,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      16,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      17,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      18,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ],
+    [
+      19,
+      25,
+      2,
+      1,
+      25,
+      5,
+      0
+    ]
+  ],
+  "initial_jump": false,
+  "initial_jump_results": [],
+  "empty_environment_tail_bound": false,
+  "tail_results": [],
+  "initial_idle": false,
+  "initial_idle_results": [],
+  "default_idle_registry_capability": null,
+  "default_walk_registry_capability": null,
+  "initial_walk": false,
+  "initial_walk_results": [],
+  "initial_none_walk": false,
+  "initial_none_walk_results": [],
+  "initial_none_model": null,
+  "initial_none_model_results": [],
+  "ctor_owner_bound": true,
+  "ctor_state_bound": true,
+  "ctor_factors_bound": true,
+  "ctor_model_bound": true,
+  "ctor_media_bindings_bound": false,
+  "script_clone_bound": true,
+  "script_clone_results": [
+    [
+      0,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      1,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      2,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      3,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      4,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      5,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      6,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      7,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      8,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      9,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      10,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      11,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      12,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      13,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      14,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      15,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      16,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      17,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      18,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ],
+    [
+      19,
+      2,
+      1,
+      0,
+      0,
+      99,
+      3
+    ]
+  ],
+  "script_clone_table_sha256": "7af26fcfca114db9607d166f637ee9350a49f93771d1079e3107a606866eeaaf",
+  "default_owner_bound": true,
+  "default_owner_results": [
+    [
+      0,
+      6,
+      0,
+      1
+    ],
+    [
+      1,
+      6,
+      0,
+      1
+    ],
+    [
+      2,
+      6,
+      0,
+      1
+    ],
+    [
+      3,
+      6,
+      0,
+      1
+    ],
+    [
+      4,
+      6,
+      0,
+      1
+    ],
+    [
+      5,
+      6,
+      0,
+      1
+    ],
+    [
+      6,
+      6,
+      0,
+      1
+    ],
+    [
+      7,
+      6,
+      0,
+      1
+    ],
+    [
+      8,
+      6,
+      0,
+      1
+    ],
+    [
+      9,
+      6,
+      0,
+      1
+    ],
+    [
+      10,
+      6,
+      0,
+      1
+    ],
+    [
+      11,
+      6,
+      0,
+      1
+    ],
+    [
+      12,
+      6,
+      0,
+      1
+    ],
+    [
+      13,
+      6,
+      0,
+      1
+    ],
+    [
+      14,
+      6,
+      0,
+      1
+    ],
+    [
+      15,
+      6,
+      0,
+      1
+    ],
+    [
+      16,
+      6,
+      0,
+      1
+    ],
+    [
+      17,
+      6,
+      0,
+      1
+    ],
+    [
+      18,
+      6,
+      0,
+      1
+    ],
+    [
+      19,
+      6,
+      0,
+      1
+    ]
+  ],
+  "initial_enemy": null,
+  "initial_enemy_role": null,
+  "initial_enemy_results": [],
+  "enemy_drop_context_instrumented": false,
+  "full_default_init_bound": false,
+  "stage_queue_index": null,
+  "stage_queue_row": null,
+  "stage_queue_table_sha256": null,
+  "stage_queue_constructor_inputs_bound": false,
+  "stage_queue_post_constructor_properties_bound": false,
+  "smartspawn_results": [],
+  "smartspawn_music_execution_bound": false,
+  "queue_producer_bound": false,
+  "queue_producer_results": [],
+  "queue_music_service_instrumented": false,
+  "scroller_owner_bound": false,
+  "scroller_no_player_return_only": false,
+  "scroller_results": [],
+  "canonical_special_bound": true,
+  "special_results": [
+    [
+      0,
+      4,
+      5,
+      90,
+      150,
+      17,
+      1,
+      0,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      1,
+      4,
+      5,
+      90,
+      150,
+      17,
+      1,
+      0,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      2,
+      4,
+      5,
+      0,
+      141,
+      17,
+      1,
+      2147483904,
+      2147483648,
+      21,
+      2,
+      2
+    ],
+    [
+      3,
+      4,
+      5,
+      0,
+      141,
+      17,
+      1,
+      2147483904,
+      2147483648,
+      21,
+      2,
+      2
+    ],
+    [
+      4,
+      4,
+      5,
+      113,
+      151,
+      17,
+      1,
+      2147483904,
+      2147483648,
+      21,
+      2,
+      2
+    ],
+    [
+      5,
+      4,
+      5,
+      113,
+      151,
+      17,
+      1,
+      2147483904,
+      2147483648,
+      21,
+      2,
+      2
+    ],
+    [
+      6,
+      4,
+      5,
+      123,
+      151,
+      17,
+      1,
+      2147483904,
+      2147483648,
+      21,
+      2,
+      2
+    ],
+    [
+      7,
+      4,
+      5,
+      123,
+      151,
+      17,
+      1,
+      2147483904,
+      2147483648,
+      21,
+      2,
+      2
+    ],
+    [
+      8,
+      4,
+      5,
+      90,
+      1,
+      17,
+      1,
+      0,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      9,
+      4,
+      5,
+      90,
+      1,
+      17,
+      1,
+      0,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      10,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      256,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      11,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      256,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      12,
+      2,
+      2,
+      100,
+      150,
+      0,
+      0,
+      256,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      13,
+      2,
+      2,
+      100,
+      150,
+      0,
+      0,
+      256,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      14,
+      2,
+      2,
+      100,
+      150,
+      0,
+      0,
+      256,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      15,
+      2,
+      2,
+      100,
+      150,
+      0,
+      0,
+      256,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      16,
+      4,
+      5,
+      90,
+      150,
+      17,
+      1,
+      0,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      17,
+      4,
+      5,
+      90,
+      150,
+      17,
+      1,
+      0,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      18,
+      4,
+      5,
+      90,
+      150,
+      17,
+      1,
+      0,
+      0,
+      21,
+      2,
+      2
+    ],
+    [
+      19,
+      4,
+      5,
+      90,
+      150,
+      17,
+      1,
+      0,
+      0,
+      21,
+      2,
+      2
+    ]
+  ],
+  "special_queries": [
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      3,
+      0
+    ],
+    [
+      3,
+      1
+    ],
+    [
+      4,
+      0
+    ],
+    [
+      4,
+      1
+    ],
+    [
+      5,
+      0
+    ],
+    [
+      5,
+      1
+    ],
+    [
+      6,
+      0
+    ],
+    [
+      7,
+      0
+    ],
+    [
+      8,
+      0
+    ],
+    [
+      8,
+      1
+    ],
+    [
+      8,
+      1
+    ],
+    [
+      9,
+      0
+    ],
+    [
+      9,
+      1
+    ],
+    [
+      9,
+      1
+    ],
+    [
+      10,
+      0
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      11,
+      0
+    ],
+    [
+      11,
+      1
+    ],
+    [
+      16,
+      0
+    ],
+    [
+      16,
+      1
+    ],
+    [
+      17,
+      0
+    ],
+    [
+      17,
+      1
+    ],
+    [
+      18,
+      0
+    ],
+    [
+      18,
+      1
+    ],
+    [
+      19,
+      0
+    ],
+    [
+      19,
+      1
+    ]
+  ],
+  "special_rejected_retention": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      3,
+      0
+    ],
+    [
+      4,
+      0
+    ],
+    [
+      5,
+      0
+    ],
+    [
+      6,
+      0
+    ],
+    [
+      7,
+      0
+    ],
+    [
+      8,
+      0
+    ],
+    [
+      9,
+      0
+    ],
+    [
+      10,
+      0
+    ],
+    [
+      11,
+      0
+    ],
+    [
+      12,
+      0
+    ],
+    [
+      13,
+      0
+    ],
+    [
+      14,
+      0
+    ],
+    [
+      15,
+      0
+    ],
+    [
+      16,
+      0
+    ],
+    [
+      17,
+      0
+    ],
+    [
+      18,
+      0
+    ],
+    [
+      19,
+      0
+    ]
+  ],
+  "special_link_results": [
+    [
+      16,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      6
+    ],
+    [
+      17,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      6
+    ],
+    [
+      18,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      6
+    ],
+    [
+      19,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      6
+    ]
+  ],
+  "special_service_frames": [
+    [
+      0,
+      3,
+      0,
+      21
+    ],
+    [
+      1,
+      3,
+      0,
+      21
+    ],
+    [
+      2,
+      3,
+      0,
+      21
+    ],
+    [
+      3,
+      3,
+      0,
+      21
+    ],
+    [
+      4,
+      3,
+      0,
+      21
+    ],
+    [
+      5,
+      3,
+      0,
+      21
+    ],
+    [
+      6,
+      3,
+      0,
+      21
+    ],
+    [
+      7,
+      3,
+      0,
+      21
+    ],
+    [
+      8,
+      3,
+      0,
+      21
+    ],
+    [
+      9,
+      3,
+      0,
+      21
+    ],
+    [
+      16,
+      3,
+      0,
+      21
+    ],
+    [
+      17,
+      3,
+      0,
+      21
+    ],
+    [
+      18,
+      1,
+      1,
+      0
+    ],
+    [
+      18,
+      3,
+      0,
+      21
+    ],
+    [
+      19,
+      1,
+      1,
+      0
+    ],
+    [
+      19,
+      3,
+      0,
+      21
+    ]
+  ],
+  "special_idle_capability": {
+    "schema": "BYOR_4086_IDLE_CAPABILITY_V1",
+    "models": [
+      {
+        "identity": "Shock",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "Slash",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "Spark",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "He_Man",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 1,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "He_ManB",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "HBreath",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "HWWind",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "ShWave",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "Skeletor",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 2,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "GeyserN",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "SkFBall",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "SkGeyser",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "SkGeyserT",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "SkTorn",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "Knightbot",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 2,
+        "cached_subtype": 0
+      },
+      {
+        "identity": "ShockBall",
+        "capability": "DEFAULT_IDLE_ONLY",
+        "cached_type": 0,
+        "cached_subtype": 0
+      }
+    ],
+    "native_animation_initializer_required": true,
+    "dynamic_idlemode_domain": [
+      0,
+      1
+    ],
+    "motu_gameplay_proven": false
+  },
+  "special_profile": {
+    "capability": "NO_MODEL_SMARTBOMB",
+    "models": [
+      {
+        "id": 0,
+        "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e"
+      },
+      {
+        "id": 1,
+        "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7"
+      },
+      {
+        "id": 2,
+        "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd"
+      },
+      {
+        "id": 3,
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40"
+      },
+      {
+        "id": 4,
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea"
+      },
+      {
+        "id": 5,
+        "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36"
+      },
+      {
+        "id": 6,
+        "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c"
+      },
+      {
+        "id": 7,
+        "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181"
+      },
+      {
+        "id": 8,
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b"
+      },
+      {
+        "id": 9,
+        "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a"
+      },
+      {
+        "id": 10,
+        "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd"
+      },
+      {
+        "id": 11,
+        "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940"
+      },
+      {
+        "id": 12,
+        "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14"
+      },
+      {
+        "id": 13,
+        "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb"
+      },
+      {
+        "id": 14,
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610"
+      },
+      {
+        "id": 15,
+        "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807"
+      }
+    ],
+    "smartbomb": 0,
+    "dofreeze": 0,
+    "authority": "init_model calloc; only CMD_MODEL_SMARTBOMB installs these fields",
+    "direct_model_smartbomb_mutation_admitted": false,
+    "motu_gameplay_proven": false
+  },
+  "special_frame_owner_real": true,
+  "special_context_and_input_instrumented": true,
+  "production_full_player_think_bound": false,
+  "ai_constructor_initialization_bound": true,
+  "ai_birth_results": [
+    [
+      0,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      2,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      3,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      4,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      5,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      6,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      7,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      8,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      9,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      10,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      11,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      12,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      13,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      14,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      15,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      16,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      17,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      18,
+      0,
+      0,
+      6120,
+      0
+    ],
+    [
+      19,
+      0,
+      0,
+      6120,
+      0
+    ]
+  ],
+  "actual_player_state_birth_bridge": true,
+  "player_state_birth_results": [
+    [
+      0,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      1,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      2,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      3,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      4,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      5,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      6,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      7,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      8,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      9,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      10,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      11,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      12,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      13,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      14,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      15,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      16,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      17,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      18,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ],
+    [
+      19,
+      0,
+      0,
+      3960,
+      0,
+      46715,
+      616
+    ]
+  ],
+  "player_state_layout": {
+    "schema": "BYOR_FOREIGN_VM_SLOT_TAIL_LAYOUT_V1",
+    "live_slot_count": 616,
+    "live_slot_bytes": 4928,
+    "base": 8377152,
+    "bytes": 3264,
+    "end": 8380416,
+    "entity_fields": [
+      "charging",
+      "turning",
+      "getting",
+      "rush.count.current",
+      "rush.count.max",
+      "rush.time"
+    ],
+    "entity_stride": 24,
+    "entities": 128,
+    "entity_state_bytes": 3072,
+    "remaining_bytes": 192,
+    "integer_fields_lossless": true,
+    "live_slots_overlapped": false,
+    "required_lease": "compiled slot count equals loaded VmState_SlotCount; immutable module extent and nonzero matching lifetime generation",
+    "runtime_owner_bound": false,
+    "canonical_entity_state_bound": false,
+    "motu_gameplay_proven": false,
+    "no_color_reduction": true,
+    "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+    "module_code_sha256": "a8ec41e909c46c45d6a185ce3641766e34a5e2647a2868fdbe9022fdba19e2bf",
+    "module_metadata_sha256": "c889fecab25402940d7fa6327389180426cbad9ca307faa0600e0c7538be7c35",
+    "live_slot_identity_preserved": true
+  },
+  "player_state_payload_lease": "instrumented isolated retired-producer controls; real native VM-tail extent/generation lease",
+  "production_player_state_birth_binding": false,
+  "production_full_module_loader_binding": false,
+  "actual_run_tuple_birth_capture": true,
+  "run_tuple_birth_results": [
+    [
+      0,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      1,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      2,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      3,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      4,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      5,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      6,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      7,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      8,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      9,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      10,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      11,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      12,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      13,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      14,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      15,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      16,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      17,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      18,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ],
+    [
+      19,
+      0,
+      2,
+      42405,
+      1,
+      2
+    ]
+  ],
+  "run_tuple_handle": 2,
+  "source_exists_set_before_model_copy": true,
+  "run_capture_before_script_binding": true,
+  "production_run_tuple_birth_binding": false
+}
