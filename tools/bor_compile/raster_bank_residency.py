@@ -164,7 +164,9 @@ def solve_linear(model,time_limit):
     # indexing like a Python list. Materialize domains before taking the end.
     domains=[list(v.domain)for v in proto.variables]
     bounds=Bounds([d[0]for d in domains],[d[-1]for d in domains])
-    started=time.monotonic();r=milp(np.zeros(n),integrality=np.ones(n),bounds=bounds,constraints=LinearConstraint(matrix,lower,upper),options={'time_limit':time_limit,'mip_rel_gap':0})
+    objective=np.zeros(n)
+    for i,c in zip(proto.objective.vars,proto.objective.coeffs):objective[i]=c
+    started=time.monotonic();r=milp(objective,integrality=np.ones(n),bounds=bounds,constraints=LinearConstraint(matrix,lower,upper),options={'time_limit':time_limit,'mip_rel_gap':0})
     report=dict(solver_backend='highs',solver_status=('OPTIMAL'if r.status==0 else'INFEASIBLE'if r.status==2 else'FEASIBLE'if r.x is not None else'UNKNOWN'),
         solver_seconds=time.monotonic()-started,solver_model_variables=n,solver_model_constraints=len(lower),solver_branches=getattr(r,'mip_node_count',None),solver_conflicts=None,
         solver_message=r.message)
@@ -177,7 +179,7 @@ def solve_linear(model,time_limit):
     return lambda variable:int(values[variable.index]),report
 
 
-def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None):
+def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None,minimize_writes=False):
     from ortools.sat.python import cp_model
     if write_budget<0 or lookahead<0 or(window is not None and window<1):raise ValueError('BANK_RESIDENCY_DOMAIN')
     if range_backend not in('dp','ranges','adjacent'):raise ValueError('BANK_RESIDENCY_RANGE_BACKEND')
@@ -258,11 +260,12 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
             if range_backend=='dp':constrain_dp(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}')
             else:constrain_adjacent(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',write_budget)
         else:constrain_ranges(line,active_flags,allocate,constraint,window,maximum_ranges=4)
+    if minimize_writes:model.minimize(sum(writes.values()))
     if solver_backend=='highs':value,statistics=solve_linear(model,time_limit)
     else:
         solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
         solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
-        solver.parameters.stop_after_first_solution=True
+        solver.parameters.stop_after_first_solution=not minimize_writes
         status=solver.solve(model);value=solver.value if status in(cp_model.FEASIBLE,cp_model.OPTIMAL)else None
         statistics=dict(solver_backend='cp-sat',solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
             solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts)
@@ -277,6 +280,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     report['complete_source_frame_pixel_identity_proven']=False
     report['compulsory_bank_interval_cuts']=interval_cuts
     report['soft_residency_hint_interval']=hint_interval
+    report['total_noninitial_writes_objective']=minimize_writes
     if value is None:return report
     planned={y:{b:set()for b in range(8)}for y in range(first,last+1)}
     for (b,c,y),r in resident.items():
@@ -313,6 +317,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         maximum_noninitial_prefetch_latency_lines=latency,pixel_color_identity_verified=True,
         independent_prepared_partition_bound_verified=window is not None,peak_optimistic_prepared_span=max(favorable_span(r['updates'])for r in trace[1:]))
     report['complete_source_frame_pixel_identity_proven']=not report['outside_interval_pixels_relaxed']
+    report['total_noninitial_scheduled_writes']=sum(r['colors_written']for r in trace[1:])
     result=copy.deepcopy(source)
     for key in('physical_slot_layout','prepared_dma_packets'):result.pop(key,None)
     result.update(trace=trace,piece_pixel_masks=images,bank_residency=report,write_budget=write_budget,lookahead_lines=lookahead,
@@ -338,9 +343,10 @@ def main():
     p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat')
     p.add_argument('--scanline-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
     p.add_argument('--residency-hint',type=Path)
+    p.add_argument('--minimize-writes',action='store_true')
     a=p.parse_args();source=json.loads(a.schedule.read_text())
     if a.scanline_interval:source=restrict_interval(source,*a.scanline_interval)
-    r=relaxed_bound(source,a.lookahead,a.time_limit)if a.relaxed_bound else optimize(source,a.write_budget,a.lookahead,None if a.no_prepared_range_bound else a.window,a.time_limit,a.range_backend,a.repair_interval,a.solver_backend,json.loads(a.residency_hint.read_text())if a.residency_hint else None);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('bank_residency',r)))
+    r=relaxed_bound(source,a.lookahead,a.time_limit)if a.relaxed_bound else optimize(source,a.write_budget,a.lookahead,None if a.no_prepared_range_bound else a.window,a.time_limit,a.range_backend,a.repair_interval,a.solver_backend,json.loads(a.residency_hint.read_text())if a.residency_hint else None,a.minimize_writes);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('bank_residency',r)))
 
 
 if __name__=='__main__':main()

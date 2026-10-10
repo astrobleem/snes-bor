@@ -6,6 +6,32 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_initial_preload_occupies_capacity_until_first_prefetch_row(self):
+        import hashlib,copy
+        background=np.full((224,256,3),255,dtype=np.uint8)
+        pixels=np.full((16,16),-1,dtype=np.int32);pixels[0,0]=0;pixels[1,:15]=np.arange(15);pixels[12,0]=15
+        expected=background.copy()
+        for y,x in zip(*np.where(pixels>=0)):
+            c=int(pixels[y,x]);expected[y,x]=[(c>>s&31)*8 for s in(0,5,10)]
+        state={b:[None]*15 for b in range(8)};trace=[]
+        for y in range(224):
+            before=copy.deepcopy(state);events=[]
+            for slot,c in (list(enumerate(range(15),1))if y==0 else[(1,15)]if y==12 else[]):
+                events.append(dict(bank=0,slot=slot,old=state[0][slot-1],color=c));state[0][slot-1]=c
+            trace.append(dict(scanline=y,resident_before=before,updates=events))
+        image=np.zeros((16,16),dtype=np.uint8);image[0,0]=1;image[1,:15]=np.arange(1,16);image[12,0]=1;flat=image.flatten()
+        hint=dict(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN',compiled_pixel_identity_verified=True,color_math='precomposited',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),trace=trace,
+            pieces=[dict(actor=0,local_x=0,local_y=0,x=0,y=0,width=16,height=16,bank=0)],
+            piece_pixel_masks=[dict(width=16,height=16,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex())])
+        for lookahead,success in ((0,False),(1,True)):
+            with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+                result=probe(None,None,{},size=16,write_budget=0,early_write_budget=1,late_start=12,lookahead=lookahead,time_limit=10,
+                    color_math='precomposited',solver_backend='cp-sat',schedule_hint=hint,fixed_geometry=True,feasibility_only=True)
+            self.assertEqual(result['solver']['status']==0,success)
+            self.assertTrue(result['initial_preload_prefix_capacity_modeled'])
+            if success:self.assertTrue(result['compiled_pixel_identity_verified'])
+
     def test_fixed_geometry_keeps_split_atom_pixel_bank_ownership(self):
         import copy
         background=np.zeros((224,256,3),dtype=np.uint8)

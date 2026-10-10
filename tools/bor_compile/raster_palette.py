@@ -75,13 +75,15 @@ def assign_banks(pieces, banks, time_limit=60):
                 solver_status=int(result.status),message=result.message)
 
 
-def split_color_masks(pieces, banks, time_limit=60):
+def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solver_backend='highs',maximum_frame_colors_per_bank=None):
     """Allow multiple legal objects per cell, masking disjoint source pixels.
 
     Each output object still has one fixed bank. Color/row assignment is
     compiled into the tile pixels, never changed via OAM during a scanline.
     The optimization accounts for empty rows in a live object's rectangle.
     """
+    if solver_backend not in('highs','cp-sat'):raise ValueError('MASK_SOLVER_BACKEND')
+    if maximum_frame_colors_per_bank is not None and(not global_color_banks or not isinstance(maximum_frame_colors_per_bank,int)or maximum_frame_colors_per_bank<1):raise ValueError('MASK_FRAME_COLOR_LIMIT')
     nb=len(banks); n=len(pieces)
     pairs=sorted({(y,c) for p in pieces for y,cs in p['rows'].items() for c in cs})
     cv={(y,c,b):n*nb+j*nb+b for j,(y,c) in enumerate(pairs) for b in range(nb)}
@@ -91,6 +93,14 @@ def split_color_masks(pieces, banks, time_limit=60):
         for c,v in items:rr.append(r);cc.append(c);vv.append(v)
         lo.append(lower);hi.append(upper)
     for y,c in pairs: row([(cv[y,c,b],1) for b in range(nb)],1,1)
+    if global_color_banks:
+        first={}
+        for y,c in pairs:
+            if c not in first:first[c]=y
+            else:
+                for b in range(nb):row([(cv[y,c,b],1),(cv[first[c],c,b],-1)],0,0)
+        if maximum_frame_colors_per_bank is not None:
+            for b in range(nb):row([(cv[y,c,b],1)for c,y in first.items()],0,maximum_frame_colors_per_bank)
     for i,p in enumerate(pieces):
         for y,cs in p['rows'].items():
             for c in cs:
@@ -102,9 +112,12 @@ def split_color_masks(pieces, banks, time_limit=60):
         row(live,0,32)
         row([(i*nb+b,(p['width']+7)//8) for i,p in enumerate(pieces) if p['y']<=y<p['y']+p['height'] for b in range(nb)],0,34)
     objective=np.zeros(count);objective[:n*nb]=1
-    result=milp(objective,integrality=np.ones(count),bounds=Bounds(0,1),
-        constraints=LinearConstraint(coo_matrix((vv,(rr,cc)),shape=(len(lo),count)).tocsc(),lo,hi),
-        options={'time_limit':time_limit,'mip_rel_gap':0.03})
+    matrix=coo_matrix((vv,(rr,cc)),shape=(len(lo),count)).tocsc()
+    if solver_backend=='cp-sat':
+        from raster_boolean_solver import solve
+        result=solve(matrix,lo,hi,objective,time_limit)
+    else:result=milp(objective,integrality=np.ones(count),bounds=Bounds(0,1),
+        constraints=LinearConstraint(matrix,lo,hi),options={'time_limit':time_limit,'mip_rel_gap':0.03})
     if result.x is None:
         return dict(status='MASK_GRID_INFEASIBLE' if result.status==2 else 'SOLVER_LIMIT',solver_status=int(result.status),message=result.message)
     expanded=[];assignment=[]
@@ -114,7 +127,8 @@ def split_color_masks(pieces, banks, time_limit=60):
             if any(rows.values()):expanded.append(dict(p,rows=rows));assignment.append(bank)
     return dict(status='COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN',pieces=expanded,
                 assignment=assignment,solver_status=int(result.status),message=result.message,
-                objective=float(result.fun),lower_bound=float(result.mip_dual_bound))
+                objective=float(np.dot(objective,result.x)),lower_bound=float(result.mip_dual_bound)if getattr(result,'mip_dual_bound',None)is not None else None,
+                global_color_banks=global_color_banks,solver_backend=solver_backend,maximum_frame_colors_per_bank=maximum_frame_colors_per_bank)
 
 
 def split_scene_color_masks(pieces, banks=tuple(range(8)), time_limit=60, adjacent_write_budget=None):

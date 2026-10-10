@@ -26,6 +26,17 @@ class ResidencyTests(unittest.TestCase):
     def test_invalid_budget_rejected(self):
         with self.assertRaisesRegex(ValueError,'BANK_RESIDENCY_DOMAIN'):optimize(source_schedule(),write_budget=-1)
 
+    def test_minimum_total_writes_preserves_pixels_with_both_backends(self):
+        for backend in ('cp-sat','highs'):
+            source=source_schedule()
+            result=optimize(source,write_budget=2,lookahead=0,time_limit=10,window=None,
+                            solver_backend=backend,minimize_writes=True)
+            self.assertEqual(result['bank_residency']['solver_status'],'OPTIMAL')
+            self.assertTrue(result['bank_residency']['total_noninitial_writes_objective'])
+            self.assertEqual(result['bank_residency']['total_noninitial_scheduled_writes'],4)
+            _,_,a=demand(source);_,_,b=demand(result)
+            self.assertTrue(all(np.array_equal(x,y)for x,y in zip(a,b)))
+
     def test_independent_partition_bound_matches_existing_unlimited_dp(self):
         for counts in ([1,1,1,0,0,0,0,0],[15]*8,[2,0,3,0,1,0,0,4],[0]*8):
             updates=[dict(bank=b)for b,n in enumerate(counts)for _ in range(n)]

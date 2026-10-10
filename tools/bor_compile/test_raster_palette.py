@@ -1,10 +1,26 @@
 """Admission and identity checks for offline raster scheduling."""
 import unittest
 import numpy as np
-from raster_palette import prove_frame, schedule,bounded_schedule, assign_banks, split_scene_color_masks
+from raster_palette import prove_frame, schedule,bounded_schedule, assign_banks, split_scene_color_masks,split_color_masks
 
 
 class RasterPaletteTests(unittest.TestCase):
+    def test_global_mask_color_bank_identity_survives_rows_and_both_solvers(self):
+        pieces=[dict(x=0,y=0,width=8,height=8,rows={0:list(range(8)),1:list(range(8,16))}),
+            dict(x=8,y=0,width=8,height=8,rows={0:list(range(8,16)),1:list(range(8))})]
+        for backend in('highs','cp-sat'):
+            result=split_color_masks(pieces,(0,1),time_limit=10,global_color_banks=True,solver_backend=backend,maximum_frame_colors_per_bank=8)
+            self.assertEqual(result['status'],'COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN')
+            identities={};required={}
+            for piece,bank in zip(result['pieces'],result['assignment']):
+                for y,colors in piece['rows'].items():
+                    for color in colors:identities.setdefault(color,set()).add(bank);required.setdefault((y,bank),set()).add(color)
+            self.assertEqual(set(identities),set(range(16)))
+            self.assertTrue(all(len(banks)==1 for banks in identities.values()))
+            self.assertTrue(all(len(colors)<=15 for colors in required.values()))
+            for bank in(0,1):self.assertEqual(sum(bank in values for values in identities.values()),8)
+            self.assertEqual(result['objective'],4)
+
     def test_piece_bank_eligibility_and_equal_colors_on_different_actors(self):
         pieces=[dict(x=0,y=0,width=8,height=8,rows={0:[7]},allowed_banks=[0]),
                 dict(x=8,y=0,width=8,height=8,rows={0:[7]},allowed_banks=[4])]

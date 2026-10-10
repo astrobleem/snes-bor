@@ -277,6 +277,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     color_choices={}
     for (i,piece_index,b,c),variable in choices.items():color_choices.setdefault((b,c),set()).add((atoms[i]['line'],variable))
     bank_lines = {}; write_lines = {}
+    preload_prefixes={}
     for key, variable in resident.items():
         b,c,y = key
         bank_lines.setdefault((b,y),[]).append(variable)
@@ -294,6 +295,15 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             # surplus write. Rewriting a retained word cannot help admission.
             constraint([(writes[key],1),(variable,-1)],-np.inf,0)
             constraint(items,-np.inf,0);write_lines.setdefault(y,[]).append(writes[key])
+    # Sparse residency has an initial variable followed by the first legal
+    # prefetch row. An initially loaded color occupies a slot throughout that
+    # prefix; ignoring it allowed another color to overwrite its physical slot
+    # while the later transition still treated it as resident for free.
+    for b,c in uses:
+        lines=[y for y in residency_lines(uses[b,c])if(b,c,y)in resident]
+        if len(lines)>1 and lines[0]==0 and lines[1]>1:
+            preload_prefixes[b,c]=lines[1]
+            for y in range(1,lines[1]):bank_lines.setdefault((b,y),[]).append(resident[b,c,0])
     interval_groups=0
     if pin_pool_intervals:
         # Restricted constructive family: every represented pool residency is
@@ -393,6 +403,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 prepared_dma_window_is_optimistic_necessary_only=prepared_dma_window is not None,
                 schedule_hint_used=schedule_hint is not None,
                 schedule_residency_hint_used=schedule_hint is not None,
+                initial_preload_prefix_capacity_modeled=True,
+                initial_preload_prefix_colors=len(preload_prefixes),
                 exact_underlay_bypass=underlay_bypass,underlay_bypassed_pixels=bypassed,source_actor_canvases=source_canvases,
                 source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
                 scope='Explicit pose. Exact opaque/additive pixel alternatives and fixed OAM color masks on one legal grid. No native layer routing, source reachability or hardware bandwidth admission.')
@@ -426,6 +438,9 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     wanted=[{b:set() for b in range(8)} for _ in range(height)]
     for (b,c,y),variable in resident.items():
         if result.x[variable]>.5:wanted[y][b].add(c)
+    for (b,c),end in preload_prefixes.items():
+        if result.x[resident[b,c,0]]>.5:
+            for y in range(1,end):wanted[y][b].add(c)
     slots={b:[None]*15 for b in range(8)};states=[];trace=[];prefetch_latency=0
     for y in range(height):
         before={b:list(values) for b,values in slots.items()};events=[]
