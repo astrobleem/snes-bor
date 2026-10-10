@@ -35,3 +35,11 @@ use the permuted addresses, including required-versus-prefetch classification.
 The 356-clock, gap-two, 16-line-lookahead trial returned UNKNOWN after 300.97
 seconds (879310 branches, 350656 conflicts). This remains a bounded search
 result, not a hardware rejection. Four focused layout tests pass.
+
+`--fix-hint-slots` constrains the physical positions to those from the verified
+hint while allowing write times and optional fixed-bank permutation to change.
+It requires a matching verified hint for every used lifetime. The gap-two trial
+with four ranges, a 356-clock window and 16-line lookahead returned INFEASIBLE in
+11.43 seconds (511 branches, 51 conflicts). This rejects that fixed-slot family
+only. Other slot positions, piece assignments, encodings and transfer mechanisms
+remain open. The focused tests verify that frozen slots retain the exact indices.

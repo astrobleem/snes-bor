@@ -10,7 +10,7 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
-def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False):
+def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False):
     from ortools.sat.python import cp_model
     if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('SLOT_LAYOUT_VALIDATED_SCHEDULE_REQUIRED')
@@ -28,6 +28,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         original_states.append(copy.deepcopy(original));active_rows.append(dict(current))
     if flexible_prefetch and(not trim_dead_residents or not isinstance(lookahead,int)or lookahead<0):raise ValueError('SLOT_LAYOUT_PREFETCH_DOMAIN')
     if reorder_banks and not flexible_prefetch:raise ValueError('SLOT_LAYOUT_BANK_REORDER_REQUIRES_PREFETCH')
+    if fix_hint_slots and(not flexible_prefetch or layout_hint is None):raise ValueError('SLOT_LAYOUT_FIXED_HINT_REQUIRES_PREFETCH_HINT')
     required={};last_use={};first_use={}
     for p,mask in zip(schedule['pieces'],schedule['piece_pixel_masks']):
         image=unpack(mask)
@@ -71,6 +72,9 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             slot=pixels[i];s=segments[i];events=[row['scanline']for row in layout_hint['trace']if row['scanline']<=first_use[i]for e in row['updates']if e['bank']==s['bank']and e['slot']==slot+1 and e['color']==s['color']]
             if events:hinted[i]=(slot,max(events))
     model=cp_model.CpModel();slots=[model.new_int_var(0,14,'s'+str(i))for i in range(len(segments))]
+    if fix_hint_slots:
+        if set(hinted)!=set(last_use):raise ValueError('SLOT_LAYOUT_FIXED_HINT_INCOMPLETE')
+        for i,(slot,time)in hinted.items():model.add(slots[i]==slot)
     destinations={};bank_choices={}
     if reorder_banks:
         additive=schedule.get('color_math','additive')=='additive'
@@ -154,6 +158,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 demand_gap_lines=demand_gap,
                 layout_hint_used=layout_hint is not None,
                 reorder_banks=reorder_banks,
+                fixed_hint_slots=fix_hint_slots,
                 solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
                 solver_probing_level=0,solver_sat_inprocessing=False,
                 universal_raster_rejected=False,native_timing_admitted=False,no_color_reduction=True)
@@ -226,7 +231,8 @@ def main():
     p.add_argument('--demand-gap',type=int)
     p.add_argument('--layout-hint',type=Path)
     p.add_argument('--reorder-banks',action='store_true')
-    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks)
+    p.add_argument('--fix-hint-slots',action='store_true')
+    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 

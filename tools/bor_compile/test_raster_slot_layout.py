@@ -50,6 +50,10 @@ class SlotLayoutTests(unittest.TestCase):
         hinted=optimize(self.schedule(),window=356,time_limit=10,demand_gap=1,flexible_prefetch=True,layout_hint=r)
         self.assertTrue(hinted['physical_slot_layout']['layout_hint_used'])
         self.assertTrue(hinted['physical_slot_layout']['all_packet_cgram_identities_verified'])
+        fixed=optimize(self.schedule(),window=356,time_limit=10,demand_gap=1,flexible_prefetch=True,layout_hint=r,fix_hint_slots=True)
+        self.assertTrue(fixed['physical_slot_layout']['fixed_hint_slots'])
+        self.assertEqual(fixed['piece_pixel_masks'],r['piece_pixel_masks'])
+        with self.assertRaisesRegex(ValueError,'FIXED_HINT_REQUIRES_PREFETCH_HINT'):optimize(self.schedule(),fix_hint_slots=True)
         invalid=copy.deepcopy(r);invalid['source_rgb555_sha256']='different'
         with self.assertRaisesRegex(ValueError,'HINT_IDENTITY'):optimize(self.schedule(),layout_hint=invalid)
         with self.assertRaisesRegex(ValueError,'DEMAND_GAP_DOMAIN'):optimize(self.schedule(),demand_gap=-1)
