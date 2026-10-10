@@ -1,0 +1,85 @@
+{
+  "schema": "BYOR_OBJ_SEARCH_MEASURED_ROW_BUDGET_V1",
+  "status": "BOUNDED_SEARCH_CONTINUES",
+  "focused_tests": 33,
+  "no_color_reduction": true,
+  "universal_raster_rejected": false,
+  "native_presentation_proven": false,
+  "reports": [
+    {
+      "path": "out/byor-motu-joint-encoding-mixed-pool21-symmetry.json",
+      "sha256": "7b4c5e6cc953232035cad32f4e51cc7237a8d1a89bfff618f774560f6d50b723",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is At lower/fixed bound)",
+        "variables": 84480,
+        "constraints": 104200
+      },
+      "geometry": null,
+      "no_math_palette_interval_bound": null
+    },
+    {
+      "path": "out/byor-motu-joint-encoding-isolated32-symmetry.json",
+      "sha256": "3a61a0d02efb59a1eae0df6dc68116d0b185768e40a554d7f46b11418a00ff17",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is At lower/fixed bound)",
+        "variables": 185168,
+        "constraints": 118745
+      },
+      "geometry": null,
+      "no_math_palette_interval_bound": null
+    },
+    {
+      "path": "out/byor-motu-joint-encoding-mixed-saturated21.json",
+      "sha256": "b1283d78d37ae5ad3693d13263c8e3a31be05b9b4d0a05d7a18ad784cc0adab8",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is At lower/fixed bound)",
+        "variables": 304568,
+        "constraints": 246612
+      },
+      "geometry": null,
+      "no_math_palette_interval_bound": null
+    },
+    {
+      "path": "out/byor-motu-isolated-screen-plain-raster.json",
+      "sha256": "030f5102a124cc150f32435fadfd903b53d33e8c4a4dcb3742fe77ad44b1dc16",
+      "status": "JOINT_CONTEXT_SLOT_SCHEDULE_PROVEN",
+      "solver": null,
+      "geometry": {
+        "oam_entries": 47,
+        "peak_sprites_per_line": 10,
+        "peak_tile_slivers_per_line": 12,
+        "tile_sliver_count_policy": "conservative complete width of every visible object rectangle"
+      },
+      "no_math_palette_interval_bound": {
+        "status": "CGRAM_DATA_WINDOW_INFEASIBLE",
+        "worst_interval": {
+          "first_line": 128,
+          "last_line": 135,
+          "distinct_colors": 275,
+          "resident_capacity": 120,
+          "minimum_new_color_commits": 155,
+          "hblanks": 7,
+          "minimum_window_cgram_data_bytes": 309,
+          "maximum_window_data_bytes": 308,
+          "byte_deficit": 1,
+          "minimum_peak_data_bytes": 45,
+          "minimum_peak_data_master_clocks": 360
+        },
+        "available_master_clocks_per_line": 356,
+        "minimum_master_clocks_per_byte": 8,
+        "preloaded_low_byte_latch_allowed": true,
+        "addresses_setup_and_contention_excluded": true,
+        "bank_assignment_relaxed_for_lower_bound": true,
+        "feasibility_proven": false,
+        "scope": "Exact precomposited RGB555 OBJ outputs in the explicit pose. Excludes alternative BG/OBJ math decompositions; not a universal raster rejection."
+      }
+    }
+  ],
+  "protected_tracked_files_verified": 17
+}

@@ -18,9 +18,12 @@ from source_scene_obj_math import residual, add_rgb555, split_interval_bound
 from raster_palette import pieces_for_grid
 
 
-def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False):
+def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False):
     if size not in (8,16,32,'mixed') or write_budget<0 or lookahead<0:
         raise ValueError('JOINT_SOLVER_DOMAIN')
+    if early_write_budget is not None and (early_write_budget < 0 or not 1 <= late_start < 224):
+        raise ValueError('JOINT_ROW_BUDGET_DOMAIN')
+    def line_budget(y):return early_write_budget if early_write_budget is not None and y < late_start else write_budget
     actors, metadata, expected = prepare(source, stage, scene)
     pool=set();pool_first=0
     if pool_residency:
@@ -61,6 +64,16 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                     grouped.setdefault((output, value), []).append((y, x))
                 for (output, value), pixels in grouped.items():
                     atoms.append(dict(piece=block_index,options=[i,block_index]if size=='mixed'else[i],line=ly+actor['top'], output=output, residual=value, pixels=pixels))
+    residual_corpus=sorted({a['residual'] for a in atoms if a['residual'] is not None})
+    alternative_cache={}
+    for atom in atoms:
+        values=[] if atom['residual'] is None else [atom['residual']]
+        if saturated_reuse and values:
+            y,x=atom['pixels'][0];background=int(bg[y,x]);key=(atom['output'],background)
+            if key not in alternative_cache:
+                alternative_cache[key]=[c for c in residual_corpus if add_rgb555(c,background)==atom['output']]
+            values=alternative_cache[key]
+        atom['residual_options']=values
     variable_count = 0
     def allocate():
         nonlocal variable_count
@@ -69,12 +82,11 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     choices = {}; uses = {}
     for i, atom in enumerate(atoms):
         for bank in range(8):
-            color = atom['output'] if bank < 4 else atom['residual']
-            if color is None:
-                continue
-            if not allowed(bank,color,atom['line']):continue
-            for piece_index in atom['options']:choices[i,piece_index,bank] = allocate()
-            uses.setdefault((bank, color), set()).add(atom['line'])
+            colors=[atom['output']] if bank<4 else atom['residual_options']
+            for color in colors:
+                if not allowed(bank,color,atom['line']):continue
+                for piece_index in atom['options']:choices[i,piece_index,bank,color] = allocate()
+                uses.setdefault((bank,color),set()).add(atom['line'])
     def residency_lines(lines):
         if pool_residency:return [0]+list(range(pool_first,max(lines)+1))if pool_first else list(range(max(lines)+1))
         return range(max(0,min(lines)-lookahead),max(lines)+1)
@@ -87,18 +99,22 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         for variable, value in items:
             rr.append(row);cc.append(variable);vv.append(value)
         lo.append(lower);hi.append(upper)
-    for i, atom in enumerate(atoms):
-        options = [(choices[i,p,b],1) for p in atom['options']for b in range(8)if (i,p,b)in choices]
-        constraint(options,1,1)
-        for piece_index in atom['options']:
-         for bank in range(8):
-            if (i,piece_index,bank) not in choices:
-                continue
-            color = atom['output'] if bank < 4 else atom['residual']
-            variable = choices[i,piece_index,bank]
+    atom_choices={}
+    for (i,piece_index,bank,color),variable in choices.items():
+        atom_choices.setdefault(i,[]).append((piece_index,bank,color,variable))
+    for i,atom in enumerate(atoms):
+        options=atom_choices.get(i,[])
+        constraint([(v,1)for p,b,c,v in options],1,1)
+        for piece_index,bank,color,variable in options:
             constraint([(variable,1),(masks[piece_index,bank],-1)],-np.inf,0)
             constraint([(variable,1),(resident[bank,color,atom['line']],-1)],-np.inf,0)
     constraint([(v,1) for v in masks.values()],0,128)
+    if bank_symmetry:
+        # Bank labels within each color-math eligibility group are interchangeable.
+        # Sort mask counts; every schedule has an equivalent permutation satisfying this.
+        for first_bank in (0,4):
+            for bank in range(first_bank,first_bank+3):
+                constraint([(masks[i,bank],1) for i in range(len(pieces))]+[(masks[i,bank+1],-1) for i in range(len(pieces))],0,np.inf)
     for y in range(height):
         active = [(i,b) for i,p in enumerate(pieces) if p['y'] <= y < p['y']+p['height'] for b in range(8)]
         constraint([(masks[key],1) for key in active],0,32)
@@ -115,13 +131,14 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             constraint(items,-np.inf,0);write_lines.setdefault(y,[]).append(writes[key])
     for variables in bank_lines.values():
         constraint([(v,1) for v in variables],0,15)
-    for variables in write_lines.values():
-        constraint([(v,1) for v in variables],0,write_budget)
+    for y,variables in write_lines.items():
+        constraint([(v,1) for v in variables],0,line_budget(y))
         if relaxed:constraint([(v,1) for v in variables]+[(peak,-1)],-np.inf,0)
     objective=np.zeros(variable_count);integrality=np.ones(variable_count)
     for variable in masks.values():objective[variable]=1
     for variable in writes.values():objective[variable]=.001;integrality[variable]=0
     upper=np.ones(variable_count)
+    if feasibility_only:objective[:]=0
     if relaxed:
         integrality[:]=0;objective[:]=0;objective[peak]=1;upper[peak]=write_budget
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(lo),variable_count)).tocsc()
@@ -131,6 +148,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 solver=dict(status=int(result.status),message=result.message,variables=variable_count,constraints=len(lo)),
                 no_color_reduction=True,universal_raster_rejected=False,native_presentation_proven=False,
                 pooled_residency_pinned=bool(pool_residency),
+                feasibility_only=feasibility_only,bank_symmetry=bank_symmetry,early_write_budget=early_write_budget,late_start=late_start,saturated_reuse=saturated_reuse,
+                additive_alternative_count=sum(len(a["residual_options"]) for a in atoms),
                 horizontal_clip_limit_counted=clip_horizontal,
                 source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
                 scope='Explicit pose. Exact opaque/additive pixel alternatives and fixed OAM color masks on one legal grid. No native layer routing, source reachability or hardware bandwidth admission.')
@@ -146,10 +165,10 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     demand=[{b:set() for b in range(8)} for _ in range(height)]
     expanded={}
     for i, atom in enumerate(atoms):
-        banks=[(p,b)for p in atom['options']for b in range(8)if(i,p,b)in choices and result.x[choices[i,p,b]]>.5]
+        banks=[(p,b,c)for p,b,c,v in atom_choices.get(i,[])if result.x[v]>.5]
         if len(banks)!=1:
             raise AssertionError('JOINT_ATOM_BANK_FAULT')
-        piece_index,b=banks[0];c=atom['output'] if b<4 else atom['residual'];chosen[i]=(piece_index,b)
+        piece_index,b,c=banks[0];chosen[i]=(piece_index,b,c)
         demand[atom['line']][b].add(c)
         expanded.setdefault((piece_index,b),{}).setdefault(atom['line'],set()).add(c)
     selected=[dict(pieces[i],rows={y:sorted(colors) for y,colors in rows.items()},bank=b) for (i,b),rows in sorted(expanded.items())]
@@ -168,14 +187,14 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             for color in sorted(wanted[y][b]-set(slots[b])):
                 at=next(i for i,c in enumerate(slots[b]) if c not in wanted[y][b])
                 events.append(dict(bank=b,slot=at+1,old=slots[b][at],color=color,kind='required' if color in demand[y][b] else 'prefetch'));slots[b][at]=color
-        if y and len(events)>write_budget:raise AssertionError('JOINT_WRITE_LIMIT_FAULT')
+        if y and len(events)>line_budget(y):raise AssertionError('JOINT_WRITE_LIMIT_FAULT')
         states.append({b:list(values) for b,values in slots.items()})
         trace.append(dict(scanline=y,resident_before=before,retained={b:[c for c in values if c is not None and c in slots[b]] for b,values in before.items()},evicted=[e['old'] for e in events if e['old'] is not None],prefetched=[e for e in events if e['kind']=='prefetch'],updates=events,colors_written=len(events),cgram_data_bytes=2*len(events),affected_banks=sorted({e['bank'] for e in events})))
     replay=bg.copy();indices=np.zeros((height,256),dtype=np.uint8)
     piece_ids={key:i for i,key in enumerate(sorted(expanded))}
     piece_pixels=[np.zeros((p['height'],p['width']),dtype=np.uint8)for p in selected]
     for i,atom in enumerate(atoms):
-        piece_index,b=chosen[i];color=atom['output'] if b<4 else atom['residual'];slot=states[atom['line']][b].index(color)+1
+        piece_index,b,color=chosen[i];slot=states[atom['line']][b].index(color)+1
         for y,x in atom['pixels']:
             indices[y,x]=128+b*16+slot
             index=piece_ids[piece_index,b];p=selected[index]
@@ -209,7 +228,10 @@ def main():
     p.add_argument('--relaxed',action='store_true')
     p.add_argument('--pool-residency',type=Path)
     p.add_argument('--clip-horizontal',action='store_true')
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal)
+    p.add_argument('--feasibility-only',action='store_true');p.add_argument('--bank-symmetry',action='store_true')
+    p.add_argument('--saturated-reuse',action='store_true')
+    p.add_argument('--early-write-budget',type=int);p.add_argument('--late-start',type=int,default=75)
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes')}))
 
 
