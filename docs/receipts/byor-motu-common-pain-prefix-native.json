@@ -1,0 +1,28 @@
+{
+  "schema": "BYOR_MOTU_COMMON_PAIN_PREFIX_RECEIPT_V1",
+  "status": "PASS",
+  "cases": 280,
+  "native_report": "out\\byor-motu-common-pain-observed-native\\report.json",
+  "native_report_sha256": "3cac5f82dd6b9142bd6d4cadf9b8c816da1d2699e8f797f9e42848e9fef78df2",
+  "rom_sha256": "8b6e74f7da33b4201182e51c0b745aa64533fc29e1f4e30320f280d2c94b95d5",
+  "all_prior_callback_identities_unchanged": 21,
+  "new_identities": {
+    "common_fall": 22,
+    "common_pain": 23,
+    "common_grabbed": 24,
+    "common_block": 25
+  },
+  "native_q16_inair_bound": true,
+  "source_inpain_and_takeaction_bound": true,
+  "idle_block_frame_child_requested": true,
+  "idle_block_frame_child_executed": false,
+  "source_linked_action_identity_bound": true,
+  "full_common_pain_bound": false,
+  "new_foreign_arena_bytes": 0,
+  "bank0_unchanged": true,
+  "private_world_lease_withdrawn_between_batches": true,
+  "protected_files_unchanged": 17,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
