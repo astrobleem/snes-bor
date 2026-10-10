@@ -2,10 +2,10 @@
   "schema": "BYOR_PLAYER_DIE_BEGIN_NATIVE_RECEIPT_V1",
   "status": "PASS",
   "report_path": "out\\byor-motu-player-die-begin-native\\report.json",
-  "report_sha256": "6023a69dd834a0492059e11ee4ad5c22fa855d49b50f0864596250894be5cf57",
-  "rom_sha256": "b5ec8340c0b22adcd468b8c59a3c4d88dd166d80d56870d5b99fb8e7549197f1",
-  "cases": 128,
-  "maximum_two_call_wrapper_master_clocks": 337650,
+  "report_sha256": "dd526d8ff8f751b2565d6c3aef96afe88d89ba5e42cbcf9b674f2388b07f7253",
+  "rom_sha256": "1257100c0e57b13db0a9d546204815368488cbceeb41ce9137d2fe7b87df5c17",
+  "cases": 143,
+  "maximum_two_call_wrapper_master_clocks": 337718,
   "zero_state_and_context_mismatches": true,
   "clock_held": true,
   "bank0_byte_identity": true,
@@ -14,5 +14,8 @@
   "production_consumer_bound": false,
   "nodieblink_3_native_exercised": false,
   "no_color_reduction": true,
-  "no_pcm_copies": true
+  "no_pcm_copies": true,
+  "negative_guard_cases": 14,
+  "successful_service_cases": 129,
+  "zero_field_timeout_retries": 1
 }

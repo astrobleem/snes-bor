@@ -19,6 +19,7 @@ from source_foreign_water_retirement import emit as water,transform as retire_wa
 from m4_animation_init_native import luav
 from m4_input_controller_native import offset
 from _harness import Reporter
+import _source_leaf_fixture as leaf
 
 
 def main():
@@ -26,12 +27,19 @@ def main():
     tail=derive_plan(source);g=layout(tail);w=death_layout(tail)['base'];req=derive(source);sy=symbols(Path('src/main.sym'))
     state=next(r['address']for r in arena(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES'])['regions']if r['name']=='player_state_controls')
     original=parent.run_fixture;seen={}
+    def exact(m,count):
+        for attempt in range(8):
+            r=m.run_frames(count)
+            if r.get('framesAdvanced')==count and not r.get('timedOut'):return r
+            if r.get('framesAdvanced')!=0 or not r.get('timedOut'):raise AssertionError('PLAYER_DIE_PARTIAL_FIELD')
+            seen['zero_field_retries']=seen.get('zero_field_retries',0)+1
+        raise AssertionError('PLAYER_DIE_BOUNDED_FIELD_STALL')
     class Checked(Reporter):
         def __init__(self,*args,**kw):super().__init__('M4-PLAYER-DIE-BEGIN',**kw)
         def check(self,name,ok):
             if name.startswith('pinned C retirement state'):
                 actual=[list(map(int,l.split('RETIRERESULT|')[1].split('|')))for l in seen['log'].splitlines()if'RETIRERESULT|'in l]
-                ok=actual==[[i,0,0,2]for i in range(len(seen['rows']))];name='real kill relation/role/variable cleanup and exact player death globals with CPU preservation'
+                ok=actual==[[i,0,0,0 if c['fault']else 2]for i,c in enumerate(seen['rows'])];name='real kill relation/role/variable cleanup and exact player death globals with CPU preservation'
             elif name=='admitted retirement faults block source clock':
                 actual=[list(map(int,l.split('RETIRECLOCK|')[1].split('|')))for l in seen['log'].splitlines()if'RETIRECLOCK|'in l]
                 ok=actual==[[i,1,48,1]for i in range(len(seen['rows']))];name='source clock held while caller damage-phase lease remains outstanding'
@@ -53,6 +61,9 @@ def main():
                 if name=='after':write(0x409020,1)
                 for i in range(4):write(0x43fd84+4*i,(0x414000+80*c['slot'])if name=='before'and i==index else 0x414000 if other and i==(index+1)%4 else 0)
             rows.append(c)
+        for guard in ('foreign','global','generation','ready','phase','time','owner_count','self','type','type_high','role','model','model_tag','player_tag'):
+            rows.append(dict(copy.deepcopy(rows[0]),fault=1,guard=guard))
+        rows.append(copy.deepcopy(rows[127])) # Withdraw deliberately invalid fixture state before host return.
         seen['rows']=copy.deepcopy(rows)
         extra={k:v for k,v in sy.items()if k.startswith(('SourceForeignWork_','StageFp_','StreamScrollFp_','SourceWorldTick4086_','SourceLifecycle4086_','SourceWeapon4086_'))or k in('DmaQueue','VmState_SlotCount','VmState_FrameTop','VmState_Status','SourceVMRun4086_Busy')}
         lua='local dieSymbols='+luav(extra)+'\nfor k,v in pairs(dieSymbols)do sy[k]=v end\n'+lua
@@ -74,6 +85,20 @@ def main():
  set('VmSourceWorld_Time',48,4);set('SourceWorldTick4086_Ready',0xb4d5);set('SourceWorldTick4086_State',1);set('SourceWorldTick4086_Phase',8);set('SourceWorldTick4086_Pending',1);set('SourceWorldTick4086_Fault',0);set('SourceWorldTick4086_Slot',c.slot);set('SourceWorldTick4086_TimeLo',48,4)
  set('SourceLifecycle4086_Ready',0xb4fb);set('SourceModelEntityCopy4086_Models',{len(req['models'])});set('SourceWeapon4086_Ready',0xb4f1);set('SourceWeapon4086_LevelWeaponLo',5);set('SourceWeapon4086_LevelWeaponHi',0)
  put(0x43bbaa,0xb5d9);put(0x43bbb6,-77,4);put(0x416800+c.slot*64,c.source_model);put(0x439048+c.slot*80,c.source_model);put(0x43904a+c.slot*80,0xb4fb)
+ if c.guard=='foreign'then set('SourceForeignWork_Ready',0)
+ elseif c.guard=='global'then put({g['controls']},0)
+ elseif c.guard=='generation'then put({w}+8,2,4)
+ elseif c.guard=='ready'then put({w},0)
+ elseif c.guard=='phase'then set('SourceWorldTick4086_Phase',6)
+ elseif c.guard=='time'then put({w}+16,49,4)
+ elseif c.guard=='owner_count'then set('SourceModelEntityCopy4086_Entities',5)
+ elseif c.guard=='self'then put(0x7ffe38,0x414000,4)
+ elseif c.guard=='type'then put(0x40c048+c.slot*96,0,4)
+ elseif c.guard=='type_high'then put(0x40c04a+c.slot*96,1)
+ elseif c.guard=='role'then put(0x43fd84,0x414000,4)
+ elseif c.guard=='model'then put(0x416800+c.slot*64,15)
+ elseif c.guard=='model_tag'then put(0x43904a+c.slot*80,0)
+ elseif c.guard=='player_tag'then put(0x414028+c.slot*80,0,4)end
 '''
         lua=lua.replace(' before={};for _,r in ipairs(ranges)',setup+'\n before={};for _,r in ipairs(ranges)',1)
         lua=lua.replace('local ranges={{0x414000', 'local ranges={{0x7fc000,8208},{0x7fbfb0,16},{0x43ea00,16},{0x43bbb6,4},{0x414000',1)
@@ -127,6 +152,9 @@ PlayerDieFixtureReturn:
  lda #0
  sta.l {sy['VmSourceWorld_Ready']}
  sta.l {sy['SourceWorldTick4086_Ready']}
+ sta.l {sy['SourceLifecycle4086_Ready']}
+ sta.l {sy['SourceSelf4086_Ready']}
+ sta.l {sy['SourceModelEntityCopy4086_Ready']}
  pla
  plp
  ply
@@ -140,16 +168,20 @@ PlayerDieFixtureReturn:
 '''
         def isolate(raw,linked):
             retire_water(raw,linked);at=offset(linked['LeafFixture_Return']);assert raw[at:at+4]==bytes.fromhex('7a fa 28 08');raw[at:at+4]=b'\x5c'+linked['PlayerDieFixtureReturn'].to_bytes(3,'little')
-        kw.update(append=wrapper+globals_code(tail,state,sy)+emit_recovery_snapshot(tail,sy)+emit_begin(tail,sy,req)+water(sy),rom_transform=isolate,link_pcm=False,batch_size=8)
+        kw.update(append=wrapper+globals_code(tail,state,sy)+emit_recovery_snapshot(tail,sy)+emit_begin(tail,sy,req)+water(sy),rom_transform=isolate,link_pcm=False,batch_size=32)
         kw['bindings'].pop('CAPTUREENTRY');kw.setdefault('probes',{})['CAPTUREENTRY']='PlayerDieProbe'
+        for name in sy:
+            if name.startswith('SourceRetirement4086_')and any(x in name for x in ('Branch_','Mutate','Scan','Done','Clear')):
+                token='RETTRACE_'+name;kw['bindings'][token]=name
+                lua+=f'\nemu.addMemoryCallback(function()if word(INDEX)==#rows-1 then emu.log("DIERETIRE|{name}")end end,emu.callbackType.exec,{token},{token},emu.cpuType.snes,mt)\n'
         import re
         for name in re.findall(r'^(PlayerDie_Guard\d+):',emit_begin(tail,sy,req),re.M):
             token='TRACE_'+name
             kw['probes'][token]=name
-            lua+=f'\nemu.addMemoryCallback(function()if word(INDEX)==0 then emu.log("DIEGUARD|{name}")end end,emu.callbackType.exec,{token},{token},emu.cpuType.snes,mt)\n'
+            lua+=f'\nemu.addMemoryCallback(function()if word(INDEX)==0 or word(INDEX)==#rows-1 then emu.log("DIEGUARD|"..word(INDEX).."|{name}")end end,emu.callbackType.exec,{token},{token},emu.cpuType.snes,mt)\n'
         raw,log=original(rom,folder,rows,'PlayerDieProbe',ready,magic,tables,lua,reporter,**kw);seen['log']=log
         reporter.check('production bank0 byte identity',raw[:32768]==rom.read_bytes()[:32768]);return raw,log
-    with patch.object(parent,'run_fixture',fixture),patch.object(parent,'Reporter',Checked),patch.object(sys,'argv',['m4_retirement_native.py',*args]):
+    with patch.object(parent,'run_fixture',fixture),patch.object(parent,'Reporter',Checked),patch.object(leaf,'run_frames_exact',exact),patch.object(sys,'argv',['m4_retirement_native.py',*args]):
         try:parent.main()
         except SystemExit as e:
             if e.code not in(None,0):raise
@@ -158,6 +190,7 @@ PlayerDieFixtureReturn:
              actual_no_lives_tail_bound=True,positive_lives_spawn_ticket_required=True,full_spawnplayer_bound=False,
              initialized_global_hook_bodies_bound=False,production_consumer_bound=False,full_world_tick_completed=False,
              player_die_control_layout=death_layout(tail),source_requirement_sha256=hashlib.sha256(json.dumps(req,sort_keys=True).encode()).hexdigest())
+    r.update(zero_field_timeout_retries=seen.get('zero_field_retries',0),negative_guard_cases=14,successful_service_cases=129)
     path.write_text(json.dumps(r,indent=2)+'\n')
 
 

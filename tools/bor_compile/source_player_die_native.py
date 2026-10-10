@@ -85,6 +85,7 @@ def emit_begin(tail,sy,requirements):
     put(f' lda.l {w}+4\n cmp.l {sy["VmSourceWorld_Count"]}');branch('bcs');put(' sta $00\n asl a\n asl a\n asl a\n asl a\n sta $02\n asl a\n asl a\n sta $04\n clc\n adc $02\n sta $02\n tax\n clc\n adc #$4000\n cmp.l $414000,x');branch('bne');require('$414002,x',0x41)
     put(f' lda.l {w}+2\n cmp #2');branch('beq','Complete');put(' cmp #1');branch('beq','Spawn');put(' cmp #0');branch('bne')
     put(f' lda.l {sy["VmSourceWorld_Count"]}');branch('beq');put(' cmp #129');branch('bcs')
+    put(f' cmp.l {sy["SourceModelEntityCopy4086_Entities"]}');branch('bne')
     put(f' lda.l {w}+4\n cmp.l {sy["SourceWorldTick4086_Slot"]}');branch('bne')
     put(' ldx $02\n lda.l $414000,x');put(f' cmp.l {sy["SourceSelf4086_GlobalLow"]}');branch('bne');require(sy['SourceSelf4086_GlobalHigh'],0x41)
     for offset,value in ((40,1),(42,0),(46,0)):require(f'$414000+{offset},x',value)

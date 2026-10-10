@@ -1,7 +1,8 @@
 # Native player death prefix and no-lives tail
 
 The isolated native proof in `out/byor-motu-player-die-begin-native/report.json`
-passes 128 cases. The compiler derives model death policy and the absence of
+passes 143 cases: 128 combinations, 14 negative guards and one repeated valid
+case after the negative tests. The compiler derives model death policy and the absence of
 global death/respawn hooks from the source PAK. This helper admits rush policy
 zero and absent global hooks; other requirements fail explicitly.
 
@@ -19,10 +20,19 @@ does not repeat the prefix or kill. No spawn acknowledgement is fabricated.
 
 The observer checks globals, player rows, lives, weapon indices, timer,
 relations, role records, script variables, entity views and cores, plus CPU
-context preservation. All 128 cases have zero mismatches. The maximum measured
-two-call wrapper cost is 337650 master clocks. This is an isolated service cost,
+context preservation. All 143 cases have zero mismatches. Negative cases reject
+bad leases, generation, readiness, clock phase/time, owner count, self, canonical
+type, role and model identity before source-prefix mutations. The maximum measured
+two-call wrapper cost is recorded in the receipt. This is an isolated service cost,
 not a production frame-budget admission. Source time stays held at 48 while
 the caller's damage-phase lease remains outstanding.
+
+The fixture uses a bounded retry for Mesen's zero-field timeout: it retries only
+when zero frames advanced, requires a subsequent actual frame advance, and fails
+after eight attempts or any unexpected partial advance. The measured retry count
+is recorded in the report and receipt. Negative fixtures are followed by a freshly
+initialized valid case before returning to the ordinary host ROM. This is not
+production error recovery or a complete source-world dispatcher.
 
 The continuation uses the final 48 bytes of the checked 616-slot foreign tail;
 larger layouts fail capacity admission. Native proof code resides in the private
