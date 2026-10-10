@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_RECOVERY_AUTHORITY_STORAGE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "report": "out/byor-motu-recovery-authority-expanded/report.json",
+      "sha256": "516646896e302ab55e449b62da1a0a99273dfc32b081dd5a47c6101420fd61f3",
+      "cases": 1560,
+      "rom_sha256": null
+    },
+    {
+      "report": "out/byor-motu-recovery-state-bounded-native/report.json",
+      "sha256": "8930b51f63f7a9352eac59e19f0cb4a4c401e7c96ce9210996d2cfa1c481d5ea",
+      "cases": 1058,
+      "rom_sha256": "cf442221b13dfa215a4517aff984cb03547d411eca52e62581da4bb676c38f2f"
+    }
+  ],
+  "policy_report": "out/byor-motu-recovery-requirements/report.json",
+  "policy_report_sha256": "88a2566bae168fb2369126c45c9591bbd98638b98e8c3d5c7a2a76ed55cba22f",
+  "native_recovery_actions_bound": false,
+  "production_memory_lease": false,
+  "actual_constructor_bound": false,
+  "model_property_mutations_admitted": false,
+  "source_set_rise_asymmetric_assignment_preserved": true,
+  "chr_capacity": 25024,
+  "new_persistent_bytes": 2112,
+  "new_foreign_arena_bytes": 0,
+  "bank0_unchanged": true,
+  "protected_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
