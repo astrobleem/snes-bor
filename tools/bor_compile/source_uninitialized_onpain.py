@@ -8,17 +8,18 @@ from dialect_4086 import ENGINE_COMMIT
 from script_nested_authority import extract
 
 
-def derive(source):
+def derive(source,*,kind="onpain"):
+    if kind not in ("onpain","onfall"):raise ValueError("UNINITIALIZED_SCRIPT_KIND_REQUIRED")
     docs={k:document(source,n)for k,(n,_)in source.index.items()if k.endswith('.txt')};structure=discover(source,docs);models=[]
     for i,m in enumerate(structure['models']):
         d=docs[key(m['source_path'])];kinds=[]
         for row in d['directives']:
-            kind=row['directive']
-            if kind=='subclass':raise ValueError('ONPAIN_ABSENCE_SUBCLASS_REQUIRED')
-            if kind.endswith('script')and kind not in ('animationscript','@script'):
-                raise ValueError('ONPAIN_ABSENCE_SCRIPT_KIND_REQUIRED:'+kind)
-            if kind in ('animationscript','@script'):kinds.append(kind)
-        models.append(dict(id=i,identity=m['declaration'],source_sha256=d['sha256'],onpain_initialized=False,script_kinds=sorted(set(kinds))))
+            directive=row['directive']
+            if directive=='subclass':raise ValueError('ONPAIN_ABSENCE_SUBCLASS_REQUIRED')
+            if directive.endswith('script')and directive not in ('animationscript','@script'):
+                raise ValueError('ONPAIN_ABSENCE_SCRIPT_KIND_REQUIRED:'+directive)
+            if directive in ('animationscript','@script'):kinds.append(directive)
+        models.append(dict(id=i,identity=m['declaration'],source_sha256=d['sha256'],**{kind+"_initialized":False},script_kinds=sorted(set(kinds))))
     ir=inspect(source);mutations=[]
     if ir['diagnostics']:raise ValueError('ONPAIN_ABSENCE_SCRIPT_FRONTEND')
     allowed={'NULL','changeentityproperty','checkwall','clearlocalvar','clearspawnentry','findtarget','getentityproperty','getlocalvar','killentity','openborconstant','performattack','playerkeys','projectile','rand','setlocalvar','setspawnentry','spawn','tossentity','updateframe'}
@@ -38,11 +39,12 @@ def derive(source):
     for lib in ir['libraries'].values():
         for f in lib['functions'].values():walk(f['ast'])
     for block in ir['inline_blocks']:walk(block['ast'])
-    return dict(schema='BYOR_UNINITIALIZED_ONPAIN_REQUIREMENTS_V1',engine_commit=ENGINE_COMMIT,models=models,engine_API_requirements=ir['engine_api_requirements'],literal_property_mutations=mutations,source_script_sha256={l['source_path']:l['asset_sha256']for l in ir['libraries'].values()},capability='UNINITIALIZED_ONPAIN',initialized_onpain_admitted=False,production_binding=False)
+    return dict(schema='BYOR_UNINITIALIZED_'+kind.upper()+'_REQUIREMENTS_V1',engine_commit=ENGINE_COMMIT,models=models,engine_API_requirements=ir['engine_api_requirements'],literal_property_mutations=mutations,source_script_sha256={l['source_path']:l['asset_sha256']for l in ir['libraries'].values()},capability='UNINITIALIZED_'+kind.upper(),**{"initialized_"+kind+"_admitted":False},production_binding=False)
 
 
-def emit(work,requirements,sy):
-    if requirements['schema']!='BYOR_UNINITIALIZED_ONPAIN_REQUIREMENTS_V1'or any(m['onpain_initialized']for m in requirements['models']):raise ValueError('UNINITIALIZED_ONPAIN_NATIVE_REQUIREMENTS')
+def emit(work,requirements,sy,*,kind="onpain",magic=0xb6b5,prefix="SetPain"):
+    if kind not in ("onpain","onfall"):raise ValueError("UNINITIALIZED_SCRIPT_KIND_REQUIRED")
+    if requirements['schema']!='BYOR_UNINITIALIZED_'+kind.upper()+'_REQUIREMENTS_V1'or any(m[kind+'_initialized']for m in requirements['models']):raise ValueError('UNINITIALIZED_ONPAIN_NATIVE_REQUIREMENTS')
     lines=[];serial=0
     def put(s):lines.extend(s.strip().splitlines())
     def label(n):put('SetPainFinish_'+n+':\n.a16\n.i16')
@@ -52,7 +54,7 @@ def emit(work,requirements,sy):
         put(' '+dict(beq='bne',bne='beq',bcc='bcs',bcs='bcc')[op]+' '+l+'\n jmp SetPainFinish_'+n+'\n'+l+':\n.a16\n.i16')
     def require(at,v):put(f' lda.l {at}\n cmp #{v}');branch('bne')
     label('Run');put(' php\n rep #$39\n phx\n phy')
-    put(f' jsl {sy["SourceForeignWork_Check"]}');branch('bcs');require(work,0xb6b5)
+    put(f' jsl {sy["SourceForeignWork_Check"]}');branch('bcs');require(work,magic)
     put(f' lda.l {work}+2\n cmp #6');branch('beq','Validate');put(' cmp #7');branch('bne')
     label('Validate')
     for at,v in ((sy['SourceScriptClone4086_Ready'],0xb5c1),(sy['SourceAnimationInit4086_State'],2),(sy['SourceUpdateFrame4086_State'],2),(sy['SourceUpdateFrame4086_Pending'],0),(sy['SourceSelf4086_Active'],0)):
@@ -65,7 +67,7 @@ def emit(work,requirements,sy):
     # All other kinds, including onpain, were proven uninitialized offline.
     put(f' lda #7\n sta.l {work}+2\n lda #1\n ply\n plx\n plp\n clc\n rtl')
     label('Bad');put(f' lda #4\n sta.l {work}+2\n lda #0\n ply\n plx\n plp\n sec\n rtl')
-    return '\n'.join(lines)+'\n'
+    return ('\n'.join(lines)+'\n').replace('SetPainFinish_',prefix+'Finish_')
 
 
 def main():

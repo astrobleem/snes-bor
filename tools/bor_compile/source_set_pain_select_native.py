@@ -68,7 +68,7 @@ def emit(work, requirements, sy, code_bank=39):
     return '\n'.join(lines)+'\n'
 
 
-def emit_begin(work,sy):
+def emit_begin(work,sy,*,prefix="SetPain",select="SetPainSelect_Run",magic=0xb6b5,clear_velocity=True):
     """Velocity clear once, actual animation begin, and retained frame debt.
 
     A=0 no animation, 1 frame child pending, 2 painflags child required.
@@ -83,13 +83,14 @@ def emit_begin(work,sy):
         put(' '+dict(beq='bne',bne='beq',bcc='bcs',bcs='bcc')[op]+' '+skip+'\n jmp SetPainBegin_'+n+'\n'+skip+':\n.a16\n.i16')
     label('Run');put(' php\n rep #$39\n phx\n phy')
     put(f' jsl {sy["SourceForeignWork_Check"]}');jump('bcs','Bad')
-    put(f' lda.l {work}\n cmp #$B6B5');jump('bne','Bad')
+    put(f' lda.l {work}\n cmp #${magic:04X}');jump('bne','Bad')
     put(f' lda.l {work}+2\n cmp #3');jump('beq','Resume');put(' cmp #5');jump('beq','Resume')
-    put(' jsl SetPainSelect_Run');jump('bcs','Bad')
+    put(f' jsl {select}');jump('bcs','Bad')
     # The resolver has validated the canonical side pointer, source pool,
     # table, mutable cache and every initializer lease before actor writes.
-    put(f' lda.l {sy["SourceAnimationInit4086_Side"]}\n tax\n lda #0')
-    for off in (36,38,40,42,44,46):put(f' sta.l $410000+{off},x')
+    if clear_velocity:
+        put(f' lda.l {sy["SourceAnimationInit4086_Side"]}\n tax\n lda #0')
+        for off in (36,38,40,42,44,46):put(f' sta.l $410000+{off},x')
     put(f' lda.l {work}+14\n cmp #$FFFF');jump('beq','Absent')
     put(f' lda.l {work}+10\n sta.l {sy["SourceAnimationInit4086_Reset"]}\n jsl {sy["SourceAnimationInit4086_Begin"]}');jump('bcs','Bad')
     label('Resume')
@@ -101,10 +102,10 @@ def emit_begin(work,sy):
     label('Absent');put(f' lda #2\n sta.l {work}+2\n lda #0')
     label('Good');put(' ply\n plx\n plp\n clc\n rtl')
     label('Bad');put(f' lda #4\n sta.l {work}+2\n lda #3\n ply\n plx\n plp\n sec\n rtl')
-    return '\n'.join(lines)+'\n'
+    return ('\n'.join(lines)+'\n').replace('SetPainBegin_',prefix+'Begin_')
 
 
-def emit_frame_prefix(work,sy):
+def emit_frame_prefix(work,sy,*,prefix="SetPain"):
     """Issue the retained frame zero once; leave its actual script debt pending."""
     code=f"""SetPainFrame_Run:
 .a16
@@ -168,10 +169,10 @@ SetPainFrame_Bad:
         nonlocal serial
         serial+=1;l='SetPainFrame_Guard'+str(serial)
         return ' '+dict(bcs='bcc',bne='beq')[m[1]]+' '+l+'\n jmp SetPainFrame_Bad\n'+l+':\n.a16\n.i16'
-    return re.sub(r'^ (bcs|bne) SetPainFrame_Bad$',relax,code,flags=re.M)
+    return re.sub(r'^ (bcs|bne) SetPainFrame_Bad$',relax,code,flags=re.M).replace("SetPain",prefix)
 
 
-def emit_frame_owner(sy):
+def emit_frame_owner(sy,*,prefix="SetPain"):
     """Execute real callbacks/effects; return external tickets without Ack."""
     return f"""SetPainFrameOwner_Run:
 .a16
@@ -197,4 +198,4 @@ SetPainFrameOwner_Bad:
  plp
  sec
  rtl
-"""
+""".replace("SetPain",prefix)

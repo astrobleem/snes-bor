@@ -1,0 +1,362 @@
+{
+  "schema": "BYOR_MOTU_SET_FALL_CLOSED_ONFALL_RECEIPT_V1",
+  "status": "PASS",
+  "native_cases": 84,
+  "native_report": "out\\byor-motu-set-fall-closed-onfall-native\\report.json",
+  "native_report_sha256": "aeb2e521391e9c419d7179f3129546411a6a5486b5f67885e97777ee3648231a",
+  "rom_sha256": "9970ae2420ec7775de839a01b24211d6c3ae88e6f5e0610dac7dea70746b9a80",
+  "onfall_authority": "out\\byor-motu-uninitialized-onfall-closed-authority\\report.json",
+  "onfall_authority_sha256": "8ba9b94e99cf7e879dcbfa94857af8dee9450fa99bfb969559165721f1148085",
+  "onfall_authority_cases": 88,
+  "onfall_requirements": {
+    "schema": "BYOR_UNINITIALIZED_ONFALL_REQUIREMENTS_V1",
+    "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+    "models": [
+      {
+        "id": 0,
+        "identity": "Shock",
+        "source_sha256": "0b3c27bc2c395da186f1069da9456aa68fa850a0e7744971e2ba899ec11af02e",
+        "onfall_initialized": false,
+        "script_kinds": []
+      },
+      {
+        "id": 1,
+        "identity": "Slash",
+        "source_sha256": "c9fd461f576d23a507d2da7d6cae9809938cc4536cab4027879dbaf76b3ae0e7",
+        "onfall_initialized": false,
+        "script_kinds": []
+      },
+      {
+        "id": 2,
+        "identity": "Spark",
+        "source_sha256": "39ff9cee67100f9153729d86cdf7b842a24fb5b98ca58913d97ca64aec1ce4bd",
+        "onfall_initialized": false,
+        "script_kinds": []
+      },
+      {
+        "id": 3,
+        "identity": "He_Man",
+        "source_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+        "onfall_initialized": false,
+        "script_kinds": [
+          "animationscript"
+        ]
+      },
+      {
+        "id": 4,
+        "identity": "He_ManB",
+        "source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+        "onfall_initialized": false,
+        "script_kinds": [
+          "animationscript"
+        ]
+      },
+      {
+        "id": 5,
+        "identity": "HBreath",
+        "source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+        "onfall_initialized": false,
+        "script_kinds": []
+      },
+      {
+        "id": 6,
+        "identity": "HWWind",
+        "source_sha256": "9d2ff70edfa61045a25723014e9f709127c6beb0fd40f8ed9423bb13d68cbb9c",
+        "onfall_initialized": false,
+        "script_kinds": []
+      },
+      {
+        "id": 7,
+        "identity": "ShWave",
+        "source_sha256": "a8fff20d1d20da1cb35feab1a443dfdef1c0023ba7fa7d30fc34521bd6a68181",
+        "onfall_initialized": false,
+        "script_kinds": []
+      },
+      {
+        "id": 8,
+        "identity": "Skeletor",
+        "source_sha256": "28033bf77d1d354ccd1065bed910ced072da9e5d53956ab5898512d98017700b",
+        "onfall_initialized": false,
+        "script_kinds": [
+          "@script",
+          "animationscript"
+        ]
+      },
+      {
+        "id": 9,
+        "identity": "GeyserN",
+        "source_sha256": "ea46fc0d04316f98a7df603f1c2ae4bef6bab8e85c2c8f69de65a60c11f2bc7a",
+        "onfall_initialized": false,
+        "script_kinds": []
+      },
+      {
+        "id": 10,
+        "identity": "SkFBall",
+        "source_sha256": "edc95d00cfefddd765c54815aff4d8ca6438fc6a96743f0e66efa061307030bd",
+        "onfall_initialized": false,
+        "script_kinds": []
+      },
+      {
+        "id": 11,
+        "identity": "SkGeyser",
+        "source_sha256": "c1cdff5c7b7e211662d7899997bacb160e18bcdaafe55478f158be8571cd5940",
+        "onfall_initialized": false,
+        "script_kinds": [
+          "@script"
+        ]
+      },
+      {
+        "id": 12,
+        "identity": "SkGeyserT",
+        "source_sha256": "8b9b299e9114413cedd82d211d82bf1cc44aa562d2f949bab0c51a8ace067d14",
+        "onfall_initialized": false,
+        "script_kinds": [
+          "animationscript"
+        ]
+      },
+      {
+        "id": 13,
+        "identity": "SkTorn",
+        "source_sha256": "30167fc468da0af2dbf71f98f55b5d9b127cd07a377584360487e3255c3044bb",
+        "onfall_initialized": false,
+        "script_kinds": [
+          "animationscript"
+        ]
+      },
+      {
+        "id": 14,
+        "identity": "Knightbot",
+        "source_sha256": "6a714d03fa9a45f4a3e300612d079901d70cc614ba58409c72c3e153fe619610",
+        "onfall_initialized": false,
+        "script_kinds": [
+          "animationscript"
+        ]
+      },
+      {
+        "id": 15,
+        "identity": "ShockBall",
+        "source_sha256": "a92f9f53a69e2b4cd52abe892a06694957e15313a514d5023df553e6d5d60807",
+        "onfall_initialized": false,
+        "script_kinds": []
+      }
+    ],
+    "engine_API_requirements": [
+      "NULL",
+      "changeentityproperty",
+      "checkwall",
+      "clearlocalvar",
+      "clearspawnentry",
+      "findtarget",
+      "getentityproperty",
+      "getlocalvar",
+      "killentity",
+      "openborconstant",
+      "performattack",
+      "playerkeys",
+      "projectile",
+      "rand",
+      "setlocalvar",
+      "setspawnentry",
+      "spawn",
+      "tossentity",
+      "updateframe"
+    ],
+    "literal_property_mutations": [
+      {
+        "property": "velocity",
+        "line": 11
+      },
+      {
+        "property": "animation",
+        "line": 56
+      },
+      {
+        "property": "animpos",
+        "line": 57
+      },
+      {
+        "property": "direction",
+        "line": 68
+      },
+      {
+        "property": "direction",
+        "line": 70
+      },
+      {
+        "property": "direction",
+        "line": 74
+      },
+      {
+        "property": "direction",
+        "line": 76
+      },
+      {
+        "property": "direction",
+        "line": 87
+      },
+      {
+        "property": "direction",
+        "line": 89
+      },
+      {
+        "property": "aiflag",
+        "line": 96
+      },
+      {
+        "property": "position",
+        "line": 125
+      },
+      {
+        "property": "direction",
+        "line": 126
+      },
+      {
+        "property": "velocity",
+        "line": 141
+      },
+      {
+        "property": "speed",
+        "line": 142
+      },
+      {
+        "property": "velocity",
+        "line": 10
+      },
+      {
+        "property": "velocity",
+        "line": 58
+      },
+      {
+        "property": "speed",
+        "line": 59
+      },
+      {
+        "property": "position",
+        "line": 88
+      },
+      {
+        "property": "direction",
+        "line": 89
+      },
+      {
+        "property": "direction",
+        "line": 119
+      },
+      {
+        "property": "direction",
+        "line": 121
+      },
+      {
+        "property": "velocity",
+        "line": 188
+      },
+      {
+        "property": "direction",
+        "line": 190
+      },
+      {
+        "property": "direction",
+        "line": 192
+      },
+      {
+        "property": "speed",
+        "line": 197
+      },
+      {
+        "property": "position",
+        "line": 274
+      },
+      {
+        "property": "position",
+        "line": 19
+      },
+      {
+        "property": "direction",
+        "line": 26
+      },
+      {
+        "property": "direction",
+        "line": 28
+      },
+      {
+        "property": "velocity",
+        "line": 83
+      },
+      {
+        "property": "velocity",
+        "line": 10
+      },
+      {
+        "property": "direction",
+        "line": 19
+      },
+      {
+        "property": "direction",
+        "line": 21
+      },
+      {
+        "property": "velocity",
+        "line": 47
+      },
+      {
+        "property": "speed",
+        "line": 48
+      },
+      {
+        "property": "animation",
+        "line": 9
+      },
+      {
+        "property": "animation",
+        "line": 7
+      },
+      {
+        "property": "animation",
+        "line": 11
+      },
+      {
+        "property": "animation",
+        "line": 13
+      },
+      {
+        "property": "animation",
+        "line": 9
+      },
+      {
+        "property": "animation",
+        "line": 13
+      }
+    ],
+    "source_script_sha256": {
+      "DATA\\SCRIPTS\\SCRIPT.C": "fdf517b371ce1d5a3beb55df748972041ca6fe4830d5ef7b163666367ce9d9ba",
+      "DATA\\CHARS\\SKELETOR\\SKELETOR.C": "983edc927f5b7dd821488171abed37fd37d39db05c08205460c0e65c255686b8",
+      "DATA\\CHARS\\SKELETOR\\FX\\FX.C": "6f2fb352819e0c2e033cf88ed221badbdefac4180927c5da34f0302694969925",
+      "DATA\\CHARS\\SKELETOR\\FX\\TORNADO.C": "ffce8e0f6b983e06b43d5a9a01a9cefb77a03f6aef358f29c34dd7c6c0fa3b3c",
+      "DATA\\SCRIPTS\\ENEMY.C": "b57248ac56f362df3fb62dbb4f49a2b4bf3fdde5dc8100ad8775492f1d6653e7"
+    },
+    "capability": "UNINITIALIZED_ONFALL",
+    "initialized_onfall_admitted": false,
+    "production_binding": false
+  },
+  "existing_pain_emitters_identical": {
+    "emit_begin": "c61a6eb3a10327a9896bf1057072c77b513a2d27797dc31efa4fe1d738785f0d",
+    "emit_frame_prefix": "5b6f46c524e9cd46522a3d04e3154ada0dfbe8553a29ce43ea51af381df11c0b",
+    "emit_frame_owner": "007c6a768ed3563077b3062c54ca9b5ca9ca47599408732b510c8d77d3d1d12a",
+    "emit_uninitialized_onpain": "5061d48ffcd5018c0534faab67b1538ebfc72d1453bbc78da220265cb7654500"
+  },
+  "protected_files_unchanged": 17,
+  "new_foreign_arena_bytes": 0,
+  "bank0_unchanged": true,
+  "source_frame_zero_bound": true,
+  "source_velocity_preserved": true,
+  "source_fall_flags_bound": true,
+  "unfreeze_deadline_conditional": true,
+  "uninitialized_onfall_bound": true,
+  "available_fall_source_return": 1,
+  "missing_fall_native_branch_exercised": false,
+  "initialized_onfall_native_admitted": false,
+  "source_full_damage_callback_bound": false,
+  "production_memory_lease": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
