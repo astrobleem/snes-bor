@@ -31,5 +31,16 @@ class ObjCompactionTests(unittest.TestCase):
         r=compact(self.schedule([(0,0,0,0),(0,4,8,0)]))
         self.assertEqual(r['geometry']['oam_entries'],2)
 
+    def test_16_pixel_pair_avoids_transparent_32_pixel_row_contention(self):
+        source=self.schedule([(0,0,0,0),(0,0,8,0)]+[(i+1,1,i*8,16)for i in range(32)])
+        source['status']='BOUNDED_FIXED_BANK_COMPACTION_NO_LEGAL_GEOMETRY'
+        r=compact(source,large_size=16)
+        self.assertEqual(r['status'],'JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN')
+        self.assertEqual(r['geometry']['oam_entries'],33)
+        self.assertEqual(r['geometry']['peak_sprites'],32)
+        self.assertEqual(r['geometry_compaction']['selected_merges'],1)
+        self.assertEqual(r['obsel_mode'],0)
+        self.assertTrue(r['geometry_compaction']['pixel_bank_slot_identity_verified'])
+
 
 if __name__=='__main__':unittest.main()

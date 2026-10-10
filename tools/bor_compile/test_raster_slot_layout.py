@@ -6,6 +6,16 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_persistent_color_slot_family_replays_every_packet_and_pixel(self):
+        result=optimize(self.schedule(),window=356,time_limit=10,
+            flexible_prefetch=True,retain_write_times=True,persistent_color_slots=True)
+        self.assertEqual(result['physical_slot_layout']['status'],'PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN')
+        self.assertTrue(result['physical_slot_layout']['persistent_color_slots'])
+        identities={}
+        for row in result['trace']:
+            for event in row['updates']:identities.setdefault((event['bank'],event['color']),set()).add(event['slot'])
+        self.assertTrue(all(len(slots)==1 for slots in identities.values()))
+
     def schedule(self):
         state={b:[None]*15 for b in range(8)};trace=[]
         changes={0:[(0,1,31)],1:[(0,1,992)],2:[(0,1,31),(1,3,0)]}

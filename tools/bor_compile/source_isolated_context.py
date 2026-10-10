@@ -65,10 +65,17 @@ def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_bu
     report['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=compiled,pixel_masks=images,trace=trace),sort_keys=True).encode()).hexdigest()
     if compact_geometry:
         from raster_obj_compact import compact
-        try:report=compact(report,time_limit)
-        except AssertionError as error:
-            if str(error)!='OBJ_COMPACT_HARDWARE_OVERFLOW':raise
-            report.update(status='BOUNDED_FIXED_BANK_COMPACTION_NO_LEGAL_GEOMETRY',hardware_geometry_admitted=False)
+        attempts=[]
+        for large_size in (32,16):
+            try:
+                report=compact(report,time_limit,large_size)
+                attempts.append(dict(large_size=large_size,status='EXACT_PIXEL_BANK_SLOT_GEOMETRY_PROVEN'))
+                break
+            except AssertionError as error:
+                if str(error)!='OBJ_COMPACT_HARDWARE_OVERFLOW':raise
+                attempts.append(dict(large_size=large_size,status='BOUNDED_ALIGNED_COMPACTION_NO_LEGAL_GEOMETRY'))
+        else:report.update(status='BOUNDED_FIXED_BANK_COMPACTION_NO_LEGAL_GEOMETRY',hardware_geometry_admitted=False)
+        report['geometry_compaction_attempts']=attempts
     if report['status']=='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN':report['hardware_geometry_admitted']=True
     return report
 

@@ -18,8 +18,9 @@ def unpack(mask):
     return result.reshape(mask['height'],mask['width'])
 
 
-def compact(schedule,time_limit=30):
-    if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
+def compact(schedule,time_limit=30,large_size=32):
+    if large_size not in (16,32):raise ValueError('OBJ_COMPACT_SIZE_PAIR')
+    if schedule.get('status')not in('JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN','BOUNDED_FIXED_BANK_COMPACTION_NO_LEGAL_GEOMETRY') or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('OBJ_COMPACT_VALIDATED_SCHEDULE_REQUIRED')
     original=schedule['pieces'];masks=[unpack(m)for m in schedule['piece_pixel_masks']]
     if len(original)!=len(masks) or any(p['width']!=8 or p['height']!=8 for p in original):
@@ -37,13 +38,13 @@ def compact(schedule,time_limit=30):
     groups={}
     for i,p in enumerate(original):
         ox,oy=origins[p['actor']]
-        groups.setdefault((p['actor'],p['bank'],ox+(p['local_x']-ox)//32*32,oy+(p['local_y']-oy)//32*32),[]).append(i)
+        groups.setdefault((p['actor'],p['bank'],ox+(p['local_x']-ox)//large_size*large_size,oy+(p['local_y']-oy)//large_size*large_size),[]).append(i)
     options=[]
     for (actor,bank,lx,ly),indices in sorted(groups.items()):
         if len(indices)<2:continue
         parent=original[indices[0]];p=dict(actor=actor,bank=bank,local_x=lx,local_y=ly,
-            x=parent['x']-parent['local_x']+lx,y=parent['y']-parent['local_y']+ly,width=32,height=32,rows={})
-        pixels=np.zeros((32,32),dtype=np.uint8)
+            x=parent['x']-parent['local_x']+lx,y=parent['y']-parent['local_y']+ly,width=large_size,height=large_size,rows={})
+        pixels=np.zeros((large_size,large_size),dtype=np.uint8)
         for i in indices:
             child=original[i];x=child['local_x']-lx;y=child['local_y']-ly
             view=pixels[y:y+8,x:x+8]
@@ -75,8 +76,10 @@ def compact(schedule,time_limit=30):
         return result
     if encoded(original,masks)!=encoded(pieces,pixels):raise AssertionError('OBJ_COMPACT_INDEX_IDENTITY_FAULT')
     result=copy.deepcopy(schedule)
-    result.update(pieces=pieces,geometry=dict(oam_entries=len(pieces),peak_sprites=int(max(final[1:height+1],default=0)),peak_tile_slivers=int(max(final[height+1:],default=0))),
-        geometry_mode='EXACT_FIXED_BANK_32_8_COMPACTION',obsel_mode=1,
+    result.update(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN',hardware_geometry_admitted=True,
+        pieces=pieces,geometry=dict(oam_entries=len(pieces),peak_sprites=int(max(final[1:height+1],default=0)),peak_tile_slivers=int(max(final[height+1:],default=0))),
+        geometry_mode=f'EXACT_FIXED_BANK_{large_size}_8_COMPACTION',obsel_mode=1 if large_size==32 else 0,
+        mixed_small_size=8,mixed_large_size=large_size,
         geometry_compaction=dict(candidate_merges=len(options),selected_merges=len(selected),original_geometry=schedule['geometry'],
             solver_status=int(solver.status)if solver is not None else None,solver_message=solver.message if solver is not None else 'NO_MERGE_CHOICES',
             pixel_bank_slot_identity_verified=True,native_geometry_admitted=False),
@@ -88,7 +91,8 @@ def compact(schedule,time_limit=30):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--schedule',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True);p.add_argument('--time-limit',type=int,default=30)
-    a=p.parse_args();r=compact(json.loads(a.schedule.read_text()),a.time_limit)
+    p.add_argument('--large-size',type=int,choices=(16,32),default=32)
+    a=p.parse_args();r=compact(json.loads(a.schedule.read_text()),a.time_limit,a.large_size)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(dict(geometry=r['geometry'],compaction=r['geometry_compaction'])))
 
 

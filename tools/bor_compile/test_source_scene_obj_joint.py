@@ -6,6 +6,21 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_distinct_frame_color_cap_balances_exact_words_including_black(self):
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[:2]=np.arange(16).reshape(2,8)
+        background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy()
+        expected[:2,:8,0]=np.arange(16).reshape(2,8)*8
+        for cap,success in ((1,False),(2,True)):
+            with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+                result=probe(None,None,{},size=8,write_budget=0,lookahead=0,time_limit=10,
+                    color_math='precomposited',solver_backend='cp-sat',maximum_frame_colors_per_bank=cap)
+            self.assertEqual(result['status']=='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN',success)
+            if success:
+                self.assertTrue(result['compiled_pixel_identity_verified'])
+                colors=[{e['color']for row in result['trace']for e in row['updates']if e['bank']==b}for b in range(8)]
+                self.assertEqual(set().union(*colors),set(range(16)))
+                self.assertTrue(all(len(c)<=2 for c in colors))
+
     def test_initial_preload_occupies_capacity_until_first_prefetch_row(self):
         import hashlib,copy
         background=np.full((224,256,3),255,dtype=np.uint8)

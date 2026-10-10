@@ -10,7 +10,7 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
-def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False):
+def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False,persistent_color_slots=False):
     from ortools.sat.python import cp_model
     if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('SLOT_LAYOUT_VALIDATED_SCHEDULE_REQUIRED')
@@ -80,6 +80,12 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             slot=pixels[i];s=segments[i];events=[row['scanline']for row in layout_hint['trace']if row['scanline']<=first_use[i]for e in row['updates']if e['bank']==hint_banks[s['bank']]and e['slot']==slot+1 and e['color']==s['color']]
             if events:hinted[i]=(slot,max(events))
     model=cp_model.CpModel();slots=[model.new_int_var(0,14,'s'+str(i))for i in range(len(segments))]
+    if persistent_color_slots:
+        anchors={}
+        for i in sorted(last_use):
+            key=segments[i]['bank'],segments[i]['color']
+            if key in anchors:model.add(slots[i]==slots[anchors[key]])
+            else:anchors[key]=i
     if fix_hint_slots:
         if set(hinted)!=set(last_use):raise ValueError('SLOT_LAYOUT_FIXED_HINT_INCOMPLETE')
         for i,(slot,time)in hinted.items():model.add(slots[i]==slot)
@@ -212,7 +218,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 fixed_hint_slots=fix_hint_slots,
                 permute_hint_slots=permute_hint_slots,
                 retain_write_times=retain_write_times,
-                rectangle_lifetimes=rectangle_lifetimes,
+                rectangle_lifetimes=rectangle_lifetimes,persistent_color_slots=persistent_color_slots,
                 split_bank_ranges=split_bank_ranges,
                 fixed_slot_write_times_pruned=pruned_write_times,
                 solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),
@@ -301,7 +307,8 @@ def main():
     p.add_argument('--permute-hint-slots',action='store_true')
     p.add_argument('--retain-write-times',action='store_true')
     p.add_argument('--rectangle-lifetimes',action='store_true')
-    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots,retain_write_times=a.retain_write_times,rectangle_lifetimes=a.rectangle_lifetimes)
+    p.add_argument('--persistent-color-slots',action='store_true')
+    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots,retain_write_times=a.retain_write_times,rectangle_lifetimes=a.rectangle_lifetimes,persistent_color_slots=a.persistent_color_slots)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 

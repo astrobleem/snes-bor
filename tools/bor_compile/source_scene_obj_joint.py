@@ -50,9 +50,10 @@ def hint_ownership(schedule,pieces):
     return owner,chosen_masks,states
 
 
-def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive", mixed_small_size=8, mixed_large_size=32, additive_only=False,pool_math_modes=None,fixed_geometry=False):
+def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive", mixed_small_size=8, mixed_large_size=32, additive_only=False,pool_math_modes=None,fixed_geometry=False,maximum_frame_colors_per_bank=None):
     if solver_backend not in ('highs','cp-sat') or (relaxed and solver_backend!='highs'):raise ValueError('JOINT_SOLVER_BACKEND')
     if fixed_geometry and(schedule_hint is None or pool_only or bank_symmetry):raise ValueError('JOINT_FIXED_GEOMETRY_REQUIRES_HINT_WITHOUT_POOL_OR_SYMMETRY')
+    if maximum_frame_colors_per_bank is not None and(not isinstance(maximum_frame_colors_per_bank,int)or maximum_frame_colors_per_bank<1 or pool_only or relaxed):raise ValueError('JOINT_FRAME_COLOR_LIMIT_DOMAIN')
     if size not in (8,16,32,'mixed') or write_budget<0 or lookahead<0:
         raise ValueError('JOINT_SOLVER_DOMAIN')
     if mixed_small_size not in (8,16):raise ValueError('JOINT_MIXED_SMALL_SIZE_DOMAIN')
@@ -222,12 +223,16 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     resident = {(b,c,y):allocate() for (b,c), lines in sorted(uses.items()) for y in residency_lines(lines)if allowed(b,c,y)}
     writes = {key:allocate() for key in resident if key[2] > 0}
     peak = allocate() if relaxed else None
+    frame_colors={(b,c):allocate()for b,c in uses}if maximum_frame_colors_per_bank is not None else {}
     rr=[];cc=[];vv=[];lo=[];hi=[]
     def constraint(items, lower, upper):
         row = len(lo)
         for variable, value in items:
             rr.append(row);cc.append(variable);vv.append(value)
         lo.append(lower);hi.append(upper)
+    if frame_colors:
+        for (b,c,y),v in resident.items():constraint([(v,1),(frame_colors[b,c],-1)],-np.inf,0)
+        for b in range(8):constraint([(v,1)for (bank,c),v in frame_colors.items()if bank==b],0,maximum_frame_colors_per_bank)
     atom_choices={};mask_choices={key:[] for key in masks}
     for (i,piece_index,bank,color),variable in choices.items():
         atom_choices.setdefault(i,[]).append((piece_index,bank,color,variable))
@@ -392,6 +397,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 pooled_residency_pinned=bool(pool_residency),
                 full_pool_intervals_retained=pin_pool_intervals,pool_residency_intervals=interval_groups,
                 feasibility_only=feasibility_only,bank_symmetry=bank_symmetry,bank_symmetry_policy='first visible piece' if bank_symmetry else None,early_write_budget=early_write_budget,late_start=late_start,saturated_reuse=saturated_reuse,align_visible_bounds=align_visible_bounds,
+                maximum_frame_colors_per_bank=maximum_frame_colors_per_bank,
                 additive_alternative_count=sum(len(a["residual_options"]) for a in atoms),
                 complete_additive_cover=complete_cover_report,
                 saturated_extrema=saturated_extrema,additive_operand_corpus_colors=len(residual_corpus),
@@ -480,6 +486,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             ownership[y,x]=1;color=states[y][b][int(pixels[ly,lx])-1]
             replay[y,x]=color if kind(b)==0 else add_rgb555(color,int(bg[y,x]))
     if not np.array_equal(replay,rgb555(expected)):raise AssertionError('JOINT_SOURCE_PIXEL_IDENTITY_FAULT')
+    if maximum_frame_colors_per_bank is not None:
+        if any(len({e['color']for row in trace for e in row['updates']if e['bank']==b})>maximum_frame_colors_per_bank for b in range(8)):raise AssertionError('JOINT_FRAME_COLOR_LIMIT_REPLAY')
     groups=[[demand[y][b] for y in range(height)] for b in range(8)]
     report.update(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN',geometry=geometry,pieces=selected,trace=trace,
                   compiled_pixel_identity_verified=True,compiled_indices_sha256=hashlib.sha256(indices.tobytes()).hexdigest(),
@@ -523,7 +531,8 @@ def main():
     p.add_argument('--saturated-extrema',action='store_true')
     p.add_argument('--complete-additive-cover',action='store_true')
     p.add_argument('--grid-padding-x',type=int,default=0);p.add_argument('--grid-padding-y',type=int,default=0)
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size,additive_only=a.additive_only,pool_math_modes=a.pool_math_mode,fixed_geometry=a.fixed_geometry)
+    p.add_argument('--maximum-frame-colors-per-bank',type=int)
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size,additive_only=a.additive_only,pool_math_modes=a.pool_math_mode,fixed_geometry=a.fixed_geometry,maximum_frame_colors_per_bank=a.maximum_frame_colors_per_bank)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
 
 
