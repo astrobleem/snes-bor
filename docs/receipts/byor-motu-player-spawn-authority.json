@@ -1,0 +1,16 @@
+{
+  "schema": "BYOR_MOTU_PLAYER_SPAWN_AUTHORITY_V1",
+  "status": "PASS",
+  "cases": 5634,
+  "authority_report": "out/byor-motu-player-spawn-authority/report.json",
+  "authority_report_sha256": "a7221a44b7ebc8e0065588be0ec29986c67b9ef8b931bef0660013ed1e2e5d97",
+  "source_body_sha256": "052af4b9ecd375c2b38bf5279c8e4d6729fe386a622fd256041988821d9ef7f8",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "focused_tests": 2,
+  "native_constructor_bound": false,
+  "terrain_child_services_bound": false,
+  "player_die_respawn_join_bound": false,
+  "no_color_reduction": true,
+  "motu_gameplay_proven": false,
+  "protected_tracked_hashes_verified": 17
+}
