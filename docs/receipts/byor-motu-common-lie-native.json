@@ -1,0 +1,31 @@
+{
+  "schema": "BYOR_COMMON_LIE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "report": "out/byor-motu-common-lie-prefix-native/report.json",
+      "sha256": "ad9cd3dbdde5d06327a3b6e631f918faed63c421bccdd3fb1272834f8c508a3b",
+      "cases": 1174,
+      "rom_sha256": "de36629dbbbcb7916f3a329e8cd215f047fafe8637bc388d49c0bdb01724476b"
+    },
+    {
+      "report": "out/byor-motu-common-lie-rise-frame-native/report.json",
+      "sha256": "590d5eb8af5e86ba28b65b0aa86d802c04af766a9bbc12ad180a53f18bb8186f",
+      "cases": 12,
+      "rom_sha256": "46993218a5a316256363f54205fb13152589ee9d0529d9fe2b9ae6711c65fc20"
+    }
+  ],
+  "actual_check_ai_dispatch": true,
+  "actual_set_rise_frame": true,
+  "source_self_equals_target_exercised": true,
+  "actual_yield_resume_exercised": false,
+  "missing_default_rise_exercised": false,
+  "death_callback_children_bound": false,
+  "production_memory_lease": false,
+  "motu_gameplay_proven": false,
+  "new_foreign_arena_bytes": 0,
+  "chr_capacity": 25024,
+  "protected_tracked_files": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
