@@ -1,0 +1,135 @@
+{
+  "schema": "BYOR_EXACT_OBJ_BOOLEAN_SEARCH_V1",
+  "status": "BOUNDED_SEARCH_CONTINUES",
+  "no_color_reduction": true,
+  "native_renderer_proven": false,
+  "universal_raster_rejected": false,
+  "tests_original_environment": 42,
+  "tests_isolated_environment": 51,
+  "backend_tests_after_probing_change": 9,
+  "source_context_hash_unchanged": "3bdbe16fdd7c8330dcae28c9da1f68dfa7d0caa7dc80aafa9970140243e7874d",
+  "reports": [
+    {
+      "path": "out/byor-motu-joint-saturated-cover-pool21.json",
+      "sha256": "54d1ac200f4fa83e2fb0fc384b31a20b02879853278a7f8d791fc9afced94bf9",
+      "status": "POOLED_INTEGER_RESIDENCY_CANDIDATE",
+      "solver": null,
+      "peak_write_lower_bound": 19.428571428571427,
+      "candidate_peak_writes": 19.999999999999925
+    },
+    {
+      "path": "out/byor-motu-joint-saturated32-pool21.json",
+      "sha256": "d01eb36f0d528e72d8ae65d7dab65cf413067ea24624209d93bfe35a15d66d48",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 2,
+        "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is At lower/fixed bound)",
+        "variables": 63240,
+        "constraints": 59943
+      },
+      "peak_write_lower_bound": null,
+      "candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-saturated-mixed-pool21.json",
+      "sha256": "5f558a2882f5dd6a7d036ca8f976e0c79474942d63b71c40c58a5ce62eb890a7",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is At lower/fixed bound)",
+        "variables": 86600,
+        "constraints": 104744
+      },
+      "peak_write_lower_bound": null,
+      "candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-saturated-mixed-pool21-visible.json",
+      "sha256": "aa6a017a237a43e696627f786e1984400889f3835b43cacfd97b0faeaaa0f855",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is At lower/fixed bound)",
+        "variables": 86232,
+        "constraints": 104179
+      },
+      "peak_write_lower_bound": null,
+      "candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-isolated32-initial-visible.json",
+      "sha256": "58e3a46b7ae409935a0202bb97ad874d5ef85ab6b228bde9efca5a9dcdbd054b",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is At lower/fixed bound)",
+        "variables": 188948,
+        "constraints": 118804
+      },
+      "peak_write_lower_bound": null,
+      "candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-saturated-mixed-pool21-first-use.json",
+      "sha256": "f931a48f742727b3a43bfba05eeb52d2075b77674b1595927374fcee5eb8058e",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is At lower/fixed bound)",
+        "variables": 86232,
+        "constraints": 105211,
+        "mip_nodes": null,
+        "mip_gap": null
+      },
+      "peak_write_lower_bound": null,
+      "candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-saturated-mixed-pool21-cpsat.json",
+      "sha256": "5be4761ebecdd4cb038f9c3e1baf43ea270fb59f83573003c5b805671e58ad21",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 86232,
+        "constraints": 105211,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "branches": 490471,
+          "conflicts": 0,
+          "wall_seconds": 45.112672,
+          "optimal": false
+        }
+      },
+      "peak_write_lower_bound": null,
+      "candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-saturated-mixed-pool21-cpsat-direct.json",
+      "sha256": "2f4f53ac1db3e47d22fa211b23d006bcbeacada733279912add383c7dd9bdac4",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 86232,
+        "constraints": 105211,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "branches": 373716,
+          "conflicts": 0,
+          "wall_seconds": 180.1405848,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "peak_write_lower_bound": null,
+      "candidate_peak_writes": null
+    }
+  ],
+  "protected_tracked_hashes_verified": 17
+}

@@ -18,7 +18,8 @@ from source_scene_obj_math import residual, add_rgb555, split_interval_bound
 from raster_palette import pieces_for_grid
 
 
-def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False):
+def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs'):
+    if solver_backend not in ('highs','cp-sat') or (relaxed and solver_backend!='highs'):raise ValueError('JOINT_SOLVER_BACKEND')
     if size not in (8,16,32,'mixed') or write_budget<0 or lookahead<0:
         raise ValueError('JOINT_SOLVER_DOMAIN')
     if early_write_budget is not None and (early_write_budget < 0 or not 1 <= late_start < 224):
@@ -41,7 +42,15 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         return sum(x+column*8+8>0 and x+column*8<256 for column in range(width//8))
     for actor_index, actor in enumerate(actors):
         base_size=32 if size=='mixed'else size
-        for piece in pieces_for_grid(actor['pixels'], (base_size, base_size)):
+        surface=actor['pixels'];origin_x=origin_y=0
+        if align_visible_bounds:
+            ys,xs=np.where(surface>=0)
+            if not len(xs):continue
+            origin_x,origin_y=int(xs.min()),int(ys.min())
+            surface=surface[origin_y:int(ys.max())+1,origin_x:int(xs.max())+1]
+        for piece in pieces_for_grid(surface, (base_size, base_size)):
+            piece['x']+=origin_x;piece['y']+=origin_y
+            piece['rows']={y+origin_y:colors for y,colors in piece['rows'].items()}
             i = len(pieces); x0, y0 = piece['x'], piece['y']
             piece.update(actor=actor_index, local_x=x0, local_y=y0, x=x0+actor['left'], y=y0+actor['top'])
             pieces.append(piece)
@@ -74,6 +83,14 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 alternative_cache[key]=[c for c in residual_corpus if add_rgb555(c,background)==atom['output']]
             values=alternative_cache[key]
         atom['residual_options']=values
+    if pool_only:
+        from raster_palette_cover_liveness import lower_bound
+        rows=[set() for _ in range(height)]
+        for atom in atoms:rows[atom['line']].add((atom['output'],tuple(atom['residual_options'])))
+        result=lower_bound(rows,time_limit=time_limit,include_solution=True,integer_budget=integer_pool_budget)
+        result.update(metadata=metadata,saturated_reuse=saturated_reuse,no_color_reduction=True,native_presentation_proven=False,
+                      source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest())
+        return result
     variable_count = 0
     def allocate():
         nonlocal variable_count
@@ -89,7 +106,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 uses.setdefault((bank,color),set()).add(atom['line'])
     def residency_lines(lines):
         if pool_residency:return [0]+list(range(pool_first,max(lines)+1))if pool_first else list(range(max(lines)+1))
-        return range(max(0,min(lines)-lookahead),max(lines)+1)
+        lower=max(0,min(lines)-lookahead)
+        return ([0] if lower else [])+list(range(lower,max(lines)+1))
     resident = {(b,c,y):allocate() for (b,c), lines in sorted(uses.items()) for y in residency_lines(lines)if allowed(b,c,y)}
     writes = {key:allocate() for key in resident if key[2] > 0}
     peak = allocate() if relaxed else None
@@ -110,11 +128,13 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             constraint([(variable,1),(resident[bank,color,atom['line']],-1)],-np.inf,0)
     constraint([(v,1) for v in masks.values()],0,128)
     if bank_symmetry:
-        # Bank labels within each color-math eligibility group are interchangeable.
-        # Sort mask counts; every schedule has an equivalent permutation satisfying this.
+        # Canonicalize interchangeable bank labels by first piece using each bank.
+        # At one piece, simultaneous first uses may retain symmetry, but no valid
+        # schedule is lost: order banks by their first active piece.
         for first_bank in (0,4):
-            for bank in range(first_bank,first_bank+3):
-                constraint([(masks[i,bank],1) for i in range(len(pieces))]+[(masks[i,bank+1],-1) for i in range(len(pieces))],0,np.inf)
+            for bank in range(first_bank+1,first_bank+4):
+                for i in range(len(pieces)):
+                    constraint([(masks[i,bank],1)]+[(masks[j,bank-1],-1) for j in range(i+1)],-np.inf,0)
     for y in range(height):
         active = [(i,b) for i,p in enumerate(pieces) if p['y'] <= y < p['y']+p['height'] for b in range(8)]
         constraint([(masks[key],1) for key in active],0,32)
@@ -126,6 +146,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         if y:
             items=[(variable,1),(writes[key],-1)]
             previous=0 if pool_residency and y==pool_first else y-1
+            if (b,c,previous) not in resident and (b,c,0) in resident:previous=0
             if (b,c,previous) in resident:
                 items.append((resident[b,c,previous],-1))
             constraint(items,-np.inf,0);write_lines.setdefault(y,[]).append(writes[key])
@@ -142,17 +163,23 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     if relaxed:
         integrality[:]=0;objective[:]=0;objective[peak]=1;upper[peak]=write_budget
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(lo),variable_count)).tocsc()
-    result=milp(objective,integrality=integrality,bounds=Bounds(0,upper),constraints=LinearConstraint(matrix,lo,hi),options={'time_limit':time_limit,'mip_rel_gap':.05})
+    if solver_backend=='cp-sat':
+        from raster_boolean_solver import solve
+        result=solve(matrix,lo,hi,objective,time_limit)
+    else:
+        result=milp(objective,integrality=integrality,bounds=Bounds(0,upper),constraints=LinearConstraint(matrix,lo,hi),options={'time_limit':time_limit,'mip_rel_gap':.05})
     report=dict(schema='BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1',status='BOUNDED_JOINT_SOLVER_NO_CANDIDATE',
                 metadata=metadata,geometry_size=size,write_budget=write_budget,lookahead_lines=lookahead,
-                solver=dict(status=int(result.status),message=result.message,variables=variable_count,constraints=len(lo)),
+                solver=dict(status=int(result.status),message=result.message,variables=variable_count,constraints=len(lo),mip_nodes=int(result.mip_node_count) if getattr(result,'mip_node_count',None) is not None else None,mip_gap=float(result.mip_gap) if getattr(result,'mip_gap',None) is not None and np.isfinite(result.mip_gap) else None),
                 no_color_reduction=True,universal_raster_rejected=False,native_presentation_proven=False,
                 pooled_residency_pinned=bool(pool_residency),
-                feasibility_only=feasibility_only,bank_symmetry=bank_symmetry,early_write_budget=early_write_budget,late_start=late_start,saturated_reuse=saturated_reuse,
+                feasibility_only=feasibility_only,bank_symmetry=bank_symmetry,bank_symmetry_policy='first visible piece' if bank_symmetry else None,early_write_budget=early_write_budget,late_start=late_start,saturated_reuse=saturated_reuse,align_visible_bounds=align_visible_bounds,
                 additive_alternative_count=sum(len(a["residual_options"]) for a in atoms),
                 horizontal_clip_limit_counted=clip_horizontal,
                 source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
                 scope='Explicit pose. Exact opaque/additive pixel alternatives and fixed OAM color masks on one legal grid. No native layer routing, source reachability or hardware bandwidth admission.')
+    report['solver']['backend']=solver_backend
+    if hasattr(result,'boolean_stats'):report['solver']['boolean_stats']=result.boolean_stats
     if result.x is None:
         return report
     if relaxed:
@@ -230,9 +257,12 @@ def main():
     p.add_argument('--clip-horizontal',action='store_true')
     p.add_argument('--feasibility-only',action='store_true');p.add_argument('--bank-symmetry',action='store_true')
     p.add_argument('--saturated-reuse',action='store_true')
+    p.add_argument('--solver-backend',choices=('highs','cp-sat'),default='highs')
+    p.add_argument('--align-visible-bounds',action='store_true')
+    p.add_argument('--pool-only',action='store_true');p.add_argument('--integer-pool-budget',type=int)
     p.add_argument('--early-write-budget',type=int);p.add_argument('--late-start',type=int,default=75)
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse)
-    a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes')}))
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend)
+    a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
 
 
 if __name__=='__main__':main()

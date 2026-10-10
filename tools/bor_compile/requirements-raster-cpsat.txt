@@ -1,0 +1,5 @@
+# Optional isolated Boolean raster solver environment (Python 3.10 proof).
+ortools==9.15.6755
+numpy==2.2.6
+scipy==1.15.3
+pandas==2.3.3

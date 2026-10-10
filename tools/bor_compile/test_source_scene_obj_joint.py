@@ -54,6 +54,20 @@ class JointSceneSolverTests(unittest.TestCase):
         self.assertEqual(result['additive_alternative_count'],3)
         self.assertTrue(result['compiled_pixel_identity_verified'])
 
+    def test_visible_bounds_shift_pieces_without_changing_source_pixels(self):
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((90,110),-1,dtype=np.int32);pixels[20:76,9:86]=31
+        expected=background.copy();expected[40:96,39:116]=[255,0,0]
+        actors=[dict(pixels=pixels,left=30,top=20)]
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            result=probe(None,None,{},size=32,write_budget=0,time_limit=5,align_visible_bounds=True,bank_symmetry=True)
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertEqual(result['geometry']['oam_entries'],6)
+        self.assertEqual(result['peak_scheduled_writes'],0)
+        self.assertGreater(result['trace'][0]['colors_written'],0)
+        self.assertEqual(min(p['local_x'] for p in result['pieces']),9)
+        self.assertEqual(min(p['local_y'] for p in result['pieces']),20)
+
     def test_early_row_limit_is_enforced_before_late_window(self):
         background=np.full((224,256,3),255,dtype=np.uint8)
         pixels=np.arange(64,dtype=np.int32).reshape(8,8)

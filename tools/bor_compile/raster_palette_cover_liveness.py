@@ -11,13 +11,15 @@ from scipy.sparse import coo_matrix
 def lower_bound(rows, capacities=(60,60), time_limit=45, include_solution=False, integer_budget=None):
     if len(capacities)!=2 or any(c<=0 for c in capacities):raise ValueError('COVER_POOL_CAPACITY')
     if integer_budget is not None and (not isinstance(integer_budget,int)or integer_budget<0):raise ValueError('COVER_INTEGER_WRITE_BUDGET')
+    # Each pixel may admit several exact saturated additive operands.
+    rows=[{(normal,() if additive is None else tuple(sorted(set(additive))) if isinstance(additive,(tuple,list)) else (additive,)) for normal,additive in row} for row in rows]
     active=[y for y,row in enumerate(rows) if row]
     if not active:return dict(status='EMPTY_COVER_DEMAND',peak_write_lower_bound=0,schedule_proven=False)
     first,last=min(active),max(active);uses={}
     for y,row in enumerate(rows):
         for normal,additive in row:
             uses.setdefault((0,normal),set()).add(y)
-            if additive is not None:uses.setdefault((1,additive),set()).add(y)
+            for color in additive:uses.setdefault((1,color),set()).add(y)
     resident={(kind,color,y):i for i,(kind,color,y) in enumerate((kind,color,y) for kind,color in sorted(uses) for y in range(first,max(uses[kind,color])+1))}
     count=len(resident);writes={key:count+i for i,key in enumerate(key for key in resident if key[2]>first)};peak=count+len(writes)
     rr=[];cc=[];vv=[];limits=[]
@@ -26,9 +28,9 @@ def lower_bound(rows, capacities=(60,60), time_limit=45, include_solution=False,
         for variable,value in items:rr.append(row);cc.append(variable);vv.append(value)
         limits.append(upper)
     for y,row in enumerate(rows):
-        for normal,additive in sorted(row,key=lambda p:(p[0],-1 if p[1]is None else p[1])):
+        for normal,additive in sorted(row):
             items=[(resident[0,normal,y],-1)]
-            if additive is not None:items.append((resident[1,additive,y],-1))
+            items.extend((resident[1,color,y],-1) for color in additive)
             constraint(items,-1)
     pool_lines={};write_lines={}
     for (kind,color,y),variable in resident.items():

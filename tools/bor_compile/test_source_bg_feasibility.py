@@ -4,11 +4,17 @@ from pathlib import Path
 import unittest
 from PIL import Image
 from compiler import Source
-from source_bg_feasibility import probe
+from source_bg_feasibility import probe,rgb555
+import numpy as np
 from source_profile import document,discover
 
 
 class BgFeasibilityTests(unittest.TestCase):
+    def test_rgb555_widens_byte_channels_before_shifting(self):
+        pixels=np.array([[[255,255,255],[0,255,0],[0,0,255],[255,0,0],[0,0,0]]],dtype=np.uint8)
+        np.testing.assert_array_equal(rgb555(pixels),[[32767,992,31744,31,0]])
+        np.testing.assert_array_equal(rgb555(pixels),rgb555(pixels.astype(np.int32)))
+
     def test_screen_blend_preserves_source_black_and_transparency(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);(root/'data').mkdir()

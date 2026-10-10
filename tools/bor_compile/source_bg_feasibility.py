@@ -25,7 +25,10 @@ def decode(source,path,palette=None):
     return indices,rgb,hashlib.sha256(raw).hexdigest()
 
 
-def rgb555(rgb):return (rgb[:,:,0]>>3)|((rgb[:,:,1]>>3)<<5)|((rgb[:,:,2]>>3)<<10)
+def rgb555(rgb):
+    # Widen before shifting: uint8 would discard green/blue high bits.
+    rgb=np.asarray(rgb,dtype=np.int32)
+    return (rgb[:,:,0]>>3)|((rgb[:,:,1]>>3)<<5)|((rgb[:,:,2]>>3)<<10)
 
 
 def probe(source,model,frame,background,position=(80,90),size=(256,224),capacity=175,prefetch_budget=3,bounded=False,export=None):

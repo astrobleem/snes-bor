@@ -15,6 +15,13 @@ class CoverLivenessTests(unittest.TestCase):
         self.assertTrue(result['fractional_residency'])
         self.assertTrue(result['geometry_and_bank_assignment_relaxed'])
 
+    def test_multiple_exact_operands_can_reuse_one_additive_identity(self):
+        result=lower_bound([{(0,(10,12)),(1,(11,12)),(2,(12,))}],capacities=(1,1),include_solution=True,integer_budget=0)
+        self.assertEqual(result['status'],'POOLED_INTEGER_RESIDENCY_CANDIDATE')
+        self.assertEqual(result['candidate_peak_writes'],0)
+        self.assertTrue(any(e['kind']==1 and e['color']==12 for e in result['fractional_residency']))
+        self.assertFalse(result['schedule_proven'])
+
     def test_same_line_pool_capacity_failure_is_explicit(self):
         result=lower_bound([{(0,None),(1,None)}],capacities=(1,1))
         self.assertEqual(result['status'],'RELAXED_COVER_INFEASIBLE')
