@@ -68,6 +68,7 @@ def main():
     p.add_argument('--ctor-owner',action='store_true',help='Execute slot selection and complete generic constructor continuation instead of fixture leaf sequencing.')
     p.add_argument('--spawn-recovery-joint',action='store_true',help='Join actual player constructor result to checked index/history/health/MP recovery; weapon child remains required.')
     p.add_argument('--spawn-weapon-joint',action='store_true',help='Join source spawn weapon selection to the actual same-model transition after constructor/recovery.')
+    p.add_argument('--spawn-weapon-model-change',action='store_true',help='Continue a source-defined saved weapon through native model services after actual construction/recovery.')
     p.add_argument('--spawn-placement-camera',type=int,default=0,help='Supplied integer horizontal camera for the isolated placement/constructor join.')
     p.add_argument('--spawn-placement-authority',type=Path,help='Join pinned-C-checked initial-camera stage placement to actual player constructor/recovery/weapon completion.')
     p.add_argument('--queue-producer',action='store_true',help='Execute actual native queue request and acknowledgement; leave the full world tick uncommitted.')
@@ -117,6 +118,8 @@ def main():
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.spawn_recovery_joint and not(a.player_state_birth and a.ctor_model and (a.initial_jump or a.initial_select) and a.frame_owner and a.script_clone):raise ValueError('SPAWN_RECOVERY_REQUIRES_REAL_PLAYER_CONSTRUCTOR')
     if a.spawn_weapon_joint and not a.spawn_recovery_joint:raise ValueError('SPAWN_WEAPON_REQUIRES_RECOVERY_JOIN')
+    if a.spawn_weapon_model_change and not a.spawn_weapon_joint:raise ValueError('SPAWN_MODEL_CHANGE_REQUIRES_WEAPON_JOIN')
+    if a.spawn_weapon_model_change and a.run_tuple_birth:raise ValueError('SPAWN_MODEL_CHANGE_RUN_EMITTER_CONFLICT')
     if a.spawn_placement_authority and not a.spawn_weapon_joint:raise ValueError('SPAWN_PLACEMENT_REQUIRES_WEAPON_JOIN')
     if a.spawn_placement_camera and not a.spawn_placement_authority:raise ValueError('SPAWN_CAMERA_REQUIRES_PLACEMENT_AUTHORITY')
     if not -32768<=a.spawn_placement_camera<=32767:raise ValueError('SPAWN_CAMERA_Q16_DOMAIN')
@@ -388,6 +391,11 @@ def main():
                 stage_weapon=int(row['values'][0])
         if not -0x80000000<=stage_weapon<=0x7fffffff:raise ValueError('SPAWN_WEAPON_STAGE_DOMAIN')
         locations['weapon']=base+cursor;raw[at+cursor:at+cursor+len(weapon_table)]=weapon_table;cursor+=len(weapon_table)
+        if a.spawn_weapon_model_change:
+            from m4_spawn_model_services import compile as spawn_services_compile
+            spawn_services=spawn_services_compile(source,sy,default,role=animation['engine_animation_id'])
+            if raw[58*32768:59*32768]!=bytes(32768):raise ValueError('SPAWN_MODEL_SERVICES_PRIVATE_TABLE_BANK')
+            raw[58*32768:58*32768+len(spawn_services['table'])]=spawn_services['table']
     if cursor>32768:raise ValueError('CALLBACK_NATIVE_IMMUTABLE_BANK_CAPACITY')
     raw[60*32768:60*32768+len(frames)]=frames
     if a.effects_runner:
@@ -793,6 +801,25 @@ CallbackFixture_SpawnWeaponDone:
 .i16
  nop
 ''',1)
+            if a.spawn_weapon_model_change:
+                needle=' jsl SpawnWeapon_Begin\n bcs CallbackFixture_SpawnBad\n'
+                assert asm.count(needle)==1
+                # Load validates the paired source timing table before the model
+                # copier's preflight requires its completed lease.
+                asm=asm.replace(needle,f''' pha
+ jsl {sy['SourceAttackTiming4086_Load']}
+ pla
+ bcs CallbackFixture_SpawnBad
+'''+needle+f''' lda.l {player_state_work}+8
+ tax
+ lda.l {player_state_work}+10
+ tay
+ jsl ModelPipeline_Resume
+ bcs CallbackFixture_SpawnBad
+ cmp #0
+ bne CallbackFixture_SpawnBad
+''',1)
+                asm+=spawn_services['code']
         if a.spawn_placement_authority:
             from source_player_spawn_inputs import emit_stage
             asm+=emit_stage(placement_stage,sy,horizontal_camera=bool(a.spawn_placement_camera))
@@ -1743,6 +1770,9 @@ CallbackFixture_WorldAIComplete:
     if a.spawn_recovery_joint:
         from source_foreign_water_retirement import transform as water_transform
         water_transform(raw,{**sy,**fs})
+    if a.spawn_weapon_model_change:
+        from m4_spawn_model_services import transform as spawn_services_transform
+        spawn_services_transform(raw,sy,fs,offset)
     path=folder/'bor.sfc';path.write_bytes(raw)
     for media in [a.rom.with_suffix('.msu'),*(a.rom.parent.glob('bor-*.pcm') if not(a.costmove_model or a.attack_chain_model or a.player_state_birth) else ())]:
         target=folder/media.name
@@ -2030,6 +2060,36 @@ emu.addMemoryCallback(function()
  emu.log('CTORSPAWNWEAPON|'..word(INDEX)..'|'..mismatch..'|'..slot..'|'..index..'|'..signed(dw(0x43ea00+4*index))..'|'..word(sy.SourceWeapon4086_Selected)..'|'..word(sy.SourceWeapon4086_Sync)..'|'..word(sy.SourceModelTransition4086_State)..'|'..word(sy.SourceModelTransition4086_Service)..'|'..(emu.getState().masterClock-weaponStart))
 end,emu.callbackType.exec,{fs['CallbackFixture_SpawnWeaponDone']},{fs['CallbackFixture_SpawnWeaponDone']},emu.cpuType.snes,mt)
 '''
+    if a.spawn_weapon_model_change:
+        lua=spawn_services['prelude']+lua
+        lua+=f'''emu.addMemoryCallback(function(a,v)local s=emu.getState();emu.log('SPAWNSTYLEWRITE|'..a..'|'..v..'|'..s['cpu.k']..'|'..s['cpu.pc'])end,emu.callbackType.write,{spawn_services['styles']},{spawn_services['styles']+3},emu.cpuType.snes,mt)\n'''
+        old=f'weaponNumber=c.direction==0 and -1 or {stage_weapon};put(0x43ea00+4*index,c.direction==0 and -1 or 0,4)'
+        assert lua.count(old)==1
+        lua=lua.replace(old,f"weaponNumber={spawn_services['number']};put(0x43ea00+4*index,weaponNumber,4)\n"+spawn_services['install'])
+        old=' local mismatch=0;for addr,v in pairs(weaponBefore)do if emu.read(addr,mt)~=v then mismatch=mismatch+1 end end'
+        assert lua.count(old)==1
+        lua=lua.replace(old,''' local mismatch=0
+ local function exact(a,b)for i,v in ipairs(b)do if emu.read(a+i-1,mt)~=v then mismatch=mismatch+1;emu.log('SPAWNMODELDIFF|'..(a+i-1)..'|'..emu.read(a+i-1,mt)..'|'..v)end end end
+ exact(0x40b000+160*model,spawn_wanted.cache)
+ local wanted_core={};for i,v in ipairs(spawn_wanted.core)do wanted_core[i]=v end
+ for _,off in ipairs(spawn_wanted.core_fallback_offsets)do for i=0,3 do wanted_core[off+i+1]=weaponBefore[0x40c000+96*slot+off+i]end end
+ exact(0x40c000+96*slot,wanted_core);exact(0x43c000+2*spawn_wanted.maximum*model,spawn_wanted.animation_row)
+ for _,r in ipairs({{0x414000+80*slot+36,4},{0x40c000+96*slot+76,4},{0x40c000+96*slot+80,16}})do for i=0,r[2]-1 do if emu.read(r[1]+i,mt)~=weaponBefore[r[1]+i]then mismatch=mismatch+1 end end end
+ if model~=spawn_wanted.model or word(0x416800+64*slot+30)~=spawn_wanted.alpha or dw(0x414000+80*slot+40)~=1 or dw(0x414000+80*slot+44)~=index or dw(0x414000+80*slot+72)~=spawn_wanted.score or dw(spawn_wanted.styles+4*slot)~=spawn_wanted.combostyle or word(spawn_wanted.run_handles+2*slot)~=spawn_wanted.run or word(0x409038+64*slot)~=model or word(sy.SourceScriptClone4086_Status)~=2 then mismatch=mismatch+1 end
+ for i=0,15 do local a=0x43ea00+i;if emu.read(a,mt)~=weaponBefore[a]then mismatch=mismatch+1 end end
+ for i=0,15 do local a=0x43e200+16*slot+i;if emu.read(a,mt)~=weaponBefore[a]then mismatch=mismatch+1 end end''')
+        lua+=f'''emu.addMemoryCallback(function()local slot=word(sy.SourceDefaultInit4086_OwnerSlot);emu.log('SPAWNMODELFIELDS|'..table.concat({{word(INDEX),word(0x416800+64*slot+30),dw(0x414000+80*slot+40),dw(0x414000+80*slot+44),dw(0x414000+80*slot+72),dw(spawn_wanted.styles+4*slot),word(spawn_wanted.run_handles+2*slot),word(0x409038+64*slot),word(sy.SourceScriptClone4086_Status)}},','))end,emu.callbackType.exec,{fs['CallbackFixture_SpawnWeaponDone']},{fs['CallbackFixture_SpawnWeaponDone']},emu.cpuType.snes,mt)\n'''
+        lua+=f'''emu.addMemoryCallback(function()emu.log('SPAWNMODELSERVICE|'..word(INDEX)..'|'..word(sy.SourceModelTransition4086_Service))end,emu.callbackType.exec,{fs['ModelPipeline_Loop']},{fs['ModelPipeline_Loop']},emu.cpuType.snes,mt)\n'''
+        lua+=f'''emu.addMemoryCallback(function()emu.log('SPAWNMODELANIMATION|'..word(INDEX)..'|'..word(sy.SourceModelAnimation4086_State)..'|'..word(sy.SourceModelAnimation4086_Branch)..'|'..word(0x416804)..'|'..spawn_wanted.animation_handle)end,emu.callbackType.exec,{fs['CallbackFixture_SpawnWeaponDone']},{fs['CallbackFixture_SpawnWeaponDone']},emu.cpuType.snes,mt)\n'''
+        for label,addr in fs.items():
+            if label.startswith('ModelSnapshotService_Guard'):
+                lua+=f"emu.addMemoryCallback(function()emu.log('SPAWNMODELGUARD|{label}')end,emu.callbackType.exec,{addr},{addr},emu.cpuType.snes,mt)\n"
+        for label,addr in sy.items():
+            if label.startswith('SourceModelEntityCopy4086_') and (label.endswith(('Checked','Admitted','Preflight')) or 'Branch_' in label):
+                lua+=f"emu.addMemoryCallback(function()emu.log('SPAWNMODELCORE|{label}')end,emu.callbackType.exec,{addr},{addr},emu.cpuType.snes,mt)\n"
+        for label in ('SourceModelCachedCopy4086_Bad','SourceModelAnimationCopy4086_Bad','SourceModelEntityCopy4086_Bad','SourceRunTuple_Fault','SourceRunTuple_EntityCopyBad'):
+            addr=fs.get(label,sy.get(label))
+            if addr is not None:lua+=f"emu.addMemoryCallback(function()emu.log('SPAWNMODELFAULT|{label}|status='..word(sy.SourceModelEntityCopy4086_Status))end,emu.callbackType.exec,{addr},{addr},emu.cpuType.snes,mt)\n"
     if a.ctor_factors:
         initialinstall+='\n'+\
             '\n'.join(" set('"+name+"',"+str(value)+")"for name,value in dict(SourceFactors4086_Ready=0xb5f1,SourceFactors4086_Status=0,SourceFactors4086_Base=locations['factors']&65535,SourceFactors4086_Bank=base>>16,SourceFactors4086_Bytes=len(factor_table),SourceFactors4086_Models=16,SourceFactors4086_Attacks=factor_report['attack_types']).items())
@@ -2830,7 +2890,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             run_frames_exact(m,60)
             if startup.u16(m,INDEX)==len(rows) or startup.u16(m,ERROR):break
         reporter.check('native authored callback batch completed',startup.u16(m,INDEX)==len(rows) and startup.u16(m,ERROR)==0)
-    fixture_lua_errors=[line for line in (folder/'mesen.log').read_text().splitlines()if 'FIXTURELUAFAIL|'in line]
+    fixture_lua_errors=[line for line in (folder/'mesen.log').read_text().splitlines()if 'FIXTURELUAFAIL|'in line or 'callback_owner.lua:' in line and 'attempt to ' in line]
     reporter.check('fixture initialization has no Lua exception',not fixture_lua_errors)
     results=[];faults=[];costs=[];initializers=[];frame_results=[];core_results=[];select_results=[];jump_results=[]
     for line in (folder/'mesen.log').read_text().splitlines():
@@ -3332,8 +3392,14 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         r.update(actual_player_constructor_recovery_join=True,spawn_recovery_results=joined,full_spawnplayer_bound=False,weapon_child_bound=False,production_consumer_bound=False)
         if a.spawn_weapon_joint:
             weapon_joined=[list(map(int,line.split('CTORSPAWNWEAPON|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNWEAPON|'in line]
-            reporter.check('spawn weapon uses saved-or-stage selection and real same-model early return without child acknowledgements',len(weapon_joined)==len(rows)and all(x[:9]==[i,0,0,0,-1 if c['direction']==0 else stage_weapon,c['default'],1,2,0]for i,(x,c)in enumerate(zip(weapon_joined,rows))))
+            reporter.check('spawn weapon resolves source selection and completes actual native transition without observer acknowledgements',len(weapon_joined)==len(rows)and all(x[:9]==[i,0,0,0,spawn_services['number'] if a.spawn_weapon_model_change else -1 if c['direction']==0 else stage_weapon,spawn_services['new'] if a.spawn_weapon_model_change else c['default'],1,2,0]for i,(x,c)in enumerate(zip(weapon_joined,rows))))
             r.update(weapon_child_bound=True,weapon_same_model_only=True,spawn_weapon_results=weapon_joined,stage_setweap=stage_weapon,weapon_table_sha256=hashlib.sha256(weapon_table).hexdigest(),weapon_cache_sha256=hashlib.sha256(weapon_cache).hexdigest(),model_change_services_bound=False,spawn_weapon_sync_argument_poisoned=True,spawn_weapon_actual_sync_forwarded=True)
+            if a.spawn_weapon_model_change:
+                services=[list(map(int,line.split('SPAWNMODELSERVICE|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'SPAWNMODELSERVICE|'in line]
+                animation_services=[list(map(int,line.split('SPAWNMODELANIMATION|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'SPAWNMODELANIMATION|'in line]
+                reporter.check('changing spawn consumes native services and inline synchronized animation',all([v for row,v in services if row==i]==[1,2,3,5,6,7,0]for i in range(len(rows)))and len(animation_services)==len(rows)and all(x[0]==i and x[1:3]==[2,1]and x[3]==x[4]for i,x in enumerate(animation_services)))
+                r.update(weapon_same_model_only=False,model_change_services_bound=True,spawn_model_services=services,spawn_model_bundle=spawn_services['manifest'],source_saved_weapon_number=spawn_services['number'])
+                r.update(spawn_model_animation_services=animation_services,scalar_fixture_media_bound=False,observer_acknowledgements=False)
         if a.spawn_placement_authority:
             observed=[list(map(int,line.split('CTORSPAWNPLACEMENT|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNPLACEMENT|'in line]
             published=[list(map(int,line.split('CTORSPAWNPLACEMENTPUBLISHED|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNPLACEMENTPUBLISHED|'in line]

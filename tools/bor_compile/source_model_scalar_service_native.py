@@ -163,7 +163,7 @@ ModelScalarService_Apply2:
  tax
  lda.l ModelScalarService_Styles,x
  pha
- lda.l ModelScalarService_Styles+2,x
+ lda.l ModelScalarService_StylesHigh,x
  pha
  lda.l SourceModelTransition4086_Slot
  asl a
@@ -196,7 +196,7 @@ ModelScalarService_Alpha:
 '''.replace('COUNT',str(count)).replace('STYLES',str(styles))
     if any(not 0<=m['alpha']<=6 or not -2147483648<=m['combostyle']<=2147483647 for m in report['models']):
         raise ValueError('MODEL_SCALAR_DOMAIN')
-    code+=' .dw '+','.join(str(m['alpha'])for m in report['models'])+'\nModelScalarService_Styles:\n .dw '+','.join(str(v)for m in report['models']for v in(m['combostyle']&65535,(m['combostyle']>>16)&65535))+'\n'
+    code+=' .dw '+','.join(str(m['alpha'])for m in report['models'])+'\nModelScalarService_Styles:\n .dw '+str(report['models'][0]['combostyle']&65535)+'\nModelScalarService_StylesHigh:\n .dw '+','.join(str(v)for i,m in enumerate(report['models'])for v in (((m['combostyle']>>16)&65535,)if i==0 else(m['combostyle']&65535,(m['combostyle']>>16)&65535)))+'\n'
     if effects_report is not None:
         if [(m['id'],m['identity'],m['source_sha256'])for m in effects_report['models']]!=[(m['id'],m['identity'],m['source_sha256'])for m in report['models']]:
             raise ValueError('MODEL_SCALAR_EFFECT_SOURCE_PAIR')

@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_4086_MODEL_SCALAR_SERVICE_NATIVE_V1",
+  "status": "PASS",
+  "rom_sha256": "eec6a59c02c27085063e489a2b5a8c57971600c363b8b434b1ad2a7f65f59eb4",
+  "cases": 124,
+  "synthetic_wide_style_inputs": true,
+  "authored_style_values": false,
+  "real_canvas_generation_check": true,
+  "real_transition_ack": true,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "passing_rows": 124,
+  "style_values": [
+    -2147483648,
+    -19119327,
+    305441741,
+    2147483647
+  ],
+  "artifacts": [
+    {
+      "path": "out\\byor-motu-model-scalar-wide-style-native\\report.json",
+      "sha256": "429c032c6834b88107e5e072639bc0b9fa7a977ef54ea4cfd6e8c7977902532d"
+    },
+    {
+      "path": "out\\byor-motu-model-scalar-wide-style-native\\fixture.pasm",
+      "sha256": "d953711323169cffb953b7171d7ead584a1ce05c74d0aa017d90ae7cb3a6e392"
+    },
+    {
+      "path": "out\\byor-motu-model-scalar-wide-style-native\\observer.lua",
+      "sha256": "078d39b58529d14539b3f0c86c839a3a88aad37c72725cd4e2b58ce047569cd8"
+    }
+  ]
+}

@@ -44,7 +44,10 @@ LUA=LUA[:start]+""" if c.fault==0 then
 """+LUA[end:]
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);report=derive(Source(a.source));sy=symbols(Path('src/main.sym'));styles=next(r['address']for r in layout(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES'])['regions']if r['name']=='entity_combostyle')
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--source',required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--synthetic-wide-styles',action='store_true');a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True);report=derive(Source(a.source));sy=symbols(Path('src/main.sym'));styles=next(r['address']for r in layout(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES'])['regions']if r['name']=='entity_combostyle')
+ if a.synthetic_wide_styles:
+  values=(0x1234abcd,-0x123bcdf,0x7fffffff,-0x80000000)
+  for m in report['models']:m['combostyle']=values[m['id']%len(values)]
  base=dict(level=1,alive=1,multiple=0,platform=0,wall=0,bad='',fault=0,map=0,generation=1)
  rows=[dict(base,slot=slot,model=m['id'],alpha=m['alpha'],style=m['combostyle'])for slot,m in itertools.product((0,1,127),report['models'])]
  guards=('transition_ready','transition_state','transition_service','transition_ack','transition_slot','transition_side','transition_core','transition_model','side_model','template','copy_models','ctor_ready','ctor_models','row_lease','token','token_high','world','pool','side','count','core','entities','copy_status','copy_slot','copy_model','copy_core','copy_view','foreign_ready','foreign_generation','foreign_high','foreign_zero','canvas_ready','canvas_owner','canvas_busy','water_owner','canvas_target','frontpanel','queue_overlay')
@@ -84,7 +87,7 @@ ModelScalarProbe_Bad:
  results=[list(map(int,line.split('TAILRESULT|',1)[1].split('|')))for line in log.splitlines()if 'TAILRESULT|'in line]
  r.check('authored alpha/style and intact dynamics/identity/controller rows/CPU context',len(results)==len(rows)and all(v[:4]==[i,0,0,3 if c['fault']else 1]and(c['fault']or v[4:]==[3,0])for i,(v,c)in enumerate(zip(results,rows))))
  r.check('stale requests never acknowledge',len(results)==len(rows)and all(not c['fault']or v[5]==(2 if c['bad']=='transition_ack'else 0)for v,c in zip(results,rows)))
- d=dict(schema='BYOR_4086_MODEL_SCALAR_SERVICE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,model_scalars=report,completed_copy_request_installed_by_fixture=True,canvas_lease_installed_by_fixture=True,real_canvas_generation_check=True,real_transition_ack=True,full_transition_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
+ d=dict(schema='BYOR_4086_MODEL_SCALAR_SERVICE_NATIVE_V1',status='PASS'if all(ok for _,ok in r.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,model_scalars=report,synthetic_wide_style_inputs=a.synthetic_wide_styles,authored_style_values=not a.synthetic_wide_styles,completed_copy_request_installed_by_fixture=True,canvas_lease_installed_by_fixture=True,real_canvas_generation_check=True,real_transition_ack=True,full_transition_bound=False,foreign_profile_admitted=False,motu_gameplay_proven=False,no_color_reduction=True,no_pcm_copies=True)
  (a.output/'report.json').write_text(json.dumps(d,indent=2)+'\n');r.finish()
 
 if __name__=='__main__':main()
