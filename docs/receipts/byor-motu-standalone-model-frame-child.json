@@ -1,0 +1,248 @@
+{
+  "schema": "BYOR_STANDALONE_NATIVE_MODEL_FRAME_CHILD_TRIALS_V1",
+  "status": "PASS",
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "full_spawnplayer_bound": false,
+  "production_consumer_bound": false,
+  "foreign_profile_admitted": false,
+  "motu_gameplay_proven": false,
+  "runs": [
+    {
+      "schema": "BYOR_STANDALONE_MODEL_FRAME_CHILD_NATIVE_V1",
+      "status": "PASS",
+      "rom_sha256": "831a5ced256fad12213010c266292f0ccc04f1e0dcef290430cba0997fd2eb04",
+      "cases": 12,
+      "results": [
+        [
+          "0",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "1",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "2",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "3",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "4",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "5",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "6",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "7",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "8",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "9",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "10",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "11",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ]
+      ],
+      "observer_acknowledgements": false,
+      "synthetic_transition_sync_argument": true,
+      "synthetic_current_animation_argument": false,
+      "authored_source_tables_unchanged": true,
+      "standalone_model_frame_child_bound": true,
+      "actual_parent_animation_callback": false,
+      "actual_frame_event_dispatch": false,
+      "name": "byor-motu-standalone-model-frame-child-native",
+      "peak_master_clocks": 1030072,
+      "maximum_fields": 3,
+      "bank_zero_unchanged": true,
+      "artifacts": [
+        {
+          "path": "out/byor-motu-standalone-model-frame-child-native/report.json",
+          "sha256": "fc6fae9742cccd4111a4339d5c6a9046611afc44ea627742ec2bd904a6523a58"
+        },
+        {
+          "path": "out/byor-motu-standalone-model-frame-child-native/observer.lua",
+          "sha256": "59939661a8c75793c78193371e9d32ca2fb386592f853e9438dc6ca33cf11118"
+        },
+        {
+          "path": "out/byor-motu-standalone-model-frame-child-native/fixture.bin",
+          "sha256": "f7afb0ff36137f475de9c5392caed8c2bc9b7aa37013d45d30f1aacf8a67e7d1"
+        }
+      ],
+      "actual_set_idle_prepare": false
+    },
+    {
+      "schema": "BYOR_STANDALONE_MODEL_FRAME_CHILD_NATIVE_V1",
+      "status": "PASS",
+      "rom_sha256": "831a5ced256fad12213010c266292f0ccc04f1e0dcef290430cba0997fd2eb04",
+      "cases": 12,
+      "results": [
+        [
+          "0",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "1",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "2",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "3",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "4",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "5",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "6",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "7",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "8",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "9",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "10",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ],
+        [
+          "11",
+          "0",
+          "0",
+          "2",
+          "1,2,3,4,4,5,6,7,0"
+        ]
+      ],
+      "observer_acknowledgements": false,
+      "synthetic_transition_sync_argument": false,
+      "synthetic_current_animation_argument": true,
+      "authored_source_tables_unchanged": true,
+      "standalone_model_frame_child_bound": true,
+      "actual_parent_animation_callback": false,
+      "actual_frame_event_dispatch": false,
+      "name": "byor-motu-standalone-model-missing-animation-native",
+      "peak_master_clocks": 1026306,
+      "maximum_fields": 3,
+      "bank_zero_unchanged": true,
+      "artifacts": [
+        {
+          "path": "out/byor-motu-standalone-model-missing-animation-native/report.json",
+          "sha256": "1d8b8d1d8d1d7717fb8b36667fdfe005fd6860afaab92b544e06a40565cfccd2"
+        },
+        {
+          "path": "out/byor-motu-standalone-model-missing-animation-native/observer.lua",
+          "sha256": "8482390f05b79f906dfe17f5a018c711ff573f1135c325acdd6f916399fd75fe"
+        },
+        {
+          "path": "out/byor-motu-standalone-model-missing-animation-native/fixture.bin",
+          "sha256": "f7afb0ff36137f475de9c5392caed8c2bc9b7aa37013d45d30f1aacf8a67e7d1"
+        }
+      ],
+      "actual_set_idle_prepare": false
+    }
+  ]
+}

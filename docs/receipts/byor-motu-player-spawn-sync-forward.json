@@ -1,0 +1,70 @@
+{
+  "schema": "BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1",
+  "status": "PASS",
+  "rom_sha256": "4df17ea672349530cc1d6106019255b41f9a95386efd416a3f446dfdba6fbf6f",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "cases": [
+    {
+      "f": 0,
+      "direction": 0,
+      "default": 3,
+      "fault": 0
+    },
+    {
+      "f": 0,
+      "direction": 1,
+      "default": 3,
+      "fault": 0
+    }
+  ],
+  "spawn_weapon_results": [
+    [
+      0,
+      0,
+      0,
+      0,
+      -1,
+      3,
+      1,
+      2,
+      0,
+      26006
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      3,
+      1,
+      2,
+      0,
+      26282
+    ]
+  ],
+  "spawn_weapon_sync_argument_poisoned": true,
+  "spawn_weapon_actual_sync_forwarded": true,
+  "weapon_table_sha256": "22839440a1d508458b5ee08c9fd99882c289679f8af64aed5d041e2054d3c153",
+  "weapon_cache_sha256": "ed06825e306ba372130baf5190c22629c5927624f570e4f5b7146a7f72efe78b",
+  "model_change_services_bound": false,
+  "full_spawnplayer_bound": false,
+  "production_consumer_bound": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "bank_zero_unchanged": true,
+  "artifacts": [
+    {
+      "path": "out/byor-motu-player-spawn-sync-forward-native/report.json",
+      "sha256": "cd5521289f75791abef21e3fd5c99ec2cd4a5bbeabaf82829f4e570aaec6087a"
+    },
+    {
+      "path": "out/byor-motu-player-spawn-sync-forward-native/callback_owner.lua",
+      "sha256": "a078098dfe40a44ce639721c8118c9cca4300ebdd2ad681625e3ac2e23e88f3e"
+    },
+    {
+      "path": "out/byor-motu-player-spawn-sync-forward-native/callback_fixture.bin",
+      "sha256": "4086ac64750a5a3659f59164f92f33b72c12c05c3dcf583e85120e6499c56226"
+    }
+  ]
+}

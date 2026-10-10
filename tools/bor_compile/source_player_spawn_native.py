@@ -35,7 +35,7 @@ def emit_weapon(sy):
     put(' lda $00\n asl a\n asl a\n tax\n lda.l $43EA00,x\n sta $04\n lda.l $43EA02,x\n sta $06\n ora $04\n bne SpawnWeapon_Saved')
     put(f' lda.l {sy["SourceWeapon4086_LevelWeaponLo"]}\n sta $04\n lda.l {sy["SourceWeapon4086_LevelWeaponHi"]}\n sta $06')
     label('Saved');put(f' lda $04\n sta.l {sy["SourceWeapon4086_NumberLo"]}\n lda $06\n sta.l {sy["SourceWeapon4086_NumberHi"]}\n lda #0\n sta.l {sy["SourceWeapon4086_AnimFlagLo"]}\n sta.l {sy["SourceWeapon4086_AnimFlagHi"]}\n jsl {sy["SourceWeapon4086_Resolve"]}');guard('bcs')
-    put(f' lda.l {sy["SourceWeapon4086_Selected"]}\n sta.l {sy["SourceModelTransition4086_New"]}\n jsl {sy["SourceModelTransition4086_Begin"]}');guard('bcs')
+    put(f' lda.l {sy["SourceWeapon4086_Selected"]}\n sta.l {sy["SourceModelTransition4086_New"]}\n lda.l {sy["SourceWeapon4086_Sync"]}\n sta.l {sy["SourceModelAnimation4086_Sync"]}\n jsl {sy["SourceModelTransition4086_Begin"]}');guard('bcs')
     for name,carry in (('Good','clc'),('Bad','sec')):
         label(name);put(' tsc\n clc\n adc #8\n tcs\n pld\n ply\n plx\n pla\n plp\n '+carry+'\n rtl')
     return '\n'.join(lines)+'\n'

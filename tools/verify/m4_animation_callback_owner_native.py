@@ -2010,7 +2010,7 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         install=';'.join(f"set('{k}',{v})"for k,v in settings.items())
         lua+=f'''local weaponBefore={{}};local weaponStart=0;local weaponNumber=0
 emu.addMemoryCallback(function()
- {install};copy(0x40ba00,weapon_cache)
+ {install};copy(0x40ba00,weapon_cache);set('SourceModelAnimation4086_Sync',65535)
  local slot=word(sy.SourceDefaultInit4086_OwnerSlot);local index=dw(sy.SourceCtorState4086_Player);local c=rows[word(INDEX)+1]
  weaponNumber=c.direction==0 and -1 or {stage_weapon};put(0x43ea00+4*index,c.direction==0 and -1 or 0,4)
  weaponBefore={{}};for _,r in ipairs({{{{0x414000+80*slot,80}},{{0x416800+64*slot,64}},{{0x40c000+96*slot,96}},{{0x43ea00,16}},{{0x43e200+16*slot,16}}}})do for i=0,r[2]-1 do weaponBefore[r[1]+i]=emu.read(r[1]+i,mt)end end
@@ -2023,6 +2023,7 @@ emu.addMemoryCallback(function()
  for i=0,11 do local from=i<4 and i or i+4;weaponBefore[0x43e200+16*slot+i]=weapon_cache[32*model+from+1]end
  for i=12,15 do weaponBefore[0x43e200+16*slot+i]=0 end
  local mismatch=0;for addr,v in pairs(weaponBefore)do if emu.read(addr,mt)~=v then mismatch=mismatch+1 end end
+ if word(sy.SourceModelAnimation4086_Sync)~=word(sy.SourceWeapon4086_Sync)then mismatch=mismatch+1 end
  emu.log('CTORSPAWNWEAPON|'..word(INDEX)..'|'..mismatch..'|'..slot..'|'..index..'|'..signed(dw(0x43ea00+4*index))..'|'..word(sy.SourceWeapon4086_Selected)..'|'..word(sy.SourceWeapon4086_Sync)..'|'..word(sy.SourceModelTransition4086_State)..'|'..word(sy.SourceModelTransition4086_Service)..'|'..(emu.getState().masterClock-weaponStart))
 end,emu.callbackType.exec,{fs['CallbackFixture_SpawnWeaponDone']},{fs['CallbackFixture_SpawnWeaponDone']},emu.cpuType.snes,mt)
 '''
@@ -3327,7 +3328,7 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         if a.spawn_weapon_joint:
             weapon_joined=[list(map(int,line.split('CTORSPAWNWEAPON|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNWEAPON|'in line]
             reporter.check('spawn weapon uses saved-or-stage selection and real same-model early return without child acknowledgements',len(weapon_joined)==len(rows)and all(x[:9]==[i,0,0,0,-1 if c['direction']==0 else stage_weapon,c['default'],1,2,0]for i,(x,c)in enumerate(zip(weapon_joined,rows))))
-            r.update(weapon_child_bound=True,weapon_same_model_only=True,spawn_weapon_results=weapon_joined,stage_setweap=stage_weapon,weapon_table_sha256=hashlib.sha256(weapon_table).hexdigest(),weapon_cache_sha256=hashlib.sha256(weapon_cache).hexdigest(),model_change_services_bound=False)
+            r.update(weapon_child_bound=True,weapon_same_model_only=True,spawn_weapon_results=weapon_joined,stage_setweap=stage_weapon,weapon_table_sha256=hashlib.sha256(weapon_table).hexdigest(),weapon_cache_sha256=hashlib.sha256(weapon_cache).hexdigest(),model_change_services_bound=False,spawn_weapon_sync_argument_poisoned=True,spawn_weapon_actual_sync_forwarded=True)
         if a.spawn_placement_authority:
             observed=[list(map(int,line.split('CTORSPAWNPLACEMENT|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNPLACEMENT|'in line]
             published=[list(map(int,line.split('CTORSPAWNPLACEMENTPUBLISHED|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNPLACEMENTPUBLISHED|'in line]
