@@ -1,0 +1,63 @@
+{
+  "schema": "BYOR_JOINT_SCREEN_OBJ_CONTEXT_RECEIPT_V1",
+  "status": "MEASURED_STRATEGY_LIMIT",
+  "report": "out/byor-motu-joint-screen-obj-visible-window.json",
+  "report_sha256": "37fd7af3e3aa03c149855e7f59647f4e65e3fa763ceb42ad3a4ce3993fc7b709",
+  "geometry": {
+    "oam_entries": 61,
+    "peak_sprites_per_line": 12,
+    "peak_tile_slivers_per_line": 28,
+    "tile_sliver_count_policy": "conservative complete width of every visible object rectangle"
+  },
+  "maximum_scanline_colors": 75,
+  "maximum_adjacent_union": 115,
+  "peak_heuristic_writes": 57,
+  "peak_heuristic_bytes": 114,
+  "no_math_palette_interval_bound": {
+    "status": "CGRAM_DATA_WINDOW_INFEASIBLE",
+    "worst_interval": {
+      "first_line": 126,
+      "last_line": 135,
+      "distinct_colors": 354,
+      "resident_capacity": 120,
+      "minimum_new_color_commits": 234,
+      "hblanks": 9,
+      "minimum_window_cgram_data_bytes": 467,
+      "maximum_window_data_bytes": 396,
+      "byte_deficit": 71,
+      "minimum_peak_data_bytes": 52,
+      "minimum_peak_data_master_clocks": 416
+    },
+    "available_master_clocks_per_line": 356,
+    "minimum_master_clocks_per_byte": 8,
+    "preloaded_low_byte_latch_allowed": true,
+    "addresses_setup_and_contention_excluded": true,
+    "bank_assignment_relaxed_for_lower_bound": true,
+    "feasibility_proven": false,
+    "scope": "Exact precomposited RGB555 OBJ outputs in the explicit pose. Excludes alternative BG/OBJ math decompositions; not a universal raster rejection."
+  },
+  "timing_provenance": [
+    {
+      "path": "E:/gh/Mesen2-mcp-frameexact/Core/SNES/SnesPpu.cpp",
+      "sha256": "5823ac6e89e8966ae2a8186f368ef4abb4d09bd4535e1483ff4a6871dd35f1f5"
+    },
+    {
+      "path": "E:/gh/Mesen2-mcp-frameexact/Core/SNES/SnesDmaController.cpp",
+      "sha256": "0862d1ee03ccdc8a13108548c3a84b54ae325709fadaa6cf1db9903bc6ca89cf"
+    },
+    {
+      "path": "out/byor-motu-cgram-probe/report.json",
+      "sha256": "a9cb686be9f5a7241b37cb611a27df41c06a4d05ba9792075a8ad12f13b0d743"
+    }
+  ],
+  "source_context_reachability_proven": false,
+  "alternative_obj_math_encodings_rejected": false,
+  "bg_hybrid_rejected": false,
+  "universal_raster_rejected": false,
+  "native_obj_presentation_proven": false,
+  "production_static_path_changed": false,
+  "motu_gameplay_proven": false,
+  "protected_tracked_files": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
