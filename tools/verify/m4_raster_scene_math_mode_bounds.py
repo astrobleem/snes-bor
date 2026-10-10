@@ -9,9 +9,9 @@ from compiler import Source
 from source_scene_obj_raster import prepare
 from source_scene_bg import compose_rgb8
 from source_bg_feasibility import rgb555
-from raster_obj_math_cover import MODES,complete_math_cover
-from raster_math_mode_liveness import lower_bound
-from raster_math_windows import compile_sparse_mask
+from raster_obj_math_cover import MODES,complete_math_cover,apply_math
+from raster_math_mode_liveness import lower_bound,verify_integer_pool
+from raster_math_windows import compile_sparse_mask,evaluate
 
 
 def main():
@@ -35,6 +35,10 @@ def main():
     parser.add_argument('--positive-windows-only',action='store_true')
     parser.add_argument('--subset-mode-cuts',action='store_true')
     parser.add_argument('--relax-clipped-pixels',action='store_true',help='Necessary relaxation: remove black and half-subscreen outputs that zero-main clipping may produce.')
+    parser.add_argument('--integer-palette',action='store_true')
+    parser.add_argument('--integer-backend',choices=('highs','cp-sat'),default='highs')
+    parser.add_argument('--lp-hint',action='store_true')
+    parser.add_argument('--candidate',type=Path,help='Replay a saved integer pool against the same source and scope, without another solve.')
     args=parser.parse_args();source=Source(args.source);scene=json.loads(args.scene.read_text());modes=tuple(dict.fromkeys(args.math_mode or MODES))
     actors,metadata,expected=prepare(source,args.stage,scene)
     background,_=compose_rgb8(source,args.stage,dict(scene,actors=[]));background=rgb555(background)
@@ -59,22 +63,49 @@ def main():
     else:requirements=((out,bg)for y,x,out,bg,enabled in pixels)
     started=time.perf_counter();options,cover=complete_math_cover(requirements,modes=modes,tag_modes=True,allow_window_bypass=args.relaxed_window_bypass,fixed_window_context=fixed_context)
     cover_seconds=time.perf_counter()-started
+    saved_candidate=json.loads(args.candidate.read_text())if args.candidate else None
     rows=[{mode:set()for mode in modes}for y in range(len(background))]
     union_rows=[set()for y in range(len(background))]
     window_pixels=[[]for y in range(len(background))]if args.hardware_windows else None
     for y,x,out,bg,enabled in pixels:
-        def values(mode):return options[mode,out,bg,True if args.hardware_windows else enabled]if fixed_context else options[mode,out,bg]
+        def values(mode):
+            if saved_candidate is not None:
+                words=saved_candidate['selected_palette_residency'][str(y)]['1']
+                return tuple(c for c in words if(apply_math(c,bg,mode)==out if args.hardware_windows or enabled else c==out))
+            return options[mode,out,bg,True if args.hardware_windows else enabled]if fixed_context else options[mode,out,bg]
         for mode in modes:rows[y][mode].add((out,tuple(values(mode))))
         union={c for mode in modes for c in values(mode)}
         if args.hardware_windows:
             union.add(out)
             window_pixels[y].append(dict(x=x,output=out,modes={mode:tuple(values(mode))for mode in modes}))
         union_rows[y].add((out,tuple(sorted(union))))
-    report=lower_bound(rows,time_limit=args.time_limit,integer_modes=args.integer_modes,write_budget=args.write_budget,solver_method=args.lp_method,union_rows=union_rows,window_pixels=window_pixels,integer_windows=args.integer_windows,pin_lp_controls=args.pin_lp_controls,positive_windows_only=args.positive_windows_only,subset_mode_cuts=args.subset_mode_cuts)
+    source_digest=hashlib.sha256(source.path.read_bytes()).hexdigest();pixel_digest=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()
+    if args.candidate:
+        report=saved_candidate
+        scope={'source_sha256':source_digest,'source_rgb555_sha256':pixel_digest,'scene_sha256':hashlib.sha256(args.scene.read_bytes()).hexdigest(),
+               'scanline_window':[args.first_line,args.last_line],'math_modes_allowed':list(modes),'hardware_window_masks_modeled':args.hardware_windows,
+               'horizontal_math_window':args.math_window,'zero_main_clipping_palette_demand_relaxed':args.relax_clipped_pixels,
+               'positive_union_with_disabled_edges_only':args.positive_windows_only}
+        if not report.get('integer_palette')or any(report.get(k)!=v for k,v in scope.items()):raise ValueError('MATH_MODE_INTEGER_CANDIDATE_SCOPE')
+        if window_pixels is not None:
+            for y,line in enumerate(window_pixels):
+                for pixel in line:
+                    mask=report['selected_window_eligibility'][str(y)]
+                    if str(pixel['x'])not in mask:mask[str(pixel['x'])]=int(evaluate(report['compiled_color_window_descriptors'][str(y)],pixel['x']))
+        verify_integer_pool(report,rows,window_pixels=window_pixels)
+        report['saved_candidate_coverage_method']='DIRECT_RGB555_MATH_OF_RESIDENT_WORDS'
+        report['saved_candidate_source_replay_verified']=True
+        report['saved_candidate_sha256']=hashlib.sha256(args.candidate.read_bytes()).hexdigest()
+        if 'candidate_generation'not in report:
+            provenance=('status','solver_status','message','variables','constraints','mode_variables','solver_seconds','solver_method','boolean_stats','lp_residency_hint','maximum_primal_violation','maximum_integer_control_residual')
+            report['candidate_generation']={k:report.pop(k)for k in provenance if k in report}
+        report['status']='INTEGER_POOL_SOURCE_REPLAY_PROVEN'
+    else:
+        report=lower_bound(rows,time_limit=args.time_limit,integer_modes=args.integer_modes or args.integer_palette,write_budget=args.write_budget,solver_method=args.lp_method,union_rows=union_rows,window_pixels=window_pixels,integer_windows=args.integer_windows or args.integer_palette and args.hardware_windows,pin_lp_controls=args.pin_lp_controls,positive_windows_only=args.positive_windows_only,subset_mode_cuts=args.subset_mode_cuts,integer_palette=args.integer_palette,integer_backend=args.integer_backend,lp_hint=args.lp_hint)
     if 'selected_window_eligibility'in report:
-        report['compiled_color_window_descriptors']={y:compile_sparse_mask(mask,args.positive_windows_only)for y,mask in report['selected_window_eligibility'].items()}
-    report.update(schema='BYOR_SHARED_SCANLINE_MATH_MODE_LIVENESS_V1',source_sha256=hashlib.sha256(source.path.read_bytes()).hexdigest(),
-                  source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+        report['compiled_color_window_descriptors']={y:compile_sparse_mask({int(x):v for x,v in mask.items()},args.positive_windows_only)for y,mask in report['selected_window_eligibility'].items()}
+    report.update(schema='BYOR_SHARED_SCANLINE_MATH_MODE_LIVENESS_V1',source_sha256=source_digest,
+                  source_rgb555_sha256=pixel_digest,
                   scene=scene,scene_sha256=hashlib.sha256(args.scene.read_bytes()).hexdigest(),metadata=metadata,
                   complete_mode_tagged_operand_cover=cover,cover_enumeration_seconds=cover_seconds,exact_underlay_bypass=True,
                   scanline_window=[args.first_line,args.last_line],outside_window_demand_relaxed=args.first_line is not None,

@@ -1,8 +1,42 @@
 import unittest
-from raster_math_mode_liveness import lower_bound
+from raster_math_mode_liveness import lower_bound,verify_integer_pool
 
 
 class ModeLivenessTests(unittest.TestCase):
+    def test_integer_palette_capacity_is_checked_without_native_admission(self):
+        rows=[{'a':{(i,())}}for i in range(3)]
+        for backend in('highs','cp-sat'):
+            r=lower_bound(rows,capacities=(1,1),integer_modes=True,integer_palette=True,integer_backend=backend,write_budget=1,time_limit=10)
+            self.assertEqual(r['peak_write_objective'],1)
+            self.assertFalse(r['palette_residency_integrality_relaxed'])
+            self.assertFalse(r['schedule_proven'])
+            self.assertEqual(r['selected_palette_residency'],{y:{0:[y],1:[]}for y in range(3)})
+            self.assertLessEqual(r['maximum_integer_control_residual'],1e-6)
+            blocked=lower_bound(rows,capacities=(1,1),integer_modes=True,integer_palette=True,integer_backend=backend,write_budget=0,time_limit=10)
+            self.assertEqual(blocked['status'],'RELAXED_MODE_LIVENESS_INFEASIBLE')
+        with self.assertRaisesRegex(ValueError,'INTEGER_PALETTE_CONTROLS'):lower_bound(rows,integer_palette=True)
+        with self.assertRaisesRegex(ValueError,'INTEGER_BACKEND'):lower_bound(rows,integer_backend='cp-sat')
+
+    def test_lp_residency_hint_is_soft_and_does_not_grant_admission(self):
+        rows=[{'a':{(i,())}}for i in range(3)]
+        r=lower_bound(rows,capacities=(1,1),integer_modes=True,integer_palette=True,integer_backend='cp-sat',lp_hint=True,write_budget=1,time_limit=10)
+        self.assertEqual(r['peak_write_objective'],1)
+        self.assertEqual(r['lp_residency_hint']['pinned_variables'],0)
+        self.assertTrue(r['lp_residency_hint']['hint_is_soft'])
+        self.assertGreater(r['boolean_stats']['hint_variables'],0)
+        self.assertFalse(r['schedule_proven'])
+
+    def test_saved_pool_replay_rejects_tampered_palette_and_write_budget(self):
+        import json,copy
+        rows=[{'a':{(i,())}}for i in range(3)]
+        r=lower_bound(rows,capacities=(1,1),integer_modes=True,integer_palette=True,write_budget=1,time_limit=10)
+        saved=json.loads(json.dumps(r));verify_integer_pool(saved,rows,(1,1))
+        self.assertTrue(saved['integer_pool_pixel_coverage_verified'])
+        bad=copy.deepcopy(saved);bad['selected_palette_residency']['1']['0']=[]
+        with self.assertRaisesRegex(AssertionError,'PIXEL_REPLAY'):verify_integer_pool(bad,rows,(1,1))
+        bad=copy.deepcopy(saved);bad['peak_write_objective']=0
+        with self.assertRaisesRegex(AssertionError,'WRITE_REPLAY'):verify_integer_pool(bad,rows,(1,1))
+
     def test_shared_mode_cannot_choose_different_mode_for_each_pixel(self):
         rows=[{'a':{(0,(7,)),(1,())},'b':{(0,()),(1,(7,))}}]
         for integer in (False,True):

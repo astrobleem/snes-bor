@@ -8,9 +8,39 @@ import time
 import itertools
 from scipy.optimize import linprog,milp,Bounds,LinearConstraint
 from scipy.sparse import coo_matrix
+from types import SimpleNamespace
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False):
+def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximum_window_transitions=4):
+    """Independent residency, control and source-coverage replay; no bank proof."""
+    active=[y for y,row in enumerate(rows)if any(row.values())]
+    states={int(y):{int(k):set(colors)for k,colors in state.items()}for y,state in report['selected_palette_residency'].items()}
+    modes={int(y):m for y,m in report['selected_modes'].items()}
+    masks={int(y):{int(x):v for x,v in mask.items()}for y,mask in report.get('selected_window_eligibility',{}).items()}
+    first,last=min(active),max(active);peak=0
+    if set(states)!=set(range(first,last+1)):raise ValueError('MODE_INTEGER_POOL_STATE_DOMAIN')
+    for y,state in states.items():
+        if set(state)!={0,1}or any(not isinstance(c,(int,np.integer))or not 0<=c<32768 for colors in state.values()for c in colors):raise ValueError('MODE_INTEGER_POOL_COLOR_DOMAIN')
+        if any(len(state[k])>capacities[k]for k in range(2)):raise AssertionError('MODE_INTEGER_POOL_CAPACITY_REPLAY')
+        if y>first:peak=max(peak,sum(len(state[k]-states[y-1][k])for k in range(2)))
+        if y not in active:continue
+        mode=modes[y]
+        if mode not in rows[y]:raise ValueError('MODE_INTEGER_POOL_MODE_DOMAIN')
+        if window_pixels is None:
+            requirements=rows[y][mode]
+        else:
+            mask=masks[y];xs=sorted(mask)
+            if any(v not in(0,1)for v in mask.values()):raise ValueError('MODE_INTEGER_POOL_WINDOW_DOMAIN')
+            if sum(mask[a]!=mask[b]for a,b in zip(xs,xs[1:]))>maximum_window_transitions:raise AssertionError('MODE_INTEGER_POOL_WINDOW_REPLAY')
+            requirements=[(p['output'],p['modes'][mode]if mask[p['x']]else(p['output'],))for p in window_pixels[y]]
+        for out,choices in requirements:
+            if out not in state[0]and not set(choices)&state[1]:raise AssertionError('MODE_INTEGER_POOL_PIXEL_REPLAY')
+    if peak>report['peak_write_objective']:raise AssertionError('MODE_INTEGER_POOL_WRITE_REPLAY')
+    report.update(integer_pool_pixel_coverage_verified=True,integer_pool_residency_capacity_verified=True,peak_replayed_pool_writes=peak)
+    return report
+
+
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False):
     if len(capacities)!=2 or any(not isinstance(c,int)or c<0 for c in capacities)or not sum(capacities):raise ValueError('MODE_LIVENESS_CAPACITY')
     if write_budget is not None and(not isinstance(write_budget,int)or write_budget<0):raise ValueError('MODE_LIVENESS_WRITE_BUDGET')
     if solver_method not in ('highs-ipm','highs-ds'):raise ValueError('MODE_LIVENESS_LP_METHOD')
@@ -21,6 +51,9 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     if positive_windows_only and window_pixels is None:raise ValueError('MODE_LIVENESS_WINDOW_PIXELS_REQUIRED')
     if subset_mode_cuts and window_pixels is None:raise ValueError('MODE_LIVENESS_WINDOW_PIXELS_REQUIRED')
     if not isinstance(maximum_window_transitions,int)or maximum_window_transitions<0:raise ValueError('MODE_LIVENESS_WINDOW_TRANSITIONS')
+    if integer_backend not in('highs','cp-sat')or(integer_backend=='cp-sat'and not integer_palette):raise ValueError('MODE_LIVENESS_INTEGER_BACKEND')
+    if integer_palette and(not integer_modes or window_pixels is not None and not integer_windows):raise ValueError('MODE_LIVENESS_INTEGER_PALETTE_CONTROLS')
+    if lp_hint and integer_backend!='cp-sat':raise ValueError('MODE_LIVENESS_LP_HINT_REQUIRES_CP_SAT')
     pruned=[];filtered=[]
     for y,row in enumerate(rows):
         admitted={}
@@ -133,8 +166,32 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                 if value<1e-7:upper[variable]=0;pinned_control_report['pinned_variables']+=1
                 elif value>1-1e-7:lower[variable]=1;pinned_control_report['pinned_variables']+=1
             pinned_control_report.update(relaxed_objective=float(relaxation.fun),maximum_primal_violation=violation)
-    if mixed_integer:
+    boolean_statistics=None;lp_hint_report=None
+    if integer_palette and integer_backend=='cp-sat':
+        from raster_boolean_solver import solve
+        from scipy.sparse import vstack
+        fixed=np.flatnonzero(lower>0)
+        extra=coo_matrix((np.ones(len(fixed)),(np.arange(len(fixed)),fixed)),shape=(len(fixed),peak+1)).tocsc()
+        all_rows=vstack((matrix,extra)).tocsc()
+        all_lower=np.concatenate((np.full(len(limits),-np.inf),lower[fixed]))
+        all_upper=np.concatenate((np.asarray(limits),lower[fixed]))
+        domains=upper.copy();domains[peak]=sum(capacities)if write_budget is None else write_budget
+        hint=None
+        if lp_hint:
+            relaxed=linprog(objective,A_ub=matrix,b_ub=limits,bounds=list(zip(lower,domains)),method=solver_method,options={'time_limit':min(15,time_limit)})
+            lp_hint_report=dict(status=int(relaxed.status),message=relaxed.message,hint_is_soft=True,pinned_variables=0)
+            if relaxed.success:
+                violation=max(float(np.max(np.maximum(matrix@relaxed.x-np.asarray(limits),0))),float(np.max(np.maximum(lower-relaxed.x,0))),float(np.max(np.maximum(relaxed.x-domains,0))))
+                if violation>1e-6:raise AssertionError('MODE_LIVENESS_LP_HINT_PRIMAL_RESIDUAL')
+                hint={i:int(round(v))for i,v in enumerate(relaxed.x)if i==peak or v<1e-7 or v>1-1e-7}
+                lp_hint_report.update(relaxed_objective=float(relaxed.fun),hint_variables=len(hint),maximum_primal_violation=violation)
+        solved=solve(all_rows,all_lower,all_upper,objective,time_limit,variable_upper=domains,hint=hint)
+        boolean_statistics=solved.boolean_stats
+        result=SimpleNamespace(status=solved.status,message=solved.message,x=solved.x,
+                               fun=float(objective@solved.x)if solved.x is not None else None)
+    elif mixed_integer:
         integrality=np.zeros(peak+1)
+        if integer_palette:integrality[:]=1
         if integer_modes:
             for variable in modes.values():integrality[variable]=1
         if integer_windows:
@@ -144,29 +201,38 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
         result=linprog(objective,A_ub=matrix,b_ub=limits,bounds=list(zip(lower,upper)),method=solver_method,options={'time_limit':time_limit})
     report=dict(status='RELAXED_MODE_LIVENESS_INFEASIBLE'if result.status==2 else'BOUNDED_MODE_LIVENESS_NO_CANDIDATE',solver_status=int(result.status),message=result.message,
                 variables=peak+1,constraints=len(limits),mode_variables=len(modes),integer_modes=integer_modes,write_budget=write_budget,
-                palette_residency_integrality_relaxed=True,geometry_and_bank_assignment_relaxed=True,
+        palette_residency_integrality_relaxed=not integer_palette,geometry_and_bank_assignment_relaxed=True,
                 optimal_initial_residency_allowed=True,unbounded_preloading_allowed=True,schedule_proven=False,no_color_reduction=True)
     report['forced_opaque_modes_pruned']=pruned
     if pinned_control_report is not None:
         report['pinned_lp_control_family']=pinned_control_report
         if result.status==2:report['status']='PINNED_MODE_CONTROL_FAMILY_INFEASIBLE'
-    report.update(solver_seconds=time.perf_counter()-started,solver_method='highs-mip'if mixed_integer else solver_method,
+    report.update(solver_seconds=time.perf_counter()-started,solver_method='cp-sat'if boolean_statistics is not None else'highs-mip'if mixed_integer else solver_method,
+                  integer_palette=integer_palette,
                   hardware_window_masks_modeled=window_pixels is not None,integer_windows=integer_windows,
                   window_transition_superset_only=window_pixels is not None,window_register_schedule_proven=False,
                   positive_union_with_disabled_edges_only=positive_windows_only,
                   subset_mode_cover_cuts=subset_mode_cuts,
                   window_eligibility_variables=len(enabled),maximum_window_transitions=maximum_window_transitions if window_pixels is not None else None)
+    if boolean_statistics is not None:report['boolean_stats']=boolean_statistics
+    if lp_hint_report is not None:report['lp_residency_hint']=lp_hint_report
     if result.x is not None:
         violation=max(float(np.max(np.maximum(matrix@result.x-np.array(limits),0))),float(np.max(np.maximum(lower-result.x,0))),float(np.max(np.maximum(result.x-upper,0))))
         if violation>1e-6:raise AssertionError('MODE_LIVENESS_PRIMAL_RESIDUAL')
         report.update(status='RELAXED_MODE_LIVENESS_CANDIDATE',peak_write_objective=float(result.fun),maximum_primal_violation=violation)
         if mixed_integer:
-            integer_variables=([*modes.values()]if integer_modes else[])+([*enabled.values()]if integer_windows else[])
+            integer_variables=list(range(peak+1))if integer_palette else([*modes.values()]if integer_modes else[])+([*enabled.values()]if integer_windows else[])
             residual=max(abs(result.x[v]-round(result.x[v]))for v in integer_variables)
             if residual>1e-6:raise AssertionError('MODE_LIVENESS_INTEGER_MODE_RESIDUAL')
-            report.update(maximum_integer_control_residual=residual,mip_dual_bound=float(result.mip_dual_bound),mip_gap=float(result.mip_gap),nodes=int(result.mip_node_count))
+            report.update(maximum_integer_control_residual=residual)
+            if boolean_statistics is not None:report['boolean_stats']=boolean_statistics
+            else:report.update(mip_dual_bound=float(result.mip_dual_bound),mip_gap=float(result.mip_gap),nodes=int(result.mip_node_count))
             if integer_modes:report['selected_modes']={y:next(m for (yy,m),v in modes.items()if yy==y and result.x[v]>.5)for y in active}
             if integer_windows:report['selected_window_eligibility']={y:{x:int(round(result.x[v]))for (yy,x),v in enabled.items()if yy==y}for y in active}
+            if integer_palette:
+                states={y:{kind:{c for (k,c,yy),v in resident.items()if k==kind and yy==y and result.x[v]>.5}for kind in range(2)}for y in range(first,max(active)+1)}
+                report['selected_palette_residency']={y:{kind:sorted(colors)for kind,colors in state.items()}for y,state in states.items()}
+                verify_integer_pool(report,rows,capacities,window_pixels,maximum_window_transitions)
         elif result.success:
             dual=float(np.dot(limits,result.ineqlin.marginals)+np.dot(np.where(np.isfinite(upper),upper,0),result.upper.marginals))
             residual=float(np.max(np.abs(objective-matrix.T@result.ineqlin.marginals-result.lower.marginals-result.upper.marginals)))
