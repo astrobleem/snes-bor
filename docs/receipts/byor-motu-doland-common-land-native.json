@@ -31,6 +31,12 @@
       "sha256": "877149080ebf6479587bff4fe58c5284ffcaf789bbf7b6e65da0a3cd85a15cc9",
       "cases": 12,
       "rom_sha256": "f0263aed379beb998eb81cc06c91775a45c58186cb63efc2a29079e6546c1126"
+    },
+    {
+      "report": "out/byor-motu-doland-all-source-cache-canonical-native/report.json",
+      "sha256": "12abe745389c7905c9b283e5d50afda8be0da4e4bd30d986bdffb572a5df3f8a",
+      "cases": 261,
+      "rom_sha256": "c76ac8f8129ce1d83bccb6b100f0ffc35872903b07593a7357f2ae19ee17b581"
     }
   ],
   "actual_animation_frame_owner": true,
@@ -46,5 +52,28 @@
   "full_common_land_admitted": false,
   "full_damage_callback_bound": false,
   "motu_gameplay_proven": false,
-  "no_color_reduction": true
+  "no_color_reduction": true,
+  "land_absence_prefix_proven": true,
+  "land_absence_frame_child_proven": false,
+  "land_present_source_models": [
+    3,
+    4
+  ],
+  "land_absent_source_models": [
+    0,
+    1,
+    2,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "all_model_source_cache_installed_by_fixture": true
 }
