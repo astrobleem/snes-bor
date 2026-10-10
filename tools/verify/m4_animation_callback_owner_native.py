@@ -68,6 +68,7 @@ def main():
     p.add_argument('--ctor-owner',action='store_true',help='Execute slot selection and complete generic constructor continuation instead of fixture leaf sequencing.')
     p.add_argument('--spawn-recovery-joint',action='store_true',help='Join actual player constructor result to checked index/history/health/MP recovery; weapon child remains required.')
     p.add_argument('--spawn-weapon-joint',action='store_true',help='Join source spawn weapon selection to the actual same-model transition after constructor/recovery.')
+    p.add_argument('--spawn-placement-authority',type=Path,help='Join pinned-C-checked initial-camera stage placement to actual player constructor/recovery/weapon completion.')
     p.add_argument('--queue-producer',action='store_true',help='Execute actual native queue request and acknowledgement; leave the full world tick uncommitted.')
     p.add_argument('--scroller-owner',action='store_true',help='Resume a terminal authored spawn through the complete scroller owner; no player/camera motion or full world tick claim.')
     p.add_argument('--freeze-state',action='store_true',help='Enable canonical freeze rows and observe actual constructor reset before alive publication.')
@@ -115,6 +116,7 @@ def main():
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.spawn_recovery_joint and not(a.player_state_birth and a.ctor_model and (a.initial_jump or a.initial_select) and a.frame_owner and a.script_clone):raise ValueError('SPAWN_RECOVERY_REQUIRES_REAL_PLAYER_CONSTRUCTOR')
     if a.spawn_weapon_joint and not a.spawn_recovery_joint:raise ValueError('SPAWN_WEAPON_REQUIRES_RECOVERY_JOIN')
+    if a.spawn_placement_authority and not a.spawn_weapon_joint:raise ValueError('SPAWN_PLACEMENT_REQUIRES_WEAPON_JOIN')
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
     if a.canonical_attack and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('ORDINARY_ATTACK_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
@@ -303,6 +305,12 @@ def main():
             run_tuple_report=derive_run_tuples(source)
             run_regions={r['name']:r['address']for r in state_layout(0x7fa000,6400)['regions']}
             run_work=run_regions['run_tuple_controls'];run_handles=run_regions['entity_run_tuple']
+    if a.spawn_placement_authority:
+        placement_authority=json.loads(a.spawn_placement_authority.read_text())
+        if placement_authority['status']!='PASS'or placement_authority['requirements']['source_pak_sha256']!=hashlib.sha256(source.path.read_bytes()).hexdigest():raise ValueError('SPAWN_PLACEMENT_SOURCE_AUTHORITY')
+        placement_stage=placement_authority['requirements']['stages'][0]
+        if placement_stage['source_sha256']!=document(source,placement_stage['source_path'])['sha256']:raise ValueError('SPAWN_PLACEMENT_STAGE_IDENTITY')
+        for row in rows:row['direction']=placement_stage['placements'][0]['flip']
     physics_table=b''
     if a.adjust_base_empty:
         from source_animation_physics_4086 import derive as physics_inputs,pack as pack_physics
@@ -782,6 +790,41 @@ CallbackFixture_SpawnWeaponDone:
 .i16
  nop
 ''',1)
+        if a.spawn_placement_authority:
+            from source_player_spawn_inputs import emit_stage
+            asm+=emit_stage(placement_stage,sy)
+            needle=' jsl CTOROWNERBEGIN';assert needle in asm
+            asm=asm.replace(needle,f'''
+ php
+ rep #$39
+ pha
+ phx
+ phy
+CallbackFixture_SpawnPlacementRequest:
+.a16
+.i16
+ nop
+ lda.l {player_state_work}+8
+ tax
+ lda.l {player_state_work}+10
+ tay
+ lda.l {sy['SourceCtorState4086_Player']}
+ jsl SpawnInputs_Apply
+ bcc CallbackFixture_SpawnPlacementDone
+ ply
+ plx
+ pla
+ plp
+ jmp CallbackFixture_Bad
+CallbackFixture_SpawnPlacementDone:
+.a16
+.i16
+ nop
+ ply
+ plx
+ pla
+ plp
+'''+needle,1)
         if a.run_tuple_birth:
             asm+=emit_run_tuples(run_work,run_handles,run_tuple_report,sy)+emit_ctor_model_bridge(run_work,sy)
         if a.pending_jump_birth:
@@ -2083,6 +2126,28 @@ end,emu.callbackType.exec,{fs['CallbackFixture_SpawnWeaponDone']},{fs['CallbackF
         lua+=f"emu.addMemoryCallback(function()for j=0,23 do put({tail}+j,0xa5,1);put({tail}+127*24+j,0xa5,1)end end,emu.callbackType.exec,{poison},{poison},emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,23 do cleared=cleared+emu.read({tail}+slot*24+j,mt);sibling=sibling+emu.read({tail}+127*24+j,mt)end;emu.log('CTORPLAYERSTATE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x414004+slot*80)..'|'..word({player_state_work})..'|'..word(sy.VmState_SlotCount))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
         if a.spawn_recovery_joint:
+            if a.spawn_placement_authority:
+                row=placement_stage['placements'][0]
+                lua+=f'''local placementBefore={{}};local placementStart=0
+emu.addMemoryCallback(function()
+ set('SourceForeignWork_Ready',0xb671);set('SourceForeignWork_Status',1);set('SourceForeignWork_Generation',dw({player_state_work}+8),4)
+ put(0x7ff840,0xb4b0,2);put(0x7ff862,0xb4b1,2);put(0x7ff856,0,2);put(0x7ff866,0xb672,2);put(0x7ff846,0x30,2)
+ for _,addr in ipairs({{{sy['StageFp_BG2Loaded']},{sy['StageFp_BG2Active']},{sy['StageFp_BG2DmaPending']},{sy['StageFp_BG2Booting']},{sy['StreamScrollFp_ColPending']},{sy['StreamScrollFp_Enabled']}}})do put(addr,0,2)end
+ for i=0,7 do put({sy['DmaQueue']}+8*i+7,0,1)end
+ set('VmSourceWorld_AdvanceX',0,4);set('VmSourceWorld_AdvanceY',0,4);set('VmSourceWorld_ScrollAxis',0)
+ placementBefore={{}};for i=0,63 do local at=sy.SourceCtorState4086_Ready+i;placementBefore[at]=emu.read(at,mt)end
+ placementStart=emu.getState().masterClock
+end,emu.callbackType.exec,{fs['CallbackFixture_SpawnPlacementRequest']},{fs['CallbackFixture_SpawnPlacementRequest']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ for _,q in ipairs({{{{'X',{row['x_q16']}}},{{'Z',{row['z_q16']}}},{{'A',0}},{{'Direction',{row['flip']}}}}})do local at=sy['SourceCtorState4086_'..q[1]];for i=0,3 do placementBefore[at+i]=(q[2]>>(8*i))&255 end end
+ local mismatch=0;for at,v in pairs(placementBefore)do if emu.read(at,mt)~=v then mismatch=mismatch+1 end end
+ emu.log('CTORSPAWNPLACEMENT|'..word(INDEX)..'|'..mismatch..'|'..dw(sy.SourceCtorState4086_X)..'|'..dw(sy.SourceCtorState4086_Z)..'|'..dw(sy.SourceCtorState4086_Direction)..'|'..(emu.getState().masterClock-placementStart))
+end,emu.callbackType.exec,{fs['CallbackFixture_SpawnPlacementDone']},{fs['CallbackFixture_SpawnPlacementDone']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local slot=word(sy.SourceDefaultInit4086_OwnerSlot)
+ emu.log('CTORSPAWNPLACEMENTPUBLISHED|'..word(INDEX)..'|'..slot..'|'..dw(0x414034+80*slot)..'|'..dw(0x41403c+80*slot))
+end,emu.callbackType.exec,{fs['CallbackFixture_ResultPublished']},{fs['CallbackFixture_ResultPublished']},emu.cpuType.snes,mt)
+'''
             for name in sy:
                 if name.startswith('SourceCtorOwner4086_Guard_')or name=='SourceCtorOwner4086_BeginBad':
                     lua+=f"emu.addMemoryCallback(function()emu.log('CTORSPAWNGUARD|{name}')end,emu.callbackType.exec,{sy[name]},{sy[name]},emu.cpuType.snes,mt)\n"
@@ -3263,6 +3328,12 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             weapon_joined=[list(map(int,line.split('CTORSPAWNWEAPON|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNWEAPON|'in line]
             reporter.check('spawn weapon uses saved-or-stage selection and real same-model early return without child acknowledgements',len(weapon_joined)==len(rows)and all(x[:9]==[i,0,0,0,-1 if c['direction']==0 else stage_weapon,c['default'],1,2,0]for i,(x,c)in enumerate(zip(weapon_joined,rows))))
             r.update(weapon_child_bound=True,weapon_same_model_only=True,spawn_weapon_results=weapon_joined,stage_setweap=stage_weapon,weapon_table_sha256=hashlib.sha256(weapon_table).hexdigest(),weapon_cache_sha256=hashlib.sha256(weapon_cache).hexdigest(),model_change_services_bound=False)
+        if a.spawn_placement_authority:
+            observed=[list(map(int,line.split('CTORSPAWNPLACEMENT|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNPLACEMENT|'in line]
+            published=[list(map(int,line.split('CTORSPAWNPLACEMENTPUBLISHED|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNPLACEMENTPUBLISHED|'in line]
+            row=placement_stage['placements'][0]
+            reporter.check('compiled authored stage placement feeds actual constructor and published source entity without position injection',len(observed)==len(rows)and all(v[:5]==[i,0,row['x_q16'],row['z_q16'],row['flip']]for i,v in enumerate(observed))and published==[[i,0,row['x_q16'],row['z_q16']]for i in range(len(rows))])
+            r.update(actual_stage_placement_constructor_join=True,spawn_placement_results=observed,spawn_placement_published=published,spawn_placement_stage=placement_stage,initial_camera_only=True,spawn_placement_authority_sha256=hashlib.sha256(a.spawn_placement_authority.read_bytes()).hexdigest())
         r['status']='PASS'if all(ok for _,ok in reporter.results)else'FAIL'
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 

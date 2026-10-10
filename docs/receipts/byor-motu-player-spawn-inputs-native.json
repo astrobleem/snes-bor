@@ -1,0 +1,497 @@
+{
+  "schema": "BYOR_NATIVE_PLAYER_SPAWN_INPUTS_V1",
+  "status": "PASS",
+  "rom_sha256": "698b267480a6726394577fc7a42743e2d5201317b5af9ba0e08253531cd45656",
+  "cases": 22,
+  "inputs": [
+    {
+      "index": -1,
+      "fault": 0,
+      "bad": "",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": 0,
+      "fault": 0,
+      "bad": "",
+      "wanted": {
+        "index": 0,
+        "x_binary32": 1101004800,
+        "z_binary32": 1126498304,
+        "x_q16": 1310720,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": 1,
+      "fault": 0,
+      "bad": "",
+      "wanted": {
+        "index": 1,
+        "x_binary32": 1112014848,
+        "z_binary32": 1126498304,
+        "x_q16": 3276800,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": 2,
+      "fault": 0,
+      "bad": "",
+      "wanted": {
+        "index": 2,
+        "x_binary32": 1117782016,
+        "z_binary32": 1126498304,
+        "x_q16": 5242880,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": 3,
+      "fault": 0,
+      "bad": "",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": 4,
+      "fault": 0,
+      "bad": "",
+      "wanted": {
+        "index": 0,
+        "x_binary32": 1101004800,
+        "z_binary32": 1126498304,
+        "x_q16": 1310720,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": 5,
+      "fault": 0,
+      "bad": "",
+      "wanted": {
+        "index": 1,
+        "x_binary32": 1112014848,
+        "z_binary32": 1126498304,
+        "x_q16": 3276800,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": 6,
+      "fault": 0,
+      "bad": "",
+      "wanted": {
+        "index": 2,
+        "x_binary32": 1117782016,
+        "z_binary32": 1126498304,
+        "x_q16": 5242880,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "foreign",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "generation",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "world",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "level",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "environment",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "stage",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "walls",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "ctor",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "sticky",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "axis",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "camera_x",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "camera_y",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "player",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    },
+    {
+      "index": -1,
+      "fault": 1,
+      "bad": "player_high",
+      "wanted": {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    }
+  ],
+  "results": [
+    [
+      0,
+      0,
+      0,
+      6882
+    ],
+    [
+      1,
+      0,
+      0,
+      6744
+    ],
+    [
+      2,
+      0,
+      0,
+      6790
+    ],
+    [
+      3,
+      0,
+      0,
+      6836
+    ],
+    [
+      4,
+      0,
+      0,
+      6882
+    ],
+    [
+      5,
+      0,
+      0,
+      6744
+    ],
+    [
+      6,
+      0,
+      0,
+      6790
+    ],
+    [
+      7,
+      0,
+      0,
+      6836
+    ],
+    [
+      8,
+      0,
+      0,
+      1606
+    ],
+    [
+      9,
+      0,
+      0,
+      1650
+    ],
+    [
+      10,
+      0,
+      0,
+      4930
+    ],
+    [
+      11,
+      0,
+      0,
+      5024
+    ],
+    [
+      12,
+      0,
+      0,
+      5118
+    ],
+    [
+      13,
+      0,
+      0,
+      5212
+    ],
+    [
+      14,
+      0,
+      0,
+      5306
+    ],
+    [
+      15,
+      0,
+      0,
+      5400
+    ],
+    [
+      16,
+      0,
+      0,
+      6272
+    ],
+    [
+      17,
+      0,
+      0,
+      5942
+    ],
+    [
+      18,
+      0,
+      0,
+      6100
+    ],
+    [
+      19,
+      0,
+      0,
+      6178
+    ],
+    [
+      20,
+      0,
+      0,
+      6404
+    ],
+    [
+      21,
+      0,
+      0,
+      6474
+    ]
+  ],
+  "authority_sha256": "26c72d9e0f1d5974639e7f049cb5688f7df3c0f0625853efa26f612084e72170",
+  "source_stage": {
+    "stage_id": 1,
+    "source_path": "DATA\\LEVELS\\GUILE2.TXT",
+    "source_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+    "source_width": 320,
+    "minimum_z": 160,
+    "maximum_z": 240,
+    "scroll": "right",
+    "spawn_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "diagnostics": [],
+    "capability": "SOURCE_EMPTY_TERRAIN_SPAWN_INPUTS",
+    "placements": [
+      {
+        "index": 0,
+        "x_binary32": 1101004800,
+        "z_binary32": 1126498304,
+        "x_q16": 1310720,
+        "z_q16": 10813440,
+        "flip": 1
+      },
+      {
+        "index": 1,
+        "x_binary32": 1112014848,
+        "z_binary32": 1126498304,
+        "x_q16": 3276800,
+        "z_q16": 10813440,
+        "flip": 1
+      },
+      {
+        "index": 2,
+        "x_binary32": 1117782016,
+        "z_binary32": 1126498304,
+        "x_q16": 5242880,
+        "z_q16": 10813440,
+        "flip": 1
+      },
+      {
+        "index": 3,
+        "x_binary32": 1121714176,
+        "z_binary32": 1126498304,
+        "x_q16": 7208960,
+        "z_q16": 10813440,
+        "flip": 1
+      }
+    ]
+  },
+  "initial_camera_only": true,
+  "actual_constructor_join": false,
+  "full_spawnplayer_bound": false,
+  "production_consumer_bound": false,
+  "no_color_reduction": true
+}
