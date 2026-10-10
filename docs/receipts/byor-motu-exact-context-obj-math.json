@@ -1,0 +1,166 @@
+{
+  "schema": "BYOR_EXACT_CONTEXT_OBJ_MATH_RECEIPT_V1",
+  "status": "MEASURED_CANDIDATE_LIMITS",
+  "reports": [
+    {
+      "path": "out/byor-motu-joint-screen-obj-math-adaptive.json",
+      "sha256": "c6fa8e225b40879cff2c1b4cd256a1a5a65621cdfe1b8de8a4e9cd51470a1044",
+      "status": "EXACT_CONTEXT_MATH_SLOT_SCHEDULE_PROVEN",
+      "geometry": {
+        "oam_entries": 57,
+        "peak_sprites_per_line": 14,
+        "peak_tile_slivers_per_line": 34
+      },
+      "selected_global_identities": {
+        "opaque": 345,
+        "additive": 91
+      },
+      "fixed_bank_interval_bound": {
+        "status": "CGRAM_DATA_WINDOW_INFEASIBLE",
+        "worst_interval": {
+          "first_line": 129,
+          "last_line": 137,
+          "distinct_colors_per_group": [
+            40,
+            74,
+            66,
+            68,
+            38,
+            36,
+            9,
+            0
+          ],
+          "minimum_new_color_commits": 232,
+          "minimum_data_bytes": 463,
+          "available_data_bytes": 352,
+          "signed_byte_deficit": 111
+        },
+        "feasibility_proven": false,
+        "setup_and_contention_excluded": true
+      },
+      "shared_hblank_split_interval_bound": {
+        "status": "LOWER_BOUND_DOES_NOT_REJECT",
+        "worst_interval": {
+          "first_line": 132,
+          "last_line": 135,
+          "distinct_colors_per_group": [
+            121,
+            38
+          ],
+          "minimum_new_color_commits": 61,
+          "minimum_data_bytes": 121,
+          "available_data_bytes": 132,
+          "signed_byte_deficit": -11
+        },
+        "feasibility_proven": false,
+        "setup_and_contention_excluded": true
+      },
+      "peak_scheduled_writes": 41
+    },
+    {
+      "path": "out/byor-motu-joint-screen-obj-math-source-alpha.json",
+      "sha256": "f2a522f83c707fbc9628abd187d397f67f5c55d47e712711b75a8f5db4c2156c",
+      "status": "THIS_ENCODING_CGRAM_WINDOW_INFEASIBLE",
+      "geometry": {
+        "oam_entries": 56,
+        "peak_sprites_per_line": 13,
+        "peak_tile_slivers_per_line": 28
+      },
+      "selected_global_identities": {
+        "opaque": 64,
+        "additive": 459
+      },
+      "fixed_bank_interval_bound": null,
+      "shared_hblank_split_interval_bound": {
+        "status": "CGRAM_DATA_WINDOW_INFEASIBLE",
+        "worst_interval": {
+          "first_line": 129,
+          "last_line": 135,
+          "distinct_colors_per_group": [
+            20,
+            248
+          ],
+          "minimum_new_color_commits": 188,
+          "minimum_data_bytes": 375,
+          "available_data_bytes": 264,
+          "signed_byte_deficit": 111
+        },
+        "feasibility_proven": false,
+        "setup_and_contention_excluded": true
+      },
+      "peak_scheduled_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-screen-obj-math-all-additive.json",
+      "sha256": "2eed861605f846721d571482e1c456a5043ff5d312393ef228c35417cd4fcbe5",
+      "status": "THIS_ENCODING_CGRAM_WINDOW_INFEASIBLE",
+      "geometry": {
+        "oam_entries": 77,
+        "peak_sprites_per_line": 15,
+        "peak_tile_slivers_per_line": 33
+      },
+      "selected_global_identities": {
+        "opaque": 53,
+        "additive": 539
+      },
+      "fixed_bank_interval_bound": null,
+      "shared_hblank_split_interval_bound": {
+        "status": "CGRAM_DATA_WINDOW_INFEASIBLE",
+        "worst_interval": {
+          "first_line": 128,
+          "last_line": 135,
+          "distinct_colors_per_group": [
+            21,
+            286
+          ],
+          "minimum_new_color_commits": 226,
+          "minimum_data_bytes": 451,
+          "available_data_bytes": 308,
+          "signed_byte_deficit": 143
+        },
+        "feasibility_proven": false,
+        "setup_and_contention_excluded": true
+      },
+      "peak_scheduled_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-screen-obj-math-window22.json",
+      "sha256": "320e0575647d5ff47d1ee74c0a71c1caeef0795ebe2013b81408440cbcbba0da",
+      "status": "BOUNDED_BANK_SEARCH_LIMIT",
+      "geometry": {
+        "oam_entries": 57,
+        "peak_sprites_per_line": 14,
+        "peak_tile_slivers_per_line": 34
+      },
+      "selected_global_identities": {
+        "opaque": 345,
+        "additive": 91
+      },
+      "fixed_bank_interval_bound": null,
+      "shared_hblank_split_interval_bound": {
+        "status": "LOWER_BOUND_DOES_NOT_REJECT",
+        "worst_interval": {
+          "first_line": 132,
+          "last_line": 135,
+          "distinct_colors_per_group": [
+            121,
+            38
+          ],
+          "minimum_new_color_commits": 61,
+          "minimum_data_bytes": 121,
+          "available_data_bytes": 132,
+          "signed_byte_deficit": -11
+        },
+        "feasibility_proven": false,
+        "setup_and_contention_excluded": true
+      },
+      "peak_scheduled_writes": null
+    }
+  ],
+  "universal_raster_rejected": false,
+  "bg_hybrid_rejected": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "protected_tracked_files_verified": 17,
+  "focused_tests_passed": 24
+}

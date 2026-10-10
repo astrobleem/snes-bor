@@ -21,6 +21,18 @@ class BankSearchTests(unittest.TestCase):
  def test_unused_bank_symmetry_does_not_drop_an_assignment(self):
   pieces=[dict(rows={0:list(range(i*8,i*8+8))})for i in range(4)]
   r=assign(pieces,range(4));self.assertEqual(len(set(r['assignment'])),4)
+ def test_interval_liveness_bound_includes_nonadjacent_rows(self):
+  pieces=[dict(rows={0:list(range(15))},allowed_banks=[0]),dict(rows={2:list(range(15,30))},allowed_banks=[0])]
+  r=assign(pieces,(0,1),interval_write_budget=7,interval_lines=2)
+  self.assertNotIn('assignment',r)
+  pieces[1]['allowed_banks']=[0,1]
+  r=assign(pieces,(0,1),interval_write_budget=7,interval_lines=2)
+  self.assertEqual(r['assignment'],[0,1])
+ def test_eligibility_class_symmetry_preserves_valid_banks(self):
+  pieces=[dict(rows={0:list(range(15))},allowed_banks=[0,1]),dict(rows={0:list(range(15,30))},allowed_banks=[0,1]),dict(rows={0:list(range(30,45))},allowed_banks=[4,5])]
+  r=assign(pieces,(0,1,4,5),interval_write_budget=0)
+  self.assertNotEqual(r['assignment'][0],r['assignment'][1])
+  self.assertIn(r['assignment'][2],(4,5))
  def test_interval_relaxes_banks_and_allows_pending_low_byte(self):
   r=interval_bound([set(range(6)),set(range(6,12))],slots=6,window_master_clocks=88)
   self.assertEqual(r['worst_interval']['minimum_window_cgram_data_bytes'],11)
