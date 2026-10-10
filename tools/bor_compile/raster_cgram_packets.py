@@ -9,6 +9,43 @@ import json
 from pathlib import Path
 
 
+def optimistic_dma_span(updates):
+    """Necessary first-to-last data-write span for a prepared DMA chain.
+
+    SNES DMA costs eight clocks per byte and per channel. A further data range
+    needs an address byte and two channel starts: 24 clocks. This bound freely
+    rearranges slots and permits rewriting every intervening word, including
+    transparent zeros. It ignores CPU setup, contention and channel scarcity.
+    It applies to this bank-update set, not every possible palette schedule.
+    """
+    counts={b:0 for b in range(8)}
+    for e in updates:counts[e['bank']]+=1
+    banks=[b for b in range(8)if counts[b]]
+    best=[(0,0,[])]+[None]*len(banks)
+    for end in range(1,len(banks)+1):
+        for start in range(end):
+            first,last=banks[start],banks[end-1]
+            words=counts[first] if first==last else counts[first]+counts[last]+16*(last-first-1)+1
+            cost,n,groups=best[start]
+            candidate=(cost+16*words+24,n+1,groups+[(first,last,words)])
+            if best[end] is None or candidate[:2]<best[end][:2]:best[end]=candidate
+    cost,n,groups=best[-1]
+    # Even more favorable lower bound: grant every adjacent occupied-bank
+    # bridge simultaneously, without charging unused intermediate slots.
+    # Each bridge writes at least a zero word (16 clocks), saves one range
+    # switch (24 clocks), and can therefore save at most eight clocks.
+    bridges=sum(counts[b]>0 and counts[b+1]>0 for b in range(7))
+    lower=max(0,16*sum(counts.values())+24*len(banks)-32-8*bridges) if banks else 0
+    return dict(first_to_last_data_write_master_clocks=lower,
+                first_to_last_cgram_commit_master_clocks=max(0,lower-8),
+                first_low_byte_prefetch_granted=True,
+                best_partition_span_master_clocks=max(0,cost-32),
+                best_partition_range_count=n,best_partition_chain_dma_channels=2*n-1 if n else 0,
+                ranges=[dict(first_bank=a,last_bank=b,data_words=w)for a,b,w in groups],
+                favorable_slot_reordering_and_transparent_zero_rewrites=True,
+                cpu_setup_contention_and_channel_scarcity_excluded=True)
+
+
 def packetize_row(row, address_cost=1):
     """Minimize data bytes plus configurable cost per destination write.
 
@@ -63,6 +100,7 @@ def packetize_row(row, address_cost=1):
                 cgram_address_bytes=len(packets),
                 transfer_bytes=sum(p['data_bytes']for p in packets)+len(packets),
                 weighted_cost=sum(p['data_bytes']for p in packets)+address_cost*len(packets),
+                optimistic_prepared_dma_span=optimistic_dma_span(row['updates']),
                 slot_identity_verified=True)
 
 
@@ -89,6 +127,8 @@ def compile_packets(schedule, address_cost=1):
                 peak_packet_count=max((r['packet_count']for r in raster),default=0),
                 peak_transfer_bytes=max((r['transfer_bytes']for r in raster),default=0),
                 peak_data_bytes=max((r['cgram_data_bytes']for r in raster),default=0),
+                peak_optimistic_prepared_dma_span_master_clocks=max((r['optimistic_prepared_dma_span']['first_to_last_data_write_master_clocks']for r in raster),default=0),
+                peak_optimistic_prepared_dma_commit_span_master_clocks=max((r['optimistic_prepared_dma_span']['first_to_last_cgram_commit_master_clocks']for r in raster),default=0),
                 worst_scanline=worst['scanline']if worst else None,
                 all_slot_identities_verified=True,no_color_reduction=True,
                 native_timing_admitted=False,

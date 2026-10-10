@@ -18,11 +18,14 @@ from source_scene_obj_math import residual, add_rgb555, split_interval_bound
 from raster_palette import pieces_for_grid
 
 
-def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False):
+def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None):
     if solver_backend not in ('highs','cp-sat') or (relaxed and solver_backend!='highs'):raise ValueError('JOINT_SOLVER_BACKEND')
     if size not in (8,16,32,'mixed') or write_budget<0 or lookahead<0:
         raise ValueError('JOINT_SOLVER_DOMAIN')
     if pin_pool_intervals and not pool_residency:raise ValueError('JOINT_INTERVAL_PIN_REQUIRES_POOL')
+    if prepared_dma_window is not None:
+        if prepared_dma_window<1:raise ValueError('JOINT_DMA_WINDOW_DOMAIN')
+        if bank_symmetry:raise ValueError('JOINT_DMA_BANK_SYMMETRY_UNSAFE')
     if early_write_budget is not None and (early_write_budget < 0 or not 1 <= late_start < 224):
         raise ValueError('JOINT_ROW_BUDGET_DOMAIN')
     def line_budget(y):return early_write_budget if early_write_budget is not None and y < late_start else write_budget
@@ -196,6 +199,23 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     for y,variables in write_lines.items():
         constraint([(v,1) for v in variables],0,line_budget(y))
         if relaxed:constraint([(v,1) for v in variables]+[(peak,-1)],-np.inf,0)
+    if prepared_dma_window is not None:
+        by_bank_line={}
+        for (b,c,y),v in writes.items():by_bank_line.setdefault((b,y),[]).append(v)
+        for y,variables in write_lines.items():
+            active={b:allocate()for b in range(8)};bridges={b:allocate()for b in range(7)}
+            for b,a in active.items():
+                values=by_bank_line.get((b,y),[])
+                for v in values:constraint([(v,1),(a,-1)],-np.inf,0)
+                constraint([(a,1)]+[(v,-1)for v in values],-np.inf,0)
+            for b,v in bridges.items():
+                for a in (active[b],active[b+1]):constraint([(v,1),(a,-1)],-np.inf,0)
+            # Favorable necessary bound: grant every adjacent bank bridge
+            # without charging unused intermediate slots. Each bridge can
+            # save at most eight clocks (zero-word 16, range switch 24).
+            # CGRAM commits only the high byte. Grant one low-byte preload
+            # before the window, reducing the necessary commit span by eight.
+            constraint([(v,16)for v in variables]+[(v,24)for v in active.values()]+[(v,-8)for v in bridges.values()],-np.inf,prepared_dma_window+39)
     objective=np.zeros(variable_count);integrality=np.ones(variable_count)
     for variable in masks.values():objective[variable]=1
     for variable in writes.values():objective[variable]=.001;integrality[variable]=0
@@ -219,6 +239,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 additive_alternative_count=sum(len(a["residual_options"]) for a in atoms),
                 horizontal_clip_limit_counted=clip_horizontal,
                 mandatory_geometry_lower_bound=mandatory_geometry,
+                prepared_dma_window_master_clocks=prepared_dma_window,
+                prepared_dma_window_is_optimistic_necessary_only=prepared_dma_window is not None,
                 source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
                 scope='Explicit pose. Exact opaque/additive pixel alternatives and fixed OAM color masks on one legal grid. No native layer routing, source reachability or hardware bandwidth admission.')
     report['solver']['backend']=solver_backend
@@ -261,6 +283,10 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 at=next(i for i,c in enumerate(slots[b]) if c not in wanted[y][b])
                 events.append(dict(bank=b,slot=at+1,old=slots[b][at],color=color,kind='required' if color in demand[y][b] else 'prefetch'));slots[b][at]=color
         if y and len(events)>line_budget(y):raise AssertionError('JOINT_WRITE_LIMIT_FAULT')
+        if y and events and prepared_dma_window is not None:
+            from raster_cgram_packets import optimistic_dma_span
+            if optimistic_dma_span(events)['first_to_last_cgram_commit_master_clocks']>=prepared_dma_window:
+                raise AssertionError('JOINT_DMA_SPAN_LOWER_BOUND_FAULT')
         states.append({b:list(values) for b,values in slots.items()})
         trace.append(dict(scanline=y,resident_before=before,retained={b:[c for c in values if c is not None and c in slots[b]] for b,values in before.items()},evicted=[e['old'] for e in events if e['old'] is not None],prefetched=[e for e in events if e['kind']=='prefetch'],updates=events,colors_written=len(events),cgram_data_bytes=2*len(events),affected_banks=sorted({e['bank'] for e in events})))
     replay=bg.copy();indices=np.zeros((height,256),dtype=np.uint8)
@@ -308,7 +334,8 @@ def main():
     p.add_argument('--align-visible-bounds',action='store_true')
     p.add_argument('--pool-only',action='store_true');p.add_argument('--integer-pool-budget',type=int)
     p.add_argument('--early-write-budget',type=int);p.add_argument('--late-start',type=int,default=75)
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals)
+    p.add_argument('--prepared-dma-window',type=int)
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
 
 

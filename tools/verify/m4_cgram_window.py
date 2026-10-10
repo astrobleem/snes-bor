@@ -96,22 +96,28 @@ def main():
     rom=folder/'window.sfc';rom.write_bytes(make_irq_rom(args.bytes,args.audio_hdma,args.timer,args.audio_rows,args.split_first_bytes) if args.irq else make_rom(args.bytes,args.audio_hdma,args.audio_rows))
     trace=folder/'writes.csv';trace.write_text('')
     lua=folder/'observer.lua'
-    lua.write_text('''local n=0;local audio=0;local packet=nil;local cgramAddress=0
-emu.addMemoryCallback(function(a,v)cgramAddress=v end,emu.callbackType.write,0x2121,0x2121,emu.cpuType.snes,emu.memType.snesMemory)
+    lua.write_text('''local n=0;local audio=0;local packet=nil;local cgramAddress=0;local cgramHigh=false
+emu.addMemoryCallback(function(a,v)cgramAddress=v;cgramHigh=false end,emu.callbackType.write,0x2121,0x2121,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addMemoryCallback(function(a,v)
  if v~=DMAMASK then return end
  local s=emu.getState()
- if s['ppu.frameCount']>=MINFRAME and s['ppu.scanline']>=MINLINE and s['ppu.scanline']<224 then packet={count=0,bad=0,ranges={},frame=s['ppu.frameCount'],line=s['ppu.scanline']}else packet=nil end
+ if s['ppu.frameCount']>=MINFRAME and s['ppu.scanline']>=MINLINE and s['ppu.scanline']<224 then packet={count=0,bad=0,commits=0,badCommits=0,ranges={},frame=s['ppu.frameCount'],line=s['ppu.scanline']}else packet=nil end
 end,emu.callbackType.write,0x420b,0x420b,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addMemoryCallback(function(a,v) if audio<64 then audio=audio+1;emu.log('M4APU|'..a..','..v) end end,emu.callbackType.write,0x2140,0x2143,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addMemoryCallback(function(a,v)
  local s=emu.getState()
+ local high=cgramHigh;cgramHigh=not cgramHigh
  if AGGREGATE and packet then
   local clock=(s.masterClock+4*(s['ppu.frameCount']//2))%1364
   if packet.count==0 then packet.first=clock;packet.start=s.masterClock end
   local r=packet.ranges[#packet.ranges];if not r or r.address~=cgramAddress then r={address=cgramAddress,count=0};table.insert(packet.ranges,r)end;r.count=r.count+1
   packet.count=packet.count+1;if clock>=88 and clock<1096 then packet.bad=packet.bad+1 end
-  if packet.count==BYTECOUNT then emu.log('M4PACKET|'..table.concat({packet.frame,packet.line,packet.count,packet.bad,packet.first,clock,s.masterClock-packet.start},','));if SPLIT then local ranges={packet.frame,packet.line};for _,r in ipairs(packet.ranges)do table.insert(ranges,r.address);table.insert(ranges,r.count)end;emu.log('M4RANGES|'..table.concat(ranges,','))end;packet=nil end
+  if high then
+   if packet.commits==0 then packet.firstCommit=clock;packet.commitStart=s.masterClock end
+   packet.commits=packet.commits+1;packet.lastCommit=clock;packet.commitSpan=s.masterClock-packet.commitStart
+   if clock>=88 and clock<1096 then packet.badCommits=packet.badCommits+1 end
+  end
+  if packet.count==BYTECOUNT then emu.log('M4PACKET|'..table.concat({packet.frame,packet.line,packet.count,packet.bad,packet.first,clock,s.masterClock-packet.start},','));emu.log('M4COMMITS|'..table.concat({packet.frame,packet.line,packet.count,packet.commits,packet.badCommits,packet.firstCommit or -1,packet.lastCommit or -1,packet.commitSpan or 0},','));if SPLIT then local ranges={packet.frame,packet.line};for _,r in ipairs(packet.ranges)do table.insert(ranges,r.address);table.insert(ranges,r.count)end;emu.log('M4RANGES|'..table.concat(ranges,','))end;packet=nil end
  end
  if n>=100 then return end
     if s['ppu.frameCount']>=MINFRAME and s['ppu.scanline']>=MINLINE and s['ppu.scanline']<224 then
@@ -140,6 +146,8 @@ end,emu.callbackType.write,0x2122,0x2122,emu.cpuType.snes,emu.memType.snesMemory
     if args.aggregate_packets:(folder/'packets.json').write_text(json.dumps(packets)+'\n')
     ranges=[[int(v)for v in line.split('M4RANGES|',1)[1].split(',')]for line in (folder/'mesen.log').read_text().splitlines()if 'M4RANGES|'in line]
     if ranges:(folder/'ranges.json').write_text(json.dumps(ranges)+'\n')
+    commits=[[int(v)for v in line.split('M4COMMITS|',1)[1].split(',')]for line in (folder/'mesen.log').read_text().splitlines()if 'M4COMMITS|'in line]
+    if commits:(folder/'commits.json').write_text(json.dumps(commits)+'\n')
     # getState's serialized PPU map lacks HClock in this binary. In the
     # reset field, normal scanlines are 1364 clocks; retain raw clocks too.
     derived=[(r[4]+4*(r[0]//2))%1364 for r in rows]
@@ -155,6 +163,9 @@ end,emu.callbackType.write,0x2122,0x2122,emu.cpuType.snes,emu.memType.snesMemory
         writes_during_active_cgram_window=sum(88<=c<1096 for c in derived),
         trace_sha256=hashlib.sha256(trace.read_bytes()).hexdigest(),cpu_state=state,
         complete_dma_packets_observed=len(packets),complete_range_traces_observed=len(ranges),
+        complete_commit_traces_observed=len(commits),aggregate_high_byte_commits=sum(p[3]for p in commits),
+        aggregate_active_window_high_byte_commits=sum(p[4]for p in commits),
+        commit_trace_packet_identity_verified=(len(commits)==len(packets)and bool(commits)and all(c[:3]==p[:3] and c[3]==args.bytes//2 for c,p in zip(commits,packets))),
         split_range_identity_verified=(len(ranges)==len(packets) and bool(ranges) and all(row[2:]==[128,args.split_first_bytes,192,args.bytes-args.split_first_bytes] for row in ranges)) if args.split_first_bytes is not None else None,aggregate_active_window_writes=sum(p[3]for p in packets),
         scope='Isolated timing fixture; includes CPU setup and optional 4-byte APU HDMA bus stress. Not production audio/contention admission.')
     (folder/'report.json').write_text(json.dumps(result,indent=2)+'\n')

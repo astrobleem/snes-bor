@@ -6,6 +6,24 @@ from source_scene_obj_joint import probe
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_dma_window_rejects_bank_label_symmetry(self):
+        with self.assertRaisesRegex(ValueError,'JOINT_DMA_BANK_SYMMETRY_UNSAFE'):
+            probe(None,None,{},prepared_dma_window=356,bank_symmetry=True)
+
+    def test_dma_window_counts_both_color_bytes(self):
+        background=np.full((224,256,3),255,dtype=np.uint8)
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[:2,:2]=np.arange(4).reshape(2,2)
+        expected=background.copy()
+        for y in range(2):
+            for x in range(2):expected[y,x]=[int(pixels[y,x])*8,0,0]
+        actors=[dict(pixels=pixels,left=0,top=0)]
+        pool=dict(status='POOLED_INTEGER_RESIDENCY_CANDIDATE',metadata={},fractional_residency=[dict(kind=0,color=c,line=y,value=1)for y,c in ((0,0),(0,1),(1,2),(1,3))])
+        for window,status in ((16,2),(17,0)):
+            with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+                r=probe(None,None,{},size=8,write_budget=2,prepared_dma_window=window,pool_residency=pool,time_limit=5)
+            self.assertEqual(r['solver']['status'],status)
+            if status==0:self.assertTrue(r['compiled_pixel_identity_verified'])
+
     def test_forced_opaque_row_requires_three_fixed_masks(self):
         background=np.full((224,256,3),255,dtype=np.uint8)
         pixels=np.full((32,32),-1,dtype=np.int32);pixels[0,:31]=np.arange(31)

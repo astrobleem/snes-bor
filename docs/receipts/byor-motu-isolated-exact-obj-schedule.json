@@ -1,0 +1,131 @@
+{
+  "schema": "BYOR_ISOLATED_EXACT_OBJ_SCHEDULE_V1",
+  "status": "OFFLINE_FIXED_BANK_SCHEDULE_PROVEN",
+  "geometry": {
+    "oam_entries": 128,
+    "peak_sprites": 32,
+    "peak_tile_slivers": 32
+  },
+  "peak_scheduled_writes": 19,
+  "peak_cgram_data_bytes": 38,
+  "peak_packet_count": 18,
+  "peak_transfer_bytes": 56,
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "compiled_schedule_sha256": "2d4debdc8ad85efdb041620cce99b4a0e29878d0e664997e04d6c94dc9e0a986",
+  "compiled_packets_sha256": "8e0bc7b7a1f942c02832706018f411055d59c8a01a324dba943ea89c1688cb94",
+  "source_peak_effect_rgb555_colors": 204,
+  "source_peak_scanline_colors": 54,
+  "source_maximum_adjacent_new_colors": 32,
+  "alpha_policy": "Exact source SCREEN RGB8 composite converted to RGB555, encoded as opaque/additive operands over explicit authored underlay; native layer routing unproven",
+  "all_pixel_identities_verified": true,
+  "native_presentation_proven": false,
+  "concurrent_actors_in_this_candidate": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true,
+  "reports": [
+    {
+      "path": "out/byor-motu-isolated-saturated-small-pool19-cpsat-flexible.json",
+      "sha256": "3c3314733ed21da3294d7364088b45176c499317e186e518da1cabfe980c15dd"
+    },
+    {
+      "path": "out/byor-motu-isolated-saturated-small-pool19-cgram-packets.json",
+      "sha256": "208dc25c0973ef49014c46de9d5a3b5409d3718924cc7c9384c8012ecf74f972"
+    },
+    {
+      "path": "out/byor-motu-isolated-saturated-small-pool19-compacted.json",
+      "sha256": "fc2205bfc1f8632ffe196196d50b77148c3b530f215c6e0bd83c4901d6082468"
+    },
+    {
+      "path": "out/byor-motu-isolated-saturated-small-pool19-compacted-cgram-packets.json",
+      "sha256": "737074d3197898be265be9e6d12e59bc52b6b7c4a7cabbe9d179066ce30f0554"
+    }
+  ],
+  "source_peak_png_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+  "compacted_geometry": {
+    "oam_entries": 97,
+    "peak_sprites": 28,
+    "peak_tile_slivers": 34
+  },
+  "prepared_irq_dma_commit_span_lower_bound_master_clocks": 400,
+  "safe_cgram_window_master_clocks": 356,
+  "prepared_irq_dma_bank_update_set_admitted": false,
+  "source_palette_schedule_or_other_mechanisms_rejected": false,
+  "focused_tests": 35,
+  "local_emulator_authority": [
+    {
+      "path": "E:\\gh\\Mesen2-mcp-frameexact\\Core\\SNES\\SnesDmaController.cpp",
+      "sha256": "0862d1ee03ccdc8a13108548c3a84b54ae325709fadaa6cf1db9903bc6ca89cf"
+    },
+    {
+      "path": "E:\\gh\\Mesen2-mcp-frameexact\\Core\\SNES\\SnesPpu.cpp",
+      "sha256": "5823ac6e89e8966ae2a8186f368ef4abb4d09bd4535e1483ff4a6871dd35f1f5"
+    }
+  ],
+  "native_packet_window_observers": [
+    {
+      "path": "out/byor-motu-cgram-irq38-split24-t155-observed/packets.json",
+      "sha256": "655c7ee7a1238beef69a432a12722c7372c94c055a19bcc62e99c88b78158d15",
+      "packets": 447,
+      "observed_spans": [
+        328
+      ],
+      "optimistic_data_span": 320
+    },
+    {
+      "path": "out/byor-motu-cgram-irq42-after-audio-complete/packets.json",
+      "sha256": "512204dab73bf002fc8a2aca8be153166cc0f4ab815bf2e819c89ac7fbaf5411",
+      "packets": 447,
+      "observed_spans": [
+        336
+      ],
+      "optimistic_data_span": 328
+    }
+  ],
+  "timing_constrained_search": {
+    "path": "out/byor-motu-isolated-saturated-small-pool19-cpsat-dma356-latch.json",
+    "sha256": "ee3b12f590a11076bf2b342fbdc36730740af98d5076389f04b8240845c2ce63",
+    "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+    "solver": {
+      "status": 1,
+      "message": "UNKNOWN",
+      "variables": 42472,
+      "constraints": 55738,
+      "mip_nodes": null,
+      "mip_gap": null,
+      "backend": "cp-sat",
+      "boolean_stats": {
+        "log_lines": 212,
+        "sat_inprocessing": false,
+        "branches": 6175,
+        "conflicts": 1463,
+        "wall_seconds": 180.1090954,
+        "probing_level": 0,
+        "workers": 4,
+        "optimal": false
+      }
+    },
+    "scope": "Pinned pooled residency, 8x8 geometry, optimistic prepared IRQ-DMA commit window; not every raster strategy"
+  },
+  "native_high_byte_observers": [
+    {
+      "path": "out/byor-motu-cgram-irq38-split24-t155-commits-complete/report.json",
+      "sha256": "f809c55e007f2c5f260316d54799336aaa8afe5f55ec24147e126d9410b1faba",
+      "rom_sha256": "5f47114b60552ea4c058e34e653093f4f530426bbfcfad55a2e4325df1f414ba",
+      "cgram_data_bytes": 38,
+      "complete_packets": 447,
+      "high_byte_commits": 8493,
+      "unsafe_high_byte_commits": 0,
+      "scope": "isolated late-row prepared split DMA, 73-row dummy APU HDMA, no production CPU context or source pixels"
+    },
+    {
+      "path": "out/byor-motu-cgram-irq40-split24-t155-commits-complete/report.json",
+      "sha256": "f5185ab4d9a22a985420601237b21207c3566ad011759a5e6cb2ac588fee9afc",
+      "rom_sha256": "42695c1e2a1c703b8c323470427aacd7d73b2b42fa9be80432eb0c96df1557a8",
+      "cgram_data_bytes": 40,
+      "complete_packets": 447,
+      "high_byte_commits": 8940,
+      "unsafe_high_byte_commits": 255,
+      "scope": "isolated late-row prepared split DMA, 73-row dummy APU HDMA, no production CPU context or source pixels"
+    }
+  ]
+}

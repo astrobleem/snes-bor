@@ -1,8 +1,21 @@
 import unittest
-from raster_cgram_packets import packetize_row,compile_packets
+from raster_cgram_packets import packetize_row,compile_packets,optimistic_dma_span
 
 
 class CgramPacketTests(unittest.TestCase):
+    def test_dma_span_bound_can_bridge_transparent_zero_between_banks(self):
+        updates=[dict(bank=b)for b in (0,0,1,1)]
+        r=optimistic_dma_span(updates)
+        self.assertEqual(r['first_to_last_data_write_master_clocks'],72)
+        self.assertEqual(r['best_partition_range_count'],1)
+        self.assertEqual(r['ranges'][0]['data_words'],5)
+
+    def test_dma_span_bound_separated_banks_need_destination_switch(self):
+        r=optimistic_dma_span([dict(bank=0),dict(bank=7)])
+        self.assertEqual(r['first_to_last_data_write_master_clocks'],48)
+        self.assertEqual(r['best_partition_range_count'],2)
+        self.assertEqual(r['best_partition_chain_dma_channels'],3)
+
     def row(self,slots,updates):
         before={b:[None]*15 for b in range(8)}
         for b,s,c in slots:before[b][s-1]=c
