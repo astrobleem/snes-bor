@@ -6,6 +6,24 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_pool_prefetch_obeys_actual_pixel_use_lookahead(self):
+        background=np.full((224,256,3),255,dtype=np.uint8)
+        pixels=np.full((8,64),-1,dtype=np.int32);pixels[0,:60]=np.arange(1,61);pixels[2,0]=0
+        expected=background.copy()
+        for y,x in zip(*np.where(pixels>=0)):
+            c=int(pixels[y,x]);expected[y+44,x]=[(c>>s&31)*8 for s in (0,5,10)]
+        actors=[dict(pixels=pixels,left=0,top=44)]
+        entries=[dict(kind=0,color=c,line=44,value=1)for c in range(1,61)]+[dict(kind=0,color=0,line=y,value=1)for y in (45,46)]
+        pool=dict(status='POOLED_INTEGER_RESIDENCY_CANDIDATE',metadata={},fractional_residency=entries)
+        for lead,expected_status in ((0,2),(1,0)):
+            with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+                r=probe(None,None,{},size=8,write_budget=0,early_write_budget=1,late_start=46,lookahead=lead,time_limit=10,pool_residency=pool,bank_symmetry=True,feasibility_only=True)
+            self.assertEqual(r['solver']['status'],expected_status)
+            if lead:
+                self.assertTrue(r['compiled_pixel_identity_verified']);self.assertTrue(r['noninitial_prefetch_lookahead_enforced'])
+                self.assertEqual(r['maximum_noninitial_prefetch_latency_lines'],1)
+                self.assertTrue(r['noninitial_prefetch_latency_replayed'])
+
     def test_mixed_sixteen_small_geometry_is_a_legal_global_pair(self):
         background=np.zeros((224,256,3),dtype=np.uint8)
         pixels=np.full((16,16),31,dtype=np.int32);expected=background.copy();expected[:16,:16,0]=248

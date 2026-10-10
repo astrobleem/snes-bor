@@ -222,11 +222,15 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         active = [(i,b) for i,p in enumerate(pieces) if p['y'] <= y < p['y']+p['height'] for b in range(8)]
         constraint([(masks[key],1) for key in active],0,32)
         constraint([(masks[key],slivers(pieces[key[0]])) for key in active],0,34)
+    color_choices={}
+    for (i,piece_index,b,c),variable in choices.items():color_choices.setdefault((b,c),set()).add((atoms[i]['line'],variable))
     bank_lines = {}; write_lines = {}
     for key, variable in resident.items():
         b,c,y = key
         bank_lines.setdefault((b,y),[]).append(variable)
         if y:
+            future={v for line,v in color_choices.get((b,c),())if y<=line<=y+lookahead}
+            constraint([(writes[key],1)]+[(v,-1)for v in future],-np.inf,0)
             items=[(variable,1),(writes[key],-1)]
             previous=0 if pool_residency and y==pool_first else y-1
             if not pool_residency and (b,c,previous) not in resident and (b,c,0) in resident:previous=0
@@ -323,7 +327,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     else:
         result=milp(objective,integrality=integrality,bounds=Bounds(0,upper),constraints=LinearConstraint(matrix,lo,hi),options={'time_limit':time_limit,'mip_rel_gap':.05})
     report=dict(schema='BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1',status='BOUNDED_JOINT_SOLVER_NO_CANDIDATE',
-                metadata=metadata,geometry_size=size,mixed_small_size=mixed_small_size if size=='mixed'else None,mixed_large_size=mixed_large_size if size=='mixed'else None,write_budget=write_budget,lookahead_lines=lookahead,
+                metadata=metadata,geometry_size=size,mixed_small_size=mixed_small_size if size=='mixed'else None,mixed_large_size=mixed_large_size if size=='mixed'else None,write_budget=write_budget,lookahead_lines=lookahead,noninitial_prefetch_lookahead_enforced=True,initial_palette_may_preload_entire_frame=True,
                 solver=dict(status=int(result.status),message=result.message,variables=variable_count,constraints=len(lo),mip_nodes=int(result.mip_node_count) if getattr(result,'mip_node_count',None) is not None else None,mip_gap=float(result.mip_gap) if getattr(result,'mip_gap',None) is not None and np.isfinite(result.mip_gap) else None),
                 exact_residency_write_indicators=True,
                 color_math=color_math,opaque_choice_coalescing=coalesce_opaque_choices,opaque_choice_entries=opaque_choice_entries,
@@ -375,13 +379,17 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     wanted=[{b:set() for b in range(8)} for _ in range(height)]
     for (b,c,y),variable in resident.items():
         if result.x[variable]>.5:wanted[y][b].add(c)
-    slots={b:[None]*15 for b in range(8)};states=[];trace=[]
+    slots={b:[None]*15 for b in range(8)};states=[];trace=[];prefetch_latency=0
     for y in range(height):
         before={b:list(values) for b,values in slots.items()};events=[]
         for b in range(8):
             if len(wanted[y][b])>15 or not demand[y][b] <= wanted[y][b]:
                 raise AssertionError('JOINT_RESIDENCY_FAULT')
             for color in sorted(wanted[y][b]-set(slots[b])):
+                if y:
+                    future=next((line for line in range(y,min(height,y+lookahead+1))if color in demand[line][b]),None)
+                    if future is None:raise AssertionError('JOINT_PREFETCH_LOOKAHEAD_FAULT')
+                    prefetch_latency=max(prefetch_latency,future-y)
                 at=next(i for i,c in enumerate(slots[b]) if c not in wanted[y][b])
                 events.append(dict(bank=b,slot=at+1,old=slots[b][at],color=color,kind='required' if color in demand[y][b] else 'prefetch'));slots[b][at]=color
         if y and len(events)>line_budget(y):raise AssertionError('JOINT_WRITE_LIMIT_FAULT')
@@ -416,7 +424,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                   piece_pixel_masks=[dict(width=p['width'],height=p['height'],packed_nibble_order='low then high',pixels_hex=(pixels.flatten()[::2]|(pixels.flatten()[1::2]<<4)).tobytes().hex())for p,pixels in zip(selected,piece_pixels)],
                   peak_scheduled_writes=max(row['colors_written'] for row in trace[1:]),fixed_bank_interval_bound=split_interval_bound(groups,15))
     counts=[row['colors_written']for row in trace[1:]]
-    report.update(peak_cgram_data_bytes=2*max(counts,default=0),average_writes=float(np.mean(counts)),worst_scanline=1+int(np.argmax(counts)),
+    report.update(peak_cgram_data_bytes=2*max(counts,default=0),average_writes=float(np.mean(counts)),worst_scanline=1+int(np.argmax(counts)),maximum_noninitial_prefetch_latency_lines=prefetch_latency,noninitial_prefetch_latency_replayed=True,
                   compiled_schedule_sha256=hashlib.sha256(json.dumps(dict(pieces=selected,pixel_masks=report['piece_pixel_masks'],trace=trace),sort_keys=True).encode()).hexdigest(),
                   schedule_latency_requirement='All updates for line y must finish before that line consumes OBJ colors; initial slots restored during VBlank. No native timing admission.')
     return report
@@ -430,6 +438,7 @@ def main():
     p.add_argument('--mixed-small-size',type=int,choices=(8,16),default=8)
     p.add_argument('--mixed-large-size',type=int,choices=(16,32),default=32)
     p.add_argument('--write-budget',type=int,default=20);p.add_argument('--time-limit',type=int,default=45)
+    p.add_argument('--lookahead',type=int,default=16)
     p.add_argument('--relaxed',action='store_true')
     p.add_argument('--pool-residency',type=Path)
     p.add_argument('--pin-pool-intervals',action='store_true')
@@ -449,7 +458,7 @@ def main():
     p.add_argument('--saturated-extrema',action='store_true')
     p.add_argument('--complete-additive-cover',action='store_true')
     p.add_argument('--grid-padding-x',type=int,default=0);p.add_argument('--grid-padding-y',type=int,default=0)
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size)
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
 
 
