@@ -21,8 +21,13 @@ def main():
  for n in ('rom','output'):p.add_argument('--'+n,type=Path,required=True)
  p.add_argument('--block-absent',action='store_true')
  p.add_argument('--grabbed',action='store_true')
+ p.add_argument('--block-action-authority',type=Path)
  a=p.parse_args();a.output=a.output.resolve();source=Source(a.source);sy=symbols(Path('src/main.sym'));ids=configure([]);pain=ids['arrays']['pains'][0];work=next(r['address']for r in layout(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES'])['regions']if r['name']=='common_idle_controls');directory=animations(source)['animations'];frames=effects(source)['animations'];original=parent.run_fixture
  if a.grabbed and a.block_absent:raise ValueError('COMMON_ACTION_FIXTURE_MODE')
+ block_requirements=None
+ if a.block_action_authority:
+  if a.grabbed or a.block_absent:raise ValueError('COMMON_ACTION_FIXTURE_MODE')
+  authority=json.loads(a.block_action_authority.read_text());assert authority['status']=='PASS';block_requirements=authority['requirements'];assert block_requirements['closed_zero_policy']
  def fixture(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw):
   kw['frame_limit']=200
   rows[:]=[dict(c)for c in rows if not c['fault']]
@@ -147,10 +152,11 @@ CommonPainFrameProofComplete{i}:
 '''
   code+='CommonPainFrameProofDone:\n.a16\n.i16\n nop\n'
   if a.block_absent:code=code.replace(' sta.l $43EB14,x\n sta.l $43EB16,x',' sta.l $43EB16,x\n lda #1\n sta.l $43EB14,x')
-  if a.grabbed:
+  if a.grabbed or block_requirements:
    from source_common_grabbed_native import emit as grabbed_prefix
-   code=code.replace(f'lda #{function_id("common_pain")}\n',f'lda #{function_id("common_grabbed")}\n').replace('lda #$B6B8','lda #$B6B9').replace('jsl CommonPainFrame_Run','jsl CommonGrabbedFrame_Run')
-   assembly=grabbed_prefix(work,sy)+child(work,sy,prefix='CommonGrabbed')
+   kind='common_grabbed'if a.grabbed else'common_block';name='CommonGrabbed'if a.grabbed else'CommonBlock';magic_tag='$B6B9'if a.grabbed else'$B6BA'
+   code=code.replace(f'lda #{function_id("common_pain")}\n',f'lda #{function_id(kind)}\n').replace('lda #$B6B8','lda #'+magic_tag).replace('jsl CommonPainFrame_Run','jsl '+name+'Frame_Run')
+   assembly=grabbed_prefix(work,sy,kind=kind,requirements=block_requirements)+child(work,sy,prefix=name)
   else:assembly=prefix(work,sy)+child(work,sy)
   kw['append']=kw['append'].replace(needle,code+needle)+assembly
   # Withdraw the fixture's fake world outside its foreground batch.
@@ -219,6 +225,8 @@ CommonPainFrameKeepWorld:
   if a.grabbed:
    kw['probes']['ACTIONBAD']='CommonGrabbedFrame_Bad';kw['probes']['ACTIONPREFIXBAD']='CommonGrabbed_Bad'
    lua=lua.replace('value(view+8,2,4);','value(0x42e008+c.slot*40,0,4);value(view+8,2,4);')
+  if block_requirements:
+   kw['probes']['ACTIONBAD']='CommonBlockFrame_Bad';kw['probes']['ACTIONPREFIXBAD']='CommonBlock_Bad'
   kw['probes']['ACTIONGATE']='LeafFixture_Gate'
   lua+='''
 local actionStarted=false;local idleBegins=0;local frameBegins=0
@@ -232,6 +240,7 @@ emu.addMemoryCallback(function()if actionStarted then frameBegins=frameBegins+1 
 emu.addMemoryCallback(function()emu.log("COMMONPAINFRAME|"..word(INDEX).."|"..idleBegins.."|"..frameBegins.."|"..emu.getState()["cpu.a"]);actionStarted=false;idleBegins=0;frameBegins=0 end,emu.callbackType.exec,ACTIONFINAL,ACTIONFINAL,emu.cpuType.snes,mt)
 ''';kw['probes']['ACTIONENTRY']='CommonPainFrame_Run'
   if a.grabbed:kw['probes']['ACTIONENTRY']='CommonGrabbedFrame_Run'
+  if block_requirements:kw['probes']['ACTIONENTRY']='CommonBlockFrame_Run'
   raw,log=original(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw);actual=[l.split('COMMONPAINFRAME|')[1]for l in log.splitlines()if'COMMONPAINFRAME|'in l];counts='0|0'if a.block_absent else'1|1';reporter.check('actual idle frame or absent block child completes common_pain request under retry',actual==[f'{i}|{counts}|0'for i in range(len(rows))]);return raw,log
  argv=['m4_model_current_pipeline_native.py','--source',a.source,'--rom',str(a.rom),'--output',str(a.output),'--nested-idle']
  with patch.object(parent,'run_fixture',fixture),patch.object(sys,'argv',argv):
@@ -241,4 +250,6 @@ emu.addMemoryCallback(function()emu.log("COMMONPAINFRAME|"..word(INDEX).."|"..id
  path=a.output/'report.json';r=json.loads(path.read_text());r.update(schema='BYOR_COMMON_PAIN_FRAME_CHILD_NATIVE_V1',source_common_pain_idle_child_bound=not a.block_absent,source_set_idle_bound=not a.block_absent,actual_animation_and_frame_owner_bound=not a.block_absent,stopped_pain_snapshot_installed_by_fixture=True,block_absence_branch_exercised=a.block_absent,block_frame_branch_exercised=False,full_common_pain_admitted=False,full_damage_callback_bound=False,motu_gameplay_proven=False,no_color_reduction=True,new_foreign_arena_bytes=0);path.write_text(json.dumps(r,indent=2)+'\n')
  if a.grabbed:
   r.update(schema='BYOR_COMMON_GRABBED_FRAME_CHILD_NATIVE_V1',source_common_pain_idle_child_bound=False,source_common_grabbed_idle_child_bound=True,source_unlinked_snapshot_installed_by_fixture=True,full_common_grabbed_admitted=False);path.write_text(json.dumps(r,indent=2)+'\n')
+ if block_requirements:
+  r.update(schema='BYOR_COMMON_BLOCK_FRAME_CHILD_NATIVE_V1',source_common_pain_idle_child_bound=False,source_common_block_idle_child_bound=True,closed_zero_holdblock_model_policy=True,full_common_block_admitted=False);path.write_text(json.dumps(r,indent=2)+'\n')
 if __name__=='__main__':main()

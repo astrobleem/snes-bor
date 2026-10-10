@@ -1,0 +1,44 @@
+{
+  "schema": "BYOR_COMMON_BLOCK_CLOSED_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "report": "out\\byor-motu-common-block-closed-authority\\report.json",
+      "sha256": "1a652b80e3d6c1d1e191aa86c0e61e4775dc9f389abc5ceb29ee8895fbf19192",
+      "cases": 720,
+      "rom_sha256": null
+    },
+    {
+      "report": "out\\byor-motu-common-block-prefix-native\\report.json",
+      "sha256": "94c4093ca264983bfd2798d02b8ba9b69ff834e311a7253c7ad2101982d6892a",
+      "cases": 280,
+      "rom_sha256": "23e83403f65659bae3ada8e7be4ea6c5be3b075567ff7f99ce0a41d178bc71b7"
+    },
+    {
+      "report": "out\\byor-motu-common-block-idle-frame-native\\report.json",
+      "sha256": "872b22a05afd4c84d5ab9d913738d028afed0dc9f61d426736ea37b18da65924",
+      "cases": 12,
+      "rom_sha256": "0b7ca6862cc7d710ab376e5bcf169d556bb8b9137cd9f4b7f79353be0e2412f7"
+    },
+    {
+      "report": "out\\byor-motu-common-grabbed-shared-action-regression-native\\report.json",
+      "sha256": "4bc3bbc5c930727af9d11a30800e5b37f735c0dddd005f38ff3fe893779b7680",
+      "cases": 280,
+      "rom_sha256": "987fe468c6d5628806e4db2a9ee6279016b22e7b2a8210a7281b746874ac56e9"
+    }
+  ],
+  "closed_holdblock_zero_models": 16,
+  "source_policy_from_calloc_and_no_declarations": true,
+  "source_model_policy_mutation_admitted": false,
+  "nonzero_holdblock_requires_explicit_capability": true,
+  "animating_short_circuit": true,
+  "blocking_and_action_identity_bound": true,
+  "real_set_idle_frame_zero_once_under_retry": true,
+  "source_snapshot_installed_by_fixture": true,
+  "bank0_unchanged": true,
+  "new_foreign_arena_bytes": 0,
+  "full_common_block_admitted": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
