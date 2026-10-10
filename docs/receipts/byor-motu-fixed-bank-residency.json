@@ -1,0 +1,1782 @@
+{
+  "schema": "BYOR_FIXED_BANK_RESIDENCY_TRIALS_V1",
+  "trials": [
+    {
+      "artifact": "out/byor-motu-isolated-fixed-bank-cache-lp-bound.json",
+      "artifact_sha256": "f1ff8a6958bb1d33593b49bb46c5d8e01089dd76ce4cde1f6d79a83d3d2dc4c6",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 27468,
+        "constraints": 13911,
+        "lookahead_lines": 17,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "peak_write_lower_bound": 17.571428571428573,
+        "validated_dual_lower_bound": 17.57142857142857,
+        "maximum_primal_violation": 1.7763568394002505e-14,
+        "maximum_dual_residual": 2.220446049250313e-16
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-bank-residency-write18-unbounded-transfer.json",
+      "artifact_sha256": "6ecfc62c51d66f1144e360866e95380a611abd6eee7391d35b5db76f79baf5b1",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "FIXED_BANK_RESIDENCY_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 1.1420761000000001,
+        "solver_model_variables": 24305,
+        "solver_model_constraints": 36093,
+        "solver_branches": 30,
+        "solver_conflicts": 0,
+        "write_budget": 18,
+        "lookahead_lines": 17,
+        "prepared_window_master_clocks": null,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "peak_scheduled_writes": 18,
+        "maximum_noninitial_prefetch_latency_lines": 17,
+        "pixel_color_identity_verified": true,
+        "independent_prepared_partition_bound_verified": false,
+        "peak_optimistic_prepared_span": 368
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-bank-residency-write18-window344.json",
+      "artifact_sha256": "cabe3aba7172eed5181d7857478ccd81ef502aedcf5dc3d5a43d2d480dac0e2b",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 180.0781143,
+        "solver_model_variables": 28625,
+        "solver_model_constraints": 46785,
+        "solver_branches": 173325,
+        "solver_conflicts": 98532,
+        "write_budget": 18,
+        "lookahead_lines": 17,
+        "prepared_window_master_clocks": 344,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-subdivided-bank-residency-write18-window344.json",
+      "artifact_sha256": "d5f8fda18467900ea741a1e59431e8d5fb741d0895e34f1db679aa003cb5198e",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_status": "INFEASIBLE",
+        "solver_seconds": 24.414351,
+        "solver_model_variables": 29186,
+        "solver_model_constraints": 47612,
+        "solver_branches": 14949,
+        "solver_conflicts": 311,
+        "write_budget": 18,
+        "lookahead_lines": 17,
+        "prepared_window_master_clocks": 344,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-bank-residency-write18-window344-pruned.json",
+      "artifact_sha256": "ffd6917ebd9c2f93db1651389774f73135b8911cc41612278434b4b5a7ea733f",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 180.1070833,
+        "solver_model_variables": 27005,
+        "solver_model_constraints": 43869,
+        "solver_branches": 1361962,
+        "solver_conflicts": 1117478,
+        "write_budget": 18,
+        "lookahead_lines": 17,
+        "prepared_window_master_clocks": 344,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-bank-residency-write18-window344-pruned-hint18.json",
+      "artifact_sha256": "6e9bd4affe0ee4711bf72b53a8196761002e74fd3f35bdca09fb2f19e5f841d6",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 180.07870680000002,
+        "solver_model_variables": 27005,
+        "solver_model_constraints": 43869,
+        "solver_branches": 178374,
+        "solver_conflicts": 81484,
+        "write_budget": 18,
+        "lookahead_lines": 17,
+        "prepared_window_master_clocks": 344,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-bank-residency-write18-window344-dp.json",
+      "artifact_sha256": "37093230bc4f9ab89e13f2fffd155ad1e25532272a63eed51af31309bdf74061",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 180.1129737,
+        "solver_model_variables": 31326,
+        "solver_model_constraints": 47748,
+        "solver_branches": 298253,
+        "solver_conflicts": 154837,
+        "write_budget": 18,
+        "lookahead_lines": 17,
+        "prepared_window_master_clocks": 344,
+        "range_backend": "dp",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-bank-residency-write18-window344-repair.json",
+      "artifact_sha256": "4437e80d7fe955d9ba4622ed4f1ab07e40bfa681d2c39b90a61a1773dd8739da",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 60.0821655,
+        "solver_model_variables": 31326,
+        "solver_model_constraints": 48297,
+        "solver_branches": 1068536,
+        "solver_conflicts": 414272,
+        "write_budget": 18,
+        "lookahead_lines": 17,
+        "prepared_window_master_clocks": 344,
+        "range_backend": "dp",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": [
+          112,
+          147
+        ]
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-bank-residency-write18-window344-adjacent.json",
+      "artifact_sha256": "d09ba994dace900966fa6e81782cc102cd3b97c89be1f7f81f68bb0c3c34d512",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 60.094953600000004,
+        "solver_model_variables": 25277,
+        "solver_model_constraints": 37434,
+        "solver_branches": 93200,
+        "solver_conflicts": 40621,
+        "write_budget": 18,
+        "lookahead_lines": 17,
+        "prepared_window_master_clocks": 344,
+        "range_backend": "adjacent",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": true
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-four-subdivisions-rebalanced.json",
+      "artifact_sha256": "111bc72b4f9e44658eb50c6d39735e2109c0f4130801c6c4808696b3d75b9500",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+        "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+        "seconds": 35.342999999877065,
+        "maximum_interval_lines": 32,
+        "initial_objective": [
+          17.571428571428573,
+          162515,
+          499
+        ],
+        "final_objective": [
+          17.428571428571427,
+          164479,
+          518
+        ],
+        "moves": [
+          {
+            "piece": 1,
+            "old_bank": 2,
+            "new_bank": 3
+          },
+          {
+            "piece": 3,
+            "old_bank": 2,
+            "new_bank": 1
+          },
+          {
+            "piece": 9,
+            "old_bank": 2,
+            "new_bank": 3
+          },
+          {
+            "piece": 16,
+            "old_bank": 7,
+            "new_bank": 5
+          },
+          {
+            "piece": 17,
+            "old_bank": 3,
+            "new_bank": 0
+          },
+          {
+            "piece": 28,
+            "old_bank": 3,
+            "new_bank": 0
+          },
+          {
+            "piece": 32,
+            "old_bank": 7,
+            "new_bank": 6
+          },
+          {
+            "piece": 35,
+            "old_bank": 1,
+            "new_bank": 0
+          },
+          {
+            "piece": 36,
+            "old_bank": 1,
+            "new_bank": 0
+          },
+          {
+            "piece": 37,
+            "old_bank": 1,
+            "new_bank": 0
+          },
+          {
+            "piece": 38,
+            "old_bank": 1,
+            "new_bank": 0
+          },
+          {
+            "piece": 39,
+            "old_bank": 1,
+            "new_bank": 2
+          },
+          {
+            "piece": 42,
+            "old_bank": 1,
+            "new_bank": 0
+          },
+          {
+            "piece": 43,
+            "old_bank": 1,
+            "new_bank": 2
+          },
+          {
+            "piece": 46,
+            "old_bank": 1,
+            "new_bank": 0
+          },
+          {
+            "piece": 47,
+            "old_bank": 1,
+            "new_bank": 0
+          },
+          {
+            "piece": 48,
+            "old_bank": 6,
+            "new_bank": 5
+          },
+          {
+            "piece": 49,
+            "old_bank": 6,
+            "new_bank": 5
+          },
+          {
+            "piece": 50,
+            "old_bank": 6,
+            "new_bank": 7
+          },
+          {
+            "piece": 51,
+            "old_bank": 6,
+            "new_bank": 4
+          },
+          {
+            "piece": 64,
+            "old_bank": 7,
+            "new_bank": 4
+          },
+          {
+            "piece": 66,
+            "old_bank": 7,
+            "new_bank": 5
+          },
+          {
+            "piece": 67,
+            "old_bank": 7,
+            "new_bank": 4
+          },
+          {
+            "piece": 88,
+            "old_bank": 2,
+            "new_bank": 3
+          },
+          {
+            "piece": 89,
+            "old_bank": 2,
+            "new_bank": 3
+          },
+          {
+            "piece": 90,
+            "old_bank": 4,
+            "new_bank": 6
+          },
+          {
+            "piece": 92,
+            "old_bank": 1,
+            "new_bank": 2
+          },
+          {
+            "piece": 96,
+            "old_bank": 4,
+            "new_bank": 5
+          },
+          {
+            "piece": 99,
+            "old_bank": 6,
+            "new_bank": 5
+          },
+          {
+            "piece": 100,
+            "old_bank": 2,
+            "new_bank": 0
+          },
+          {
+            "piece": 101,
+            "old_bank": 7,
+            "new_bank": 6
+          },
+          {
+            "piece": 104,
+            "old_bank": 4,
+            "new_bank": 6
+          },
+          {
+            "piece": 108,
+            "old_bank": 4,
+            "new_bank": 6
+          },
+          {
+            "piece": 109,
+            "old_bank": 6,
+            "new_bank": 4
+          },
+          {
+            "piece": 111,
+            "old_bank": 6,
+            "new_bank": 5
+          },
+          {
+            "piece": 112,
+            "old_bank": 6,
+            "new_bank": 5
+          },
+          {
+            "piece": 115,
+            "old_bank": 5,
+            "new_bank": 7
+          }
+        ],
+        "anneal_steps_requested": 10000,
+        "anneal_proposals_sampled": 10000,
+        "anneal_moves_accepted": 3627,
+        "anneal_seed": 221,
+        "final_bank_distinct_colors": [
+          52,
+          49,
+          87,
+          97,
+          64,
+          38,
+          74,
+          57
+        ],
+        "final_bank_peak_row_colors": [
+          9,
+          8,
+          13,
+          15,
+          11,
+          11,
+          14,
+          10
+        ],
+        "fixed_bank_per_piece": true,
+        "color_math_classes_preserved": true,
+        "pixel_color_identity_verified": true,
+        "geometry_unchanged": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-four-subdivisions-rebalanced-chr.json/report.json",
+      "artifact_sha256": "539c9b9d35730f7af29b311f41c8fef641501a63a214c820aaaa86616684fd5d",
+      "report": {
+        "schema": "BYOR_RASTER_OBJ_CHR_V1",
+        "status": "LEGAL_MODE1_CHR_OAM_CONSTRUCTIVE_PROOF",
+        "obj_size_mode": 1,
+        "obj_size_pair": [
+          8,
+          32
+        ],
+        "oam_entries": 116,
+        "obj_chr_bytes": 7072,
+        "occupied_tile_cells": 221,
+        "unique_tiles": 176,
+        "reserved_tile_cells": [],
+        "chr_sha256": "ef366888825f734f6dc0d9f9c8771da2342e0b0c9d17ff988d673123f1054904",
+        "oam_sha256": "3c90fd6ddf763d8b12ba95cad1d62b6533f2ebab59818cd287da687ac5a8bce2",
+        "emitted_oam_chr_pixel_indices_verified": true,
+        "native_render_proven": false,
+        "no_color_reduction": true,
+        "input_schedule_sha256": "111bc72b4f9e44658eb50c6d39735e2109c0f4130801c6c4808696b3d75b9500"
+      }
+    },
+    {
+      "artifact": "out/byor-motu-source-height-projectiles-frame14-all-mode-relaxed-bound.json",
+      "artifact_sha256": "735fbf4658eb6a8a25d94cad120edfc76c28b101c3e00d358262e9c0ddcb128b",
+      "report": {
+        "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+        "solver_status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+        "variables": 343495,
+        "constraints": 186101,
+        "mode_variables": 648,
+        "integer_modes": false,
+        "write_budget": null,
+        "palette_residency_integrality_relaxed": true,
+        "geometry_and_bank_assignment_relaxed": true,
+        "optimal_initial_residency_allowed": true,
+        "unbounded_preloading_allowed": true,
+        "schedule_proven": false,
+        "no_color_reduction": true,
+        "forced_opaque_modes_pruned": [],
+        "solver_seconds": 60.574797899927944,
+        "solver_method": "highs-ipm",
+        "hardware_window_masks_modeled": false,
+        "integer_windows": false,
+        "window_transition_superset_only": false,
+        "window_register_schedule_proven": false,
+        "positive_union_with_disabled_edges_only": false,
+        "subset_mode_cover_cuts": false,
+        "window_eligibility_variables": 0,
+        "maximum_window_transitions": null,
+        "schema": "BYOR_SHARED_SCANLINE_MATH_MODE_LIVENESS_V1",
+        "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+        "source_rgb555_sha256": "6765dbf6d4234229971c2e186960d5b09856c7bf5c821693f64ef4a9760a79e4",
+        "scene": {
+          "viewport": [
+            256,
+            224
+          ],
+          "piece_size": [
+            16,
+            32
+          ],
+          "provenance": "Explicit pose with authored idle seta 40 and authored shoot height +34, z +1. Three source-queue Knightbots each permit ShockBall. Source animation concurrency and exact AI pose timing are not certified.",
+          "actors": [
+            {
+              "model": "HBreath",
+              "animation": "idle",
+              "frame": 14,
+              "position": [
+                1898,
+                220,
+                93
+              ],
+              "order": 2
+            },
+            {
+              "model": "He_ManB",
+              "animation": "freespecial4",
+              "frame": 6,
+              "position": [
+                1880,
+                220,
+                0
+              ],
+              "order": 0
+            },
+            {
+              "model": "Knightbot",
+              "animation": "idle",
+              "frame": 0,
+              "position": [
+                1960,
+                190,
+                40
+              ],
+              "order": 1,
+              "direction": 0
+            },
+            {
+              "model": "Knightbot",
+              "animation": "idle",
+              "frame": 0,
+              "position": [
+                2010,
+                220,
+                40
+              ],
+              "order": 3,
+              "map": 1,
+              "direction": 0
+            },
+            {
+              "model": "Knightbot",
+              "animation": "idle",
+              "frame": 0,
+              "position": [
+                1920,
+                160,
+                40
+              ],
+              "order": 4,
+              "direction": 0
+            },
+            {
+              "model": "ShockBall",
+              "animation": "idle",
+              "frame": 0,
+              "position": [
+                1960,
+                191,
+                74
+              ],
+              "order": 5,
+              "direction": 0
+            },
+            {
+              "model": "ShockBall",
+              "animation": "idle",
+              "frame": 0,
+              "position": [
+                2010,
+                221,
+                74
+              ],
+              "order": 6,
+              "direction": 0
+            },
+            {
+              "model": "ShockBall",
+              "animation": "idle",
+              "frame": 0,
+              "position": [
+                1920,
+                161,
+                74
+              ],
+              "order": 7,
+              "direction": 0
+            }
+          ],
+          "camera": [
+            1800,
+            0
+          ]
+        },
+        "scene_sha256": "b1aaf48b27f79bec9d9d84f335ccbbaa3bd1cfc6cf34aaacec492e85d3ddfce5",
+        "metadata": {
+          "stage": "data/levels/guile2.txt",
+          "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+          "scene": {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit pose with authored idle seta 40 and authored shoot height +34, z +1. Three source-queue Knightbots each permit ShockBall. Source animation concurrency and exact AI pose timing are not certified.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 14,
+                "position": [
+                  1898,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  1880,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  1960,
+                  190,
+                  40
+                ],
+                "order": 1,
+                "direction": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  2010,
+                  220,
+                  40
+                ],
+                "order": 3,
+                "map": 1,
+                "direction": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  1920,
+                  160,
+                  40
+                ],
+                "order": 4,
+                "direction": 0
+              },
+              {
+                "model": "ShockBall",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  1960,
+                  191,
+                  74
+                ],
+                "order": 5,
+                "direction": 0
+              },
+              {
+                "model": "ShockBall",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  2010,
+                  221,
+                  74
+                ],
+                "order": 6,
+                "direction": 0
+              },
+              {
+                "model": "ShockBall",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  1920,
+                  161,
+                  74
+                ],
+                "order": 7,
+                "direction": 0
+              }
+            ],
+            "camera": [
+              1800,
+              0
+            ]
+          },
+          "layers": [
+            {
+              "kind": "background",
+              "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+              "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+              "source_dimensions": [
+                800,
+                400
+              ],
+              "position": [
+                -100,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 57344,
+              "source_flip": false
+            },
+            {
+              "kind": "panel",
+              "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+              "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+              "source_dimensions": [
+                2544,
+                245
+              ],
+              "position": [
+                -1800,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 45784,
+              "source_flip": false
+            },
+            {
+              "kind": "actor:KnightBot",
+              "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+              "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+              "source_dimensions": [
+                50,
+                50
+              ],
+              "position": [
+                97,
+                72
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1078,
+              "source_flip": true,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "enemy",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+              "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+              "pre_occlusion_pixels": 1078,
+              "final_visible_pixels": 203
+            },
+            {
+              "kind": "actor:ShockBall",
+              "path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "source_dimensions": [
+                70,
+                70
+              ],
+              "position": [
+                85,
+                53
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1447,
+              "source_flip": true,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "palette_asset_sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "pre_occlusion_pixels": 1447,
+              "final_visible_pixels": 1434
+            },
+            {
+              "kind": "actor:KnightBot",
+              "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+              "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+              "source_dimensions": [
+                50,
+                50
+              ],
+              "position": [
+                137,
+                102
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1078,
+              "source_flip": true,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "enemy",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+              "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+              "pre_occlusion_pixels": 1078,
+              "final_visible_pixels": 56
+            },
+            {
+              "kind": "actor:ShockBall",
+              "path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "source_dimensions": [
+                70,
+                70
+              ],
+              "position": [
+                125,
+                83
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1447,
+              "source_flip": true,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "palette_asset_sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "pre_occlusion_pixels": 1447,
+              "final_visible_pixels": 633
+            },
+            {
+              "kind": "actor:He_ManB",
+              "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+              "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+              "source_dimensions": [
+                200,
+                200
+              ],
+              "position": [
+                -16,
+                44
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 3327,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+              "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814",
+              "pre_occlusion_pixels": 3327,
+              "final_visible_pixels": 3185
+            },
+            {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR15.PNG",
+              "sha256": "d8e1bd148cea795f029c010809640de22aee004635a86834a5608bfe3a74ed8d",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 3705,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 3705,
+              "final_visible_pixels": 3704
+            },
+            {
+              "kind": "actor:KnightBot",
+              "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+              "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+              "source_dimensions": [
+                50,
+                50
+              ],
+              "position": [
+                187,
+                132
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1078,
+              "source_flip": true,
+              "requested_map": 1,
+              "selected_map": 1,
+              "source_model_type": "enemy",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBLINK.PNG",
+              "palette_asset_sha256": "ec94fcc82b0f3c20f4b044e746487dabb62954c48d46fe9d705eeab8f9373d46",
+              "pre_occlusion_pixels": 1078,
+              "final_visible_pixels": 278
+            },
+            {
+              "kind": "actor:ShockBall",
+              "path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "source_dimensions": [
+                70,
+                70
+              ],
+              "position": [
+                175,
+                113
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1447,
+              "source_flip": true,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "palette_asset_sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "pre_occlusion_pixels": 1447,
+              "final_visible_pixels": 1447
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                -770,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                -420,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-02.GIF",
+              "sha256": "9a953cabb4b4d16862486ddad300082ff575cec029431e8cd104a93a945132e8",
+              "source_dimensions": [
+                700,
+                245
+              ],
+              "position": [
+                -1120,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                -1470,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false
+            }
+          ],
+          "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+          "alpha_source_dimensions": [
+            [
+              110,
+              90
+            ]
+          ],
+          "camera": [
+            1800.0,
+            0.0
+          ],
+          "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+          "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+          "all_actor_models_preserved": true
+        },
+        "complete_mode_tagged_operand_cover": {
+          "modes": [
+            "add",
+            "half-add",
+            "subtract",
+            "half-subtract"
+          ],
+          "rgb555_operands_examined": 32768,
+          "distinct_requirements": 4420,
+          "valid_operands": 10059,
+          "maximal_cover_operands": 1318,
+          "dominance_mapping_sha256": "f5f97306bb10b721641c53fa2e08cf14b01fb895844df89d1073c7282ba6c78b",
+          "modes_relaxed_per_pixel": false,
+          "mode_tagged_coverage": true,
+          "global_mode_schedule_proven": false,
+          "color_math_window_bypass_relaxed_per_pixel": true,
+          "fixed_color_math_window_context": false,
+          "all_valid_operand_coverages_retained": true,
+          "no_color_reduction": true
+        },
+        "cover_enumeration_seconds": 2.3768276004120708,
+        "exact_underlay_bypass": true,
+        "scanline_window": [
+          null,
+          null
+        ],
+        "outside_window_demand_relaxed": false,
+        "horizontal_math_window": null,
+        "math_enabled_inside_horizontal_window": null,
+        "window_mask_transition_superset_only": false,
+        "math_modes_allowed": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "restricted_math_mode_family": false,
+        "zero_main_clipping_palette_demand_relaxed": true,
+        "clipping_relaxed_pixels": 4,
+        "clipping_mode_and_window_constraints_proven": false,
+        "native_timing_admitted": false,
+        "authored_pose_reachability_proven": false,
+        "universal_raster_rejected": false
+      }
+    },
+    {
+      "artifact": "out/byor-motu-source-height-attack-projectiles-frame14-critical-all-mode-bound.json",
+      "artifact_sha256": "22d7540988beb20a0ea51e01f9f7391ead6e0d96733263e64cd6072ec2b07f00",
+      "report": {
+        "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 76436,
+        "constraints": 46654,
+        "mode_variables": 140,
+        "integer_modes": false,
+        "write_budget": null,
+        "palette_residency_integrality_relaxed": true,
+        "geometry_and_bank_assignment_relaxed": true,
+        "optimal_initial_residency_allowed": true,
+        "unbounded_preloading_allowed": true,
+        "schedule_proven": false,
+        "no_color_reduction": true,
+        "forced_opaque_modes_pruned": [],
+        "solver_seconds": 25.20482699992135,
+        "solver_method": "highs-ipm",
+        "hardware_window_masks_modeled": false,
+        "integer_windows": false,
+        "window_transition_superset_only": false,
+        "window_register_schedule_proven": false,
+        "positive_union_with_disabled_edges_only": false,
+        "subset_mode_cover_cuts": false,
+        "window_eligibility_variables": 0,
+        "maximum_window_transitions": null,
+        "peak_write_objective": 16.125,
+        "maximum_primal_violation": 2.1316282072803006e-14,
+        "validated_dual_lower_bound": 16.125,
+        "maximum_dual_residual": 1.942890293094024e-16,
+        "schema": "BYOR_SHARED_SCANLINE_MATH_MODE_LIVENESS_V1",
+        "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+        "source_rgb555_sha256": "6765dbf6d4234229971c2e186960d5b09856c7bf5c821693f64ef4a9760a79e4",
+        "scene": {
+          "viewport": [
+            256,
+            224
+          ],
+          "piece_size": [
+            16,
+            32
+          ],
+          "provenance": "Explicit source queue pose at attack1 frame 6, whose authored shoot callback creates ShockBall at height +34 and z +1. KnightBot idle seta 40 persists. Exact AI synchronization and route timing remain unproven.",
+          "actors": [
+            {
+              "model": "HBreath",
+              "animation": "idle",
+              "frame": 14,
+              "position": [
+                1898,
+                220,
+                93
+              ],
+              "order": 2
+            },
+            {
+              "model": "He_ManB",
+              "animation": "freespecial4",
+              "frame": 6,
+              "position": [
+                1880,
+                220,
+                0
+              ],
+              "order": 0
+            },
+            {
+              "model": "Knightbot",
+              "animation": "attack1",
+              "frame": 6,
+              "position": [
+                1960,
+                190,
+                40
+              ],
+              "order": 1,
+              "direction": 0
+            },
+            {
+              "model": "Knightbot",
+              "animation": "attack1",
+              "frame": 6,
+              "position": [
+                2010,
+                220,
+                40
+              ],
+              "order": 3,
+              "map": 1,
+              "direction": 0
+            },
+            {
+              "model": "Knightbot",
+              "animation": "attack1",
+              "frame": 6,
+              "position": [
+                1920,
+                160,
+                40
+              ],
+              "order": 4,
+              "direction": 0
+            },
+            {
+              "model": "ShockBall",
+              "animation": "idle",
+              "frame": 0,
+              "position": [
+                1960,
+                191,
+                74
+              ],
+              "order": 5,
+              "direction": 0
+            },
+            {
+              "model": "ShockBall",
+              "animation": "idle",
+              "frame": 0,
+              "position": [
+                2010,
+                221,
+                74
+              ],
+              "order": 6,
+              "direction": 0
+            },
+            {
+              "model": "ShockBall",
+              "animation": "idle",
+              "frame": 0,
+              "position": [
+                1920,
+                161,
+                74
+              ],
+              "order": 7,
+              "direction": 0
+            }
+          ],
+          "camera": [
+            1800,
+            0
+          ]
+        },
+        "scene_sha256": "8af311a240f976bfdeaaf1cf62ced66c7d6e2a8a0847278c799609d4ef6f4d18",
+        "metadata": {
+          "stage": "data/levels/guile2.txt",
+          "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+          "scene": {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Explicit source queue pose at attack1 frame 6, whose authored shoot callback creates ShockBall at height +34 and z +1. KnightBot idle seta 40 persists. Exact AI synchronization and route timing remain unproven.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 14,
+                "position": [
+                  1898,
+                  220,
+                  93
+                ],
+                "order": 2
+              },
+              {
+                "model": "He_ManB",
+                "animation": "freespecial4",
+                "frame": 6,
+                "position": [
+                  1880,
+                  220,
+                  0
+                ],
+                "order": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "attack1",
+                "frame": 6,
+                "position": [
+                  1960,
+                  190,
+                  40
+                ],
+                "order": 1,
+                "direction": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "attack1",
+                "frame": 6,
+                "position": [
+                  2010,
+                  220,
+                  40
+                ],
+                "order": 3,
+                "map": 1,
+                "direction": 0
+              },
+              {
+                "model": "Knightbot",
+                "animation": "attack1",
+                "frame": 6,
+                "position": [
+                  1920,
+                  160,
+                  40
+                ],
+                "order": 4,
+                "direction": 0
+              },
+              {
+                "model": "ShockBall",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  1960,
+                  191,
+                  74
+                ],
+                "order": 5,
+                "direction": 0
+              },
+              {
+                "model": "ShockBall",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  2010,
+                  221,
+                  74
+                ],
+                "order": 6,
+                "direction": 0
+              },
+              {
+                "model": "ShockBall",
+                "animation": "idle",
+                "frame": 0,
+                "position": [
+                  1920,
+                  161,
+                  74
+                ],
+                "order": 7,
+                "direction": 0
+              }
+            ],
+            "camera": [
+              1800,
+              0
+            ]
+          },
+          "layers": [
+            {
+              "kind": "background",
+              "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+              "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+              "source_dimensions": [
+                800,
+                400
+              ],
+              "position": [
+                -100,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 57344,
+              "source_flip": false
+            },
+            {
+              "kind": "panel",
+              "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+              "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+              "source_dimensions": [
+                2544,
+                245
+              ],
+              "position": [
+                -1800,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 45784,
+              "source_flip": false
+            },
+            {
+              "kind": "actor:KnightBot",
+              "path": "DATA\\CHARS\\KNBOT\\KNBOT4.PNG",
+              "sha256": "629702c71612fb0be04ba9ccbc5b57f71b297216818ad73d8a2d9aef727b2d1c",
+              "source_dimensions": [
+                50,
+                50
+              ],
+              "position": [
+                97,
+                72
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1078,
+              "source_flip": true,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "enemy",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+              "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+              "pre_occlusion_pixels": 1078,
+              "final_visible_pixels": 203
+            },
+            {
+              "kind": "actor:ShockBall",
+              "path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "source_dimensions": [
+                70,
+                70
+              ],
+              "position": [
+                85,
+                53
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1447,
+              "source_flip": true,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "palette_asset_sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "pre_occlusion_pixels": 1447,
+              "final_visible_pixels": 1434
+            },
+            {
+              "kind": "actor:KnightBot",
+              "path": "DATA\\CHARS\\KNBOT\\KNBOT4.PNG",
+              "sha256": "629702c71612fb0be04ba9ccbc5b57f71b297216818ad73d8a2d9aef727b2d1c",
+              "source_dimensions": [
+                50,
+                50
+              ],
+              "position": [
+                137,
+                102
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1078,
+              "source_flip": true,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "enemy",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+              "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+              "pre_occlusion_pixels": 1078,
+              "final_visible_pixels": 56
+            },
+            {
+              "kind": "actor:ShockBall",
+              "path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "source_dimensions": [
+                70,
+                70
+              ],
+              "position": [
+                125,
+                83
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1447,
+              "source_flip": true,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "palette_asset_sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "pre_occlusion_pixels": 1447,
+              "final_visible_pixels": 633
+            },
+            {
+              "kind": "actor:He_ManB",
+              "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+              "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+              "source_dimensions": [
+                200,
+                200
+              ],
+              "position": [
+                -16,
+                44
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 3327,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+              "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814",
+              "pre_occlusion_pixels": 3327,
+              "final_visible_pixels": 3185
+            },
+            {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR15.PNG",
+              "sha256": "d8e1bd148cea795f029c010809640de22aee004635a86834a5608bfe3a74ed8d",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 3705,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 3705,
+              "final_visible_pixels": 3704
+            },
+            {
+              "kind": "actor:KnightBot",
+              "path": "DATA\\CHARS\\KNBOT\\KNBOT4.PNG",
+              "sha256": "629702c71612fb0be04ba9ccbc5b57f71b297216818ad73d8a2d9aef727b2d1c",
+              "source_dimensions": [
+                50,
+                50
+              ],
+              "position": [
+                187,
+                132
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1078,
+              "source_flip": true,
+              "requested_map": 1,
+              "selected_map": 1,
+              "source_model_type": "enemy",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBLINK.PNG",
+              "palette_asset_sha256": "ec94fcc82b0f3c20f4b044e746487dabb62954c48d46fe9d705eeab8f9373d46",
+              "pre_occlusion_pixels": 1078,
+              "final_visible_pixels": 278
+            },
+            {
+              "kind": "actor:ShockBall",
+              "path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "source_dimensions": [
+                70,
+                70
+              ],
+              "position": [
+                175,
+                113
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 1447,
+              "source_flip": true,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+              "palette_asset_sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+              "pre_occlusion_pixels": 1447,
+              "final_visible_pixels": 1447
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                -770,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                -420,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-02.GIF",
+              "sha256": "9a953cabb4b4d16862486ddad300082ff575cec029431e8cd104a93a945132e8",
+              "source_dimensions": [
+                700,
+                245
+              ],
+              "position": [
+                -1120,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                -1470,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false
+            }
+          ],
+          "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+          "alpha_source_dimensions": [
+            [
+              110,
+              90
+            ]
+          ],
+          "camera": [
+            1800.0,
+            0.0
+          ],
+          "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+          "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+          "all_actor_models_preserved": true
+        },
+        "complete_mode_tagged_operand_cover": {
+          "modes": [
+            "add",
+            "half-add",
+            "subtract",
+            "half-subtract"
+          ],
+          "rgb555_operands_examined": 32768,
+          "distinct_requirements": 3812,
+          "valid_operands": 4788,
+          "maximal_cover_operands": 1037,
+          "dominance_mapping_sha256": "f805d7adda81cfed17a7a69b2582ea3b2d7eb09076cc4efce42b03401793da08",
+          "modes_relaxed_per_pixel": false,
+          "mode_tagged_coverage": true,
+          "global_mode_schedule_proven": false,
+          "color_math_window_bypass_relaxed_per_pixel": true,
+          "fixed_color_math_window_context": false,
+          "all_valid_operand_coverages_retained": true,
+          "no_color_reduction": true
+        },
+        "cover_enumeration_seconds": 1.5133378002792597,
+        "exact_underlay_bypass": true,
+        "scanline_window": [
+          116,
+          150
+        ],
+        "outside_window_demand_relaxed": true,
+        "horizontal_math_window": null,
+        "math_enabled_inside_horizontal_window": null,
+        "window_mask_transition_superset_only": false,
+        "math_modes_allowed": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "restricted_math_mode_family": false,
+        "zero_main_clipping_palette_demand_relaxed": true,
+        "clipping_relaxed_pixels": 4,
+        "clipping_mode_and_window_constraints_proven": false,
+        "native_timing_admitted": false,
+        "authored_pose_reachability_proven": false,
+        "universal_raster_rejected": false
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-bank-residency-write18-window344-lookahead40.json",
+      "artifact_sha256": "b415b56c93909d3d805900aa58c5b4511af13ec066abe120cd5af362751f04a4",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 60.124450200000005,
+        "solver_model_variables": 28383,
+        "solver_model_constraints": 43646,
+        "solver_branches": 42312,
+        "solver_conflicts": 1479,
+        "write_budget": 18,
+        "lookahead_lines": 40,
+        "prepared_window_master_clocks": 344,
+        "range_backend": "adjacent",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": true
+      }
+    },
+    {
+      "artifact": "out/byor-motu-isolated-bank-residency-write18-window344-adjacent-cut-repair.json",
+      "artifact_sha256": "d3b1ac1efbe56be111181e24bfe1a32475199d132ef8913f1875c13f7d9ba653",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 60.0862375,
+        "solver_model_variables": 25277,
+        "solver_model_constraints": 38037,
+        "solver_branches": 178092,
+        "solver_conflicts": 107268,
+        "write_budget": 18,
+        "lookahead_lines": 17,
+        "prepared_window_master_clocks": 344,
+        "range_backend": "adjacent",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": [
+          112,
+          147
+        ],
+        "ranges_restricted_to_single_or_adjacent_pair": true
+      }
+    }
+  ],
+  "source_pixels_preserved": true,
+  "no_color_reduction": true,
+  "physical_source_transfer_admitted": false,
+  "native_raster_proven": false,
+  "universal_raster_rejected": false,
+  "motu_demo_complete": false,
+  "protected_tracked_files": 17,
+  "protected_tracked_files_changed": 0,
+  "width_guard": {
+    "labels": 9825,
+    "new": 0,
+    "baselined": 0,
+    "stale": 0
+  },
+  "focused_offline_tests_passed": 67,
+  "new_frontend_tests_passed": 18
+}

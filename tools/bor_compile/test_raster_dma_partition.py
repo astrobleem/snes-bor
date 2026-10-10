@@ -61,5 +61,15 @@ class PhysicalRangeTests(unittest.TestCase):
         self.assertEqual(self.witness(counts,72).status,2)
         self.assertEqual(self.witness(counts,81).status,0)
 
+    def test_small_window_prunes_unaffordable_multi_bank_intervals(self):
+        variables=[];constraints=[]
+        def allocate():variables.append(None);return len(variables)-1
+        def constraint(items,lo,hi):constraints.append((items,lo,hi))
+        active={b:allocate()for b in range(8)}
+        domains=constrain_ranges({b:[]for b in range(8)},active,allocate,constraint,344)
+        # Only single-bank, adjacent-bank and three-bank extents can fit.
+        self.assertEqual(len(domains),8+7+6)
+        self.assertEqual(list(domains.values())[:3],[15,21,5])
+
 
 if __name__=='__main__':unittest.main()
