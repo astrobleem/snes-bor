@@ -1,0 +1,54 @@
+{
+  "schema": "BYOR_RASTER_DEMAND_LIFETIME_RECEIPT_V1",
+  "reports": [
+    {
+      "path": "out/byor-motu-mixed-demand-gap2-physical-slots-dma348.json",
+      "sha256": "8e11abfa5cfb5d0bac4214b219650eb66d0afbc60b590d9bd30f85bb31eb174f",
+      "result": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 300.42803960000003,
+        "lifetime_segments": 615,
+        "window_master_clocks": 348,
+        "maximum_ranges": 4,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 615,
+        "flexible_prefetch": true,
+        "lookahead_lines": 16,
+        "demand_gap_lines": 2,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out/byor-motu-mixed-demand-gap2-physical-slots-unbounded.json",
+      "sha256": "88a771a120928bc178ad5f9291d035a3a1c2dae2407cf68a5ebd6f7ecb2962c9",
+      "result": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 60.41032310000001,
+        "lifetime_segments": 615,
+        "window_master_clocks": 4096,
+        "maximum_ranges": 4,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 615,
+        "flexible_prefetch": true,
+        "lookahead_lines": 16,
+        "demand_gap_lines": 2,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "peak_prepared_commit_span": 1064,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true
+      }
+    }
+  ],
+  "universal_raster_rejected": false,
+  "native_raster_admitted": false,
+  "no_color_reduction": true
+}

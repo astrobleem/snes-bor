@@ -9,7 +9,7 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
-def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16):
+def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None):
     from ortools.sat.python import cp_model
     if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('SLOT_LAYOUT_VALIDATED_SCHEDULE_REQUIRED')
@@ -32,11 +32,42 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         for ly,lx in zip(*np.where(image!=0)):
             y=int(p['y']+ly);bank=p['bank'];s=int(image[ly,lx])-1;i=active_rows[y][bank,s]
             last_use[i]=max(last_use.get(i,-1),y);first_use[i]=min(first_use.get(i,height),y);required.setdefault((y,bank),set()).add(segments[i]['color'])
+    if demand_gap is not None:
+        if not isinstance(demand_gap,int)or demand_gap<0 or not trim_dead_residents:raise ValueError('SLOT_LAYOUT_DEMAND_GAP_DOMAIN')
+        uses={}
+        for (y,b),colors in required.items():
+            for color in colors:uses.setdefault((b,color),[]).append(y)
+        old_rows=active_rows;segments=[];starts={};first_use={};last_use={};identity={}
+        for (b,color),lines in sorted(uses.items()):
+            groups=[]
+            for y in sorted(lines):
+                if not groups or y-groups[-1][-1]>demand_gap+1:groups.append([])
+                groups[-1].append(y)
+            for group in groups:
+                i=len(segments);first,last=group[0],group[-1]
+                old_slot=next(s for (bank,s),old in old_rows[first].items()if bank==b and original_states[first][b][s]==color)
+                segments.append(dict(bank=b,old_slot=old_slot,color=color,first=first,last=last))
+                starts.setdefault((first,b),[]).append(i);first_use[i]=first;last_use[i]=last
+                for y in group:identity[y,b,color]=i
+        active_rows=[{(b,s):identity[y,b,original_states[y][b][s]] for (b,s)in row if(y,b,original_states[y][b][s])in identity}for y,row in enumerate(old_rows)]
     if trim_dead_residents:
         for i,segment in enumerate(segments):segment['last']=last_use.get(i,-1)
         active_rows=[{key:i for key,i in row.items()if segments[i]['last']>=y}for y,row in enumerate(active_rows)]
         starts={key:[i for i in values if i in last_use]for key,values in starts.items()}
         starts={key:values for key,values in starts.items()if values}
+    hinted={}
+    if layout_hint is not None:
+        if layout_hint.get('pieces')!=schedule['pieces']or layout_hint.get('source_rgb555_sha256')!=schedule.get('source_rgb555_sha256')or not layout_hint.get('physical_slot_layout',{}).get('pixel_color_identity_verified'):raise ValueError('SLOT_LAYOUT_HINT_IDENTITY')
+        pixels={}
+        for p,old,new in zip(schedule['pieces'],schedule['piece_pixel_masks'],layout_hint['piece_pixel_masks']):
+            a,b=unpack(old),unpack(new)
+            if not np.array_equal(a!=0,b!=0):raise ValueError('SLOT_LAYOUT_HINT_PIXEL_MASK')
+            for ly,lx in zip(*np.where(a!=0)):
+                y=int(p['y']+ly);i=active_rows[y][p['bank'],int(a[ly,lx])-1]
+                pixels.setdefault(i,int(b[ly,lx])-1)
+        for i in last_use:
+            slot=pixels[i];s=segments[i];events=[row['scanline']for row in layout_hint['trace']if row['scanline']<=first_use[i]for e in row['updates']if e['bank']==s['bank']and e['slot']==slot+1 and e['color']==s['color']]
+            if events:hinted[i]=(slot,max(events))
     model=cp_model.CpModel();slots=[model.new_int_var(0,14,'s'+str(i))for i in range(len(segments))]
     seen=set();write_times={};write_flags={}
     if flexible_prefetch:
@@ -44,7 +75,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         for i in sorted(last_use):
             first=first_use[i];allowed=[0]+list(range(max(1,first-lookahead),first+1))
             start=model.new_int_var_from_domain(cp_model.Domain.from_values(allowed),'time'+str(i));write_times[i]=start
-            original_time=segments[i]['first'];hint=original_time if original_time in allowed else max(1,first-lookahead)
+            original_time=hinted.get(i,(0,segments[i]['first']))[1];hint=original_time if original_time in allowed else allowed[0]
             model.add_hint(start,hint)
             end=last_use[i]+1;duration=model.new_int_var(1,end,'duration'+str(i));model.add(duration==end-start)
             for s in range(15):
@@ -55,9 +86,10 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 write_flags.setdefault((y,segments[i]['bank']),[]).append((i,flag))
         for values in lanes.values():model.add_no_overlap(values)
     else:
-        for row in active_rows:
+        for y in range(height):
+            row={i:segment for i,segment in enumerate(segments)if segment['first']<=y<=segment['last']}
             for bank in range(8):
-                values=tuple(sorted(i for (b,s),i in row.items()if b==bank))
+                values=tuple(i for i,segment in row.items()if segment['bank']==bank)
                 if len(values)>1 and values not in seen:model.add_all_different([slots[i]for i in values]);seen.add(values)
     ranges={};peak=model.new_int_var(0,4096,'peak')
     for y in range(1,height):
@@ -92,7 +124,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             if flexible_prefetch:model.add(sum(values)<=1);model.add(sum(values)>=active[b])
             else:model.add(sum(values)==1)
         model.add(sum(selected)<=maximum_ranges);model.add(sum(costs)<=window+39);model.add(peak>=sum(costs))
-    for i,segment in enumerate(segments):model.add_hint(slots[i],segment['old_slot'])
+    for i,segment in enumerate(segments):model.add_hint(slots[i],hinted.get(i,(segment['old_slot'],0))[0])
     model.minimize(peak);solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     status=solver.solve(model)
     result=dict(schema='BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1',status='BOUNDED_SLOT_LAYOUT_NO_CANDIDATE',
@@ -100,6 +132,8 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 lifetime_segments=len(segments),window_master_clocks=window,maximum_ranges=maximum_ranges,
                 trim_dead_residents=trim_dead_residents,used_lifetime_segments=len(last_use),
                 flexible_prefetch=flexible_prefetch,lookahead_lines=lookahead if flexible_prefetch else None,
+                demand_gap_lines=demand_gap,
+                layout_hint_used=layout_hint is not None,
                 universal_raster_rejected=False,native_timing_admitted=False,no_color_reduction=True)
     if status not in (cp_model.FEASIBLE,cp_model.OPTIMAL):return result
     if flexible_prefetch:
@@ -164,7 +198,9 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--schedule',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--window',type=int,default=348);p.add_argument('--time-limit',type=float,default=180);p.add_argument('--maximum-ranges',type=int,default=4)
     p.add_argument('--flexible-prefetch',action='store_true');p.add_argument('--lookahead',type=int,default=16)
-    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead)
+    p.add_argument('--demand-gap',type=int)
+    p.add_argument('--layout-hint',type=Path)
+    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 

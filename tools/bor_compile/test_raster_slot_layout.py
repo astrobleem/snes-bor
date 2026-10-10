@@ -41,5 +41,18 @@ class SlotLayoutTests(unittest.TestCase):
         self.assertEqual(r['physical_slot_layout']['peak_prepared_commit_span'],0)
         self.assertEqual(r['peak_scheduled_writes'],0)
 
+    def test_demand_groups_retain_a_color_across_an_unused_line(self):
+        r=optimize(self.schedule(),window=356,time_limit=10,demand_gap=1,flexible_prefetch=True)
+        self.assertEqual(r['physical_slot_layout']['used_lifetime_segments'],3)
+        self.assertTrue(r['physical_slot_layout']['pixel_color_identity_verified'])
+        image=unpack(r['piece_pixel_masks'][0])
+        self.assertEqual(image[0,0],image[2,0])
+        hinted=optimize(self.schedule(),window=356,time_limit=10,demand_gap=1,flexible_prefetch=True,layout_hint=r)
+        self.assertTrue(hinted['physical_slot_layout']['layout_hint_used'])
+        self.assertTrue(hinted['physical_slot_layout']['all_packet_cgram_identities_verified'])
+        invalid=copy.deepcopy(r);invalid['source_rgb555_sha256']='different'
+        with self.assertRaisesRegex(ValueError,'HINT_IDENTITY'):optimize(self.schedule(),layout_hint=invalid)
+        with self.assertRaisesRegex(ValueError,'DEMAND_GAP_DOMAIN'):optimize(self.schedule(),demand_gap=-1)
+
 
 if __name__=='__main__':unittest.main()
