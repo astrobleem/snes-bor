@@ -1,0 +1,46 @@
+{
+  "schema": "BYOR_COMPLETION_CLOCK_CLOSED_POLICY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "report": "out/byor-motu-completion-clock-policy-authority/report.json",
+      "sha256": "6746af8e383e3f694fb790ca59ec938ef61d02bfd373434fb68acf9fba967381",
+      "cases": 192,
+      "rom_sha256": null
+    },
+    {
+      "report": "out/byor-motu-completion-clock-initialize-native/report.json",
+      "sha256": "53783982f7a81cd4ec213f0f7fa15b4f04332f8a5601cb1df5382bf6e148798f",
+      "cases": 204,
+      "rom_sha256": "0078d3f8c23d33276584b05dacaaa9e463ac13ceb4b684da42e6959dfa074cc6"
+    },
+    {
+      "report": "out/byor-motu-completion-clock-initialize-observe-native/report.json",
+      "sha256": "f1f9c221efe9cb95ee6179e56da6391e5a575647c8cafc0d4b9efe17bd307cf4",
+      "cases": 196,
+      "rom_sha256": "4c0ab23ac56c34b60b0a6e54dee58d85e7039b4f71329eb93a97267fbc4b4c4d"
+    }
+  ],
+  "closed_source_defaults": {
+    "toggle": 0,
+    "duration": 2,
+    "noslow": 0
+  },
+  "source_unsigned_clock_wrap_equivalence": false,
+  "source_sdl_update_call_cadence_equivalence": false,
+  "existing_ntsc_clock_adaptation_retained": true,
+  "policy_controls": 8387130,
+  "policy_bytes": 8,
+  "within_existing_clock_reserved_tail": true,
+  "new_foreign_arena_bytes": 0,
+  "scoped_callback_snapshot_contains_clock_policy": false,
+  "actual_source_clock_observe_join_proven": true,
+  "unload_speedup_projection_proven": true,
+  "full_unload_bound": false,
+  "production_clock_consumer_bound": false,
+  "bank0_unchanged": true,
+  "protected_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
