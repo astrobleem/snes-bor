@@ -6,6 +6,19 @@ Slot ordering, setup, contention and channel availability remain unproven.
 import math
 
 
+def minimum_commit_span(colors):
+    """Best possible prepared-range span, allowing arbitrary bank/slot packing.
+
+    Each bank has 15 opaque slots. P banks in R disjoint ranges cross at least
+    P-R transparent words; each range costs 24 setup clocks. Grant the same
+    32-clock data-span subtraction and eight-clock first-low preload as the
+    physical partition model. This only bounds that prepared-DMA family.
+    """
+    if not isinstance(colors,int)or not 0<=colors<=120:
+        raise ValueError('DMA_PARTITION_COLOR_COUNT')
+    return 0 if not colors else 16*(colors+(colors+14)//15-2)
+
+
 def constrain_ranges(bank_writes, active, allocate, constraint, window):
     ranges={};word_counts={};domains={}
     for first in range(8):

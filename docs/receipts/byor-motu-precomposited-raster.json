@@ -1,0 +1,59 @@
+{
+  "schema": "BYOR_PRECOMPOSITED_RASTER_FEASIBILITY_V1",
+  "tests_passed": 67,
+  "no_color_reduction": true,
+  "production_runtime_modified": false,
+  "bank_zero_growth_bytes": 0,
+  "universal_raster_rejected": false,
+  "motu_gameplay_proven": false,
+  "prepared_dma_window_master_clocks": 356,
+  "proofs": [
+    {
+      "path": "out/byor-motu-isolated-precomposited-pool23.json",
+      "sha256": "6ee981b5ac6cb59b7ede417baf7222968004fe1e2791cd54d62b25d2173cc2d5",
+      "status": "POOLED_INTEGER_RESIDENCY_CANDIDATE"
+    },
+    {
+      "path": "out/byor-motu-concurrent-precomposited-pool23.json",
+      "sha256": "a3d5015c1c7b06199a0aca7f5bcf1a65cddf20de1980835797372aaab25f459b",
+      "status": "PINNED_POOL_INTEGER_SOLVER_NO_CANDIDATE"
+    },
+    {
+      "path": "out/byor-motu-mode3-precomposited-banks-0-7/report.json",
+      "sha256": "31f75931efa7762f4f57020bd3768ba176a4036ac2054202f16a70d1c9d81f63",
+      "status": "PASS"
+    }
+  ],
+  "prepared_dma_verdicts": [
+    {
+      "path": "out/byor-motu-isolated-precomposited-pool23.json",
+      "validated_dual_lower_bound": 22.142857142857125,
+      "minimum_integer_writes": 23,
+      "minimum_commit_span": 368,
+      "status": "PREPARED_DMA_COLOR_COUNT_REJECTED",
+      "geometry_relaxed": true
+    },
+    {
+      "path": "out/byor-motu-concurrent-precomposited-pool23.json",
+      "validated_dual_lower_bound": 26.428571428571416,
+      "minimum_integer_writes": 27,
+      "minimum_commit_span": 432,
+      "status": "PREPARED_DMA_COLOR_COUNT_REJECTED",
+      "geometry_relaxed": true
+    }
+  ],
+  "native_sample": {
+    "completed_fields": 3,
+    "pixel_mismatches": 0,
+    "ROM_sha256": "c8d14de3bcd64a7c2e4ed8d14a472e729960d7c170b3be3fe040612c760dd0e3",
+    "source_pixels": 107,
+    "physical_banks": [
+      0,
+      7
+    ],
+    "cgram_observer_verified": true,
+    "oam_observer_verified": true,
+    "full_effect_rendered": false,
+    "raster_schedule_executed": false
+  }
+}

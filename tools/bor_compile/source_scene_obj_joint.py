@@ -29,10 +29,13 @@ def saturated_corners(output,background):
     return values
 
 
-def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False):
+def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive"):
     if solver_backend not in ('highs','cp-sat') or (relaxed and solver_backend!='highs'):raise ValueError('JOINT_SOLVER_BACKEND')
     if size not in (8,16,32,'mixed') or write_budget<0 or lookahead<0:
         raise ValueError('JOINT_SOLVER_DOMAIN')
+    if color_math not in ('additive','precomposited'):raise ValueError('JOINT_COLOR_MATH_DOMAIN')
+    def kind(bank):return int(color_math=='additive' and bank>=4)
+    def banks_for_kind(k):return range(4*k,4*k+4) if color_math=='additive' else range(8)
     base_size=32 if size=='mixed'else size
     if not all(isinstance(p,int)and 0<=p<base_size for p in (grid_padding_x,grid_padding_y)) or (not align_visible_bounds and (grid_padding_x or grid_padding_y)):
         raise ValueError('JOINT_GRID_PADDING_DOMAIN')
@@ -47,12 +50,14 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     actors, metadata, expected = prepare(source, stage, scene)
     if schedule_hint is not None and (solver_backend!='cp-sat' or schedule_hint.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule_hint.get('compiled_pixel_identity_verified') or schedule_hint.get('metadata')!=metadata or schedule_hint.get('source_rgb555_sha256')!=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()):
         raise ValueError('JOINT_SCHEDULE_HINT_IDENTITY')
+    if schedule_hint is not None and schedule_hint.get('color_math','additive')!=color_math:raise ValueError('JOINT_SCHEDULE_HINT_COLOR_MATH')
     pool=set();pool_first=0
     if pool_residency:
         if pool_residency['metadata']!=metadata or pool_residency['status']!='POOLED_INTEGER_RESIDENCY_CANDIDATE':raise ValueError('JOINT_POOL_CONTEXT_IDENTITY')
+        if pool_residency.get('color_math','additive')!=color_math:raise ValueError('JOINT_POOL_COLOR_MATH')
         pool={(e['kind'],e['color'],e['line'])for e in pool_residency['fractional_residency']if e['value']>.5}
         pool_first=min(y for kind,c,y in pool)
-    def allowed(bank,color,y):return not pool_residency or (int(bank>=4),color,max(y,pool_first))in pool
+    def allowed(bank,color,y):return not pool_residency or (kind(bank),color,max(y,pool_first))in pool
     bg, _ = compose_rgb8(source, stage, dict(scene, actors=[])); bg = rgb555(bg)
     source_canvases=[list(a['pixels'].shape[::-1])for a in actors];bypassed=0
     if underlay_bypass:
@@ -113,13 +118,13 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             y,x=a['pixels'][0];residual_corpus.update(saturated_corners(a['output'],int(bg[y,x])))
     residual_corpus=sorted(residual_corpus)
     complete_options={};complete_cover_report=None
-    if complete_additive_cover:
+    if complete_additive_cover and color_math=='additive':
         from raster_additive_cover import complete_cover
         complete_options,complete_cover_report=complete_cover((a["output"],a["residual"])for a in atoms)
         residual_corpus=sorted({c for values in complete_options.values()for c in values})
     alternative_cache={}
     for atom in atoms:
-        values=[] if atom['residual'] is None else [atom['residual']]
+        values=[] if atom['residual'] is None or color_math=='precomposited' else [atom['residual']]
         if complete_additive_cover and values:
             values=complete_options[atom['output'],atom['residual']]
         elif (saturated_reuse or saturated_extrema) and values:
@@ -132,8 +137,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         from raster_palette_cover_liveness import lower_bound
         rows=[set() for _ in range(height)]
         for atom in atoms:rows[atom['line']].add((atom['output'],tuple(atom['residual_options'])))
-        result=lower_bound(rows,time_limit=time_limit,include_solution=True,integer_budget=integer_pool_budget)
-        result.update(complete_additive_cover=complete_cover_report,metadata=metadata,saturated_reuse=saturated_reuse,saturated_extrema=saturated_extrema,exact_underlay_bypass=underlay_bypass,underlay_bypassed_pixels=bypassed,source_actor_canvases=source_canvases,no_color_reduction=True,native_presentation_proven=False,
+        result=lower_bound(rows,capacities=(120,60)if color_math=='precomposited'else(60,60),time_limit=time_limit,include_solution=True,integer_budget=integer_pool_budget)
+        result.update(color_math=color_math,complete_additive_cover=complete_cover_report,metadata=metadata,saturated_reuse=saturated_reuse,saturated_extrema=saturated_extrema,exact_underlay_bypass=underlay_bypass,underlay_bypassed_pixels=bypassed,source_actor_canvases=source_canvases,no_color_reduction=True,native_presentation_proven=False,
                       source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest())
         return result
     variable_count = 0;nonboolean_upper={}
@@ -144,11 +149,11 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     choices = {}; uses = {};opaque_variables={};opaque_choice_entries=0
     for i, atom in enumerate(atoms):
         for bank in range(8):
-            colors=[atom['output']] if bank<4 else atom['residual_options']
+            colors=[atom['output']] if kind(bank)==0 else atom['residual_options']
             for color in colors:
                 if not allowed(bank,color,atom['line']):continue
                 for piece_index in atom['options']:
-                    if bank<4:
+                    if kind(bank)==0:
                         opaque_choice_entries+=1;key=piece_index,bank,color,atom['line']
                         if coalesce_opaque_choices:
                             if key not in opaque_variables:opaque_variables[key]=allocate()
@@ -178,12 +183,12 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     for i,atom in enumerate(atoms):
         options=atom_choices.get(i,[])
         constraint([(v,1)for p,b,c,v in options],1,1)
-        eligible_pieces={p for p,b,c,v in options};kinds={int(b>=4)for p,b,c,v in options}
+        eligible_pieces={p for p,b,c,v in options};kinds={kind(b)for p,b,c,v in options}
         if len(eligible_pieces)==1 and len(kinds)==1:
-            p=next(iter(eligible_pieces));kind=next(iter(kinds));key=p,kind
+            p=next(iter(eligible_pieces));k=next(iter(kinds));key=p,k
             mandatory[key]=max(mandatory.get(key,0),1)
             colors={c for pp,b,c,v in options}
-            if len(colors)==1:forced_colors.setdefault((p,kind,atom['line']),set()).update(colors)
+            if len(colors)==1:forced_colors.setdefault((p,k,atom['line']),set()).update(colors)
         for piece_index,bank,color,variable in options:
             for dependency in (masks[piece_index,bank],resident[bank,color,atom['line']]):
                 if (variable,dependency)not in implications:
@@ -195,10 +200,10 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     for key,variables in mask_choices.items():
         variables=set(variables)
         constraint([(masks[key],1)]+[(v,-1)for v in variables],-np.inf,0)
-    for (p,kind,y),colors in forced_colors.items():
-        mandatory[p,kind]=max(mandatory[p,kind],(len(colors)+14)//15)
-    for (p,kind),count in mandatory.items():
-        constraint([(masks[p,b],1)for b in range(4*kind,4*kind+4)],count,np.inf)
+    for (p,k,y),colors in forced_colors.items():
+        mandatory[p,k]=max(mandatory[p,k],(len(colors)+14)//15)
+    for (p,k),count in mandatory.items():
+        constraint([(masks[p,b],1)for b in banks_for_kind(k)],count,np.inf)
     mandatory_geometry=dict(oam_entries=sum(mandatory.values()),
         peak_sprites=max((sum(n for (i,k),n in mandatory.items()if pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height'])for y in range(height)),default=0),
         peak_tile_slivers=max((sum(n*slivers(pieces[i])for (i,k),n in mandatory.items()if pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height'])for y in range(height)),default=0))
@@ -207,8 +212,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         # Canonicalize interchangeable bank labels by first piece using each bank.
         # At one piece, simultaneous first uses may retain symmetry, but no valid
         # schedule is lost: order banks by their first active piece.
-        for first_bank in (0,4):
-            for bank in range(first_bank+1,first_bank+4):
+        for first_bank in ((0,4)if color_math=='additive'else(0,)):
+            for bank in range(first_bank+1,first_bank+(4 if color_math=='additive'else 8)):
                 for i in range(len(pieces)):
                     constraint([(masks[i,bank],1)]+[(masks[j,bank-1],-1) for j in range(i+1)],-np.inf,0)
     for y in range(height):
@@ -236,15 +241,15 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         # Restricted constructive family: every represented pool residency is
         # retained in one bank for its full interval. No claim of completeness.
         color_lines={}
-        for b,c,y in resident:color_lines.setdefault((int(b>=4),c),set()).add(y)
-        for (kind,color),lines_for_color in color_lines.items():
+        for b,c,y in resident:color_lines.setdefault((kind(b),c),set()).add(y)
+        for (k,color),lines_for_color in color_lines.items():
             groups=[]
             for y in sorted(lines_for_color):
                 if groups and (y==groups[-1][-1]+1 or groups[-1][-1]==0 and y==pool_first):groups[-1].append(y)
                 else:groups.append([y])
             for group in groups:
                 initial=[]
-                for bank in range(4*kind,4*kind+4):
+                for bank in banks_for_kind(k):
                     first=(bank,color,group[0])
                     if first not in resident:continue
                     anchor=resident[first];initial.append((anchor,1))
@@ -274,7 +279,9 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             # before the window, reducing the necessary commit span by eight.
             constraint([(v,16)for v in variables]+[(v,24)for v in active.values()]+[(v,-8)for v in bridges.values()],-np.inf,prepared_dma_window+39)
             if prepared_dma_partition:
-                from raster_dma_partition import constrain_ranges
+                from raster_dma_partition import constrain_ranges,minimum_commit_span
+                maximum_colors=max(c for c in range(121)if minimum_commit_span(c)<prepared_dma_window)
+                constraint([(v,1)for v in variables],0,maximum_colors)
                 domains=constrain_ranges({b:by_bank_line.get((b,y),[])for b in range(8)},active,allocate,constraint,prepared_dma_window)
                 nonboolean_upper.update(domains)
     objective=np.zeros(variable_count);integrality=np.ones(variable_count)
@@ -317,7 +324,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 metadata=metadata,geometry_size=size,write_budget=write_budget,lookahead_lines=lookahead,
                 solver=dict(status=int(result.status),message=result.message,variables=variable_count,constraints=len(lo),mip_nodes=int(result.mip_node_count) if getattr(result,'mip_node_count',None) is not None else None,mip_gap=float(result.mip_gap) if getattr(result,'mip_gap',None) is not None and np.isfinite(result.mip_gap) else None),
                 exact_residency_write_indicators=True,
-                opaque_choice_coalescing=coalesce_opaque_choices,opaque_choice_entries=opaque_choice_entries,
+                color_math=color_math,opaque_choice_coalescing=coalesce_opaque_choices,opaque_choice_entries=opaque_choice_entries,
                 distinct_opaque_choice_variables=len(opaque_variables)if coalesce_opaque_choices else opaque_choice_entries,
                 no_color_reduction=True,universal_raster_rejected=False,native_presentation_proven=False,
                 pooled_residency_pinned=bool(pool_residency),
@@ -399,7 +406,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             y,x=int(ly+piece['y']),int(lx+piece['x']);b=piece['bank']
             if ownership[y,x]:raise AssertionError('JOINT_PIXEL_MASK_OVERLAP')
             ownership[y,x]=1;color=states[y][b][int(pixels[ly,lx])-1]
-            replay[y,x]=color if b<4 else add_rgb555(color,int(bg[y,x]))
+            replay[y,x]=color if kind(b)==0 else add_rgb555(color,int(bg[y,x]))
     if not np.array_equal(replay,rgb555(expected)):raise AssertionError('JOINT_SOURCE_PIXEL_IDENTITY_FAULT')
     groups=[[demand[y][b] for y in range(height)] for b in range(8)]
     report.update(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN',geometry=geometry,pieces=selected,trace=trace,
@@ -432,12 +439,13 @@ def main():
     p.add_argument('--prepared-dma-window',type=int)
     p.add_argument('--prepared-dma-partition',action='store_true')
     p.add_argument('--coalesce-opaque-choices',action='store_true')
+    p.add_argument('--color-math',choices=('additive','precomposited'),default='additive',help='Precomposited stores exact final context RGB555 in all eight banks; native alpha/context ownership remains required.')
     p.add_argument('--schedule-hint',type=Path)
     p.add_argument('--underlay-bypass',action='store_true')
     p.add_argument('--saturated-extrema',action='store_true')
     p.add_argument('--complete-additive-cover',action='store_true')
     p.add_argument('--grid-padding-x',type=int,default=0);p.add_argument('--grid-padding-y',type=int,default=0)
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices)
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
 
 

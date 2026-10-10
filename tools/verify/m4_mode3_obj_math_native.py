@@ -19,8 +19,10 @@ from m4_bg_components_native import tiles
 from _harness import McpSession,MESEN_EXE,_free_tcp_port
 
 
-def compile_rom(source,stage,scene,schedule,output,opaque_bank=None,additive_bank=None):
-    if opaque_bank is not None and opaque_bank not in range(4)or additive_bank is not None and additive_bank not in range(4,8):
+def compile_rom(source,stage,scene,schedule,output,opaque_bank=None,additive_bank=None,precomposited=False):
+    opaque_domain=range(8)if precomposited else range(4)
+    additive_domain=range(8)if precomposited else range(4,8)
+    if opaque_bank is not None and opaque_bank not in opaque_domain or additive_bank is not None and additive_bank not in additive_domain:
         raise ValueError('MODE3_PALETTE_MATH_ELIGIBILITY')
     bg,metadata=compose_rgb8(source,stage,dict(scene,actors=[]));bg=rgb555(bg)
     complete,_=compose_rgb8(source,stage,scene);complete=rgb555(complete)
@@ -45,13 +47,15 @@ def compile_rom(source,stage,scene,schedule,output,opaque_bank=None,additive_ban
         for p,mask in candidates:
             if int(p['bank']>=4)!=kind or (p['width'],p['height'])!=(8,8):continue
             image=unpack(mask);colors=set()
-            for ly,lx in zip(*np.where(image!=0)):colors.add(states[int(p['y']+ly)][p['bank']][int(image[ly,lx])-1])
+            for ly,lx in zip(*np.where(image!=0)):
+                y,x=int(p['y']+ly),int(p['x']+lx)
+                colors.add(int(complete[y,x])if precomposited else states[y][p['bank']][int(image[ly,lx])-1])
             if not colors or len(colors)>15:continue
             colors=sorted(colors);static=np.zeros((8,8),dtype=np.uint8);count=0
             for ly,lx in zip(*np.where(image!=0)):
-                y,x=int(p['y']+ly),int(p['x']+lx);c=states[y][p['bank']][int(image[ly,lx])-1]
+                y,x=int(p['y']+ly),int(p['x']+lx);c=int(complete[y,x])if precomposited else states[y][p['bank']][int(image[ly,lx])-1]
                 static[ly,lx]=colors.index(c)+1
-                value=c if kind==0 else add_rgb555(c,int(bg[y,x]))
+                value=c if precomposited or kind==0 else add_rgb555(c,int(bg[y,x]))
                 if value!=int(complete[y,x]):raise AssertionError('MODE3_SOURCE_ALPHA_IDENTITY')
                 expected[y,x]=value;count+=1
             bank=(opaque_bank if kind==0 else additive_bank)
@@ -61,7 +65,7 @@ def compile_rom(source,stage,scene,schedule,output,opaque_bank=None,additive_ban
             # Encode the selected tile directly; tiles() places it first.
             objchr.extend(encoded[:32]);i=len(selected);x=p['x']&511
             oam[i*4:i*4+4]=bytes([x&255,p['y']&255,i,0x30|bank<<1]);oam[512+i//4]|=(x>>8)<<(2*(i%4))
-            selected.append(dict(piece=p,physical_bank=bank,colors=colors,source_pixels=count,math_kind='OPAQUE_BYPASS'if kind==0 else'ADDITIVE_SUBSCREEN'))
+            selected.append(dict(piece=p,physical_bank=bank,colors=colors,source_pixels=count,math_kind='PRECOMPOSITED_SOURCE_ALPHA'if precomposited else'OPAQUE_BYPASS'if kind==0 else'ADDITIVE_SUBSCREEN'))
             break
         else:raise ValueError('MODE3_STATIC_SAMPLE_NOT_FOUND')
     rom=bytearray([255])*262144;code=bytearray.fromhex('78 18 fb c2 30 a2 ff 1f 9a e2 20')
@@ -77,21 +81,21 @@ def compile_rom(source,stage,scene,schedule,output,opaque_bank=None,additive_ban
     dma(0x8800,4,0x18,objchr,1,0x6000)
     store(0x2102,0);store(0x2103,0);dma(0x9000,4,0x04,oam,0)
     store(0x2121,0);dma(0x9400,4,0x22,palette.tobytes(),0)
-    for a,v in [(0x2101,0x23),(0x2105,3),(0x2107,0x78),(0x210b,0),(0x210d,0),(0x210d,0),(0x210e,255),(0x210e,255),(0x212c,17),(0x212d,1),(0x2130,2),(0x2131,16),(0x2132,0xe0),(0x2133,0)]:store(a,v)
+    for a,v in [(0x2101,0x23),(0x2105,3),(0x2107,0x78),(0x210b,0),(0x210d,0),(0x210d,0),(0x210e,255),(0x210e,255),(0x212c,17),(0x212d,1),(0x2130,2),(0x2131,0 if precomposited else 16),(0x2132,0xe0),(0x2133,0)]:store(a,v)
     code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'));store(0x2100,15);code.extend(bytes.fromhex('80 fe'))
     rom[:4]=bytes.fromhex('5c 00 80 01');rom[0x8000:0x8000+len(code)]=code
     rom[0x7fc0:0x7fd5]=b'M3 SOURCE OBJ MATH'.ljust(21);rom[0x7fd5:0x7fdc]=bytes([0x20,0,8,0,1,0,0]);rom[0x7ffc:0x7ffe]=struct.pack('<H',0x8000)
     (output/'expected.rgb555').write_bytes(expected.astype('<u2').tobytes())
-    return bytes(rom),expected,palette.tobytes(),bytes(oam),dict(bg_mode=3,bg_chr_bytes=len(bgchr),bg_unique_tiles=len(bgchr)//64,bg_map_base=0xf000,obj_chr_base=0xc000,obj_chr_bytes=len(objchr),obj_entries=2,bg_static_colors=report['full_frame_colors'],bg_cgram_below=128,bg_raster_writes=0,selected=selected,source_underlay_metadata=metadata)
+    return bytes(rom),expected,palette.tobytes(),bytes(oam),dict(bg_mode=3,color_math='precomposited'if precomposited else'additive',bg_chr_bytes=len(bgchr),bg_unique_tiles=len(bgchr)//64,bg_map_base=0xf000,obj_chr_base=0xc000,obj_chr_bytes=len(objchr),obj_entries=2,bg_static_colors=report['full_frame_colors'],bg_cgram_below=128,bg_raster_writes=0,selected=selected,source_underlay_metadata=metadata)
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('source','stage','scene','schedule','output'):p.add_argument('--'+name,required=True)
-    p.add_argument('--opaque-bank',type=int);p.add_argument('--additive-bank',type=int)
+    p.add_argument('--precomposited',action='store_true');p.add_argument('--opaque-bank',type=int);p.add_argument('--additive-bank',type=int)
     a=p.parse_args();output=Path(a.output).resolve();output.mkdir(parents=True,exist_ok=True)
     scene=json.loads(Path(a.scene).read_text());schedule=json.loads(Path(a.schedule).read_text())
-    rom,expected,palette,oam,resources=compile_rom(Source(a.source),a.stage,scene,schedule,output,a.opaque_bank,a.additive_bank)
+    rom,expected,palette,oam,resources=compile_rom(Source(a.source),a.stage,scene,schedule,output,a.opaque_bank,a.additive_bank,a.precomposited)
     path=output/'proof.sfc';path.write_bytes(rom);lua=output/'observer.lua'
     lua.write_text("""local shown=false;local oam={};local cg={}
 emu.addMemoryCallback(function(a,v)if not shown then oam[#oam+1]=string.format('%02x',v)end end,emu.callbackType.write,0x2104,0x2104,emu.cpuType.snes,emu.memType.snesMemory)
@@ -116,7 +120,7 @@ emu.addEventCallback(function()if shown then emu.log('MODE3FLAGS|'..emu.read(0x2
     log=(output/'mesen.log').read_text();flags=[int(s.split('MODE3FLAGS|')[1])for s in log.splitlines()if'MODE3FLAGS|'in s]
     def observed(label):return [s.split(label+'|')[1]for s in log.splitlines()if label+'|'in s]
     passed=advanced>=3 and np.array_equal(actual,expected)and cg==palette and observed('MODE3OAM')==[oam.hex()]and observed('MODE3CGRAM')==[palette.hex()]and bool(flags)and not any(v&192 for v in flags)
-    report=dict(schema='BYOR_MODE3_SOURCE_OBJ_MATH_NATIVE_V1',status='PASS'if passed else'FAIL',resources=resources,rom_sha256=hashlib.sha256(rom).hexdigest(),input_schedule_sha256=hashlib.sha256(Path(a.schedule).read_bytes()).hexdigest(),expected_sha256=hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest(),completed_fields=advanced,progress=progress,pixel_mismatches=int(np.count_nonzero(actual!=expected))if actual.shape==expected.shape else None,cgram_ram_identity_verified=cg==palette,cgram_observer_verified=observed('MODE3CGRAM')==[palette.hex()],oam_observer_verified=observed('MODE3OAM')==[oam.hex()],obj_status=flags,source_alpha_sample_identity_verified=True,full_effect_rendered=False,raster_schedule_executed=False,production_runtime_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
+    report=dict(schema='BYOR_MODE3_SOURCE_OBJ_MATH_NATIVE_V1',status='PASS'if passed else'FAIL',resources=resources,rom_sha256=hashlib.sha256(rom).hexdigest(),input_schedule_sha256=hashlib.sha256(Path(a.schedule).read_bytes()).hexdigest(),expected_sha256=hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest(),completed_fields=advanced,progress=progress,pixel_mismatches=int(np.count_nonzero(actual!=expected))if actual.shape==expected.shape else None,cgram_ram_identity_verified=cg==palette,cgram_observer_verified=observed('MODE3CGRAM')==[palette.hex()],oam_observer_verified=observed('MODE3OAM')==[oam.hex()],obj_status=flags,source_alpha_sample_identity_verified=True,precomposited_source_alpha=a.precomposited,full_effect_rendered=False,raster_schedule_executed=False,production_runtime_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
     (output/'report.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({k:report[k]for k in ('status','completed_fields','pixel_mismatches','cgram_ram_identity_verified','oam_observer_verified','obj_status')}))
     if not passed:raise SystemExit(1)
 

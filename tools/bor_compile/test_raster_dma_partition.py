@@ -2,9 +2,29 @@ import importlib.util
 import unittest
 import numpy as np
 from scipy.sparse import coo_matrix
-from raster_dma_partition import constrain_ranges
+from raster_dma_partition import constrain_ranges,minimum_commit_span
 from raster_boolean_solver import solve
 from raster_cgram_packets import optimistic_dma_span
+
+
+class MinimumPreparedSpanTests(unittest.TestCase):
+    def test_dense_endpoint_packing_attains_count_bound(self):
+        for count in range(121):
+            remaining=count;updates=[]
+            for bank in range(8):
+                n=min(15,remaining);remaining-=n
+                updates.extend(dict(bank=bank)for _ in range(n))
+            actual=max(0,optimistic_dma_span(updates)['best_partition_span_master_clocks']-8)
+            self.assertEqual(minimum_commit_span(count),actual)
+        self.assertEqual(minimum_commit_span(22),352)
+        self.assertEqual(minimum_commit_span(23),368)
+
+    def test_scattered_banks_cannot_beat_arbitrary_packing_bound(self):
+        for seed in range(128):
+            counts=np.random.default_rng(seed).integers(0,16,8)
+            updates=[dict(bank=b)for b,n in enumerate(counts)for _ in range(int(n))]
+            actual=max(0,optimistic_dma_span(updates)['best_partition_span_master_clocks']-8)
+            self.assertLessEqual(minimum_commit_span(int(sum(counts))),actual)
 
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')

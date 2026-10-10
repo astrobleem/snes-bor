@@ -6,6 +6,30 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_precomposited_context_can_use_all_eight_opaque_banks(self):
+        background=np.full((224,256,3),255,dtype=np.uint8)
+        pixels=np.full((8,120),-1,dtype=np.int32);pixels[0]=np.arange(120)
+        expected=background.copy()
+        expected[0,:120]=np.stack([(pixels[0]>>shift)&31 for shift in (0,5,10)],axis=-1)*8
+        actors=[dict(pixels=pixels,left=0,top=0)]
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            r=probe(None,None,{},size=8,write_budget=0,time_limit=10,color_math='precomposited',bank_symmetry=True,coalesce_opaque_choices=True)
+        self.assertTrue(r['compiled_pixel_identity_verified'])
+        self.assertEqual({p['bank']for p in r['pieces']},set(range(8)))
+        self.assertEqual(r['peak_scheduled_writes'],0)
+        self.assertEqual(sum(len(set(v)-{None})for v in r['trace'][0]['resident_before'].values()),0)
+        self.assertEqual(r['trace'][0]['colors_written'],120)
+        self.assertEqual(r['color_math'],'precomposited')
+
+    def test_precomposited_refuses_additive_pool_identity(self):
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[0,0]=31
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        actors=[dict(pixels=pixels,left=0,top=0)]
+        pool=dict(status='POOLED_INTEGER_RESIDENCY_CANDIDATE',metadata={},fractional_residency=[])
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},background)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            with self.assertRaisesRegex(ValueError,'JOINT_POOL_COLOR_MATH'):
+                probe(None,None,{},color_math='precomposited',pool_residency=pool)
+
     def test_equal_opaque_outputs_coalesce_across_distinct_underlays(self):
         background=np.zeros((224,256,3),dtype=np.uint8)
         background[0,0]=[32,0,0];background[0,1]=[32,8,0]
