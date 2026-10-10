@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_MOTU_PLAYER_SPAWN_HISTORY_NATIVE_V1",
+  "status": "PASS",
+  "cases": 38,
+  "report_path": "out/byor-motu-player-spawn-history-native/report.json",
+  "report_sha256": "964a7427a510e8224572236c63770e91c4368b8a3043171c9cb522663f0b162d",
+  "ROM_sha256": "c1d734adc592e1b795433173cf9bab991237a9111fabafe56e0a5a9df6fcdec3",
+  "history_base": 8364032,
+  "bytes_cleared": 220,
+  "new_foreign_arena_bytes": 0,
+  "peak_two_call_wrapper_master_clocks": 35516,
+  "full_spawnplayer_bound": false,
+  "production_memory_lease": false,
+  "no_color_reduction": true,
+  "motu_gameplay_proven": false,
+  "reused_m4_msu_link": {
+    "from": "out/byor-motu-pointer-baseline-control/bor.msu",
+    "to": "out/byor-motu-player-spawn-history-native/bor.msu",
+    "sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+    "physical_copy_made": false
+  },
+  "protected_tracked_hashes_verified": 17
+}
