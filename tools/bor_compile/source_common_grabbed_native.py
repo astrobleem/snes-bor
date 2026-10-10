@@ -2,7 +2,7 @@
 from source_engine_function_ids import function_id
 
 def emit(work,sy,*,kind='common_grabbed',requirements=None):
- if kind not in ('common_grabbed','common_block'):raise ValueError('COMMON_ACTION_PREFIX_KIND')
+ if kind not in ('common_grabbed','common_block','common_land'):raise ValueError('COMMON_ACTION_PREFIX_KIND')
  if kind=='common_block'and(not requirements or not requirements['closed_zero_policy']):raise ValueError('COMMON_BLOCK_HOLDBLOCK_CAPABILITY_REQUIRED')
  if kind=='common_block'and not all(m['id']==i and m['holdblock']==0 and not m['declarations']for i,m in enumerate(requirements['models'])):raise ValueError('COMMON_BLOCK_CLOSED_MODEL_IDENTITY')
  lines=[];serial=0;size=24
@@ -12,7 +12,7 @@ def emit(work,sy,*,kind='common_grabbed',requirements=None):
   nonlocal serial
   serial+=1;k='CommonGrabbed_Guard'+str(serial);put(' '+dict(beq='bne',bne='beq',bcc='bcs',bcs='bcc')[op]+' '+k+'\n jmp CommonGrabbed_'+n+'\n'+k+':\n.a16\n.i16')
  def require(at,v):put(f' lda.l {at}\n cmp #{v}');branch('bne')
- label('Run');put(f' php\n rep #$39\n phx\n phy\n phd\n tsc\n sec\n sbc #{size}\n tcs\n inc a\n tcd\n stx $14\n sty $16\n jsl {sy["SourceForeignWork_Check"]}');branch('bcs');require(work,0xb6b9 if kind=='common_grabbed'else 0xb6ba)
+ label('Run');put(f' php\n rep #$39\n phx\n phy\n phd\n tsc\n sec\n sbc #{size}\n tcs\n inc a\n tcd\n stx $14\n sty $16\n jsl {sy["SourceForeignWork_Check"]}');branch('bcs');require(work,dict(common_grabbed=0xb6b9,common_block=0xb6ba,common_land=0xb6bd)[kind])
  for off,dst in ((8,20),(10,22)):put(f' lda.l {work}+{off}\n cmp ${dst:02X}');branch('bne')
  put(f' lda.l {work}+2\n sta $08');branch('beq','Validate');put(' cmp #3');branch('beq','Validate');put(' cmp #2');branch('bne')
  label('Validate')
@@ -26,14 +26,16 @@ def emit(work,sy,*,kind='common_grabbed',requirements=None):
   require(sy['SourceFreeze4086_Ready'],0xb5df)
   put(' lda $00\n asl a\n asl a\n asl a\n sta $12\n asl a\n asl a\n clc\n adc $12\n tax');require('$42E024,x',0xb5df)
   put(' lda #0\n sta.l $42E008,x\n sta.l $42E00A,x')
- else:
+ elif kind=='common_block':
   put(' ldx $04\n lda.l $416800,x');put(f' cmp #{len(requirements["models"])}');branch('bcs');put(' ldx $02\n cmp.l $439048,x');branch('bne')
   put(' lda $00\n asl a\n asl a\n sta $12\n asl a\n asl a\n clc\n adc $12\n tax\n lda.l $41F510,x');branch('bne','Complete')
   put(' lda $00\n asl a\n asl a\n asl a\n asl a\n asl a\n tax\n lda #0\n sta.l $43EB14,x\n sta.l $43EB16,x')
+ else:
+  put(' ldx $04\n lda #0\n sta.l $416824,x\n sta.l $416826,x\n sta.l $416828,x\n sta.l $41682A,x\n lda $00\n asl a\n asl a\n sta $12\n asl a\n asl a\n clc\n adc $12\n tax\n lda.l $41F510,x');branch('bne','Complete')
  put(f' lda #0\n sta.l {work}+12\n sta.l {work}+14\n ldx $02\n sta.l $43900C,x\n sta.l $43900E,x\n lda #1\n sta.l {work}+6\n lda #3\n sta.l {work}+2')
  label('Retained');put(' lda #1\n jmp CommonGrabbed_Return')
  label('Complete');put(f' lda #2\n sta.l {work}+2')
  label('Good');put(' lda #0')
  label('Return');put(f' tay\n tsc\n clc\n adc #{size}\n tcs\n tya\n pld\n ply\n plx\n plp\n clc\n rtl')
  label('Bad');put(f' lda #4\n sta.l {work}+2\n tsc\n clc\n adc #{size}\n tcs\n pld\n ply\n plx\n plp\n sec\n rtl')
- return ('\n'.join(lines)+'\n').replace('CommonGrabbed_','CommonBlock_'if kind=='common_block'else'CommonGrabbed_')
+ return ('\n'.join(lines)+'\n').replace('CommonGrabbed_',dict(common_block='CommonBlock_',common_grabbed='CommonGrabbed_',common_land='CommonLand_')[kind])

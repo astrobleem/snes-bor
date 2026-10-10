@@ -22,8 +22,17 @@ def main():
  p.add_argument('--block-absent',action='store_true')
  p.add_argument('--grabbed',action='store_true')
  p.add_argument('--block-action-authority',type=Path)
+ p.add_argument('--doland',action='store_true')
+ p.add_argument('--land-action',action='store_true')
+ p.add_argument('--fall-land-requirements',type=Path)
  a=p.parse_args();a.output=a.output.resolve();source=Source(a.source);sy=symbols(Path('src/main.sym'));ids=configure([]);pain=ids['arrays']['pains'][0];work=next(r['address']for r in layout(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES'])['regions']if r['name']=='common_idle_controls');directory=animations(source)['animations'];frames=effects(source)['animations'];original=parent.run_fixture
+ fall_requirements=None
+ if a.fall_land_requirements:
+  fall_requirements=json.loads(a.fall_land_requirements.read_text());a.doland=True
+ speedup=next(r['address']for r in layout(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES'])['regions']if r['name']=='global_fall_speedup')
  if a.grabbed and a.block_absent:raise ValueError('COMMON_ACTION_FIXTURE_MODE')
+ if a.doland and(a.grabbed or a.block_absent or a.block_action_authority):raise ValueError('COMMON_ACTION_FIXTURE_MODE')
+ if a.land_action and(a.grabbed or a.block_absent or a.block_action_authority or a.doland):raise ValueError('COMMON_ACTION_FIXTURE_MODE')
  block_requirements=None
  if a.block_action_authority:
   if a.grabbed or a.block_absent:raise ValueError('COMMON_ACTION_FIXTURE_MODE')
@@ -35,6 +44,8 @@ def main():
    c['stopped_pain_handle']=struct.unpack_from('<H',bytes(c['wanted_animation']),pain*2)[0];assert c['stopped_pain_handle']
    c['new_idle_handle']=struct.unpack_from('<H',bytes(c['wanted_animation']),0)[0];f=frames[c['new_idle_handle']-1]['frames'][0];assert f['sound']is None;c['new_idle_nextanim']=48+f['delay_ticks']
    if a.block_absent:assert struct.unpack_from('<H',bytes(c['wanted_animation']),ids['authority']['enum']['ANI_BLOCK']*2)[0]==0
+   if a.doland:
+    c['land_handle']=struct.unpack_from('<H',bytes(c['wanted_animation']),ids['authority']['enum']['ANI_LAND']*2)[0];assert c['land_handle'];f=frames[c['land_handle']-1]['frames'][0];assert f['sound']is None;c['land_nextanim']=48+f['delay_ticks']
   needle=' ply\n plx\n plp\n clc\n rtl\nModelPipeline_EntryBad:';assert kw['append'].count(needle)==1
   # The parent has completed its real frame child; acknowledge that actual
   # initializer before supplying this independently stopped-pain snapshot.
@@ -152,9 +163,49 @@ CommonPainFrameProofComplete{i}:
 '''
   code+='CommonPainFrameProofDone:\n.a16\n.i16\n nop\n'
   if a.block_absent:code=code.replace(' sta.l $43EB14,x\n sta.l $43EB16,x',' sta.l $43EB16,x\n lda #1\n sta.l $43EB14,x')
-  if a.grabbed or block_requirements:
+  if a.doland:
+   from source_doland_native import emit as doland_prefix
+   code=code.replace(f'lda #{function_id("common_pain")}\n',f'lda #{function_id("common_fall")}\n').replace('lda #$B6B8','lda #$B6BC').replace('jsl CommonPainFrame_Run','jsl CommonDolandFrame_Run')
+   boundary=f''' lda.l {work}+4
+ asl a
+ asl a
+ asl a
+ sta.l {work}+6
+ asl a
+ clc
+ adc.l {work}+6
+ tay
+ lda.l {work}+4
+ asl a
+ asl a
+ asl a
+ asl a
+ asl a
+ asl a
+ tax
+ lda.l $416800,x
+ sta.l {work}+6
+ tyx
+ lda.l {work}+6
+ sta.l $7EF116,x
+ lda #$B62F
+ sta.l $7EF114,x
+ lda #2
+ sta.l $7EF100,x
+ lda #0
+ sta.l $7EF102,x
+ sta.l {work}+6
+'''
+   code=code.replace(' ldx #1\n ldy #0\n jsl CommonDolandFrame_Run',boundary+' ldx #1\n ldy #0\n jsl CommonDolandFrame_Run',1)
+   assembly=doland_prefix(work,sy)+child(work,sy,prefix='CommonDoland')
+   if fall_requirements:
+    from source_common_fall_native import emit as fall_prefix
+    from source_common_fall_frame_native import emit as fall_frame
+    code=code.replace('lda #$B6BC','lda #$B6BB').replace('jsl CommonDolandFrame_Run','jsl CommonFallFrame_Run').replace(' lda #3\n sta.l $41682E,x',' lda #0\n sta.l $41682E,x')
+    assembly+=fall_prefix(work,speedup,fall_requirements,sy)+fall_frame(work)
+  elif a.grabbed or block_requirements or a.land_action:
    from source_common_grabbed_native import emit as grabbed_prefix
-   kind='common_grabbed'if a.grabbed else'common_block';name='CommonGrabbed'if a.grabbed else'CommonBlock';magic_tag='$B6B9'if a.grabbed else'$B6BA'
+   kind='common_land'if a.land_action else'common_grabbed'if a.grabbed else'common_block';name='CommonLand'if a.land_action else'CommonGrabbed'if a.grabbed else'CommonBlock';magic_tag='$B6BD'if a.land_action else'$B6B9'if a.grabbed else'$B6BA'
    code=code.replace(f'lda #{function_id("common_pain")}\n',f'lda #{function_id(kind)}\n').replace('lda #$B6B8','lda #'+magic_tag).replace('jsl CommonPainFrame_Run','jsl '+name+'Frame_Run')
    assembly=grabbed_prefix(work,sy,kind=kind,requirements=block_requirements)+child(work,sy,prefix=name)
   else:assembly=prefix(work,sy)+child(work,sy)
@@ -191,6 +242,7 @@ CommonPainFrameKeepWorld:
  phy
  jml {sy['Vm_SourceFrameGate']+5}
 '''
+  if fall_requirements:kw['append']=kw['append'].replace(f" sta.l {sy['VmSourceWorld_Ready']}\nCommonPainFrameKeepWorld:",f" sta.l {sy['VmSourceWorld_Ready']}\n sta.l {sy['SourceScrollerPrefix4086_Ready']}\nCommonPainFrameKeepWorld:")
   old_transform=kw.get('rom_transform')
   def isolate(raw,linked):
    if old_transform:old_transform(raw,linked)
@@ -202,6 +254,12 @@ CommonPainFrameKeepWorld:
   if a.grabbed:
    lua=lua.replace('local ranges={','local ranges={{0x42e000,5120},')
    lua=lua.replace(anchor," set('SourceFreeze4086_Ready',0xb5df);put(0x42e024+c.slot*40,0xb5df);put(0x42e008+c.slot*40,123,4)\n"+anchor)
+  if a.doland:
+   lua=lua.replace('local ranges={','local ranges={{0x437e00,2560},{0x7ef100,3072},{0x42d800,2048},')
+   lua=lua.replace(anchor," set('SourcePhysicsState4086_Ready',0xb61c);set('SourceDamageEffectsState4086_Ready',0xb62f);put(0x437e00+c.slot*20,7,4);put(0x437e10+c.slot*20,0xb5fb);put(0x437e12+c.slot*20,0);put(0x42d80c+c.slot*16,-2,4)\n"+anchor)
+  if fall_requirements:
+   lua=lua.replace('local ranges={',f'local ranges={{{{{speedup},2}},{{0x42e000,5120}},')
+   lua=lua.replace(anchor,f" set('SourceFreeze4086_Ready',0xb5df);set('SourceScrollerPrefix4086_Ready',0xb5d7);set('SourceScrollerPrefix4086_Completed',0,4);set('SourceLandingVelocity4086_Ready',0xb626);set('SourceLandingVelocity4086_Autoland',1,4);put({speedup},0);put(0x42e024+c.slot*40,0xb5df);put(0x42e008+c.slot*40,123,4);put(0x42d800+c.slot*16,0,4);put(0x7ef104+c.slot*24,0,4);put(0x7ef108+c.slot*24,0,4)\n"+anchor)
   # The final actor returns to its authored idle via actual set_idle. The
   # synthetic stopped-pain snapshot is only the input boundary to this proof.
   lua=lua.replace('word(sy.SourceUpdateFrame4086_Handle)~=c.source_event.frame_handle','word(sy.SourceUpdateFrame4086_Handle)~=c.new_idle_handle').replace('word(sy.SourceUpdateFrame4086_Request)~=c.source_event.frame','word(sy.SourceUpdateFrame4086_Request)~=0')
@@ -227,6 +285,16 @@ CommonPainFrameKeepWorld:
    lua=lua.replace('value(view+8,2,4);','value(0x42e008+c.slot*40,0,4);value(view+8,2,4);')
   if block_requirements:
    kw['probes']['ACTIONBAD']='CommonBlockFrame_Bad';kw['probes']['ACTIONPREFIXBAD']='CommonBlock_Bad'
+  if a.doland:
+   kw['probes']['ACTIONBAD']='CommonDolandFrame_Bad';kw['probes']['ACTIONPREFIXBAD']='CommonDoland_Bad'
+   lua=lua.replace('value(view+8,2,4);',f'value(side+4,c.land_handle,2);value(side+8,c.land_nextanim,4);value(view+20,{ids["authority"]["enum"]["ANI_LAND"]},4);value(view+28,0,4);value(0x437e00+c.slot*20,0,4);value(0x42d80c+c.slot*16,0,4);value(0x7ef100+c.slot*24,0,4);value(0x7ef114+c.slot*24,0xb62f,2);value(0x7ef116+c.slot*24,c.new,2);value(0x43e000+(c.land_handle-1)*4,0,4);value(view+8,2,4);')
+   lua=lua.replace('value(side+36,c.new_cached_type~=0 and 0 or 65536,4);value(side+40,c.new_cached_type~=0 and 0 or 2*65536,4);','value(side+36,0,4);value(side+40,0,4);').replace('value(0x43900c+c.slot*80,0,4)',f'value(0x43900c+c.slot*80,{function_id("common_land")},4)').replace('value(0x43eb04+c.slot*32,0,4)','value(0x43eb04+c.slot*32,1,4)')
+   lua=lua.replace(f'word({work}+6)~=1 or word({work}+20)~=c.new_idle_handle',f'word({work}+6)~=2 or word({work}+20)~=c.land_handle').replace('word(sy.SourceUpdateFrame4086_Handle)~=c.new_idle_handle','word(sy.SourceUpdateFrame4086_Handle)~=c.land_handle')
+  if a.land_action:
+   kw['probes']['ACTIONBAD']='CommonLandFrame_Bad';kw['probes']['ACTIONPREFIXBAD']='CommonLand_Bad'
+   lua=lua.replace('value(side+36,c.new_cached_type~=0 and 0 or 65536,4);value(side+40,c.new_cached_type~=0 and 0 or 2*65536,4);','value(side+36,0,4);value(side+40,0,4);')
+  if fall_requirements:
+   lua=lua.replace('value(side+44,3*65536,4)','value(side+44,0,4)').replace(f'word({work}+6)~=2 or word({work}+20)~=c.land_handle',f'word({work})~=0xb6bb or word({work}+6)~=0 or word({work}+20)~=c.land_handle')
   kw['probes']['ACTIONGATE']='LeafFixture_Gate'
   lua+='''
 local actionStarted=false;local idleBegins=0;local frameBegins=0
@@ -241,7 +309,10 @@ emu.addMemoryCallback(function()emu.log("COMMONPAINFRAME|"..word(INDEX).."|"..id
 ''';kw['probes']['ACTIONENTRY']='CommonPainFrame_Run'
   if a.grabbed:kw['probes']['ACTIONENTRY']='CommonGrabbedFrame_Run'
   if block_requirements:kw['probes']['ACTIONENTRY']='CommonBlockFrame_Run'
-  raw,log=original(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw);actual=[l.split('COMMONPAINFRAME|')[1]for l in log.splitlines()if'COMMONPAINFRAME|'in l];counts='0|0'if a.block_absent else'1|1';reporter.check('actual idle frame or absent block child completes common_pain request under retry',actual==[f'{i}|{counts}|0'for i in range(len(rows))]);return raw,log
+  if a.doland:kw['probes']['ACTIONENTRY']='CommonDolandFrame_Run'
+  if a.land_action:kw['probes']['ACTIONENTRY']='CommonLandFrame_Run'
+  raw,log=original(rom,folder,rows,apply,ready,magic,tables,lua,reporter,**kw);actual=[l.split('COMMONPAINFRAME|')[1]for l in log.splitlines()if'COMMONPAINFRAME|'in l];counts='0|0'if a.block_absent else'0|1'if a.doland else'1|1';reporter.check('actual selected source action animation child completes once under retry',actual==[f'{i}|{counts}|0'for i in range(len(rows))]);
+  return raw,log
  argv=['m4_model_current_pipeline_native.py','--source',a.source,'--rom',str(a.rom),'--output',str(a.output),'--nested-idle']
  with patch.object(parent,'run_fixture',fixture),patch.object(sys,'argv',argv):
   try:current.main()
@@ -252,4 +323,10 @@ emu.addMemoryCallback(function()emu.log("COMMONPAINFRAME|"..word(INDEX).."|"..id
   r.update(schema='BYOR_COMMON_GRABBED_FRAME_CHILD_NATIVE_V1',source_common_pain_idle_child_bound=False,source_common_grabbed_idle_child_bound=True,source_unlinked_snapshot_installed_by_fixture=True,full_common_grabbed_admitted=False);path.write_text(json.dumps(r,indent=2)+'\n')
  if block_requirements:
   r.update(schema='BYOR_COMMON_BLOCK_FRAME_CHILD_NATIVE_V1',source_common_pain_idle_child_bound=False,source_common_block_idle_child_bound=True,closed_zero_holdblock_model_policy=True,full_common_block_admitted=False);path.write_text(json.dumps(r,indent=2)+'\n')
+ if a.doland:
+  r.update(schema='BYOR_DOLAND_LAND_FRAME_CHILD_NATIVE_V1',source_common_pain_idle_child_bound=False,source_set_idle_bound=False,source_doland_land_child_bound=True,land_presence_exercised=True,land_absence_exercised=False,full_common_fall_admitted=False,motu_gameplay_proven=False);path.write_text(json.dumps(r,indent=2)+'\n')
+ if a.land_action:
+  r.update(schema='BYOR_COMMON_LAND_IDLE_CHILD_NATIVE_V1',source_common_pain_idle_child_bound=False,source_common_land_idle_child_bound=True,full_common_land_admitted=False);path.write_text(json.dumps(r,indent=2)+'\n')
+ if fall_requirements:
+  r.update(schema='BYOR_COMMON_FALL_DOLAND_LAND_CHILD_NATIVE_V1',actual_common_fall_doland_tail_call_bound=True,actual_yield_resume_exercised=False,full_common_fall_admitted=False,production_unload_speedup_reset_bound=False,production_slowmotion_consumer_bound=False);path.write_text(json.dumps(r,indent=2)+'\n')
 if __name__=='__main__':main()

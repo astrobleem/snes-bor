@@ -2,8 +2,8 @@
 from source_animation_ids import configure
 
 def emit(work,sy,*,prefix="CommonPain"):
- if prefix not in ('CommonPain','CommonGrabbed','CommonBlock'):raise ValueError('COMMON_ACTION_FRAME_PREFIX')
- lines=[];serial=0;block=configure([])['authority']['enum']['ANI_BLOCK']
+ if prefix not in ('CommonPain','CommonGrabbed','CommonBlock','CommonDoland','CommonLand'):raise ValueError('COMMON_ACTION_FRAME_PREFIX')
+ lines=[];serial=0;block=configure([])['authority']['enum']['ANI_LAND'if prefix=='CommonDoland'else'ANI_BLOCK'];reset=0 if prefix=='CommonDoland'else 1
  def put(s):lines.extend(s.strip().splitlines())
  def label(n):put('CommonPainFrame_'+n+':\n.a16\n.i16')
  def branch(op,n='Bad'):
@@ -17,7 +17,7 @@ def emit(work,sy,*,prefix="CommonPain"):
  put(f' lda.l {work}+6\n cmp #1');branch('beq','Idle')
  # ent_set_anim ignores an invalid requested block animation. It has no
  # fallback. Resolve the actual cache, then skip frame issuance on absence.
- put(f' lda.l {work}+4\n sta.l {sy["SourceAnimationInit4086_Slot"]}\n lda.l {work}+14\n sta.l {sy["SourceAnimationInit4086_Number"]}\n lda #1\n sta.l {sy["SourceAnimationInit4086_Reset"]}\n jsl {sy["SourceAnimationInit4086_Resolve"]}');branch('bcs')
+ put(f' lda.l {work}+4\n sta.l {sy["SourceAnimationInit4086_Slot"]}\n lda.l {work}+14\n sta.l {sy["SourceAnimationInit4086_Number"]}\n lda #{reset}\n sta.l {sy["SourceAnimationInit4086_Reset"]}\n jsl {sy["SourceAnimationInit4086_Resolve"]}');branch('bcs')
  put(f' lda.l {sy["SourceAnimationInit4086_Count"]}');branch('beq','Complete');put(f' jsl {sy["SourceAnimationInit4086_Begin"]}');branch('bcs');put(' jmp CommonPainFrame_Capture')
  label('Idle');put(f' lda.l {work}+4\n sta.l {sy["SourceIdle4086_Slot"]}\n jsl {sy["SourceSetIdle4086_Begin"]}');branch('bcs')
  label('Capture')

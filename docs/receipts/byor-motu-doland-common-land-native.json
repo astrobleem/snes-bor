@@ -1,0 +1,50 @@
+{
+  "schema": "BYOR_DOLAND_COMMON_LAND_TAIL_CALL_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "report": "out/byor-motu-doland-common-land-authority/report.json",
+      "sha256": "3518c3c436ed9e45b68334e96d5beeb3c05a7c6f396bfdfe63982a06a8387ea6",
+      "cases": 60,
+      "rom_sha256": null
+    },
+    {
+      "report": "out/byor-motu-doland-land-frame-native/report.json",
+      "sha256": "56d64558b43998c2641b35b416f83d31ace3f4127693c255834f0403bf024c08",
+      "cases": 12,
+      "rom_sha256": "e848a5e2675479ead20110ac5feafcfed0063f25820440c8b16aa37bf83e882c"
+    },
+    {
+      "report": "out/byor-motu-common-land-prefix-native/report.json",
+      "sha256": "bbc0d32734ce86fc0d8b80ff1dba91466351a48a3d4fe227d726f4a8451198e2",
+      "cases": 279,
+      "rom_sha256": "bd8c028dfd6e1ab3e0c01503870f45d4bb33669884bcb8cd7fbd344b4a0629a8"
+    },
+    {
+      "report": "out/byor-motu-common-land-idle-frame-native/report.json",
+      "sha256": "d4dc958da9f8ecad07830041a21a3ab15412196339d8082672f603c4e95b713a",
+      "cases": 12,
+      "rom_sha256": "30d187a303d137671f8244a38138f46184a7592cde1ec20aa605845d59d64555"
+    },
+    {
+      "report": "out/byor-motu-common-fall-doland-land-guards-native/report.json",
+      "sha256": "877149080ebf6479587bff4fe58c5284ffcaf789bbf7b6e65da0a3cd85a15cc9",
+      "cases": 12,
+      "rom_sha256": "f0263aed379beb998eb81cc06c91775a45c58186cb63efc2a29079e6546c1126"
+    }
+  ],
+  "actual_animation_frame_owner": true,
+  "land_presence_proven": true,
+  "land_absence_proven": false,
+  "actual_yield_resume_proven": false,
+  "private_budget_one_experiment": "out/byor-motu-common-fall-doland-yield-native/report.json: FAIL; no VM yields during LAND child, private bank0 operand modification correctly fails identity audit",
+  "prior_action_emission_unchanged": true,
+  "new_foreign_arena_bytes": 0,
+  "bank0_unchanged": true,
+  "protected_tracked_files": 17,
+  "full_common_fall_admitted": false,
+  "full_common_land_admitted": false,
+  "full_damage_callback_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
