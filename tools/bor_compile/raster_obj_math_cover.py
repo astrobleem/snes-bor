@@ -1,0 +1,62 @@
+"""Complete exact operands for SNES addition/subtraction, with optional halving.
+
+Allowing different modes per pixel is a necessary relaxation only: the real
+color-math control is shared. No returned cover is a hardware schedule.
+"""
+import hashlib
+import numpy as np
+
+MODES=('add','half-add','subtract','half-subtract')
+
+
+def apply_math(operand,background,mode):
+    if mode not in MODES:raise ValueError('OBJ_MATH_COVER_MODE')
+    result=0
+    for shift in (0,5,10):
+        a=operand>>shift&31;b=background>>shift&31
+        value=max(0,a-b)if 'subtract' in mode else a+b
+        if mode.startswith('half-'):value>>=1
+        result|=min(31,value)<<shift
+    return result
+
+
+def complete_math_cover(requirements,modes=MODES,tag_modes=False):
+    if not modes or any(m not in MODES for m in modes):raise ValueError('OBJ_MATH_COVER_MODE')
+    pairs=sorted(set((int(out),int(bg))for out,bg in requirements))
+    if any(not 0<=c<32768 for key in pairs for c in key):raise ValueError('OBJ_MATH_COVER_RGB555_DOMAIN')
+    keys=[(mode,out,bg)for mode in modes for out,bg in pairs]if tag_modes else pairs
+    outputs=np.array([k[-2]for k in keys],dtype=np.int32)
+    backgrounds=np.array([k[-1]for k in keys],dtype=np.int32)
+    signatures={};mapping=[]
+    for start in range(0,32768,256):
+        colors=np.arange(start,start+256,dtype=np.int32)
+        covers=np.zeros((256,len(keys)),dtype=bool)
+        for mode in modes:
+            match=np.ones_like(covers)
+            for shift in (0,5,10):
+                a=colors[:,None]>>shift&31;b=backgrounds[None,:]>>shift&31
+                value=np.maximum(0,a-b)if 'subtract' in mode else a+b
+                if mode.startswith('half-'):value=value>>1
+                match&=np.minimum(31,value)==(outputs[None,:]>>shift&31)
+            if tag_modes:match&=np.array([k[0]==mode for k in keys])[None,:]
+            covers|=match
+        for color,row in zip(colors,np.packbits(covers,axis=1,bitorder='little')):
+            signature=int.from_bytes(row.tobytes(),'little')
+            if signature:
+                signatures.setdefault(signature,int(color));mapping.append((int(color),signature))
+    maximal=[];representatives={}
+    for signature,color in sorted(signatures.items(),key=lambda pair:(-pair[0].bit_count(),pair[1])):
+        dominant=next((c for mask,c in maximal if signature&mask==signature),None)
+        if dominant is None:maximal.append((signature,color));dominant=color
+        representatives[signature]=dominant
+    masks={c:mask for mask,c in maximal};digest=hashlib.sha256()
+    for color,signature in mapping:
+        representative=representatives[signature]
+        if signature&masks[representative]!=signature:raise AssertionError('OBJ_MATH_COVER_DOMINANCE')
+        digest.update(color.to_bytes(2,'little')+representative.to_bytes(2,'little'))
+    options={key:sorted(c for mask,c in maximal if mask>>i&1)for i,key in enumerate(keys)}
+    return options,dict(modes=list(modes),rgb555_operands_examined=32768,
+                        distinct_requirements=len(keys),valid_operands=len(mapping),
+                        maximal_cover_operands=len(maximal),dominance_mapping_sha256=digest.hexdigest(),
+                        modes_relaxed_per_pixel=len(modes)>1 and not tag_modes,mode_tagged_coverage=tag_modes,global_mode_schedule_proven=False,
+                        all_valid_operand_coverages_retained=True,no_color_reduction=True)

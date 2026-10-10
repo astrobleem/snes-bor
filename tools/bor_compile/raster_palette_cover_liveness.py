@@ -8,9 +8,10 @@ from scipy.optimize import linprog, milp, Bounds, LinearConstraint
 from scipy.sparse import coo_matrix
 
 
-def lower_bound(rows, capacities=(60,60), time_limit=45, include_solution=False, integer_budget=None):
+def lower_bound(rows, capacities=(60,60), time_limit=45, include_solution=False, integer_budget=None,solver_method='highs-ipm'):
     if len(capacities)!=2 or any(not isinstance(c,int)or c<0 for c in capacities)or not sum(capacities):raise ValueError('COVER_POOL_CAPACITY')
     if integer_budget is not None and (not isinstance(integer_budget,int)or integer_budget<0):raise ValueError('COVER_INTEGER_WRITE_BUDGET')
+    if solver_method not in ('highs-ipm','highs-ds'):raise ValueError('COVER_LP_SOLVER_METHOD')
     # Each pixel may admit several exact saturated additive operands.
     rows=[{(normal,() if additive is None else tuple(sorted(set(additive))) if isinstance(additive,(tuple,list)) else (additive,)) for normal,additive in row} for row in rows]
     active=[y for y,row in enumerate(rows) if row]
@@ -41,8 +42,9 @@ def lower_bound(rows, capacities=(60,60), time_limit=45, include_solution=False,
     for (kind,y),variables in pool_lines.items():constraint([(v,1)for v in variables],capacities[kind])
     for variables in write_lines.values():constraint([(v,1)for v in variables]+[(peak,-1)],0)
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(limits),peak+1)).tocsc();objective=np.zeros(peak+1);objective[peak]=1
-    result=linprog(objective,A_ub=matrix,b_ub=limits,bounds=[(0,1)]*peak+[(0,None)],method='highs-ipm',options={'time_limit':time_limit})
+    result=linprog(objective,A_ub=matrix,b_ub=limits,bounds=[(0,1)]*peak+[(0,None)],method=solver_method,options={'time_limit':time_limit})
     report=dict(status='RELAXED_COVER_INFEASIBLE'if result.status==2 else'RELAXED_COVER_SOLVER_LIMIT',solver_status=int(result.status),message=result.message,variables=peak+1,constraints=len(limits),schedule_proven=False,geometry_and_bank_assignment_relaxed=True,unbounded_preloading_allowed=True,initial_residency_optimal=True)
+    report['solver_method']=solver_method
     if result.success:
         violation=max(float(np.max(np.maximum(matrix@result.x-np.array(limits),0))),float(np.max(np.maximum(-result.x,0))),float(np.max(np.maximum(result.x[:peak]-1,0))))
         if violation>1e-6:raise AssertionError('COVER_LIVENESS_LP_PRIMAL_RESIDUAL')

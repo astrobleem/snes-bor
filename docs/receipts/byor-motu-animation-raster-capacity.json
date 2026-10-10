@@ -1,0 +1,1478 @@
+{
+  "schema": "BYOR_ALL_FRAME_EXACT_CONTEXT_RASTER_CAPACITY_RECEIPT_V1",
+  "contexts": [
+    {
+      "artifact": "out/byor-motu-isolated-animation-mixed-cover-bounds.json",
+      "sha256": "f4f1c4cf7df3e9285566fcdc17e04af69f729640273f51be881a5a686c82c0d8",
+      "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+      "scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              98,
+              220,
+              93
+            ],
+            "order": 2
+          }
+        ]
+      },
+      "source_frames": 40,
+      "checked_frames": 40,
+      "worst_validated_frame": 11,
+      "peak_validated_lower_bound": 14.42857142857142,
+      "maximum_primal_violation": 9.947598300641403e-14,
+      "maximum_dual_residual": 8.881784197001252e-16,
+      "per_frame": [
+        {
+          "frame": 0,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+          "source_rgb555_sha256": "8cdaab5de7e9cbb1897468bff6174120f9183052911454c61bf9f70437b0652a"
+        },
+        {
+          "frame": 1,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "fafd54dd0b36783a08a5c8f082fb4788b2d0b8bd65130df7c73e05890e978c37",
+          "source_rgb555_sha256": "c9bf475e400fe6fdac3a79678da0b876aec24b6b2357e9d8131ec6969562310f"
+        },
+        {
+          "frame": 2,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "822757c2f84bd65a0d0526a93c3ef229241ad563eff3a98ebf35012657cc1258",
+          "source_rgb555_sha256": "99970c271a9009ae649a78c29dad02b829c7883694d14730cb32417400800dc6"
+        },
+        {
+          "frame": 3,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.4375,
+          "source_image_sha256": "d34804ac83de7d51bc0769a2e982dd2fa20b35195da3496392380b52dbd7631b",
+          "source_rgb555_sha256": "c10827102c046415e1cf302d60703557e5f44fb61a29be253314d1adffb313b6"
+        },
+        {
+          "frame": 4,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 2.2857142857142816,
+          "source_image_sha256": "6bb13a182826c9acf98f5f52ddd8ff68277443ab78424815f1417c9b7762c4d7",
+          "source_rgb555_sha256": "588da8003a4514d512cf841149fcaa9308c8b9941ea96c4766ad1fb8b3eb96ac"
+        },
+        {
+          "frame": 5,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 3.999999999999997,
+          "source_image_sha256": "2570fd356db246aacd0a778d5360efe18cb7eb6c7362a26f96b5529321250d84",
+          "source_rgb555_sha256": "d792368dcda8c21d2ec403a3b5a43440a63563fb7c9f586b3661d1fc4fdfb8fa"
+        },
+        {
+          "frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 5.384615384615381,
+          "source_image_sha256": "24664c840e7d9fd1366b345f8627aff891484de6a8f52d20eef9b47de965ca0f",
+          "source_rgb555_sha256": "31f293d30e32a7eb50d1ea07dc563413319e81df0771b2d1750112337e346043"
+        },
+        {
+          "frame": 7,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 7.461538461538455,
+          "source_image_sha256": "47dc04a8b2b701dc19be43635cb152bfc86f63ed4a63646789c830550ae29b49",
+          "source_rgb555_sha256": "ff0607f0c2c8966a1a8b8ac0c88de0e53de7b2f644f43017ea506b71b2ab5768"
+        },
+        {
+          "frame": 8,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 8.777777777777784,
+          "source_image_sha256": "0d271928eac467d38f3fec098d2a316a8223668536f7fc9c91ef7be47eb2d995",
+          "source_rgb555_sha256": "c777865b6637e191ba4be8d48e87d1d64d0ceb8b8b32e70b74d7b54a9abaa564"
+        },
+        {
+          "frame": 9,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 9.857142857142867,
+          "source_image_sha256": "36c74c714d0c55994cc574a4e2c27f3f3617abcf7462d2b9e8e98a7aba701502",
+          "source_rgb555_sha256": "e2390bdb96abb28b6e6c3a62004114ccc2248e2aaf9338228b0c2ac0f8834284"
+        },
+        {
+          "frame": 10,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 12.6,
+          "source_image_sha256": "a1c0c94d987a99293959f270e977d0542d13fbcedce9694dc46826db4a0482f2",
+          "source_rgb555_sha256": "470951763aae5829e5aff8dc11eda974c90bb1982b6bdf097343299c2d76473c"
+        },
+        {
+          "frame": 11,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.42857142857142,
+          "source_image_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+          "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934"
+        },
+        {
+          "frame": 12,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 12.111111111111121,
+          "source_image_sha256": "280a8f951a276926250cdc94a263129213916e561a268c7e1e7275bf88b34fa5",
+          "source_rgb555_sha256": "a21fdaef3a72cf848083be7ede3300deeeabf48b4f69fc02237839503c698f88"
+        },
+        {
+          "frame": 13,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 12.85714285714285,
+          "source_image_sha256": "72ef5a8d418f2e160a9af6985deee4b4605b95a76a21ea0c6694048f2832925f",
+          "source_rgb555_sha256": "787bcf85168838a1289c6a243656c2a56b1046ff2cf6f8380a8aa1726202e1d2"
+        },
+        {
+          "frame": 14,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 12.666666666666664,
+          "source_image_sha256": "d8e1bd148cea795f029c010809640de22aee004635a86834a5608bfe3a74ed8d",
+          "source_rgb555_sha256": "360617ef2601fdf6ac5daa66214608de2c179f5fe18ff89930829718e3451a00"
+        },
+        {
+          "frame": 15,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 12.909090909090907,
+          "source_image_sha256": "625013aa68064ce978a7b60cb5a8a6d17cce09248e4b04a9e7f32d0728fdf334",
+          "source_rgb555_sha256": "c569a9386dfe5839ca7777e90302de818326e33569484db11d837f8605e3ec1b"
+        },
+        {
+          "frame": 16,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 12.071428571428568,
+          "source_image_sha256": "ffb1c9eb42edb86eaf0092082917d4836e7089f982d2bdf2ac0dc356928fc82b",
+          "source_rgb555_sha256": "58e08bb6ba9265a0cffe1eeb85ec1ad1f148666db96fea889d76a9fb01c7ef03"
+        },
+        {
+          "frame": 17,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 10.777777777777787,
+          "source_image_sha256": "9e64c0228740a584d76ebe626747c01ce43dc64a1f6d64b95a6440d469bf7546",
+          "source_rgb555_sha256": "834a5ab09c6a395ab84b9d33c2661357a1c66d95d0b5abc38e3fa3c94234825f"
+        },
+        {
+          "frame": 18,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 11.636363636363622,
+          "source_image_sha256": "ce732302993b16d518f1226f585045bf88b2f3728b31fc4b10a3d9b771b9f959",
+          "source_rgb555_sha256": "0f11a34ec6ca56d644794884abd4cf9def905e8006dfbdbaf8dc3925ac8badc1"
+        },
+        {
+          "frame": 19,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 12.999999999999991,
+          "source_image_sha256": "fc5e0fe22187cda7a79bb744995e964a12234bb3ecc95454852ac6a4cd809080",
+          "source_rgb555_sha256": "db64a6b2fb4ee75a66a51194c494797a7eaf3526c84582c3f4003a8438b5b54a"
+        },
+        {
+          "frame": 20,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 11.285714285714276,
+          "source_image_sha256": "4f826b64c63d5311121f3ec80437610da9ea4166c50898f17711b151cbd4f572",
+          "source_rgb555_sha256": "ddd5f7df964c3633197e3836d30339b6fbb2dd6f137ef7c403d954caa5584804"
+        },
+        {
+          "frame": 21,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 10.75,
+          "source_image_sha256": "3907f84a8d6410e382a13ffad093e747e5138ffb3eb2b144b19e811600d42f53",
+          "source_rgb555_sha256": "636c2398b6cf80b698a896621a8facb04262b91b2724f049b4f08a0672f8a19f"
+        },
+        {
+          "frame": 22,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 9.22222222222223,
+          "source_image_sha256": "0acb3c98e5eb9ac90da0f8eeb7937d8c9a56b1d4b34cb0f35b74b0c1d83174a0",
+          "source_rgb555_sha256": "19fa944c2f464b61e17631db49dc28bd9bfdca6d488178ec303a4649cfb18279"
+        },
+        {
+          "frame": 23,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 6.333333333333334,
+          "source_image_sha256": "87e9125145e2aaa57a5a54ef5ca0855a78a63378515cd4321ee87632b3a8cee8",
+          "source_rgb555_sha256": "cd9cffc6a4c94343ef79ab2e308790d667335f328cea76384d24ebf76bdf9d45"
+        },
+        {
+          "frame": 24,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 4.727272727272725,
+          "source_image_sha256": "97fc375065143cabb1b04da05a029a33dc0dfc2d8269927f22ba48c9a8ce5846",
+          "source_rgb555_sha256": "f5364b38ac21401a09058e42101488f515cb53043c08958d07a728e88b3c06a8"
+        },
+        {
+          "frame": 25,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 3.4444444444444513,
+          "source_image_sha256": "5ef36e0607d38305499ece40b66db6bd9f7d57d4d4b1a6bc31bbef94be7fe56d",
+          "source_rgb555_sha256": "26ecde37773e7b7bcd31500ace892c69f2002c2e490898c8c4eb7ba138076d38"
+        },
+        {
+          "frame": 26,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 1.75,
+          "source_image_sha256": "134416d19ecd008f5ab368fc48c68d05db761de20442680e628f285f198265f7",
+          "source_rgb555_sha256": "1f0c162381b47ee50df836a34e21ffae199e63110d7fcccc711c75c3691fe085"
+        },
+        {
+          "frame": 27,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.4166666666666661,
+          "source_image_sha256": "bccdc48cf09223f4d2d4a411b4dd504ef30c7451044a81f3a3d37f74edae1c40",
+          "source_rgb555_sha256": "282095d255113bc3a106ded5ae5a64ef7b4e1c93e1c5f8df6f781fb7c0d8efcf"
+        },
+        {
+          "frame": 28,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "8c955c1e7a0ff1cf29a4ffe182a5cfe0979b453dac4c368dc06aa806e333769f",
+          "source_rgb555_sha256": "62c965a33a89d185e70251f3c7283b93ebdd06a848554f95fe547f7d5f461b82"
+        },
+        {
+          "frame": 29,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "061ccaa2273335115138763461681b20b067c12844d3a85152c16d20dda49ecc",
+          "source_rgb555_sha256": "afd3f36c66827ea18415cbd8f3209494f3ce4bb466f98fff111463384351c6d9"
+        },
+        {
+          "frame": 30,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "d10535817193e5614dbd05492dd8c4ed2ddf9ac48111ebe6e4be765ab26b19c5",
+          "source_rgb555_sha256": "2f07fb8d7fe0e9503b96fcde60255f101342fa6de3729284eabb839a4b61f390"
+        },
+        {
+          "frame": 31,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "8237ba5607b1cb493183e8d8fd411fd2b2b650402457c3df7bbddf3a8f13b55d",
+          "source_rgb555_sha256": "c1b63494dd78a89775896d05e40b86311a62d4d184214efdd70b77931ab3300a"
+        },
+        {
+          "frame": 32,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "6d7e9a59a619bf558d0540982ee514405ba5aa19ade3aa33b370ec5a7c20947c",
+          "source_rgb555_sha256": "2cdca0ff156442bfb05fc6deb503f31f9b76a76afdb49974073a2491c25f7c45"
+        },
+        {
+          "frame": 33,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "0dca48297bbba57ab1459910eb1a4a2074f9b644d3964c8d35d554d4abfdc619",
+          "source_rgb555_sha256": "f5d62b53fb83e908a55e9fe4e9ab9236c86b1fa28588f3324bfb16760b4219eb"
+        },
+        {
+          "frame": 34,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "f2fb78209af7c2ea2d089802b81f3d0830dc4b794044f711045dee0c682e06a5",
+          "source_rgb555_sha256": "4a00b2d4907b4d89434572b4d4a2b8af6e6938f9dd8ba2a6056a8c6c99460e8c"
+        },
+        {
+          "frame": 35,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "f1d615068dae048b9428c41bac5dc05f2e5362b8f4a2fbbac9d608a046a80f09",
+          "source_rgb555_sha256": "a8110369c82a6754c9603f71f4b76bc3c2c5472dc863861223f547df96f8bde4"
+        },
+        {
+          "frame": 36,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "bb7d82ec4bb2f5bfdec3edb1f76369c48aae1af649c09fa93b5cb56f1e92e9c5",
+          "source_rgb555_sha256": "bfc4970d87267e40b108ded8f4ee669078cb29b35d5ef9989824f6fac05255bd"
+        },
+        {
+          "frame": 37,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "dcc444ce3a4d7ee2a002f98f99c8f34bf7e26b5d124374c3beab251f3f1eb269",
+          "source_rgb555_sha256": "f8580156719e7c692fbf9a790f123a0e9dbbcf61faf30aaaca18cc33988bf6b4"
+        },
+        {
+          "frame": 38,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "c723c9b3736fed2272595ffbba6a17ad26b3862a7daa5a3facb8cd21dc6f7fae",
+          "source_rgb555_sha256": "babf5e02dad72dca4ec42badf8c38a52cee0b47a0b18468340d1a152a71cd29b"
+        },
+        {
+          "frame": 39,
+          "status": "EMPTY_COVER_DEMAND",
+          "source_image_sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+          "source_rgb555_sha256": "b709ce24b7bed3d5b275f5039619ef256f02f6b04a610994c096103b7c0d27c3"
+        }
+      ]
+    },
+    {
+      "artifact": "out/byor-motu-player-animation-mixed-cover-bounds.json",
+      "sha256": "68e4a0205b09c06c9edd0a5546b3a71c350f2a6cce15224140c7c1d91114cd29",
+      "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+      "scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit source player/effect pose; uninterrupted player timeline uses supplied birth tick 48. No enemy or authored playback reachability claim.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              98,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              80,
+              220,
+              0
+            ],
+            "order": 0
+          }
+        ]
+      },
+      "source_frames": 40,
+      "checked_frames": 40,
+      "worst_validated_frame": 14,
+      "peak_validated_lower_bound": 19.800000000000008,
+      "maximum_primal_violation": 1.9895196601282805e-13,
+      "maximum_dual_residual": 6.661338147750939e-16,
+      "per_frame": [
+        {
+          "frame": 0,
+          "parent_frame": 4,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.2608695652173907,
+          "source_image_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+          "source_rgb555_sha256": "6686c4b0023cb92479963499eb2209ab75d3ed9b08d13cf4e0b19834309fdc62"
+        },
+        {
+          "frame": 1,
+          "parent_frame": 4,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 1.9285714285714264,
+          "source_image_sha256": "fafd54dd0b36783a08a5c8f082fb4788b2d0b8bd65130df7c73e05890e978c37",
+          "source_rgb555_sha256": "ca5face0e4d492408007715a2f4d366b0987cb28fb44caae53409ac8ec7ebb5a"
+        },
+        {
+          "frame": 2,
+          "parent_frame": 5,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 3.0,
+          "source_image_sha256": "822757c2f84bd65a0d0526a93c3ef229241ad563eff3a98ebf35012657cc1258",
+          "source_rgb555_sha256": "f4ae976e0ab848d83009d1a1999a3c5e1039fd54a7afde1a5ab148d5c9de32c8"
+        },
+        {
+          "frame": 3,
+          "parent_frame": 5,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 3.666666666666665,
+          "source_image_sha256": "d34804ac83de7d51bc0769a2e982dd2fa20b35195da3496392380b52dbd7631b",
+          "source_rgb555_sha256": "7668ce25286aed5d58e109199347aeb41c52846565a92ef10fd7b4baf17f654c"
+        },
+        {
+          "frame": 4,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 6.09090909090909,
+          "source_image_sha256": "6bb13a182826c9acf98f5f52ddd8ff68277443ab78424815f1417c9b7762c4d7",
+          "source_rgb555_sha256": "7acfbcb2a858f85008dc09a647727b971b12e96aff514b2b5e98e7ae51a45efd"
+        },
+        {
+          "frame": 5,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 7.2499999999999964,
+          "source_image_sha256": "2570fd356db246aacd0a778d5360efe18cb7eb6c7362a26f96b5529321250d84",
+          "source_rgb555_sha256": "28731904387e4828732927d93bd6ec10a0a1a0b6db8448bc20e4afbd1859d6aa"
+        },
+        {
+          "frame": 6,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 9.000000000000004,
+          "source_image_sha256": "24664c840e7d9fd1366b345f8627aff891484de6a8f52d20eef9b47de965ca0f",
+          "source_rgb555_sha256": "20ad1387972361a2cb47cfd3ff7b300062434ac670232e0ef1d84d194e70b764"
+        },
+        {
+          "frame": 7,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 11.142857142857135,
+          "source_image_sha256": "47dc04a8b2b701dc19be43635cb152bfc86f63ed4a63646789c830550ae29b49",
+          "source_rgb555_sha256": "d1a9a562f8b5667d25c96794917746f3aa79b3512efa00fcf8f527d2335fab03"
+        },
+        {
+          "frame": 8,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.142857142857137,
+          "source_image_sha256": "0d271928eac467d38f3fec098d2a316a8223668536f7fc9c91ef7be47eb2d995",
+          "source_rgb555_sha256": "ed2b958a7287c72c3a2f77f3a4cb772266946c5512e0d7a00e9644a5da1220af"
+        },
+        {
+          "frame": 9,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.99999999999999,
+          "source_image_sha256": "36c74c714d0c55994cc574a4e2c27f3f3617abcf7462d2b9e8e98a7aba701502",
+          "source_rgb555_sha256": "c76d51973557fdc13fc07368b0d9e1552a8e08af3d032240f453558a5aeec99c"
+        },
+        {
+          "frame": 10,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 17.83333333333332,
+          "source_image_sha256": "a1c0c94d987a99293959f270e977d0542d13fbcedce9694dc46826db4a0482f2",
+          "source_rgb555_sha256": "b16d7fc2d42796359bdbe090391ac9cd9005b7000eafd7ebb13f633ce73ca9fe"
+        },
+        {
+          "frame": 11,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 19.42857142857142,
+          "source_image_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+          "source_rgb555_sha256": "079de2d8ffbbe72c9779904f3a0ef2fe6d0283331dd49838a79ed2cc7e889f45"
+        },
+        {
+          "frame": 12,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 18.00000000000001,
+          "source_image_sha256": "280a8f951a276926250cdc94a263129213916e561a268c7e1e7275bf88b34fa5",
+          "source_rgb555_sha256": "57efc6460b44651232cffcda4c962d32e161e5306f2308317de1e22f396694df"
+        },
+        {
+          "frame": 13,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 17.0,
+          "source_image_sha256": "72ef5a8d418f2e160a9af6985deee4b4605b95a76a21ea0c6694048f2832925f",
+          "source_rgb555_sha256": "a1c13c5ac4405f42c7c6e6318933dbbc1a5785c121cba7e3d5cff452a97f0839"
+        },
+        {
+          "frame": 14,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 19.800000000000008,
+          "source_image_sha256": "d8e1bd148cea795f029c010809640de22aee004635a86834a5608bfe3a74ed8d",
+          "source_rgb555_sha256": "3a068c38585515776ec5a82c2c063c1b9a98626df537c24beacef8b102f04004"
+        },
+        {
+          "frame": 15,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 18.900000000000006,
+          "source_image_sha256": "625013aa68064ce978a7b60cb5a8a6d17cce09248e4b04a9e7f32d0728fdf334",
+          "source_rgb555_sha256": "860e72dd8bfcb283c0dd3dfbcd82574fef48b65029b0afa1361c18df0956b868"
+        },
+        {
+          "frame": 16,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 16.666666666666675,
+          "source_image_sha256": "ffb1c9eb42edb86eaf0092082917d4836e7089f982d2bdf2ac0dc356928fc82b",
+          "source_rgb555_sha256": "439c2c9fed1ec2d693e8203b70f2ab3f78e1d0818984fb1a3ab285c2cb2e442f"
+        },
+        {
+          "frame": 17,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.444444444444454,
+          "source_image_sha256": "9e64c0228740a584d76ebe626747c01ce43dc64a1f6d64b95a6440d469bf7546",
+          "source_rgb555_sha256": "e6364ca76391adf6676f4c275a740a8bd4793c63c90ea99845c755da8c9e1f6a"
+        },
+        {
+          "frame": 18,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 15.285714285714281,
+          "source_image_sha256": "ce732302993b16d518f1226f585045bf88b2f3728b31fc4b10a3d9b771b9f959",
+          "source_rgb555_sha256": "e097048b81af7a8b4596ab0614e4b6613ce8043de74de4e007672518263a117e"
+        },
+        {
+          "frame": 19,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 17.285714285714274,
+          "source_image_sha256": "fc5e0fe22187cda7a79bb744995e964a12234bb3ecc95454852ac6a4cd809080",
+          "source_rgb555_sha256": "931b429b9b14e6c2853fa135b724128df1b75319e386db419c718d18d86f06ba"
+        },
+        {
+          "frame": 20,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.999999999999998,
+          "source_image_sha256": "4f826b64c63d5311121f3ec80437610da9ea4166c50898f17711b151cbd4f572",
+          "source_rgb555_sha256": "316e3eabb6e393ca5384d7c153b6161af9da47f21918efcf882bc541f7a8289f"
+        },
+        {
+          "frame": 21,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.714285714285703,
+          "source_image_sha256": "3907f84a8d6410e382a13ffad093e747e5138ffb3eb2b144b19e811600d42f53",
+          "source_rgb555_sha256": "bf5bf5f3352c00005a05d8801bb5c94acc5c696a11cb169730f087339057317a"
+        },
+        {
+          "frame": 22,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 12.142857142857133,
+          "source_image_sha256": "0acb3c98e5eb9ac90da0f8eeb7937d8c9a56b1d4b34cb0f35b74b0c1d83174a0",
+          "source_rgb555_sha256": "40046444e7bece8edfd44edb21a27e3d57bedaf728ab07747d7007ada561c6f9"
+        },
+        {
+          "frame": 23,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 10.666666666666671,
+          "source_image_sha256": "87e9125145e2aaa57a5a54ef5ca0855a78a63378515cd4321ee87632b3a8cee8",
+          "source_rgb555_sha256": "896d1d409e88d06e49cea79875fdbb0aabf52661079ce305b5164494530dc4ac"
+        },
+        {
+          "frame": 24,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 9.625,
+          "source_image_sha256": "97fc375065143cabb1b04da05a029a33dc0dfc2d8269927f22ba48c9a8ce5846",
+          "source_rgb555_sha256": "92686069823bd3fc88c3f3682a8596d6a304f0edee719285cc23ca86b8122adb"
+        },
+        {
+          "frame": 25,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 7.571428571428564,
+          "source_image_sha256": "5ef36e0607d38305499ece40b66db6bd9f7d57d4d4b1a6bc31bbef94be7fe56d",
+          "source_rgb555_sha256": "3f470c14ac5920b6c748edb65504b9e742604f77791989f2f291e58e0e83c214"
+        },
+        {
+          "frame": 26,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 5.625,
+          "source_image_sha256": "134416d19ecd008f5ab368fc48c68d05db761de20442680e628f285f198265f7",
+          "source_rgb555_sha256": "5a27546c8af7fd44500514d694d9dcd24d2d347fb634db7e65a7a68e319c5026"
+        },
+        {
+          "frame": 27,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 4.25,
+          "source_image_sha256": "bccdc48cf09223f4d2d4a411b4dd504ef30c7451044a81f3a3d37f74edae1c40",
+          "source_rgb555_sha256": "97ea69ba9072fba068ce47d97119107dad2aef70c7dbabe192070ae2358c9eca"
+        },
+        {
+          "frame": 28,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 1.9999999999999996,
+          "source_image_sha256": "8c955c1e7a0ff1cf29a4ffe182a5cfe0979b453dac4c368dc06aa806e333769f",
+          "source_rgb555_sha256": "f22758aa672d4bdb434a37f3df80c2447a746f4f4510cc2dd46505f38712cfc0"
+        },
+        {
+          "frame": 29,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.7741935483870952,
+          "source_image_sha256": "061ccaa2273335115138763461681b20b067c12844d3a85152c16d20dda49ecc",
+          "source_rgb555_sha256": "9c98d52faf7adb130267b6bfb8f88d7a6bf2566483f6fc27e151dbc80961f84f"
+        },
+        {
+          "frame": 30,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.37209302325581395,
+          "source_image_sha256": "d10535817193e5614dbd05492dd8c4ed2ddf9ac48111ebe6e4be765ab26b19c5",
+          "source_rgb555_sha256": "1f4f7aaf47b98c4e8140a571f3b9217069fd5d60a2217138fdfad6c0b49345f0"
+        },
+        {
+          "frame": 31,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.1521739130434785,
+          "source_image_sha256": "8237ba5607b1cb493183e8d8fd411fd2b2b650402457c3df7bbddf3a8f13b55d",
+          "source_rgb555_sha256": "e2f7a0811d2a68173cead1d6b9fa37e0b80147e46b73b13170ed3c7d4f1ceaa2"
+        },
+        {
+          "frame": 32,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "6d7e9a59a619bf558d0540982ee514405ba5aa19ade3aa33b370ec5a7c20947c",
+          "source_rgb555_sha256": "8b9530e0eebb410d9f80e25a2753e3ba427e6f8c85be3065989178aeb29f781a"
+        },
+        {
+          "frame": 33,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "0dca48297bbba57ab1459910eb1a4a2074f9b644d3964c8d35d554d4abfdc619",
+          "source_rgb555_sha256": "d8f11165eebe30d51fa57f6d0f2c6f934270a792ea43c8b0c870467e66f46a6e"
+        },
+        {
+          "frame": 34,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "f2fb78209af7c2ea2d089802b81f3d0830dc4b794044f711045dee0c682e06a5",
+          "source_rgb555_sha256": "07a19719bcc389b126488571f1abf6163f39a2084301b51993d33355839c18b0"
+        },
+        {
+          "frame": 35,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "f1d615068dae048b9428c41bac5dc05f2e5362b8f4a2fbbac9d608a046a80f09",
+          "source_rgb555_sha256": "7da09671d10b7ca5c1b389b3f750ee5408d42b6224f59f1af25aebef15d423da"
+        },
+        {
+          "frame": 36,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "bb7d82ec4bb2f5bfdec3edb1f76369c48aae1af649c09fa93b5cb56f1e92e9c5",
+          "source_rgb555_sha256": "bdad6009d94e03a3ccc4c2fcddfc2d4c0a19f45c5ce15de4d191309a83db016c"
+        },
+        {
+          "frame": 37,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "dcc444ce3a4d7ee2a002f98f99c8f34bf7e26b5d124374c3beab251f3f1eb269",
+          "source_rgb555_sha256": "af73ebd390bbf034e9327ae120db1656a3b48061b0f646e0092d31e615c7fa2c"
+        },
+        {
+          "frame": 38,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "c723c9b3736fed2272595ffbba6a17ad26b3862a7daa5a3facb8cd21dc6f7fae",
+          "source_rgb555_sha256": "801fc46364ca1bd507daf9b43b75bc50734d51effc44f122c191ed5a8d410641"
+        },
+        {
+          "frame": 39,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+          "source_rgb555_sha256": "9d73ef8011db9d3b4b50c55f17c18cf3996a852390adfe29f1cec5d713cab1bb"
+        }
+      ]
+    },
+    {
+      "artifact": "out/byor-motu-player-enemy-animation-mixed-cover-bounds.json",
+      "sha256": "0046171ef4f6ffb7d2fcd47619cd2e66b9b2d4aa7dd0bd2cf46acd7095951c09",
+      "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+      "scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              98,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              80,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              200,
+              220,
+              0
+            ],
+            "order": 1
+          }
+        ]
+      },
+      "source_frames": 40,
+      "checked_frames": 40,
+      "worst_validated_frame": 14,
+      "peak_validated_lower_bound": 19.800000000000008,
+      "maximum_primal_violation": 4.050093593832571e-13,
+      "maximum_dual_residual": 1.4432899320127035e-15,
+      "per_frame": [
+        {
+          "frame": 0,
+          "parent_frame": 4,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.3484848484848477,
+          "source_image_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+          "source_rgb555_sha256": "b8ecb0f526ac4924cbec88e94856adff3751e801e62b5db7a23294de187eb8c3"
+        },
+        {
+          "frame": 1,
+          "parent_frame": 4,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 1.9285714285714264,
+          "source_image_sha256": "fafd54dd0b36783a08a5c8f082fb4788b2d0b8bd65130df7c73e05890e978c37",
+          "source_rgb555_sha256": "18bb72d5bfd18ba3f56180eb509daada375d5d6e8e2448dc19be805bf821d2dc"
+        },
+        {
+          "frame": 2,
+          "parent_frame": 5,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 3.0,
+          "source_image_sha256": "822757c2f84bd65a0d0526a93c3ef229241ad563eff3a98ebf35012657cc1258",
+          "source_rgb555_sha256": "a52399867d849af7d7666064c19ea19dbba67788f5ad360226985f5884101c78"
+        },
+        {
+          "frame": 3,
+          "parent_frame": 5,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 3.6666666666666643,
+          "source_image_sha256": "d34804ac83de7d51bc0769a2e982dd2fa20b35195da3496392380b52dbd7631b",
+          "source_rgb555_sha256": "ee9af420d1b391ab3c204541345f61f420f9189ca363bc184e9d8aad1f41660d"
+        },
+        {
+          "frame": 4,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 6.090909090909093,
+          "source_image_sha256": "6bb13a182826c9acf98f5f52ddd8ff68277443ab78424815f1417c9b7762c4d7",
+          "source_rgb555_sha256": "6383e18e4f67fd4f8779bed29354c94138a7f55ca932b8eb1a185a38cacb5a37"
+        },
+        {
+          "frame": 5,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 7.250000000000002,
+          "source_image_sha256": "2570fd356db246aacd0a778d5360efe18cb7eb6c7362a26f96b5529321250d84",
+          "source_rgb555_sha256": "1bc805646e4f214a725e436430d7f479b2ab2302c38453dfa344aa039561ec48"
+        },
+        {
+          "frame": 6,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 9.000000000000002,
+          "source_image_sha256": "24664c840e7d9fd1366b345f8627aff891484de6a8f52d20eef9b47de965ca0f",
+          "source_rgb555_sha256": "c25a9dc8b57868cd65ee7508d0ef999bb5af2a926aee7a8d992145ae3d90cc62"
+        },
+        {
+          "frame": 7,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 11.142857142857135,
+          "source_image_sha256": "47dc04a8b2b701dc19be43635cb152bfc86f63ed4a63646789c830550ae29b49",
+          "source_rgb555_sha256": "ff136d54c9d80c1949d510ecc8ea93f85f0ecc6ce0b58cea03fc89e276019b7e"
+        },
+        {
+          "frame": 8,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.142857142857135,
+          "source_image_sha256": "0d271928eac467d38f3fec098d2a316a8223668536f7fc9c91ef7be47eb2d995",
+          "source_rgb555_sha256": "dffdad8bfd18f94000e9d7ca092778f72b1037f72d3fdfcf262f180ee84f2412"
+        },
+        {
+          "frame": 9,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.999999999999991,
+          "source_image_sha256": "36c74c714d0c55994cc574a4e2c27f3f3617abcf7462d2b9e8e98a7aba701502",
+          "source_rgb555_sha256": "68661cfcd92cf6068c7cede68bba8e2a6a1e2c63c46bc2d0ef7c1f2782568fc2"
+        },
+        {
+          "frame": 10,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 17.833333333333325,
+          "source_image_sha256": "a1c0c94d987a99293959f270e977d0542d13fbcedce9694dc46826db4a0482f2",
+          "source_rgb555_sha256": "f640fc6de9de7c9ebd304c4c0efd7f011fc2f88bf1e84a833130cefc66d23d9a"
+        },
+        {
+          "frame": 11,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 19.42857142857142,
+          "source_image_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+          "source_rgb555_sha256": "3bdbe16fdd7c8330dcae28c9da1f68dfa7d0caa7dc80aafa9970140243e7874d"
+        },
+        {
+          "frame": 12,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 18.0,
+          "source_image_sha256": "280a8f951a276926250cdc94a263129213916e561a268c7e1e7275bf88b34fa5",
+          "source_rgb555_sha256": "b2eb6ab1aa53f0e6a26ea688659f99efb261dc3a616f258ae2c0972283d5e7f7"
+        },
+        {
+          "frame": 13,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 16.99999999999999,
+          "source_image_sha256": "72ef5a8d418f2e160a9af6985deee4b4605b95a76a21ea0c6694048f2832925f",
+          "source_rgb555_sha256": "6178b45956616d7cd04ab199d8b9b90532797abd61b7732cc06d5ba4c1e380a3"
+        },
+        {
+          "frame": 14,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 19.800000000000008,
+          "source_image_sha256": "d8e1bd148cea795f029c010809640de22aee004635a86834a5608bfe3a74ed8d",
+          "source_rgb555_sha256": "7dacb71b1c4c52a9504e1111dde26547ede54380c52e31cc628e9c3349e45d01"
+        },
+        {
+          "frame": 15,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 18.900000000000016,
+          "source_image_sha256": "625013aa68064ce978a7b60cb5a8a6d17cce09248e4b04a9e7f32d0728fdf334",
+          "source_rgb555_sha256": "30768ed3eac299e3c0fdd2afc3eeb0d5d15b5b8a5adaba0635888821284b908f"
+        },
+        {
+          "frame": 16,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 16.666666666666675,
+          "source_image_sha256": "ffb1c9eb42edb86eaf0092082917d4836e7089f982d2bdf2ac0dc356928fc82b",
+          "source_rgb555_sha256": "83c323977063be18a4e33070cfd3619b69c63c73484c3b9daad219a8e9622381"
+        },
+        {
+          "frame": 17,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.444444444444454,
+          "source_image_sha256": "9e64c0228740a584d76ebe626747c01ce43dc64a1f6d64b95a6440d469bf7546",
+          "source_rgb555_sha256": "d79f1bfa7d73662ca0728659fe12d7bb377458efd74e33c8be304a97463eaadb"
+        },
+        {
+          "frame": 18,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 15.28571428571427,
+          "source_image_sha256": "ce732302993b16d518f1226f585045bf88b2f3728b31fc4b10a3d9b771b9f959",
+          "source_rgb555_sha256": "0840946b27b614b85ba08492f273c5c63f32d984b5cc92e4871301b43a660722"
+        },
+        {
+          "frame": 19,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 17.285714285714274,
+          "source_image_sha256": "fc5e0fe22187cda7a79bb744995e964a12234bb3ecc95454852ac6a4cd809080",
+          "source_rgb555_sha256": "8d73b109874353fe25984a0f6b454fe6fd1094f8f2f7bcf20ec7564312264cc6"
+        },
+        {
+          "frame": 20,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.999999999999993,
+          "source_image_sha256": "4f826b64c63d5311121f3ec80437610da9ea4166c50898f17711b151cbd4f572",
+          "source_rgb555_sha256": "35106795320f63aeabe8ee8421f58bbc3516d22a1ec252abb827f54ef8af6fb1"
+        },
+        {
+          "frame": 21,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.714285714285706,
+          "source_image_sha256": "3907f84a8d6410e382a13ffad093e747e5138ffb3eb2b144b19e811600d42f53",
+          "source_rgb555_sha256": "3d431943e48c8b6b291582168c65601e1dd4600430f44742deef166c693a3623"
+        },
+        {
+          "frame": 22,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 12.142857142857137,
+          "source_image_sha256": "0acb3c98e5eb9ac90da0f8eeb7937d8c9a56b1d4b34cb0f35b74b0c1d83174a0",
+          "source_rgb555_sha256": "7df2590431a5f3da7f19e24b3791d25a9ceb0827b96d86cce5d0f0da94928c78"
+        },
+        {
+          "frame": 23,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 10.666666666666675,
+          "source_image_sha256": "87e9125145e2aaa57a5a54ef5ca0855a78a63378515cd4321ee87632b3a8cee8",
+          "source_rgb555_sha256": "3dfa3385975f8eafc3deb752fdbd1ede3c4e2941a7bb60d37d97e7f19f326c3e"
+        },
+        {
+          "frame": 24,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 9.625,
+          "source_image_sha256": "97fc375065143cabb1b04da05a029a33dc0dfc2d8269927f22ba48c9a8ce5846",
+          "source_rgb555_sha256": "a827ed18ce5b255860994406ab429b5019420986f4311034fe4ad65ecdaf2062"
+        },
+        {
+          "frame": 25,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 7.571428571428564,
+          "source_image_sha256": "5ef36e0607d38305499ece40b66db6bd9f7d57d4d4b1a6bc31bbef94be7fe56d",
+          "source_rgb555_sha256": "190a1d7689f58cf18001453f5367704c98bb66840f09d2646656c5565e4f69a5"
+        },
+        {
+          "frame": 26,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 5.625,
+          "source_image_sha256": "134416d19ecd008f5ab368fc48c68d05db761de20442680e628f285f198265f7",
+          "source_rgb555_sha256": "2a4cd716e3314e5603deac11aa9e0a0d5f30ee8d095db27f67963dcc3dbd55fd"
+        },
+        {
+          "frame": 27,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 4.25,
+          "source_image_sha256": "bccdc48cf09223f4d2d4a411b4dd504ef30c7451044a81f3a3d37f74edae1c40",
+          "source_rgb555_sha256": "530060300646cbdd9c6b0e48e5a947897f38e86b1db55ab7b2a1226c98d7b756"
+        },
+        {
+          "frame": 28,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 1.9999999999999987,
+          "source_image_sha256": "8c955c1e7a0ff1cf29a4ffe182a5cfe0979b453dac4c368dc06aa806e333769f",
+          "source_rgb555_sha256": "ba963744d13adfaa7b2fe0a9891380a4fff49910db8496f57f4f2cedd290ee9f"
+        },
+        {
+          "frame": 29,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.7741935483870943,
+          "source_image_sha256": "061ccaa2273335115138763461681b20b067c12844d3a85152c16d20dda49ecc",
+          "source_rgb555_sha256": "d79a3b725adb6034601cf4af67718e1da7c55650275b3acb3b492de9be1ee929"
+        },
+        {
+          "frame": 30,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.4242424242424234,
+          "source_image_sha256": "d10535817193e5614dbd05492dd8c4ed2ddf9ac48111ebe6e4be765ab26b19c5",
+          "source_rgb555_sha256": "ebf87da2c8c8c172ecfa163f57767a4a2c4c7866a868f772740c9aedd292a786"
+        },
+        {
+          "frame": 31,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.27536231884058004,
+          "source_image_sha256": "8237ba5607b1cb493183e8d8fd411fd2b2b650402457c3df7bbddf3a8f13b55d",
+          "source_rgb555_sha256": "bdc584a2c9e6f5008528db4a5bd86a7caa8863adb5baa3b12224df12cdc9819e"
+        },
+        {
+          "frame": 32,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.1510791366906472,
+          "source_image_sha256": "6d7e9a59a619bf558d0540982ee514405ba5aa19ade3aa33b370ec5a7c20947c",
+          "source_rgb555_sha256": "ecd0458abe6c597e230ecedb6e472719ba7a89455ab52b4d1b30a23730f0588d"
+        },
+        {
+          "frame": 33,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "0dca48297bbba57ab1459910eb1a4a2074f9b644d3964c8d35d554d4abfdc619",
+          "source_rgb555_sha256": "50e8a8c58cb4172087c8da006a3890dce7de7693b7de078a095e8960adff360e"
+        },
+        {
+          "frame": 34,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "f2fb78209af7c2ea2d089802b81f3d0830dc4b794044f711045dee0c682e06a5",
+          "source_rgb555_sha256": "974c05a8948df0eb1524aa3df2743e78391d1c4cef3279bd972ae32da4f2d80b"
+        },
+        {
+          "frame": 35,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "f1d615068dae048b9428c41bac5dc05f2e5362b8f4a2fbbac9d608a046a80f09",
+          "source_rgb555_sha256": "d2834b0811c2921812259f0d28f8cc42467226f357ce4bbe5f856bf7fdd30ed2"
+        },
+        {
+          "frame": 36,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "bb7d82ec4bb2f5bfdec3edb1f76369c48aae1af649c09fa93b5cb56f1e92e9c5",
+          "source_rgb555_sha256": "7f72de841f9c1334d066bc558ecb37c9624906bd8c24c810aeeb29c7a8799131"
+        },
+        {
+          "frame": 37,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "dcc444ce3a4d7ee2a002f98f99c8f34bf7e26b5d124374c3beab251f3f1eb269",
+          "source_rgb555_sha256": "e7888ac158b9c69a5bc6bf0859cb93dc22566c6651923c0c1b0a27fc08663c85"
+        },
+        {
+          "frame": 38,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "c723c9b3736fed2272595ffbba6a17ad26b3862a7daa5a3facb8cd21dc6f7fae",
+          "source_rgb555_sha256": "15020b58cf51ad05ce957df8538d6adf1c3ed0908b3548165fffea004fabf23a"
+        },
+        {
+          "frame": 39,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+          "source_rgb555_sha256": "ac446253e801aeec68ea5f0c9a2caa14f0540f02de3d74aed327b1854d661637"
+        }
+      ]
+    },
+    {
+      "artifact": "out/byor-motu-queue-three-enemy-animation-mixed-cover-bounds.json",
+      "sha256": "e34b32381f141c71d6771976fe1bc938467b8782c0853c9b2ba4fdfe9129bd21",
+      "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+      "scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Explicit three-enemy stress pose, base/map1 identity mixture admitted by source queue at1800. Pose/timing and HBreath overlap not certified.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              1898,
+              220,
+              93
+            ],
+            "order": 2
+          },
+          {
+            "model": "He_ManB",
+            "animation": "freespecial4",
+            "frame": 6,
+            "position": [
+              1880,
+              220,
+              0
+            ],
+            "order": 0
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              1960,
+              190,
+              0
+            ],
+            "order": 1
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              2010,
+              220,
+              0
+            ],
+            "order": 3,
+            "map": 1
+          },
+          {
+            "model": "Knightbot",
+            "animation": "idle",
+            "frame": 0,
+            "position": [
+              1920,
+              160,
+              0
+            ],
+            "order": 4
+          }
+        ],
+        "camera": [
+          1800,
+          0
+        ]
+      },
+      "source_frames": 40,
+      "checked_frames": 40,
+      "worst_validated_frame": 14,
+      "peak_validated_lower_bound": 23.800000000000004,
+      "maximum_primal_violation": 4.192202140984591e-13,
+      "maximum_dual_residual": 1.3322676295501878e-15,
+      "per_frame": [
+        {
+          "frame": 0,
+          "parent_frame": 4,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 1.434782608695651,
+          "source_image_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+          "source_rgb555_sha256": "cd5d8f244ffedd2f77e83ced123b069e00691288bfd2f20b7aadee53f5695283"
+        },
+        {
+          "frame": 1,
+          "parent_frame": 4,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 3.3846153846153815,
+          "source_image_sha256": "fafd54dd0b36783a08a5c8f082fb4788b2d0b8bd65130df7c73e05890e978c37",
+          "source_rgb555_sha256": "f82994155410b1408e9a1399dff25c82726355d60d6f5cb6a40621b1a822a139"
+        },
+        {
+          "frame": 2,
+          "parent_frame": 5,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 4.57142857142858,
+          "source_image_sha256": "822757c2f84bd65a0d0526a93c3ef229241ad563eff3a98ebf35012657cc1258",
+          "source_rgb555_sha256": "d753b92a180e48a93c77dfced2353ca9a7513a35aeae4b11380a7ca8f28cc30d"
+        },
+        {
+          "frame": 3,
+          "parent_frame": 5,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 5.470588235294121,
+          "source_image_sha256": "d34804ac83de7d51bc0769a2e982dd2fa20b35195da3496392380b52dbd7631b",
+          "source_rgb555_sha256": "a74b7869dd1fa51e31da58095b17e4474c41fd94ae5a3725e73db10f6ab1286b"
+        },
+        {
+          "frame": 4,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 8.214285714285712,
+          "source_image_sha256": "6bb13a182826c9acf98f5f52ddd8ff68277443ab78424815f1417c9b7762c4d7",
+          "source_rgb555_sha256": "070988624d0a64c599b8b674f2d256f4552a5a12ecd6cc2b0c12bef79ff9c1df"
+        },
+        {
+          "frame": 5,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 7.649999999999994,
+          "source_image_sha256": "2570fd356db246aacd0a778d5360efe18cb7eb6c7362a26f96b5529321250d84",
+          "source_rgb555_sha256": "1ac56d539a2108e88bcb09bef35b4b9277d30c45786b389c67d041ed9b6c771c"
+        },
+        {
+          "frame": 6,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 9.22727272727272,
+          "source_image_sha256": "24664c840e7d9fd1366b345f8627aff891484de6a8f52d20eef9b47de965ca0f",
+          "source_rgb555_sha256": "743a9f81201abba5016e9185a9d0a30c45700e643ae8cf5fc8260c93fa66bba8"
+        },
+        {
+          "frame": 7,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 12.300000000000004,
+          "source_image_sha256": "47dc04a8b2b701dc19be43635cb152bfc86f63ed4a63646789c830550ae29b49",
+          "source_rgb555_sha256": "df0021d08d10b6400becf5c115a5829d53b095326c864e03086f92a3b414644d"
+        },
+        {
+          "frame": 8,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 14.833333333333327,
+          "source_image_sha256": "0d271928eac467d38f3fec098d2a316a8223668536f7fc9c91ef7be47eb2d995",
+          "source_rgb555_sha256": "9288670c0cb896f161526a8642a68b79dbc35659460dc5cf6d192f05cbe7db57"
+        },
+        {
+          "frame": 9,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 15.5,
+          "source_image_sha256": "36c74c714d0c55994cc574a4e2c27f3f3617abcf7462d2b9e8e98a7aba701502",
+          "source_rgb555_sha256": "088fceb91af774ee5d3a092561617eb38354b7f2ff4f1469bd94460dfcffe1a1"
+        },
+        {
+          "frame": 10,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 19.499999999999993,
+          "source_image_sha256": "a1c0c94d987a99293959f270e977d0542d13fbcedce9694dc46826db4a0482f2",
+          "source_rgb555_sha256": "dd43fcfcdaedeac5329344eaad4b4cc4c5a86cc16988f6a76a5a66f55c6bceed"
+        },
+        {
+          "frame": 11,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 21.0,
+          "source_image_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+          "source_rgb555_sha256": "69036dc7e12ad403101d140a2e53c983b278c80514c0552c04406b4ed06ca6fc"
+        },
+        {
+          "frame": 12,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 20.999999999999986,
+          "source_image_sha256": "280a8f951a276926250cdc94a263129213916e561a268c7e1e7275bf88b34fa5",
+          "source_rgb555_sha256": "cce5068981c6be82f7b1ed7cef351dbed3dc88589d871a2eef89fcebe7641b48"
+        },
+        {
+          "frame": 13,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 20.333333333333325,
+          "source_image_sha256": "72ef5a8d418f2e160a9af6985deee4b4605b95a76a21ea0c6694048f2832925f",
+          "source_rgb555_sha256": "497504f37fa8c4f6337a2a0e97fd35879ae17c045c1e74f943b4071eff0cd6d6"
+        },
+        {
+          "frame": 14,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 23.800000000000004,
+          "source_image_sha256": "d8e1bd148cea795f029c010809640de22aee004635a86834a5608bfe3a74ed8d",
+          "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce"
+        },
+        {
+          "frame": 15,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 22.666666666666647,
+          "source_image_sha256": "625013aa68064ce978a7b60cb5a8a6d17cce09248e4b04a9e7f32d0728fdf334",
+          "source_rgb555_sha256": "9c48f464bad339b565811313649ebf63ba90fbac9334621b32dbef52511def92"
+        },
+        {
+          "frame": 16,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 21.600000000000005,
+          "source_image_sha256": "ffb1c9eb42edb86eaf0092082917d4836e7089f982d2bdf2ac0dc356928fc82b",
+          "source_rgb555_sha256": "c81b6b6315106c1f73c8f53b245d7d5367afb52a207e902529a9329494801eb4"
+        },
+        {
+          "frame": 17,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 19.375,
+          "source_image_sha256": "9e64c0228740a584d76ebe626747c01ce43dc64a1f6d64b95a6440d469bf7546",
+          "source_rgb555_sha256": "9b2faeacf4b7cf2dcc77e12ca74a02d8363a2d94e3fde62a6b6ef1c470eaadf1"
+        },
+        {
+          "frame": 18,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 17.25,
+          "source_image_sha256": "ce732302993b16d518f1226f585045bf88b2f3728b31fc4b10a3d9b771b9f959",
+          "source_rgb555_sha256": "ed72f5ed36163529da78a5bef94655ecf36cd1609325cd509502bea7e3fce276"
+        },
+        {
+          "frame": 19,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 15.875,
+          "source_image_sha256": "fc5e0fe22187cda7a79bb744995e964a12234bb3ecc95454852ac6a4cd809080",
+          "source_rgb555_sha256": "06d16b793b0df8f226d31ccbc8380da6f5f9901c36f481324f4b68293d40bb06"
+        },
+        {
+          "frame": 20,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 17.10000000000001,
+          "source_image_sha256": "4f826b64c63d5311121f3ec80437610da9ea4166c50898f17711b151cbd4f572",
+          "source_rgb555_sha256": "16059f4cc1d7b0d243505d2c91cfd69803eaa7deb810548094ddc8a4b82fe16f"
+        },
+        {
+          "frame": 21,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 16.625,
+          "source_image_sha256": "3907f84a8d6410e382a13ffad093e747e5138ffb3eb2b144b19e811600d42f53",
+          "source_rgb555_sha256": "730c331d2b33fffdf3480edd2459bc66432598cdef46eec7d27c0d67abba8bef"
+        },
+        {
+          "frame": 22,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 13.642857142857137,
+          "source_image_sha256": "0acb3c98e5eb9ac90da0f8eeb7937d8c9a56b1d4b34cb0f35b74b0c1d83174a0",
+          "source_rgb555_sha256": "59d6394b79c2254e786d59bb1623c7b3e5a9cd1cca372df4d771d34c5d986915"
+        },
+        {
+          "frame": 23,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 13.666666666666675,
+          "source_image_sha256": "87e9125145e2aaa57a5a54ef5ca0855a78a63378515cd4321ee87632b3a8cee8",
+          "source_rgb555_sha256": "d2967ea1a3d520a6dbe950f509aa97356e063c54d32ebd2023d546f1c4e46f43"
+        },
+        {
+          "frame": 24,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 12.083333333333321,
+          "source_image_sha256": "97fc375065143cabb1b04da05a029a33dc0dfc2d8269927f22ba48c9a8ce5846",
+          "source_rgb555_sha256": "ac96855c1e2f626d2b60bc3b773d33ad3f2c154ebd8f9bed0103424e52e76d65"
+        },
+        {
+          "frame": 25,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 11.818181818181815,
+          "source_image_sha256": "5ef36e0607d38305499ece40b66db6bd9f7d57d4d4b1a6bc31bbef94be7fe56d",
+          "source_rgb555_sha256": "c46d88236882f9fdd1ef392fb595bf22555cffd68d0d12db13ad1e45780e672d"
+        },
+        {
+          "frame": 26,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 9.318181818181806,
+          "source_image_sha256": "134416d19ecd008f5ab368fc48c68d05db761de20442680e628f285f198265f7",
+          "source_rgb555_sha256": "0c9b06041d95d844e306c5aee62edf1c3ba146391f2b80e005f81fee1772924a"
+        },
+        {
+          "frame": 27,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 8.090909090909083,
+          "source_image_sha256": "bccdc48cf09223f4d2d4a411b4dd504ef30c7451044a81f3a3d37f74edae1c40",
+          "source_rgb555_sha256": "fd582f64f02292497dbd7000c8f85a3448cc2bff5175ed8be0d8351f80881475"
+        },
+        {
+          "frame": 28,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 6.3142857142857105,
+          "source_image_sha256": "8c955c1e7a0ff1cf29a4ffe182a5cfe0979b453dac4c368dc06aa806e333769f",
+          "source_rgb555_sha256": "835c723581d378d06452cfc4966b72df9d14fb60bb05a87ae91390e03f00330c"
+        },
+        {
+          "frame": 29,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 5.162790697674427,
+          "source_image_sha256": "061ccaa2273335115138763461681b20b067c12844d3a85152c16d20dda49ecc",
+          "source_rgb555_sha256": "c849cafbcaa9db40817ee0bd3353ee5704a7bb8703387777c70cdf44b6b755df"
+        },
+        {
+          "frame": 30,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 4.02173913043478,
+          "source_image_sha256": "d10535817193e5614dbd05492dd8c4ed2ddf9ac48111ebe6e4be765ab26b19c5",
+          "source_rgb555_sha256": "c60385c2ff12124128d30b664e1109c3e2d73c0c0dd67ad3e1fe60fb2df0f908"
+        },
+        {
+          "frame": 31,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 3.2040816326530686,
+          "source_image_sha256": "8237ba5607b1cb493183e8d8fd411fd2b2b650402457c3df7bbddf3a8f13b55d",
+          "source_rgb555_sha256": "715c15b9f2b74e976a3e96143b12ab4a90d6b84161274dd46dbe8d8555fa9d75"
+        },
+        {
+          "frame": 32,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 2.301886792452827,
+          "source_image_sha256": "6d7e9a59a619bf558d0540982ee514405ba5aa19ade3aa33b370ec5a7c20947c",
+          "source_rgb555_sha256": "ccac89c84127ca8d349af38e6b6b1488a5a58579fda2608bab0cd8c2ebc4d0c1"
+        },
+        {
+          "frame": 33,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 1.3769230769230747,
+          "source_image_sha256": "0dca48297bbba57ab1459910eb1a4a2074f9b644d3964c8d35d554d4abfdc619",
+          "source_rgb555_sha256": "bedce1cd894d6eb3a48d1652d7116f97b205aed1c1837828d07ade5b97c4f412"
+        },
+        {
+          "frame": 34,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.9698492462311561,
+          "source_image_sha256": "f2fb78209af7c2ea2d089802b81f3d0830dc4b794044f711045dee0c682e06a5",
+          "source_rgb555_sha256": "1103f4907ca1c82bfc7a0b1d43ad37017a12f79287393139cb69f4b1384bd24e"
+        },
+        {
+          "frame": 35,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.5921568627450973,
+          "source_image_sha256": "f1d615068dae048b9428c41bac5dc05f2e5362b8f4a2fbbac9d608a046a80f09",
+          "source_rgb555_sha256": "4ac268ebc7709372a9ec89bfc43f2b9179def42f22372ca7b08fb6da1c9b21cf"
+        },
+        {
+          "frame": 36,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.1053984575835476,
+          "source_image_sha256": "bb7d82ec4bb2f5bfdec3edb1f76369c48aae1af649c09fa93b5cb56f1e92e9c5",
+          "source_rgb555_sha256": "c2ad5380a2c52459d9d59248b672f60d607f595050d34804f7d31dc39e2c69b9"
+        },
+        {
+          "frame": 37,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "dcc444ce3a4d7ee2a002f98f99c8f34bf7e26b5d124374c3beab251f3f1eb269",
+          "source_rgb555_sha256": "9f900adefadb3f2194b9699fe2a961075af0feb7fdd3d9145708008b6deea396"
+        },
+        {
+          "frame": 38,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "c723c9b3736fed2272595ffbba6a17ad26b3862a7daa5a3facb8cd21dc6f7fae",
+          "source_rgb555_sha256": "1a58efc7de18d72ffb35765d4e3482ec5c37289c2fc47a3b7ca5fc22c3ada1c6"
+        },
+        {
+          "frame": 39,
+          "parent_frame": 6,
+          "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+          "validated_dual_lower_bound": 0.0,
+          "source_image_sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+          "source_rgb555_sha256": "910897bccf24fed21d112746e7e98e6b52b69ff975e104250339d325e6056b93"
+        }
+      ]
+    }
+  ],
+  "no_color_reduction": true,
+  "universal_raster_rejected": false,
+  "native_presentation_proven": false,
+  "source_authored_pose_reachability_proven": false
+}

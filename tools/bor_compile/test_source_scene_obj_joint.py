@@ -15,6 +15,30 @@ class JointSceneSolverTests(unittest.TestCase):
         self.assertTrue(all(p['bank']>=4 for p in r['pieces']))
         self.assertTrue(all(e['bank']>=4 for row in r['trace']for e in row['updates']))
 
+    def test_pool_reports_required_final_output_color_identity_counts(self):
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,8),31,dtype=np.int32);pixels[1,1]=0
+        expected=background.copy();expected[:8,:8,0]=248;expected[1,1,0]=0
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            r=probe(None,None,{},size=8,pool_only=True,time_limit=10,underlay_bypass=True)
+        self.assertEqual(r['visible_final_obj_output_full_frame_colors'],1)
+        self.assertEqual(r['peak_visible_final_obj_output_colors_per_scanline'],1)
+        self.assertTrue(r['final_output_counts_apply_source_alpha_and_occlusion'])
+        self.assertTrue(r['final_output_counts_exclude_exact_underlay_bypass_pixels'])
+        self.assertEqual(r['underlay_bypassed_pixels'],1)
+
+    def test_other_math_modes_are_explicit_pool_relaxation_only(self):
+        with self.assertRaisesRegex(ValueError,'JOINT_MATH_MODES_REQUIRE_RELAXED_POOL_ONLY'):
+            probe(None,None,{},pool_math_modes=('half-add',))
+        background=np.zeros((224,256,3),dtype=np.uint8);background[:8,:8,0]=8
+        pixels=np.full((8,8),16,dtype=np.int32);expected=background.copy();expected[:8,:8,0]=128
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            r=probe(None,None,{},size=8,pool_only=True,pool_math_modes=('half-add',),time_limit=10)
+        self.assertEqual(r['color_math'],'RELAXED_POOL_MATH_MODES')
+        self.assertAlmostEqual(r['validated_dual_lower_bound'],0)
+        self.assertFalse(r['global_math_mode_constraints_relaxed'])
+        self.assertFalse(r['schedule_proven'])
+
     def test_additive_only_cannot_silently_approximate_darker_output(self):
         background=np.zeros((224,256,3),dtype=np.uint8);background[:,:,0]=248
         expected=background.copy();expected[:8,:8,0]=240;pixels=np.full((8,8),30,dtype=np.int32)
