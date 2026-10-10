@@ -26,3 +26,12 @@ UNKNOWN. These bounded trials do not reject the raster strategy.
 Focused tests exercise short-gap retention, hint identity rejection, exact packet
 replay and opaque black. No color reduction is applied. Raster remains unproven
 for the complete authored concurrent scene and production runtime.
+
+`--reorder-banks` additionally permits a global, bijective permutation of fixed
+piece banks. Additive presentation retains banks 0..3 and 4..7 in their respective
+color-math classes; precomposited presentation may use all eight. Each piece
+keeps its chosen bank for its entire height. Physical packets and pixel replay
+use the permuted addresses, including required-versus-prefetch classification.
+The 356-clock, gap-two, 16-line-lookahead trial returned UNKNOWN after 300.97
+seconds (879310 branches, 350656 conflicts). This remains a bounded search
+result, not a hardware rejection. Four focused layout tests pass.

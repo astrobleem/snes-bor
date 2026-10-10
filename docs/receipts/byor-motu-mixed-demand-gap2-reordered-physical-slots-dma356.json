@@ -1,0 +1,23 @@
+{
+  "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+  "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE",
+  "solver_status": "UNKNOWN",
+  "solver_seconds": 300.9716866,
+  "lifetime_segments": 615,
+  "window_master_clocks": 356,
+  "maximum_ranges": 4,
+  "trim_dead_residents": true,
+  "used_lifetime_segments": 615,
+  "flexible_prefetch": true,
+  "lookahead_lines": 16,
+  "demand_gap_lines": 2,
+  "layout_hint_used": true,
+  "reorder_banks": true,
+  "solver_branches": 879310,
+  "solver_conflicts": 350656,
+  "solver_probing_level": 0,
+  "solver_sat_inprocessing": false,
+  "universal_raster_rejected": false,
+  "native_timing_admitted": false,
+  "no_color_reduction": true
+}

@@ -1,6 +1,7 @@
 """Reassign palette lifetimes to physical slots and exact prepared DMA ranges.
 
-Bank assignment, color lifetimes and piece geometry stay fixed. A solver timeout
+Piece geometry stays fixed; bank permutations preserve color-math eligibility.
+A solver timeout
 does not reject raster. Native CPU/setup/contention admission remains separate.
 """
 import argparse,copy,hashlib,json
@@ -9,7 +10,7 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
-def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None):
+def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False):
     from ortools.sat.python import cp_model
     if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('SLOT_LAYOUT_VALIDATED_SCHEDULE_REQUIRED')
@@ -26,6 +27,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             starts.setdefault((y,key[0]),[]).append(i);original[key[0]][key[1]]=e['color']
         original_states.append(copy.deepcopy(original));active_rows.append(dict(current))
     if flexible_prefetch and(not trim_dead_residents or not isinstance(lookahead,int)or lookahead<0):raise ValueError('SLOT_LAYOUT_PREFETCH_DOMAIN')
+    if reorder_banks and not flexible_prefetch:raise ValueError('SLOT_LAYOUT_BANK_REORDER_REQUIRES_PREFETCH')
     required={};last_use={};first_use={}
     for p,mask in zip(schedule['pieces'],schedule['piece_pixel_masks']):
         image=unpack(mask)
@@ -69,6 +71,16 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             slot=pixels[i];s=segments[i];events=[row['scanline']for row in layout_hint['trace']if row['scanline']<=first_use[i]for e in row['updates']if e['bank']==s['bank']and e['slot']==slot+1 and e['color']==s['color']]
             if events:hinted[i]=(slot,max(events))
     model=cp_model.CpModel();slots=[model.new_int_var(0,14,'s'+str(i))for i in range(len(segments))]
+    destinations={};bank_choices={}
+    if reorder_banks:
+        additive=schedule.get('color_math','additive')=='additive'
+        for bank in range(8):
+            allowed=range((bank//4)*4,(bank//4)*4+4)if additive else range(8)
+            destinations[bank]=model.new_int_var_from_domain(cp_model.Domain.from_values(list(allowed)),'bank'+str(bank))
+            model.add_hint(destinations[bank],bank)
+            for b in allowed:
+                q=model.new_bool_var(f'bank{bank}_{b}');model.add(destinations[bank]==b).only_enforce_if(q);model.add(destinations[bank]!=b).only_enforce_if(q.Not());bank_choices[bank,b]=q
+        model.add_all_different(list(destinations.values()))
     seen=set();write_times={};write_flags={}
     if flexible_prefetch:
         lanes={(b,s):[]for b in range(8)for s in range(15)}
@@ -83,7 +95,13 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 lanes[segments[i]['bank'],s].append(model.new_optional_interval_var(start,duration,end,present,f'life{i}_{s}'))
             for y in allowed:
                 flag=model.new_bool_var(f'write{i}_{y}');model.add(start==y).only_enforce_if(flag);model.add(start!=y).only_enforce_if(flag.Not())
-                write_flags.setdefault((y,segments[i]['bank']),[]).append((i,flag))
+                bank=segments[i]['bank']
+                if reorder_banks:
+                    for (old,b),q in bank_choices.items():
+                        if old!=bank:continue
+                        f=model.new_bool_var(f'physicalWrite{i}_{y}_{b}');model.add(f<=flag);model.add(f<=q);model.add(f>=flag+q-1)
+                        write_flags.setdefault((y,b),[]).append((i,f))
+                else:write_flags.setdefault((y,bank),[]).append((i,flag))
         for values in lanes.values():model.add_no_overlap(values)
     else:
         for y in range(height):
@@ -135,19 +153,22 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 flexible_prefetch=flexible_prefetch,lookahead_lines=lookahead if flexible_prefetch else None,
                 demand_gap_lines=demand_gap,
                 layout_hint_used=layout_hint is not None,
+                reorder_banks=reorder_banks,
                 solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
                 solver_probing_level=0,solver_sat_inprocessing=False,
                 universal_raster_rejected=False,native_timing_admitted=False,no_color_reduction=True)
     if status not in (cp_model.FEASIBLE,cp_model.OPTIMAL):return result
+    bank_map={b:solver.value(destinations[b])if reorder_banks else b for b in range(8)}
+    result['fixed_piece_bank_permutation']=bank_map
     if flexible_prefetch:
         starts={}
-        for i,time in write_times.items():starts.setdefault((solver.value(time),segments[i]['bank']),[]).append(i)
+        for i,time in write_times.items():starts.setdefault((solver.value(time),bank_map[segments[i]['bank']]),[]).append(i)
     assigned=[solver.value(v)for v in slots];state={b:[None]*15 for b in range(8)};states=[];trace=[];packets=[];physical=[0]*128
     for y,row in enumerate(schedule['trace']):
         before=copy.deepcopy(state);events=[]
         for b in range(8):
             for i in starts.get((y,b),[]):
-                s=assigned[i];c=segments[i]['color'];events.append(dict(bank=b,slot=s+1,old=state[b][s],color=c,kind='required'if c in required.get((y,b),set())else'prefetch'));state[b][s]=c
+                s=assigned[i];c=segments[i]['color'];old_bank=segments[i]['bank'];events.append(dict(bank=b,slot=s+1,old=state[b][s],color=c,kind='required'if c in required.get((y,old_bank),set())else'prefetch'));state[b][s]=c
         groups=[]
         if y:
             for (line,first,last),q in ranges.items():
@@ -173,17 +194,17 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         # Verify every previously indexed color survives at its assigned slot.
         for (b,s),i in active_rows[y].items():
             if flexible_prefetch and y<first_use[i]:continue
-            if state[b][assigned[i]]!=original_states[y][b][s]:raise AssertionError('SLOT_LAYOUT_LIFETIME_IDENTITY')
+            if state[bank_map[b]][assigned[i]]!=original_states[y][b][s]:raise AssertionError('SLOT_LAYOUT_LIFETIME_IDENTITY')
         states.append(copy.deepcopy(state));packets.append(dict(scanline=y,packets=groups,prepared_commit_span=span))
         trace.append(dict(scanline=y,resident_before=before,retained={b:[c for c in values if c is not None and c in state[b]]for b,values in before.items()},
                           evicted=[e['old']for e in events if e['old']is not None],prefetched=[e for e in events if e['kind']=='prefetch'],updates=events,colors_written=len(events),cgram_data_bytes=2*len(events),affected_banks=sorted({e['bank']for e in events})))
     rewritten=copy.deepcopy(schedule);images=[];indices=np.zeros((height,256),dtype=np.uint8)
     for p,mask in zip(schedule['pieces'],schedule['piece_pixel_masks']):
-        image=unpack(mask);new=image.copy();bank=p['bank']
+        image=unpack(mask);new=image.copy();bank=p['bank'];physical_bank=bank_map[bank]
         for ly,lx in zip(*np.where(image!=0)):
             y,x=int(p['y']+ly),int(p['x']+lx);old_slot=int(image[ly,lx])-1;i=active_rows[y][bank,old_slot];s=assigned[i]
-            if states[y][bank][s]!=original_states[y][bank][old_slot]:raise AssertionError('SLOT_LAYOUT_PIXEL_COLOR_IDENTITY')
-            new[ly,lx]=s+1;indices[y,x]=128+bank*16+s+1
+            if states[y][physical_bank][s]!=original_states[y][bank][old_slot]:raise AssertionError('SLOT_LAYOUT_PIXEL_COLOR_IDENTITY')
+            new[ly,lx]=s+1;indices[y,x]=128+physical_bank*16+s+1
         flat=new.flatten();images.append(dict(width=p['width'],height=p['height'],packed_nibble_order='low then high',pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
     rewritten.update(trace=trace,piece_pixel_masks=images,compiled_indices_sha256=hashlib.sha256(indices.tobytes()).hexdigest(),
                      physical_slot_layout=result,prepared_dma_packets=packets,
@@ -191,6 +212,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                      peak_cgram_data_bytes=max(row['cgram_data_bytes']for row in trace[1:]),
                      worst_scanline=1+int(np.argmax([row['colors_written']for row in trace[1:]])),
                      average_writes=float(np.mean([row['colors_written']for row in trace[1:]])))
+    for piece in rewritten['pieces']:piece['bank']=bank_map[piece['bank']]
     rewritten['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=rewritten['pieces'],pixel_masks=images,trace=trace),sort_keys=True).encode()).hexdigest()
     result.update(status='PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN',peak_prepared_commit_span=max(p['prepared_commit_span']for p in packets),
                   peak_ranges=max(len(p['packets'])for p in packets),pixel_color_identity_verified=True,all_packet_cgram_identities_verified=True)
@@ -203,7 +225,8 @@ def main():
     p.add_argument('--flexible-prefetch',action='store_true');p.add_argument('--lookahead',type=int,default=16)
     p.add_argument('--demand-gap',type=int)
     p.add_argument('--layout-hint',type=Path)
-    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None)
+    p.add_argument('--reorder-banks',action='store_true')
+    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 

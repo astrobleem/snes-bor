@@ -54,5 +54,28 @@ class SlotLayoutTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'HINT_IDENTITY'):optimize(self.schedule(),layout_hint=invalid)
         with self.assertRaisesRegex(ValueError,'DEMAND_GAP_DOMAIN'):optimize(self.schedule(),demand_gap=-1)
 
+    def test_bank_permutation_preserves_fixed_piece_bank_and_math_class(self):
+        source=self.schedule()
+        source['pieces'][1]['bank']=4
+        for row in source['trace']:
+            row['resident_before'][4],row['resident_before'][1]=row['resident_before'][1],row['resident_before'][4]
+            for event in row['updates']:
+                if event['bank']==1:event['bank']=4
+        r=optimize(source,window=356,time_limit=10,flexible_prefetch=True,reorder_banks=True)
+        layout=r['physical_slot_layout'];mapping=layout['fixed_piece_bank_permutation']
+        self.assertEqual(sorted(mapping.values()),list(range(8)))
+        for old,new in mapping.items():self.assertEqual(old//4,new//4)
+        for old,new in zip(source['pieces'],r['pieces']):self.assertEqual(new['bank'],mapping[old['bank']])
+        self.assertTrue(layout['all_packet_cgram_identities_verified'])
+        states=[];state={b:[None]*15 for b in range(8)}
+        for row in r['trace']:
+            for e in row['updates']:state[e['bank']][e['slot']-1]=e['color']
+            states.append(copy.deepcopy(state))
+        for piece,mask,values in zip(r['pieces'],r['piece_pixel_masks'],([31,992,31],[None,None,0])):
+            image=unpack(mask)
+            for y,color in enumerate(values):
+                if color is not None:self.assertEqual(states[y][piece['bank']][int(image[y,0])-1],color)
+        with self.assertRaisesRegex(ValueError,'BANK_REORDER_REQUIRES_PREFETCH'):optimize(source,reorder_banks=True)
+
 
 if __name__=='__main__':unittest.main()
