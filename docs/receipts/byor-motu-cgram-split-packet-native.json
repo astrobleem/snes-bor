@@ -1,0 +1,69 @@
+{
+  "schema": "BYOR_CGRAM_SPLIT_PACKET_NATIVE_V1",
+  "status": "ISOLATED_SPLIT_BUDGET_MEASURED",
+  "production_irq_context_proven": false,
+  "production_audio_contention_proven": false,
+  "renderer_admitted": false,
+  "no_color_reduction": true,
+  "cases": [
+    {
+      "folder": "out/byor-motu-cgram-irq38-split24-t155-observed",
+      "requested_cgram_bytes": 38,
+      "split_first_bytes": 24,
+      "timer_dots": 155,
+      "complete_packets": 447,
+      "unsafe_cgram_data_writes": 0,
+      "minimum_first_data_hclock": 1100,
+      "maximum_first_data_hclock": 1116,
+      "maximum_first_to_last_master_clocks": 328,
+      "files": [
+        {
+          "path": "out/byor-motu-cgram-irq38-split24-t155-observed/report.json",
+          "sha256": "2b737711891db3af5cd3bbf3b611fec55cae4b438cdcdd963c3442e08f6d268c"
+        },
+        {
+          "path": "out/byor-motu-cgram-irq38-split24-t155-observed/packets.json",
+          "sha256": "655c7ee7a1238beef69a432a12722c7372c94c055a19bcc62e99c88b78158d15"
+        },
+        {
+          "path": "out/byor-motu-cgram-irq38-split24-t155-observed/ranges.json",
+          "sha256": "f9d397aa143dfadfeef2e3fa9c38dac25d80300ebb0bd8f31f3b1993de0e2377"
+        },
+        {
+          "path": "out/byor-motu-cgram-irq38-split24-t155-observed/window.sfc",
+          "sha256": "5f47114b60552ea4c058e34e653093f4f530426bbfcfad55a2e4325df1f414ba"
+        }
+      ]
+    },
+    {
+      "folder": "out/byor-motu-cgram-irq40-split24-t155-observed",
+      "requested_cgram_bytes": 40,
+      "split_first_bytes": 24,
+      "timer_dots": 155,
+      "complete_packets": 447,
+      "unsafe_cgram_data_writes": 318,
+      "minimum_first_data_hclock": 1096,
+      "maximum_first_data_hclock": 1116,
+      "maximum_first_to_last_master_clocks": 344,
+      "files": [
+        {
+          "path": "out/byor-motu-cgram-irq40-split24-t155-observed/report.json",
+          "sha256": "2e74b2b583f52b17487dbdc53c7b8c07a2e03c7d657a417764bf7e9c3ab56b0f"
+        },
+        {
+          "path": "out/byor-motu-cgram-irq40-split24-t155-observed/packets.json",
+          "sha256": "dff84c436a3fd3c1fbadf0ffa68221b51990b6c55eb8e9d47519cff9a4359454"
+        },
+        {
+          "path": "out/byor-motu-cgram-irq40-split24-t155-observed/ranges.json",
+          "sha256": "ac303f1f189b3a73f69a2e39a1ba224a645ce09abcb0044c6a1323052e38e818"
+        },
+        {
+          "path": "out/byor-motu-cgram-irq40-split24-t155-observed/window.sfc",
+          "sha256": "42695c1e2a1c703b8c323470427aacd7d73b2b42fa9be80432eb0c96df1557a8"
+        }
+      ]
+    }
+  ],
+  "protected_tracked_hashes_verified": 17
+}
