@@ -71,6 +71,14 @@ class SlotLayoutTests(unittest.TestCase):
         for old,new in mapping.items():self.assertEqual(old//4,new//4)
         for old,new in zip(source['pieces'],r['pieces']):self.assertEqual(new['bank'],mapping[old['bank']])
         self.assertTrue(layout['all_packet_cgram_identities_verified'])
+        permuted=copy.deepcopy(r);permutation={b:(b//4)*4+(b%4+1)%4 for b in range(8)}
+        permuted['physical_slot_layout']['fixed_piece_bank_permutation']={old:permutation[new]for old,new in mapping.items()}
+        for p in permuted['pieces']:p['bank']=permutation[p['bank']]
+        for row in permuted['trace']:
+            row['resident_before']={permutation[b]:values for b,values in row['resident_before'].items()}
+            for e in row['updates']:e['bank']=permutation[e['bank']]
+        warm=optimize(source,window=356,time_limit=10,flexible_prefetch=True,reorder_banks=True,layout_hint=permuted)
+        self.assertTrue(warm['physical_slot_layout']['pixel_color_identity_verified'])
         states=[];state={b:[None]*15 for b in range(8)}
         for row in r['trace']:
             for e in row['updates']:state[e['bank']][e['slot']-1]=e['color']

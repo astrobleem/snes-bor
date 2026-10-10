@@ -43,3 +43,19 @@ with four ranges, a 356-clock window and 16-line lookahead returned INFEASIBLE i
 11.43 seconds (511 branches, 51 conflicts). This rejects that fixed-slot family
 only. Other slot positions, piece assignments, encodings and transfer mechanisms
 remain open. The focused tests verify that frozen slots retain the exact indices.
+
+With the transfer limit relaxed to 4096 clocks, that fixed-slot family reaches
+OPTIMAL in 45.01 seconds: its minimum peak prepared span is 776 clocks. This is
+above the measured 356-clock window. The resulting schedule has 31 peak writes
+and 62 color-data bytes; its full physical CGRAM and pixel replay pass. The
+optimal construction is retained under out, with a bounded hash/statistics
+receipt. It remains outside native timing admission.
+
+Hints can now carry a verified global bank permutation. The compiler validates
+the bijection, color-math classes, piece geometry, source identity and opaque
+masks, and translates update times back to source bank lifetimes. New solver
+constraints and independent replay still determine admission. The 356-clock
+trial using the optimal fixed-slot construction as a soft hint returned UNKNOWN
+after 300.92 seconds (573722 branches, 35264 conflicts). A separate gap-zero
+trial, with 823 shorter lifetimes, returned UNKNOWN after 301.16 seconds. Neither
+is a universal rejection.

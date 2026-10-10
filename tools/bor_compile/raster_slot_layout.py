@@ -58,9 +58,13 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         active_rows=[{key:i for key,i in row.items()if segments[i]['last']>=y}for y,row in enumerate(active_rows)]
         starts={key:[i for i in values if i in last_use]for key,values in starts.items()}
         starts={key:values for key,values in starts.items()if values}
-    hinted={}
+    hinted={};hint_banks={b:b for b in range(8)}
     if layout_hint is not None:
-        if layout_hint.get('pieces')!=schedule['pieces']or layout_hint.get('source_rgb555_sha256')!=schedule.get('source_rgb555_sha256')or not layout_hint.get('physical_slot_layout',{}).get('pixel_color_identity_verified'):raise ValueError('SLOT_LAYOUT_HINT_IDENTITY')
+        hint_banks={int(b):int(v)for b,v in layout_hint.get('physical_slot_layout',{}).get('fixed_piece_bank_permutation',hint_banks).items()}
+        if set(hint_banks)!=set(range(8))or sorted(hint_banks.values())!=list(range(8)):raise ValueError('SLOT_LAYOUT_HINT_BANK_PERMUTATION')
+        if schedule.get('color_math','additive')=='additive'and any(b//4!=v//4 for b,v in hint_banks.items()):raise ValueError('SLOT_LAYOUT_HINT_COLOR_MATH_CLASS')
+        expected_pieces=[dict(p,bank=hint_banks[p['bank']])for p in schedule['pieces']]
+        if layout_hint.get('pieces')!=expected_pieces or layout_hint.get('source_rgb555_sha256')!=schedule.get('source_rgb555_sha256')or not layout_hint.get('physical_slot_layout',{}).get('pixel_color_identity_verified'):raise ValueError('SLOT_LAYOUT_HINT_IDENTITY')
         pixels={}
         for p,old,new in zip(schedule['pieces'],schedule['piece_pixel_masks'],layout_hint['piece_pixel_masks']):
             a,b=unpack(old),unpack(new)
@@ -69,7 +73,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 y=int(p['y']+ly);i=active_rows[y][p['bank'],int(a[ly,lx])-1]
                 pixels.setdefault(i,int(b[ly,lx])-1)
         for i in last_use:
-            slot=pixels[i];s=segments[i];events=[row['scanline']for row in layout_hint['trace']if row['scanline']<=first_use[i]for e in row['updates']if e['bank']==s['bank']and e['slot']==slot+1 and e['color']==s['color']]
+            slot=pixels[i];s=segments[i];events=[row['scanline']for row in layout_hint['trace']if row['scanline']<=first_use[i]for e in row['updates']if e['bank']==hint_banks[s['bank']]and e['slot']==slot+1 and e['color']==s['color']]
             if events:hinted[i]=(slot,max(events))
     model=cp_model.CpModel();slots=[model.new_int_var(0,14,'s'+str(i))for i in range(len(segments))]
     if fix_hint_slots:
@@ -81,7 +85,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         for bank in range(8):
             allowed=range((bank//4)*4,(bank//4)*4+4)if additive else range(8)
             destinations[bank]=model.new_int_var_from_domain(cp_model.Domain.from_values(list(allowed)),'bank'+str(bank))
-            model.add_hint(destinations[bank],bank)
+            model.add_hint(destinations[bank],hint_banks[bank])
             for b in allowed:
                 q=model.new_bool_var(f'bank{bank}_{b}');model.add(destinations[bank]==b).only_enforce_if(q);model.add(destinations[bank]!=b).only_enforce_if(q.Not());bank_choices[bank,b]=q
         model.add_all_different(list(destinations.values()))
