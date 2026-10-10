@@ -1,0 +1,68 @@
+{
+  "schema": "BYOR_CGRAM_PACKET_BUDGET_NATIVE_V1",
+  "status": "ISOLATED_SCANLINE_BUDGET_MEASURED",
+  "cases": [
+    {
+      "folder": "out\\byor-motu-cgram-irq36-audio-complete",
+      "rom_sha256": "00027eda696111e50c9feb836d99af3f83662da01650387bec8f367445e7d708",
+      "report_sha256": "56716e62f0fdb52057c5bb28cf6c25d30be1ab67e80ff169763de6222f206fe9",
+      "packets_sha256": "7198c1597380bf8c6d3ad3c9ca830cd597e090180ec40c4bf9e40da928918e1e",
+      "bytes": 36,
+      "timer_dots": 178,
+      "minimum_scanline": 1,
+      "packets": 669,
+      "unsafe_writes": 0,
+      "minimum_first_data_hclock": 1100,
+      "maximum_first_data_hclock": 1168,
+      "maximum_first_to_last_data_master_clocks": 328
+    },
+    {
+      "folder": "out\\byor-motu-cgram-irq42-after-audio-complete",
+      "rom_sha256": "6709d4cbd32aea8172b884b5fda452dda48b3873ea8d6393d943b9a8d08b9aa1",
+      "report_sha256": "160ac164d1d6cb863ea6befcc56c7e7ad88ccc3f18a7a5c95d3526c8d6dea3e0",
+      "packets_sha256": "512204dab73bf002fc8a2aca8be153166cc0f4ab815bf2e819c89ac7fbaf5411",
+      "bytes": 42,
+      "timer_dots": 178,
+      "minimum_scanline": 75,
+      "packets": 447,
+      "unsafe_writes": 0,
+      "minimum_first_data_hclock": 1100,
+      "maximum_first_data_hclock": 1112,
+      "maximum_first_to_last_data_master_clocks": 336
+    },
+    {
+      "folder": "out\\byor-motu-cgram-irq44-after-audio-complete",
+      "rom_sha256": "20fe18bfedbf7bb4fd9d0ecc6c489e61164ba3ebcaf3467c5b31990079c2a773",
+      "report_sha256": "c6e2a9c1420ca00743ab55c54a243804b74a6e03d9fa4c0252ade588fe70db22",
+      "packets_sha256": "077411c215fcab52acc87aff6d3afa20568aca7e0c61b78097bf3086daf87259",
+      "bytes": 44,
+      "timer_dots": 178,
+      "minimum_scanline": 75,
+      "packets": 447,
+      "unsafe_writes": 744,
+      "minimum_first_data_hclock": 1096,
+      "maximum_first_data_hclock": 1128,
+      "maximum_first_to_last_data_master_clocks": 352
+    }
+  ],
+  "source_tad_packet_rows": 73,
+  "source_tad_data_rows": 72,
+  "source_tad_data_bytes": 144,
+  "production_audio_contention_admitted": false,
+  "production_irq_context_admitted": false,
+  "raster_renderer_admitted": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true,
+  "protected_tracked_files_verified": 17,
+  "audio_table_authority": [
+    {
+      "path": "src\\main.pasm",
+      "sha256": "921e639dfac663ae73a4a69992862dfe2b68db0131e4847056a7b316d767dc0e"
+    },
+    {
+      "path": "src\\core\\source_audio_stream.pasm",
+      "sha256": "1851fbd1d4b31a5c1984f9d258e752d65d76ad505ce9de2513ff29bf5848e7ce"
+    }
+  ]
+}
