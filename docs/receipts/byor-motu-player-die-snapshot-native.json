@@ -1,0 +1,25 @@
+{
+  "schema": "BYOR_PLAYER_DIE_SNAPSHOT_RECEIPT_V1",
+  "native_recovery_snapshot_bound": true,
+  "full_player_die_bound": false,
+  "production_consumer_bound": false,
+  "no_color_reduction": true,
+  "new_foreign_arena_bytes": 0,
+  "bank_zero_growth_bytes": 0,
+  "proofs": [
+    {
+      "path": "out/byor-motu-player-global-check-native/report.json",
+      "sha256": "1894bec63014144becbf12f7e01b23a4340bf862550b8c32fcbbbd873473319e",
+      "status": "PASS",
+      "cases": 221,
+      "rom_sha256": "3bf120f01bdf418b2532e13be92980c6c4c5ed3a9ab6a71d630e007ea88ca0b8"
+    },
+    {
+      "path": "out/byor-motu-player-die-snapshot-native/report.json",
+      "sha256": "3f7b3392004729522f43d49914ab7a966dbe3f03eec8544d97e73864c3ff7d4d",
+      "status": "PASS",
+      "cases": 54,
+      "rom_sha256": "b23b3f05dca6ef22cd2fba5e4179848ea6ee73bb3859be3998ab88c40551d436"
+    }
+  ]
+}

@@ -24,6 +24,9 @@ def emit(tail,state,sy):
  for off in (0,2):put(f' lda.l {state}+{8+off}\n sta.l {w}+{8+off}\n sta.l {w}+{12+off}')
  put(f' lda #{tail["live_slot_count"]}\n sta.l {w}+16\n sta.l {w}+18\n lda #$B6C6\n sta.l {w}\n jmp PlayerGlobal_Good')
  label('Release');prologue();check();idle();put(f' lda #0\n sta.l {w}\n jmp PlayerGlobal_Good')
+ # A continuation needs a read-only lease check before publishing state in the
+ # reserved tail. Do not write a status: a replaced module may own this memory.
+ label('Check');prologue();check();put(' ply\n plx\n plp\n clc\n rtl')
  for name,write in (('Read',False),('Write',True)):
   label(name);prologue();check();put(f' lda.l {w}+4\n cmp #$FFFF');branch('beq',name+'Global');put(' cmp #4');branch('bcs')
   put(f' lda.l {w}+6\n cmp #5');branch('bcs');put(' asl a\n asl a\n pha');put(f' lda.l {w}+4\n asl a\n asl a\n pha\n asl a\n asl a\n clc\n adc 1,s\n tax\n pla\n txa\n clc\n adc 1,s\n tax\n pla\n txa\n clc\n adc #{p["player_base"]&65535}\n tax\n jmp PlayerGlobal_'+name+'Value')
