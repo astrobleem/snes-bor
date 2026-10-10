@@ -52,6 +52,11 @@ fixed-bank native schedule. Tests distinguish a mask requiring two windows from
 one that a single window can represent. Window register descriptors and their
 runtime cost still need a native proof.
 
+An optional candidate search fixes only integral LP mode/window controls before
+the integer search. It labels any infeasibility as restricted to that pinned
+family. The three-enemy budget-22 trial pinned 477 controls and reached its
+integer limit without a candidate; it does not close the raster route.
+
 The strengthened fractional two-window solve reaches **20.690678**, with
 independently checked primal and dual residuals. An integral shared-mode/window
 solve at a 22-write budget reached its 180-second limit without a candidate;
@@ -68,6 +73,10 @@ transfer seven descriptor/mode bytes per line; the observed first-to-last
 register-write span is 48 master clocks. This span excludes HDMA setup and
 therefore is not an available palette-transfer budget. This component proof
 does not bind HBreath, BOR alpha, concurrent palette DMA or the gameplay lease.
+
+The separate [contention test](byor-motu-window-cgram-contention.md) rejects
+every-line window HDMA beside the tested split palette packet. CPU window
+updates outside the CGRAM transfer window remain open.
 
 The [receipt](receipts/byor-motu-obj-math-mode-capacity.json) retains the bounded
 results and exact scope. No source pixels or colors are reduced. The ordinary

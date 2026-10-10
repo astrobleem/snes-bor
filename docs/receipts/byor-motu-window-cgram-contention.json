@@ -1,0 +1,362 @@
+{
+  "schema": "BYOR_WINDOW_HDMA_CGRAM_CONTENTION_V1",
+  "report": {
+    "rom_sha256": "24842487e2cb9388171dfe2753faf6c96a43c26d27c1614e54c1e0318b126d30",
+    "observed_writes": 100,
+    "field_hclocks_derived": [
+      4,
+      12,
+      20,
+      28,
+      36,
+      68,
+      76,
+      84,
+      92,
+      100,
+      108,
+      116,
+      124,
+      132,
+      140,
+      148,
+      156,
+      164,
+      172,
+      1108,
+      1116,
+      1220,
+      1228,
+      1236,
+      1244,
+      1252,
+      1260,
+      1268,
+      1276,
+      1284,
+      1292,
+      1300,
+      1308,
+      1316,
+      1324,
+      1332,
+      1340,
+      1348,
+      1356,
+      0,
+      8,
+      16,
+      24,
+      56,
+      64,
+      72,
+      80,
+      88,
+      96,
+      104,
+      112,
+      120,
+      128,
+      136,
+      144,
+      152,
+      160,
+      1096,
+      1104,
+      1112,
+      1216,
+      1224,
+      1232,
+      1240,
+      1248,
+      1256,
+      1264,
+      1272,
+      1280,
+      1288,
+      1296,
+      1304,
+      1312,
+      1320,
+      1328,
+      1336,
+      1344,
+      1352,
+      1360,
+      4,
+      12,
+      44,
+      52,
+      60,
+      68,
+      76,
+      84,
+      92,
+      100,
+      108,
+      116,
+      124,
+      132,
+      140,
+      148,
+      1108,
+      1116,
+      1220,
+      1228,
+      1236
+    ],
+    "requested_cgram_bytes": 38,
+    "audio_hdma_stress": true,
+    "math_window_hdma_stress": true,
+    "math_window_hdma_channels": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "math_window_hdma_bytes_per_line": 7,
+    "split_first_bytes": 24,
+    "dma_channels": [
+      5,
+      6,
+      7
+    ],
+    "dma_cgram_address_bytes": 1,
+    "audio_hdma_rows": 73,
+    "minimum_observed_scanline": 75,
+    "observed_audio_register_writes": 64,
+    "mechanism": "HIRQ_PREPARED_DMA",
+    "timer_dots": 155,
+    "frame_advancement": [
+      {
+        "requested": 1,
+        "startFrame": 0,
+        "endFrame": 1,
+        "framesAdvanced": 1,
+        "isPaused": true,
+        "timedOut": false
+      },
+      {
+        "requested": 1,
+        "startFrame": 1,
+        "endFrame": 1,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 1,
+        "endFrame": 1,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 1,
+        "endFrame": 1,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 1,
+        "endFrame": 1,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 1,
+        "endFrame": 1,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 1,
+        "endFrame": 1,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 1,
+        "endFrame": 1,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 1,
+        "endFrame": 1,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 1,
+        "endFrame": 1,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 1,
+        "endFrame": 2,
+        "framesAdvanced": 1,
+        "isPaused": true,
+        "timedOut": false
+      },
+      {
+        "requested": 1,
+        "startFrame": 2,
+        "endFrame": 2,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 2,
+        "endFrame": 2,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 2,
+        "endFrame": 2,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 2,
+        "endFrame": 2,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 2,
+        "endFrame": 2,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 2,
+        "endFrame": 2,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 2,
+        "endFrame": 2,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 2,
+        "endFrame": 2,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 2,
+        "endFrame": 2,
+        "framesAdvanced": 0,
+        "isPaused": true,
+        "timedOut": true
+      },
+      {
+        "requested": 1,
+        "startFrame": 2,
+        "endFrame": 3,
+        "framesAdvanced": 1,
+        "isPaused": true,
+        "timedOut": false
+      }
+    ],
+    "requested_fields_completed": true,
+    "writes_during_active_cgram_window": 29,
+    "trace_sha256": "50e81723956a6445539dec3e2df3bee7fa879f92563abd296cd31b7979ed0452",
+    "cpu_state": {
+      "isRunning": true,
+      "isPaused": true,
+      "frameCount": 3
+    },
+    "complete_dma_packets_observed": 447,
+    "complete_range_traces_observed": 447,
+    "complete_commit_traces_observed": 447,
+    "aggregate_high_byte_commits": 8493,
+    "aggregate_active_window_high_byte_commits": 2209,
+    "commit_trace_packet_identity_verified": true,
+    "split_range_identity_verified": true,
+    "aggregate_active_window_writes": 4246,
+    "scope": "Isolated timing fixture; includes CPU setup and optional 4-byte APU HDMA bus stress. Not production audio/contention admission."
+  },
+  "maximum_high_commit_span_master_clocks": 408.0,
+  "measured_cgram_window_master_clocks": 356,
+  "universal_raster_rejected": false,
+  "cpu_window_updates_outside_cgram_window_rejected": false,
+  "no_color_reduction": true,
+  "baseline_without_window_hdma_rom_sha256": "5f47114b60552ea4c058e34e653093f4f530426bbfcfad55a2e4325df1f414ba",
+  "baseline_high_commit_span_master_clocks": 328,
+  "artifacts": [
+    {
+      "path": "out/byor-motu-cgram-window-hdma-split38-native/report.json",
+      "sha256": "64568857b104c5567087f901f2169f71754d21a5d9751a8219a96d9b413f1ca6",
+      "bytes": 5825
+    },
+    {
+      "path": "out/byor-motu-cgram-window-hdma-split38-native/window.sfc",
+      "sha256": "24842487e2cb9388171dfe2753faf6c96a43c26d27c1614e54c1e0318b126d30",
+      "bytes": 131072
+    },
+    {
+      "path": "out/byor-motu-cgram-window-hdma-split38-native/observer.lua",
+      "sha256": "2d17436a4ffcd0c36e4904f92c95aba051590f3a452c44c7161a4781c65271c7",
+      "bytes": 2610
+    },
+    {
+      "path": "out/byor-motu-cgram-window-hdma-split38-native/commits.json",
+      "sha256": "f0cf5f8a74b141898bf152ebeb6516da226d56411673e0033ca9721411f8b693",
+      "bytes": 16466
+    },
+    {
+      "path": "out/byor-motu-cgram-window-hdma-split38-native/packets.json",
+      "sha256": "64ee3e886f98b8bfeedcf2b279b6952938b3692c0b49638312e351580151cf08",
+      "bytes": 14927
+    },
+    {
+      "path": "out/byor-motu-cgram-window-hdma-split38-native/ranges.json",
+      "sha256": "f9d397aa143dfadfeef2e3fa9c38dac25d80300ebb0bd8f31f3b1993de0e2377",
+      "bytes": 12443
+    },
+    {
+      "path": "out/byor-motu-cgram-window-hdma-split38-native/writes.csv",
+      "sha256": "50e81723956a6445539dec3e2df3bee7fa879f92563abd296cd31b7979ed0452",
+      "bytes": 3000
+    }
+  ]
+}

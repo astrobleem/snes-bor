@@ -9,13 +9,14 @@ from scipy.optimize import linprog,milp,Bounds,LinearConstraint
 from scipy.sparse import coo_matrix
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4):
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False):
     if len(capacities)!=2 or any(not isinstance(c,int)or c<0 for c in capacities)or not sum(capacities):raise ValueError('MODE_LIVENESS_CAPACITY')
     if write_budget is not None and(not isinstance(write_budget,int)or write_budget<0):raise ValueError('MODE_LIVENESS_WRITE_BUDGET')
     if solver_method not in ('highs-ipm','highs-ds'):raise ValueError('MODE_LIVENESS_LP_METHOD')
     if union_rows is not None and len(union_rows)!=len(rows):raise ValueError('MODE_LIVENESS_UNION_ROW_COUNT')
     if window_pixels is not None and len(window_pixels)!=len(rows):raise ValueError('MODE_LIVENESS_WINDOW_ROW_COUNT')
     if integer_windows and window_pixels is None:raise ValueError('MODE_LIVENESS_WINDOW_PIXELS_REQUIRED')
+    if pin_lp_controls and not(integer_modes or integer_windows):raise ValueError('MODE_LIVENESS_INTEGER_CONTROLS_REQUIRED')
     if not isinstance(maximum_window_transitions,int)or maximum_window_transitions<0:raise ValueError('MODE_LIVENESS_WINDOW_TRANSITIONS')
     pruned=[];filtered=[]
     for y,row in enumerate(rows):
@@ -104,6 +105,19 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     lower=np.zeros(peak+1);upper=np.ones(peak+1);upper[peak]=np.inf if write_budget is None else write_budget
     started=time.perf_counter()
     mixed_integer=integer_modes or integer_windows
+    pinned_control_report=None
+    if pin_lp_controls:
+        relaxation=linprog(objective,A_ub=matrix,b_ub=limits,bounds=list(zip(lower,upper)),method=solver_method,options={'time_limit':time_limit})
+        pinned_control_report=dict(status=int(relaxation.status),message=relaxation.message,pinned_variables=0,restricted_family_only=True)
+        if relaxation.success:
+            violation=max(float(np.max(np.maximum(matrix@relaxation.x-np.array(limits),0))),float(np.max(np.maximum(lower-relaxation.x,0))),float(np.max(np.maximum(relaxation.x-upper,0))))
+            if violation>1e-6:raise AssertionError('MODE_LIVENESS_CONTROL_HINT_PRIMAL_RESIDUAL')
+            controls=([*modes.values()]if integer_modes else[])+([*enabled.values()]if integer_windows else[])
+            for variable in controls:
+                value=relaxation.x[variable]
+                if value<1e-7:upper[variable]=0;pinned_control_report['pinned_variables']+=1
+                elif value>1-1e-7:lower[variable]=1;pinned_control_report['pinned_variables']+=1
+            pinned_control_report.update(relaxed_objective=float(relaxation.fun),maximum_primal_violation=violation)
     if mixed_integer:
         integrality=np.zeros(peak+1)
         if integer_modes:
@@ -118,6 +132,9 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                 palette_residency_integrality_relaxed=True,geometry_and_bank_assignment_relaxed=True,
                 optimal_initial_residency_allowed=True,unbounded_preloading_allowed=True,schedule_proven=False,no_color_reduction=True)
     report['forced_opaque_modes_pruned']=pruned
+    if pinned_control_report is not None:
+        report['pinned_lp_control_family']=pinned_control_report
+        if result.status==2:report['status']='PINNED_MODE_CONTROL_FAMILY_INFEASIBLE'
     report.update(solver_seconds=time.perf_counter()-started,solver_method='highs-mip'if mixed_integer else solver_method,
                   hardware_window_masks_modeled=window_pixels is not None,integer_windows=integer_windows,
                   window_transition_superset_only=window_pixels is not None,window_register_schedule_proven=False,

@@ -30,6 +30,7 @@ def main():
     parser.add_argument('--math-window',type=int,nargs=2,metavar=('LEFT','RIGHT'))
     parser.add_argument('--hardware-windows',action='store_true')
     parser.add_argument('--integer-windows',action='store_true')
+    parser.add_argument('--pin-lp-controls',action='store_true')
     args=parser.parse_args();source=Source(args.source);scene=json.loads(args.scene.read_text())
     actors,metadata,expected=prepare(source,args.stage,scene)
     background,_=compose_rgb8(source,args.stage,dict(scene,actors=[]));background=rgb555(background)
@@ -62,7 +63,7 @@ def main():
             union.add(out)
             window_pixels[y].append(dict(x=x,output=out,modes={mode:tuple(values(mode))for mode in MODES}))
         union_rows[y].add((out,tuple(sorted(union))))
-    report=lower_bound(rows,time_limit=args.time_limit,integer_modes=args.integer_modes,write_budget=args.write_budget,solver_method=args.lp_method,union_rows=union_rows,window_pixels=window_pixels,integer_windows=args.integer_windows)
+    report=lower_bound(rows,time_limit=args.time_limit,integer_modes=args.integer_modes,write_budget=args.write_budget,solver_method=args.lp_method,union_rows=union_rows,window_pixels=window_pixels,integer_windows=args.integer_windows,pin_lp_controls=args.pin_lp_controls)
     if 'selected_window_eligibility'in report:
         report['compiled_color_window_descriptors']={y:compile_sparse_mask(mask)for y,mask in report['selected_window_eligibility'].items()}
     report.update(schema='BYOR_SHARED_SCANLINE_MATH_MODE_LIVENESS_V1',source_sha256=hashlib.sha256(source.path.read_bytes()).hexdigest(),

@@ -54,5 +54,13 @@ class ModeLivenessTests(unittest.TestCase):
             if changes==4:self.assertEqual(result['selected_window_eligibility'],{0:{0:0,1:1,2:0,3:1}})
             self.assertFalse(result['schedule_proven'])
 
+    def test_integral_control_hint_is_explicitly_a_restricted_family(self):
+        rows=[{'add':{(0,(7,))}}]
+        result=lower_bound(rows,capacities=(0,1),integer_modes=True,pin_lp_controls=True)
+        self.assertEqual(result['pinned_lp_control_family']['pinned_variables'],1)
+        self.assertTrue(result['pinned_lp_control_family']['restricted_family_only'])
+        self.assertEqual(result['selected_modes'],{0:'add'})
+        self.assertFalse(result['schedule_proven'])
+
 
 if __name__=='__main__':unittest.main()

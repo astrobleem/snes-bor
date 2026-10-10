@@ -873,5 +873,77 @@
       "sha256": "fa9cef6e727d9cc44aa5b43faeaf7b89e3643922856f5d8590ba1ab2cfcc7b6e",
       "bytes": 1574
     }
-  ]
+  ],
+  "pinned_control_trial": {
+    "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+    "solver_status": 1,
+    "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+    "variables": 114981,
+    "constraints": 94335,
+    "mode_variables": 132,
+    "integer_modes": true,
+    "write_budget": 22,
+    "palette_residency_integrality_relaxed": true,
+    "geometry_and_bank_assignment_relaxed": true,
+    "optimal_initial_residency_allowed": true,
+    "unbounded_preloading_allowed": true,
+    "schedule_proven": false,
+    "no_color_reduction": true,
+    "forced_opaque_modes_pruned": [],
+    "pinned_lp_control_family": {
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "pinned_variables": 477,
+      "restricted_family_only": true,
+      "relaxed_objective": 20.690677966101696,
+      "maximum_primal_violation": 4.973799150320701E-14
+    },
+    "solver_seconds": 268.6636745999567,
+    "solver_method": "highs-mip",
+    "hardware_window_masks_modeled": true,
+    "integer_windows": true,
+    "window_transition_superset_only": true,
+    "window_register_schedule_proven": false,
+    "window_eligibility_variables": 3551,
+    "maximum_window_transitions": 4,
+    "schema": "BYOR_SHARED_SCANLINE_MATH_MODE_LIVENESS_V1",
+    "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+    "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+    "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+    "complete_mode_tagged_operand_cover": {
+      "modes": [
+        "add",
+        "half-add",
+        "subtract",
+        "half-subtract"
+      ],
+      "rgb555_operands_examined": 32768,
+      "distinct_requirements": 9536,
+      "valid_operands": 8538,
+      "maximal_cover_operands": 1941,
+      "dominance_mapping_sha256": "efe0cb4072180363bd3e1c02780eb3fa1a2badb40b03f7ff0c021bc8c6c87dbc",
+      "modes_relaxed_per_pixel": false,
+      "mode_tagged_coverage": true,
+      "global_mode_schedule_proven": false,
+      "color_math_window_bypass_relaxed_per_pixel": false,
+      "fixed_color_math_window_context": true,
+      "all_valid_operand_coverages_retained": true,
+      "no_color_reduction": true
+    },
+    "cover_enumeration_seconds": 8.584530299995095,
+    "exact_underlay_bypass": true,
+    "scanline_window": [
+      120,
+      152
+    ],
+    "outside_window_demand_relaxed": true,
+    "horizontal_math_window": null,
+    "math_enabled_inside_horizontal_window": null,
+    "window_mask_transition_superset_only": true,
+    "native_timing_admitted": false,
+    "authored_pose_reachability_proven": false,
+    "universal_raster_rejected": false,
+    "artifact": "out/byor-motu-three-enemy-frame14-hardware-window-pinned-controls-budget22.json",
+    "artifact_sha256": "e51a085cd81e491a75d430d3baeb5f694a3057889a9668147fc0d7408a68b1d9"
+  }
 }

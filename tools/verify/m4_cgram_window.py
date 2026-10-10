@@ -40,7 +40,7 @@ def make_rom(count,audio_hdma=False,audio_rows=224):
     return bytes(rom)
 
 
-def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_bytes=None):
+def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_bytes=None,math_window_hdma=False):
     """Prepared HIRQ DMA, isolated fixture. New handler body lives in bank 1."""
     rom=bytearray([0xff])*131072
     code=bytearray.fromhex('78 18 fb c2 30 a2 ff 1f 9a e2 20')
@@ -54,8 +54,25 @@ def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_byt
                               (0x4360,8),(0x4361,0x21),(0x4362,0),(0x4363,0x80),(0x4364,3),(0x4366,0)]:store(address,value)
     if audio_hdma:
         for address,value in [(0x4300,4),(0x4301,0x40),(0x4302,0),(0x4303,0x90),(0x4304,3)]:store(address,value)
+    window_tables=[]
+    if math_window_hdma:
+        from raster_math_windows import compile_mask
+        masks=[[1]*256,[int(32<=x<=63 or 128<=x<=191)for x in range(256)],
+               [int(not(32<=x<=63 or 128<=x<=191))for x in range(256)],[0]*256]
+        descriptors=[compile_mask(mask)for mask in masks]
+        window_tables=[bytearray()for _ in range(4)]
+        for y in range(224):
+            d=descriptors[y%4]
+            for table,values in zip(window_tables,(sum(d['bounds'],[]),[d['wobjsel_color_bits']],[d['wobjlog_color_bits']],[0x10|(0x40 if y%8>=4 else 0)])):
+                table.extend([0x81,*values])
+        cursor=0xa000
+        for ch,(table,mode,dest)in enumerate(zip(window_tables,(4,0,0,0),(0x26,0x25,0x2b,0x31)),1):
+            table.append(0)
+            base=0x4300+16*ch
+            for address,value in ((base,mode),(base+1,dest),(base+2,cursor&255),(base+3,cursor>>8),(base+4,3)):store(address,value)
+            rom[0x18000+cursor-0x8000:0x18000+cursor-0x8000+len(table)]=table;cursor+=len(table)
     code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'))
-    if audio_hdma:store(0x420c,1)
+    if audio_hdma or math_window_hdma:store(0x420c,(1 if audio_hdma else 0)|(0x1e if math_window_hdma else 0))
     store(0x2100,15);store(0x4200,0x10);code.extend(bytes.fromhex('58 80 fe'))
     irq=bytearray.fromhex('ad 11 42 ad 12 42 29 80 d0 12')
     irq.extend(bytes([0xa9,count,0x8d,0x75,0x43,0xa9,128,0x8d,0x21,0x21,0xa9,128,0x8d,0x0b,0x42,0x40]))
@@ -88,12 +105,14 @@ def main():
     parser.add_argument('--aggregate-packets',action='store_true')
     parser.add_argument('--split-first-bytes',type=int)
     parser.add_argument('--frame-attempts',type=int,default=8)
+    parser.add_argument('--math-window-hdma',action='store_true')
     args=parser.parse_args()
     if not 1<=args.bytes<=255 or not 1<=args.audio_rows<=224 or not 1<=args.min_scanline<224 or not 1<=args.frame_attempts<=64:raise ValueError('CGRAM_PROBE_DOMAIN')
     if args.split_first_bytes is not None and not args.irq:raise ValueError('CGRAM_SPLIT_REQUIRES_IRQ')
+    if args.math_window_hdma and not args.irq:raise ValueError('CGRAM_MATH_WINDOW_HDMA_REQUIRES_IRQ')
     folder=args.output.resolve() if args.output else Path(__file__).resolve().parents[2]/'out/byor-motu-cgram-probe'
     folder.mkdir(exist_ok=True)
-    rom=folder/'window.sfc';rom.write_bytes(make_irq_rom(args.bytes,args.audio_hdma,args.timer,args.audio_rows,args.split_first_bytes) if args.irq else make_rom(args.bytes,args.audio_hdma,args.audio_rows))
+    rom=folder/'window.sfc';rom.write_bytes(make_irq_rom(args.bytes,args.audio_hdma,args.timer,args.audio_rows,args.split_first_bytes,args.math_window_hdma) if args.irq else make_rom(args.bytes,args.audio_hdma,args.audio_rows))
     trace=folder/'writes.csv';trace.write_text('')
     lua=folder/'observer.lua'
     lua.write_text('''local n=0;local audio=0;local packet=nil;local cgramAddress=0;local cgramHigh=false
@@ -154,6 +173,8 @@ end,emu.callbackType.write,0x2122,0x2122,emu.cpuType.snes,emu.memType.snesMemory
     result=dict(rom_sha256=hashlib.sha256(rom.read_bytes()).hexdigest(),observed_writes=len(rows),
         field_hclocks_derived=derived,requested_cgram_bytes=args.bytes,
         audio_hdma_stress=args.audio_hdma,
+        math_window_hdma_stress=args.math_window_hdma,math_window_hdma_channels=[1,2,3,4]if args.math_window_hdma else[],
+        math_window_hdma_bytes_per_line=7 if args.math_window_hdma else 0,
         split_first_bytes=args.split_first_bytes,dma_channels=[5,6,7] if args.split_first_bytes is not None else [7],
         dma_cgram_address_bytes=1 if args.split_first_bytes is not None else 0,
         audio_hdma_rows=args.audio_rows if args.audio_hdma else 0,minimum_observed_scanline=args.min_scanline,
