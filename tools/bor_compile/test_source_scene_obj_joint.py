@@ -6,6 +6,31 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_fixed_geometry_keeps_split_atom_pixel_bank_ownership(self):
+        import copy
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,8),31,dtype=np.int32);expected=background.copy();expected[:8,:8,0]=248
+        actors=[dict(pixels=pixels,left=0,top=0)]
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            hint=probe(None,None,{},size=8,write_budget=0,time_limit=10,color_math='precomposited',solver_backend='cp-sat')
+            p=hint['pieces'][0];p['bank']=0
+            hint['pieces']=[p,dict(p,bank=1)];hint['piece_pixel_masks']=[]
+            for begin,end in ((0,4),(4,8)):
+                image=np.zeros((8,8),dtype=np.uint8);image[:,begin:end]=1;flat=image.flatten()
+                hint['piece_pixel_masks'].append(dict(width=8,height=8,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
+            hint['trace'][0]['updates']=[dict(bank=b,slot=1,color=31)for b in(0,1)]
+            result=probe(None,None,{},size=8,write_budget=0,time_limit=10,color_math='precomposited',solver_backend='cp-sat',schedule_hint=hint,fixed_geometry=True)
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertTrue(result['fixed_geometry_and_pixel_bank_ownership'])
+        self.assertEqual({p['bank']for p in result['pieces']},{0,1})
+        from raster_obj_compact import unpack
+        for piece,mask in zip(result['pieces'],result['piece_pixel_masks']):
+            image=unpack(mask);self.assertEqual(np.count_nonzero(image),32)
+            self.assertTrue(np.all(image[:,4:] == 0)if piece['bank']==0 else np.all(image[:,:4] == 0))
+
+    def test_fixed_geometry_requires_identity_hint(self):
+        with self.assertRaisesRegex(ValueError,'JOINT_FIXED_GEOMETRY_REQUIRES_HINT'):probe(None,None,{},fixed_geometry=True)
+
     def test_additive_only_reserves_normal_banks_and_preserves_pixels(self):
         background=np.zeros((224,256,3),dtype=np.uint8)
         pixels=np.full((8,8),31,dtype=np.int32);expected=background.copy();expected[:8,:8,0]=248

@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from raster_bank_residency import optimize,favorable_span,relaxed_bound,constrain_dp,constrain_adjacent
+from raster_bank_residency import optimize,favorable_span,relaxed_bound,constrain_dp,constrain_adjacent,restrict_interval
 from raster_cgram_packets import optimistic_dma_span
 from raster_slot_greedy import demand
 from test_raster_slot_greedy import source_schedule
@@ -21,6 +21,7 @@ class ResidencyTests(unittest.TestCase):
         result=optimize(source_schedule(),write_budget=1,lookahead=0,time_limit=10)
         self.assertEqual(result['solver_status'],'INFEASIBLE')
         self.assertFalse(result['universal_raster_rejected'])
+        self.assertFalse(result['complete_source_frame_pixel_identity_proven'])
 
     def test_invalid_budget_rejected(self):
         with self.assertRaisesRegex(ValueError,'BANK_RESIDENCY_DOMAIN'):optimize(source_schedule(),write_budget=-1)
@@ -69,6 +70,47 @@ class ResidencyTests(unittest.TestCase):
         _,_,a=demand(source);_,_,b=demand(result)
         self.assertTrue(all(np.array_equal(x,y)for x,y in zip(a,b)))
         with self.assertRaisesRegex(ValueError,'BANK_RESIDENCY_REPAIR_INTERVAL'):optimize(source,repair_interval=(4,3))
+
+    def test_milp_and_cp_backends_agree_on_exact_pixels_and_failure(self):
+        source=source_schedule();_,_,expected=demand(source)
+        for budget in (1,2):
+            results=[optimize(source,write_budget=budget,lookahead=0,time_limit=10,range_backend='ranges',solver_backend=b)for b in('cp-sat','highs')]
+            self.assertEqual(results[0].get('bank_residency',results[0])['solver_status'],results[1].get('bank_residency',results[1])['solver_status'])
+            if budget==2:
+                for result in results:
+                    _,_,actual=demand(result)
+                    self.assertTrue(all(np.array_equal(x,y)for x,y in zip(expected,actual)))
+                self.assertEqual(results[1]['bank_residency']['maximum_integer_constraint_violation'],0)
+
+    def test_milp_rejects_non_linear_backend(self):
+        with self.assertRaisesRegex(ValueError,'BANK_RESIDENCY_SOLVER_BACKEND'):optimize(source_schedule(),solver_backend='highs')
+
+    def test_interval_relaxation_preserves_only_retained_pixels_and_geometry(self):
+        source=source_schedule();relaxed=restrict_interval(source,4,9)
+        self.assertEqual(relaxed['pieces'],source['pieces'])
+        self.assertFalse(relaxed['compiled_pixel_identity_verified'])
+        with self.assertRaisesRegex(ValueError,'GREEDY_VALIDATED_SOURCE_SCHEDULE_REQUIRED'):demand(relaxed)
+        _,_,a=demand(source);_,_,b=demand(relaxed,allow_restricted=True)
+        for p,expected,actual in zip(source['pieces'],a,b):
+            for ly in range(p['height']):
+                if 4<=p['y']+ly<=9:self.assertTrue(np.array_equal(expected[ly],actual[ly]))
+                else:self.assertTrue(np.all(actual[ly]==-1))
+        result=optimize(relaxed,write_budget=2,lookahead=0,time_limit=10)
+        self.assertTrue(result['bank_residency']['outside_interval_pixels_relaxed'])
+        self.assertFalse(result['bank_residency']['complete_source_frame_pixel_identity_proven'])
+        with self.assertRaisesRegex(ValueError,'BANK_RESIDENCY_SCANLINE_INTERVAL'):restrict_interval(source,4,3)
+
+    def test_partial_residency_hint_does_not_relax_complete_frame_demand(self):
+        import copy
+        source=source_schedule();hint=restrict_interval(source,4,9)
+        result=optimize(source,write_budget=2,lookahead=0,time_limit=10,residency_hint=hint)
+        self.assertEqual(result['bank_residency']['soft_residency_hint_interval'],[4,9])
+        self.assertTrue(result['bank_residency']['complete_source_frame_pixel_identity_proven'])
+        _,_,a=demand(source);_,_,b=demand(result)
+        self.assertTrue(all(np.array_equal(x,y)for x,y in zip(a,b)))
+        bad=copy.deepcopy(hint);data=bytearray.fromhex(bad['piece_pixel_masks'][0]['pixels_hex']);data[32]=0x22
+        bad['piece_pixel_masks'][0]['pixels_hex']=data.hex()
+        with self.assertRaisesRegex(ValueError,'BANK_RESIDENCY_HINT_PIXEL_IDENTITY'):optimize(source,residency_hint=bad)
 
 
 if __name__=='__main__':unittest.main()

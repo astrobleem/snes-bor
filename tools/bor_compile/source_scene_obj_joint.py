@@ -29,8 +29,30 @@ def saturated_corners(output,background):
     return values
 
 
-def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive", mixed_small_size=8, mixed_large_size=32, additive_only=False,pool_math_modes=None):
+def hint_ownership(schedule,pieces):
+    """Decode fixed source-pixel ownership; never infer it from rectangles."""
+    from raster_obj_compact import unpack
+    fields=('actor','local_x','local_y','width','height','x','y')
+    lookup={tuple(p[f]for f in fields):i for i,p in enumerate(pieces)}
+    state={b:[None]*15 for b in range(8)};states=[]
+    for row in schedule['trace']:
+        for e in row['updates']:state[e['bank']][e['slot']-1]=e['color']
+        states.append({b:list(v)for b,v in state.items()})
+    owner={};chosen_masks=set()
+    for p,image in zip(schedule['pieces'],schedule['piece_pixel_masks']):
+        key=tuple(p[f]for f in fields)
+        if key not in lookup:raise ValueError('JOINT_SCHEDULE_HINT_GEOMETRY')
+        piece_index=lookup[key];bank=p['bank'];chosen_masks.add((piece_index,bank));image=unpack(image)
+        for ly,lx in zip(*np.where(image!=0)):
+            y,x=int(p['y']+ly),int(p['x']+lx)
+            if (y,x)in owner:raise ValueError('JOINT_SCHEDULE_HINT_OVERLAP')
+            owner[y,x]=piece_index,bank,states[y][bank][int(image[ly,lx])-1]
+    return owner,chosen_masks,states
+
+
+def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive", mixed_small_size=8, mixed_large_size=32, additive_only=False,pool_math_modes=None,fixed_geometry=False):
     if solver_backend not in ('highs','cp-sat') or (relaxed and solver_backend!='highs'):raise ValueError('JOINT_SOLVER_BACKEND')
+    if fixed_geometry and(schedule_hint is None or pool_only or bank_symmetry):raise ValueError('JOINT_FIXED_GEOMETRY_REQUIRES_HINT_WITHOUT_POOL_OR_SYMMETRY')
     if size not in (8,16,32,'mixed') or write_budget<0 or lookahead<0:
         raise ValueError('JOINT_SOLVER_DOMAIN')
     if mixed_small_size not in (8,16):raise ValueError('JOINT_MIXED_SMALL_SIZE_DOMAIN')
@@ -159,6 +181,18 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                       source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest())
         if pool_math_modes is not None:result.update(color_math='RELAXED_POOL_MATH_MODES',complete_obj_math_cover=math_cover_report,global_math_mode_constraints_relaxed=len(set(pool_math_modes))>1)
         return result
+    owner,chosen_masks,hint_states=hint_ownership(schedule_hint,pieces)if schedule_hint is not None else({},set(),[])
+    if fixed_geometry:
+        split=[]
+        for atom in atoms:
+            groups={}
+            for pixel in atom['pixels']:
+                if tuple(pixel)not in owner:raise ValueError('JOINT_SCHEDULE_HINT_PIXEL')
+                piece,bank,_=owner[tuple(pixel)]
+                if piece not in atom['options']:raise ValueError('JOINT_FIXED_GEOMETRY_PIXEL_OPTION')
+                groups.setdefault((piece,bank),[]).append(pixel)
+            for (piece,bank),pixels in groups.items():split.append(dict(atom,options=[piece],fixed_bank=bank,pixels=pixels))
+        atoms=split
     variable_count = 0;nonboolean_upper={}
     def allocate():
         nonlocal variable_count
@@ -167,6 +201,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     choices = {}; uses = {};opaque_variables={};opaque_choice_entries=0
     for i, atom in enumerate(atoms):
         for bank in range(8):
+            if fixed_geometry and bank!=atom['fixed_bank']:continue
             if additive_only and kind(bank)==0:continue
             colors=[atom['output']] if kind(bank)==0 else atom['residual_options']
             for color in colors:
@@ -311,6 +346,9 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     for variable in masks.values():objective[variable]=1
     for variable in writes.values():objective[variable]=.001;integrality[variable]=0
     upper=np.ones(variable_count)
+    if fixed_geometry:
+        for key,v in masks.items():
+            if key not in chosen_masks:upper[v]=0
     for v,limit in nonboolean_upper.items():upper[v]=limit
     if feasibility_only:objective[:]=0
     if relaxed:
@@ -318,26 +356,16 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(lo),variable_count)).tocsc()
     hint=None
     if schedule_hint is not None:
-        from raster_obj_compact import unpack
-        fields=('actor','local_x','local_y','width','height','x','y')
-        lookup={tuple(p[f]for f in fields):i for i,p in enumerate(pieces)}
-        state={b:[None]*15 for b in range(8)};states=[]
-        for row in schedule_hint['trace']:
-            for e in row['updates']:state[e['bank']][e['slot']-1]=e['color']
-            states.append({b:list(v)for b,v in state.items()})
-        owner={};chosen_masks=set()
-        for p,image in zip(schedule_hint['pieces'],schedule_hint['piece_pixel_masks']):
-            key=tuple(p[f]for f in fields)
-            if key not in lookup:raise ValueError('JOINT_SCHEDULE_HINT_GEOMETRY')
-            piece_index=lookup[key];bank=p['bank'];chosen_masks.add((piece_index,bank));image=unpack(image)
-            for ly,lx in zip(*np.where(image!=0)):
-                y,x=int(p['y']+ly),int(p['x']+lx)
-                owner[y,x]=piece_index,bank,states[y][bank][int(image[ly,lx])-1]
         hint={v:int(key in chosen_masks)for key,v in masks.items()}
         for (i,p,b,c),v in choices.items():
             wanted=owner.get(tuple(atoms[i]['pixels'][0]))
             if wanted is None:raise ValueError('JOINT_SCHEDULE_HINT_PIXEL')
             hint[v]=int(wanted==(p,b,c))
+        for (b,c,y),v in resident.items():hint[v]=int(c in hint_states[y][b])
+        for (b,c,y),v in writes.items():
+            previous=0 if pool_residency and y==pool_first else y-1
+            if not pool_residency and (b,c,previous)not in resident:previous=0
+            hint[v]=int(c in hint_states[y][b]and c not in hint_states[previous][b])
     if solver_backend=='cp-sat':
         from raster_boolean_solver import solve
         result=solve(matrix,lo,hi,objective,time_limit,hint=hint,variable_upper=upper)
@@ -347,6 +375,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 metadata=metadata,geometry_size=size,mixed_small_size=mixed_small_size if size=='mixed'else None,mixed_large_size=mixed_large_size if size=='mixed'else None,write_budget=write_budget,lookahead_lines=lookahead,noninitial_prefetch_lookahead_enforced=True,initial_palette_may_preload_entire_frame=True,
                 solver=dict(status=int(result.status),message=result.message,variables=variable_count,constraints=len(lo),mip_nodes=int(result.mip_node_count) if getattr(result,'mip_node_count',None) is not None else None,mip_gap=float(result.mip_gap) if getattr(result,'mip_gap',None) is not None and np.isfinite(result.mip_gap) else None),
                 exact_residency_write_indicators=True,
+                fixed_geometry_and_pixel_bank_ownership=fixed_geometry,
                 additive_only=additive_only,opaque_obj_banks_reserved=4 if additive_only else 0,color_math=color_math,opaque_choice_coalescing=coalesce_opaque_choices,opaque_choice_entries=opaque_choice_entries,
                 distinct_opaque_choice_variables=len(opaque_variables)if coalesce_opaque_choices else opaque_choice_entries,
                 no_color_reduction=True,universal_raster_rejected=False,native_presentation_proven=False,
@@ -363,6 +392,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 prepared_dma_window_master_clocks=prepared_dma_window,
                 prepared_dma_window_is_optimistic_necessary_only=prepared_dma_window is not None,
                 schedule_hint_used=schedule_hint is not None,
+                schedule_residency_hint_used=schedule_hint is not None,
                 exact_underlay_bypass=underlay_bypass,underlay_bypassed_pixels=bypassed,source_actor_canvases=source_canvases,
                 source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
                 scope='Explicit pose. Exact opaque/additive pixel alternatives and fixed OAM color masks on one legal grid. No native layer routing, source reachability or hardware bandwidth admission.')
@@ -473,11 +503,12 @@ def main():
     p.add_argument('--pool-math-mode',action='append',choices=('add','half-add','subtract','half-subtract'),help='Necessary pool relaxation only; modes may differ per pixel.')
     p.add_argument('--color-math',choices=('additive','precomposited'),default='additive',help='Precomposited stores exact final context RGB555 in all eight banks; native alpha/context ownership remains required.')
     p.add_argument('--schedule-hint',type=Path)
+    p.add_argument('--fixed-geometry',action='store_true',help='Keep every hinted pixel in its existing OAM piece and bank; search exact operands and residency only.')
     p.add_argument('--underlay-bypass',action='store_true')
     p.add_argument('--saturated-extrema',action='store_true')
     p.add_argument('--complete-additive-cover',action='store_true')
     p.add_argument('--grid-padding-x',type=int,default=0);p.add_argument('--grid-padding-y',type=int,default=0)
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size,additive_only=a.additive_only,pool_math_modes=a.pool_math_mode)
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size,additive_only=a.additive_only,pool_math_modes=a.pool_math_mode,fixed_geometry=a.fixed_geometry)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
 
 

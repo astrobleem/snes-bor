@@ -4,18 +4,44 @@ Source pixels and fixed bank assignments are inputs. Prepared-range constraints
 grant ideal endpoint packing. A witness still needs physical slots and native
 timing; solver infeasibility rejects only this fixed encoding/bank family.
 """
-import argparse,copy,hashlib,json
+import argparse,copy,hashlib,json,time
 from pathlib import Path
 import numpy as np
 from raster_slot_greedy import demand
 from raster_dma_partition import constrain_ranges
+from raster_obj_compact import unpack
+
+
+def restrict_interval(source,first,last):
+    """Necessary relaxation retaining only pixel demand inside an interval.
+
+    Original rectangles and bank identities remain fixed. Initial slots may
+    contain any interval color. A candidate proves only this restricted demand.
+    """
+    if not 0<=first<=last<len(source['trace']):raise ValueError('BANK_RESIDENCY_SCANLINE_INTERVAL')
+    demand(source)
+    result=copy.deepcopy(source);images=[]
+    for p,mask in zip(source['pieces'],source['piece_pixel_masks']):
+        image=unpack(mask).copy()
+        for ly in range(p['height']):
+            if not first<=p['y']+ly<=last:image[ly]=0
+        flat=image.flatten();images.append(dict(width=p['width'],height=p['height'],packed_nibble_order='low then high',pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
+    result['piece_pixel_masks']=images
+    result['restricted_scanline_demand_interval']=[first,last]
+    result['outside_interval_pixels_relaxed']=True
+    result['complete_source_frame_pixel_identity_proven']=False
+    result['compiled_pixel_identity_verified']=False
+    result['restricted_pixel_identity_verified']=True
+    result['status']='RESTRICTED_SCANLINE_DEMAND_ONLY'
+    for field in('compiled_indices_sha256','compiled_schedule_sha256','prepared_dma_packets','physical_slot_layout'):result.pop(field,None)
+    return result
 
 
 def relaxed_bound(source,lookahead=17,time_limit=60):
     """Fractional fixed-bank cache lower bound, with independently checked dual."""
     from scipy.optimize import linprog
     from scipy.sparse import coo_matrix
-    required,uses,_=demand(source);active=[y for y,row in enumerate(required)if any(row)]
+    required,uses,_=demand(source,allow_restricted=True);active=[y for y,row in enumerate(required)if any(row)]
     if not active:raise ValueError('BANK_RESIDENCY_EMPTY')
     first,last=min(active),max(active)
     resident={(b,c,y):i for i,(b,c,y)in enumerate((b,c,y)for b in range(8)for c,lines in sorted(uses[b].items())for y in range(first,max(lines)+1))}
@@ -40,6 +66,7 @@ def relaxed_bound(source,lookahead=17,time_limit=60):
     report=dict(schema='BYOR_FIXED_BANK_CACHE_LP_BOUND_V1',status='BOUNDED_FIXED_BANK_LP_NO_BOUND',solver_status=int(r.status),message=r.message,
         variables=peak+1,constraints=len(limits),lookahead_lines=lookahead,geometry_and_pixel_choices_fixed=True,
         physical_slots_and_ranges_relaxed=True,initial_residency_optimal=True,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
+    report.update(restricted_scanline_demand_interval=source.get('restricted_scanline_demand_interval'),outside_interval_pixels_relaxed=source.get('outside_interval_pixels_relaxed',False))
     if r.success:
         lower=np.array([v[0]for v in bounds]);upper=np.array([np.inf if v[1]is None else v[1]for v in bounds])
         violation=max(float(np.max(np.maximum(matrix@r.x-np.array(limits),0))),float(np.max(np.maximum(lower-r.x,0))),float(np.max(np.maximum(r.x-upper,0))))
@@ -122,12 +149,41 @@ def constrain_adjacent(model,counts,active,window,tag,write_budget,maximum_range
     model.add_allowed_assignments([mask,total],allowed)
 
 
-def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None):
+def solve_linear(model,time_limit):
+    """Independent MILP backend for the same explicit integer linear model."""
+    from scipy.optimize import milp,Bounds,LinearConstraint
+    from scipy.sparse import coo_matrix
+    proto=model.proto;n=len(proto.variables);rr=[];cc=[];vv=[];lower=[];upper=[]
+    for row,c in enumerate(proto.constraints):
+        if not c.has_linear() or c.enforcement_literal:raise ValueError('BANK_RESIDENCY_MILP_REQUIRES_LINEAR_MODEL')
+        if len(c.linear.domain)!=2:raise ValueError('BANK_RESIDENCY_MILP_NONCONVEX_DOMAIN')
+        for i,v in zip(c.linear.vars,c.linear.coeffs):rr.append(row);cc.append(i);vv.append(v)
+        lo,hi=c.linear.domain;lower.append(-np.inf if lo<=-(1<<62)else lo);upper.append(np.inf if hi>=(1<<62)else hi)
+    matrix=coo_matrix((vv,(rr,cc)),shape=(len(lower),n)).tocsc()
+    # The installed OR-Tools repeated-field wrapper does not support negative
+    # indexing like a Python list. Materialize domains before taking the end.
+    domains=[list(v.domain)for v in proto.variables]
+    bounds=Bounds([d[0]for d in domains],[d[-1]for d in domains])
+    started=time.monotonic();r=milp(np.zeros(n),integrality=np.ones(n),bounds=bounds,constraints=LinearConstraint(matrix,lower,upper),options={'time_limit':time_limit,'mip_rel_gap':0})
+    report=dict(solver_backend='highs',solver_status=('OPTIMAL'if r.status==0 else'INFEASIBLE'if r.status==2 else'FEASIBLE'if r.x is not None else'UNKNOWN'),
+        solver_seconds=time.monotonic()-started,solver_model_variables=n,solver_model_constraints=len(lower),solver_branches=getattr(r,'mip_node_count',None),solver_conflicts=None,
+        solver_message=r.message)
+    if r.x is None:return None,report
+    values=np.rint(r.x);lhs=matrix@values
+    violation=max(float(np.max(np.maximum(np.array(lower)-lhs,0))),float(np.max(np.maximum(lhs-np.array(upper),0))),
+        float(np.max(np.maximum(bounds.lb-values,0))),float(np.max(np.maximum(values-bounds.ub,0))),float(np.max(np.abs(values-r.x))))
+    if violation>1e-6:raise AssertionError('BANK_RESIDENCY_MILP_INTEGER_REPLAY')
+    report['maximum_integer_constraint_violation']=violation
+    return lambda variable:int(values[variable.index]),report
+
+
+def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None):
     from ortools.sat.python import cp_model
     if write_budget<0 or lookahead<0 or(window is not None and window<1):raise ValueError('BANK_RESIDENCY_DOMAIN')
     if range_backend not in('dp','ranges','adjacent'):raise ValueError('BANK_RESIDENCY_RANGE_BACKEND')
+    if solver_backend not in('cp-sat','highs')or(solver_backend=='highs'and window is not None and range_backend!='ranges'):raise ValueError('BANK_RESIDENCY_SOLVER_BACKEND')
     if repair_interval is not None and (len(repair_interval)!=2 or repair_interval[0]<0 or repair_interval[1]<repair_interval[0]):raise ValueError('BANK_RESIDENCY_REPAIR_INTERVAL')
-    required,uses,pixels=demand(source);height=len(required)
+    required,uses,pixels=demand(source,allow_restricted=True);height=len(required)
     active=[y for y,row in enumerate(required)if any(row)]
     if not active:raise ValueError('BANK_RESIDENCY_EMPTY')
     first,last=min(active),max(active);model=cp_model.CpModel();resident={};writes={};variables=[]
@@ -135,6 +191,19 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     for row in source['trace']:
         for e in row['updates']:before[e['bank']][e['slot']-1]=e['color']
         hints.append({b:set(c for c in values if c is not None)for b,values in before.items()})
+    hint_interval=None
+    if residency_hint is not None:
+        _,_,hint_pixels=demand(residency_hint,allow_restricted=True)
+        hint_interval=residency_hint.get('restricted_scanline_demand_interval',[0,height-1])
+        if len(hint_interval)!=2 or not 0<=hint_interval[0]<=hint_interval[1]<height:raise ValueError('BANK_RESIDENCY_HINT_INTERVAL')
+        if residency_hint['pieces']!=source['pieces']or len(residency_hint['trace'])!=height:raise ValueError('BANK_RESIDENCY_HINT_GEOMETRY')
+        for p,a,b in zip(source['pieces'],pixels,hint_pixels):
+            for ly in range(p['height']):
+                if hint_interval[0]<=p['y']+ly<=hint_interval[1]and not np.array_equal(a[ly],b[ly]):raise ValueError('BANK_RESIDENCY_HINT_PIXEL_IDENTITY')
+        hint_state={b:[None]*15 for b in range(8)}
+        for y,row in enumerate(residency_hint['trace']):
+            for e in row['updates']:hint_state[e['bank']][e['slot']-1]=e['color']
+            if hint_interval[0]<=y<=hint_interval[1]:hints[y]={b:set(c for c in values if c is not None)for b,values in hint_state.items()}
     by_line={};write_lines={}
     for b in range(8):
         for c,lines in sorted(uses[b].items()):
@@ -152,6 +221,19 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
                 model.add_hint(w,int(c in hints[y][b]and c not in hints[y-1][b]))
                 index=len(variables);variables.append(w);write_lines.setdefault((b,y),[]).append(index)
     for values in by_line.values():model.add(sum(values)<=15)
+    # A bank begins any interval with at most fifteen resident identities.
+    # Each other distinct demanded identity needs a write after its first row.
+    # These valid aggregate cuts expose compulsory loads before branching on
+    # individual cache lifetimes. Limit interval length to bound model growth.
+    interval_cuts=0
+    for b in range(8):
+        for begin in range(first,last):
+            colors=set(required[begin][b]);indices=[]
+            for end in range(begin+1,min(last,begin+32)+1):
+                colors.update(required[end][b]);indices.extend(write_lines.get((b,end),[]))
+                compulsory=len(colors)-15
+                if compulsory>0:
+                    model.add(sum(variables[i]for i in indices)>=compulsory);interval_cuts+=1
     def allocate():
         index=len(variables);variables.append(model.new_int_var(0,30,'range'+str(index)));return index
     def constraint(items,lo,hi):
@@ -165,7 +247,9 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         active_flags={}
         for b,values in line.items():
             index=len(variables);flag=model.new_bool_var(f'active{b}_{y}');variables.append(flag);active_flags[b]=index
-            if values:model.add_max_equality(flag,[variables[i]for i in values])
+            if values:
+                for i in values:model.add(flag>=variables[i])
+                model.add(flag<=sum(variables[i]for i in values))
             else:model.add(flag==0)
         if range_backend in('dp','adjacent'):
             counts=[]
@@ -174,22 +258,29 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
             if range_backend=='dp':constrain_dp(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}')
             else:constrain_adjacent(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',write_budget)
         else:constrain_ranges(line,active_flags,allocate,constraint,window,maximum_ranges=4)
-    solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
-    solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
-    solver.parameters.stop_after_first_solution=True
-    status=solver.solve(model)
-    report=dict(schema='BYOR_FIXED_BANK_RESIDENCY_V1',status='BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE',solver_status=solver.status_name(status),
-        solver_seconds=solver.wall_time,solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),
-        solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,write_budget=write_budget,lookahead_lines=lookahead,
+    if solver_backend=='highs':value,statistics=solve_linear(model,time_limit)
+    else:
+        solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
+        solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
+        solver.parameters.stop_after_first_solution=True
+        status=solver.solve(model);value=solver.value if status in(cp_model.FEASIBLE,cp_model.OPTIMAL)else None
+        statistics=dict(solver_backend='cp-sat',solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
+            solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts)
+    report=dict(schema='BYOR_FIXED_BANK_RESIDENCY_V1',status='BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE',**statistics,write_budget=write_budget,lookahead_lines=lookahead,
         prepared_window_master_clocks=window,range_backend=range_backend,static_bank_dominance_enforced=True,initial_residency_optimal=True,initial_palette_may_preload_entire_frame=True,
         physical_endpoint_slots_relaxed=True,physical_slot_schedule_proven=False,native_timing_admitted=False,
         universal_raster_rejected=False,no_color_reduction=True)
     report['fixed_outside_repair_interval']=repair_interval
     report['ranges_restricted_to_single_or_adjacent_pair']=range_backend=='adjacent' and window is not None
-    if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return report
+    report['restricted_scanline_demand_interval']=source.get('restricted_scanline_demand_interval')
+    report['outside_interval_pixels_relaxed']=source.get('outside_interval_pixels_relaxed',False)
+    report['complete_source_frame_pixel_identity_proven']=False
+    report['compulsory_bank_interval_cuts']=interval_cuts
+    report['soft_residency_hint_interval']=hint_interval
+    if value is None:return report
     planned={y:{b:set()for b in range(8)}for y in range(first,last+1)}
     for (b,c,y),r in resident.items():
-        if solver.value(r):planned[y][b].add(c)
+        if value(r):planned[y][b].add(c)
     state={b:[None]*15 for b in range(8)};states=[];trace=[];latency=0
     initial=planned[first]
     for y in range(height):
@@ -221,6 +312,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     report.update(status='FIXED_BANK_RESIDENCY_AND_PIXEL_IDENTITIES_PROVEN',peak_scheduled_writes=max(r['colors_written']for r in trace[1:]),
         maximum_noninitial_prefetch_latency_lines=latency,pixel_color_identity_verified=True,
         independent_prepared_partition_bound_verified=window is not None,peak_optimistic_prepared_span=max(favorable_span(r['updates'])for r in trace[1:]))
+    report['complete_source_frame_pixel_identity_proven']=not report['outside_interval_pixels_relaxed']
     result=copy.deepcopy(source)
     for key in('physical_slot_layout','prepared_dma_packets'):result.pop(key,None)
     result.update(trace=trace,piece_pixel_masks=images,bank_residency=report,write_budget=write_budget,lookahead_lines=lookahead,
@@ -231,7 +323,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         average_writes=float(np.mean([r['colors_written']for r in trace[1:]])),worst_scanline=1+int(np.argmax([r['colors_written']for r in trace[1:]])),
         compiled_indices_sha256=hashlib.sha256(indices.tobytes()).hexdigest(),native_presentation_proven=False)
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=result['pieces'],pixel_masks=images,trace=trace),sort_keys=True).encode()).hexdigest()
-    _,_,replay=demand(result)
+    _,_,replay=demand(result,allow_restricted=True)
     if any(not np.array_equal(a,b)for a,b in zip(pixels,replay)):raise AssertionError('BANK_RESIDENCY_INDEPENDENT_PIXEL_REPLAY')
     return result
 
@@ -243,7 +335,12 @@ def main():
     p.add_argument('--no-prepared-range-bound',action='store_true')
     p.add_argument('--range-backend',choices=('dp','ranges','adjacent'),default='dp')
     p.add_argument('--repair-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
-    a=p.parse_args();source=json.loads(a.schedule.read_text());r=relaxed_bound(source,a.lookahead,a.time_limit)if a.relaxed_bound else optimize(source,a.write_budget,a.lookahead,None if a.no_prepared_range_bound else a.window,a.time_limit,a.range_backend,a.repair_interval);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('bank_residency',r)))
+    p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat')
+    p.add_argument('--scanline-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
+    p.add_argument('--residency-hint',type=Path)
+    a=p.parse_args();source=json.loads(a.schedule.read_text())
+    if a.scanline_interval:source=restrict_interval(source,*a.scanline_interval)
+    r=relaxed_bound(source,a.lookahead,a.time_limit)if a.relaxed_bound else optimize(source,a.write_budget,a.lookahead,None if a.no_prepared_range_bound else a.window,a.time_limit,a.range_backend,a.repair_interval,a.solver_backend,json.loads(a.residency_hint.read_text())if a.residency_hint else None);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('bank_residency',r)))
 
 
 if __name__=='__main__':main()
