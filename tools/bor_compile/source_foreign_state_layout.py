@@ -53,7 +53,8 @@ def layout(base,size,entities=128,players=4):
            ('tryjump_controls',64,'pending jump arguments, actual JUMPDELAY query and frame continuation'),
            ('dojump_controls',80,'readonly dust absence, mandatory sound and actual toss/jump frame'),
            ('player_jump_entry_controls',32,'ordered jump input queries and real tryjump/frame continuation'),
-           ('attack_identity_sequence',6,'unsigned source do_attack sequence and independent initialization marker')]
+           ('attack_identity_sequence',6,'unsigned source do_attack sequence and independent initialization marker'),
+           ('global_fall_speedup',2,'closed source tospeedup boolean; reset by unload_level, set by common_fall')]
     cursor=base;regions=[]
     for name,count,authority in specs:
         cursor=(cursor+1)&~1

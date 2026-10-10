@@ -15,7 +15,7 @@ def layout():
     for name,provider in [('current_palette',palette),('movement',movement),('pain',pain),('hit',hit)]:
         r=provider();regions.append(dict(name=name,address=r['controls'],bytes=64))
     f=foreign(0x7fa000,6400)
-    excluded={'input_history','attack_identity_sequence'}
+    excluded={'input_history','attack_identity_sequence','global_fall_speedup'}
     for r in f['regions']:
         if not r['name'].startswith('entity_')and r['name']not in excluded:
             regions.append({k:r[k]for k in ('name','address','bytes')})

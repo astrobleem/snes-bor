@@ -1,0 +1,36 @@
+{
+  "schema": "BYOR_COMMON_FALL_PREFIX_RECEIPT_V1",
+  "status": "PASS",
+  "cases": 371,
+  "report": "out\\byor-motu-common-fall-stage-isolated-native\\report.json",
+  "report_sha256": "0604e3e96ecbedfec3cbfd1ed0fadb3c2233f8bb74a2a1a5cd31e200da225020",
+  "rom_sha256": "2ca139968256ade4fa90f4dc7bc480b762e5a57c535060ebb6bcebf55a73a1a9",
+  "requirements": "out\\byor-motu-common-fall-requirements\\report.json",
+  "requirements_sha256": "7155eaa3cb0ff5b58795e65abc483bffdb27cb8b8fcd4d74293eaf4a74d0610d",
+  "zero_staydown_attacks": 31,
+  "closed_rise_values": [
+    -1,
+    0,
+    100
+  ],
+  "source_speedup_values": [
+    0,
+    1
+  ],
+  "source_speedup_reset_authority": "unload_level",
+  "source_speedup_bool_address": 8370430,
+  "new_foreign_arena_bytes": 2,
+  "foreign_arena_remaining_bytes": 0,
+  "all_prior_region_addresses_unchanged": true,
+  "stored_scoped_snapshot_geometry_unchanged": true,
+  "process_global_excluded_from_snapshots": true,
+  "bank0_unchanged": true,
+  "bank0_free_bytes": 2,
+  "protected_files_unchanged": 17,
+  "doland_child_executed": false,
+  "full_common_fall_admitted": false,
+  "production_unload_speedup_reset_bound": false,
+  "production_slowmotion_consumer_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
