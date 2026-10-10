@@ -122,9 +122,16 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     for (i,piece_index,bank,color),variable in choices.items():
         atom_choices.setdefault(i,[]).append((piece_index,bank,color,variable))
         mask_choices[piece_index,bank].append(variable)
+    mandatory={};forced_colors={}
     for i,atom in enumerate(atoms):
         options=atom_choices.get(i,[])
         constraint([(v,1)for p,b,c,v in options],1,1)
+        eligible_pieces={p for p,b,c,v in options};kinds={int(b>=4)for p,b,c,v in options}
+        if len(eligible_pieces)==1 and len(kinds)==1:
+            p=next(iter(eligible_pieces));kind=next(iter(kinds));key=p,kind
+            mandatory[key]=max(mandatory.get(key,0),1)
+            colors={c for pp,b,c,v in options}
+            if len(colors)==1:forced_colors.setdefault((p,kind,atom['line']),set()).update(colors)
         for piece_index,bank,color,variable in options:
             constraint([(variable,1),(masks[piece_index,bank],-1)],-np.inf,0)
             constraint([(variable,1),(resident[bank,color,atom['line']],-1)],-np.inf,0)
@@ -133,6 +140,13 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     # hardware capacity. Removing those masks preserves every valid rendering.
     for key,variables in mask_choices.items():
         constraint([(masks[key],1)]+[(v,-1)for v in variables],-np.inf,0)
+    for (p,kind,y),colors in forced_colors.items():
+        mandatory[p,kind]=max(mandatory[p,kind],(len(colors)+14)//15)
+    for (p,kind),count in mandatory.items():
+        constraint([(masks[p,b],1)for b in range(4*kind,4*kind+4)],count,np.inf)
+    mandatory_geometry=dict(oam_entries=sum(mandatory.values()),
+        peak_sprites=max((sum(n for (i,k),n in mandatory.items()if pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height'])for y in range(height)),default=0),
+        peak_tile_slivers=max((sum(n*slivers(pieces[i])for (i,k),n in mandatory.items()if pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height'])for y in range(height)),default=0))
     constraint([(v,1) for v in masks.values()],0,128)
     if bank_symmetry:
         # Canonicalize interchangeable bank labels by first piece using each bank.
@@ -204,6 +218,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 feasibility_only=feasibility_only,bank_symmetry=bank_symmetry,bank_symmetry_policy='first visible piece' if bank_symmetry else None,early_write_budget=early_write_budget,late_start=late_start,saturated_reuse=saturated_reuse,align_visible_bounds=align_visible_bounds,
                 additive_alternative_count=sum(len(a["residual_options"]) for a in atoms),
                 horizontal_clip_limit_counted=clip_horizontal,
+                mandatory_geometry_lower_bound=mandatory_geometry,
                 source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
                 scope='Explicit pose. Exact opaque/additive pixel alternatives and fixed OAM color masks on one legal grid. No native layer routing, source reachability or hardware bandwidth admission.')
     report['solver']['backend']=solver_backend

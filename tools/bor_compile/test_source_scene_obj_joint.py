@@ -6,6 +6,18 @@ from source_scene_obj_joint import probe
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_forced_opaque_row_requires_three_fixed_masks(self):
+        background=np.full((224,256,3),255,dtype=np.uint8)
+        pixels=np.full((32,32),-1,dtype=np.int32);pixels[0,:31]=np.arange(31)
+        expected=background.copy()
+        for x in range(31):expected[0,x]=[x*8,0,0]
+        actors=[dict(pixels=pixels,left=0,top=0)]
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            result=probe(None,None,{},size=32,write_budget=0,time_limit=5,bank_symmetry=True)
+        self.assertEqual(result['mandatory_geometry_lower_bound'],dict(oam_entries=3,peak_sprites=3,peak_tile_slivers=12))
+        self.assertEqual(result['geometry']['oam_entries'],3)
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+
     def test_joint_encoding_preserves_opaque_black_and_negative_residual(self):
         background=np.full((224,256,3),112,dtype=np.uint8)
         pixels=np.full((8,8),-1,dtype=np.int32)

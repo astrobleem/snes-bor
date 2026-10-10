@@ -1,0 +1,90 @@
+{
+  "schema": "BYOR_EXACT_OBJ_CGRAM_PACKETS_V1",
+  "status": "OFFLINE_DESCRIPTORS_PROVEN",
+  "tests": 7,
+  "backend_and_joint_tests": 19,
+  "no_color_reduction": true,
+  "native_timing_admitted": false,
+  "universal_raster_rejected": false,
+  "protected_files_modified": false,
+  "reports": [
+    {
+      "path": "out/byor-motu-isolated-screen-plain-cgram-packets.json",
+      "sha256": "7afddcce1d344d23fd4addf48857e55eb46fc2415954e234fef8c5021770e57d",
+      "status": "EXACT_SLOT_PACKETS_COMPILED",
+      "peak_packet_count": 22,
+      "peak_transfer_bytes": 108,
+      "peak_data_bytes": 92,
+      "worst_scanline": 131
+    },
+    {
+      "path": "out/byor-motu-concurrent-screen-plain-cgram-packets.json",
+      "sha256": "2d872626626f387b96ce4e2feae6d3a351b717cefc58812d7157981d5f9bc156",
+      "status": "EXACT_SLOT_PACKETS_COMPILED",
+      "peak_packet_count": 26,
+      "peak_transfer_bytes": 134,
+      "peak_data_bytes": 114,
+      "worst_scanline": 132
+    },
+    {
+      "path": "out/byor-motu-isolated-saturated-small-pool19-cpsat-supported.json",
+      "sha256": "3d90d10d80c524e929f34741b789229dd30c8e88e24a56e373170109bd75d367",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 41632,
+        "constraints": 53240,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "log_lines": 258,
+          "sat_inprocessing": false,
+          "branches": 21951,
+          "conflicts": 15869,
+          "wall_seconds": 300.0536063,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      }
+    },
+    {
+      "path": "out/byor-motu-isolated-saturated-small-pool19-cpsat-mandatory.json",
+      "sha256": "c336adb8dc91e9bf8292bd99e3e490e604c6091a68ad57a6b578ca723f3b5ca7",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 41632,
+        "constraints": 53335,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "log_lines": 256,
+          "sat_inprocessing": false,
+          "branches": 895672,
+          "conflicts": 590304,
+          "wall_seconds": 30.0312458,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "mandatory_geometry_lower_bound": {
+        "oam_entries": 95,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 20
+      }
+    }
+  ],
+  "focused_tests_before_new_bound_case": 62,
+  "new_bound_case_native_free_replays": 2,
+  "width_labels": 9825,
+  "width_new": 0,
+  "width_baselined": 0,
+  "width_stale": 0,
+  "protected_hashes_unchanged": 17
+}
