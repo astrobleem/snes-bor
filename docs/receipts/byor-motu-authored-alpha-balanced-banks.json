@@ -1,0 +1,206 @@
+{
+  "schema": "BYOR_AUTHORED_ALPHA_BALANCED_BANKS_V1",
+  "no_color_reduction": true,
+  "native_presentation_proven": false,
+  "universal_raster_rejected": false,
+  "artifacts": {
+    "balanced60": {
+      "path": "out\\byor-motu-authored-guile2-balanced60-hinted-source.json",
+      "sha256": "25b197629bc1d7acad8f4f53ff590cb6b966c2765c59e1f2a8d7080ff42c7651",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "geometry": {
+        "oam_entries": 66,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 34
+      },
+      "solver": {
+        "status": 0,
+        "message": "OPTIMAL",
+        "variables": 215440,
+        "constraints": 510650,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 211692,
+          "hint_is_soft": true,
+          "log_lines": 238,
+          "sat_inprocessing": false,
+          "branches": 512,
+          "conflicts": 0,
+          "wall_seconds": 33.962229300000004,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": true
+        }
+      },
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "ece5e729526bc7496bbaf214298e9cf77f3313bbf64776558586fc84b052cd1a",
+      "maximum_frame_colors_per_bank": 60,
+      "peak_scheduled_writes": 33,
+      "compiled_pixel_identity_verified": true,
+      "color_math": "additive",
+      "source_actor_canvases": [
+        [
+          110,
+          90
+        ]
+      ],
+      "underlay_bypassed_pixels": 83
+    },
+    "cache_bound": {
+      "path": "out\\byor-motu-authored-guile2-balanced60-lower.json",
+      "sha256": "036f4269c0317a4634c54a0c56e63ea24d71336398680a54b128afc8cdc858b7",
+      "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+      "peak_write_lower_bound": 19.28571428571429,
+      "validated_dual_lower_bound": 19.28571428571428
+    },
+    "cache20": {
+      "path": "out\\byor-motu-authored-guile2-balanced60-cache20-unbounded.json",
+      "sha256": "eaac525f5f4e0285e28f7506d0bcacb2ac869ee202fa0526453761eb982fa633",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "geometry": {
+        "oam_entries": 66,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 34
+      },
+      "solver": {
+        "status": 0,
+        "message": "OPTIMAL",
+        "variables": 215440,
+        "constraints": 510650,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 211692,
+          "hint_is_soft": true,
+          "log_lines": 238,
+          "sat_inprocessing": false,
+          "branches": 512,
+          "conflicts": 0,
+          "wall_seconds": 33.962229300000004,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": true
+        }
+      },
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "eb20150070a61d06ea96e65528e700b0239decf62acbf7f1edf648fce379c5bf",
+      "maximum_frame_colors_per_bank": 60,
+      "peak_scheduled_writes": 20,
+      "bank_residency": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "FIXED_BANK_RESIDENCY_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_backend": "cp-sat",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 14.0893355,
+        "solver_model_variables": 23520,
+        "solver_model_constraints": 41941,
+        "solver_branches": 0,
+        "solver_conflicts": 0,
+        "write_budget": 20,
+        "lookahead_lines": 17,
+        "prepared_window_master_clocks": null,
+        "range_backend": "dp",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": false,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "compulsory_bank_interval_cuts": 6754,
+        "soft_residency_hint_interval": null,
+        "total_noninitial_writes_objective": false,
+        "peak_scheduled_writes": 20,
+        "maximum_noninitial_prefetch_latency_lines": 17,
+        "pixel_color_identity_verified": true,
+        "independent_prepared_partition_bound_verified": false,
+        "peak_optimistic_prepared_span": 440,
+        "total_noninitial_scheduled_writes": 515
+      },
+      "compiled_pixel_identity_verified": true,
+      "color_math": "additive",
+      "source_actor_canvases": [
+        [
+          110,
+          90
+        ]
+      ],
+      "underlay_bypassed_pixels": 83
+    },
+    "fixed66_21_344": {
+      "path": "out\\byor-motu-authored-guile2-fixed66-cache21-window344.json",
+      "sha256": "ed5545e7c9d0d49b838804468ea7a6bbad798162f50b21f83fb78bc8b94f1838",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 2,
+        "message": "INFEASIBLE",
+        "variables": 29026,
+        "constraints": 74693,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 1512,
+          "hint_variables": 24922,
+          "hint_is_soft": true,
+          "log_lines": 388,
+          "sat_inprocessing": false,
+          "branches": 7658,
+          "conflicts": 445,
+          "wall_seconds": 17.7851138,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "maximum_frame_colors_per_bank": null,
+      "color_math": "additive",
+      "source_actor_canvases": [
+        [
+          110,
+          90
+        ]
+      ],
+      "underlay_bypassed_pixels": 83
+    },
+    "fixed66_22_356": {
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 29026,
+        "constraints": 74693,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 1512,
+          "hint_variables": 24922,
+          "hint_is_soft": true,
+          "log_lines": 391,
+          "sat_inprocessing": false,
+          "branches": 2757303,
+          "conflicts": 727516,
+          "wall_seconds": 60.074201200000005,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "path": "out/byor-motu-authored-guile2-fixed66-cache22-window356.json",
+      "sha256": "17f4f65d56fc80213304d8a1a0affa8aa49be2dee8cddd8ca1ad437f79e38627"
+    }
+  }
+}
