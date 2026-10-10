@@ -16,11 +16,12 @@ from source_bg_feasibility import rgb555
 from source_scene_bg import compose_rgb8
 
 
-def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_budget=21,global_color_banks=False,maximum_frame_colors_per_bank=None,compact_geometry=False):
+def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_budget=21,global_color_banks=False,maximum_frame_colors_per_bank=None,compact_geometry=False,residency_window_lines=None):
     """Compile a source-exact small-OBJ bank assignment before cache repair."""
+    if residency_window_lines is not None and not global_color_banks:raise ValueError('ISOLATED_WINDOW_REQUIRES_GLOBAL_BANKS')
     actors,metadata,expected=prepare(source,stage,scene);pieces=geometry(actors,'small');height=expected.shape[0]
     if global_color_banks:
-        assignment=split_color_masks(pieces,tuple(range(8)),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',maximum_frame_colors_per_bank=maximum_frame_colors_per_bank,defer_oam_admission=compact_geometry)
+        assignment=split_color_masks(pieces,tuple(range(8)),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',maximum_frame_colors_per_bank=maximum_frame_colors_per_bank,defer_oam_admission=compact_geometry,residency_window_lines=residency_window_lines)
         if 'pieces'in assignment:pieces=assignment.pop('pieces')
     else:assignment=assign(pieces,tuple(range(8)),time_limit=time_limit,interval_write_budget=interval_budget,interval_lines=8)
     geom=dict(oam_entries=len(pieces),peak_sprites=max((sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height)),default=0),
@@ -103,11 +104,13 @@ def main():
     p.add_argument('--global-color-banks',action='store_true')
     p.add_argument('--maximum-frame-colors-per-bank',type=int)
     p.add_argument('--compact-geometry',action='store_true')
+    p.add_argument('--residency-window-lines',type=int)
     a=p.parse_args();source,stage,isolation=isolated_source(a.source,tuple(a.underlay_rgb8))
     if a.global_color_banks and not a.bank_search:raise ValueError('ISOLATED_GLOBAL_BANKS_REQUIRE_BANK_SEARCH')
     if a.maximum_frame_colors_per_bank is not None and not a.global_color_banks:raise ValueError('ISOLATED_FRAME_LIMIT_REQUIRES_GLOBAL_BANKS')
     if a.compact_geometry and not a.bank_search:raise ValueError('ISOLATED_COMPACTION_REQUIRES_BANK_SEARCH')
-    if a.bank_search:r=fixed_bank_context(source,stage,json.loads(a.scene.read_text()),a.lookahead,a.time_limit,min(a.write_budget,21),a.global_color_banks,a.maximum_frame_colors_per_bank,a.compact_geometry)
+    if a.residency_window_lines is not None and not a.global_color_banks:raise ValueError('ISOLATED_WINDOW_REQUIRES_GLOBAL_BANKS')
+    if a.bank_search:r=fixed_bank_context(source,stage,json.loads(a.scene.read_text()),a.lookahead,a.time_limit,min(a.write_budget,21),a.global_color_banks,a.maximum_frame_colors_per_bank,a.compact_geometry,a.residency_window_lines)
     else:r=probe(source,stage,json.loads(a.scene.read_text()),size='mixed'if a.size=='mixed'else int(a.size),write_budget=a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,
         solver_backend='cp-sat',color_math='precomposited',coalesce_opaque_choices=True,feasibility_only=not a.minimize_resource_load,align_visible_bounds=True,clip_horizontal=True,
         prepared_dma_window=a.prepared_dma_window,prepared_dma_partition=a.prepared_dma_window is not None)

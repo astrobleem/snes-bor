@@ -102,8 +102,10 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
     asm.extend([' lda #IsolatedRasterRow0',' sta $1E00',' sep #$20','.a8',' stz $1E08',' rep #$20','.a16',' plb',' plx',' pla','IsolatedRasterNmiRti:',' rti','.bank 40','.org $8000'])
     for y in range(224):
         row=rows[y];asm.extend([f'IsolatedRasterRow{y}:','.a16','.i16'])
-        for ch,count in row['counts'].items():asm.extend([f' lda #${count:04X}',f' sta ${0x4305+16*ch:04X}'])
-        asm.extend([' sep #$20','.a8',f' lda #${row["first_address"]:02X}',' sta $2121',f' lda #${row["mask"]:02X}',' sta $420B',' rep #$20','.a16',f' lda #IsolatedRasterRow{y+1}',' sta $1E00',' jml IsolatedRasterReturn'])
+        if row['mask']:
+            for ch,count in row['counts'].items():asm.extend([f' lda #${count:04X}',f' sta ${0x4305+16*ch:04X}'])
+            asm.extend([' sep #$20','.a8',f' lda #${row["first_address"]:02X}',' sta $2121',f' lda #${row["mask"]:02X}',' sta $420B',' rep #$20','.a16'])
+        asm.extend([f' lda #IsolatedRasterRow{y+1}',' sta $1E00',' jml IsolatedRasterReturn'])
     asm.extend(['IsolatedRasterRow224:','.a16','.i16',' jml IsolatedRasterReturn'])
     path=folder/'fixture.pasm';path.write_text('\n'.join(asm)+'\n')
     run=subprocess.run(['C:/Users/chad/.dotnet/dotnet.exe','E:/gh/poppy-astrobleem/src/Poppy.CLI/bin/Release/net10.0/poppy.dll',str(path),'--output',str(folder/'fixture.bin'),'--symbols',str(folder/'fixture.sym')],capture_output=True,text=True)
@@ -128,7 +130,7 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
     # Standalone LoROM fixture: production SA-1 mapping is not initialized by
     # this private reset owner and is outside this isolated timing proof.
     if not sa1_mapping:raw[0x7fd5]=0x30;raw[0x7fd6]=0
-    return bytes(raw),expected,bytes(initial),oam,sy,dict(chr_report=chr_report,stream_offsets=offsets,stream_bytes={ch:len(s)for ch,s in streams.items()},asset_bytes=len(assets),source_metadata=metadata,
+    return bytes(raw),expected,bytes(initial),oam,sy,dict(chr_report=chr_report,stream_offsets=offsets,stream_bytes={ch:len(s)for ch,s in streams.items()},asset_bytes=len(assets),source_metadata=metadata,empty_scanline_dma_setup_skipped=sum(not r['mask']for r in rows),
         private_fixture_only=True,foreground_context='BOUNDED_LONG_WRAM_STACK_AND_ACCUMULATOR_WIDTH_MIX'if foreground_stress else'HELD_BRA',actual_source_vm_execution_proven=False,production_nmi_service_code_executed=production_nmi_services,production_nmi_queue_bytes=nmi_queue_bytes if production_nmi_services else 0,production_queue_registration_executed=False,production_queue_byte_cap=2816,within_production_queue_byte_cap=nmi_queue_bytes<2816 if production_nmi_services else None,service_path_stress_only=production_nmi_services and nmi_queue_bytes>=2816,initial_palette_vblank_bytes=256,raster_cgram_owned_word_range=[128,255],production_cold_boot_proven=False,code_rom_banks=[code_rom,row_rom],asset_rom_bank=asset_rom,sa1_mmc_registers_changed=False,standalone_lorom=not sa1_mapping,production_sa1_mapping_proven=sa1_mapping,production_sa1_worker_execution_proven=False,bank_zero_growth_bytes=0,irq_dma_channels=list(range(1,8)),hdma_channels=[],source_alpha_policy='BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY')
 
 

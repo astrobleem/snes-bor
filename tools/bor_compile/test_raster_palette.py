@@ -5,6 +5,22 @@ from raster_palette import prove_frame, schedule,bounded_schedule, assign_banks,
 
 
 class RasterPaletteTests(unittest.TestCase):
+    def test_temporal_union_restriction_preserves_colors_and_is_not_universal_rejection(self):
+        pieces=[dict(x=0,y=0,width=8,height=8,rows={0:list(range(8)),1:list(range(8,16))})]
+        for backend in('highs','cp-sat'):
+            ordinary=split_color_masks(pieces,(0,),time_limit=10,global_color_banks=True,solver_backend=backend)
+            self.assertEqual(ordinary['status'],'COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN')
+            blocked=split_color_masks(pieces,(0,),time_limit=10,global_color_banks=True,solver_backend=backend,residency_window_lines=2)
+            self.assertEqual(blocked['status'],'MASK_GRID_INFEASIBLE')
+            self.assertFalse(blocked['universal_raster_rejected'])
+            valid=split_color_masks(pieces,(0,1),time_limit=10,global_color_banks=True,solver_backend=backend,residency_window_lines=2)
+            self.assertEqual(valid['status'],'COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN')
+            actual={}
+            for p,b in zip(valid['pieces'],valid['assignment']):
+                for y,cs in p['rows'].items():actual.setdefault(y,set()).update(cs)
+            self.assertEqual(actual,{0:set(range(8)),1:set(range(8,16))})
+        with self.assertRaisesRegex(ValueError,'MASK_RESIDENCY_WINDOW_DOMAIN'):split_color_masks(pieces,(0,),residency_window_lines=2)
+
     def test_global_mask_color_bank_identity_survives_rows_and_both_solvers(self):
         pieces=[dict(x=0,y=0,width=8,height=8,rows={0:list(range(8)),1:list(range(8,16))}),
             dict(x=8,y=0,width=8,height=8,rows={0:list(range(8,16)),1:list(range(8))})]

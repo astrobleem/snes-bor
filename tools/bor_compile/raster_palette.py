@@ -75,7 +75,7 @@ def assign_banks(pieces, banks, time_limit=60):
                 solver_status=int(result.status),message=result.message)
 
 
-def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solver_backend='highs',maximum_frame_colors_per_bank=None,defer_oam_admission=False):
+def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solver_backend='highs',maximum_frame_colors_per_bank=None,defer_oam_admission=False,residency_window_lines=None):
     """Allow multiple legal objects per cell, masking disjoint source pixels.
 
     Each output object still has one fixed bank. Color/row assignment is
@@ -84,8 +84,16 @@ def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solv
     """
     if solver_backend not in('highs','cp-sat'):raise ValueError('MASK_SOLVER_BACKEND')
     if maximum_frame_colors_per_bank is not None and(not global_color_banks or not isinstance(maximum_frame_colors_per_bank,int)or maximum_frame_colors_per_bank<1):raise ValueError('MASK_FRAME_COLOR_LIMIT')
+    if residency_window_lines is not None and(not global_color_banks or not isinstance(residency_window_lines,int)or residency_window_lines<1):raise ValueError('MASK_RESIDENCY_WINDOW_DOMAIN')
     nb=len(banks); n=len(pieces)
     pairs=sorted({(y,c) for p in pieces for y,cs in p['rows'].items() for c in cs})
+    if residency_window_lines is not None:
+        windows=[(len({c for yy,c in pairs if y<=yy<y+residency_window_lines}),y)for y in sorted({y for y,c in pairs})]
+        peak,first=max(windows,default=(0,0),key=lambda v:(v[0],-v[1]))
+        if peak>15*nb:
+            return dict(status='MASK_GRID_INFEASIBLE',solver_status=2,message='WINDOW_UNION_CAPACITY_LIMIT',
+                        residency_window_lines=residency_window_lines,window_union_colors=peak,worst_window_first_scanline=first,
+                        available_opaque_slots=15*nb,universal_raster_rejected=False)
     colors=sorted({c for y,c in pairs});color_ids={c:j for j,c in enumerate(colors)}
     cv={(y,c,b):n*nb+(color_ids[c]if global_color_banks else j)*nb+b for j,(y,c) in enumerate(pairs) for b in range(nb)}
     count=n*nb+(len(colors)if global_color_banks else len(pairs))*nb;rr=[];cc=[];vv=[];lo=[];hi=[]
@@ -114,6 +122,13 @@ def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solv
         live=[(i*nb+b,1) for i,p in enumerate(pieces) if p['y']<=y<p['y']+p['height'] for b in range(nb)]
         row(live,0,32)
         row([(i*nb+b,(p['width']+7)//8) for i,p in enumerate(pieces) if p['y']<=y<p['y']+p['height'] for b in range(nb)],0,34)
+    # Optional restricted search family: every rolling union fits one bank's
+    # fifteen slots. This steers temporal assignment before slot allocation;
+    # failure does not reject assignments outside this restriction.
+    if residency_window_lines is not None:
+        for y in sorted({y for y,c in pairs}):
+            required={c for yy,c in pairs if y<=yy<y+residency_window_lines}
+            for b in range(nb):row([(cv[first[c],c,b],1)for c in sorted(required)],0,15)
     objective=np.zeros(count);objective[:n*nb]=1
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(lo),count)).tocsc()
     if solver_backend=='cp-sat':
@@ -122,16 +137,22 @@ def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solv
     else:result=milp(objective,integrality=np.ones(count),bounds=Bounds(0,1),
         constraints=LinearConstraint(matrix,lo,hi),options={'time_limit':time_limit,'mip_rel_gap':0.03})
     if result.x is None:
-        return dict(status='MASK_GRID_INFEASIBLE' if result.status==2 else 'SOLVER_LIMIT',solver_status=int(result.status),message=result.message)
+        return dict(status='MASK_GRID_INFEASIBLE' if result.status==2 else 'SOLVER_LIMIT',solver_status=int(result.status),message=result.message,residency_window_lines=residency_window_lines,universal_raster_rejected=False)
     expanded=[];assignment=[]
     for p in pieces:
         for b,bank in enumerate(banks):
             rows={y:[c for c in cs if result.x[cv[y,c,b]]>0.5] for y,cs in p['rows'].items()}
             if any(rows.values()):expanded.append(dict(p,rows=rows));assignment.append(bank)
+    if residency_window_lines is not None:
+        for y in sorted({y for y,c in pairs}):
+            for bank in banks:
+                colors={c for p,b in zip(expanded,assignment)if b==bank for yy,cs in p['rows'].items()if y<=yy<y+residency_window_lines for c in cs}
+                if len(colors)>15:raise AssertionError('MASK_RESIDENCY_WINDOW_REPLAY')
     return dict(status='COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN',pieces=expanded,
                 assignment=assignment,solver_status=int(result.status),message=result.message,
                 objective=float(np.dot(objective,result.x)),lower_bound=float(result.mip_dual_bound)if getattr(result,'mip_dual_bound',None)is not None else None,
                 global_color_banks=global_color_banks,solver_backend=solver_backend,maximum_frame_colors_per_bank=maximum_frame_colors_per_bank,
+                residency_window_lines=residency_window_lines,
                 oam_admission_deferred=defer_oam_admission,hardware_oam_limit_verified=len(expanded)<=128)
 
 
