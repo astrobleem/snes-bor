@@ -5,11 +5,12 @@ can be enforced separately; a feasible result never proves a palette schedule.
 """
 import numpy as np
 import time
+import itertools
 from scipy.optimize import linprog,milp,Bounds,LinearConstraint
 from scipy.sparse import coo_matrix
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False):
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False):
     if len(capacities)!=2 or any(not isinstance(c,int)or c<0 for c in capacities)or not sum(capacities):raise ValueError('MODE_LIVENESS_CAPACITY')
     if write_budget is not None and(not isinstance(write_budget,int)or write_budget<0):raise ValueError('MODE_LIVENESS_WRITE_BUDGET')
     if solver_method not in ('highs-ipm','highs-ds'):raise ValueError('MODE_LIVENESS_LP_METHOD')
@@ -17,6 +18,8 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     if window_pixels is not None and len(window_pixels)!=len(rows):raise ValueError('MODE_LIVENESS_WINDOW_ROW_COUNT')
     if integer_windows and window_pixels is None:raise ValueError('MODE_LIVENESS_WINDOW_PIXELS_REQUIRED')
     if pin_lp_controls and not(integer_modes or integer_windows):raise ValueError('MODE_LIVENESS_INTEGER_CONTROLS_REQUIRED')
+    if positive_windows_only and window_pixels is None:raise ValueError('MODE_LIVENESS_WINDOW_PIXELS_REQUIRED')
+    if subset_mode_cuts and window_pixels is None:raise ValueError('MODE_LIVENESS_WINDOW_PIXELS_REQUIRED')
     if not isinstance(maximum_window_transitions,int)or maximum_window_transitions<0:raise ValueError('MODE_LIVENESS_WINDOW_TRANSITIONS')
     pruned=[];filtered=[]
     for y,row in enumerate(rows):
@@ -48,6 +51,7 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     if window_pixels is not None:
         for y in active:
             coordinates=sorted({pixel['x']for pixel in window_pixels[y]})
+            if positive_windows_only:coordinates=sorted(set(coordinates)|{0,255})
             for x in coordinates:enabled[y,x]=count;count+=1
             for left,right in zip(coordinates,coordinates[1:]):transitions[y,left,right]=count;count+=1
     peak=count;rr=[];cc=[];vv=[];limits=[]
@@ -76,6 +80,8 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                 for normal,choices in requirements:
                     constraint([(modes[y,mode],1),(resident[0,normal,y],-1)]+[(resident[1,c,y],-1)for c in choices],0)
         else:
+            if positive_windows_only:
+                constraint([(enabled[y,0],1)],0);constraint([(enabled[y,255],1)],0)
             for pixel in window_pixels[y]:
                 normal=pixel['output'];e=enabled[y,pixel['x']]
                 constraint([(resident[0,normal,y],-1),(resident[1,normal,y],-1),(e,-1)],-1)
@@ -85,6 +91,15 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                     # eligibility is fractional: selected mode needs either
                     # its math operand or the upper-bank literal bypass.
                     constraint([(resident[0,normal,y],-1)]+[(resident[1,c,y],-1)for c in set(choices)|{normal}]+[(modes[y,mode],1)],0)
+                if subset_mode_cuts:
+                    names=sorted(pixel['modes'])
+                    for size in range(2,len(names)+1):
+                        for subset in itertools.combinations(names,size):
+                            colors={c for mode in subset for c in pixel['modes'][mode]}
+                            selected=[(modes[y,mode],1)for mode in subset]
+                            constraint([(resident[0,normal,y],-1)]+[(resident[1,c,y],-1)for c in colors]+selected+[(e,1)],1)
+                            if size<len(names):
+                                constraint([(resident[0,normal,y],-1)]+[(resident[1,c,y],-1)for c in colors|{normal}]+selected,0)
             variables=[]
             for (yy,left,right),variable in transitions.items():
                 if yy!=y:continue
@@ -138,6 +153,8 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     report.update(solver_seconds=time.perf_counter()-started,solver_method='highs-mip'if mixed_integer else solver_method,
                   hardware_window_masks_modeled=window_pixels is not None,integer_windows=integer_windows,
                   window_transition_superset_only=window_pixels is not None,window_register_schedule_proven=False,
+                  positive_union_with_disabled_edges_only=positive_windows_only,
+                  subset_mode_cover_cuts=subset_mode_cuts,
                   window_eligibility_variables=len(enabled),maximum_window_transitions=maximum_window_transitions if window_pixels is not None else None)
     if result.x is not None:
         violation=max(float(np.max(np.maximum(matrix@result.x-np.array(limits),0))),float(np.max(np.maximum(lower-result.x,0))),float(np.max(np.maximum(result.x-upper,0))))

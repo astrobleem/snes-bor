@@ -23,5 +23,14 @@ class WindowTests(unittest.TestCase):
         self.assertEqual(descriptor['wobjlog_color_bits'],4)
         self.assertTrue(all(evaluate(descriptor,x)==bool(v)for x,v in pixels.items()))
 
+    def test_fixed_controls_disable_unused_window_without_changing_eligibility(self):
+        for mask in ([0]*256,[1]*256,[int(32<=x<=64 or 128<=x<=200)for x in range(256)]):
+            descriptor=compile_mask(mask,True)
+            self.assertEqual(descriptor['wobjsel_color_bits'],0xa0)
+            self.assertEqual(descriptor['wobjlog_color_bits'],0)
+            self.assertEqual([int(evaluate(descriptor,x))for x in range(256)],mask)
+        with self.assertRaisesRegex(ValueError,'POSITIVE_UNION_NOT_REPRESENTABLE'):
+            compile_mask([int(not(32<=x<=64 or 128<=x<=200))for x in range(256)],True)
+
 
 if __name__=='__main__':unittest.main()

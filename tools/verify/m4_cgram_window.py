@@ -40,9 +40,10 @@ def make_rom(count,audio_hdma=False,audio_rows=224):
     return bytes(rom)
 
 
-def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_bytes=None,math_window_hdma=False,cpu_math_windows=False):
+def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_bytes=None,math_window_hdma=False,cpu_math_windows=False,fixed_window_controls=False):
     """Prepared HIRQ DMA, isolated fixture. New handler body lives in bank 1."""
     if math_window_hdma and cpu_math_windows:raise ValueError('CGRAM_WINDOW_TRANSFER_OWNERS_CONFLICT')
+    if fixed_window_controls and not cpu_math_windows:raise ValueError('CGRAM_FIXED_WINDOW_CONTROLS_REQUIRE_CPU_WINDOWS')
     rom=bytearray([0xff])*131072
     code=bytearray.fromhex('78 18 fb c2 30 a2 ff 1f 9a e2 20')
     def store(address,value):code.extend(bytes([0xa9,value,0x8d,address&255,address>>8]))
@@ -60,7 +61,8 @@ def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_byt
         from raster_math_windows import compile_mask
         masks=[[1]*256,[int(32<=x<=63 or 128<=x<=191)for x in range(256)],
                [int(not(32<=x<=63 or 128<=x<=191))for x in range(256)],[0]*256]
-        descriptors=[compile_mask(mask)for mask in masks]
+        if fixed_window_controls:masks[2]=[int(0<=x<=31 or 96<=x<=127)for x in range(256)]
+        descriptors=[compile_mask(mask,fixed_window_controls)for mask in masks]
         window_tables=[bytearray()for _ in range(4)];cpu_descriptors=bytearray()
         for y in range(224):
             d=descriptors[y%4]
@@ -76,6 +78,7 @@ def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_byt
         if cpu_math_windows:
             rom[0x1a000:0x1a000+len(cpu_descriptors)]=cpu_descriptors
             store(0x420d,1);code.extend(bytes.fromhex('a2 00 00'))
+            if fixed_window_controls:store(0x2125,0xa0);store(0x212b,0)
     code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'))
     if audio_hdma or math_window_hdma:store(0x420c,(1 if audio_hdma else 0)|(0x1e if math_window_hdma else 0))
     store(0x2100,15);store(0x4200,0x10);code.extend(bytes.fromhex('58 80 fe'))
@@ -95,7 +98,9 @@ def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_byt
             irq.extend(bytes([0xa9,value,0x8d,address&255,address>>8]))
         # Two word writes publish all four bounds. Three byte writes publish
         # selection, logic and mode. Data and handler use FastROM aliases.
-        irq.extend(bytes.fromhex('c2 20 bf 00 a0 83 8d 26 21 bf 02 a0 83 8d 28 21 e2 20 bf 04 a0 83 8d 25 21 bf 05 a0 83 8d 2b 21 bf 06 a0 83 8d 31 21'))
+        irq.extend(bytes.fromhex('c2 20 bf 00 a0 83 8d 26 21 bf 02 a0 83 8d 28 21 e2 20'))
+        if not fixed_window_controls:irq.extend(bytes.fromhex('bf 04 a0 83 8d 25 21 bf 05 a0 83 8d 2b 21'))
+        irq.extend(bytes.fromhex('bf 06 a0 83 8d 31 21'))
         irq.extend(bytes([0xe8]*8+[0x40]));irq[9]=len(irq)-1-10
     rom[:4]=bytes.fromhex('5c 00 80 01');rom[0x100:0x104]=bytes.fromhex('5c 00 82 81'if cpu_math_windows else'5c 00 82 01')
     rom[0x8000:0x8000+len(code)]=code;rom[0x8200:0x8200+len(irq)]=irq
@@ -122,14 +127,16 @@ def main():
     parser.add_argument('--frame-attempts',type=int,default=8)
     parser.add_argument('--math-window-hdma',action='store_true')
     parser.add_argument('--cpu-math-windows',action='store_true')
+    parser.add_argument('--fixed-window-controls',action='store_true')
     args=parser.parse_args()
     if not 1<=args.bytes<=255 or not 1<=args.audio_rows<=224 or not 1<=args.min_scanline<224 or not 1<=args.frame_attempts<=64:raise ValueError('CGRAM_PROBE_DOMAIN')
     if args.split_first_bytes is not None and not args.irq:raise ValueError('CGRAM_SPLIT_REQUIRES_IRQ')
     if args.math_window_hdma and not args.irq:raise ValueError('CGRAM_MATH_WINDOW_HDMA_REQUIRES_IRQ')
     if args.cpu_math_windows and(not args.irq or args.split_first_bytes is None or args.math_window_hdma):raise ValueError('CGRAM_CPU_WINDOWS_REQUIRE_EXCLUSIVE_SPLIT_IRQ')
+    if args.fixed_window_controls and not args.cpu_math_windows:raise ValueError('CGRAM_FIXED_WINDOW_CONTROLS_REQUIRE_CPU_WINDOWS')
     folder=args.output.resolve() if args.output else Path(__file__).resolve().parents[2]/'out/byor-motu-cgram-probe'
     folder.mkdir(exist_ok=True)
-    rom=folder/'window.sfc';rom.write_bytes(make_irq_rom(args.bytes,args.audio_hdma,args.timer,args.audio_rows,args.split_first_bytes,args.math_window_hdma,args.cpu_math_windows) if args.irq else make_rom(args.bytes,args.audio_hdma,args.audio_rows))
+    rom=folder/'window.sfc';rom.write_bytes(make_irq_rom(args.bytes,args.audio_hdma,args.timer,args.audio_rows,args.split_first_bytes,args.math_window_hdma,args.cpu_math_windows,args.fixed_window_controls) if args.irq else make_rom(args.bytes,args.audio_hdma,args.audio_rows))
     trace=folder/'writes.csv';trace.write_text('')
     lua=folder/'observer.lua'
     lua.write_text('''local n=0;local audio=0;local packet=nil;local cgramAddress=0;local cgramHigh=false
@@ -209,6 +216,8 @@ end,emu.callbackType.write,0x2131,0x2131,emu.cpuType.snes,emu.memType.snesMemory
         cpu_math_window_descriptors=args.cpu_math_windows,cpu_math_window_rows_observed=len(cpu_windows),
         cpu_math_window_last_write_latest_hclock=max((r[2]for r in cpu_windows),default=None),
         cpu_window_live_pixel_deadline_admitted=False,
+        fixed_positive_union_window_controls=args.fixed_window_controls,
+        cpu_math_window_descriptor_bytes_per_line=(5 if args.fixed_window_controls else 7)if args.cpu_math_windows else 0,
         final_owned_cgram_identity_verified=owned_identity,cgram_sha256=hashlib.sha256(cgram).hexdigest(),
         split_first_bytes=args.split_first_bytes,dma_channels=[5,6,7] if args.split_first_bytes is not None else [7],
         dma_cgram_address_bytes=1 if args.split_first_bytes is not None else 0,

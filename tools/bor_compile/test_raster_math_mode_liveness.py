@@ -62,5 +62,29 @@ class ModeLivenessTests(unittest.TestCase):
         self.assertEqual(result['selected_modes'],{0:'add'})
         self.assertFalse(result['schedule_proven'])
 
+    def test_positive_window_family_disables_math_at_viewport_edges(self):
+        rows=[{'add':{(1,()),(2,(1,))}}]
+        pixels=[[dict(x=0,output=2,modes={'add':(1,)}),dict(x=100,output=1,modes={'add':()})]]
+        unrestricted=lower_bound(rows,capacities=(0,1),window_pixels=pixels,integer_windows=True)
+        self.assertEqual(unrestricted['status'],'RELAXED_MODE_LIVENESS_CANDIDATE')
+        restricted=lower_bound(rows,capacities=(0,1),window_pixels=pixels,integer_windows=True,positive_windows_only=True)
+        self.assertEqual(restricted['status'],'RELAXED_MODE_LIVENESS_INFEASIBLE')
+        self.assertTrue(restricted['positive_union_with_disabled_edges_only'])
+
+    def test_subset_cuts_prevent_fractional_modes_from_covering_unselected_outputs_for_free(self):
+        modes=('a','b','c','d');rows=[];pixels=[]
+        for colors in ((1,2,3,4),(5,6,8,9)):
+            row={m:set()for m in modes};line=[]
+            for i,out in enumerate(colors):
+                choices={m:(99,)if i==j else()for j,m in enumerate(modes)}
+                line.append(dict(x=100+i,output=out,modes=choices))
+                for m in modes:row[m].add((out,choices[m]))
+            rows.append(row);pixels.append(line)
+        weak=lower_bound(rows,capacities=(1,3),window_pixels=pixels)
+        strong=lower_bound(rows,capacities=(1,3),window_pixels=pixels,subset_mode_cuts=True)
+        self.assertAlmostEqual(weak['validated_dual_lower_bound'],0)
+        self.assertGreater(strong['validated_dual_lower_bound'],0)
+        self.assertFalse(strong['schedule_proven'])
+
 
 if __name__=='__main__':unittest.main()

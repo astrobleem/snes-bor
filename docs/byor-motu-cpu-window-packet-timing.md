@@ -26,3 +26,21 @@ it does not certify a HBreath palette schedule. Fixed-bank physical allocation,
 first affected-pixel deadlines and the actual production interrupt/NMI costs
 remain required. The [receipt](receipts/byor-motu-cpu-window-packet-timing.json)
 retains every bounded trial and its exact scope. No color reduction or PCM copies.
+
+## Fixed positive-window controls
+
+With both noninverted windows enabled and their OR logic fixed at boot, the
+dynamic descriptor needs only four bounds and one math-mode byte. Empty windows
+use left=255, right=0. At timer 162 this five-byte route again observes 447
+packets, 8,493 safe high commits, a 320-clock commit span and exact final owned
+CGRAM words. All 672 descriptors finish by H=334, improving the measured
+deadline by 108 clocks. This is a restricted mask family; the same source-pixel
+deadline and production interrupt-context nonclaims still apply.
+
+The stronger shared-mode solver now includes mode-subset cover inequalities.
+These prevent fractional mode mixtures from obtaining incompatible operands
+without sufficient resident coverage. Both the strengthened LP and the
+23-write integral-control solve reached their 180-second limits without a
+candidate. Neither result supplies an infeasibility verdict or a lower bound.
+The general 600-second solve and restricted positive-window 180-second solve
+also timed out. They remain open, rather than hardware rejections.
