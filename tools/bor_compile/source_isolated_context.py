@@ -16,11 +16,11 @@ from source_bg_feasibility import rgb555
 from source_scene_bg import compose_rgb8
 
 
-def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_budget=21,global_color_banks=False,maximum_frame_colors_per_bank=None):
+def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_budget=21,global_color_banks=False,maximum_frame_colors_per_bank=None,compact_geometry=False):
     """Compile a source-exact small-OBJ bank assignment before cache repair."""
     actors,metadata,expected=prepare(source,stage,scene);pieces=geometry(actors,'small');height=expected.shape[0]
     if global_color_banks:
-        assignment=split_color_masks(pieces,tuple(range(8)),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',maximum_frame_colors_per_bank=maximum_frame_colors_per_bank)
+        assignment=split_color_masks(pieces,tuple(range(8)),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',maximum_frame_colors_per_bank=maximum_frame_colors_per_bank,defer_oam_admission=compact_geometry)
         if 'pieces'in assignment:pieces=assignment.pop('pieces')
     else:assignment=assign(pieces,tuple(range(8)),time_limit=time_limit,interval_write_budget=interval_budget,interval_lines=8)
     geom=dict(oam_entries=len(pieces),peak_sprites=max((sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height)),default=0),
@@ -28,7 +28,7 @@ def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_bu
     report=dict(schema='BYOR_ISOLATED_FIXED_BANK_CONTEXT_V1',status='BOUNDED_FIXED_BANK_CONTEXT_NO_CANDIDATE',metadata=metadata,geometry=geom,
         bank_search=assignment,color_math='precomposited',no_color_reduction=True,native_presentation_proven=False,universal_raster_rejected=False,
         compiled_pixel_identity_verified=False,source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest())
-    if geom['oam_entries']>128 or geom['peak_sprites']>32 or geom['peak_tile_slivers']>34:
+    if (geom['oam_entries']>128 and not compact_geometry)or geom['peak_sprites']>32 or geom['peak_tile_slivers']>34:
         report['status']='FIXED_SMALL_GEOMETRY_LIMIT';return report
     if 'assignment'not in assignment:return report
     trace,states=schedule(pieces,assignment['assignment'],height,lookahead)
@@ -63,6 +63,13 @@ def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_bu
         source_opaque_output_rgb555_colors=len(np.unique(outputs[ownership!=0])),
         source_peak_scanline_output_rgb555_colors=max((len(np.unique(outputs[y][ownership[y]!=0]))for y in range(height)),default=0))
     report['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=compiled,pixel_masks=images,trace=trace),sort_keys=True).encode()).hexdigest()
+    if compact_geometry:
+        from raster_obj_compact import compact
+        try:report=compact(report,time_limit)
+        except AssertionError as error:
+            if str(error)!='OBJ_COMPACT_HARDWARE_OVERFLOW':raise
+            report.update(status='BOUNDED_FIXED_BANK_COMPACTION_NO_LEGAL_GEOMETRY',hardware_geometry_admitted=False)
+    if report['status']=='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN':report['hardware_geometry_admitted']=True
     return report
 
 
@@ -88,10 +95,12 @@ def main():
     p.add_argument('--bank-search',action='store_true')
     p.add_argument('--global-color-banks',action='store_true')
     p.add_argument('--maximum-frame-colors-per-bank',type=int)
+    p.add_argument('--compact-geometry',action='store_true')
     a=p.parse_args();source,stage,isolation=isolated_source(a.source,tuple(a.underlay_rgb8))
     if a.global_color_banks and not a.bank_search:raise ValueError('ISOLATED_GLOBAL_BANKS_REQUIRE_BANK_SEARCH')
     if a.maximum_frame_colors_per_bank is not None and not a.global_color_banks:raise ValueError('ISOLATED_FRAME_LIMIT_REQUIRES_GLOBAL_BANKS')
-    if a.bank_search:r=fixed_bank_context(source,stage,json.loads(a.scene.read_text()),a.lookahead,a.time_limit,min(a.write_budget,21),a.global_color_banks,a.maximum_frame_colors_per_bank)
+    if a.compact_geometry and not a.bank_search:raise ValueError('ISOLATED_COMPACTION_REQUIRES_BANK_SEARCH')
+    if a.bank_search:r=fixed_bank_context(source,stage,json.loads(a.scene.read_text()),a.lookahead,a.time_limit,min(a.write_budget,21),a.global_color_banks,a.maximum_frame_colors_per_bank,a.compact_geometry)
     else:r=probe(source,stage,json.loads(a.scene.read_text()),size='mixed'if a.size=='mixed'else int(a.size),write_budget=a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,
         solver_backend='cp-sat',color_math='precomposited',coalesce_opaque_choices=True,feasibility_only=not a.minimize_resource_load,align_visible_bounds=True,clip_horizontal=True,
         prepared_dma_window=a.prepared_dma_window,prepared_dma_partition=a.prepared_dma_window is not None)

@@ -75,7 +75,7 @@ def assign_banks(pieces, banks, time_limit=60):
                 solver_status=int(result.status),message=result.message)
 
 
-def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solver_backend='highs',maximum_frame_colors_per_bank=None):
+def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solver_backend='highs',maximum_frame_colors_per_bank=None,defer_oam_admission=False):
     """Allow multiple legal objects per cell, masking disjoint source pixels.
 
     Each output object still has one fixed bank. Color/row assignment is
@@ -86,26 +86,29 @@ def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solv
     if maximum_frame_colors_per_bank is not None and(not global_color_banks or not isinstance(maximum_frame_colors_per_bank,int)or maximum_frame_colors_per_bank<1):raise ValueError('MASK_FRAME_COLOR_LIMIT')
     nb=len(banks); n=len(pieces)
     pairs=sorted({(y,c) for p in pieces for y,cs in p['rows'].items() for c in cs})
-    cv={(y,c,b):n*nb+j*nb+b for j,(y,c) in enumerate(pairs) for b in range(nb)}
-    count=n*nb+len(cv);rr=[];cc=[];vv=[];lo=[];hi=[]
+    colors=sorted({c for y,c in pairs});color_ids={c:j for j,c in enumerate(colors)}
+    cv={(y,c,b):n*nb+(color_ids[c]if global_color_banks else j)*nb+b for j,(y,c) in enumerate(pairs) for b in range(nb)}
+    count=n*nb+(len(colors)if global_color_banks else len(pairs))*nb;rr=[];cc=[];vv=[];lo=[];hi=[]
     def row(items,lower,upper):
         r=len(lo)
         for c,v in items:rr.append(r);cc.append(c);vv.append(v)
         lo.append(lower);hi.append(upper)
-    for y,c in pairs: row([(cv[y,c,b],1) for b in range(nb)],1,1)
+    first={}
+    for y,c in pairs:
+        if global_color_banks and c in first:continue
+        first[c]=y;row([(cv[y,c,b],1) for b in range(nb)],1,1)
     if global_color_banks:
-        first={}
-        for y,c in pairs:
-            if c not in first:first[c]=y
-            else:
-                for b in range(nb):row([(cv[y,c,b],1),(cv[first[c],c,b],-1)],0,0)
         if maximum_frame_colors_per_bank is not None:
             for b in range(nb):row([(cv[y,c,b],1)for c,y in first.items()],0,maximum_frame_colors_per_bank)
     for i,p in enumerate(pieces):
+        seen=set()
         for y,cs in p['rows'].items():
             for c in cs:
-                for b in range(nb):row([(cv[y,c,b],1),(i*nb+b,-1)],-np.inf,0)
-    row([(i,1) for i in range(n*nb)],0,128)
+                for b in range(nb):
+                    v=cv[y,c,b]
+                    if v in seen:continue
+                    seen.add(v);row([(v,1),(i*nb+b,-1)],-np.inf,0)
+    if not defer_oam_admission:row([(i,1) for i in range(n*nb)],0,128)
     for y in range(max(p['y']+p['height'] for p in pieces)):
         for b in range(nb):row([(cv[yy,c,b],1) for yy,c in pairs if yy==y],0,15)
         live=[(i*nb+b,1) for i,p in enumerate(pieces) if p['y']<=y<p['y']+p['height'] for b in range(nb)]
@@ -128,7 +131,8 @@ def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solv
     return dict(status='COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN',pieces=expanded,
                 assignment=assignment,solver_status=int(result.status),message=result.message,
                 objective=float(np.dot(objective,result.x)),lower_bound=float(result.mip_dual_bound)if getattr(result,'mip_dual_bound',None)is not None else None,
-                global_color_banks=global_color_banks,solver_backend=solver_backend,maximum_frame_colors_per_bank=maximum_frame_colors_per_bank)
+                global_color_banks=global_color_banks,solver_backend=solver_backend,maximum_frame_colors_per_bank=maximum_frame_colors_per_bank,
+                oam_admission_deferred=defer_oam_admission,hardware_oam_limit_verified=len(expanded)<=128)
 
 
 def split_scene_color_masks(pieces, banks=tuple(range(8)), time_limit=60, adjacent_write_budget=None):

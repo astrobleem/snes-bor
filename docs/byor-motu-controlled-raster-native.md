@@ -19,6 +19,9 @@ matching fractional lower bound of 7.8888888889 proves the integer peak cannot
 be less than eight writes for this fixed bank encoding. The eight-write
 schedule minimizes total noninitial writes to 201 and needs at most seven
 lines of prefetch. Physical slot placement then emits at most four ranges.
+Eight changed colors require 16 logical bytes; unchanged words bridging ranges
+raise the peak actual CGRAM payload to 28 bytes. CGADD streams and DMA channel
+overhead are included in the measured transfer span below.
 
 The native executor uses DMA channels 1 through 7: color payloads alternate
 with one-byte CGADD address streams. Channel 0 is unused. Payload source cursors

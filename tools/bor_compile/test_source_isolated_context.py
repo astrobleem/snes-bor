@@ -7,6 +7,22 @@ import numpy as np
 
 
 class IsolatedContextTests(unittest.TestCase):
+    def test_compaction_checks_final_oam_limit_after_exact_mask_merging(self):
+        pixels=np.ones((72,128),dtype=np.int32)
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        expected=background.copy();expected[:72,:128,0]=8
+        def run(compact):
+            with patch('source_isolated_context.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_isolated_context.compose_rgb8',return_value=(background,{})):
+                return fixed_bank_context(None,None,{},time_limit=10,global_color_banks=True,compact_geometry=compact)
+        rejected=run(False)
+        self.assertEqual(rejected['status'],'FIXED_SMALL_GEOMETRY_LIMIT')
+        result=run(True)
+        self.assertTrue(result['hardware_geometry_admitted'])
+        self.assertEqual(result['geometry_compaction']['original_geometry']['oam_entries'],144)
+        self.assertLessEqual(result['geometry']['oam_entries'],128)
+        self.assertLessEqual(result['geometry']['peak_tile_slivers'],34)
+        self.assertTrue(result['geometry_compaction']['pixel_bank_slot_identity_verified'])
+
     def test_fixed_context_preserves_opaque_black_and_transparent_pixels(self):
         pixels=np.full((8,8),-1,dtype=np.int32);pixels[0,:2]=[0,31]
         background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy();expected[0,1,0]=248

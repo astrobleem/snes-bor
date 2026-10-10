@@ -1,0 +1,82 @@
+{
+  "schema": "BYOR_CONTROLLED_CONCURRENT_MASK_COMPACTION_V1",
+  "artifacts": [
+    {
+      "artifact": "out\\byor-motu-controlled-black-player-compacted-global-source.json",
+      "sha256": "0d7bfcaf52d453ea7cb50bdfd826a2f6550e3b32593dc01be118ee9b15ea8785",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "geometry": {
+        "oam_entries": 53,
+        "peak_sprites": 16,
+        "peak_tile_slivers": 34
+      },
+      "peak_scheduled_writes": 33,
+      "source_opaque_output_rgb555_colors": 293,
+      "source_peak_scanline_output_rgb555_colors": 69,
+      "peak_write_lower_bound": null,
+      "validated_dual_lower_bound": null,
+      "native_timing_admitted": false
+    },
+    {
+      "artifact": "out\\byor-motu-controlled-black-player-cache-lp.json",
+      "sha256": "550f1120c81ea4a91476cddff871f01bc47a9f44c9ebb3ee1fccd1febc4c6d4e",
+      "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+      "geometry": null,
+      "peak_scheduled_writes": null,
+      "source_opaque_output_rgb555_colors": null,
+      "source_peak_scanline_output_rgb555_colors": null,
+      "peak_write_lower_bound": 27.333333333333332,
+      "validated_dual_lower_bound": 27.33333333333331,
+      "native_timing_admitted": false
+    },
+    {
+      "artifact": "out\\byor-motu-controlled-black-player-cache21-window344.json",
+      "sha256": "05131b91f9fbda1a4d36ae21f8164b59f8777af133b37ebaf8c230f40391043c",
+      "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+      "geometry": null,
+      "peak_scheduled_writes": null,
+      "source_opaque_output_rgb555_colors": null,
+      "source_peak_scanline_output_rgb555_colors": null,
+      "peak_write_lower_bound": null,
+      "validated_dual_lower_bound": null,
+      "native_timing_admitted": false
+    },
+    {
+      "artifact": "out\\byor-motu-controlled-black-player-balanced37-compact-model-source.json",
+      "sha256": "3c94ecd8f76a4620915557fe37b81a79f7718a6dd0207b5c93444a885305cb49",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 22,
+        "peak_tile_slivers": 34
+      },
+      "peak_scheduled_writes": 19,
+      "source_opaque_output_rgb555_colors": 293,
+      "source_peak_scanline_output_rgb555_colors": 69,
+      "peak_write_lower_bound": null,
+      "validated_dual_lower_bound": null,
+      "native_timing_admitted": false
+    },
+    {
+      "artifact": "out\\byor-motu-controlled-black-player-balanced37-compact-model-cache-lp.json",
+      "sha256": "eaf2ddcd4634b41ee3fafce0a85fa782daf46d1da452459e99dfa1e591bbe369",
+      "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+      "geometry": null,
+      "peak_scheduled_writes": null,
+      "source_opaque_output_rgb555_colors": null,
+      "source_peak_scanline_output_rgb555_colors": null,
+      "peak_write_lower_bound": 16.2,
+      "validated_dual_lower_bound": 16.199999999999996,
+      "native_timing_admitted": false
+    }
+  ],
+  "focused_tests": {
+    "count": 29,
+    "status": "PASS",
+    "seconds": 3.734
+  },
+  "no_color_reduction": true,
+  "production_runtime_admitted": false,
+  "authored_scene_reachability_proven": false,
+  "universal_raster_rejected": false
+}

@@ -438,7 +438,13 @@
       "peak_ranges": 4,
       "pixel_color_identity_verified": true,
       "all_packet_cgram_identities_verified": true
-    }
+    },
+    "peak_physical_cgram_payload_bytes": 28
   },
-  "protected_dirty_tracked_files_verified": true
+  "protected_dirty_tracked_files_verified": true,
+  "focused_offline_tests": {
+    "tests": 67,
+    "status": "PASS",
+    "seconds": 20.969
+  }
 }
