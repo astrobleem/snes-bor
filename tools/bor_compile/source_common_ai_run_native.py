@@ -6,7 +6,7 @@ is outstanding. Real child tickets remain visible; no frame/sound ack is made.
 import re
 from source_engine_function_ids import function_id
 
-ACTIONS=(('common_fall','CommonFallFrame_Run',0xb6bb),('common_pain','CommonPainFrame_Run',0xb6b8),('common_grabbed','CommonGrabbedFrame_Run',0xb6b9),('common_block','CommonBlockFrame_Run',0xb6ba),('common_land','CommonLandFrame_Run',0xb6bd),('common_rise','CommonRiseFrame_Run',0xb6c2),('common_lie','CommonLieFrame_Run',0xb6c4))
+ACTIONS=(('common_fall','CommonFallFrame_Run',0xb6bb),('common_pain','CommonPainFrame_Run',0xb6b8),('common_grabbed','CommonGrabbedFrame_Run',0xb6b9),('common_block','CommonBlockFrame_Run',0xb6ba),('common_land','CommonLandFrame_Run',0xb6bd),('common_rise','CommonRiseFrame_Run',0xb6c2),('common_lie','CommonLieFrame_Run',0xb6c4),('suicide','Suicide_Run',0xb6c5))
 
 
 def emit(work,sy,*,actions=ACTIONS,fallback_dispatch=None,fallback_continue=None):
