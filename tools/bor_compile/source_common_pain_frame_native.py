@@ -2,7 +2,7 @@
 from source_animation_ids import configure
 
 def emit(work,sy,*,prefix="CommonPain"):
- if prefix not in ('CommonPain','CommonGrabbed','CommonBlock','CommonDoland','CommonLand'):raise ValueError('COMMON_ACTION_FRAME_PREFIX')
+ if prefix not in ('CommonPain','CommonGrabbed','CommonBlock','CommonDoland','CommonLand','CommonRise'):raise ValueError('COMMON_ACTION_FRAME_PREFIX')
  lines=[];serial=0;block=configure([])['authority']['enum']['ANI_LAND'if prefix=='CommonDoland'else'ANI_BLOCK'];reset=0 if prefix=='CommonDoland'else 1
  def put(s):lines.extend(s.strip().splitlines())
  def label(n):put('CommonPainFrame_'+n+':\n.a16\n.i16')

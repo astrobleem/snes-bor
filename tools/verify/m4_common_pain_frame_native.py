@@ -26,6 +26,7 @@ def main():
  p.add_argument('--land-action',action='store_true')
  p.add_argument('--fall-land-requirements',type=Path)
  p.add_argument('--check-ai',action='store_true')
+ p.add_argument('--rise-requirements',type=Path)
  a=p.parse_args();a.output=a.output.resolve();source=Source(a.source);sy=symbols(Path('src/main.sym'));ids=configure([]);pain=ids['arrays']['pains'][0];work=next(r['address']for r in layout(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES'])['regions']if r['name']=='common_idle_controls');directory=animations(source)['animations'];frames=effects(source)['animations'];original=parent.run_fixture
  fall_requirements=None
  if a.fall_land_requirements:
@@ -35,6 +36,11 @@ def main():
  if a.doland and(a.grabbed or a.block_absent or a.block_action_authority):raise ValueError('COMMON_ACTION_FIXTURE_MODE')
  if a.land_action and(a.grabbed or a.block_absent or a.block_action_authority or a.doland):raise ValueError('COMMON_ACTION_FIXTURE_MODE')
  block_requirements=None
+ rise_requirements=None
+ if a.rise_requirements:
+  if a.grabbed or a.block_absent or a.block_action_authority or a.doland or a.land_action:raise ValueError('COMMON_ACTION_FIXTURE_MODE')
+  from source_recovery_state_layout import layout as recovery_layout
+  rise_requirements=json.loads(a.rise_requirements.read_text());recovery_plan=recovery_layout()
  if a.block_action_authority:
   if a.grabbed or a.block_absent:raise ValueError('COMMON_ACTION_FIXTURE_MODE')
   authority=json.loads(a.block_action_authority.read_text());assert authority['status']=='PASS';block_requirements=authority['requirements'];assert block_requirements['closed_zero_policy']
@@ -209,11 +215,15 @@ CommonPainFrameProofComplete{i}:
    kind='common_land'if a.land_action else'common_grabbed'if a.grabbed else'common_block';name='CommonLand'if a.land_action else'CommonGrabbed'if a.grabbed else'CommonBlock';magic_tag='$B6BD'if a.land_action else'$B6B9'if a.grabbed else'$B6BA'
    code=code.replace(f'lda #{function_id("common_pain")}\n',f'lda #{function_id(kind)}\n').replace('lda #$B6B8','lda #'+magic_tag).replace('jsl CommonPainFrame_Run','jsl '+name+'Frame_Run')
    assembly=grabbed_prefix(work,sy,kind=kind,requirements=block_requirements)+child(work,sy,prefix=name)
+  elif rise_requirements:
+   from source_common_rise_native import emit as rise_prefix
+   code=code.replace(f'lda #{function_id("common_pain")}\n',f'lda #{function_id("common_rise")}\n').replace('lda #$B6B8','lda #$B6C2').replace('jsl CommonPainFrame_Run','jsl CommonRiseFrame_Run')
+   assembly=rise_prefix(work,recovery_plan,rise_requirements,sy)+child(work,sy,prefix='CommonRise')
   else:assembly=prefix(work,sy)+child(work,sy)
   if a.check_ai:
    if a.doland and not fall_requirements:raise ValueError('DOLAND_IS_NOT_A_SOURCE_ACTION')
    from source_common_ai_run_native import emit as ai_bridge,ACTIONS
-   selected='common_fall'if fall_requirements else'common_grabbed'if a.grabbed else'common_block'if block_requirements else'common_land'if a.land_action else'common_pain'
+   selected='common_rise'if rise_requirements else'common_fall'if fall_requirements else'common_grabbed'if a.grabbed else'common_block'if block_requirements else'common_land'if a.land_action else'common_pain'
    descriptor=next(r for r in ACTIONS if r[0]==selected)
    bridge_actions=(descriptor,)
    if fall_requirements:
@@ -339,6 +349,15 @@ CommonPainFrameKeepWorld:
   if fall_requirements:
    lua=lua.replace('local ranges={',f'local ranges={{{{{speedup},2}},{{0x42e000,5120}},')
    lua=lua.replace(anchor,f" set('SourceFreeze4086_Ready',0xb5df);set('SourceScrollerPrefix4086_Ready',0xb5d7);set('SourceScrollerPrefix4086_Completed',0,4);set('SourceLandingVelocity4086_Ready',0xb626);set('SourceLandingVelocity4086_Autoland',1,4);put({speedup},0);put(0x42e024+c.slot*40,0xb5df);put(0x42e008+c.slot*40,123,4);put(0x42d800+c.slot*16,0,4);put(0x7ef104+c.slot*24,0,4);put(0x7ef108+c.slot*24,0,4)\n"+anchor)
+  if rise_requirements:
+   rb=recovery_plan['base'];rw=recovery_plan['controls']
+   lua=lua.replace('local ranges={',f'local ranges={{{{{rb},{recovery_plan["bytes"]}}},{{0x7ef100,3072}},')
+   initialization=f""" set('SourceDamageEffectsState4086_Ready',0xb62f)
+ put({rw},0xb6c0);put({rw}+8,1,4);put({rw}+16,{rb&65535});put({rw}+18,0x42);put({rw}+20,{recovery_plan['chr_capacity']});put({rw}+22,128)
+ for i=0,127 do put({rb}+16*i,-3,4);put({rb}+16*i+4,1234,4);put({rb}+16*i+8,1,4);put({rb}+16*i+12,0xb6c1);put({rb}+16*i+14,i)end
+ put(0x7ef114+c.slot*24,0xb62f);put(0x7ef116+c.slot*24,c.new,2);put(0x7ef10c+c.slot*24,19,4)
+"""
+   lua=lua.replace(anchor,initialization+anchor)
   # The final actor returns to its authored idle via actual set_idle. The
   # synthetic stopped-pain snapshot is only the input boundary to this proof.
   lua=lua.replace('word(sy.SourceUpdateFrame4086_Handle)~=c.source_event.frame_handle','word(sy.SourceUpdateFrame4086_Handle)~=c.new_idle_handle').replace('word(sy.SourceUpdateFrame4086_Request)~=c.source_event.frame','word(sy.SourceUpdateFrame4086_Request)~=0')
@@ -374,6 +393,9 @@ CommonPainFrameKeepWorld:
    lua=lua.replace('value(side+36,c.new_cached_type~=0 and 0 or 65536,4);value(side+40,c.new_cached_type~=0 and 0 or 2*65536,4);','value(side+36,0,4);value(side+40,0,4);')
   if fall_requirements:
    lua=lua.replace('value(side+44,3*65536,4)','value(side+44,0,4)').replace(f'word({work}+6)~=2 or word({work}+20)~=c.land_handle',f'word({work})~=0xb6bb or word({work}+6)~=0 or word({work}+20)~=c.land_handle')
+  if rise_requirements:
+   kw['probes']['ACTIONBAD']='CommonRiseFrame_Bad';kw['probes']['ACTIONPREFIXBAD']='CommonRise_Bad'
+   lua=lua.replace(' local n=0;for a,v in pairs(before)',f" value(0x7ef10c+c.slot*24,0,4)\n local inv=({luav([m['fields']['riseinv']for m in rise_requirements['models']])})[c.new+1]\n if inv~=0 then value({rb}+16*c.slot,inv>0 and 1 or 0,4);value({rb}+16*c.slot+4,48+math.abs(inv),4);value(0x439018+c.slot*80,1,4)end\n local n=0;for a,v in pairs(before)")
   if a.check_ai:
    lua=lua.replace('local ranges={','local ranges={{0x42e000,5120},')
    lua=lua.replace(' before={};for _,r in ipairs(ranges)'," set('SourceFreeze4086_Ready',0xb5df);put(0x42e024+c.slot*40,0xb5df)\n before={};for _,r in ipairs(ranges)")
@@ -399,6 +421,12 @@ emu.addMemoryCallback(function()emu.log("COMMONPAINFRAME|"..word(INDEX).."|"..id
   if block_requirements:kw['probes']['ACTIONENTRY']='CommonBlockFrame_Run'
   if a.doland:kw['probes']['ACTIONENTRY']='CommonDolandFrame_Run'
   if a.land_action:kw['probes']['ACTIONENTRY']='CommonLandFrame_Run'
+  if rise_requirements:kw['probes']['ACTIONENTRY']='CommonRiseFrame_Run'
+  if rise_requirements:
+   kw['probes']['RISEMUTATE']='CommonRise_Blink'
+   lua+=f"""
+emu.addMemoryCallback(function()local d=emu.getState()['cpu.d'];emu.log('RISENATIVEINPUT|'..word(INDEX)..'|'..word({work}+16)..'|'..word({work}+18)..'|'..word(d+24)..'|'..word(d+26))end,emu.callbackType.exec,RISEMUTATE,RISEMUTATE,emu.cpuType.snes,mt)
+"""
   if a.check_ai:
    lua+=f"""
 emu.addMemoryCallback(function()emu.log('AIBRIDGESTATE|'..word(INDEX)..'|'..word({work})..'|'..word({work}+2)..'|'..word(sy.SourceAI4086_State)..'|'..word(sy.SourceAIRun4086_State)..'|'..word(sy.SourceAnimationInit4086_State))end,emu.callbackType.exec,ACTIONFINAL,ACTIONFINAL,emu.cpuType.snes,mt)
@@ -423,4 +451,6 @@ emu.addMemoryCallback(function()emu.log('AIBRIDGESTATE|'..word(INDEX)..'|'..word
   r.update(schema='BYOR_COMMON_LAND_IDLE_CHILD_NATIVE_V1',source_common_pain_idle_child_bound=False,source_common_land_idle_child_bound=True,full_common_land_admitted=False);path.write_text(json.dumps(r,indent=2)+'\n')
  if fall_requirements:
   r.update(schema='BYOR_COMMON_FALL_DOLAND_LAND_CHILD_NATIVE_V1',actual_common_fall_doland_tail_call_bound=True,actual_yield_resume_exercised=False,full_common_fall_admitted=False,production_unload_speedup_reset_bound=False,production_slowmotion_consumer_bound=False);path.write_text(json.dumps(r,indent=2)+'\n')
+ if rise_requirements:
+  r.update(schema='BYOR_COMMON_RISE_IDLE_CHILD_NATIVE_V1',full_common_pain_admitted=False,actual_common_rise_idle_child_bound=True,recovery_storage_lease_installed_by_fixture=True,production_memory_lease=False,full_common_rise_admitted=False);path.write_text(json.dumps(r,indent=2)+'\n')
 if __name__=='__main__':main()

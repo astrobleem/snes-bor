@@ -4,7 +4,7 @@ CALLBACKS=['player_takedamage','player_think','player_trymove','common_spawn',
  'common_trymove','common_takedamage','trap_think','obstacle_takedamage',
  'steamer_think','text_think','anything_walk','normal_prepare','common_attack_proc',
  'common_prejump','common_jump','common_jumpland','common_lie',
- 'common_fall','common_pain','common_grabbed','common_block','common_land']
+ 'common_fall','common_pain','common_grabbed','common_block','common_land','common_rise']
 
 def function_id(name):
  if name not in CALLBACKS:raise ValueError('ENGINE_FUNCTION_ID_UNREGISTERED:'+name)

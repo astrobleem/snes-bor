@@ -1,0 +1,39 @@
+{
+  "schema": "BYOR_COMMON_RISE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "report": "out/byor-motu-common-rise-named-tables-native/report.json",
+      "sha256": "755d65e7fa461765863deadf34f583f03a659a36d9ff605a084e0c46600f20d6",
+      "cases": 598,
+      "rom_sha256": "61953713226441261bc0a056b17b3a87753f3fa0c94dac69e9ace0fef520ebe4"
+    },
+    {
+      "report": "out/byor-motu-common-rise-idle-named-tables-native/report.json",
+      "sha256": "1f5a256be3c7752501f36fea912162759694331b578989ef406502178fb7c64c",
+      "cases": 12,
+      "rom_sha256": "b59177df836048ba82ade60f34cd1987b1739105a74bc774ccadf53dd6b012d2"
+    },
+    {
+      "report": "out/byor-motu-common-rise-address-proven.json",
+      "sha256": "85bf3f0107b350acd524aa7c72d23ab3a31fc2d8e19ca9b71b5c00cdd9320555",
+      "cases": null,
+      "rom_sha256": null
+    }
+  ],
+  "rejected_indexed_address_audit": "out/byor-motu-common-rise-address-rejected.json",
+  "actual_source_check_ai_bound": true,
+  "actual_idle_frame_child_bound": true,
+  "actual_ticket_resume_exercised": false,
+  "production_memory_lease": false,
+  "full_lie_set_rise_flow_bound": false,
+  "invincibility_expiration_bound": false,
+  "prior_five_frame_emitters_identical": true,
+  "prior_function_ids_unchanged": true,
+  "bank0_unchanged": true,
+  "new_foreign_arena_bytes": 0,
+  "protected_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
