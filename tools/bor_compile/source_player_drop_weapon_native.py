@@ -95,6 +95,12 @@ SourcePlayerDropWeapon4086_PipelineBegin:
 SourcePlayerDropWeapon4086_PipelineComplete:
 .a16
 .i16
+ cmp #0
+ beq SourcePlayerDropWeapon4086_PipelineDone
+ jmp SourcePlayerDropWeapon4086_Bad
+SourcePlayerDropWeapon4086_PipelineDone:
+.a16
+.i16
  jmp SourcePlayerDropWeapon4086_G10
 SourcePlayerDropWeapon4086_Same:'''
         raw=raw.replace(anchor,body)

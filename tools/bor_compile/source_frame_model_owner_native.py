@@ -1,4 +1,4 @@
-"""Join native frame execution with synchronized model services and nested idle.
+"""Join native frame execution with model frame children and nested idle.
 
 X/Y are the independent expected canvas generation. Required external effect
 and VM continuation tickets return unchanged. The caller owns table admission,
@@ -40,6 +40,27 @@ ModelFrameOwner_Model:
  lda 1,s
  tay
  jsl ModelPipeline_Resume
+ bcs ModelFrameOwner_Bad
+ cmp #4
+ beq ModelFrameOwner_ModelFrame
+ cmp #0
+ bne ModelFrameOwner_Bad
+ jmp ModelFrameOwner_Loop
+ModelFrameOwner_ModelFrame:
+.a16
+.i16
+ lda.l SourceModelTransition4086_State
+ cmp #1
+ bne ModelFrameOwner_Bad
+ lda.l SourceModelTransition4086_Service
+ cmp #4
+ bne ModelFrameOwner_Bad
+ lda.l SourceAnimationInit4086_State
+ cmp #1
+ bne ModelFrameOwner_Bad
+ lda.l SourceAnimationInit4086_Issued
+ bne ModelFrameOwner_Bad
+ jsl SourceAnimationInit4086_StartNestedFrame
  bcs ModelFrameOwner_Bad
  jmp ModelFrameOwner_Loop
 ModelFrameOwner_Idle:

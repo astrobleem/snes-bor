@@ -43,3 +43,10 @@ a replay-correct 616-clock construction after 180 seconds, without proving
 optimality. Its write times and 17-line measured lead remain unchanged. Reports
 now distinguish the input's measured lead from the
 resulting schedule's lead; VBlank initialization may preload the entire frame.
+
+The original 530 used lifetimes have now also been searched with flexible write
+times and a verified 17-line lookahead. The bank/slot-permutation family returns
+UNKNOWN after 300.06 seconds; the unrestricted physical-slot family returns
+UNKNOWN after 1,200.59 seconds, with 58,969 variables and 170,507 constraints.
+Neither result rejects raster. The [retiming receipt](receipts/byor-motu-original-raster-retiming-trials.json)
+retains bounded statistics and full artifact hashes.

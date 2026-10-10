@@ -1,7 +1,8 @@
-"""Native continuation for admitted synchronized source model transitions.
+"""Native continuation for source model transitions with explicit frame children.
 
-X/Y carry the independent expected 32-bit canvas generation. Service 4
-requires a nested frame owner and rejects here. This emitter owns no table
+X/Y carry the independent expected 32-bit canvas generation. Pending service 4
+returns ticket 4; only a completed real animation-init child is acknowledged.
+This emitter owns no table
 installation, frame dispatch, entity birth, or presentation publication.
 """
 import re
@@ -33,6 +34,8 @@ ModelPipeline_Loop:
  beq ModelPipeline_Scalars
  cmp #3
  beq ModelPipeline_FirstMap
+ cmp #4
+ beq ModelPipeline_Frame
  cmp #5
  beq ModelPipeline_Scripts
  cmp #6
@@ -59,6 +62,40 @@ ModelPipeline_FirstMap:
 .i16
  jsl ModelPaletteService3_Apply3
  bra ModelPipeline_After
+ModelPipeline_Frame:
+.a16
+.i16
+ lda.l SourceModelAnimation4086_Ready
+ cmp #$B4EF
+ bne ModelPipeline_Bad
+ lda.l SourceModelAnimation4086_State
+ cmp #1
+ bne ModelPipeline_Bad
+ lda.l SourceModelAnimation4086_Slot
+ cmp.l SourceModelTransition4086_Slot
+ bne ModelPipeline_Bad
+ lda.l SourceAnimationInit4086_Ready
+ cmp #$B4EC
+ bne ModelPipeline_Bad
+ lda.l SourceAnimationInit4086_Slot
+ cmp.l SourceModelTransition4086_Slot
+ bne ModelPipeline_Bad
+ lda.l SourceAnimationInit4086_State
+ cmp #2
+ beq ModelPipeline_FrameComplete
+ cmp #1
+ bne ModelPipeline_Bad
+ lda.l SourceAnimationInit4086_Issued
+ bne ModelPipeline_Bad
+ lda #4
+ jmp ModelPipeline_Yield
+ModelPipeline_FrameComplete:
+.a16
+.i16
+ lda #4
+ sta.l SourceModelTransition4086_Acknowledged
+ jsl SourceModelTransition4086_Ack
+ jmp ModelPipeline_After
 ModelPipeline_Scripts:
 .a16
 .i16
@@ -83,6 +120,9 @@ ModelPipeline_Done:
 .i16
  lda.l SourceModelTransition4086_Service
  bne ModelPipeline_Bad
+ModelPipeline_Yield:
+.a16
+.i16
  ply
  plx
  plp
