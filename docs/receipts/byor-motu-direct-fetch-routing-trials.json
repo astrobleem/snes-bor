@@ -1,0 +1,130 @@
+{
+  "schema": "BYOR_DIRECT_FETCH_VM_AND_IRQ_TIMING_TRIALS_V1",
+  "trials": [
+    {
+      "path": "out/byor-motu-direct-raster-fetch-vm-native/report.json",
+      "sha256": "73dcb9e8e68e62d6c33c77151e4746f6885529d5246a8de505f847d8aeb190bc",
+      "result": {
+        "schema": "BYOR_NATIVE_SCRIPT_LOWERING_PROOF_V1",
+        "status": "PASS",
+        "rom_sha256": "6e66c13ed953fe140828f88d2b7de5c3ea83eb91b7fde94bd142b51f6eaa4e88",
+        "scope": "Existing native VM call/branch/parameter/return lowering only; debug memory injection; original ROM unchanged"
+      }
+    },
+    {
+      "path": "out/byor-motu-cgram-general-fetch-gateway-timer35-native/report.json",
+      "sha256": "d8797841adce08c7f01f1075f4bdecca9bca1ff8999ef860c9972957475f42a1",
+      "result": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "FAIL",
+        "rom_sha256": "7bcab8b0028c4cb171e6e4814e49da73ade6b0e606ba6ce03c5a7004bc72ba6c",
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 54683,
+        "palette_identity_verified": false,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": false,
+        "packets": 405,
+        "high_commits": 7695,
+        "unsafe_high_commits": 5813,
+        "peak_commit_span": 352,
+        "synthetic_register_context_preserved": false,
+        "hardware_return_status_verified": false,
+        "production_fetch_gateway_instruction_shape": true
+      }
+    },
+    {
+      "path": "out/byor-motu-cgram-positive-fetch-gateway-timer43-native/report.json",
+      "sha256": "64f5c7a8b81608a1068cd7359cfc782084ac954f054f4fef0a5079751d208529",
+      "result": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "FAIL",
+        "rom_sha256": "7303d550fc8197037b6e66294a6c6b53e91b47955895731451a451073156a7d2",
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 54560,
+        "palette_identity_verified": false,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": false,
+        "packets": 441,
+        "high_commits": 8379,
+        "unsafe_high_commits": 5877,
+        "peak_commit_span": 352,
+        "visible_irq_entry_to_rti_peak_master_clocks": 1250,
+        "synthetic_register_context_preserved": true,
+        "hardware_return_status_verified": true,
+        "production_fetch_gateway_instruction_shape": true
+      }
+    },
+    {
+      "path": "out/byor-motu-cgram-general-direct-fetch-timer58-native/report.json",
+      "sha256": "4aa51476a329be18817b1e3da7ea774bb0a1aacebed0716ac80d2b3b418a3bbe",
+      "result": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "FAIL",
+        "rom_sha256": "706fbdb0710637f875d17048e34c307327ee19c7a15343775a36177c2ffccbdc",
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 41728,
+        "palette_identity_verified": false,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": true,
+        "packets": 447,
+        "high_commits": 8493,
+        "unsafe_high_commits": 168,
+        "peak_commit_span": 320,
+        "visible_irq_entry_to_rti_peak_master_clocks": 1220,
+        "synthetic_register_context_preserved": true,
+        "hardware_return_status_verified": true,
+        "direct_fetch_route_instruction_shape": true,
+        "production_fetch_gateway_instruction_shape": false
+      }
+    },
+    {
+      "path": "out/byor-motu-cgram-compact-general-direct-fetch-timer67-native/report.json",
+      "sha256": "c31e7adb9388a5b70a7384a749f34f232b7b79efe44f2c9859772d00fdaa76f4",
+      "result": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "FAIL",
+        "rom_sha256": "c12680386c0dc71fe57237812672a68314ba920557b85f4015c213429ec08a61",
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 43008,
+        "palette_identity_verified": false,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": false,
+        "packets": 450,
+        "high_commits": 8550,
+        "unsafe_high_commits": 185,
+        "peak_commit_span": 320,
+        "visible_irq_entry_to_rti_peak_master_clocks": 1176,
+        "synthetic_register_context_preserved": true,
+        "hardware_return_status_verified": true,
+        "direct_fetch_route_instruction_shape": true,
+        "production_fetch_gateway_instruction_shape": false,
+        "compact_visible_irq_cursor_checks": true
+      }
+    }
+  ],
+  "bank_zero_new_bytes": 0,
+  "production_native_irq_transfer_admitted": false,
+  "source_hbreath_native_proven": false,
+  "raster_rejected": false,
+  "no_color_reduction": true,
+  "default_direct_vector_regression": {
+    "path": "out\\byor-motu-cgram-general-baseline-after-routing-native\\report.json",
+    "sha256": "dd9a145846a945d0bbeb2d351a746cfba8b4f0c2193285c98eddf876d238f8b2",
+    "result": {
+      "status": "PASS",
+      "rom_sha256": "aac5840cd65b5444e69c3faeaa765761618fce91423fa32499daa39c660a4a79",
+      "pixel_identity_verified": true,
+      "every_packet_destination_and_word_identity_verified": true,
+      "palette_identity_verified": true,
+      "oam_identity_verified": true,
+      "packets": 447,
+      "high_commits": 8493,
+      "unsafe_high_commits": 0,
+      "peak_commit_span": 320,
+      "synthetic_register_context_preserved": true,
+      "hardware_return_status_verified": true,
+      "interrupted_context_widths": "8/8",
+      "interrupted_decimal_context": true
+    }
+  }
+}

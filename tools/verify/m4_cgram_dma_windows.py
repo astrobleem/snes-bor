@@ -29,7 +29,8 @@ def expected_frame(general_windows=False,fixed_math_mode=False):
     return expected
 
 
-def compile_rom(timer,context_widths='16/16',decimal_context=False,general_windows=False,three_ranges=False,fixed_math_mode=False,retire_audio_hdma=False):
+def compile_rom(timer,context_widths='16/16',decimal_context=False,general_windows=False,three_ranges=False,fixed_math_mode=False,retire_audio_hdma=False,fetch_gateway=False,direct_fetch_route=False,compact_visible_handler=False):
+    if fetch_gateway and direct_fetch_route:raise ValueError('FETCH_GATEWAY_ROUTE_CONFLICT')
     if three_ranges and general_windows:raise ValueError('THREE_PALETTE_RANGES_REQUIRE_NINE_DMA_CHANNELS_WITH_GENERAL_WINDOWS')
     if fixed_math_mode and (not three_ranges or general_windows):raise ValueError('FIXED_MATH_MODE_THREE_RANGE_PROBE_REQUIRED')
     if context_widths not in ('16/16','8/16','16/8','8/8'):raise ValueError('DMA_WINDOWS_CONTEXT_WIDTHS')
@@ -62,13 +63,18 @@ def compile_rom(timer,context_widths='16/16',decimal_context=False,general_windo
     if decimal_context:code.append(0xf8)
     mask=(0x20 if context_widths.startswith('8/')else 0)|(0x10 if context_widths.endswith('/8')else 0)
     if mask:code.extend([0xe2,mask])
-    code.extend(bytes.fromhex('58 80 fe'))
-    irq=bytearray.fromhex('c2 38 48 e2 20 af 11 42 00 af 12 42 00 29 80')
+    code.extend(bytes.fromhex('58 22 90 96 00 80 fa')if fetch_gateway else bytes.fromhex('58 22 00 8b 81 80 fa')if direct_fetch_route else bytes.fromhex('58 80 fe'))
+    irq=bytearray.fromhex('e2 20 af 11 42 00 af 12 42 00'if fetch_gateway else'c2 38 48 e2 20 af 11 42 00 af 12 42 00')
+    if not compact_visible_handler:irq.extend(bytes.fromhex('29 80'))
     branches=[];labels={}
     def branch(op,target):irq.extend([op,0]);branches.append((len(irq)-1,target))
     def longstore(a,v):irq.extend([0xa9,v,0x8f,a&255,a>>8,0])
-    branch(0xd0,'restore')
-    irq.extend(bytes.fromhex('c2 20 af 62 43 00 c9 80 a3'));branch(0xb0,'restore')
+    branch(0x30 if compact_visible_handler else 0xd0,'restore')
+    irq.extend(bytes.fromhex('c2 20 af 62 43 00'))
+    # VBlank already rejects all out-of-field IRQs and NMI resets the cursor.
+    # Removing the duplicate end bound requires that NMI/cursor ownership.
+    if not compact_visible_handler:
+        irq.extend(bytes.fromhex('c9 80 a3'));branch(0xb0,'restore')
     irq.extend(bytes.fromhex('c9 2c a1 e2 20'));branch(0x90,'windows_only')
     if retire_audio_hdma:longstore(0x420c,0)
     for a,v in ((0x4315,16 if three_ranges else 24),(0x4325,1),(0x4335,12 if three_ranges else 14),(0x2121,129),(0x4365,4)):longstore(a,v)
@@ -85,7 +91,7 @@ def compile_rom(timer,context_widths='16/16',decimal_context=False,general_windo
     if general_windows:
         for a,v in ((0x4345,1),(0x4355,1)):longstore(a,v)
     longstore(0x420b,64 if fixed_math_mode else 240 if general_windows else 192)
-    labels['restore']=len(irq);irq.extend(bytes.fromhex('c2 30 68 40'))
+    labels['restore']=len(irq);irq.extend(bytes.fromhex('c2 30 68 28 40'if fetch_gateway else'c2 30 68 40'))
     for at,label in branches:
         delta=labels[label]-at-1
         if not -128<=delta<=127:raise AssertionError('DMA_WINDOWS_BRANCH_RANGE')
@@ -97,6 +103,17 @@ def compile_rom(timer,context_widths='16/16',decimal_context=False,general_windo
     raw[:4]=bytes.fromhex('5c 00 80 01');raw[0x100:0x104]=bytes.fromhex('5c 00 86 81');raw[0x120:0x124]=bytes.fromhex('5c 00 88 81')
     if len(code)>0x600:raise AssertionError('DMA_WINDOWS_BOOT_OVERLAP')
     raw[0x8000:0x8000+len(code)]=code;raw[0x8600:0x8600+len(irq)]=irq;raw[0x8800:0x8800+len(nmi)]=nmi
+    if fetch_gateway:
+        # Exact instruction shape of the size-neutral production Vm_Fetch
+        # gateway. The ordinary fetch body is a preserving RTL stub here;
+        # production fetch/NMI/gameplay ownership is not supplied by this ROM.
+        raw[0x1697:0x169c]=bytes.fromhex('5c 00 8a 81 60')
+        raw[0x1690:0x1694]=bytes.fromhex('20 97 96 6b')
+        raw[0x8a00:0x8a1c]=bytes.fromhex('08 c2 39 48 a3 03 29 04 00 f0 04 5c 00 86 81 68 28 22 00 8b 81 5c 9b 96 00')+bytes([255])*3
+        raw[0x8b00]=0x6b
+    if direct_fetch_route:
+        raw[0x1697:0x169c]=bytes.fromhex('5c 00 86 81 60')
+        raw[0x8b00]=0x6b
     for y in range(75,224):
         word=struct.pack('<H',palette_color(y));i=y-75
         n1,n2=(16,12)if three_ranges else(24,14)
@@ -113,5 +130,5 @@ def compile_rom(timer,context_widths='16/16',decimal_context=False,general_windo
         if general_windows:raw[0x1a500+y]=descriptor['wobjsel_color_bits'];raw[0x1a600+y]=descriptor['wobjlog_color_bits']
     raw[0x7fc0:0x7fd5]=b'M4 DMA WINDOW PROOF  '
     raw[0x7fd5:0x7fdc]=bytes([0x30,0,7,0,1,0,0])
-    for offset,value in ((0x7ffc,0x8000),(0x7fee,0x8100),(0x7fea,0x8120)):struct.pack_into('<H',raw,offset,value)
+    for offset,value in ((0x7ffc,0x8000),(0x7fee,0x9697 if fetch_gateway or direct_fetch_route else 0x8100),(0x7fea,0x8120)):struct.pack_into('<H',raw,offset,value)
     return bytes(raw)

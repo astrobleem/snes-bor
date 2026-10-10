@@ -58,7 +58,10 @@ def fixture():
 def main():
     from m4_cgram_window import make_irq_rom
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--timer',type=int,default=156);p.add_argument('--preserve-context',action='store_true');p.add_argument('--dma-windows',action='store_true')
-    p.add_argument('--context-widths',choices=('16/16','8/16','16/8','8/8'),default='16/16');p.add_argument('--decimal-context',action='store_true');p.add_argument('--general-windows',action='store_true');p.add_argument('--three-ranges',action='store_true');p.add_argument('--fixed-math-mode',action='store_true');p.add_argument('--retire-audio-hdma',action='store_true');args=p.parse_args()
+    p.add_argument('--context-widths',choices=('16/16','8/16','16/8','8/8'),default='16/16');p.add_argument('--decimal-context',action='store_true');p.add_argument('--general-windows',action='store_true');p.add_argument('--three-ranges',action='store_true');p.add_argument('--fixed-math-mode',action='store_true');p.add_argument('--retire-audio-hdma',action='store_true');p.add_argument('--fetch-gateway',action='store_true');p.add_argument('--direct-fetch-route',action='store_true');p.add_argument('--compact-visible-handler',action='store_true');args=p.parse_args()
+    if args.compact_visible_handler and not args.dma_windows:raise ValueError('COMPACT_VISIBLE_HANDLER_REQUIRES_DMA_WINDOWS')
+    if args.direct_fetch_route and not args.dma_windows:raise ValueError('DIRECT_FETCH_ROUTE_REQUIRES_DMA_WINDOWS')
+    if args.fetch_gateway and not args.dma_windows:raise ValueError('FETCH_GATEWAY_REQUIRES_DMA_WINDOWS')
     if args.retire_audio_hdma and not args.dma_windows:raise ValueError('HDMA_RETIREMENT_REQUIRES_DMA_WINDOWS')
     if (args.context_widths!='16/16'or args.decimal_context)and not args.dma_windows:raise ValueError('CONTEXT_VARIANTS_REQUIRE_DMA_WINDOWS')
     if args.general_windows and not args.dma_windows:raise ValueError('GENERAL_WINDOWS_REQUIRE_DMA_WINDOWS')
@@ -67,7 +70,7 @@ def main():
     raw=make_irq_rom(38,True,args.timer,73,24,False,True,True,True,args.preserve_context)
     if args.dma_windows:
         from m4_cgram_dma_windows import compile_rom
-        raw=compile_rom(args.timer,args.context_widths,args.decimal_context,args.general_windows,args.three_ranges,args.fixed_math_mode,args.retire_audio_hdma)
+        raw=compile_rom(args.timer,args.context_widths,args.decimal_context,args.general_windows,args.three_ranges,args.fixed_math_mode,args.retire_audio_hdma,args.fetch_gateway,args.direct_fetch_route,args.compact_visible_handler)
     _,_,expected,oam,initial=fixture();rom=folder/'proof.sfc';rom.write_bytes(raw)
     if args.dma_windows:
         from m4_cgram_dma_windows import expected_frame,palette_color
@@ -91,11 +94,11 @@ emu.addMemoryCallback(function(a,v)local s=emu.getState();if s['ppu.scanline']<2
 '''.replace('v==224','v==126'if args.fixed_math_mode else'v==254'if args.general_windows or args.three_ranges else'v==206'if args.dma_windows else'v==224').replace('packet.n==19','packet.n==20'if args.three_ranges else'packet.n==19'))
     if args.preserve_context or args.dma_windows:
         # Observe immediately before RTI, after explicit register restoration.
-        handler=raw[0x8600:0x8700];ret=0x818600+handler.index(bytes.fromhex('68 40'))+1
+        handler=raw[0x8600:0x8700];ret=0x818600+handler.index(bytes.fromhex('68 28 40'if args.fetch_gateway else'68 40'))+(2 if args.fetch_gateway else 1)
         with lua.open('a')as script:
             script.write(f'''emu.addMemoryCallback(function()local s=emu.getState();emu.log('PIXCONTEXT|'..table.concat({{s['cpu.a'],s['cpu.x'],s['cpu.y'],s['cpu.d'],s['cpu.dbr'],s['cpu.sp'],emu.read(0x7e0000+s['cpu.sp']+1,emu.memType.snesMemory)}},','))end,emu.callbackType.exec,{ret},{ret},emu.cpuType.snes,emu.memType.snesMemory)\n''')
             script.write(f'''local irqEntry=0
-emu.addMemoryCallback(function()irqEntry=emu.getState().masterClock end,emu.callbackType.exec,0x818600,0x818600,emu.cpuType.snes,emu.memType.snesMemory)
+emu.addMemoryCallback(function()local s=emu.getState();if not {str(args.fetch_gateway).lower()} or (s['cpu.ps']&4)~=0 then irqEntry=s.masterClock;emu.log('PIXENTRYCONTEXT|'..table.concat({{s['cpu.a'],s['cpu.x'],s['cpu.y'],s['cpu.d'],s['cpu.dbr'],s['cpu.sp'],emu.read(0x7e0000+s['cpu.sp']+1,emu.memType.snesMemory)}},','))end end,emu.callbackType.exec,{0x818a00 if args.fetch_gateway else 0x818600},{0x818a00 if args.fetch_gateway else 0x818600},emu.cpuType.snes,emu.memType.snesMemory)
 emu.addMemoryCallback(function()local s=emu.getState();emu.log('PIXIRQTIME|'..table.concat({{s['ppu.frameCount'],s['ppu.scanline'],s.masterClock-irqEntry}},','))end,emu.callbackType.exec,{ret},{ret},emu.cpuType.snes,emu.memType.snesMemory)
 ''')
     class Observed(McpSession):
@@ -124,6 +127,7 @@ emu.addMemoryCallback(function()local s=emu.getState();emu.log('PIXIRQTIME|'..ta
     packets=[list(map(int,line.split('PIXPACKET|')[1].split(',')))for line in log if 'PIXPACKET|'in line]
     windows=[list(map(int,line.split('PIXWINDOW|')[1].split(',')))for line in log if 'PIXWINDOW|'in line]
     contexts=[list(map(int,line.split('PIXCONTEXT|')[1].split(',')))for line in log if 'PIXCONTEXT|'in line]
+    entry_contexts=[list(map(int,line.split('PIXENTRYCONTEXT|')[1].split(',')))for line in log if 'PIXENTRYCONTEXT|'in line]
     irq_times=[list(map(int,line.split('PIXIRQTIME|')[1].split(',')))for line in log if 'PIXIRQTIME|'in line]
     cgram_words=[list(map(int,line.split('PIXCGRAM|')[1].split(',')))for line in log if 'PIXCGRAM|'in line]
     index8=args.dma_windows and args.context_widths.endswith('/8')
@@ -131,6 +135,12 @@ emu.addMemoryCallback(function()local s=emu.getState();emu.log('PIXIRQTIME|'..ta
     context_identity=(bool(contexts)and all(r[:6]==wanted_context for r in contexts))if args.preserve_context or args.dma_windows else None
     wanted_status=1|(0x20 if args.context_widths.startswith('8/')else 0)|(0x10 if index8 else 0)|(8 if args.decimal_context else 0)
     status_identity=(bool(contexts)and all(r[6]==wanted_status for r in contexts))if args.dma_windows else None
+    if args.fetch_gateway or args.direct_fetch_route:
+        # A frame-exact pause may be inside the final IRQ. Every completed
+        # handler must have one matching entry; at most one may be pending.
+        paired=bool(contexts)and len(contexts)<=len(entry_contexts)<=len(contexts)+1
+        context_identity=paired and all(a[:6]==b[:6]for a,b in zip(entry_contexts,contexts))
+        status_identity=paired and all(a[6]==b[6]for a,b in zip(entry_contexts,contexts))
     packets=[r for r in packets if r[0]>=1];windows=[r for r in windows if r[0]>=1]
     palette=bytearray(initial)
     addresses=[*range(129,137),*range(161,167),*range(193,199)]if args.three_ranges else[*range(129,141),*range(193,200)]if args.dma_windows else[*range(128,140),*range(192,199)]
@@ -160,13 +170,19 @@ emu.addMemoryCallback(function()local s=emu.getState();emu.log('PIXIRQTIME|'..ta
         cgram_destination_ranges=3 if args.three_ranges else 2,
         fixed_math_mode=args.fixed_math_mode,
         completed_dummy_audio_hdma_retired=args.retire_audio_hdma,
+        production_fetch_gateway_instruction_shape=args.fetch_gateway,ordinary_fetch_body_stubbed=args.fetch_gateway,
+        direct_fetch_route_instruction_shape=args.direct_fetch_route,ordinary_far_fetch_body_stubbed=args.direct_fetch_route,
+        compact_visible_irq_cursor_checks=args.compact_visible_handler,
+        irq_entry_context_observations=len(entry_contexts),
         interrupted_context_widths=args.context_widths,interrupted_decimal_context=args.decimal_context,hardware_return_status_verified=status_identity,
         cpu_snapshot_may_be_inside_irq=True,
         irq_entry_to_rti_peak_master_clocks=max((r[2]for r in irq_times),default=None),
+        visible_irq_entry_to_rti_peak_master_clocks=max((r[2]for r in irq_times if 76<=r[1]<=224),default=None),
         irq_timing_excludes_hardware_entry_gateway_and_rti=True)
     for name,data in [('packets.json',packets),('windows.json',windows),('report.json',result)]: (folder/name).write_text(json.dumps(data,indent=2)+'\n')
     (folder/'expected.rgb555').write_bytes(expected.tobytes());(folder/'cgram.bin').write_bytes(cgram);(folder/'oam.bin').write_bytes(observed_oam)
     if contexts:(folder/'contexts.json').write_text(json.dumps(contexts)+'\n')
+    if entry_contexts:(folder/'entry-contexts.json').write_text(json.dumps(entry_contexts)+'\n')
     if irq_times:(folder/'irq-times.json').write_text(json.dumps(irq_times)+'\n')
     (folder/'cgram-word-observer.json').write_text(json.dumps(cgram_words)+'\n')
     print(json.dumps(result,indent=2))
