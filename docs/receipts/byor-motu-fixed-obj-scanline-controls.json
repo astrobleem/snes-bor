@@ -238,6 +238,104 @@
       "row_capacity_only": true,
       "palette_transfer_budget_relaxed": true,
       "geometry_cover_cuts": 470
+    },
+    {
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 87724,
+        "constraints": 177542,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 319,
+          "sat_inprocessing": false,
+          "branches": 488505,
+          "conflicts": 268297,
+          "wall_seconds": 120.1597134,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "write_budget": 120,
+      "lookahead_lines": 0,
+      "row_capacity_only": true,
+      "palette_transfer_budget_relaxed": true,
+      "geometry_cover_cuts": 470,
+      "math_choice_entries": 33680,
+      "distinct_math_choice_variables": 29636
+    },
+    {
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 87724,
+        "constraints": 177542,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 329,
+          "sat_inprocessing": false,
+          "branches": 1159078,
+          "conflicts": 575823,
+          "wall_seconds": 120.14522570000001,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "write_budget": 120,
+      "lookahead_lines": 0,
+      "row_capacity_only": true,
+      "palette_transfer_budget_relaxed": true,
+      "geometry_cover_cuts": 470,
+      "math_choice_entries": 33680,
+      "distinct_math_choice_variables": 29636,
+      "independent_actor_peak_tile_lower_bound": 25
+    },
+    {
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 154320,
+        "constraints": 305826,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 296,
+          "sat_inprocessing": false,
+          "branches": 330997,
+          "conflicts": 14759,
+          "wall_seconds": 60.21822340000001,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "write_budget": 120,
+      "lookahead_lines": 0,
+      "row_capacity_only": true,
+      "palette_transfer_budget_relaxed": true,
+      "geometry_cover_cuts": 391,
+      "math_choice_entries": 72912,
+      "distinct_math_choice_variables": 63996,
+      "independent_actor_peak_tile_lower_bound": 25
     }
   ],
   "universal_raster_rejected": false,

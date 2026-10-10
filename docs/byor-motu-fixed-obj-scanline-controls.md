@@ -46,3 +46,32 @@ row-capacity eviction/reuse. The combined joint/cover/window suite passes 42
 tests; the width guard reports 9,825 labels, zero new violations, zero baselined
 violations and zero stale entries. No production assembly or bank-0 allocation
 changes. No color reduction is applied.
+
+Subsequent exact math-choice coalescing merges equal pixel contexts in the
+same piece, bank and row. Extending that piece's mask requires no additional
+rectangle or palette word. The model drops from 91,768 to 87,724 variables.
+A 120-second coalesced trial and a 120-second trial with explicit row tile
+lower bounds both return UNKNOWN. The actor-separated source row bound is
+25 tile slivers at line 140; it grants independent eight-pixel interval
+alignment on every row and ignores palette mask duplication. It neither
+rejects the 34-tile limit nor supplies a legal fixed geometry. A separate
+full-add, complete-operand, row-capacity trial also returns UNKNOWN at sixty
+seconds. These results remain restricted bounded searches.
+
+The separate generic `source_scene_obj_pool_construct.py` tool greedily
+selects exact row operands, then assigns each selected color to a fixed bank.
+It preserves mode/window/source context and independently replays the full
+frame. Deferring geometry checks is explicit: a source-exact bank construction
+that exceeds hardware limits cannot receive the admitted schedule status.
+The tested pose selects at most 41 literal and 32 math colors per line. Its
+global-color-bank small-piece construction has 456 OAM entries, peak 61
+sprites and 61 tile slivers, and a greedy peak of 39 palette writes. It is
+rejected as `POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW`, with source
+pixels still exact. This is measured failure of the emitted construction,
+not a proof against other operand choices, bank assignments or geometry.
+The retained summary is `docs/receipts/byor-motu-pool-bank-construction.json`.
+
+Fifty palette/context/construction/joint tests pass after these extensions.
+The cover/window/joint suite separately passes 43 tests. Constructor tests
+replay an exact subtraction effect, share exact operands and verify that a
+deferred 33-sprite result is not confused with ordinary geometry admission.

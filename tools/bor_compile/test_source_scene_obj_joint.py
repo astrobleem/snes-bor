@@ -6,6 +6,21 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_shared_parent_math_choices_coalesce_with_exact_source_replay(self):
+        background=np.zeros((224,256,3),dtype=np.uint8);background[:8,:16,0]=32
+        pixels=np.full((8,16),6,dtype=np.int32);expected=background.copy();expected[:8,:16,0]=48
+        results=[]
+        for coalesce in (False,True):
+            with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+                result=probe(None,None,{},size='mixed',write_budget=0,time_limit=10,solver_backend='cp-sat',additive_only=True,coalesce_math_choices=coalesce)
+            self.assertTrue(result['compiled_pixel_identity_verified'])
+            self.assertEqual(result['geometry']['oam_entries'],1)
+            self.assertEqual(result['independent_actor_peak_tile_lower_bound'],2)
+            results.append(result)
+        self.assertLess(results[1]['distinct_math_choice_variables'],results[1]['math_choice_entries'])
+        self.assertEqual(results[0]['math_choice_entries'],results[1]['math_choice_entries'])
+        self.assertEqual(results[0]['source_rgb555_sha256'],results[1]['source_rgb555_sha256'])
+
     def test_row_capacity_search_replays_eviction_and_later_reuse(self):
         background=np.zeros((224,256,3),dtype=np.uint8)
         pixels=np.full((8,8),-1,dtype=np.int32);pixels[:3,0]=[1,2,1]

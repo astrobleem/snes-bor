@@ -75,7 +75,7 @@ def assign_banks(pieces, banks, time_limit=60):
                 solver_status=int(result.status),message=result.message)
 
 
-def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solver_backend='highs',maximum_frame_colors_per_bank=None,defer_oam_admission=False,residency_window_lines=None):
+def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solver_backend='highs',maximum_frame_colors_per_bank=None,defer_oam_admission=False,residency_window_lines=None,defer_geometry_admission=False):
     """Allow multiple legal objects per cell, masking disjoint source pixels.
 
     Each output object still has one fixed bank. Color/row assignment is
@@ -116,12 +116,13 @@ def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solv
                     v=cv[y,c,b]
                     if v in seen:continue
                     seen.add(v);row([(v,1),(i*nb+b,-1)],-np.inf,0)
-    if not defer_oam_admission:row([(i,1) for i in range(n*nb)],0,128)
+    if not defer_oam_admission and not defer_geometry_admission:row([(i,1) for i in range(n*nb)],0,128)
     for y in range(max(p['y']+p['height'] for p in pieces)):
         for b in range(nb):row([(cv[yy,c,b],1) for yy,c in pairs if yy==y],0,15)
         live=[(i*nb+b,1) for i,p in enumerate(pieces) if p['y']<=y<p['y']+p['height'] for b in range(nb)]
-        row(live,0,32)
-        row([(i*nb+b,(p['width']+7)//8) for i,p in enumerate(pieces) if p['y']<=y<p['y']+p['height'] for b in range(nb)],0,34)
+        if not defer_geometry_admission:
+            row(live,0,32)
+            row([(i*nb+b,(p['width']+7)//8) for i,p in enumerate(pieces) if p['y']<=y<p['y']+p['height'] for b in range(nb)],0,34)
     # Optional restricted search family: every rolling union fits one bank's
     # fifteen slots. This steers temporal assignment before slot allocation;
     # failure does not reject assignments outside this restriction.
@@ -153,7 +154,7 @@ def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solv
                 objective=float(np.dot(objective,result.x)),lower_bound=float(result.mip_dual_bound)if getattr(result,'mip_dual_bound',None)is not None else None,
                 global_color_banks=global_color_banks,solver_backend=solver_backend,maximum_frame_colors_per_bank=maximum_frame_colors_per_bank,
                 residency_window_lines=residency_window_lines,
-                oam_admission_deferred=defer_oam_admission,hardware_oam_limit_verified=len(expanded)<=128)
+                oam_admission_deferred=defer_oam_admission or defer_geometry_admission,geometry_admission_deferred=defer_geometry_admission,hardware_oam_limit_verified=len(expanded)<=128)
 
 
 def split_scene_color_masks(pieces, banks=tuple(range(8)), time_limit=60, adjacent_write_budget=None):

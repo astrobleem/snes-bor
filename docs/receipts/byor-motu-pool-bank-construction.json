@@ -1,0 +1,468 @@
+{
+  "schema": "BYOR_SOURCE_POOL_FIXED_BANK_CONSTRUCTION_V1",
+  "status": "POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW",
+  "metadata": {
+    "stage": "DATA/LEVELS/GUILE2.TXT",
+    "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+    "scene": {
+      "viewport": [
+        256,
+        224
+      ],
+      "piece_size": [
+        16,
+        32
+      ],
+      "provenance": "Explicit source queue pose at attack1 frame 6, whose authored shoot callback creates ShockBall at height +34 and z +1. KnightBot idle seta 40 persists. Exact AI synchronization and route timing remain unproven.",
+      "actors": [
+        {
+          "model": "HBreath",
+          "animation": "idle",
+          "frame": 14,
+          "position": [
+            1898,
+            220,
+            93
+          ],
+          "order": 2
+        },
+        {
+          "model": "He_ManB",
+          "animation": "freespecial4",
+          "frame": 6,
+          "position": [
+            1880,
+            220,
+            0
+          ],
+          "order": 0
+        },
+        {
+          "model": "Knightbot",
+          "animation": "attack1",
+          "frame": 6,
+          "position": [
+            1960,
+            190,
+            40
+          ],
+          "order": 1,
+          "direction": 0
+        },
+        {
+          "model": "Knightbot",
+          "animation": "attack1",
+          "frame": 6,
+          "position": [
+            2010,
+            220,
+            40
+          ],
+          "order": 3,
+          "map": 1,
+          "direction": 0
+        },
+        {
+          "model": "Knightbot",
+          "animation": "attack1",
+          "frame": 6,
+          "position": [
+            1920,
+            160,
+            40
+          ],
+          "order": 4,
+          "direction": 0
+        },
+        {
+          "model": "ShockBall",
+          "animation": "idle",
+          "frame": 0,
+          "position": [
+            1960,
+            191,
+            74
+          ],
+          "order": 5,
+          "direction": 0
+        },
+        {
+          "model": "ShockBall",
+          "animation": "idle",
+          "frame": 0,
+          "position": [
+            2010,
+            221,
+            74
+          ],
+          "order": 6,
+          "direction": 0
+        },
+        {
+          "model": "ShockBall",
+          "animation": "idle",
+          "frame": 0,
+          "position": [
+            1920,
+            161,
+            74
+          ],
+          "order": 7,
+          "direction": 0
+        }
+      ],
+      "camera": [
+        1800,
+        0
+      ]
+    },
+    "layers": [
+      {
+        "kind": "background",
+        "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+        "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+        "source_dimensions": [
+          800,
+          400
+        ],
+        "position": [
+          -100,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 57344,
+        "source_flip": false
+      },
+      {
+        "kind": "panel",
+        "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+        "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+        "source_dimensions": [
+          2544,
+          245
+        ],
+        "position": [
+          -1800,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 45784,
+        "source_flip": false
+      },
+      {
+        "kind": "actor:KnightBot",
+        "path": "DATA\\CHARS\\KNBOT\\KNBOT4.PNG",
+        "sha256": "629702c71612fb0be04ba9ccbc5b57f71b297216818ad73d8a2d9aef727b2d1c",
+        "source_dimensions": [
+          50,
+          50
+        ],
+        "position": [
+          97,
+          72
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 1078,
+        "source_flip": true,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "enemy",
+        "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+        "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+        "pre_occlusion_pixels": 1078,
+        "final_visible_pixels": 203
+      },
+      {
+        "kind": "actor:ShockBall",
+        "path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+        "sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+        "source_dimensions": [
+          70,
+          70
+        ],
+        "position": [
+          85,
+          53
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 1447,
+        "source_flip": true,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "none",
+        "palette_source_path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+        "palette_asset_sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+        "pre_occlusion_pixels": 1447,
+        "final_visible_pixels": 1434
+      },
+      {
+        "kind": "actor:KnightBot",
+        "path": "DATA\\CHARS\\KNBOT\\KNBOT4.PNG",
+        "sha256": "629702c71612fb0be04ba9ccbc5b57f71b297216818ad73d8a2d9aef727b2d1c",
+        "source_dimensions": [
+          50,
+          50
+        ],
+        "position": [
+          137,
+          102
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 1078,
+        "source_flip": true,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "enemy",
+        "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+        "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+        "pre_occlusion_pixels": 1078,
+        "final_visible_pixels": 56
+      },
+      {
+        "kind": "actor:ShockBall",
+        "path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+        "sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+        "source_dimensions": [
+          70,
+          70
+        ],
+        "position": [
+          125,
+          83
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 1447,
+        "source_flip": true,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "none",
+        "palette_source_path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+        "palette_asset_sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+        "pre_occlusion_pixels": 1447,
+        "final_visible_pixels": 633
+      },
+      {
+        "kind": "actor:He_ManB",
+        "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+        "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_dimensions": [
+          200,
+          200
+        ],
+        "position": [
+          -16,
+          44
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 3327,
+        "source_flip": false,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "none",
+        "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+        "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814",
+        "pre_occlusion_pixels": 3327,
+        "final_visible_pixels": 3185
+      },
+      {
+        "kind": "actor:HBreath",
+        "path": "DATA\\CHARS\\HE-MAN\\FX\\BR15.PNG",
+        "sha256": "d8e1bd148cea795f029c010809640de22aee004635a86834a5608bfe3a74ed8d",
+        "source_dimensions": [
+          110,
+          90
+        ],
+        "position": [
+          84,
+          92
+        ],
+        "alpha": 1,
+        "visible_source_pixels": 3705,
+        "source_flip": false,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "none",
+        "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+        "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+        "pre_occlusion_pixels": 3705,
+        "final_visible_pixels": 3704
+      },
+      {
+        "kind": "actor:KnightBot",
+        "path": "DATA\\CHARS\\KNBOT\\KNBOT4.PNG",
+        "sha256": "629702c71612fb0be04ba9ccbc5b57f71b297216818ad73d8a2d9aef727b2d1c",
+        "source_dimensions": [
+          50,
+          50
+        ],
+        "position": [
+          187,
+          132
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 1078,
+        "source_flip": true,
+        "requested_map": 1,
+        "selected_map": 1,
+        "source_model_type": "enemy",
+        "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBLINK.PNG",
+        "palette_asset_sha256": "ec94fcc82b0f3c20f4b044e746487dabb62954c48d46fe9d705eeab8f9373d46",
+        "pre_occlusion_pixels": 1078,
+        "final_visible_pixels": 278
+      },
+      {
+        "kind": "actor:ShockBall",
+        "path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+        "sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+        "source_dimensions": [
+          70,
+          70
+        ],
+        "position": [
+          175,
+          113
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 1447,
+        "source_flip": true,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "none",
+        "palette_source_path": "DATA\\CHARS\\KNBOT\\SHBALL1.PNG",
+        "palette_asset_sha256": "7d4bfa3ae0f014742116f1aa9fe2d4d2103f04a455fe3a80d8035c164fbe75b0",
+        "pre_occlusion_pixels": 1447,
+        "final_visible_pixels": 1447
+      },
+      {
+        "kind": "frontpanel",
+        "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+        "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+        "source_dimensions": [
+          350,
+          245
+        ],
+        "position": [
+          -770,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 0,
+        "source_flip": false
+      },
+      {
+        "kind": "frontpanel",
+        "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+        "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+        "source_dimensions": [
+          350,
+          245
+        ],
+        "position": [
+          -420,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 0,
+        "source_flip": false
+      },
+      {
+        "kind": "frontpanel",
+        "path": "DATA\\BGS\\JUNGLE\\FG-02.GIF",
+        "sha256": "9a953cabb4b4d16862486ddad300082ff575cec029431e8cd104a93a945132e8",
+        "source_dimensions": [
+          700,
+          245
+        ],
+        "position": [
+          -1120,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 0,
+        "source_flip": false
+      },
+      {
+        "kind": "frontpanel",
+        "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+        "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+        "source_dimensions": [
+          350,
+          245
+        ],
+        "position": [
+          -1470,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 0,
+        "source_flip": false
+      }
+    ],
+    "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+    "alpha_source_dimensions": [
+      [
+        110,
+        90
+      ]
+    ],
+    "camera": [
+      1800.0,
+      0.0
+    ],
+    "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+    "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+    "all_actor_models_preserved": true
+  },
+  "source_rgb555_sha256": "6765dbf6d4234229971c2e186960d5b09856c7bf5c821693f64ef4a9760a79e4",
+  "no_color_reduction": true,
+  "universal_raster_rejected": false,
+  "native_presentation_proven": false,
+  "operand_selection_policy": "GREEDY_EXACT_ROW_SET_COVER",
+  "outside_control_rows_math_policy": "FULL_ADD_NO_WINDOW_MINIMAL_OPERAND_OR_LITERAL",
+  "peak_selected_colors_by_class": [
+    41,
+    32
+  ],
+  "global_color_bank_identity_restricted": true,
+  "geometry": {
+    "oam_entries": 456,
+    "peak_sprites": 61,
+    "peak_tile_slivers": 61
+  },
+  "hardware_geometry_admitted": false,
+  "compiled_pixel_identity_verified": true,
+  "peak_scheduled_writes": 39,
+  "compiled_schedule_sha256": "1d75dc343ec3b3aa026458e787ae85484c65b8d5c92f464348981c2b65eaa095",
+  "bank_search": [
+    {
+      "kind": 0,
+      "status": "COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN",
+      "solver_status": 0,
+      "message": "OPTIMAL",
+      "objective": 348.0,
+      "lower_bound": null,
+      "global_color_banks": true,
+      "solver_backend": "cp-sat",
+      "maximum_frame_colors_per_bank": null,
+      "residency_window_lines": null,
+      "oam_admission_deferred": true,
+      "geometry_admission_deferred": true,
+      "hardware_oam_limit_verified": false
+    },
+    {
+      "kind": 1,
+      "status": "COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN",
+      "solver_status": 0,
+      "message": "OPTIMAL",
+      "objective": 108.0,
+      "lower_bound": null,
+      "global_color_banks": true,
+      "solver_backend": "cp-sat",
+      "maximum_frame_colors_per_bank": null,
+      "residency_window_lines": null,
+      "oam_admission_deferred": true,
+      "geometry_admission_deferred": true,
+      "hardware_oam_limit_verified": true
+    }
+  ]
+}
