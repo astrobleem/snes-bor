@@ -29,14 +29,16 @@ def saturated_corners(output,background):
     return values
 
 
-def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive"):
+def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive", mixed_small_size=8, mixed_large_size=32):
     if solver_backend not in ('highs','cp-sat') or (relaxed and solver_backend!='highs'):raise ValueError('JOINT_SOLVER_BACKEND')
     if size not in (8,16,32,'mixed') or write_budget<0 or lookahead<0:
         raise ValueError('JOINT_SOLVER_DOMAIN')
+    if mixed_small_size not in (8,16):raise ValueError('JOINT_MIXED_SMALL_SIZE_DOMAIN')
+    if (mixed_small_size,mixed_large_size)not in ((8,16),(8,32),(16,32)):raise ValueError('JOINT_MIXED_SIZE_PAIR_DOMAIN')
     if color_math not in ('additive','precomposited'):raise ValueError('JOINT_COLOR_MATH_DOMAIN')
     def kind(bank):return int(color_math=='additive' and bank>=4)
     def banks_for_kind(k):return range(4*k,4*k+4) if color_math=='additive' else range(8)
-    base_size=32 if size=='mixed'else size
+    base_size=mixed_large_size if size=='mixed'else size
     if not all(isinstance(p,int)and 0<=p<base_size for p in (grid_padding_x,grid_padding_y)) or (not align_visible_bounds and (grid_padding_x or grid_padding_y)):
         raise ValueError('JOINT_GRID_PADDING_DOMAIN')
     if pin_pool_intervals and not pool_residency:raise ValueError('JOINT_INTERVAL_PIN_REQUIRES_POOL')
@@ -79,7 +81,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         if x==-256:return width//8
         return sum(x+column*8+8>0 and x+column*8<256 for column in range(width//8))
     for actor_index, actor in enumerate(actors):
-        base_size=32 if size=='mixed'else size
+        base_size=mixed_large_size if size=='mixed'else size
         surface=actor['pixels'];origin_x=origin_y=0
         if align_visible_bounds:
             ys,xs=np.where(surface>=0)
@@ -96,7 +98,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             blocks=[(i,piece)]
             if size=='mixed':
                 blocks=[]
-                for child in pieces_for_grid(actor['pixels'][y0:y0+32,x0:x0+32],(8,8)):
+                for child in pieces_for_grid(actor['pixels'][y0:y0+mixed_large_size,x0:x0+mixed_large_size],(mixed_small_size,mixed_small_size)):
                     cx,cy=x0+child['x'],y0+child['y']
                     child.update(actor=actor_index,local_x=cx,local_y=cy,x=cx+actor['left'],y=cy+actor['top'],rows={yy+y0:colors for yy,colors in child['rows'].items()})
                     index=len(pieces);pieces.append(child);blocks.append((index,child))
@@ -321,7 +323,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     else:
         result=milp(objective,integrality=integrality,bounds=Bounds(0,upper),constraints=LinearConstraint(matrix,lo,hi),options={'time_limit':time_limit,'mip_rel_gap':.05})
     report=dict(schema='BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1',status='BOUNDED_JOINT_SOLVER_NO_CANDIDATE',
-                metadata=metadata,geometry_size=size,write_budget=write_budget,lookahead_lines=lookahead,
+                metadata=metadata,geometry_size=size,mixed_small_size=mixed_small_size if size=='mixed'else None,mixed_large_size=mixed_large_size if size=='mixed'else None,write_budget=write_budget,lookahead_lines=lookahead,
                 solver=dict(status=int(result.status),message=result.message,variables=variable_count,constraints=len(lo),mip_nodes=int(result.mip_node_count) if getattr(result,'mip_node_count',None) is not None else None,mip_gap=float(result.mip_gap) if getattr(result,'mip_gap',None) is not None and np.isfinite(result.mip_gap) else None),
                 exact_residency_write_indicators=True,
                 color_math=color_math,opaque_choice_coalescing=coalesce_opaque_choices,opaque_choice_entries=opaque_choice_entries,
@@ -425,6 +427,8 @@ def main():
     p.add_argument('--source',required=True);p.add_argument('--stage',required=True)
     p.add_argument('--scene',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--size',choices=('8','16','32','mixed'),default='16')
+    p.add_argument('--mixed-small-size',type=int,choices=(8,16),default=8)
+    p.add_argument('--mixed-large-size',type=int,choices=(16,32),default=32)
     p.add_argument('--write-budget',type=int,default=20);p.add_argument('--time-limit',type=int,default=45)
     p.add_argument('--relaxed',action='store_true')
     p.add_argument('--pool-residency',type=Path)
@@ -445,7 +449,7 @@ def main():
     p.add_argument('--saturated-extrema',action='store_true')
     p.add_argument('--complete-additive-cover',action='store_true')
     p.add_argument('--grid-padding-x',type=int,default=0);p.add_argument('--grid-padding-y',type=int,default=0)
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math)
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
 
 

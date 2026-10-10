@@ -6,6 +6,22 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_mixed_sixteen_small_geometry_is_a_legal_global_pair(self):
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((16,16),31,dtype=np.int32);expected=background.copy();expected[:16,:16,0]=248
+        actors=[dict(pixels=pixels,left=0,top=0)]
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            r=probe(None,None,{},size='mixed',mixed_small_size=16,write_budget=0,time_limit=10,color_math='precomposited',coalesce_opaque_choices=True)
+        self.assertTrue(r['compiled_pixel_identity_verified'])
+        self.assertEqual(r['mixed_small_size'],16)
+        self.assertTrue(all(p['width']in(16,32)for p in r['pieces']))
+        with self.assertRaisesRegex(ValueError,'MIXED_SMALL_SIZE_DOMAIN'):probe(None,None,{},mixed_small_size=12)
+        with self.assertRaisesRegex(ValueError,'MIXED_SIZE_PAIR_DOMAIN'):probe(None,None,{},mixed_small_size=16,mixed_large_size=16)
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            r=probe(None,None,{},size='mixed',mixed_large_size=16,write_budget=0,time_limit=10,color_math='precomposited',coalesce_opaque_choices=True)
+        self.assertTrue(r['compiled_pixel_identity_verified'])
+        self.assertTrue(all(p['width']in(8,16)for p in r['pieces']))
+
     def test_precomposited_context_can_use_all_eight_opaque_banks(self):
         background=np.full((224,256,3),255,dtype=np.uint8)
         pixels=np.full((8,120),-1,dtype=np.int32);pixels[0]=np.arange(120)

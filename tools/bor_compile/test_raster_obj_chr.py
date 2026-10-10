@@ -40,5 +40,18 @@ class ObjChrTests(unittest.TestCase):
         self.assertTrue(oam[3]&1)
         self.assertEqual(data[:8192],bytes(8192))
 
+    def test_legal_sixteen_and_thirty_two_pair_keeps_exact_tile_pitch(self):
+        images=[np.arange(256,dtype=np.uint8).reshape(16,16)%16,np.arange(1024,dtype=np.uint16).reshape(32,32).astype(np.uint8)%16]
+        r,data,oam=compile(self.schedule(images))
+        self.assertEqual(r['obj_size_mode'],3)
+        self.assertEqual(r['obj_size_pair'],[16,32])
+        self.assertEqual(oam[512]&2,0)
+        self.assertEqual((oam[512]>>2)&2,2)
+        self.assertTrue(r['emitted_oam_chr_pixel_indices_verified'])
+        r,data,oam=compile(self.schedule(images[:1]))
+        self.assertEqual(r['obj_size_mode'],0)
+        self.assertEqual(oam[512]&2,2)
+        with self.assertRaisesRegex(ValueError,'INCOMPATIBLE_GLOBAL_SIZE_PAIR'):compile(self.schedule([np.zeros((n,n),dtype=np.uint8)for n in (8,16,32)]))
+
 
 if __name__=='__main__':unittest.main()

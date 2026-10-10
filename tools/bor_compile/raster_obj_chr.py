@@ -1,4 +1,4 @@
-"""Compile exact 8/32 OBJ masks to legal SNES tile footprints and OAM.
+"""Compile exact 8/16/32 OBJ masks to legal SNES size pairs and tile footprints.
 
 Greedy aligned placement is a constructive proof only. Failure does not prove
 VRAM infeasibility; overlapping or alternative placements may still work.
@@ -25,21 +25,32 @@ def compile(schedule,reserved=()):
         raise ValueError('OBJ_CHR_VALIDATED_SCHEDULE_REQUIRED')
     pieces=schedule['pieces'];images=[unpack(m)for m in schedule['piece_pixel_masks']]
     if len(pieces)!=len(images)or len(pieces)>128:raise ValueError('OBJ_CHR_OAM_CAPACITY')
+    sizes={p['width']for p in pieces}
+    if 8 in sizes and 16 in sizes and 32 in sizes:raise ValueError('OBJ_CHR_INCOMPATIBLE_GLOBAL_SIZE_PAIR')
+    if schedule.get('mixed_large_size')==16:
+        if schedule.get('mixed_small_size',8)!=8:raise ValueError('OBJ_CHR_INCOMPATIBLE_GLOBAL_SIZE_PAIR')
+        small,big,mode=8,16,0
+    elif schedule.get('mixed_small_size')==16:small,big,mode=16,32,3
+    elif 16 in sizes:
+        small,big,mode=(16,32,3)if 32 in sizes else(8,16,0)
+    else:small,big,mode=8,32,1
     reserved=set(reserved)
     if any(not isinstance(c,int)or not 0<=c<512 for c in reserved):raise ValueError('OBJ_CHR_RESERVED_CELLS')
     blocks=[]
     for p,image in zip(pieces,images):
-        if p['width']!=p['height']or p['width']not in(8,32)or image.shape!=(p['height'],p['width']):raise ValueError('OBJ_CHR_MODE1_GEOMETRY')
+        if p['width']!=p['height']or p['width']not in(small,big)or image.shape!=(p['height'],p['width']):raise ValueError('OBJ_CHR_SIZE_PAIR_GEOMETRY')
         n=p['width']//8;blocks.append([encode(image[y*8:y*8+8,x*8:x*8+8])for y in range(n)for x in range(n)])
     grid={};origins={};large={}
-    for i,block in enumerate(blocks):
-        if len(block)!=16:continue
+    for i in sorted(range(len(blocks)),key=lambda i:-len(blocks[i])):
+        block=blocks[i]
+        if len(block)==1:continue
+        n=pieces[i]['width']//8
         key=b''.join(block)
         if key in large:origins[i]=large[key];continue
         for page in range(2):
-            for y in range(0,16,4):
-                for x in range(0,16,4):
-                    cells=[page*256+(y+dy)*16+x+dx for dy in range(4)for dx in range(4)]
+            for y in range(0,16,n):
+                for x in range(0,16,n):
+                    cells=[page*256+(y+dy)*16+x+dx for dy in range(n)for dx in range(n)]
                     if any(c in reserved or c in grid and grid[c]!=tile for c,tile in zip(cells,block)):continue
                     origin=page*256+y*16+x
                     for c,tile in zip(cells,block):grid[c]=tile
@@ -59,22 +70,22 @@ def compile(schedule,reserved=()):
     for i in range(128):oam[4*i+1]=240
     for i,p in enumerate(pieces):
         if not 0<=p['bank']<8 or not -256<=p['x']<256 or not -256<=p['y']<256:raise ValueError('OBJ_CHR_OAM_ATTRIBUTE_DOMAIN')
-        tile=origins[i];x=p['x']&511;large_bit=2 if p['width']==32 else 0
+        tile=origins[i];x=p['x']&511;large_bit=2 if p['width']==big else 0
         oam[4*i:4*i+4]=bytes([x&255,p['y']&255,tile&255,0x30|p['bank']<<1|tile>>8])
         oam[512+i//4]|=((x>>8)|large_bit)<<(2*(i%4))
     data=bytearray((max(grid,default=-1)+1)*32)
     for cell,tile in grid.items():data[cell*32:cell*32+32]=tile
     # Decode from emitted OAM and CHR, not the planner's origin dictionary.
     for i,(p,image)in enumerate(zip(pieces,images)):
-        attr=oam[4*i+3];origin=oam[4*i+2]+((attr&1)<<8);n=4 if(oam[512+i//4]>>(2*(i%4)))&2 else 1
+        attr=oam[4*i+3];origin=oam[4*i+2]+((attr&1)<<8);n=(big if(oam[512+i//4]>>(2*(i%4)))&2 else small)//8
         replay=np.zeros((n*8,n*8),dtype=np.uint8)
         for y in range(n):
             for x in range(n):
                 cell=(origin&256)+((origin&255)+y*16+x)
                 replay[y*8:y*8+8,x*8:x*8+8]=decode(data[cell*32:cell*32+32])
         if not np.array_equal(replay,image)or(attr>>1)&7!=p['bank']:raise AssertionError('OBJ_CHR_OAM_PIXEL_IDENTITY')
-    report=dict(schema='BYOR_RASTER_OBJ_CHR_V1',status='LEGAL_MODE1_CHR_OAM_CONSTRUCTIVE_PROOF',
-                obj_size_mode=1,oam_entries=len(pieces),obj_chr_bytes=len(data),occupied_tile_cells=len(grid),
+    report=dict(schema='BYOR_RASTER_OBJ_CHR_V1',status=f'LEGAL_MODE{mode}_CHR_OAM_CONSTRUCTIVE_PROOF',
+                obj_size_mode=mode,obj_size_pair=[small,big],oam_entries=len(pieces),obj_chr_bytes=len(data),occupied_tile_cells=len(grid),
                 unique_tiles=len(set(grid.values())),reserved_tile_cells=sorted(reserved),
                 chr_sha256=hashlib.sha256(data).hexdigest(),oam_sha256=hashlib.sha256(oam).hexdigest(),
                 emitted_oam_chr_pixel_indices_verified=True,native_render_proven=False,no_color_reduction=True)

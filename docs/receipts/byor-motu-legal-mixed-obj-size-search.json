@@ -1,0 +1,72 @@
+{
+  "schema": "BYOR_LEGAL_MIXED_OBJ_SIZE_SEARCH_V1",
+  "no_color_reduction": true,
+  "universal_raster_rejected": false,
+  "native_timing_admitted": false,
+  "trials": [
+    {
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "geometry_size": "mixed",
+      "mixed_small_size": 8,
+      "mixed_large_size": 16,
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 54913,
+        "constraints": 111924,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 1980,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 369,
+          "sat_inprocessing": false,
+          "branches": 1552773,
+          "conflicts": 938484,
+          "wall_seconds": 300.1183153,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "prepared_dma_window_master_clocks": 356,
+      "artifact": "out/byor-motu-isolated-mixed8-16-coalesced-partition-dma356.json",
+      "artifact_sha256": "af5c25df5e6e51e7e59cee1af1f7223b105f174965382678ab948398e967bcbf"
+    },
+    {
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "geometry_size": "mixed",
+      "mixed_small_size": 16,
+      "mixed_large_size": null,
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 53449,
+        "constraints": 109312,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 1980,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 348,
+          "sat_inprocessing": false,
+          "branches": 1713346,
+          "conflicts": 847520,
+          "wall_seconds": 300.1351083,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "prepared_dma_window_master_clocks": 356,
+      "artifact": "out/byor-motu-isolated-mixed16-coalesced-partition-dma356.json",
+      "artifact_sha256": "48477ff9e663c513fcd638a95d029786da210d8c1feef5f426e7cff1dd5c9d4a"
+    }
+  ]
+}

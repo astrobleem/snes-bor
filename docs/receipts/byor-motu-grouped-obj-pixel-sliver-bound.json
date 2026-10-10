@@ -1,0 +1,2709 @@
+{
+  "peak_actor_owned_tile_lower_bound": 15,
+  "worst_scanlines": [
+    138,
+    150
+  ],
+  "actor_owned_geometry_rejected": false,
+  "trace": [
+    {
+      "scanline": 0,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 1,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 2,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 3,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 4,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 5,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 6,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 7,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 8,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 9,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 10,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 11,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 12,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 13,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 14,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 15,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 16,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 17,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 18,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 19,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 20,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 21,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 22,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 23,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 24,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 25,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 26,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 27,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 28,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 29,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 30,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 31,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 32,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 33,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 34,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 35,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 36,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 37,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 38,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 39,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 40,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 41,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 42,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 43,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 44,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 45,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 46,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 47,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 48,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 49,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 50,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 51,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 52,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 53,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 54,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 55,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 56,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 57,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 58,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 59,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 60,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 61,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 62,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 63,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 64,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 65,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 66,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 67,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 68,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 69,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 70,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 71,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 72,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 73,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 74,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 75,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 76,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 77,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 78,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 79,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 80,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 81,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 82,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 83,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 84,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 85,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 86,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 87,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 88,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 89,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 90,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 91,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 92,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 93,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 94,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 95,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 96,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 97,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 98,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 99,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 100,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 101,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 102,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 103,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 104,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 105,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 106,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 107,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 108,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 109,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 110,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 111,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 112,
+      "actor_tile_lower_bounds": [
+        1,
+        0,
+        1
+      ],
+      "actor_owned_tile_lower_bound": 2,
+      "merged_pixels_tile_lower_bound": 2,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 113,
+      "actor_tile_lower_bounds": [
+        1,
+        0,
+        2
+      ],
+      "actor_owned_tile_lower_bound": 3,
+      "merged_pixels_tile_lower_bound": 3,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 114,
+      "actor_tile_lower_bounds": [
+        2,
+        0,
+        2
+      ],
+      "actor_owned_tile_lower_bound": 4,
+      "merged_pixels_tile_lower_bound": 4,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 115,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        3
+      ],
+      "actor_owned_tile_lower_bound": 6,
+      "merged_pixels_tile_lower_bound": 6,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 116,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        4
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 117,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        5
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 118,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        6
+      ],
+      "actor_owned_tile_lower_bound": 9,
+      "merged_pixels_tile_lower_bound": 9,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 119,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        6
+      ],
+      "actor_owned_tile_lower_bound": 9,
+      "merged_pixels_tile_lower_bound": 9,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 120,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        7
+      ],
+      "actor_owned_tile_lower_bound": 10,
+      "merged_pixels_tile_lower_bound": 10,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 121,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        7
+      ],
+      "actor_owned_tile_lower_bound": 10,
+      "merged_pixels_tile_lower_bound": 10,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 122,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        7
+      ],
+      "actor_owned_tile_lower_bound": 10,
+      "merged_pixels_tile_lower_bound": 10,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 123,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        7
+      ],
+      "actor_owned_tile_lower_bound": 10,
+      "merged_pixels_tile_lower_bound": 10,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 124,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 11,
+      "merged_pixels_tile_lower_bound": 10,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 125,
+      "actor_tile_lower_bounds": [
+        2,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 11,
+      "merged_pixels_tile_lower_bound": 11,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 126,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 12,
+      "merged_pixels_tile_lower_bound": 11,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 127,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 12,
+      "merged_pixels_tile_lower_bound": 12,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 128,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 12,
+      "merged_pixels_tile_lower_bound": 12,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 129,
+      "actor_tile_lower_bounds": [
+        4,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 12,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 130,
+      "actor_tile_lower_bounds": [
+        4,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 12,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 131,
+      "actor_tile_lower_bounds": [
+        4,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 12,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 132,
+      "actor_tile_lower_bounds": [
+        4,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 133,
+      "actor_tile_lower_bounds": [
+        4,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 134,
+      "actor_tile_lower_bounds": [
+        4,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 135,
+      "actor_tile_lower_bounds": [
+        4,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 136,
+      "actor_tile_lower_bounds": [
+        4,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 137,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 14,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 138,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        9
+      ],
+      "actor_owned_tile_lower_bound": 15,
+      "merged_pixels_tile_lower_bound": 14,
+      "maximum_width_sprite_lower_bound": 3
+    },
+    {
+      "scanline": 139,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 14,
+      "merged_pixels_tile_lower_bound": 14,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 140,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 14,
+      "merged_pixels_tile_lower_bound": 14,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 141,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 14,
+      "merged_pixels_tile_lower_bound": 14,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 142,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 14,
+      "merged_pixels_tile_lower_bound": 14,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 143,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 144,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 145,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 146,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 147,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 14,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 148,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 14,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 149,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 14,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 150,
+      "actor_tile_lower_bounds": [
+        7,
+        0,
+        8
+      ],
+      "actor_owned_tile_lower_bound": 15,
+      "merged_pixels_tile_lower_bound": 14,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 151,
+      "actor_tile_lower_bounds": [
+        7,
+        0,
+        7
+      ],
+      "actor_owned_tile_lower_bound": 14,
+      "merged_pixels_tile_lower_bound": 14,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 152,
+      "actor_tile_lower_bounds": [
+        7,
+        0,
+        7
+      ],
+      "actor_owned_tile_lower_bound": 14,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 153,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        7
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 13,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 154,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        7
+      ],
+      "actor_owned_tile_lower_bound": 13,
+      "merged_pixels_tile_lower_bound": 12,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 155,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        6
+      ],
+      "actor_owned_tile_lower_bound": 11,
+      "merged_pixels_tile_lower_bound": 11,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 156,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        6
+      ],
+      "actor_owned_tile_lower_bound": 11,
+      "merged_pixels_tile_lower_bound": 11,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 157,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        6
+      ],
+      "actor_owned_tile_lower_bound": 9,
+      "merged_pixels_tile_lower_bound": 9,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 158,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        5
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 159,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        5
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 160,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        5
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 161,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        4
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 162,
+      "actor_tile_lower_bounds": [
+        3,
+        0,
+        4
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 163,
+      "actor_tile_lower_bounds": [
+        4,
+        0,
+        4
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 164,
+      "actor_tile_lower_bounds": [
+        4,
+        0,
+        3
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 165,
+      "actor_tile_lower_bounds": [
+        4,
+        0,
+        3
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 166,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        2
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 167,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        1
+      ],
+      "actor_owned_tile_lower_bound": 6,
+      "merged_pixels_tile_lower_bound": 6,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 168,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 5,
+      "merged_pixels_tile_lower_bound": 5,
+      "maximum_width_sprite_lower_bound": 1
+    },
+    {
+      "scanline": 169,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 5,
+      "merged_pixels_tile_lower_bound": 5,
+      "maximum_width_sprite_lower_bound": 1
+    },
+    {
+      "scanline": 170,
+      "actor_tile_lower_bounds": [
+        5,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 5,
+      "merged_pixels_tile_lower_bound": 5,
+      "maximum_width_sprite_lower_bound": 1
+    },
+    {
+      "scanline": 171,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 6,
+      "merged_pixels_tile_lower_bound": 6,
+      "maximum_width_sprite_lower_bound": 1
+    },
+    {
+      "scanline": 172,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 6,
+      "merged_pixels_tile_lower_bound": 6,
+      "maximum_width_sprite_lower_bound": 1
+    },
+    {
+      "scanline": 173,
+      "actor_tile_lower_bounds": [
+        6,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 6,
+      "merged_pixels_tile_lower_bound": 6,
+      "maximum_width_sprite_lower_bound": 1
+    },
+    {
+      "scanline": 174,
+      "actor_tile_lower_bounds": [
+        6,
+        1,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 175,
+      "actor_tile_lower_bounds": [
+        6,
+        2,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 176,
+      "actor_tile_lower_bounds": [
+        5,
+        2,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 177,
+      "actor_tile_lower_bounds": [
+        6,
+        3,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 9,
+      "merged_pixels_tile_lower_bound": 9,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 178,
+      "actor_tile_lower_bounds": [
+        5,
+        3,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 179,
+      "actor_tile_lower_bounds": [
+        5,
+        3,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 180,
+      "actor_tile_lower_bounds": [
+        5,
+        3,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 181,
+      "actor_tile_lower_bounds": [
+        4,
+        3,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 182,
+      "actor_tile_lower_bounds": [
+        4,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 183,
+      "actor_tile_lower_bounds": [
+        4,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 184,
+      "actor_tile_lower_bounds": [
+        4,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 185,
+      "actor_tile_lower_bounds": [
+        4,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 186,
+      "actor_tile_lower_bounds": [
+        4,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 187,
+      "actor_tile_lower_bounds": [
+        4,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 188,
+      "actor_tile_lower_bounds": [
+        4,
+        5,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 9,
+      "merged_pixels_tile_lower_bound": 9,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 189,
+      "actor_tile_lower_bounds": [
+        4,
+        5,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 9,
+      "merged_pixels_tile_lower_bound": 9,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 190,
+      "actor_tile_lower_bounds": [
+        4,
+        5,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 9,
+      "merged_pixels_tile_lower_bound": 9,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 191,
+      "actor_tile_lower_bounds": [
+        5,
+        5,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 10,
+      "merged_pixels_tile_lower_bound": 10,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 192,
+      "actor_tile_lower_bounds": [
+        6,
+        5,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 11,
+      "merged_pixels_tile_lower_bound": 11,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 193,
+      "actor_tile_lower_bounds": [
+        6,
+        5,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 11,
+      "merged_pixels_tile_lower_bound": 11,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 194,
+      "actor_tile_lower_bounds": [
+        6,
+        5,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 11,
+      "merged_pixels_tile_lower_bound": 11,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 195,
+      "actor_tile_lower_bounds": [
+        6,
+        5,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 11,
+      "merged_pixels_tile_lower_bound": 11,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 196,
+      "actor_tile_lower_bounds": [
+        6,
+        5,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 11,
+      "merged_pixels_tile_lower_bound": 11,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 197,
+      "actor_tile_lower_bounds": [
+        5,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 9,
+      "merged_pixels_tile_lower_bound": 9,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 198,
+      "actor_tile_lower_bounds": [
+        4,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 199,
+      "actor_tile_lower_bounds": [
+        3,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 200,
+      "actor_tile_lower_bounds": [
+        3,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 201,
+      "actor_tile_lower_bounds": [
+        3,
+        5,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 202,
+      "actor_tile_lower_bounds": [
+        4,
+        5,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 9,
+      "merged_pixels_tile_lower_bound": 9,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 203,
+      "actor_tile_lower_bounds": [
+        4,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 8,
+      "merged_pixels_tile_lower_bound": 8,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 204,
+      "actor_tile_lower_bounds": [
+        2,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 6,
+      "merged_pixels_tile_lower_bound": 6,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 205,
+      "actor_tile_lower_bounds": [
+        3,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 7,
+      "merged_pixels_tile_lower_bound": 7,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 206,
+      "actor_tile_lower_bounds": [
+        2,
+        3,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 5,
+      "merged_pixels_tile_lower_bound": 5,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 207,
+      "actor_tile_lower_bounds": [
+        2,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 6,
+      "merged_pixels_tile_lower_bound": 6,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 208,
+      "actor_tile_lower_bounds": [
+        1,
+        3,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 4,
+      "merged_pixels_tile_lower_bound": 4,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 209,
+      "actor_tile_lower_bounds": [
+        1,
+        3,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 4,
+      "merged_pixels_tile_lower_bound": 4,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 210,
+      "actor_tile_lower_bounds": [
+        0,
+        4,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 4,
+      "merged_pixels_tile_lower_bound": 4,
+      "maximum_width_sprite_lower_bound": 1
+    },
+    {
+      "scanline": 211,
+      "actor_tile_lower_bounds": [
+        0,
+        3,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 3,
+      "merged_pixels_tile_lower_bound": 3,
+      "maximum_width_sprite_lower_bound": 1
+    },
+    {
+      "scanline": 212,
+      "actor_tile_lower_bounds": [
+        1,
+        1,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 2,
+      "merged_pixels_tile_lower_bound": 2,
+      "maximum_width_sprite_lower_bound": 2
+    },
+    {
+      "scanline": 213,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 214,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 215,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 216,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 217,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 218,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 219,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 220,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 221,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 222,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    },
+    {
+      "scanline": 223,
+      "actor_tile_lower_bounds": [
+        0,
+        0,
+        0
+      ],
+      "actor_owned_tile_lower_bound": 0,
+      "merged_pixels_tile_lower_bound": 0,
+      "maximum_width_sprite_lower_bound": 0
+    }
+  ],
+  "schema": "BYOR_SCENE_OBJ_PIXEL_SLIVER_LOWER_BOUND_V1",
+  "source_scene": {
+    "viewport": [
+      256,
+      224
+    ],
+    "piece_size": [
+      16,
+      32
+    ],
+    "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+    "actors": [
+      {
+        "model": "HBreath",
+        "animation": "idle",
+        "frame": 11,
+        "position": [
+          98,
+          220,
+          93
+        ],
+        "order": 2
+      },
+      {
+        "model": "He_ManB",
+        "animation": "freespecial4",
+        "frame": 6,
+        "position": [
+          80,
+          220,
+          0
+        ],
+        "order": 0
+      },
+      {
+        "model": "Knightbot",
+        "animation": "idle",
+        "frame": 0,
+        "position": [
+          200,
+          220,
+          0
+        ],
+        "order": 1
+      }
+    ]
+  },
+  "metadata": {
+    "stage": "DATA/LEVELS/GUILE2.TXT",
+    "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+    "scene": {
+      "viewport": [
+        256,
+        224
+      ],
+      "piece_size": [
+        16,
+        32
+      ],
+      "provenance": "Explicit stationary combat pose; HBreath origin derived from supplied spawn01 (18,93,0). Reachability/timing not certified.",
+      "actors": [
+        {
+          "model": "HBreath",
+          "animation": "idle",
+          "frame": 11,
+          "position": [
+            98,
+            220,
+            93
+          ],
+          "order": 2
+        },
+        {
+          "model": "He_ManB",
+          "animation": "freespecial4",
+          "frame": 6,
+          "position": [
+            80,
+            220,
+            0
+          ],
+          "order": 0
+        },
+        {
+          "model": "Knightbot",
+          "animation": "idle",
+          "frame": 0,
+          "position": [
+            200,
+            220,
+            0
+          ],
+          "order": 1
+        }
+      ]
+    },
+    "layers": [
+      {
+        "kind": "background",
+        "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+        "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+        "source_dimensions": [
+          800,
+          400
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 57344,
+        "source_flip": false
+      },
+      {
+        "kind": "panel",
+        "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+        "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+        "source_dimensions": [
+          2544,
+          245
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 44246,
+        "source_flip": false
+      },
+      {
+        "kind": "actor:He_ManB",
+        "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+        "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_dimensions": [
+          200,
+          200
+        ],
+        "position": [
+          -16,
+          44
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 3327,
+        "source_flip": false,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "none",
+        "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+        "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814",
+        "pre_occlusion_pixels": 3327,
+        "final_visible_pixels": 2762
+      },
+      {
+        "kind": "actor:KnightBot",
+        "path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+        "sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+        "source_dimensions": [
+          50,
+          50
+        ],
+        "position": [
+          173,
+          172
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 1078,
+        "source_flip": false,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "enemy",
+        "palette_source_path": "DATA\\CHARS\\KNBOT\\KNBOT1.PNG",
+        "palette_asset_sha256": "541952df13c47a4e087de4e288e0f51ddef49a2dbfc6241565a36210e0386d40",
+        "pre_occlusion_pixels": 1078,
+        "final_visible_pixels": 890
+      },
+      {
+        "kind": "actor:HBreath",
+        "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+        "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+        "source_dimensions": [
+          110,
+          90
+        ],
+        "position": [
+          84,
+          92
+        ],
+        "alpha": 1,
+        "visible_source_pixels": 2751,
+        "source_flip": false,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "none",
+        "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+        "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+        "pre_occlusion_pixels": 2751,
+        "final_visible_pixels": 2751
+      },
+      {
+        "kind": "frontpanel",
+        "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+        "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+        "source_dimensions": [
+          350,
+          245
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 2749,
+        "source_flip": false
+      }
+    ],
+    "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+    "alpha_source_dimensions": [
+      [
+        110,
+        90
+      ]
+    ],
+    "camera": [
+      0.0,
+      0.0
+    ],
+    "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+    "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+    "all_actor_models_preserved": true
+  },
+  "source_rgb555_sha256": "3bdbe16fdd7c8330dcae28c9da1f68dfa7d0caa7dc80aafa9970140243e7874d",
+  "actor_piece_ownership_required": true,
+  "source_pose_reachability_proven": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true
+}
