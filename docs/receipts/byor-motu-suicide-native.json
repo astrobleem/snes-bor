@@ -1,0 +1,30 @@
+{
+  "schema": "BYOR_SUICIDE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "report": "out/byor-motu-death-actions-authority/report.json",
+      "sha256": "02a7a9116abfed91e4b043a57219596d7ff5ce17a8cc53f15ca4606b5883b305",
+      "cases": 3024,
+      "rom_sha256": null
+    },
+    {
+      "report": "out/byor-motu-suicide-kill-native/report.json",
+      "sha256": "aa1a65ec3b103b2598d616945a44b02a6a1ae84b3e2c6a25d4aff18eaf40b92d",
+      "cases": 162,
+      "rom_sha256": "bdd927f255f223fa26a8f22a15bfe1d8f8f25f9c93b90571f9ec2b7889e49d75"
+    }
+  ],
+  "actual_no_event_retirement": true,
+  "initialized_kill_clear_callbacks_bound": false,
+  "recursive_minion_children_bound": false,
+  "actual_check_ai_dispatch_bound": false,
+  "player_die_body_bound": false,
+  "production_memory_lease": false,
+  "new_foreign_arena_bytes": 0,
+  "motu_gameplay_proven": false,
+  "bank0_unchanged": true,
+  "protected_tracked_files": 17,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
