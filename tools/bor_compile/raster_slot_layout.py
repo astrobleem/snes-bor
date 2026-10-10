@@ -10,7 +10,7 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
-def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False):
+def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False):
     from ortools.sat.python import cp_model
     if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('SLOT_LAYOUT_VALIDATED_SCHEDULE_REQUIRED')
@@ -29,6 +29,8 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
     if flexible_prefetch and(not trim_dead_residents or not isinstance(lookahead,int)or lookahead<0):raise ValueError('SLOT_LAYOUT_PREFETCH_DOMAIN')
     if reorder_banks and not flexible_prefetch:raise ValueError('SLOT_LAYOUT_BANK_REORDER_REQUIRES_PREFETCH')
     if fix_hint_slots and(not flexible_prefetch or layout_hint is None):raise ValueError('SLOT_LAYOUT_FIXED_HINT_REQUIRES_PREFETCH_HINT')
+    if permute_hint_slots and(not flexible_prefetch or layout_hint is None or fix_hint_slots):raise ValueError('SLOT_LAYOUT_PERMUTE_HINT_DOMAIN')
+    hint_family=fix_hint_slots or permute_hint_slots
     required={};last_use={};first_use={}
     for p,mask in zip(schedule['pieces'],schedule['piece_pixel_masks']):
         image=unpack(mask)
@@ -79,6 +81,14 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
     if fix_hint_slots:
         if set(hinted)!=set(last_use):raise ValueError('SLOT_LAYOUT_FIXED_HINT_INCOMPLETE')
         for i,(slot,time)in hinted.items():model.add(slots[i]==slot)
+    if permute_hint_slots:
+        if set(hinted)!=set(last_use):raise ValueError('SLOT_LAYOUT_PERMUTE_HINT_INCOMPLETE')
+        permutations={}
+        for bank in range(8):
+            values=[model.new_int_var(0,14,f'slotPermutation{bank}_{s}')for s in range(15)]
+            model.add_all_different(values)
+            for s,value in enumerate(values):permutations[bank,s]=value;model.add_hint(value,s)
+        for i,(slot,time)in hinted.items():model.add(slots[i]==permutations[segments[i]['bank'],slot])
     destinations={};bank_choices={}
     if reorder_banks:
         additive=schedule.get('color_math','additive')=='additive'
@@ -86,25 +96,41 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             allowed=range((bank//4)*4,(bank//4)*4+4)if additive else range(8)
             destinations[bank]=model.new_int_var_from_domain(cp_model.Domain.from_values(list(allowed)),'bank'+str(bank))
             model.add_hint(destinations[bank],hint_banks[bank])
-            for b in allowed:
+            for b in (()if split_bank_ranges else allowed):
                 q=model.new_bool_var(f'bank{bank}_{b}');model.add(destinations[bank]==b).only_enforce_if(q);model.add(destinations[bank]!=b).only_enforce_if(q.Not());bank_choices[bank,b]=q
         model.add_all_different(list(destinations.values()))
-    seen=set();write_times={};write_flags={}
+    seen=set();write_times={};write_flags={};fixed_earliest={};pruned_write_times=0;event_hints={}
+    if hint_family:
+        lanes={}
+        for i in sorted(last_use,key=lambda i:(first_use[i],i)):
+            key=segments[i]['bank'],hinted[i][0]
+            fixed_earliest[i]=lanes.get(key,0)
+            lanes[key]=max(lanes.get(key,0),last_use[i]+1)
     if flexible_prefetch:
         lanes={(b,s):[]for b in range(8)for s in range(15)}
         for i in sorted(last_use):
             first=first_use[i];allowed=[0]+list(range(max(1,first-lookahead),first+1))
+            if hint_family:
+                revised=[y for y in allowed if y>=fixed_earliest[i]]
+                pruned_write_times+=len(allowed)-len(revised)
+                if revised:allowed=revised
+                else:model.add(False)
             start=model.new_int_var_from_domain(cp_model.Domain.from_values(allowed),'time'+str(i));write_times[i]=start
             original_time=hinted.get(i,(0,segments[i]['first']))[1];hint=original_time if original_time in allowed else allowed[0]
             model.add_hint(start,hint)
+            if i in hinted:event_hints[i]=(16*hint_banks[segments[i]['bank']]+hinted[i][0]+1,hint)
             end=last_use[i]+1;duration=model.new_int_var(1,end,'duration'+str(i));model.add(duration==end-start)
+            model.add_hint(duration,end-hint)
             for s in range(15):
+                if hint_family:break
                 present=model.new_bool_var(f'lane{i}_{s}');model.add(slots[i]==s).only_enforce_if(present);model.add(slots[i]!=s).only_enforce_if(present.Not())
+                model.add_hint(present,int(s==hinted.get(i,(segments[i]['old_slot'],0))[0]))
                 lanes[segments[i]['bank'],s].append(model.new_optional_interval_var(start,duration,end,present,f'life{i}_{s}'))
             for y in allowed:
                 flag=model.new_bool_var(f'write{i}_{y}');model.add(start==y).only_enforce_if(flag);model.add(start!=y).only_enforce_if(flag.Not())
+                model.add_hint(flag,int(y==hint))
                 bank=segments[i]['bank']
-                if reorder_banks:
+                if reorder_banks and not split_bank_ranges:
                     for (old,b),q in bank_choices.items():
                         if old!=bank:continue
                         f=model.new_bool_var(f'physicalWrite{i}_{y}_{b}');model.add(f<=flag);model.add(f<=q);model.add(f>=flag+q-1)
@@ -119,6 +145,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 if len(values)>1 and values not in seen:model.add_all_different([slots[i]for i in values]);seen.add(values)
     ranges={};peak=model.new_int_var(0,4096,'peak')
     for y in range(1,height):
+        if split_bank_ranges:break
         banks=[b for b in range(8)if(y,b)in(write_flags if flexible_prefetch else starts)]
         if not banks:continue
         lo={};hi={};active={}
@@ -150,6 +177,13 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             if flexible_prefetch:model.add(sum(values)<=1);model.add(sum(values)>=active[b])
             else:model.add(sum(values)==1)
         model.add(sum(selected)<=maximum_ranges);model.add(sum(costs)<=window+39);model.add(peak>=sum(costs))
+    if split_bank_ranges:
+        from raster_physical_ranges import constrain
+        if not flexible_prefetch:write_flags={key:[(i,model.new_constant(1))for i in values]for key,values in starts.items()}
+        packet_hints=None
+        if layout_hint and layout_hint.get('prepared_dma_packets'):
+            packet_hints={row['scanline']:sorted((p['cgram_word_address']-128,p['cgram_word_address']-128+p['word_count']-1)for p in row['packets'])for row in layout_hint['prepared_dma_packets']}
+        ranges,peak=constrain(model,write_flags,slots,height,maximum_ranges,window,destinations if reorder_banks else None,packet_hints,event_hints)
     for i,segment in enumerate(segments):model.add_hint(slots[i],hinted.get(i,(segment['old_slot'],0))[0])
     model.minimize(peak);solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
@@ -163,12 +197,17 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 layout_hint_used=layout_hint is not None,
                 reorder_banks=reorder_banks,
                 fixed_hint_slots=fix_hint_slots,
+                permute_hint_slots=permute_hint_slots,
+                split_bank_ranges=split_bank_ranges,
+                fixed_slot_write_times_pruned=pruned_write_times,
+                solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),
                 solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
                 solver_probing_level=0,solver_sat_inprocessing=False,
                 universal_raster_rejected=False,native_timing_admitted=False,no_color_reduction=True)
     if status not in (cp_model.FEASIBLE,cp_model.OPTIMAL):return result
     bank_map={b:solver.value(destinations[b])if reorder_banks else b for b in range(8)}
     result['fixed_piece_bank_permutation']=bank_map
+    if permute_hint_slots:result['fixed_hint_slot_permutations']={b:[solver.value(permutations[b,s])for s in range(15)]for b in range(8)}
     if flexible_prefetch:
         starts={}
         for i,time in write_times.items():starts.setdefault((solver.value(time),bank_map[segments[i]['bank']]),[]).append(i)
@@ -180,10 +219,15 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 s=assigned[i];c=segments[i]['color'];old_bank=segments[i]['bank'];events.append(dict(bank=b,slot=s+1,old=state[b][s],color=c,kind='required'if c in required.get((y,old_bank),set())else'prefetch'));state[b][s]=c
         groups=[]
         if y:
-            for (line,first,last),q in ranges.items():
-                if line!=y or not solver.value(q):continue
-                first_slot=min(assigned[i]for i in starts[y,first])+1;last_slot=max(assigned[i]for i in starts[y,last])+1
-                begin=128+16*first+first_slot;end=128+16*last+last_slot
+            bounds=[]
+            if split_bank_ranges:
+                bounds=[(128+solver.value(begin),128+solver.value(end))for (line,r),(active,begin,end,length)in ranges.items()if line==y and solver.value(active)]
+            else:
+                for (line,first,last),q in ranges.items():
+                    if line!=y or not solver.value(q):continue
+                    first_slot=min(assigned[i]for i in starts[y,first])+1;last_slot=max(assigned[i]for i in starts[y,last])+1
+                    bounds.append((128+16*first+first_slot,128+16*last+last_slot))
+            for begin,end in bounds:
                 data=bytearray()
                 for address in range(begin,end+1):
                     bank,slot=divmod(address-128,16);c=0 if slot==0 else state[bank][slot-1]
@@ -236,7 +280,9 @@ def main():
     p.add_argument('--layout-hint',type=Path)
     p.add_argument('--reorder-banks',action='store_true')
     p.add_argument('--fix-hint-slots',action='store_true')
-    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots)
+    p.add_argument('--split-bank-ranges',action='store_true')
+    p.add_argument('--permute-hint-slots',action='store_true')
+    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 

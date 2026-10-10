@@ -89,5 +89,73 @@ class SlotLayoutTests(unittest.TestCase):
                 if color is not None:self.assertEqual(states[y][piece['bank']][int(image[y,0])-1],color)
         with self.assertRaisesRegex(ValueError,'BANK_REORDER_REQUIRES_PREFETCH'):optimize(source,reorder_banks=True)
 
+    def test_split_ranges_replay_prefetch_and_bank_permutation(self):
+        fixed=optimize(self.schedule(),window=356,time_limit=10,split_bank_ranges=True)
+        self.assertTrue(fixed['physical_slot_layout']['all_packet_cgram_identities_verified'])
+        r=optimize(self.schedule(),window=356,time_limit=10,flexible_prefetch=True,reorder_banks=True,split_bank_ranges=True)
+        self.assertTrue(r['physical_slot_layout']['split_bank_ranges'])
+        self.assertTrue(r['physical_slot_layout']['pixel_color_identity_verified'])
+        self.assertTrue(r['physical_slot_layout']['all_packet_cgram_identities_verified'])
+
+    def test_physical_interval_cost_matches_exhaustive_partitions(self):
+        from itertools import combinations
+        from ortools.sat.python import cp_model
+        from raster_physical_ranges import constrain
+        for addresses in ([1,15],[1,15,17,31],[2,4,9,65,127],[15,17,31,33,63]):
+            for limit in (1,2,4):
+                costs=[]
+                for count in range(1,min(limit,len(addresses))+1):
+                    for cuts in combinations(range(1,len(addresses)),count-1):
+                        bounds=(0,*cuts,len(addresses))
+                        costs.append(sum(24+16*(addresses[bounds[j+1]-1]-addresses[bounds[j]]+1)for j in range(count)))
+                model=cp_model.CpModel();flags={};slots=[]
+                for i,address in enumerate(addresses):
+                    bank,slot=divmod(address,16)
+                    slots.append(model.new_constant(slot-1))
+                    flags.setdefault((1,bank),[]).append((i,model.new_constant(1)))
+                ranges,peak=constrain(model,flags,slots,2,limit,4096)
+                model.minimize(peak);solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=10
+                self.assertEqual(solver.solve(model),cp_model.OPTIMAL)
+                self.assertEqual(solver.value(peak),min(costs))
+        # Widely separated words in one bank can fit as two ranges, while
+        # the one-range bank hull consumes 224 clocks after the span credit.
+        self.assertEqual(2*(24+16)-40,40)
+
+    def test_direct_physical_address_optimizes_math_class_bank_destinations(self):
+        from ortools.sat.python import cp_model
+        from raster_physical_ranges import constrain
+        model=cp_model.CpModel()
+        normal=model.new_int_var(0,3,'normalBank')
+        additive=model.new_int_var(4,7,'additiveBank')
+        flags={(1,0):[(0,model.new_constant(1))],(1,4):[(1,model.new_constant(1))]}
+        ranges,peak=constrain(model,flags,[model.new_constant(14),model.new_constant(0)],2,1,356,{0:normal,4:additive})
+        model.minimize(peak);solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=10
+        self.assertEqual(solver.solve(model),cp_model.OPTIMAL)
+        self.assertEqual((solver.value(normal),solver.value(additive)),(3,4))
+        self.assertEqual(solver.value(peak),24+16*3)
+        # The range bridges transparent bank word 64. Palette identity is
+        # unaffected because packet construction writes transparent zero there.
+        active,begin,end,length=ranges[1,0]
+        self.assertEqual((solver.value(begin),solver.value(end)),(63,65))
+
+    def test_global_slot_permutation_retains_full_bank_lifetimes(self):
+        source=self.schedule();state={b:[None]*15 for b in range(8)};trace=[]
+        for y in range(16):
+            before=copy.deepcopy(state);events=[]
+            changes=[(s,s)for s in range(1,16)]if y==0 else[(1,16)]if y==1 else[]
+            for slot,color in changes:
+                events.append(dict(bank=0,slot=slot,old=state[0][slot-1],color=color));state[0][slot-1]=color
+            trace.append(dict(scanline=y,resident_before=before,updates=events))
+        image=np.zeros((16,16),dtype=np.uint8);image[0,:15]=np.arange(1,16);image[1,0]=1
+        flat=image.flatten();source.update(trace=trace,pieces=[dict(actor=0,bank=0,x=0,y=0,local_x=0,local_y=0,width=16,height=16)],piece_pixel_masks=[dict(width=16,height=16,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex())])
+        hint=optimize(source,window=356,time_limit=10,flexible_prefetch=True,split_bank_ranges=True)
+        result=optimize(source,window=356,time_limit=10,flexible_prefetch=True,split_bank_ranges=True,reorder_banks=True,layout_hint=hint,permute_hint_slots=True)
+        layout=result['physical_slot_layout']
+        self.assertTrue(layout['pixel_color_identity_verified'])
+        self.assertTrue(layout['all_packet_cgram_identities_verified'])
+        self.assertEqual(result['peak_scheduled_writes'],1)
+        for values in layout['fixed_hint_slot_permutations'].values():self.assertEqual(sorted(values),list(range(15)))
+        with self.assertRaisesRegex(ValueError,'PERMUTE_HINT_DOMAIN'):optimize(source,permute_hint_slots=True)
+
 
 if __name__=='__main__':unittest.main()
