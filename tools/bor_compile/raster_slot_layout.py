@@ -126,6 +126,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         model.add(sum(selected)<=maximum_ranges);model.add(sum(costs)<=window+39);model.add(peak>=sum(costs))
     for i,segment in enumerate(segments):model.add_hint(slots[i],hinted.get(i,(segment['old_slot'],0))[0])
     model.minimize(peak);solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
+    solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
     status=solver.solve(model)
     result=dict(schema='BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1',status='BOUNDED_SLOT_LAYOUT_NO_CANDIDATE',
                 solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
@@ -134,6 +135,8 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 flexible_prefetch=flexible_prefetch,lookahead_lines=lookahead if flexible_prefetch else None,
                 demand_gap_lines=demand_gap,
                 layout_hint_used=layout_hint is not None,
+                solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
+                solver_probing_level=0,solver_sat_inprocessing=False,
                 universal_raster_rejected=False,native_timing_admitted=False,no_color_reduction=True)
     if status not in (cp_model.FEASIBLE,cp_model.OPTIMAL):return result
     if flexible_prefetch:

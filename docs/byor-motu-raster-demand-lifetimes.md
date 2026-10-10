@@ -17,8 +17,11 @@ does not prove that a better layout is impossible.
 An optional `--layout-hint` supplies slots and write times from a previously
 verified physical layout with matching pieces, source image identity and opaque
 masks. The hint does not grant admission: the constraints and independent CGRAM
-and pixel replay still decide validity. A hinted 356-clock search continues
-separately.
+and pixel replay still decide validity. The hinted 356-clock search returned
+UNKNOWN after 1200 seconds. A 300-second follow-up disabled the expensive default
+probing and SAT inprocessing, matching the joint Boolean scheduler's existing
+configuration. It performed 78057 branches and 29885 conflicts and also returned
+UNKNOWN. These bounded trials do not reject the raster strategy.
 
 Focused tests exercise short-gap retention, hint identity rejection, exact packet
 replay and opaque black. No color reduction is applied. Raster remains unproven

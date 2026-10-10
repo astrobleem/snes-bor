@@ -46,6 +46,54 @@
         "pixel_color_identity_verified": true,
         "all_packet_cgram_identities_verified": true
       }
+    },
+    {
+      "path": "out/byor-motu-mixed-demand-gap2-hinted-physical-slots-dma356.json",
+      "sha256": "6492a0f984f6b3761305a1b8cfc25df7935a2b407ce23c43bb03c461857d5f07",
+      "result": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 1200.5189201,
+        "lifetime_segments": 615,
+        "window_master_clocks": 356,
+        "maximum_ranges": 4,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 615,
+        "flexible_prefetch": true,
+        "lookahead_lines": 16,
+        "demand_gap_lines": 2,
+        "layout_hint_used": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out/byor-motu-mixed-demand-gap2-hinted-no-probe-physical-slots-dma356.json",
+      "sha256": "80a387f922f442f6e295704c2db360ff9f6f1fa0a1d4135ad70ff70b0ead1b8a",
+      "result": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 300.3733955,
+        "lifetime_segments": 615,
+        "window_master_clocks": 356,
+        "maximum_ranges": 4,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 615,
+        "flexible_prefetch": true,
+        "lookahead_lines": 16,
+        "demand_gap_lines": 2,
+        "layout_hint_used": true,
+        "solver_branches": 78057,
+        "solver_conflicts": 29885,
+        "solver_probing_level": 0,
+        "solver_sat_inprocessing": false,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
     }
   ],
   "universal_raster_rejected": false,
