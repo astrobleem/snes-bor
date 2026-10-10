@@ -6,6 +6,53 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_row_capacity_search_replays_eviction_and_later_reuse(self):
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[:3,0]=[1,2,1]
+        expected=background.copy();expected[:3,0,0]=[8,16,8]
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            result=probe(None,None,{},size=8,write_budget=120,lookahead=0,row_capacity_only=True,time_limit=10,color_math='precomposited',solver_backend='cp-sat')
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertTrue(result['palette_transfer_budget_relaxed'])
+        self.assertEqual(result['geometry']['oam_entries'],1)
+        for args in (dict(write_budget=22,lookahead=0),dict(write_budget=120,lookahead=1)):
+            with self.assertRaisesRegex(ValueError,'JOINT_ROW_CAPACITY_ONLY_REQUIRES'):
+                probe(None,None,{},row_capacity_only=True,**args)
+
+    def test_scanline_controls_preserve_fixed_upper_bank_across_modes_and_window(self):
+        import hashlib
+        from raster_math_windows import compile_mask
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        background[0,:3,0]=[32,64,32];background[1:3,0,0]=32
+        pixels=np.full((8,8),-1,dtype=np.int32)
+        pixels[0,:3]=2;pixels[1,0]=4;pixels[2,0]=5
+        expected=background.copy();expected[0,:3,0]=16;expected[1,0,0]=32;expected[2,0,0]=40
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            selected_modes={'0':'subtract','1':'half-add'},
+            compiled_color_window_descriptors={'0':compile_mask([x<2 for x in range(256)]),'1':compile_mask([True]*256)},
+            selected_palette_residency={'0':{'0':[],'1':[2,6,10]},'1':{'0':[],'1':[4]}})
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            result=probe(None,None,{},size=8,write_budget=4,time_limit=10,solver_backend='cp-sat',additive_only=True,scanline_math_candidate=candidate)
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertEqual(result['geometry']['oam_entries'],1)
+        self.assertGreaterEqual(result['pieces'][0]['bank'],4)
+        self.assertEqual(result['selected_modes'][0],'subtract')
+        self.assertEqual(result['selected_modes'][1],'half-add')
+        self.assertEqual(result['selected_modes'][2],'add')
+        self.assertFalse(result['window_register_schedule_proven'])
+        candidate['selected_palette_residency']['0']['1'].remove(10)
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            with self.assertRaisesRegex(ValueError,'JOINT_SCANLINE_CONTROL_SOURCE_PIXEL_COVERAGE'):
+                probe(None,None,{},size=8,write_budget=4,time_limit=10,solver_backend='cp-sat',additive_only=True,scanline_math_candidate=candidate)
+
+    def test_scanline_controls_reject_foreign_source_and_clipping_relaxation(self):
+        from source_scene_obj_joint import scanline_controls
+        for candidate in ({},dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},source_rgb555_sha256='x',full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=True)):
+            with self.assertRaisesRegex(ValueError,'JOINT_SCANLINE_CONTROL_SOURCE_IDENTITY'):
+                scanline_controls(candidate,{},'x',224)
+
     def test_distinct_frame_color_cap_balances_exact_words_including_black(self):
         pixels=np.full((8,8),-1,dtype=np.int32);pixels[:2]=np.arange(16).reshape(2,8)
         background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy()
