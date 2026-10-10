@@ -1,6 +1,7 @@
-"""Optional CP-SAT backend for exact Boolean raster constraint matrices.
+"""Optional CP-SAT backend for exact bounded-integer raster constraints.
 
-All variables are 0/1, including new-write indicators. Floating LP relaxations
+Variables default to 0/1; transfer word counts may have explicit integer bounds.
+Floating LP relaxations
 are intentionally excluded. Consumers independently replay every incumbent.
 """
 from types import SimpleNamespace
@@ -8,13 +9,15 @@ from collections import deque
 import numpy as np
 
 
-def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None):
+def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None, variable_upper=None):
     from ortools.sat.python import cp_model
     model=cp_model.CpModel()
-    variables=[model.new_bool_var('v'+str(i)) for i in range(matrix.shape[1])]
+    domains=np.ones(matrix.shape[1]) if variable_upper is None else np.asarray(variable_upper)
+    if domains.shape!=(matrix.shape[1],) or any(not np.isfinite(v) or v<0 or float(v)!=int(v) for v in domains):raise ValueError('INTEGER_VARIABLE_UPPER_DOMAIN')
+    variables=[model.new_bool_var('v'+str(i)) if limit==1 else model.new_int_var(0,int(limit),'v'+str(i)) for i,limit in enumerate(domains)]
     if hint:
         for index,value in hint.items():
-            if not 0<=index<len(variables)or value not in (0,1):raise ValueError('BOOLEAN_HINT_DOMAIN')
+            if not 0<=index<len(variables)or not isinstance(value,(int,np.integer))or not 0<=value<=domains[index]:raise ValueError('BOOLEAN_HINT_DOMAIN')
             model.add_hint(variables[index],value)
     rows=matrix.tocsr()
     for row in range(matrix.shape[0]):
@@ -50,4 +53,4 @@ def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None):
     values=np.array([solver.value(v) for v in variables],dtype=float) if feasible else None
     return SimpleNamespace(x=values,status=0 if feasible else 2 if status==cp_model.INFEASIBLE else 1,
                            message=solver.status_name(status),mip_node_count=None,mip_gap=None,
-                           bounded_log=list(log),boolean_stats=dict(hint_variables=len(hint or {}),hint_is_soft=True,log_lines=log_lines,sat_inprocessing=False,branches=solver.num_branches,conflicts=solver.num_conflicts,wall_seconds=solver.wall_time,probing_level=0,workers=workers,optimal=status==cp_model.OPTIMAL))
+                           bounded_log=list(log),boolean_stats=dict(nonboolean_integer_variables=int(np.count_nonzero(domains>1)),hint_variables=len(hint or {}),hint_is_soft=True,log_lines=log_lines,sat_inprocessing=False,branches=solver.num_branches,conflicts=solver.num_conflicts,wall_seconds=solver.wall_time,probing_level=0,workers=workers,optimal=status==cp_model.OPTIMAL))

@@ -6,6 +6,24 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_grid_padding_changes_piece_origin_without_changing_source_pixels(self):
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((32,32),-1,dtype=np.int32);pixels[9:11,9:11]=31
+        expected=background.copy();expected[9:11,9:11,0]=248
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            r=probe(None,None,{},size=8,write_budget=0,time_limit=5,
+                    align_visible_bounds=True,grid_padding_x=7,grid_padding_y=7)
+        self.assertTrue(r['compiled_pixel_identity_verified'])
+        self.assertEqual(r['source_actor_canvases'],[[32,32]])
+        self.assertEqual({(p['local_x'],p['local_y'])for p in r['pieces']},{(2,2),(10,2),(2,10),(10,10)})
+        self.assertEqual(r['geometry']['oam_entries'],4)
+        self.assertEqual(np.count_nonzero(pixels>=0),4)
+
+    def test_grid_padding_requires_visible_bounds_and_legal_phase(self):
+        for args in (dict(grid_padding_x=1),dict(align_visible_bounds=True,grid_padding_x=8)):
+            with self.assertRaisesRegex(ValueError,'JOINT_GRID_PADDING_DOMAIN'):
+                probe(None,None,{},size=8,**args)
+
     def test_complete_additive_family_uses_shared_noncorner_operand(self):
         word=lambda r,g,b:r|(g<<5)|(b<<10)
         common=word(5,12,7)
@@ -52,6 +70,10 @@ class JointSceneSolverTests(unittest.TestCase):
         self.assertLess(r['pieces'][0]['bank'],4)
         np.testing.assert_array_equal(pixels,original)
 
+    def test_partition_bound_requires_a_transfer_window(self):
+        with self.assertRaisesRegex(ValueError,'JOINT_DMA_PARTITION_REQUIRES_WINDOW'):
+            probe(None,None,{},prepared_dma_partition=True)
+
     def test_dma_window_rejects_bank_label_symmetry(self):
         with self.assertRaisesRegex(ValueError,'JOINT_DMA_BANK_SYMMETRY_UNSAFE'):
             probe(None,None,{},prepared_dma_window=356,bank_symmetry=True)
@@ -66,7 +88,7 @@ class JointSceneSolverTests(unittest.TestCase):
         pool=dict(status='POOLED_INTEGER_RESIDENCY_CANDIDATE',metadata={},fractional_residency=[dict(kind=0,color=c,line=y,value=1)for y,c in ((0,0),(0,1),(1,2),(1,3))])
         for window,status in ((16,2),(17,0)):
             with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
-                r=probe(None,None,{},size=8,write_budget=2,prepared_dma_window=window,pool_residency=pool,time_limit=5)
+                r=probe(None,None,{},size=8,write_budget=2,prepared_dma_window=window,prepared_dma_partition=True,pool_residency=pool,time_limit=5)
             self.assertEqual(r['solver']['status'],status)
             if status==0:self.assertTrue(r['compiled_pixel_identity_verified'])
 

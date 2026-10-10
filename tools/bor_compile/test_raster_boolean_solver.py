@@ -10,6 +10,12 @@ from raster_boolean_solver import solve
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class BooleanMatrixTests(unittest.TestCase):
+    def test_bounded_integer_transfer_count_is_not_a_boolean(self):
+        result=solve(coo_matrix([[1,0],[1,-3]]),[3,0],[3,0],[0,0],time_limit=5,workers=1,variable_upper=[30,1])
+        self.assertEqual(result.status,0)
+        np.testing.assert_array_equal(result.x,[3,1])
+        self.assertEqual(result.boolean_stats['nonboolean_integer_variables'],1)
+
     def test_infeasible_hint_is_soft_and_cannot_replace_constraints(self):
         result=solve(coo_matrix([[1]]),[1],[1],[0],time_limit=5,workers=1,hint={0:0})
         self.assertEqual(result.status,0)

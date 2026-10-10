@@ -1,0 +1,74 @@
+{
+  "schema": "BYOR_PREPARED_DMA_PHYSICAL_BANK_PARTITION_V1",
+  "status": "SEARCH_CONSTRAINT_VALIDATED",
+  "proofs": [
+    {
+      "path": "out/byor-motu-isolated-complete-cover-exact-transitions-objective-dma356.json",
+      "sha256": "3a5135a167cdb446c9606fa294f36a7e6ca1ce5d3ffb302feb1faecd509d5019",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN"
+    },
+    {
+      "path": "out/byor-motu-isolated-complete-cover-objective-cgram-packets.json",
+      "sha256": "f9a97e828f6f58aaad46697b3fad8544ed28a592d226ed1aeabbac245f3298d6",
+      "status": "EXACT_SLOT_PACKETS_COMPILED"
+    },
+    {
+      "path": "out/byor-motu-isolated-complete-cover-objective-compacted.json",
+      "sha256": "398e3ddd4522c07dc416d19282716ca7d40f2480b6ca2da52ed8df44671ed438",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN"
+    },
+    {
+      "path": "out/byor-motu-isolated-complete-cover-grid4-4-dma356.json",
+      "sha256": "446535d3bd6daba38519b7d44669bcc448398a4495b8bd81434bd1ca2515c33d",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE"
+    },
+    {
+      "path": "out/byor-motu-isolated-complete-cover-partition-dma356.json",
+      "sha256": "c69af7350591c43cad24755c78371e69f2bd962f72375c12d337e2405691cb01",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE"
+    },
+    {
+      "path": "out/byor-motu-isolated-grid-inventory.json",
+      "sha256": "9139c08e8c4bab040191a38e844029caab0c6dc252e7a42a149c913090303a77",
+      "status": "GEOMETRY_ONLY_GRID_INVENTORY"
+    }
+  ],
+  "isolated_candidate": {
+    "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+    "compiled_schedule_sha256": "1fca1b10196ec3ccf111941640bafa69d084a13c40ea1ff508766de392797112",
+    "geometry_before": [
+      126,
+      32,
+      32
+    ],
+    "geometry_after": [
+      96,
+      28,
+      34
+    ],
+    "peak_writes": 19,
+    "peak_data_bytes": 38,
+    "average_writes": 2.475336322869955,
+    "peak_greedy_packets": 18,
+    "peak_transfer_bytes": 54,
+    "optimistic_bridge_commit_span": 352,
+    "minimum_partition_commit_span": 376,
+    "worst_partition_line": 126,
+    "available_safe_cgram_window": 356,
+    "prepared_dma_candidate_rejected": true,
+    "native_render_proven": false
+  },
+  "partition_tests_compare_independent_dynamic_program": true,
+  "tests_passed": 59,
+  "width": {
+    "labels": 9825,
+    "new": 0,
+    "baseline": 0,
+    "stale": 0
+  },
+  "no_color_reduction": true,
+  "production_runtime_modified": false,
+  "bank_zero_growth_bytes": 0,
+  "universal_raster_rejected": false,
+  "motu_gameplay_proven": false
+}
