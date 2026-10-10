@@ -157,5 +157,21 @@ class SlotLayoutTests(unittest.TestCase):
         for values in layout['fixed_hint_slot_permutations'].values():self.assertEqual(sorted(values),list(range(15)))
         with self.assertRaisesRegex(ValueError,'PERMUTE_HINT_DOMAIN'):optimize(source,permute_hint_slots=True)
 
+    def test_retain_write_times_preserves_events_with_free_physical_positions(self):
+        source=self.schedule()
+        r=optimize(source,window=356,time_limit=10,flexible_prefetch=True,retain_write_times=True,reorder_banks=True,split_bank_ranges=True)
+        self.assertTrue(r['physical_slot_layout']['retain_write_times'])
+        self.assertEqual([row['colors_written']for row in r['trace']],[len(row['updates'])for row in source['trace']])
+        self.assertTrue(r['physical_slot_layout']['all_packet_cgram_identities_verified'])
+        with self.assertRaisesRegex(ValueError,'RETAIN_WRITE_TIMES_DOMAIN'):optimize(source,retain_write_times=True)
+        with self.assertRaisesRegex(ValueError,'RETAIN_WRITE_TIMES_DOMAIN'):optimize(source,flexible_prefetch=True,retain_write_times=True,demand_gap=0)
+        source['trace'][1]['updates'].append(dict(bank=1,slot=3,old=None,color=0))
+        source['trace'][2]['updates']=[e for e in source['trace'][2]['updates']if e['bank']!=1]
+        source['trace'][2]['resident_before'][1][2]=0
+        with self.assertRaisesRegex(ValueError,'RETAIN_WRITE_TIMES_LATENCY'):optimize(source,flexible_prefetch=True,retain_write_times=True,lookahead=0)
+        r=optimize(source,window=356,time_limit=10,flexible_prefetch=True,retain_write_times=True,lookahead=1,split_bank_ranges=True)
+        self.assertEqual(r['physical_slot_layout']['maximum_noninitial_prefetch_latency_lines'],1)
+        self.assertEqual(r['physical_slot_layout']['input_schedule_noninitial_prefetch_latency_lines'],1)
+
 
 if __name__=='__main__':unittest.main()

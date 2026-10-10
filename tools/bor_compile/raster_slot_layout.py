@@ -10,7 +10,7 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
-def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False):
+def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False):
     from ortools.sat.python import cp_model
     if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('SLOT_LAYOUT_VALIDATED_SCHEDULE_REQUIRED')
@@ -31,6 +31,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
     if fix_hint_slots and(not flexible_prefetch or layout_hint is None):raise ValueError('SLOT_LAYOUT_FIXED_HINT_REQUIRES_PREFETCH_HINT')
     if permute_hint_slots and(not flexible_prefetch or layout_hint is None or fix_hint_slots):raise ValueError('SLOT_LAYOUT_PERMUTE_HINT_DOMAIN')
     hint_family=fix_hint_slots or permute_hint_slots
+    if retain_write_times and(not flexible_prefetch or demand_gap is not None):raise ValueError('SLOT_LAYOUT_RETAIN_WRITE_TIMES_DOMAIN')
     required={};last_use={};first_use={}
     for p,mask in zip(schedule['pieces'],schedule['piece_pixel_masks']):
         image=unpack(mask)
@@ -110,6 +111,9 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         lanes={(b,s):[]for b in range(8)for s in range(15)}
         for i in sorted(last_use):
             first=first_use[i];allowed=[0]+list(range(max(1,first-lookahead),first+1))
+            if retain_write_times:
+                if segments[i]['first']not in allowed:raise ValueError('SLOT_LAYOUT_RETAIN_WRITE_TIMES_LATENCY')
+                allowed=[segments[i]['first']]
             if hint_family:
                 revised=[y for y in allowed if y>=fixed_earliest[i]]
                 pruned_write_times+=len(allowed)-len(revised)
@@ -122,7 +126,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             end=last_use[i]+1;duration=model.new_int_var(1,end,'duration'+str(i));model.add(duration==end-start)
             model.add_hint(duration,end-hint)
             for s in range(15):
-                if hint_family:break
+                if hint_family or retain_write_times:break
                 present=model.new_bool_var(f'lane{i}_{s}');model.add(slots[i]==s).only_enforce_if(present);model.add(slots[i]!=s).only_enforce_if(present.Not())
                 model.add_hint(present,int(s==hinted.get(i,(segments[i]['old_slot'],0))[0]))
                 lanes[segments[i]['bank'],s].append(model.new_optional_interval_var(start,duration,end,present,f'life{i}_{s}'))
@@ -137,7 +141,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                         write_flags.setdefault((y,b),[]).append((i,f))
                 else:write_flags.setdefault((y,bank),[]).append((i,flag))
         for values in lanes.values():model.add_no_overlap(values)
-    else:
+    if not flexible_prefetch or retain_write_times:
         for y in range(height):
             row={i:segment for i,segment in enumerate(segments)if segment['first']<=y<=segment['last']}
             for bank in range(8):
@@ -191,6 +195,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
     result=dict(schema='BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1',status='BOUNDED_SLOT_LAYOUT_NO_CANDIDATE',
                 solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
                 lifetime_segments=len(segments),window_master_clocks=window,maximum_ranges=maximum_ranges,
+                input_schedule_noninitial_prefetch_latency_lines=max((first_use[i]-segments[i]['first']for i in last_use if segments[i]['first']>0),default=0),
                 trim_dead_residents=trim_dead_residents,used_lifetime_segments=len(last_use),
                 flexible_prefetch=flexible_prefetch,lookahead_lines=lookahead if flexible_prefetch else None,
                 demand_gap_lines=demand_gap,
@@ -198,6 +203,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 reorder_banks=reorder_banks,
                 fixed_hint_slots=fix_hint_slots,
                 permute_hint_slots=permute_hint_slots,
+                retain_write_times=retain_write_times,
                 split_bank_ranges=split_bank_ranges,
                 fixed_slot_write_times_pruned=pruned_write_times,
                 solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),
@@ -207,6 +213,8 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
     if status not in (cp_model.FEASIBLE,cp_model.OPTIMAL):return result
     bank_map={b:solver.value(destinations[b])if reorder_banks else b for b in range(8)}
     result['fixed_piece_bank_permutation']=bank_map
+    result['initial_palette_may_preload_entire_frame']=True
+    result['maximum_noninitial_prefetch_latency_lines']=max((first_use[i]-(solver.value(write_times[i])if flexible_prefetch else segments[i]['first'])for i in last_use if(solver.value(write_times[i])if flexible_prefetch else segments[i]['first'])>0),default=0)
     if permute_hint_slots:result['fixed_hint_slot_permutations']={b:[solver.value(permutations[b,s])for s in range(15)]for b in range(8)}
     if flexible_prefetch:
         starts={}
@@ -282,7 +290,8 @@ def main():
     p.add_argument('--fix-hint-slots',action='store_true')
     p.add_argument('--split-bank-ranges',action='store_true')
     p.add_argument('--permute-hint-slots',action='store_true')
-    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots)
+    p.add_argument('--retain-write-times',action='store_true')
+    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots,retain_write_times=a.retain_write_times)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 

@@ -25,8 +25,21 @@ only their specified families.
 The unrestricted split-range search and the per-bank slot-permutation search
 return UNKNOWN at their 300-second bounds. The relaxed unrestricted search
 finds a replay-correct 952-clock construction, outside timing admission. A
-separate relaxed permutation search is ongoing. Full scheduler artifacts remain
+separate relaxed permutation search finds a replay-correct 632-clock construction
+after 180 seconds, improving on 760 without proving optimality. Full scheduler artifacts remain
 under out; bounded trial statistics, hashes and nonclaims are in the receipt.
 
 No color reduction is applied. No production assembly, graphics path or bank-zero
 allocation changes. The full authored concurrent scene and gameplay remain open.
+
+`--retain-write-times` fixes the actual input write times while allowing physical
+slot positions and fixed bank ordering to change. It requires original lifetime
+grouping and rejects an insufficient lookahead bound. The original 19-write input
+requires 17 lines of noninitial prefetch lead. Its 356-clock trial, including bank
+permutation and intra-bank splits, reaches INFEASIBLE in 147.29 seconds with 4,891
+variables and 9,580 constraints. This rejects the retained-time family only;
+retiming, other encodings and other geometry remain open. A relaxed search finds
+a replay-correct 616-clock construction after 180 seconds, without proving
+optimality. Its write times and 17-line measured lead remain unchanged. Reports
+now distinguish the input's measured lead from the
+resulting schedule's lead; VBlank initialization may preload the entire frame.
