@@ -1,0 +1,48 @@
+{
+  "schema": "BYOR_COMMON_ACTION_CHECK_AI_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "report": "out/byor-motu-common-pain-bridge-checked-native/report.json",
+      "sha256": "cbf5660a4ecce525723dfe9580cb638b74c8c8b9b76fb6bac7bf0d04032b0434",
+      "cases": 12,
+      "rom_sha256": "f5d8fe4f266b8e23f16166feabfec2c35451832af3f9ff89f344169529a66cca"
+    },
+    {
+      "report": "out/byor-motu-common-grabbed-bridge-checked-native/report.json",
+      "sha256": "30fcc9c570503d57b9fc32ff13b6ee4849e38d22ac1d818e233d76f2c692c658",
+      "cases": 12,
+      "rom_sha256": "01644f27530e53326c38ad73c91e95e49eea639d238de4803e4c8da2ab91a4f0"
+    },
+    {
+      "report": "out/byor-motu-common-block-bridge-checked-native/report.json",
+      "sha256": "5458086261b5e9ad1de013db01eb10170367b669b20e39b04260fe5143706989",
+      "cases": 12,
+      "rom_sha256": "a3eaaac8887346e1339b9107f59078f097e503e137ddb4e972e84f6d4555a621"
+    },
+    {
+      "report": "out/byor-motu-common-land-bridge-checked-native/report.json",
+      "sha256": "65c78e3f821c2e1ad8e83f7ab48122400e4e279757a7709c1d716c1b72359e7f",
+      "cases": 12,
+      "rom_sha256": "95c5d8a9a13fa913bd637201f042b8505cf10142812bfd0e057b875440a7182b"
+    },
+    {
+      "report": "out/byor-motu-common-fall-bridge-successor-native/report.json",
+      "sha256": "3b9aa4a51f6f35a3c5b395252107fc2d85108c57cf74ae8e5aadeda9c9f056bf",
+      "cases": 12,
+      "rom_sha256": "8f0effeecd654a7761110d12d934e3c5a5cf1dec7eeddaded54e98fe2426d610"
+    }
+  ],
+  "actual_check_ai_dispatch": true,
+  "actual_source_frame_owner": true,
+  "source_fall_land_successor_bound": true,
+  "source_null_think_snapshot_installed_by_fixture": true,
+  "actual_ticket_resume_exercised": false,
+  "production_consumer_bound": false,
+  "new_foreign_arena_bytes": 0,
+  "bank0_unchanged": true,
+  "protected_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
