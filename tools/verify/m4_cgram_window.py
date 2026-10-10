@@ -40,11 +40,12 @@ def make_rom(count,audio_hdma=False,audio_rows=224):
     return bytes(rom)
 
 
-def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_bytes=None,math_window_hdma=False,cpu_math_windows=False,fixed_window_controls=False,pixel_fixture=False):
+def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_bytes=None,math_window_hdma=False,cpu_math_windows=False,fixed_window_controls=False,pixel_fixture=False,preserve_context=False):
     """Prepared HIRQ DMA, isolated fixture. New handler body lives in bank 1."""
     if math_window_hdma and cpu_math_windows:raise ValueError('CGRAM_WINDOW_TRANSFER_OWNERS_CONFLICT')
     if fixed_window_controls and not cpu_math_windows:raise ValueError('CGRAM_FIXED_WINDOW_CONTROLS_REQUIRE_CPU_WINDOWS')
     if pixel_fixture and not fixed_window_controls:raise ValueError('CGRAM_PIXELS_REQUIRE_FIXED_CPU_WINDOWS')
+    if preserve_context and not pixel_fixture:raise ValueError('CGRAM_CONTEXT_PROOF_REQUIRES_PIXELS')
     rom=bytearray([0xff])*131072
     code=bytearray.fromhex('78 18 fb c2 30 a2 ff 1f 9a e2 20')
     def store(address,value):code.extend(bytes([0xa9,value,0x8d,address&255,address>>8]))
@@ -87,7 +88,12 @@ def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_byt
         for offset,data in assets.items():rom[offset:offset+len(data)]=data
     code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'))
     if audio_hdma or math_window_hdma:store(0x420c,(1 if audio_hdma else 0)|(0x1e if math_window_hdma else 0))
-    store(0x2100,15);store(0x4200,0x10);code.extend(bytes.fromhex('58 80 fe'))
+    store(0x2100,15);store(0x4200,0x10)
+    if preserve_context:
+        # Cursor is independent of the interrupted X register. Poison all
+        # observable CPU inputs, including DBR and direct page.
+        code.extend(bytes.fromhex('c2 30 a9 00 00 8f 42 f8 7f a9 45 23 5b a2 78 56 a0 cd ab e2 20 a9 40 48 ab c2 20 a9 34 12'))
+    code.extend(bytes.fromhex('58 80 fe'))
     irq=bytearray.fromhex('ad 11 42 ad 12 42 29 80 d0 12')
     irq.extend(bytes([0xa9,count,0x8d,0x75,0x43,0xa9,128,0x8d,0x21,0x21,0xa9,128,0x8d,0x0b,0x42,0x40]))
     # Branch skips 15-byte active DMA block, landing on RTI.
@@ -109,6 +115,26 @@ def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_byt
         if not fixed_window_controls:irq.extend(bytes.fromhex('bf 04 a0 83 8d 25 21 bf 05 a0 83 8d 2b 21'))
         irq.extend(bytes.fromhex('bf 06 a0 83 8d 31 21'))
         irq.extend(bytes([0xe8]*8+[0x40]));irq[9]=len(irq)-1-10
+    if preserve_context:
+        # Long IO accesses leave the interrupted DBR and direct page intact.
+        # Hardware's stacked P restores the caller's widths and decimal flag.
+        body=bytearray.fromhex('c2 38 48 da af 42 f8 7f aa e2 20 af 11 42 00 af 12 42 00 29 80')
+        branches=[];labels={}
+        def branch(op,target):body.extend([op,0]);branches.append((len(body)-1,target))
+        branch(0xd0,'reset')
+        body.extend(bytes.fromhex('e0 00 07'));branch(0xb0,'reset')
+        body.extend(bytes.fromhex('e0 58 02'));branch(0x90,'windows')
+        for address,value in [(0x4355,split_first_bytes),(0x4365,1),(0x4375,count-split_first_bytes),(0x2121,128),(0x420b,224)]:body.extend([0xa9,value,0x8f,address&255,address>>8,0])
+        labels['windows']=len(body)
+        body.extend(bytes.fromhex('c2 20 bf 00 a0 83 8f 26 21 00 bf 02 a0 83 8f 28 21 00 e2 20 bf 06 a0 83 8f 31 21 00'))
+        body.extend(bytes.fromhex('c2 20 8a 18 69 08 00'));branch(0x80,'store')
+        labels['reset']=len(body);body.extend(bytes.fromhex('c2 20 a9 00 00'))
+        labels['store']=len(body);body.extend(bytes.fromhex('8f 42 f8 7f c2 30 fa 68 40'))
+        for at,target in branches:
+            delta=labels[target]-at-1
+            if not -128<=delta<=127:raise AssertionError('CGRAM_CONTEXT_BRANCH_RANGE')
+            body[at]=delta&255
+        irq=body
     handler=0x8600 if pixel_fixture else 0x8200
     if 0x8000+len(code)>handler:raise AssertionError('CGRAM_BOOT_HANDLER_OVERLAP')
     rom[:4]=bytes.fromhex('5c 00 80 01');rom[0x100:0x104]=bytes([0x5c,handler&255,handler>>8,0x81 if cpu_math_windows else 1])

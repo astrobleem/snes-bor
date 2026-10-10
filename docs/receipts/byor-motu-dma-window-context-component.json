@@ -1,0 +1,1388 @@
+{
+  "schema": "BYOR_DMA_WINDOW_PRESERVED_CONTEXT_PIXEL_COMPONENT_V1",
+  "runs": [
+    {
+      "name": "byor-motu-cgram-dynamic-dma-window-pixels-timer81-native",
+      "report": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "PASS",
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "palette_identity_verified": true,
+        "oam_identity_verified": true,
+        "packets": 447,
+        "high_commits": 8493,
+        "unsafe_high_commits": 0,
+        "peak_commit_span": 320,
+        "descriptors": 669,
+        "latest_descriptor_hclock": 992,
+        "visible_obj_descriptor_latest_hclock": 132,
+        "complete_packet_fields_verified": true,
+        "timer": 81,
+        "first_palette_row": 75,
+        "first_obj_row": 80,
+        "first_math_obj_x": 128,
+        "oam_entries": 16,
+        "peak_sprites": 4,
+        "peak_slivers": 16,
+        "dma_channels": [
+          1,
+          2,
+          3,
+          6,
+          7
+        ],
+        "dummy_apu_hdma_channel": 0,
+        "dummy_apu_hdma_rows": 73,
+        "rom_sha256": "0e76ac1f85749d365eeca7fd543b573385d31b4e8320b7df4da19ac651b75339",
+        "expected_rgb555_sha256": "8a1349ed203e23db84b2f783198641758ca2519233b77e96fd20f37faf49a239",
+        "source_hbreath_proven": false,
+        "production_interrupt_context_proven": false,
+        "no_color_reduction": true,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "ppu": {
+          "frameCount": 3,
+          "scanline": 227,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 1,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 28672,
+              "chrAddr": 8192,
+              "hscroll": 0,
+              "vscroll": 1023,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 34307,
+          "k": 129,
+          "a": 4660,
+          "x": 22136,
+          "y": 43981,
+          "sp": 8185,
+          "d": 9029,
+          "dbr": 64,
+          "ps": 5,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 116692
+        },
+        "synthetic_register_context_preserved": true,
+        "context_observations": 786,
+        "cursor_in_private_wram": false,
+        "automatic_dma_descriptor_cursors": true,
+        "window_transfer": "DMA",
+        "per_line_palette_payload_changes": true,
+        "irq_entry_to_rti_peak_master_clocks": 1104,
+        "irq_timing_excludes_hardware_entry_gateway_and_rti": true
+      },
+      "sha256": {
+        "proof.sfc": "0e76ac1f85749d365eeca7fd543b573385d31b4e8320b7df4da19ac651b75339",
+        "expected.rgb555": "8a1349ed203e23db84b2f783198641758ca2519233b77e96fd20f37faf49a239",
+        "screenshot.png": "bd920ae66fd545f4ac9bb326aaea590cf185d8b6b6640587c0b5c0bef380acb8",
+        "cgram.bin": "ff3d6d719e1bca7a3d8d4b7c75e7b2e19d56bb7616e8c58fa668c6a59838346f",
+        "oam.bin": "615b992aaf902afb8ce1eb4f18316f7907d058075e883e4942e316515172a35e",
+        "observer.lua": "89712f0530ebeaa97c59a778bafb71a14ffea9cfae977de4e1eaf5ea0e56a945",
+        "windows.json": "69a61ca478f5e2b0c476b3f30a31270536528673660e196cf7ea93991098c042",
+        "packets.json": "4f433bf7f83f9723f6bfcd9289ae8bceb88b4258ec13243b202cdadf2ea3d9fe",
+        "report.json": "7a91f9cdda990251ac0aa4f1e25bedc75084e6488c33495f999f810ae18bae47",
+        "contexts.json": "b313a37c68aaa4fa7ec691b77986a920e9e7539a5e70cdf37d39f59660aa587b",
+        "irq-times.json": "26eea6dc4657029cd72795b1608f3cd95a918aca1606a663ab58927cd0672462"
+      }
+    },
+    {
+      "name": "byor-motu-cgram-dynamic-dma-window-context8-16-native",
+      "report": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "PASS",
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "palette_identity_verified": true,
+        "oam_identity_verified": true,
+        "packets": 447,
+        "high_commits": 8493,
+        "unsafe_high_commits": 0,
+        "peak_commit_span": 320,
+        "descriptors": 669,
+        "latest_descriptor_hclock": 992,
+        "visible_obj_descriptor_latest_hclock": 132,
+        "complete_packet_fields_verified": true,
+        "timer": 81,
+        "first_palette_row": 75,
+        "first_obj_row": 80,
+        "first_math_obj_x": 128,
+        "oam_entries": 16,
+        "peak_sprites": 4,
+        "peak_slivers": 16,
+        "dma_channels": [
+          1,
+          2,
+          3,
+          6,
+          7
+        ],
+        "dummy_apu_hdma_channel": 0,
+        "dummy_apu_hdma_rows": 73,
+        "rom_sha256": "da42f1eabf9afa8ca63ffd04771aba65d3171b43321e121c60923b011d682064",
+        "expected_rgb555_sha256": "8a1349ed203e23db84b2f783198641758ca2519233b77e96fd20f37faf49a239",
+        "source_hbreath_proven": false,
+        "production_interrupt_context_proven": false,
+        "no_color_reduction": true,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "ppu": {
+          "frameCount": 3,
+          "scanline": 228,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 1,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 28672,
+              "chrAddr": 8192,
+              "hscroll": 0,
+              "vscroll": 1023,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 33373,
+          "k": 1,
+          "a": 4660,
+          "x": 22136,
+          "y": 43981,
+          "sp": 8191,
+          "d": 9029,
+          "dbr": 64,
+          "ps": 41,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 116914
+        },
+        "synthetic_register_context_preserved": true,
+        "context_observations": 786,
+        "cursor_in_private_wram": false,
+        "automatic_dma_descriptor_cursors": true,
+        "window_transfer": "DMA",
+        "per_line_palette_payload_changes": true,
+        "interrupted_context_widths": "8/16",
+        "interrupted_decimal_context": true,
+        "final_context_status_verified": true,
+        "irq_entry_to_rti_peak_master_clocks": 1104,
+        "irq_timing_excludes_hardware_entry_gateway_and_rti": true
+      },
+      "sha256": {
+        "proof.sfc": "da42f1eabf9afa8ca63ffd04771aba65d3171b43321e121c60923b011d682064",
+        "expected.rgb555": "8a1349ed203e23db84b2f783198641758ca2519233b77e96fd20f37faf49a239",
+        "screenshot.png": "bd920ae66fd545f4ac9bb326aaea590cf185d8b6b6640587c0b5c0bef380acb8",
+        "cgram.bin": "ff3d6d719e1bca7a3d8d4b7c75e7b2e19d56bb7616e8c58fa668c6a59838346f",
+        "oam.bin": "615b992aaf902afb8ce1eb4f18316f7907d058075e883e4942e316515172a35e",
+        "observer.lua": "89712f0530ebeaa97c59a778bafb71a14ffea9cfae977de4e1eaf5ea0e56a945",
+        "windows.json": "dce14b6e7e4e9e62df45333618e2deaf1f54414063867ecbeee11f059fd35d1b",
+        "packets.json": "4f433bf7f83f9723f6bfcd9289ae8bceb88b4258ec13243b202cdadf2ea3d9fe",
+        "report.json": "f19e7a165bb18e0f17d92e99f06c4ba53257bd31aedec7e8f3eeab927a9e4b0d",
+        "contexts.json": "b313a37c68aaa4fa7ec691b77986a920e9e7539a5e70cdf37d39f59660aa587b",
+        "irq-times.json": "ad8f943e5d36eca2a51f310181aed4daab88f1693957b9a86cae3db412a366b9"
+      }
+    },
+    {
+      "name": "byor-motu-cgram-dynamic-dma-window-context16-8-native",
+      "report": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "PASS",
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "palette_identity_verified": true,
+        "oam_identity_verified": true,
+        "packets": 447,
+        "high_commits": 8493,
+        "unsafe_high_commits": 0,
+        "peak_commit_span": 320,
+        "descriptors": 669,
+        "latest_descriptor_hclock": 992,
+        "visible_obj_descriptor_latest_hclock": 132,
+        "complete_packet_fields_verified": true,
+        "timer": 81,
+        "first_palette_row": 75,
+        "first_obj_row": 80,
+        "first_math_obj_x": 128,
+        "oam_entries": 16,
+        "peak_sprites": 4,
+        "peak_slivers": 16,
+        "dma_channels": [
+          1,
+          2,
+          3,
+          6,
+          7
+        ],
+        "dummy_apu_hdma_channel": 0,
+        "dummy_apu_hdma_rows": 73,
+        "rom_sha256": "b4ea1ec86fe438931b08e04fca6cc87adc3f7aaed169cef4cbf1dd61f3cdb37e",
+        "expected_rgb555_sha256": "8a1349ed203e23db84b2f783198641758ca2519233b77e96fd20f37faf49a239",
+        "source_hbreath_proven": false,
+        "production_interrupt_context_proven": false,
+        "no_color_reduction": true,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "ppu": {
+          "frameCount": 3,
+          "scanline": 227,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 1,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 28672,
+              "chrAddr": 8192,
+              "hscroll": 0,
+              "vscroll": 1023,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 33373,
+          "k": 1,
+          "a": 4660,
+          "x": 120,
+          "y": 205,
+          "sp": 8191,
+          "d": 9029,
+          "dbr": 64,
+          "ps": 25,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 116727
+        },
+        "synthetic_register_context_preserved": true,
+        "context_observations": 786,
+        "cursor_in_private_wram": false,
+        "automatic_dma_descriptor_cursors": true,
+        "window_transfer": "DMA",
+        "per_line_palette_payload_changes": true,
+        "interrupted_context_widths": "16/8",
+        "interrupted_decimal_context": true,
+        "final_context_status_verified": true,
+        "irq_entry_to_rti_peak_master_clocks": 1104,
+        "irq_timing_excludes_hardware_entry_gateway_and_rti": true
+      },
+      "sha256": {
+        "proof.sfc": "b4ea1ec86fe438931b08e04fca6cc87adc3f7aaed169cef4cbf1dd61f3cdb37e",
+        "expected.rgb555": "8a1349ed203e23db84b2f783198641758ca2519233b77e96fd20f37faf49a239",
+        "screenshot.png": "bd920ae66fd545f4ac9bb326aaea590cf185d8b6b6640587c0b5c0bef380acb8",
+        "cgram.bin": "ff3d6d719e1bca7a3d8d4b7c75e7b2e19d56bb7616e8c58fa668c6a59838346f",
+        "oam.bin": "615b992aaf902afb8ce1eb4f18316f7907d058075e883e4942e316515172a35e",
+        "observer.lua": "89712f0530ebeaa97c59a778bafb71a14ffea9cfae977de4e1eaf5ea0e56a945",
+        "windows.json": "dce14b6e7e4e9e62df45333618e2deaf1f54414063867ecbeee11f059fd35d1b",
+        "packets.json": "4f433bf7f83f9723f6bfcd9289ae8bceb88b4258ec13243b202cdadf2ea3d9fe",
+        "report.json": "5e445a188954a7fc3598938f637b94cd74a953eed8557e717c783080acabece1",
+        "contexts.json": "a575e4c9b401aedf436831cd3380b1075b909af2aa374ceb560201bdb517622d",
+        "irq-times.json": "ad8f943e5d36eca2a51f310181aed4daab88f1693957b9a86cae3db412a366b9"
+      }
+    },
+    {
+      "name": "byor-motu-cgram-dynamic-dma-window-context8-8-native",
+      "report": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "PASS",
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "palette_identity_verified": true,
+        "oam_identity_verified": true,
+        "packets": 447,
+        "high_commits": 8493,
+        "unsafe_high_commits": 0,
+        "peak_commit_span": 320,
+        "descriptors": 669,
+        "latest_descriptor_hclock": 992,
+        "visible_obj_descriptor_latest_hclock": 132,
+        "complete_packet_fields_verified": true,
+        "timer": 81,
+        "first_palette_row": 75,
+        "first_obj_row": 80,
+        "first_math_obj_x": 128,
+        "oam_entries": 16,
+        "peak_sprites": 4,
+        "peak_slivers": 16,
+        "dma_channels": [
+          1,
+          2,
+          3,
+          6,
+          7
+        ],
+        "dummy_apu_hdma_channel": 0,
+        "dummy_apu_hdma_rows": 73,
+        "rom_sha256": "84d179c2e9b74b993a2e742b25e995b3118013c2baf5e3bf0ad30729c323d96a",
+        "expected_rgb555_sha256": "8a1349ed203e23db84b2f783198641758ca2519233b77e96fd20f37faf49a239",
+        "source_hbreath_proven": false,
+        "production_interrupt_context_proven": false,
+        "no_color_reduction": true,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "ppu": {
+          "frameCount": 3,
+          "scanline": 227,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 1,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 28672,
+              "chrAddr": 8192,
+              "hscroll": 0,
+              "vscroll": 1023,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 33373,
+          "k": 1,
+          "a": 4660,
+          "x": 120,
+          "y": 205,
+          "sp": 8191,
+          "d": 9029,
+          "dbr": 64,
+          "ps": 57,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 116727
+        },
+        "synthetic_register_context_preserved": true,
+        "context_observations": 786,
+        "cursor_in_private_wram": false,
+        "automatic_dma_descriptor_cursors": true,
+        "window_transfer": "DMA",
+        "per_line_palette_payload_changes": true,
+        "interrupted_context_widths": "8/8",
+        "interrupted_decimal_context": true,
+        "final_context_status_verified": true,
+        "irq_entry_to_rti_peak_master_clocks": 1104,
+        "irq_timing_excludes_hardware_entry_gateway_and_rti": true
+      },
+      "sha256": {
+        "proof.sfc": "84d179c2e9b74b993a2e742b25e995b3118013c2baf5e3bf0ad30729c323d96a",
+        "expected.rgb555": "8a1349ed203e23db84b2f783198641758ca2519233b77e96fd20f37faf49a239",
+        "screenshot.png": "bd920ae66fd545f4ac9bb326aaea590cf185d8b6b6640587c0b5c0bef380acb8",
+        "cgram.bin": "ff3d6d719e1bca7a3d8d4b7c75e7b2e19d56bb7616e8c58fa668c6a59838346f",
+        "oam.bin": "615b992aaf902afb8ce1eb4f18316f7907d058075e883e4942e316515172a35e",
+        "observer.lua": "89712f0530ebeaa97c59a778bafb71a14ffea9cfae977de4e1eaf5ea0e56a945",
+        "windows.json": "dce14b6e7e4e9e62df45333618e2deaf1f54414063867ecbeee11f059fd35d1b",
+        "packets.json": "4f433bf7f83f9723f6bfcd9289ae8bceb88b4258ec13243b202cdadf2ea3d9fe",
+        "report.json": "bc8ab55c1147bfc53d002813b632c8884d47b8255957e1ede9f590dd1b56b89f",
+        "contexts.json": "a575e4c9b401aedf436831cd3380b1075b909af2aa374ceb560201bdb517622d",
+        "irq-times.json": "ad8f943e5d36eca2a51f310181aed4daab88f1693957b9a86cae3db412a366b9"
+      }
+    }
+  ],
+  "rejected_cpu_window_handler": {
+    "report": {
+      "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+      "status": "FAIL",
+      "pixel_identity_verified": false,
+      "pixel_mismatches": 44990,
+      "palette_identity_verified": false,
+      "oam_identity_verified": true,
+      "packets": 405,
+      "high_commits": 7695,
+      "unsafe_high_commits": 6244,
+      "peak_commit_span": 352,
+      "descriptors": 624,
+      "latest_descriptor_hclock": 1298,
+      "visible_obj_descriptor_latest_hclock": 1298,
+      "complete_packet_fields_verified": false,
+      "timer": 126,
+      "first_palette_row": 75,
+      "first_obj_row": 80,
+      "first_math_obj_x": 128,
+      "oam_entries": 16,
+      "peak_sprites": 4,
+      "peak_slivers": 16,
+      "dma_channels": [
+        5,
+        6,
+        7
+      ],
+      "dummy_apu_hdma_channel": 0,
+      "dummy_apu_hdma_rows": 73,
+      "rom_sha256": "e30b1587d03e22b1e7c968a04c86997e0aff955863bac89fa456b9ec47762123",
+      "expected_rgb555_sha256": "7a8858a494681708dcefb48904b823ccbdd766f4d4c7f7e16082b7b1c5adf323",
+      "source_hbreath_proven": false,
+      "production_interrupt_context_proven": false,
+      "no_color_reduction": true,
+      "frame_advancement": [
+        {
+          "requested": 1,
+          "startFrame": 0,
+          "endFrame": 1,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        },
+        {
+          "requested": 1,
+          "startFrame": 1,
+          "endFrame": 1,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 1,
+          "endFrame": 1,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 1,
+          "endFrame": 1,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 1,
+          "endFrame": 1,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 1,
+          "endFrame": 1,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 1,
+          "endFrame": 1,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 1,
+          "endFrame": 2,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        },
+        {
+          "requested": 1,
+          "startFrame": 2,
+          "endFrame": 2,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 2,
+          "endFrame": 2,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 2,
+          "endFrame": 2,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 2,
+          "endFrame": 2,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 2,
+          "endFrame": 2,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 2,
+          "endFrame": 2,
+          "framesAdvanced": 0,
+          "isPaused": true,
+          "timedOut": true
+        },
+        {
+          "requested": 1,
+          "startFrame": 2,
+          "endFrame": 3,
+          "framesAdvanced": 1,
+          "isPaused": true,
+          "timedOut": false
+        }
+      ],
+      "ppu": {
+        "frameCount": 3,
+        "scanline": 225,
+        "forcedBlank": false,
+        "brightness": 15,
+        "bgMode": 1,
+        "mainScreenLayers": 16,
+        "subScreenLayers": 1,
+        "mainScreenWindowMask": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "subScreenWindowMask": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mosaicSize": 0,
+        "mosaicEnabled": 0,
+        "layers": [
+          {
+            "index": 0,
+            "tilemapAddr": 28672,
+            "chrAddr": 8192,
+            "hscroll": 0,
+            "vscroll": 1023,
+            "largeTiles": false,
+            "doubleWidth": false,
+            "doubleHeight": false
+          },
+          {
+            "index": 1,
+            "tilemapAddr": 0,
+            "chrAddr": 0,
+            "hscroll": 0,
+            "vscroll": 0,
+            "largeTiles": false,
+            "doubleWidth": false,
+            "doubleHeight": false
+          },
+          {
+            "index": 2,
+            "tilemapAddr": 0,
+            "chrAddr": 0,
+            "hscroll": 0,
+            "vscroll": 0,
+            "largeTiles": false,
+            "doubleWidth": false,
+            "doubleHeight": false
+          },
+          {
+            "index": 3,
+            "tilemapAddr": 0,
+            "chrAddr": 0,
+            "hscroll": 0,
+            "vscroll": 0,
+            "largeTiles": false,
+            "doubleWidth": false,
+            "doubleHeight": false
+          }
+        ]
+      },
+      "cpu": {
+        "cpuType": "Snes",
+        "pc": 33315,
+        "k": 1,
+        "a": 4660,
+        "x": 22136,
+        "y": 43981,
+        "sp": 8191,
+        "d": 9029,
+        "dbr": 64,
+        "ps": 1,
+        "emulationMode": false,
+        "stopState": "Running",
+        "cycleCount": 123549
+      },
+      "synthetic_register_context_preserved": true,
+      "context_observations": 740,
+      "cursor_in_private_wram": true
+    },
+    "rom_sha256": "e30b1587d03e22b1e7c968a04c86997e0aff955863bac89fa456b9ec47762123"
+  },
+  "cgram_safe_window_master_clocks": 356,
+  "total_combined_dma_data_bytes": 44,
+  "source_hbreath_proven": false,
+  "production_interrupt_latency_proven": false,
+  "no_color_reduction": true
+}
