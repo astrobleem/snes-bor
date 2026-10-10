@@ -1,0 +1,36 @@
+{
+  "schema": "BYOR_PLAYER_DIE_GLOBAL_STATE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "report": "out/byor-motu-player-die-authority/report.json",
+      "sha256": "9f5acda16a169683dd92077f424d634b0f043f84d9f2a5b512f822aa5ad13488",
+      "cases": 7200,
+      "rom_sha256": null
+    },
+    {
+      "report": "out/byor-motu-player-global-native/report.json",
+      "sha256": "b850dee1b6379656c31058b1203c60c2fb73cebdbb039298fbb9958317bcec83",
+      "cases": 210,
+      "rom_sha256": "23e232f457897d9d8d7a6b0d60e011a96d2c7d262989452c1043ab4e8c237b3b"
+    }
+  ],
+  "counter_speed": 400,
+  "source_no_players_timeleft": 4000,
+  "source_no_credits_timeleft": 200,
+  "player_global_bytes": 144,
+  "compiled_vm_slots": 616,
+  "remaining_vm_tail_bytes": 48,
+  "maximum_admitted_slots": 622,
+  "slot623_rejected": true,
+  "existing_lives_weapon_timer_reused": true,
+  "replacement_module_overlap_guard_exercised": true,
+  "player_die_runtime_bound": false,
+  "production_memory_lease": false,
+  "motu_gameplay_proven": false,
+  "new_foreign_arena_bytes": 0,
+  "protected_tracked_files": 17,
+  "bank0_unchanged": true,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
