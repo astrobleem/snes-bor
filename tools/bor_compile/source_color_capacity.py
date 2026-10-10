@@ -32,7 +32,7 @@ def measure(path, model_name, role, raster=False, banks=tuple(range(8)), piece_s
     palette = palettes['base']['rgb8']
     lut = np.array(palettes['base']['rgb555'])
     histogram, frame_reports = Counter(), []
-    raster_pixels=[]
+    raster_pixels=[];frame_line_sets=[]
     for frame in frames:
         image_path = source.image_path(frame['values'][0])
         raw = source.read(image_path)
@@ -44,6 +44,7 @@ def measure(path, model_name, role, raster=False, banks=tuple(range(8)), piece_s
             visible = colors[indices!=0]
             histogram.update(map(int,visible))
             line_sets = [set(map(int,colors[y][indices[y]!=0])) for y in range(image.height)]
+            frame_line_sets.append(line_sets)
             if raster:
                 raster_pixels.append(np.where(indices!=0,colors,-1))
             frame_reports.append(dict(**frame, image_path=image_path, asset_sha256=sha(raw),
@@ -56,6 +57,9 @@ def measure(path, model_name, role, raster=False, banks=tuple(range(8)), piece_s
         raise ValueError('COLOR_MODEL_HAS_NO_VISIBLE_PIXELS: '+model_name)
     colors = np.array(sorted(histogram),dtype=np.int32)
     peak = max(frame_reports,key=lambda r:r['colors'])
+    from raster_palette_interval import interval_bound
+    peak_lines=frame_line_sets[frame_reports.index(peak)]
+    raw_bounds={str(count):interval_bound(peak_lines,slots=15*count)for count in range(1,9)}
     raster_report=None
     if raster:
         from raster_palette import prove_frame
@@ -65,6 +69,8 @@ def measure(path, model_name, role, raster=False, banks=tuple(range(8)), piece_s
         model=model['declaration'],role=role,model_source_path=model['source_path'],
         palette_authority=source.resolve(palette_path),alpha=model['properties'].get('alpha',[]),
         peak_frame=peak, animation_union_colors=len(colors),
+        peak_frame_raw_palette_interval_bounds_by_bank_count=raw_bounds,
+        raw_palette_interval_scope='Optimistic source RGB555 residency only; excludes alpha context encoding and fixed bank assignment. Cannot prove feasibility or universally reject raster.',
         hardware=dict(obj_palette_banks=8,opaque_colors_per_bank=15,static_opaque_capacity=120,
             source=str(hardware_source),
             source_sha256=sha(hardware_source.read_bytes()) if hardware_source.is_file() else None,

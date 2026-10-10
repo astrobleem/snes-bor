@@ -1,6 +1,6 @@
 import itertools,unittest
 from raster_bank_search import assign
-from raster_palette_interval import interval_bound
+from raster_palette_interval import interval_bound,transfer_interval
 
 class BankSearchTests(unittest.TestCase):
  def test_matches_exhaustive_tiny_graphs_and_eligibility(self):
@@ -43,4 +43,15 @@ class BankSearchTests(unittest.TestCase):
   rows=[set(range(0,5)),set(range(5,10)),set(range(10,15))]
   r=interval_bound(rows,slots=10,window_master_clocks=32)
   self.assertEqual(r['status'],'CGRAM_DATA_WINDOW_INFEASIBLE');self.assertEqual(r['worst_interval']['minimum_new_color_commits'],5)
+ def test_endpoint_and_each_hblank_low_preload_are_granted(self):
+  rows=[set(range(60)),set(range(60,83))]
+  r=interval_bound(rows,slots=60)
+  self.assertEqual(r['status'],'LOWER_BOUND_DOES_NOT_REJECT')
+  self.assertEqual(r['worst_interval']['minimum_peak_commit_span_master_clocks'],352)
+  self.assertEqual(r['worst_interval']['maximum_window_data_bytes'],45)
+  r=transfer_interval(46,2)
+  self.assertEqual(r['minimum_window_cgram_data_bytes'],90)
+  self.assertEqual(r['commit_deficit'],0)
+  self.assertEqual(transfer_interval(47,2)['commit_deficit'],1)
+  self.assertEqual(transfer_interval(25,1)['minimum_peak_commit_span_master_clocks'],384)
 if __name__=='__main__':unittest.main()

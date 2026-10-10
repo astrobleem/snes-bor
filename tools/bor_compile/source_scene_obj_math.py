@@ -17,7 +17,7 @@ from source_bg_feasibility import rgb555
 from source_scene_obj_raster import prepare, geometry
 from raster_bank_search import assign
 from raster_palette import schedule, pieces_for_grid, bounded_schedule
-from raster_palette_interval import interval_bound
+from raster_palette_interval import interval_bound,transfer_interval
 
 
 def subdivide_for_limits(pieces, surfaces, height):
@@ -81,10 +81,10 @@ def split_interval_bound(groups, slots_per_group=60):
             for union, group in zip(unions, groups):
                 union.update(group[end])
             commits = sum(max(0, len(union)-slots_per_group) for union in unions)
-            required = max(0, 2*commits-1); available = 44*(end-start)
-            if worst is None or required-available > worst['signed_byte_deficit']:
-                worst = dict(first_line=start, last_line=end, distinct_colors_per_group=[len(u) for u in unions], minimum_new_color_commits=commits, minimum_data_bytes=required, available_data_bytes=available, signed_byte_deficit=required-available)
-    return dict(status='CGRAM_DATA_WINDOW_INFEASIBLE' if worst and worst['signed_byte_deficit'] > 0 else 'LOWER_BOUND_DOES_NOT_REJECT', worst_interval=worst, feasibility_proven=False, setup_and_contention_excluded=True)
+            budget=transfer_interval(commits,end-start)
+            if worst is None or budget['commit_deficit'] > worst['commit_deficit']:
+                worst = dict(first_line=start, last_line=end, distinct_colors_per_group=[len(u) for u in unions], minimum_data_bytes=budget['minimum_window_cgram_data_bytes'], available_data_bytes=budget['maximum_window_data_bytes'], signed_byte_deficit=budget['minimum_window_cgram_data_bytes']-budget['maximum_window_data_bytes'],**budget)
+    return dict(status='CGRAM_DATA_WINDOW_INFEASIBLE' if worst and worst['commit_deficit'] > 0 else 'LOWER_BOUND_DOES_NOT_REJECT', worst_interval=worst, feasibility_proven=False, setup_and_contention_excluded=True,low_preload_per_hblank_allowed=True,window_budget_is_first_to_last_commit_span=True)
 
 
 def minimum_cover(edges, forced):
