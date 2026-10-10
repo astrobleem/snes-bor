@@ -1,0 +1,631 @@
+{
+  "schema": "BYOR_GENERAL_DMA_WINDOWS_WORD_IDENTITY_V1",
+  "runs": [
+    {
+      "name": "byor-motu-cgram-dynamic-general-window-pixels-timer60-native",
+      "report": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "PASS",
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "palette_identity_verified": true,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": true,
+        "observed_cgram_word_packets": 447,
+        "opaque_palette_words_per_line": 19,
+        "packets": 447,
+        "high_commits": 8493,
+        "unsafe_high_commits": 0,
+        "peak_commit_span": 320,
+        "descriptors": 669,
+        "latest_descriptor_hclock": 1024,
+        "visible_obj_descriptor_latest_hclock": 168,
+        "complete_packet_fields_verified": true,
+        "timer": 60,
+        "first_palette_row": 75,
+        "first_obj_row": 80,
+        "first_math_obj_x": 128,
+        "oam_entries": 16,
+        "peak_sprites": 4,
+        "peak_slivers": 16,
+        "dma_channels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "dummy_apu_hdma_channel": 0,
+        "dummy_apu_hdma_rows": 73,
+        "rom_sha256": "f51642d406fd34b35048f8a7d3fe569973d330de22f65f829b4d80218dd775c0",
+        "expected_rgb555_sha256": "a99e2c8ceaaba197992c5c152cf17bd230bceb5d5904588f935aa384bae49367",
+        "source_hbreath_proven": false,
+        "production_interrupt_context_proven": false,
+        "no_color_reduction": true,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "ppu": {
+          "frameCount": 3,
+          "scanline": 228,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 1,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 28672,
+              "chrAddr": 8192,
+              "hscroll": 0,
+              "vscroll": 1023,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 33430,
+          "k": 1,
+          "a": 4660,
+          "x": 22136,
+          "y": 43981,
+          "sp": 8191,
+          "d": 9029,
+          "dbr": 64,
+          "ps": 1,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 116224
+        },
+        "synthetic_register_context_preserved": true,
+        "context_observations": 786,
+        "cursor_in_private_wram": false,
+        "automatic_dma_descriptor_cursors": true,
+        "window_transfer": "DMA",
+        "per_line_palette_payload_changes": true,
+        "general_window_controls": true,
+        "window_descriptor_bytes": 7,
+        "interrupted_context_widths": "16/16",
+        "interrupted_decimal_context": false,
+        "hardware_return_status_verified": true,
+        "cpu_snapshot_may_be_inside_irq": true,
+        "irq_entry_to_rti_peak_master_clocks": 1218,
+        "irq_timing_excludes_hardware_entry_gateway_and_rti": true
+      },
+      "artifacts": {
+        "proof.sfc": "f51642d406fd34b35048f8a7d3fe569973d330de22f65f829b4d80218dd775c0",
+        "expected.rgb555": "a99e2c8ceaaba197992c5c152cf17bd230bceb5d5904588f935aa384bae49367",
+        "screenshot.png": "d5c179faa7d2bdc6cd846805dc6bea6188504ed944925fad8cde93e518fd3c30",
+        "cgram.bin": "7fe6cca9db4c751d3a89b5be0416bcaaafee78427159f2b79ada757c96ae3559",
+        "oam.bin": "615b992aaf902afb8ce1eb4f18316f7907d058075e883e4942e316515172a35e",
+        "observer.lua": "9db20c618a5bd0568407cc93191ae5c8648a6ccef35b8a2ccede05ace4b41d6e",
+        "windows.json": "bd40ef063f2489d444acb7d6e65975eb2df8fdef542fc4eda595b4040c2a2315",
+        "packets.json": "5027ae37bccc721ec57ed85a46b3e933724032dd90c86908f2a3af40748f6308",
+        "report.json": "bb1aafe97254fd917703d002b8048dea6204b14eb93ba4295c359873a9df1ffb",
+        "contexts.json": "b40080473231dde8ce5d537ee6d54aec61a31f89837ea9dc457fe42c8edc5011",
+        "irq-times.json": "117e47b44ad851c97dcc3f4e46ec3850fb042ee65a28a094a396dfc3a00a467a",
+        "cgram-word-observer.json": "a79c61cb269c774d494acf7a2b4482ab3ef68e9ff3b62de026ca25afb1d003c0"
+      }
+    },
+    {
+      "name": "byor-motu-cgram-dynamic-general-window-context8-8-native",
+      "report": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "PASS",
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "palette_identity_verified": true,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": true,
+        "observed_cgram_word_packets": 447,
+        "opaque_palette_words_per_line": 19,
+        "packets": 447,
+        "high_commits": 8493,
+        "unsafe_high_commits": 0,
+        "peak_commit_span": 320,
+        "descriptors": 669,
+        "latest_descriptor_hclock": 1024,
+        "visible_obj_descriptor_latest_hclock": 168,
+        "complete_packet_fields_verified": true,
+        "timer": 60,
+        "first_palette_row": 75,
+        "first_obj_row": 80,
+        "first_math_obj_x": 128,
+        "oam_entries": 16,
+        "peak_sprites": 4,
+        "peak_slivers": 16,
+        "dma_channels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "dummy_apu_hdma_channel": 0,
+        "dummy_apu_hdma_rows": 73,
+        "rom_sha256": "5030bd977f85dad58f95314315088204cc172b69ab1b7332db36947ea4178a8c",
+        "expected_rgb555_sha256": "a99e2c8ceaaba197992c5c152cf17bd230bceb5d5904588f935aa384bae49367",
+        "source_hbreath_proven": false,
+        "production_interrupt_context_proven": false,
+        "no_color_reduction": true,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "ppu": {
+          "frameCount": 3,
+          "scanline": 227,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 1,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 28672,
+              "chrAddr": 8192,
+              "hscroll": 0,
+              "vscroll": 1023,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 33433,
+          "k": 1,
+          "a": 4660,
+          "x": 120,
+          "y": 205,
+          "sp": 8191,
+          "d": 9029,
+          "dbr": 64,
+          "ps": 57,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 116042
+        },
+        "synthetic_register_context_preserved": true,
+        "context_observations": 786,
+        "cursor_in_private_wram": false,
+        "automatic_dma_descriptor_cursors": true,
+        "window_transfer": "DMA",
+        "per_line_palette_payload_changes": true,
+        "general_window_controls": true,
+        "window_descriptor_bytes": 7,
+        "interrupted_context_widths": "8/8",
+        "interrupted_decimal_context": true,
+        "hardware_return_status_verified": true,
+        "cpu_snapshot_may_be_inside_irq": true,
+        "irq_entry_to_rti_peak_master_clocks": 1218,
+        "irq_timing_excludes_hardware_entry_gateway_and_rti": true
+      },
+      "artifacts": {
+        "proof.sfc": "5030bd977f85dad58f95314315088204cc172b69ab1b7332db36947ea4178a8c",
+        "expected.rgb555": "a99e2c8ceaaba197992c5c152cf17bd230bceb5d5904588f935aa384bae49367",
+        "screenshot.png": "d5c179faa7d2bdc6cd846805dc6bea6188504ed944925fad8cde93e518fd3c30",
+        "cgram.bin": "7fe6cca9db4c751d3a89b5be0416bcaaafee78427159f2b79ada757c96ae3559",
+        "oam.bin": "615b992aaf902afb8ce1eb4f18316f7907d058075e883e4942e316515172a35e",
+        "observer.lua": "9db20c618a5bd0568407cc93191ae5c8648a6ccef35b8a2ccede05ace4b41d6e",
+        "windows.json": "3f965b852ea77de05c0ca9bbe618b65148b51f2478a5d9914975839b9587b46e",
+        "packets.json": "5027ae37bccc721ec57ed85a46b3e933724032dd90c86908f2a3af40748f6308",
+        "report.json": "3193eb05baf2e3f82bda4b91fea1e9027f91245e2db2f3afce1cab22c85561ec",
+        "contexts.json": "08c497697b6690c014a849b3099c45d8db8b07c90ca37bcb83e9ce1c455834b0",
+        "irq-times.json": "45a469ae94d1f1281efdb8c277afef33fd6798585d0122c5ed7aa5453dcc6700",
+        "cgram-word-observer.json": "a79c61cb269c774d494acf7a2b4482ab3ef68e9ff3b62de026ca25afb1d003c0"
+      }
+    }
+  ],
+  "source_slot_trial": {
+    "path": "out/byor-motu-isolated-rectangle-lifetimes-slot-layout.json",
+    "sha256": "d05d2be4a714481aa1284bfa952bfa6410a5f6549f7e93987dc012184cd0faca",
+    "report": {
+      "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+      "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE",
+      "solver_status": "UNKNOWN",
+      "solver_seconds": 180.15407670000002,
+      "lifetime_segments": 583,
+      "window_master_clocks": 356,
+      "maximum_ranges": 4,
+      "input_schedule_noninitial_prefetch_latency_lines": 17,
+      "trim_dead_residents": true,
+      "used_lifetime_segments": 530,
+      "flexible_prefetch": true,
+      "lookahead_lines": 17,
+      "demand_gap_lines": null,
+      "layout_hint_used": false,
+      "reorder_banks": true,
+      "fixed_hint_slots": false,
+      "permute_hint_slots": false,
+      "retain_write_times": false,
+      "rectangle_lifetimes": true,
+      "split_bank_ranges": true,
+      "fixed_slot_write_times_pruned": 0,
+      "solver_model_variables": 51019,
+      "solver_model_constraints": 147725,
+      "solver_branches": 80780,
+      "solver_conflicts": 7723,
+      "solver_probing_level": 0,
+      "solver_sat_inprocessing": false,
+      "universal_raster_rejected": false,
+      "native_timing_admitted": false,
+      "no_color_reduction": true
+    }
+  },
+  "no_color_reduction": true,
+  "universal_raster_rejected": false,
+  "source_hbreath_proven": false,
+  "production_interrupt_latency_proven": false
+}

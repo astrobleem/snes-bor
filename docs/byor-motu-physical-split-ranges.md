@@ -55,3 +55,13 @@ A second slot-permutation trial expands noninitial lookahead to 64 lines. It
 also returns UNKNOWN after 1,200.13 seconds, with 47,566 variables and 135,852
 constraints. This remains a bounded search result, without a raster rejection
 or native timing admission.
+
+An alternative capacity formulation represents each live palette color as a
+one-slot-wide time/slot rectangle, using per-bank two-dimensional no-overlap.
+It replaces fifteen optional lane intervals per color with one mandatory
+rectangle, retaining the same fixed piece banks, exact lifetimes, prefetch
+domain and packet constraints. Ten focused slot-layout tests pass, including
+independent opaque-black, reload and physical-packet replay for both formulations.
+The isolated 17-line lookahead search has 51,019 variables and 147,725 constraints
+and returns UNKNOWN after 180.15 seconds. No source schedule or native admission
+is proven by this result.

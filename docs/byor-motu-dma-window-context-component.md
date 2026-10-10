@@ -46,3 +46,25 @@ lengths, CGRAM destinations and authored concurrency still need admission.
 No color reduction or production presentation change has been applied.
 
 [Bounded native reports and hashes](receipts/byor-motu-dma-window-context-component.json).
+
+## Full window controls and per-word observer
+
+The follow-up general-mask fixture uses all seven descriptor bytes, including
+selection and logic for inverted masks. Channels 4 and 5 publish those two
+additional registers after the palette transfers. The combined packet now has
+46 data bytes over seven DMA channels, with channel 0 retained for audio HDMA.
+At timer 60 it still matches every pixel, palette word and OAM byte, with 8,493
+safe high commits and a 320-clock high-commit span. Descriptors over visible
+objects finish by H=168. IRQ entry-to-RTI peaks at 1,218 clocks, excluding
+hardware entry, vector gateway and RTI; actual production latency remains open.
+
+The new palette ranges begin at opaque slots 1, rather than including unused
+transparent words. All 19 words are opaque slots and transparent slots stay
+zero. An independent observer records and checks the exact destination and
+RGB555 value of every word in all 447 packets. The 8/8 decimal-context variant
+also passes. Status verification reads hardware-stacked P immediately before
+RTI; a final paused CPU snapshot can be inside a handler and is retained only
+as diagnostic state. Earlier positive-window receipts describe their historical
+fixtures, which included two unused transparent words among 19 data words.
+
+[General-mask and word-identity receipt](receipts/byor-motu-general-dma-window-word-identity.json).

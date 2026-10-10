@@ -11,10 +11,15 @@ def palette_color(row):
     return (0x1111,0x1112,0x1151,0x1511)[row%4]
 
 
-def expected_frame():
+def window_masks(general=False):
+    return [[1]*256,[int(32<=x<=63 or 128<=x<=191)for x in range(256)],
+            [int(not(32<=x<=63 or 128<=x<=191))for x in range(256)]if general else[int(0<=x<=31 or 96<=x<=127)for x in range(256)],[0]*256]
+
+
+def expected_frame(general_windows=False):
     from m4_cgram_window_pixels import fixture
     expected=fixture()[2]
-    masks=[[1]*256,[int(32<=x<=63 or 128<=x<=191)for x in range(256)],[int(0<=x<=31 or 96<=x<=127)for x in range(256)],[0]*256]
+    masks=window_masks(general_windows)
     for y in range(80,208):
         c=palette_color(y);r=c&31;g=(c>>5)&31;b=c>>10
         for x in range(96,224):
@@ -24,7 +29,7 @@ def expected_frame():
     return expected
 
 
-def compile_rom(timer,context_widths='16/16',decimal_context=False):
+def compile_rom(timer,context_widths='16/16',decimal_context=False,general_windows=False):
     if context_widths not in ('16/16','8/16','16/8','8/8'):raise ValueError('DMA_WINDOWS_CONTEXT_WIDTHS')
     from m4_cgram_window_pixels import fixture
     visual,assets,_,_,_=fixture()
@@ -39,6 +44,10 @@ def compile_rom(timer,context_widths='16/16',decimal_context=False):
     for ch,mode,dest,source,bank in ((1,0,0x22,0x8000,2),(2,8,0x21,0x8000,3),(3,0,0x22,0xa000,2),(6,4,0x26,0xa000,3),(7,0,0x31,0xa400,3),(0,4,0x40,0x9000,3)):
         base=0x4300+16*ch
         for a,v in ((base,mode),(base+1,dest),(base+2,source&255),(base+3,source>>8),(base+4,bank),(base+6,0)):store(a,v)
+    if general_windows:
+        for ch,dest,source in ((4,0x25,0xa500),(5,0x2b,0xa600)):
+            base=0x4300+16*ch
+            for a,v in ((base,0),(base+1,dest),(base+2,source&255),(base+3,source>>8),(base+4,3),(base+6,0)):store(a,v)
     for a,v in ((0x4207,timer&255),(0x4208,timer>>8),(0x2125,0xa0),(0x212b,0),(0x420d,1)):store(a,v)
     code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'))
     store(0x420c,1);store(0x2100,15);store(0x4200,0x90)
@@ -54,16 +63,23 @@ def compile_rom(timer,context_widths='16/16',decimal_context=False):
     branch(0xd0,'restore')
     irq.extend(bytes.fromhex('c2 20 af 62 43 00 c9 80 a3'));branch(0xb0,'restore')
     irq.extend(bytes.fromhex('c9 2c a1 e2 20'));branch(0x90,'windows_only')
-    for a,v in ((0x4315,24),(0x4325,1),(0x4335,14),(0x2121,128),(0x4365,4),(0x4375,1),(0x420b,206)):longstore(a,v)
+    for a,v in ((0x4315,24),(0x4325,1),(0x4335,14),(0x2121,129),(0x4365,4),(0x4375,1)):longstore(a,v)
+    if general_windows:
+        for a,v in ((0x4345,1),(0x4355,1)):longstore(a,v)
+    longstore(0x420b,254 if general_windows else 206)
     branch(0x80,'restore')
     labels['windows_only']=len(irq)
-    for a,v in ((0x4365,4),(0x4375,1),(0x420b,192)):longstore(a,v)
+    for a,v in ((0x4365,4),(0x4375,1)):longstore(a,v)
+    if general_windows:
+        for a,v in ((0x4345,1),(0x4355,1)):longstore(a,v)
+    longstore(0x420b,240 if general_windows else 192)
     labels['restore']=len(irq);irq.extend(bytes.fromhex('c2 30 68 40'))
     for at,label in branches:
         delta=labels[label]-at-1
         if not -128<=delta<=127:raise AssertionError('DMA_WINDOWS_BRANCH_RANGE')
         irq[at]=delta&255
     nmi=bytearray.fromhex('c2 38 48 e2 20 af 10 42 00 c2 20 a9 00 a0 8f 62 43 00 a9 00 a4 8f 72 43 00 a9 00 80 8f 12 43 00 a9 00 a0 8f 32 43 00 68 40')
+    if general_windows:nmi[-2:-2]=bytes.fromhex('a9 00 a5 8f 42 43 00 a9 00 a6 8f 52 43 00')
     raw[:4]=bytes.fromhex('5c 00 80 01');raw[0x100:0x104]=bytes.fromhex('5c 00 86 81');raw[0x120:0x124]=bytes.fromhex('5c 00 88 81')
     if len(code)>0x600:raise AssertionError('DMA_WINDOWS_BOOT_OVERLAP')
     raw[0x8000:0x8000+len(code)]=code;raw[0x8600:0x8600+len(irq)]=irq;raw[0x8800:0x8800+len(nmi)]=nmi
@@ -71,13 +87,14 @@ def compile_rom(timer,context_widths='16/16',decimal_context=False):
         word=struct.pack('<H',palette_color(y));i=y-75
         raw[0x10000+24*i:0x10000+24*(i+1)]=word*12
         raw[0x12000+14*i:0x12000+14*(i+1)]=word*7
-    raw[0x18000]=192
+    raw[0x18000]=193
     raw[0x19000:0x19000+366]=bytes([0x81,0,0,0,57])*73+bytes([0])
-    masks=[[1]*256,[int(32<=x<=63 or 128<=x<=191)for x in range(256)],[int(0<=x<=31 or 96<=x<=127)for x in range(256)],[0]*256]
+    masks=window_masks(general_windows)
     for y in range(224):
-        bounds=sum(compile_mask(masks[y%4],True)['bounds'],[])
+        descriptor=compile_mask(masks[y%4],not general_windows);bounds=sum(descriptor['bounds'],[])
         raw[0x1a000+4*y:0x1a004+4*y]=bytes(bounds)
         raw[0x1a400+y]=0x10|(0x40 if y%8>=4 else 0)
+        if general_windows:raw[0x1a500+y]=descriptor['wobjsel_color_bits'];raw[0x1a600+y]=descriptor['wobjlog_color_bits']
     raw[0x7fc0:0x7fd5]=b'M4 DMA WINDOW PROOF  '
     raw[0x7fd5:0x7fdc]=bytes([0x30,0,7,0,1,0,0])
     for offset,value in ((0x7ffc,0x8000),(0x7fee,0x8100),(0x7fea,0x8120)):struct.pack_into('<H',raw,offset,value)
