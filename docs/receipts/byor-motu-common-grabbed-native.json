@@ -1,0 +1,30 @@
+{
+  "schema": "BYOR_COMMON_GRABBED_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "report": "out\\byor-motu-common-grabbed-prefix-observed-native\\report.json",
+      "report_sha256": "ed382ec90244726b51eb8151e9c113b2a4b3f48a0ec58e2f6f3b9548ee7def15",
+      "cases": 280,
+      "rom_sha256": "9b23fcb1a5537f358155e8668c631f3ccb1eaf121d055ba757099e0334a30505"
+    },
+    {
+      "report": "out\\byor-motu-common-grabbed-idle-frame-native\\report.json",
+      "report_sha256": "47b034fb03535b820e4c2ba0ebda5ba994c763ce979966d41e69680d35927e6d",
+      "cases": 12,
+      "rom_sha256": "21f359a41d794233ff1f12ea3434c506a377a6cd9de9c42b96190391d305b6d1"
+    }
+  ],
+  "integer_link_short_circuit": true,
+  "source_stalltime_and_takeaction": true,
+  "actual_set_idle_and_frame_zero_once_under_retry": true,
+  "source_snapshot_installed_by_fixture": true,
+  "full_common_grabbed_admitted": false,
+  "full_damage_callback_bound": false,
+  "production_memory_owner_bound": false,
+  "bank0_unchanged": true,
+  "new_foreign_arena_bytes": 0,
+  "protected_files_unchanged": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

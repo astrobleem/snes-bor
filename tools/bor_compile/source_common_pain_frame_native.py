@@ -1,7 +1,8 @@
 """Execute retained common_pain idle/block animation children via real owners."""
 from source_animation_ids import configure
 
-def emit(work,sy):
+def emit(work,sy,*,prefix="CommonPain"):
+ if prefix not in ('CommonPain','CommonGrabbed'):raise ValueError('COMMON_ACTION_FRAME_PREFIX')
  lines=[];serial=0;block=configure([])['authority']['enum']['ANI_BLOCK']
  def put(s):lines.extend(s.strip().splitlines())
  def label(n):put('CommonPainFrame_'+n+':\n.a16\n.i16')
@@ -32,4 +33,4 @@ def emit(work,sy):
  label('Good');put(' lda #0')
  label('Ticket');put(' ply\n plx\n plp\n clc\n rtl')
  label('Bad');put(f' lda #4\n sta.l {work}+2\n ply\n plx\n plp\n sec\n rtl')
- return '\n'.join(lines)+'\n'
+ return ('\n'.join(lines)+'\n').replace('CommonPain_',prefix+'_').replace('CommonPainFrame_',prefix+'Frame_')
