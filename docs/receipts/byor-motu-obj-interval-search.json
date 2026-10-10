@@ -1,0 +1,133 @@
+{
+  "schema": "BYOR_EXACT_OBJ_INTERVAL_SEARCH_V1",
+  "status": "BOUNDED_SEARCH_CONTINUES",
+  "no_color_reduction": true,
+  "universal_raster_rejected": false,
+  "native_renderer_proven": false,
+  "focused_tests": 55,
+  "protected_hashes_unchanged": 17,
+  "width_labels": 9825,
+  "width_new": 0,
+  "width_baselined": 0,
+  "width_stale": 0,
+  "fixes": [
+    "bounded per-worker solver log",
+    "pool intervals optionally kept in a single bank",
+    "pool gaps require reload even for initially resident colors",
+    "selected OAM masks must own opaque pixels"
+  ],
+  "reports": [
+    {
+      "path": "out/byor-motu-joint-saturated-mixed-pool21-cpsat-diagnostic.json",
+      "sha256": "c31f66436e25c43f698cd93a19f1baf982444b4cbdc67b2b9677a1d286718d7d",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 86232,
+        "constraints": 105211,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "log_lines": 253,
+          "sat_inprocessing": false,
+          "branches": 261870,
+          "conflicts": 67996,
+          "wall_seconds": 30.119627100000002,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "peak_write_lower_bound": null,
+      "candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-saturated-mixed-pool21-cpsat-search180.json",
+      "sha256": "cf07c382f2b35cc56797c9ebe1934f833ac4e250356fbfb471ea82044e60bf0b",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 86232,
+        "constraints": 105211,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "log_lines": 254,
+          "sat_inprocessing": false,
+          "branches": 3943,
+          "conflicts": 0,
+          "wall_seconds": 180.2281772,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "peak_write_lower_bound": null,
+      "candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-saturated-mixed-pool21-cpsat-intervals-reload.json",
+      "sha256": "81611f3c0eefb6f2cbbe107e1cd56025c1a9184fc67490cc20711e852c2a70ff",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 86232,
+        "constraints": 126398,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "log_lines": 275,
+          "sat_inprocessing": false,
+          "branches": 65154,
+          "conflicts": 25921,
+          "wall_seconds": 45.0785112,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "peak_write_lower_bound": null,
+      "candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-isolated-saturated-cover-pool21.json",
+      "sha256": "6e0efa60d41daa36a51370b2652f684cf1d8317486822107342b0a61b495c825",
+      "status": "POOLED_INTEGER_RESIDENCY_CANDIDATE",
+      "solver": null,
+      "peak_write_lower_bound": 14.428571428571429,
+      "candidate_peak_writes": 14.999999999996621
+    },
+    {
+      "path": "out/byor-motu-isolated-saturated-small-pool19-cpsat.json",
+      "sha256": "61f8df00c350670fae20a7ffa847fe4cfa6ae995ec3d96c48499f6908ebd7b2b",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 41632,
+        "constraints": 52776,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "log_lines": 258,
+          "sat_inprocessing": false,
+          "branches": 6132,
+          "conflicts": 4168,
+          "wall_seconds": 60.044396600000006,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "peak_write_lower_bound": null,
+      "candidate_peak_writes": null
+    }
+  ]
+}

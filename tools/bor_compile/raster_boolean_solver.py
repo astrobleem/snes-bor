@@ -4,6 +4,7 @@ All variables are 0/1, including new-write indicators. Floating LP relaxations
 are intentionally excluded. Consumers independently replay every incumbent.
 """
 from types import SimpleNamespace
+from collections import deque
 import numpy as np
 
 
@@ -32,9 +33,17 @@ def solve(matrix, lower, upper, objective, time_limit=45, workers=4):
     # The full raster graph has many equivalent implications; exhaustive
     # pre-search probing consumed the initial bounded trial without conflicts.
     solver.parameters.cp_model_probing_level=0
+    solver.parameters.use_sat_inprocessing=False
+    solver.parameters.log_search_progress=True;solver.parameters.log_to_stdout=False
+    log=deque(maxlen=64);log_lines=0
+    def capture(message):
+        nonlocal log_lines
+        for line in message.splitlines():
+            log_lines+=1;log.append(line[:512])
+    solver.log_callback=capture
     status=solver.solve(model)
     feasible=status in (cp_model.OPTIMAL,cp_model.FEASIBLE)
     values=np.array([solver.value(v) for v in variables],dtype=float) if feasible else None
     return SimpleNamespace(x=values,status=0 if feasible else 2 if status==cp_model.INFEASIBLE else 1,
                            message=solver.status_name(status),mip_node_count=None,mip_gap=None,
-                           boolean_stats=dict(branches=solver.num_branches,conflicts=solver.num_conflicts,wall_seconds=solver.wall_time,probing_level=0,workers=workers,optimal=status==cp_model.OPTIMAL))
+                           bounded_log=list(log),boolean_stats=dict(log_lines=log_lines,sat_inprocessing=False,branches=solver.num_branches,conflicts=solver.num_conflicts,wall_seconds=solver.wall_time,probing_level=0,workers=workers,optimal=status==cp_model.OPTIMAL))
