@@ -1,0 +1,46 @@
+{
+  "schema": "BYOR_MIXED_RASTER_LAYOUT_RECEIPT_V1",
+  "new_tests_passed": 6,
+  "no_color_reduction": true,
+  "production_runtime_modified": false,
+  "bank_zero_growth_bytes": 0,
+  "universal_raster_rejected": false,
+  "motu_gameplay_proven": false,
+  "proofs": [
+    {
+      "path": "out/byor-motu-isolated-mixed-coalesced-partition-dma356.json",
+      "sha256": "43dd621a9c18a043ba0bae593a025293daef56d30b9b103e72a574f2d6bb036b",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN"
+    },
+    {
+      "path": "out/byor-motu-isolated-16-coalesced-partition-dma356.json",
+      "sha256": "b2f869557e968ed297cc710dbb3176e64f61d75a837bb26272e07906a90e9186",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE"
+    },
+    {
+      "path": "out/byor-motu-isolated-mixed-obj-chr/report.json",
+      "sha256": "b97993d1736eb9d8f05b6edb89b2e5cc854df5b4d459d0fc08c607163628b18f",
+      "status": "LEGAL_MODE1_CHR_OAM_CONSTRUCTIVE_PROOF"
+    },
+    {
+      "path": "out/byor-motu-isolated-mixed-physical-slots-dma348.json",
+      "sha256": "22decdb7388a3cdcc76da10a88b5622c3779aa53bf3135d33abb427f720e6f05",
+      "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE"
+    },
+    {
+      "path": "out/byor-motu-isolated-mixed-trimmed-physical-slots-dma348.json",
+      "sha256": "f3be596308e0d3b03c76b3e9f96743e103410afc24e5007bfddf48fc81072dda",
+      "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE"
+    },
+    {
+      "path": "out/byor-motu-isolated-mixed-trimmed-physical-slots-dma356.json",
+      "sha256": "121c0bc40053b727fd446428f246827426f2468b784540a45fdb4d06224f6514",
+      "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE"
+    },
+    {
+      "path": "out/byor-motu-isolated-mixed-prefetched-physical-slots-dma348.json",
+      "sha256": "ba679cdac050bc2412d899d6e6cde9b6e56839b6d4709c065b27862d28b33cb4",
+      "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE"
+    }
+  ]
+}
