@@ -1,0 +1,96 @@
+{
+  "schema": "BYOR_OPAQUE_CHOICE_COALESCING_V1",
+  "tests_passed": 61,
+  "no_color_reduction": true,
+  "production_runtime_modified": false,
+  "universal_raster_rejected": false,
+  "motu_gameplay_proven": false,
+  "proofs": [
+    {
+      "path": "out/byor-motu-isolated-complete-cover-free-residency-partition-dma356.json",
+      "sha256": "8ca02e75289d1d4e0860c87354a5f42389bde32a2a70ad38dfad39692bd39ead",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 194677,
+        "constraints": 387265,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 2556,
+          "hint_variables": 17080,
+          "hint_is_soft": true,
+          "log_lines": 380,
+          "sat_inprocessing": false,
+          "branches": 4678955,
+          "conflicts": 1370593,
+          "wall_seconds": 1200.8596015,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "opaque_choice_coalescing": false
+    },
+    {
+      "path": "out/byor-motu-concurrent-complete-cover-partition-dma356.json",
+      "sha256": "e17a65f4942fc47a69baf27780e67af117876c3c8238bc86cd29f373a91b3551",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 74715,
+        "constraints": 153964,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 3636,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 490,
+          "sat_inprocessing": false,
+          "branches": 5286840,
+          "conflicts": 3304248,
+          "wall_seconds": 1200.1837402,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "opaque_choice_coalescing": false
+    },
+    {
+      "path": "out/byor-motu-isolated-coalesced-complete-cover-partition-dma356.json",
+      "sha256": "11526ae4f7bc16025e338de054f88418d6a628961513974f1b1d90fc8568db0c",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 45177,
+        "constraints": 92755,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 1980,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 446,
+          "sat_inprocessing": false,
+          "branches": 4696134,
+          "conflicts": 2891212,
+          "wall_seconds": 1200.1706234,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "opaque_choice_coalescing": true,
+      "opaque_choice_entries": 3752,
+      "distinct_opaque_choice_variables": 3672
+    }
+  ]
+}

@@ -29,7 +29,7 @@ def saturated_corners(output,background):
     return values
 
 
-def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False):
+def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False):
     if solver_backend not in ('highs','cp-sat') or (relaxed and solver_backend!='highs'):raise ValueError('JOINT_SOLVER_BACKEND')
     if size not in (8,16,32,'mixed') or write_budget<0 or lookahead<0:
         raise ValueError('JOINT_SOLVER_DOMAIN')
@@ -141,13 +141,20 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         nonlocal variable_count
         result = variable_count; variable_count += 1; return result
     masks = {(i,b):allocate() for i in range(len(pieces)) for b in range(8)}
-    choices = {}; uses = {}
+    choices = {}; uses = {};opaque_variables={};opaque_choice_entries=0
     for i, atom in enumerate(atoms):
         for bank in range(8):
             colors=[atom['output']] if bank<4 else atom['residual_options']
             for color in colors:
                 if not allowed(bank,color,atom['line']):continue
-                for piece_index in atom['options']:choices[i,piece_index,bank,color] = allocate()
+                for piece_index in atom['options']:
+                    if bank<4:
+                        opaque_choice_entries+=1;key=piece_index,bank,color,atom['line']
+                        if coalesce_opaque_choices:
+                            if key not in opaque_variables:opaque_variables[key]=allocate()
+                            choices[i,piece_index,bank,color]=opaque_variables[key]
+                        else:choices[i,piece_index,bank,color]=allocate()
+                    else:choices[i,piece_index,bank,color]=allocate()
                 uses.setdefault((bank,color),set()).add(atom['line'])
     def residency_lines(lines):
         if pool_residency:return [0]+list(range(pool_first,max(lines)+1))if pool_first else list(range(max(lines)+1))
@@ -167,6 +174,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         atom_choices.setdefault(i,[]).append((piece_index,bank,color,variable))
         mask_choices[piece_index,bank].append(variable)
     mandatory={};forced_colors={}
+    implications=set()
     for i,atom in enumerate(atoms):
         options=atom_choices.get(i,[])
         constraint([(v,1)for p,b,c,v in options],1,1)
@@ -177,12 +185,15 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             colors={c for pp,b,c,v in options}
             if len(colors)==1:forced_colors.setdefault((p,kind,atom['line']),set()).update(colors)
         for piece_index,bank,color,variable in options:
-            constraint([(variable,1),(masks[piece_index,bank],-1)],-np.inf,0)
-            constraint([(variable,1),(resident[bank,color,atom['line']],-1)],-np.inf,0)
+            for dependency in (masks[piece_index,bank],resident[bank,color,atom['line']]):
+                if (variable,dependency)not in implications:
+                    constraint([(variable,1),(dependency,-1)],-np.inf,0)
+                    implications.add((variable,dependency))
     # A selected OAM mask must own at least one opaque source pixel. Otherwise
     # feasibility search can branch over unused sprites which only consume
     # hardware capacity. Removing those masks preserves every valid rendering.
     for key,variables in mask_choices.items():
+        variables=set(variables)
         constraint([(masks[key],1)]+[(v,-1)for v in variables],-np.inf,0)
     for (p,kind,y),colors in forced_colors.items():
         mandatory[p,kind]=max(mandatory[p,kind],(len(colors)+14)//15)
@@ -306,6 +317,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 metadata=metadata,geometry_size=size,write_budget=write_budget,lookahead_lines=lookahead,
                 solver=dict(status=int(result.status),message=result.message,variables=variable_count,constraints=len(lo),mip_nodes=int(result.mip_node_count) if getattr(result,'mip_node_count',None) is not None else None,mip_gap=float(result.mip_gap) if getattr(result,'mip_gap',None) is not None and np.isfinite(result.mip_gap) else None),
                 exact_residency_write_indicators=True,
+                opaque_choice_coalescing=coalesce_opaque_choices,opaque_choice_entries=opaque_choice_entries,
+                distinct_opaque_choice_variables=len(opaque_variables)if coalesce_opaque_choices else opaque_choice_entries,
                 no_color_reduction=True,universal_raster_rejected=False,native_presentation_proven=False,
                 pooled_residency_pinned=bool(pool_residency),
                 full_pool_intervals_retained=pin_pool_intervals,pool_residency_intervals=interval_groups,
@@ -418,12 +431,13 @@ def main():
     p.add_argument('--early-write-budget',type=int);p.add_argument('--late-start',type=int,default=75)
     p.add_argument('--prepared-dma-window',type=int)
     p.add_argument('--prepared-dma-partition',action='store_true')
+    p.add_argument('--coalesce-opaque-choices',action='store_true')
     p.add_argument('--schedule-hint',type=Path)
     p.add_argument('--underlay-bypass',action='store_true')
     p.add_argument('--saturated-extrema',action='store_true')
     p.add_argument('--complete-additive-cover',action='store_true')
     p.add_argument('--grid-padding-x',type=int,default=0);p.add_argument('--grid-padding-y',type=int,default=0)
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition)
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
 
 

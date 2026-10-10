@@ -6,6 +6,23 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_equal_opaque_outputs_coalesce_across_distinct_underlays(self):
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        background[0,0]=[32,0,0];background[0,1]=[32,8,0]
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[0,:2]=31
+        expected=background.copy();expected[0,:2]=[248,0,0]
+        actors=[dict(pixels=pixels,left=0,top=0)]
+        results=[]
+        for coalesce in (False,True):
+            with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+                r=probe(None,None,{},size=8,write_budget=0,time_limit=5,coalesce_opaque_choices=coalesce)
+            self.assertTrue(r['compiled_pixel_identity_verified'])
+            self.assertEqual(r['geometry']['oam_entries'],1)
+            results.append(r)
+        self.assertEqual(results[0]['distinct_opaque_choice_variables'],8)
+        self.assertEqual(results[1]['distinct_opaque_choice_variables'],4)
+        self.assertEqual(results[0]['source_rgb555_sha256'],results[1]['source_rgb555_sha256'])
+
     def test_grid_padding_changes_piece_origin_without_changing_source_pixels(self):
         background=np.zeros((224,256,3),dtype=np.uint8)
         pixels=np.full((32,32),-1,dtype=np.int32);pixels[9:11,9:11]=31
