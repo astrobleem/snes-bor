@@ -66,6 +66,7 @@ def main():
     p.add_argument('--default-owner',action='store_true',help='Use generic source-order default-init Begin/Continue instead of direct leaf sequencing.')
     p.add_argument('--initial-none-model',help='Authored TYPE_NONE identity without WALK, through default owner and actual IDLE frame zero.')
     p.add_argument('--ctor-owner',action='store_true',help='Execute slot selection and complete generic constructor continuation instead of fixture leaf sequencing.')
+    p.add_argument('--spawn-recovery-joint',action='store_true',help='Join actual player constructor result to checked index/history/health/MP recovery; weapon child remains required.')
     p.add_argument('--queue-producer',action='store_true',help='Execute actual native queue request and acknowledgement; leave the full world tick uncommitted.')
     p.add_argument('--scroller-owner',action='store_true',help='Resume a terminal authored spawn through the complete scroller owner; no player/camera motion or full world tick claim.')
     p.add_argument('--freeze-state',action='store_true',help='Enable canonical freeze rows and observe actual constructor reset before alive publication.')
@@ -111,6 +112,7 @@ def main():
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     (folder/'report.json').write_text(json.dumps(dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='RUNNING'))+'\n')
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
+    if a.spawn_recovery_joint and not(a.player_state_birth and a.ctor_model and (a.initial_jump or a.initial_select) and a.frame_owner and a.script_clone):raise ValueError('SPAWN_RECOVERY_REQUIRES_REAL_PLAYER_CONSTRUCTOR')
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
     if a.canonical_attack and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('ORDINARY_ATTACK_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
@@ -643,6 +645,91 @@ CallbackFixture_AfterScript:
         asm=asm.replace('CallbackFixture_Init:\n.a16\n.i16\n nop',
                         'CallbackFixture_Init:\n.a16\n.i16\n nop\n jsl SourcePlayerState_Init\n bcs CallbackFixture_Bad\nCallbackFixture_PlayerStatePoison:\n.a16\n.i16\n nop')
         asm+=emit_player_state(player_state_plan,player_state_work,sy)+emit_birth_bridge(player_state_work,sy)
+        if a.spawn_recovery_joint:
+            from source_player_global_layout import layout as global_layout
+            from source_player_global_native import emit as global_emit
+            from source_player_spawn_native import emit_recovery,emit_history_reset
+            from source_foreign_state_layout import layout as arena_layout
+            from source_foreign_water_retirement import emit as water_emit
+            spawn_globals=global_layout(player_state_plan)
+            spawn_history=next(r['address']for r in arena_layout(0x7fa000,6400)['regions']if r['name']=='input_history')
+            asm+=global_emit(player_state_plan,player_state_work,sy)+emit_recovery(player_state_plan,sy)+emit_history_reset(spawn_history,sy)+water_emit(sy)
+            needle='CallbackFixture_ResultPublished:\n.a16\n.i16\n nop'
+            assert needle in asm
+            asm=asm.replace(needle,needle+f'''
+CallbackFixture_SpawnLease:
+.a16
+.i16
+ nop
+ php
+ rep #$39
+ pha
+ phx
+ phy
+ jsl PlayerGlobal_Init
+ bcs CallbackFixture_SpawnBad
+CallbackFixture_SpawnRecoveryRequest:
+.a16
+.i16
+ nop
+ lda.l {sy['SourceDefaultInit4086_OwnerSlot']}
+ asl a
+ asl a
+ asl a
+ asl a
+ sta.l {spawn_globals['controls']}+24
+ asl a
+ asl a
+ clc
+ adc.l {spawn_globals['controls']}+24
+ clc
+ adc #$4000
+ sta.l {sy['SourceSelf4086_GlobalLow']}
+ pha
+ lda #$41
+ sta.l {sy['SourceSelf4086_GlobalHigh']}
+ lda.l {sy['SourceCtorState4086_Player']}
+ cmp #4
+ bcs CallbackFixture_SpawnBadToken
+ asl a
+ asl a
+ tax
+ pla
+ sta.l $43FD84,x
+ lda #$41
+ sta.l $43FD86,x
+ lda.l {player_state_work}+8
+ tax
+ lda.l {player_state_work}+10
+ tay
+ lda.l {sy['SourceCtorState4086_Player']}
+ jsl SpawnRecovery_Apply
+ bcs CallbackFixture_SpawnBad
+CallbackFixture_SpawnRecoveryDone:
+.a16
+.i16
+ nop
+ ply
+ plx
+ pla
+ plp
+ bra CallbackFixture_SpawnResume
+CallbackFixture_SpawnBadToken:
+.a16
+.i16
+ pla
+CallbackFixture_SpawnBad:
+.a16
+.i16
+ ply
+ plx
+ pla
+ plp
+ jmp CallbackFixture_Bad
+CallbackFixture_SpawnResume:
+.a16
+.i16
+''',1)
         if a.run_tuple_birth:
             asm+=emit_run_tuples(run_work,run_handles,run_tuple_report,sy)+emit_ctor_model_bridge(run_work,sy)
         if a.pending_jump_birth:
@@ -1555,6 +1642,9 @@ CallbackFixture_WorldAIComplete:
             if raw[run_bridge_at:run_bridge_at+5]!=bytes.fromhex('08 c2 38 da 5a'):raise ValueError('RUN_TUPLE_CTOR_MODEL_PROLOGUE')
             raw[run_bridge_at:run_bridge_at+5]=b'\x5c'+struct.pack('<I',fs['SourceRunTuple_CtorModelBridge'])[:3]+b'\xea'
     raw[offset(entry):offset(entry)+5]=b'\x5c'+struct.pack('<I',fs['CallbackFixture_Gate'])[:3]+b'\xea'
+    if a.spawn_recovery_joint:
+        from source_foreign_water_retirement import transform as water_transform
+        water_transform(raw,{**sy,**fs})
     path=folder/'bor.sfc';path.write_bytes(raw)
     for media in [a.rom.with_suffix('.msu'),*(a.rom.parent.glob('bor-*.pcm') if not(a.costmove_model or a.attack_chain_model or a.player_state_birth) else ())]:
         target=folder/media.name
@@ -1916,6 +2006,40 @@ emu.addMemoryCallback(function()emu.log('DEFAULTNONE|'..word(INDEX)..'|'..dw(0x4
         address=sy['SourceCtorState4086_AIStateBirthDone']
         lua+=f"emu.addMemoryCallback(function()for j=0,23 do put({tail}+j,0xa5,1);put({tail}+127*24+j,0xa5,1)end end,emu.callbackType.exec,{poison},{poison},emu.cpuType.snes,mt)\n"
         lua+=f"emu.addMemoryCallback(function()local slot=word(sy.SourceScriptClone4086_Slot);local cleared=0;local sibling=0;for j=0,23 do cleared=cleared+emu.read({tail}+slot*24+j,mt);sibling=sibling+emu.read({tail}+127*24+j,mt)end;emu.log('CTORPLAYERSTATE|'..word(INDEX)..'|'..slot..'|'..cleared..'|'..sibling..'|'..dw(0x414004+slot*80)..'|'..word({player_state_work})..'|'..word(sy.VmState_SlotCount))end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n"
+        if a.spawn_recovery_joint:
+            for name in sy:
+                if name.startswith('SourceCtorOwner4086_Guard_')or name=='SourceCtorOwner4086_BeginBad':
+                    lua+=f"emu.addMemoryCallback(function()emu.log('CTORSPAWNGUARD|{name}')end,emu.callbackType.exec,{sy[name]},{sy[name]},emu.cpuType.snes,mt)\n"
+            lua+=f'''local spawnBefore={{}};local spawnHP=0;local spawnMP=0;local spawnStart=0;local spawnSavedHP=0;local spawnSavedMP=0
+emu.addMemoryCallback(function()emu.log('CTORSPAWNLEASEBAD|'..word({player_state_work})..'|'..dw({player_state_work}+8)..'|'..word(sy.VmState_SlotCount)..'|'..word(sy.VmState_FrameTop)..'|'..word(sy.SourceVMRun4086_Busy)..'|'..emu.read(sy.VmState_Status,mt))end,emu.callbackType.exec,{fs['SourcePlayerState_Bad']},{fs['SourcePlayerState_Bad']},emu.cpuType.snes,mt)
+local function signed(v)if v>=0x80000000 then return v-0x100000000 end;return v end
+emu.addMemoryCallback(function()
+ put({spawn_globals['controls']},0,2)
+ set('SourceForeignWork_Ready',0xb671);set('SourceForeignWork_Status',1);set('SourceForeignWork_Generation',dw({player_state_work}+8),4)
+ put(0x7ff840,0xb4b0,2);put(0x7ff862,0xb4b1,2);put(0x7ff856,0,2);put(0x7ff866,0xb672,2);put(0x7ff846,0x30,2)
+ for _,addr in ipairs({{{sy['StageFp_BG2Loaded']},{sy['StageFp_BG2Active']},{sy['StageFp_BG2DmaPending']},{sy['StageFp_BG2Booting']},{sy['StreamScrollFp_ColPending']},{sy['StreamScrollFp_Enabled']}}})do put(addr,0,2)end
+ for i=0,7 do put({sy['DmaQueue']}+8*i+7,0,1)end
+end,emu.callbackType.exec,{fs['CallbackFixture_SpawnLease']},{fs['CallbackFixture_SpawnLease']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local slot=word(sy.SourceDefaultInit4086_OwnerSlot);local index=dw(sy.SourceCtorState4086_Player);local c=rows[word(INDEX)+1]
+ spawnSavedHP=c.direction==0 and 17 or 0;spawnSavedMP=c.direction==0 and -3 or 0
+ put({spawn_globals['player_base']}+index*20+8,spawnSavedHP,4);put({spawn_globals['player_base']}+index*20+12,spawnSavedMP,4)
+ for i=0,1023 do put({spawn_history}+i,(i*13+91)&255,1)end
+ spawnHP=math.min(spawnSavedHP~=0 and spawnSavedHP+5 or signed(dw(0x414024+slot*80)),signed(dw(0x40c03c+slot*96)))
+ spawnMP=math.min(spawnSavedMP~=0 and spawnSavedMP+2 or signed(dw(0x40c04c+slot*96)),signed(dw(0x40c040+slot*96)))
+ spawnBefore={{}};for _,r in ipairs({{{{{spawn_globals['base']},144}},{{{spawn_history},1024}},{{0x414000+slot*80,80}},{{0x40c000+slot*96,96}},{{0x43fd84,16}}}})do for i=0,r[2]-1 do spawnBefore[r[1]+i]=emu.read(r[1]+i,mt)end end
+ spawnStart=emu.getState().masterClock
+end,emu.callbackType.exec,{fs['CallbackFixture_SpawnRecoveryRequest']},{fs['CallbackFixture_SpawnRecoveryRequest']},emu.cpuType.snes,mt)
+emu.addMemoryCallback(function()
+ local slot=word(sy.SourceDefaultInit4086_OwnerSlot);local index=dw(sy.SourceCtorState4086_Player)
+ local function expect(a,v,n)for i=0,(n or 4)-1 do spawnBefore[a+i]=(v>>(8*i))&255 end end
+ expect({spawn_globals['controls']}+24,slot*80,2);expect(0x43fd84+4*index,0x414000+80*slot)
+ expect(0x414028+80*slot,1);expect(0x41402c+80*slot,index);expect(0x414024+80*slot,spawnHP);expect(0x40c04c+96*slot,spawnMP)
+ for i=0,215 do expect({spawn_history}+index*256+i,0,1)end;expect({spawn_history}+index*256+232,0)
+ local mismatch=0;for addr,v in pairs(spawnBefore)do if emu.read(addr,mt)~=v then mismatch=mismatch+1 end end
+ emu.log('CTORSPAWNRECOVERY|'..word(INDEX)..'|'..mismatch..'|'..slot..'|'..index..'|'..signed(dw(0x414024+80*slot))..'|'..signed(dw(0x40c04c+96*slot))..'|'..(emu.getState().masterClock-spawnStart))
+end,emu.callbackType.exec,{fs['CallbackFixture_SpawnRecoveryDone']},{fs['CallbackFixture_SpawnRecoveryDone']},emu.cpuType.snes,mt)
+'''
         if a.run_tuple_birth:
             lua=lua.replace(' put(0x7ffb86,c.fault,2)',f' put(0x7ffb86,c.fault,2)\n for j=0,63 do put({run_work}+j,0,1)end\n put({run_work},0xb678,2)\n for j=0,255 do put({run_handles}+j,0xa5,1)end')
             run_done=fs['SourceRunTuple_CtorModelDone']
@@ -2494,6 +2618,11 @@ end,emu.callbackType.exec,{fs['CallbackFixture_LieDone']},{fs['CallbackFixture_L
         initialinstall+="\nset('SourceDamageEffectsState4086_Ready',0);set('SourcePhysicsState4086_Ready',0)\n"
         for name in ('SourceModelAttackPolicy4086_Ready','SourceAttackTiming4086_Ready','SourceOffscreenState4086_Ready','SourceDeathFields4086_Ready','SourceDamageState4086_Ready'):
             initialinstall+=f' put({sy[name]},0,2)\n'
+    if a.spawn_recovery_joint:
+        # This isolated join owns no optional combat/physics payloads. Withdraw
+        # their borrowed-scratch readiness before the actual constructor reads it.
+        for name in ('SourceModelAttackPolicy4086_Ready','SourceAttackTiming4086_Ready','SourceAttackBody4086_Ready','SourceOffscreenState4086_Ready','SourceDeathFields4086_Ready','SourceDamageState4086_Ready','SourceDamageEffectsState4086_Ready','SourcePhysicsState4086_Ready','SourceFreeze4086_Ready'):
+            initialinstall+=f' put({sy[name]},0,2)\n'
     if a.pending_jump_birth and not(a.early_player or a.canonical_attack):initialinstall+=f' put({sy["SourceAttackBody4086_Ready"]},0,2)\n'
     if a.early_player or a.canonical_attack:
         for field,value in dict(SourceAttackBody4086_Ready=0xb605,SourceAttackBody4086_Status=0,SourceAttackBody4086_Bank=58,SourceAttackBody4086_Base=0x8000+chain_at,SourceAttackBody4086_Bytes=len(chain_table)).items():initialinstall+=f' put({sy[field]},{value},2)\n'
@@ -3048,6 +3177,12 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         reporter.check('real fresh model-data constructor captures exact RUN tuple before script binding and callbacks without another core copy',run_birth_results==[[i,0,expected_run_handle,0xa5a5,1,2]for i in range(len(rows))])
         r.update(actual_run_tuple_birth_capture=True,run_tuple_birth_results=run_birth_results,run_tuple_handle=expected_run_handle,
                  source_exists_set_before_model_copy=True,run_capture_before_script_binding=True,production_run_tuple_birth_binding=False)
+        r['status']='PASS'if all(ok for _,ok in reporter.results)else'FAIL'
+    if a.spawn_recovery_joint:
+        joined=[list(map(int,line.split('CTORSPAWNRECOVERY|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNRECOVERY|'in line]
+        reporter.check('actual player constructor result joins exact spawn recovery and history reset',len(joined)==len(rows)and all(x[0]==i and x[1]==0 for i,x in enumerate(joined)))
+        reporter.check('spawn recovery proof preserves production bank0',raw[:32768]==a.rom.read_bytes()[:32768])
+        r.update(actual_player_constructor_recovery_join=True,spawn_recovery_results=joined,full_spawnplayer_bound=False,weapon_child_bound=False,production_consumer_bound=False)
         r['status']='PASS'if all(ok for _,ok in reporter.results)else'FAIL'
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 

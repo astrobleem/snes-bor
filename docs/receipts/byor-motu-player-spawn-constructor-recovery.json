@@ -1,0 +1,40 @@
+{
+  "schema": "BYOR_PLAYER_CONSTRUCTOR_RECOVERY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report_path": "out\\byor-motu-player-spawn-constructor-recovery-native\\report.json",
+  "report_sha256": "43f539f7cd1e3a0e8ba80274214102a5a96f87b4721429941ea8ee5ffc55e1e6",
+  "rom_sha256": "bcf15541d53cbc3327c86dd657e515d2eebd8bdc3efefc489fd5b408226e7b2b",
+  "cases": 2,
+  "actual_constructor_owner_bound": true,
+  "actual_authored_jump_frame_zero_bound": true,
+  "actual_recovery_and_input_history_bound": true,
+  "results": [
+    [
+      0,
+      0,
+      0,
+      0,
+      22,
+      -1,
+      30654
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      150,
+      0,
+      30352
+    ]
+  ],
+  "maximum_recovery_call_master_clocks": 30654,
+  "bank0_byte_identity": true,
+  "optional_combat_physics_payloads_withdrawn_in_isolated_fixture": true,
+  "terrain_placement_bound": false,
+  "weapon_child_bound": false,
+  "full_spawnplayer_bound": false,
+  "production_consumer_bound": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
