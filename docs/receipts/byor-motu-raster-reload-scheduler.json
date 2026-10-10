@@ -1,0 +1,131 @@
+{
+  "schema": "BYOR_BOUNDED_RELOAD_SCHEDULER_RECEIPT_V1",
+  "artifacts": [
+    {
+      "path": "out/byor-motu-greedy-reload-trials.json",
+      "sha256": "a8d13a26904c73961c001e4c5d8017e1b2130bd54a23472b44237aec6bef4ef3",
+      "trial_count": 96,
+      "lookahead_lines": [
+        8,
+        17,
+        64
+      ],
+      "failed_scanlines": [
+        130,
+        131
+      ],
+      "all_bounded_no_candidate": true,
+      "beam": 32,
+      "repack": false,
+      "permute_banks": false,
+      "source_schedule_sha256": "43dd621a9c18a043ba0bae593a025293daef56d30b9b103e72a574f2d6bb036b"
+    },
+    {
+      "path": "out/byor-motu-greedy-repack-trials.json",
+      "sha256": "9a4044f9f97ceedb9d7f8153aaf48256b7c1a86f4c81e77806979b7a8c857f33",
+      "trial_count": 24,
+      "lookahead_lines": [
+        8,
+        17,
+        64
+      ],
+      "failed_scanlines": [
+        131
+      ],
+      "all_bounded_no_candidate": true,
+      "beam": 32,
+      "repack": true,
+      "permute_banks": false,
+      "source_schedule_sha256": "43dd621a9c18a043ba0bae593a025293daef56d30b9b103e72a574f2d6bb036b"
+    },
+    {
+      "path": "out/byor-motu-greedy-repack-permuted-trials.json",
+      "sha256": "8a376c69d6b71cf41084c66ae435cef10741594c259cdfb093b4f2f50721d7a1",
+      "trial_count": 24,
+      "lookahead_lines": [
+        17,
+        64
+      ],
+      "failed_scanlines": [
+        131
+      ],
+      "all_bounded_no_candidate": true,
+      "beam": 32,
+      "repack": true,
+      "permute_banks": true,
+      "source_schedule_sha256": "43dd621a9c18a043ba0bae593a025293daef56d30b9b103e72a574f2d6bb036b"
+    },
+    {
+      "path": "out/byor-motu-isolated-mixed-greedy-global8-dma356.json",
+      "sha256": "9ba67aeecfc2b04d1414c0439bab6d683d3ecd91e313468bb51d020f4d6544f8",
+      "result": {
+        "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+        "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+        "failed_scanline": 128,
+        "seed": 0,
+        "beam": 16,
+        "global_beam": 8,
+        "lookahead_lines": 17,
+        "window_master_clocks": 356,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out/byor-motu-isolated-mixed-greedy-reload-seed0-relaxed.json",
+      "sha256": "505a47be1befc10f6f2967dc7ac924b47d755e69ba70802af1261940543791bd",
+      "result": {
+        "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "seed": 0,
+        "beam": 16,
+        "lookahead_lines": 17,
+        "window_master_clocks": 2000,
+        "peak_prepared_commit_span": 1272,
+        "peak_ranges": 4,
+        "maximum_noninitial_prefetch_latency_lines": 14,
+        "initial_palette_may_preload_entire_frame": true,
+        "color_reload_events": 101,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        },
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "global_beam": 1,
+        "interval_repacking_enabled": false,
+        "peak_packet_data_bytes": 152,
+        "peak_dma_chain_channels": 7
+      },
+      "peak_changed_color_writes": 29,
+      "peak_changed_color_bytes": 58,
+      "average_changed_color_writes": 2.1524663677130045,
+      "worst_changed_color_scanline": 131,
+      "compiled_schedule_sha256": "bde24b8c4a37396b502ed4e247870f764c7a6f35ce919b2cfe6476d6aef62bb0"
+    }
+  ],
+  "focused_scheduler_tests": 7,
+  "width_audit": {
+    "labels": 9825,
+    "new": 0,
+    "baselined": 0,
+    "stale": 0
+  },
+  "protected_tracked_files": 17,
+  "protected_hash_mismatches": 0,
+  "native_timing_admitted": false,
+  "universal_raster_rejected": false,
+  "production_static_path_changed": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
