@@ -1,0 +1,37 @@
+{
+  "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+  "solver": {
+    "status": 1,
+    "message": "UNKNOWN",
+    "variables": 54605,
+    "constraints": 126652,
+    "mip_nodes": null,
+    "mip_gap": null,
+    "backend": "cp-sat",
+    "boolean_stats": {
+      "nonboolean_integer_variables": 1980,
+      "hint_variables": 0,
+      "hint_is_soft": true,
+      "log_lines": 351,
+      "sat_inprocessing": false,
+      "branches": 789484,
+      "conflicts": 369554,
+      "wall_seconds": 300.1448954,
+      "probing_level": 0,
+      "workers": 4,
+      "optimal": false
+    }
+  },
+  "geometry_size": "mixed",
+  "lookahead_lines": 17,
+  "noninitial_prefetch_lookahead_enforced": true,
+  "initial_palette_may_preload_entire_frame": true,
+  "prepared_dma_window_master_clocks": 356,
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "no_color_reduction": true,
+  "native_presentation_proven": false,
+  "universal_raster_rejected": false,
+  "schema": "BYOR_STRICT_PREFETCH_JOINT_TRIAL_V1",
+  "artifact": "out/byor-motu-isolated-mixed-strict-lookahead17-partition-dma356.json",
+  "artifact_sha256": "606d80e8337e9f188de96e0e19092db47db39a3e5aceec23c9ba99587297591b"
+}
