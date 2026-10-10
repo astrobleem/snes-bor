@@ -1,0 +1,20 @@
+{
+  "schema": "BYOR_PLAYER_SPAWN_RECOVERY_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "report_path": "out\\byor-motu-player-spawn-recovery-native\\report.json",
+  "report_sha256": "eef4b5857eb27bb55d7c6fef56ea778626678f6f9f93a387f087dd696c1c849f",
+  "rom_sha256": "6845835f493727daaa2331fe8dc2a28cef6491ffefa5c7ebd61fcd1fe89c5364",
+  "cases": 86,
+  "c_input_sha256": "dfac2ef4d9794f707729b7976b22d0f9eb6ad70622144212d0c028bdbd2607a5",
+  "c_output_sha256": "841efd33ad12e78f3d26b8bf309c8f7862f90e65788a366032ae74141af1699a",
+  "maximum_two_call_wrapper_master_clocks": 152010,
+  "literal_c_recovery_outputs_compared": true,
+  "actual_input_history_reset_bound": true,
+  "bank0_byte_identity": true,
+  "full_spawnplayer_bound": false,
+  "constructor_bound": false,
+  "weapon_child_bound": false,
+  "production_consumer_bound": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
