@@ -1,0 +1,36 @@
+{
+  "schema": "BYOR_SET_RISE_NATIVE_RECEIPT_V1",
+  "status": "PASS",
+  "reports": [
+    {
+      "report": "out/byor-motu-set-rise-current-cache-frame-native/report.json",
+      "sha256": "427bd8238ebbbbc789b9190b368143a5af245499cc01c8061a9d8d47a56810a2",
+      "cases": 84,
+      "rom_sha256": "89e74dc6d3eb98da1c1a830054b316f67aa000b87c59b08abacf93f7a08991c5"
+    },
+    {
+      "report": "out/byor-motu-set-rise-frame-flags-guard-native/report.json",
+      "sha256": "ac434329c5b3f8b5af2ae5c2ea40fcfd288007b505e02e1d1faa9ae7820c87b6",
+      "cases": 84,
+      "rom_sha256": "d68282e7955653e39280f674e34e3c4b73b1c9bd4344d7c7a6675a1606865f08"
+    }
+  ],
+  "actual_cache_selection_bound": true,
+  "actual_frame_zero_bound": true,
+  "source_rise_flags_bound": true,
+  "source_distinct_self_velocity_asymmetry_bound": true,
+  "source_self_equals_target_exercised": false,
+  "source_missing_rise_branch_exercised": false,
+  "actual_ticket_resume_exercised": false,
+  "guard_calls": 336,
+  "production_memory_lease": false,
+  "common_lie_dispatch_bound": false,
+  "full_set_rise_bound": false,
+  "chr_capacity": 25024,
+  "new_foreign_arena_bytes": 0,
+  "bank0_unchanged": true,
+  "protected_tracked_files": 17,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "no_pcm_copies": true
+}
