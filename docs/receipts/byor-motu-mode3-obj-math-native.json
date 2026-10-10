@@ -1,0 +1,122 @@
+{
+  "schema": "BYOR_MODE3_SOURCE_OBJ_MATH_ROUTE_RECEIPT_V1",
+  "status": "PASS",
+  "source_peak_png_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+  "source_full_context_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "source_underlay_rgb555_sha256": "b709ce24b7bed3d5b275f5039619ef256f02f6b04a610994c096103b7c0d27c3",
+  "native_cases": 4,
+  "native_viewport_pixels_per_case": 57344,
+  "source_effect_pixels_per_case": 117,
+  "bg_static_rgb555_colors": 58,
+  "bg_cgram_range": [
+    0,
+    127
+  ],
+  "bg_chr_bytes": 38144,
+  "bg_unique_tiles": 596,
+  "bg_map_bytes": 2048,
+  "obj_chr_bytes": 64,
+  "obj_entries": 2,
+  "bg1_main_and_subscreen": true,
+  "obj_colormath_enabled": true,
+  "all_eight_obj_bank_math_eligibilities_verified": true,
+  "source_alpha_policy": "Literal RGB8 SCREEN result converted to RGB555, represented by source-derived opaque/additive operands for this immutable underlay",
+  "full_effect_rendered": false,
+  "raster_schedule_executed": false,
+  "production_runtime_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "proofs": [
+    {
+      "path": "out\\byor-motu-mode3-obj-math-banks-0-4\\report.json",
+      "sha256": "48bf42be5d578f6e7a69263e74f2674f932374c7a75c3561bbe1cb9f9f60ff18",
+      "rom_sha256": "174a4b38572fbf1f0e8cf9088b9b8a96c9c9e8f7feb7a7d3b62b5c0e5e2fd267",
+      "expected_sha256": "52e64a0f2e6cdbe8bbb01b860ed08083298fd7beb8453cabe421654b665451b9",
+      "palette_banks": [
+        0,
+        4
+      ],
+      "source_pixels": 117,
+      "fields": 3,
+      "pixel_mismatches": 0,
+      "cgram_ram_and_port_identity_verified": true,
+      "oam_port_identity_verified": true,
+      "obj_overflow_samples": 0
+    },
+    {
+      "path": "out\\byor-motu-mode3-obj-math-banks-1-5\\report.json",
+      "sha256": "52a9ac0bc21458f84297a5d3eb7ac69d4f3bb21714326124168234003a719fcb",
+      "rom_sha256": "2029e6616519bf50505f63d10d5a76eadf4d282856aca0c082564d64af08b48c",
+      "expected_sha256": "52e64a0f2e6cdbe8bbb01b860ed08083298fd7beb8453cabe421654b665451b9",
+      "palette_banks": [
+        1,
+        5
+      ],
+      "source_pixels": 117,
+      "fields": 3,
+      "pixel_mismatches": 0,
+      "cgram_ram_and_port_identity_verified": true,
+      "oam_port_identity_verified": true,
+      "obj_overflow_samples": 0
+    },
+    {
+      "path": "out\\byor-motu-mode3-obj-math-banks-2-6\\report.json",
+      "sha256": "303ec65f9e9671cf7717bd2d2211fa3b70128decc62cac8e42c50b44dc47d9d3",
+      "rom_sha256": "744d51e7e9d7f1fd98fcdfab6ffc4a00d22ae00f2c9081c88b213f85160b7869",
+      "expected_sha256": "52e64a0f2e6cdbe8bbb01b860ed08083298fd7beb8453cabe421654b665451b9",
+      "palette_banks": [
+        2,
+        6
+      ],
+      "source_pixels": 117,
+      "fields": 3,
+      "pixel_mismatches": 0,
+      "cgram_ram_and_port_identity_verified": true,
+      "oam_port_identity_verified": true,
+      "obj_overflow_samples": 0
+    },
+    {
+      "path": "out\\byor-motu-mode3-obj-math-banks-3-7\\report.json",
+      "sha256": "7b62e22a60cf6417cc7c173fb2c0c896a8d2228cab042b9ca7021bb347d4ce28",
+      "rom_sha256": "b474053ff18c9df1f92c6660c4b389efedf9161e06a8c7c0d4a3b2d82a17d958",
+      "expected_sha256": "52e64a0f2e6cdbe8bbb01b860ed08083298fd7beb8453cabe421654b665451b9",
+      "palette_banks": [
+        3,
+        7
+      ],
+      "source_pixels": 117,
+      "fields": 3,
+      "pixel_mismatches": 0,
+      "cgram_ram_and_port_identity_verified": true,
+      "oam_port_identity_verified": true,
+      "obj_overflow_samples": 0
+    }
+  ],
+  "timing_hint_search": {
+    "path": "out\\byor-motu-isolated-saturated-small-pool19-cpsat-dma356-hint.json",
+    "sha256": "76467fab991c69eb089063b3ee1bf3e470e21a27a71f33b96951a750990b109f",
+    "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+    "solver": {
+      "status": 1,
+      "message": "UNKNOWN",
+      "variables": 42472,
+      "constraints": 55738,
+      "mip_nodes": null,
+      "mip_gap": null,
+      "backend": "cp-sat",
+      "boolean_stats": {
+        "hint_variables": 10348,
+        "hint_is_soft": true,
+        "log_lines": 214,
+        "sat_inprocessing": false,
+        "branches": 7128,
+        "conflicts": 69,
+        "wall_seconds": 180.10549590000002,
+        "probing_level": 0,
+        "workers": 4,
+        "optimal": false
+      }
+    },
+    "universal_raster_rejected": false
+  }
+}

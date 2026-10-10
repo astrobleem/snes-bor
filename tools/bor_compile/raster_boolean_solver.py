@@ -8,10 +8,14 @@ from collections import deque
 import numpy as np
 
 
-def solve(matrix, lower, upper, objective, time_limit=45, workers=4):
+def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None):
     from ortools.sat.python import cp_model
     model=cp_model.CpModel()
     variables=[model.new_bool_var('v'+str(i)) for i in range(matrix.shape[1])]
+    if hint:
+        for index,value in hint.items():
+            if not 0<=index<len(variables)or value not in (0,1):raise ValueError('BOOLEAN_HINT_DOMAIN')
+            model.add_hint(variables[index],value)
     rows=matrix.tocsr()
     for row in range(matrix.shape[0]):
         start,end=rows.indptr[row:row+2]
@@ -46,4 +50,4 @@ def solve(matrix, lower, upper, objective, time_limit=45, workers=4):
     values=np.array([solver.value(v) for v in variables],dtype=float) if feasible else None
     return SimpleNamespace(x=values,status=0 if feasible else 2 if status==cp_model.INFEASIBLE else 1,
                            message=solver.status_name(status),mip_node_count=None,mip_gap=None,
-                           bounded_log=list(log),boolean_stats=dict(log_lines=log_lines,sat_inprocessing=False,branches=solver.num_branches,conflicts=solver.num_conflicts,wall_seconds=solver.wall_time,probing_level=0,workers=workers,optimal=status==cp_model.OPTIMAL))
+                           bounded_log=list(log),boolean_stats=dict(hint_variables=len(hint or {}),hint_is_soft=True,log_lines=log_lines,sat_inprocessing=False,branches=solver.num_branches,conflicts=solver.num_conflicts,wall_seconds=solver.wall_time,probing_level=0,workers=workers,optimal=status==cp_model.OPTIMAL))

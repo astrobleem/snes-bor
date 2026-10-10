@@ -18,7 +18,7 @@ from source_scene_obj_math import residual, add_rgb555, split_interval_bound
 from raster_palette import pieces_for_grid
 
 
-def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None):
+def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None):
     if solver_backend not in ('highs','cp-sat') or (relaxed and solver_backend!='highs'):raise ValueError('JOINT_SOLVER_BACKEND')
     if size not in (8,16,32,'mixed') or write_budget<0 or lookahead<0:
         raise ValueError('JOINT_SOLVER_DOMAIN')
@@ -30,6 +30,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         raise ValueError('JOINT_ROW_BUDGET_DOMAIN')
     def line_budget(y):return early_write_budget if early_write_budget is not None and y < late_start else write_budget
     actors, metadata, expected = prepare(source, stage, scene)
+    if schedule_hint is not None and (solver_backend!='cp-sat' or schedule_hint.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule_hint.get('compiled_pixel_identity_verified') or schedule_hint.get('metadata')!=metadata or schedule_hint.get('source_rgb555_sha256')!=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()):
+        raise ValueError('JOINT_SCHEDULE_HINT_IDENTITY')
     pool=set();pool_first=0
     if pool_residency:
         if pool_residency['metadata']!=metadata or pool_residency['status']!='POOLED_INTEGER_RESIDENCY_CANDIDATE':raise ValueError('JOINT_POOL_CONTEXT_IDENTITY')
@@ -224,9 +226,31 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     if relaxed:
         integrality[:]=0;objective[:]=0;objective[peak]=1;upper[peak]=write_budget
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(lo),variable_count)).tocsc()
+    hint=None
+    if schedule_hint is not None:
+        from raster_obj_compact import unpack
+        fields=('actor','local_x','local_y','width','height','x','y')
+        lookup={tuple(p[f]for f in fields):i for i,p in enumerate(pieces)}
+        state={b:[None]*15 for b in range(8)};states=[]
+        for row in schedule_hint['trace']:
+            for e in row['updates']:state[e['bank']][e['slot']-1]=e['color']
+            states.append({b:list(v)for b,v in state.items()})
+        owner={};chosen_masks=set()
+        for p,image in zip(schedule_hint['pieces'],schedule_hint['piece_pixel_masks']):
+            key=tuple(p[f]for f in fields)
+            if key not in lookup:raise ValueError('JOINT_SCHEDULE_HINT_GEOMETRY')
+            piece_index=lookup[key];bank=p['bank'];chosen_masks.add((piece_index,bank));image=unpack(image)
+            for ly,lx in zip(*np.where(image!=0)):
+                y,x=int(p['y']+ly),int(p['x']+lx)
+                owner[y,x]=piece_index,bank,states[y][bank][int(image[ly,lx])-1]
+        hint={v:int(key in chosen_masks)for key,v in masks.items()}
+        for (i,p,b,c),v in choices.items():
+            wanted=owner.get(tuple(atoms[i]['pixels'][0]))
+            if wanted is None:raise ValueError('JOINT_SCHEDULE_HINT_PIXEL')
+            hint[v]=int(wanted==(p,b,c))
     if solver_backend=='cp-sat':
         from raster_boolean_solver import solve
-        result=solve(matrix,lo,hi,objective,time_limit)
+        result=solve(matrix,lo,hi,objective,time_limit,hint=hint)
     else:
         result=milp(objective,integrality=integrality,bounds=Bounds(0,upper),constraints=LinearConstraint(matrix,lo,hi),options={'time_limit':time_limit,'mip_rel_gap':.05})
     report=dict(schema='BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1',status='BOUNDED_JOINT_SOLVER_NO_CANDIDATE',
@@ -241,6 +265,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 mandatory_geometry_lower_bound=mandatory_geometry,
                 prepared_dma_window_master_clocks=prepared_dma_window,
                 prepared_dma_window_is_optimistic_necessary_only=prepared_dma_window is not None,
+                schedule_hint_used=schedule_hint is not None,
                 source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
                 scope='Explicit pose. Exact opaque/additive pixel alternatives and fixed OAM color masks on one legal grid. No native layer routing, source reachability or hardware bandwidth admission.')
     report['solver']['backend']=solver_backend
@@ -335,7 +360,8 @@ def main():
     p.add_argument('--pool-only',action='store_true');p.add_argument('--integer-pool-budget',type=int)
     p.add_argument('--early-write-budget',type=int);p.add_argument('--late-start',type=int,default=75)
     p.add_argument('--prepared-dma-window',type=int)
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window)
+    p.add_argument('--schedule-hint',type=Path)
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
 
 
