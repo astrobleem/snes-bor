@@ -1,176 +1,231 @@
 {
-  "schema": "BYOR_BG_RASTER_PRODUCTION_NMI_V1",
-  "status": "STATIONARY_PRODUCTION_NMI_PASS",
-  "result": {
-    "resources": {
-      "bg_mode": 4,
-      "high_chr_bytes": 43648,
-      "low_chr_bytes": 10160,
-      "low_chr_base": 49152,
-      "offset_tilemap_base": 45056,
-      "offset_map_aliases_bg1": false,
-      "hdma_channels": [
-        0
-      ],
-      "irq_enabled": true,
-      "timer_dots": 76,
-      "irq_entry_prg_offset": 1282048,
-      "irq_exit_prg_offset": 1282126,
-      "code_bank": 1,
-      "oam_entries": 0,
-      "per_field_palette_restore_bytes": 472,
-      "peak_palette_updates": 15,
-      "source_color_bits_preserved": 15,
-      "spc_protocol_proven": false,
-      "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
-      "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd",
-      "production_nmi": true,
-      "dummy_hdma": false,
-      "bank0_runtime_growth": 0
-    },
-    "rom_sha256": "c77fab33ee42a5f1de33bb20500906dfaa25c224f1748cb91626b67f09cb9ab4",
-    "schedule_sha256": "a76f63b6a14b82193c93ff12906e54b4d2dfc28aadeeb798e6b18eb0b8f92b84",
-    "advancement": [
-      {
-        "requested": 1,
-        "startFrame": 517,
-        "endFrame": 517,
-        "framesAdvanced": 0,
-        "isPaused": true,
-        "timedOut": true
-      },
-      {
-        "requested": 1,
-        "startFrame": 517,
-        "endFrame": 518,
-        "framesAdvanced": 1,
-        "isPaused": true,
-        "timedOut": false
-      },
-      {
-        "requested": 1,
-        "startFrame": 518,
-        "endFrame": 518,
-        "framesAdvanced": 0,
-        "isPaused": true,
-        "timedOut": true
-      },
-      {
-        "requested": 1,
-        "startFrame": 518,
-        "endFrame": 518,
-        "framesAdvanced": 0,
-        "isPaused": true,
-        "timedOut": true
-      },
-      {
-        "requested": 1,
-        "startFrame": 518,
-        "endFrame": 518,
-        "framesAdvanced": 0,
-        "isPaused": true,
-        "timedOut": true
-      },
-      {
-        "requested": 1,
-        "startFrame": 518,
-        "endFrame": 519,
-        "framesAdvanced": 1,
-        "isPaused": true,
-        "timedOut": false
-      },
-      {
-        "requested": 1,
-        "startFrame": 519,
-        "endFrame": 519,
-        "framesAdvanced": 0,
-        "isPaused": true,
-        "timedOut": true
-      },
-      {
-        "requested": 1,
-        "startFrame": 519,
-        "endFrame": 520,
-        "framesAdvanced": 1,
-        "isPaused": true,
-        "timedOut": false
-      },
-      {
-        "requested": 1,
-        "startFrame": 520,
-        "endFrame": 520,
-        "framesAdvanced": 0,
-        "isPaused": true,
-        "timedOut": true
-      },
-      {
-        "requested": 1,
-        "startFrame": 520,
-        "endFrame": 521,
-        "framesAdvanced": 1,
-        "isPaused": true,
-        "timedOut": false
-      },
-      {
-        "requested": 1,
-        "startFrame": 521,
-        "endFrame": 521,
-        "framesAdvanced": 0,
-        "isPaused": true,
-        "timedOut": true
-      },
-      {
-        "requested": 1,
-        "startFrame": 521,
-        "endFrame": 522,
-        "framesAdvanced": 1,
-        "isPaused": true,
-        "timedOut": false
-      }
+  "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+  "status": "PASS",
+  "nmi_context_checks": 4,
+  "nmi_context_faults": 0,
+  "peak_nmi_entry_to_rti_master_clocks": 37940,
+  "production_nmi_fields": 4,
+  "nmi_completed_within_vblank": true,
+  "production_queue_vram_identity_verified": true,
+  "production_queue_state_hex": "fe0a0000008091aa",
+  "pixel_identity_verified": true,
+  "pixel_mismatches": 0,
+  "complete_packet_fields": [
+    12,
+    13,
+    14,
+    15
+  ],
+  "packet_identity_faults": 0,
+  "unsafe_high_commits": 0,
+  "peak_observed_commit_span": 216,
+  "first_high_hclock_range": [
+    1104,
+    1144
+  ],
+  "irq_context_checks": 937,
+  "irq_context_faults": 0,
+  "peak_irq_entry_to_rti_master_clocks": 1214,
+  "oam_ram_identity_verified": true,
+  "oam_observer_identity_verified": true,
+  "obj_overflow_flags": [
+    [
+      12,
+      0
     ],
-    "completed_fields": 5,
-    "pixel_identity_verified": true,
-    "pixel_mismatches": 0,
-    "cgram_observer_verified": true,
-    "observed_register_writes": 6944,
-    "expected_register_writes": 6944,
-    "timing_samples": 448,
-    "active_window_samples": 0,
-    "irq_service_samples": 224,
-    "peak_irq_service_master_clocks": 926,
-    "visible_field_irq_service_master_clocks": 206344,
-    "low_palette_unchanged": true,
-    "hud_palette_unchanged": true,
-    "no_color_reduction": true,
-    "scope": "Production cold boot and NMI, with a private stationary foreign owner. No live MOTU world or production TAD service admission.",
-    "pass": true,
-    "production_base_sha256": "adbb62b4f04a57e76cb6e1044ba0400c8fa406eb9516497956b305485331a649",
-    "context_witness": "1350,6,0,1182,0,19272",
-    "irq_context_checks": 1350,
-    "nmi_context_checks": 6,
-    "context_faults": 0,
-    "peak_gateway_to_rti_master_clocks": 1182,
-    "all_field_unsafe_data_writes": 0,
-    "peak_nmi_gateway_to_rti_master_clocks": 19272,
-    "sa1_bank3_mapping": 129,
-    "memsel": 1,
-    "ordinary_bg2_producer_retired": true,
-    "ordinary_window_masks_cleared": true
+    [
+      13,
+      0
+    ],
+    [
+      14,
+      0
+    ],
+    [
+      15,
+      0
+    ]
+  ],
+  "source_frame_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+  "compiled_schedule_sha256": "9449437774d54abfc413e225904e8256f0378b2f073df70326dfc05488bfebdb",
+  "rom_sha256": "af6e2ec127d02a541dc2ae90f412325f869ebdc2eb6f213ddc2c7f541deb9503",
+  "expected_rgb555_sha256": "f91cf9c4be710140e170b678f425b4798d0bbacb716a3dd91e23dfb91fdbf26b",
+  "timer": 44,
+  "resources": {
+    "chr_report": {
+      "schema": "BYOR_RASTER_OBJ_CHR_V1",
+      "status": "LEGAL_MODE1_CHR_OAM_CONSTRUCTIVE_PROOF",
+      "obj_size_mode": 1,
+      "obj_size_pair": [
+        8,
+        32
+      ],
+      "oam_entries": 107,
+      "obj_chr_bytes": 3424,
+      "occupied_tile_cells": 107,
+      "unique_tiles": 107,
+      "reserved_tile_cells": [],
+      "chr_sha256": "f9f8f456cd519dd2d7fb06512d36f8294b7873027c713dc5e37a40276754904c",
+      "oam_sha256": "abe704fc98d85de2d10005a36fa181246f1e719738073bc971dca22c2ef08c35",
+      "emitted_oam_chr_pixel_indices_verified": true,
+      "native_render_proven": false,
+      "no_color_reduction": true
+    },
+    "stream_offsets": {
+      "1": 40062,
+      "2": 40246,
+      "3": 40276,
+      "4": 40416,
+      "5": 40445,
+      "6": 40619,
+      "7": 40646
+    },
+    "stream_bytes": {
+      "1": 184,
+      "2": 30,
+      "3": 140,
+      "4": 29,
+      "5": 174,
+      "6": 27,
+      "7": 140
+    },
+    "asset_bytes": 8018,
+    "source_metadata": {
+      "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+      "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+      "scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              98,
+              220,
+              93
+            ],
+            "order": 2
+          }
+        ]
+      },
+      "layers": [
+        {
+          "kind": "background",
+          "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+          "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+          "source_dimensions": [
+            256,
+            224
+          ],
+          "position": [
+            0,
+            0
+          ],
+          "alpha": 0,
+          "visible_source_pixels": 57344,
+          "source_flip": false
+        },
+        {
+          "kind": "panel",
+          "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+          "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+          "source_dimensions": [
+            256,
+            224
+          ],
+          "position": [
+            0,
+            0
+          ],
+          "alpha": 0,
+          "visible_source_pixels": 0,
+          "source_flip": false
+        },
+        {
+          "kind": "actor:HBreath",
+          "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+          "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+          "source_dimensions": [
+            110,
+            90
+          ],
+          "position": [
+            84,
+            92
+          ],
+          "alpha": 1,
+          "visible_source_pixels": 2751,
+          "source_flip": false,
+          "requested_map": 0,
+          "selected_map": 0,
+          "source_model_type": "none",
+          "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+          "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+        }
+      ],
+      "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+      "alpha_source_dimensions": [
+        [
+          110,
+          90
+        ]
+      ],
+      "camera": [
+        0.0,
+        0.0
+      ],
+      "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+      "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+      "all_actor_models_preserved": true
+    },
+    "private_fixture_only": true,
+    "foreground_context": "BOUNDED_LONG_WRAM_STACK_AND_ACCUMULATOR_WIDTH_MIX",
+    "actual_source_vm_execution_proven": false,
+    "production_nmi_service_code_executed": true,
+    "production_nmi_queue_bytes": 2814,
+    "production_queue_registration_executed": false,
+    "production_queue_byte_cap": 2816,
+    "within_production_queue_byte_cap": true,
+    "service_path_stress_only": false,
+    "initial_palette_vblank_bytes": 256,
+    "raster_cgram_owned_word_range": [
+      128,
+      255
+    ],
+    "production_cold_boot_proven": false,
+    "code_rom_banks": [
+      103,
+      104
+    ],
+    "asset_rom_bank": 106,
+    "sa1_mmc_registers_changed": false,
+    "standalone_lorom": false,
+    "production_sa1_mapping_proven": true,
+    "production_sa1_worker_execution_proven": false,
+    "bank_zero_growth_bytes": 0,
+    "irq_dma_channels": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "hdma_channels": [],
+    "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY"
   },
-  "evidence": "out/byor-motu-production-nmi-field-gate-native",
-  "admission_contract": [
-    "SA1 register 2223=81 maps the opt-in high ROM owner.",
-    "MEMSEL bit zero is explicitly enabled.",
-    "All pending ordinary DMA is drained before acquiring foreign VRAM.",
-    "The ordinary frontpanel producer is retired before acquiring BG2.",
-    "The ordinary edge masks are retired before full canvas presentation."
-  ],
-  "nonclaims": [
-    "No live MOTU world.",
-    "No live TAD frame-service pump or SPC stream admission.",
-    "No combined production NMI and source-cadence animated refill admission."
-  ],
   "no_color_reduction": true,
-  "ordinary_dma_queue_active_slots_at_close": 0,
-  "handoff": "Banked native field gate replaces an existing JSL operand. No debugger PC mutation."
+  "production_runtime_admitted": false,
+  "authored_stage_and_concurrent_actors_proven": false,
+  "motu_gameplay_proven": false
 }
