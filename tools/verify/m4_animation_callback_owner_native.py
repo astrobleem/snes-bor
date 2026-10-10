@@ -68,6 +68,7 @@ def main():
     p.add_argument('--ctor-owner',action='store_true',help='Execute slot selection and complete generic constructor continuation instead of fixture leaf sequencing.')
     p.add_argument('--spawn-recovery-joint',action='store_true',help='Join actual player constructor result to checked index/history/health/MP recovery; weapon child remains required.')
     p.add_argument('--spawn-weapon-joint',action='store_true',help='Join source spawn weapon selection to the actual same-model transition after constructor/recovery.')
+    p.add_argument('--spawn-placement-camera',type=int,default=0,help='Supplied integer horizontal camera for the isolated placement/constructor join.')
     p.add_argument('--spawn-placement-authority',type=Path,help='Join pinned-C-checked initial-camera stage placement to actual player constructor/recovery/weapon completion.')
     p.add_argument('--queue-producer',action='store_true',help='Execute actual native queue request and acknowledgement; leave the full world tick uncommitted.')
     p.add_argument('--scroller-owner',action='store_true',help='Resume a terminal authored spawn through the complete scroller owner; no player/camera motion or full world tick claim.')
@@ -117,6 +118,8 @@ def main():
     if a.spawn_recovery_joint and not(a.player_state_birth and a.ctor_model and (a.initial_jump or a.initial_select) and a.frame_owner and a.script_clone):raise ValueError('SPAWN_RECOVERY_REQUIRES_REAL_PLAYER_CONSTRUCTOR')
     if a.spawn_weapon_joint and not a.spawn_recovery_joint:raise ValueError('SPAWN_WEAPON_REQUIRES_RECOVERY_JOIN')
     if a.spawn_placement_authority and not a.spawn_weapon_joint:raise ValueError('SPAWN_PLACEMENT_REQUIRES_WEAPON_JOIN')
+    if a.spawn_placement_camera and not a.spawn_placement_authority:raise ValueError('SPAWN_CAMERA_REQUIRES_PLACEMENT_AUTHORITY')
+    if not -32768<=a.spawn_placement_camera<=32767:raise ValueError('SPAWN_CAMERA_Q16_DOMAIN')
     if a.player_state_birth and(a.costmove_model or a.attack_chain_model):raise ValueError('PLAYER_STATE_BIRTH_FIXTURE_MODE_CONFLICT')
     if a.run_tuple_birth and not(a.player_state_birth and a.ctor_model):raise ValueError('RUN_TUPLE_BIRTH_REQUIRES_MODEL_CONSTRUCTOR_AND_STATE_BRIDGE')
     if a.canonical_attack and not(a.run_tuple_birth and a.initial_select and a.frame_owner and a.effects_runner):raise ValueError('ORDINARY_ATTACK_REQUIRES_CONSTRUCTOR_AND_FRAME_OWNERS')
@@ -792,7 +795,7 @@ CallbackFixture_SpawnWeaponDone:
 ''',1)
         if a.spawn_placement_authority:
             from source_player_spawn_inputs import emit_stage
-            asm+=emit_stage(placement_stage,sy)
+            asm+=emit_stage(placement_stage,sy,horizontal_camera=bool(a.spawn_placement_camera))
             needle=' jsl CTOROWNERBEGIN';assert needle in asm
             asm=asm.replace(needle,f'''
  php
@@ -2129,18 +2132,20 @@ end,emu.callbackType.exec,{fs['CallbackFixture_SpawnWeaponDone']},{fs['CallbackF
         if a.spawn_recovery_joint:
             if a.spawn_placement_authority:
                 row=placement_stage['placements'][0]
+                placement_world_x=row['x_q16']+a.spawn_placement_camera*65536
+                if not -0x80000000<=placement_world_x<0x80000000:raise ValueError('SPAWN_CAMERA_WORLD_X_DOMAIN')
                 lua+=f'''local placementBefore={{}};local placementStart=0
 emu.addMemoryCallback(function()
  set('SourceForeignWork_Ready',0xb671);set('SourceForeignWork_Status',1);set('SourceForeignWork_Generation',dw({player_state_work}+8),4)
  put(0x7ff840,0xb4b0,2);put(0x7ff862,0xb4b1,2);put(0x7ff856,0,2);put(0x7ff866,0xb672,2);put(0x7ff846,0x30,2)
  for _,addr in ipairs({{{sy['StageFp_BG2Loaded']},{sy['StageFp_BG2Active']},{sy['StageFp_BG2DmaPending']},{sy['StageFp_BG2Booting']},{sy['StreamScrollFp_ColPending']},{sy['StreamScrollFp_Enabled']}}})do put(addr,0,2)end
  for i=0,7 do put({sy['DmaQueue']}+8*i+7,0,1)end
- set('VmSourceWorld_AdvanceX',0,4);set('VmSourceWorld_AdvanceY',0,4);set('VmSourceWorld_ScrollAxis',0)
+ set('VmSourceWorld_AdvanceX',{a.spawn_placement_camera*65536},4);set('VmSourceWorld_AdvanceY',0,4);set('VmSourceWorld_ScrollAxis',0)
  placementBefore={{}};for i=0,63 do local at=sy.SourceCtorState4086_Ready+i;placementBefore[at]=emu.read(at,mt)end
  placementStart=emu.getState().masterClock
 end,emu.callbackType.exec,{fs['CallbackFixture_SpawnPlacementRequest']},{fs['CallbackFixture_SpawnPlacementRequest']},emu.cpuType.snes,mt)
 emu.addMemoryCallback(function()
- for _,q in ipairs({{{{'X',{row['x_q16']}}},{{'Z',{row['z_q16']}}},{{'A',0}},{{'Direction',{row['flip']}}}}})do local at=sy['SourceCtorState4086_'..q[1]];for i=0,3 do placementBefore[at+i]=(q[2]>>(8*i))&255 end end
+ for _,q in ipairs({{{{'X',{placement_world_x}}},{{'Z',{row['z_q16']}}},{{'A',0}},{{'Direction',{row['flip']}}}}})do local at=sy['SourceCtorState4086_'..q[1]];for i=0,3 do placementBefore[at+i]=(q[2]>>(8*i))&255 end end
  local mismatch=0;for at,v in pairs(placementBefore)do if emu.read(at,mt)~=v then mismatch=mismatch+1 end end
  emu.log('CTORSPAWNPLACEMENT|'..word(INDEX)..'|'..mismatch..'|'..dw(sy.SourceCtorState4086_X)..'|'..dw(sy.SourceCtorState4086_Z)..'|'..dw(sy.SourceCtorState4086_Direction)..'|'..(emu.getState().masterClock-placementStart))
 end,emu.callbackType.exec,{fs['CallbackFixture_SpawnPlacementDone']},{fs['CallbackFixture_SpawnPlacementDone']},emu.cpuType.snes,mt)
@@ -3333,8 +3338,9 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
             observed=[list(map(int,line.split('CTORSPAWNPLACEMENT|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNPLACEMENT|'in line]
             published=[list(map(int,line.split('CTORSPAWNPLACEMENTPUBLISHED|',1)[1].split('|')))for line in (folder/'mesen.log').read_text().splitlines()if'CTORSPAWNPLACEMENTPUBLISHED|'in line]
             row=placement_stage['placements'][0]
-            reporter.check('compiled authored stage placement feeds actual constructor and published source entity without position injection',len(observed)==len(rows)and all(v[:5]==[i,0,row['x_q16'],row['z_q16'],row['flip']]for i,v in enumerate(observed))and published==[[i,0,row['x_q16'],row['z_q16']]for i in range(len(rows))])
-            r.update(actual_stage_placement_constructor_join=True,spawn_placement_results=observed,spawn_placement_published=published,spawn_placement_stage=placement_stage,initial_camera_only=True,spawn_placement_authority_sha256=hashlib.sha256(a.spawn_placement_authority.read_bytes()).hexdigest())
+            world_x=(row['x_q16']+a.spawn_placement_camera*65536)&0xffffffff
+            reporter.check('compiled authored stage placement feeds actual constructor and published source entity without position injection',len(observed)==len(rows)and all(v[:5]==[i,0,world_x,row['z_q16'],row['flip']]for i,v in enumerate(observed))and published==[[i,0,world_x,row['z_q16']]for i in range(len(rows))])
+            r.update(actual_stage_placement_constructor_join=True,spawn_placement_results=observed,spawn_placement_published=published,spawn_placement_stage=placement_stage,initial_camera_only=a.spawn_placement_camera==0,spawn_placement_camera=a.spawn_placement_camera,camera_argument_supplied_by_fixture=True,live_camera_owner_bound=False,spawn_placement_authority_sha256=hashlib.sha256(a.spawn_placement_authority.read_bytes()).hexdigest())
         r['status']='PASS'if all(ok for _,ok in reporter.results)else'FAIL'
     (folder/'report.json').write_text(json.dumps(r,indent=2)+'\n');reporter.finish()
 

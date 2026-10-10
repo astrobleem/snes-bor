@@ -73,6 +73,41 @@
         "path": "out/byor-motu-mixed-original-lifetimes-free-slots-split-ranges-dma356.json",
         "sha256": "d9b7e7420bebc380292b0383ea526c4e64d3083e3f5c9b526c92fe89b18cd990"
       }
+    },
+    {
+      "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+      "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE",
+      "solver_status": "UNKNOWN",
+      "solver_seconds": 1200.1290780000002,
+      "lifetime_segments": 583,
+      "window_master_clocks": 356,
+      "maximum_ranges": 4,
+      "input_schedule_noninitial_prefetch_latency_lines": 17,
+      "trim_dead_residents": true,
+      "used_lifetime_segments": 530,
+      "flexible_prefetch": true,
+      "lookahead_lines": 64,
+      "demand_gap_lines": null,
+      "layout_hint_used": true,
+      "reorder_banks": true,
+      "fixed_hint_slots": false,
+      "permute_hint_slots": true,
+      "retain_write_times": false,
+      "split_bank_ranges": true,
+      "fixed_slot_write_times_pruned": 26103,
+      "solver_model_variables": 47566,
+      "solver_model_constraints": 135852,
+      "solver_branches": 2243626,
+      "solver_conflicts": 1595528,
+      "solver_probing_level": 0,
+      "solver_sat_inprocessing": false,
+      "universal_raster_rejected": false,
+      "native_timing_admitted": false,
+      "no_color_reduction": true,
+      "artifact": {
+        "path": "out/byor-motu-mixed-original-lifetimes-permuted-slots-lookahead64-split-ranges-dma356.json",
+        "sha256": "9d3a869456bb86670111ea5e8406c10c136fef46272effe0f9ef345c4e2e3254"
+      }
     }
   ]
 }

@@ -1,5 +1,5 @@
-"""Execute compiled initial-camera placement with native lease/stage guards."""
-import argparse,hashlib,json
+"""Execute compiled placement with native lease, stage and camera guards."""
+import argparse,hashlib,json,struct
 from pathlib import Path
 from actor_s5_entity_fixture import symbols
 from source_player_spawn_inputs import emit_stage
@@ -9,13 +9,19 @@ from _harness import Reporter
 
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--authority',type=Path,required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--authority',type=Path,required=True);p.add_argument('--rom',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--horizontal-camera',action='store_true');a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
     authority=json.loads(a.authority.read_text())
     if authority['status']!='PASS':raise ValueError('SPAWN_INPUT_NATIVE_REQUIRES_C_PROOF')
     stage=authority['requirements']['stages'][0];sy=symbols(Path('src/main.sym'))
-    rows=[dict(index=index,fault=0,bad='',wanted=stage['placements'][index&3])for index in range(-1,7)]
+    rows=[]
+    for camera in ((0,1,-1,100,1000,32600)if a.horizontal_camera else(0,)):
+        for index in range(-1,7):
+            wanted=dict(stage['placements'][index&3]);wanted['x_q16']+=camera*65536
+            wanted['x_binary32']=struct.unpack('<I',struct.pack('<f',wanted['x_q16']/65536))[0]
+            rows.append(dict(index=index,camera=camera,fault=0,bad='',wanted=wanted))
     for bad in ('foreign','generation','world','level','environment','stage','walls','ctor','sticky','axis','camera_x','camera_y','player','player_high'):
         rows.append(dict(rows[0],fault=1,bad=bad))
+    if a.horizontal_camera:rows.append(dict(rows[0],camera=32767,fault=1,bad='camera_overflow'))
     asm='''SpawnInputsFixture_Apply:
 .a16
 .i16
@@ -44,7 +50,7 @@ SpawnInputsFixture_Bad:
  plp
  sec
  rtl
-'''+emit_stage(stage,sy)+water(sy)
+'''+emit_stage(stage,sy,horizontal_camera=a.horizontal_camera)+water(sy)
     setup=';'.join(f"set('{k}',{v})"for k,v in dict(SourceForeignWork_Ready=0xb671,SourceForeignWork_Status=1,SourceForeignWork_Generation=1,VmSourceWorld_Ready=0xb4a3,VmSourceWorld_Level=1,VmSourceWorld_ScrollAxis=0,VmSourceWorld_AdvanceX=0,VmSourceWorld_AdvanceY=0,SourceEnvironment4086_Ready=0xb4d1,SourceEnvironment4086_Stage=stage['stage_id'],SourceEnvironment4086_WallCount=0,SourceCtorState4086_Ready=0xb5c2,SourceCtorState4086_Status=0).items())
     lua=f'''local mt=emu.memType.snesMemory
 local function put(a,v,n)for i=0,(n or 2)-1 do emu.write(a+i,(v>>(8*i))&255,mt)end end
@@ -55,7 +61,7 @@ emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1];put(EXPECTFAULT,c.fault);put(0x7ffd90,c.index)
  for i=-8,71 do put(sy.SourceCtorState4086_Ready+i,165,1)end
  {setup}
- set('SourceForeignWork_Generation',1,4);set('VmSourceWorld_AdvanceX',0,4);set('VmSourceWorld_AdvanceY',0,4);set('SourceCtorState4086_Player',c.index&3,4)
+ set('SourceForeignWork_Generation',1,4);set('VmSourceWorld_AdvanceX',c.camera*65536,4);set('VmSourceWorld_AdvanceY',0,4);set('SourceCtorState4086_Player',c.index&3,4)
  put(0x7ff840,0xb4b0);put(0x7ff862,0xb4b1);put(0x7ff856,0);put(0x7ff866,0xb672);put(0x7ff846,0x30)
  for _,k in ipairs({{'StageFp_BG2Loaded','StageFp_BG2Active','StageFp_BG2DmaPending','StageFp_BG2Booting','StreamScrollFp_ColPending','StreamScrollFp_Enabled'}})do set(k,0)end
  for i=0,7 do put(sy.DmaQueue+i*8+7,0,1)end
@@ -82,7 +88,7 @@ end,emu.callbackType.exec,AFTER,AFTER,emu.cpuType.snes,mt)
     results=[list(map(int,line.split('SPAWNINPUT|',1)[1].split('|')))for line in log.splitlines()if'SPAWNINPUT|'in line]
     reporter.check('exact authored descriptors, negative index masking and stale lease/stage/camera guards preserve scope',len(results)==len(rows)and all(r[:3]==[i,0,0]for i,r in enumerate(results)))
     reporter.check('placement proof preserves production bank zero',raw[:32768]==a.rom.read_bytes()[:32768])
-    report=dict(schema='BYOR_NATIVE_PLAYER_SPAWN_INPUTS_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),source_stage=stage,initial_camera_only=True,actual_constructor_join=False,full_spawnplayer_bound=False,production_consumer_bound=False,no_color_reduction=True)
+    report=dict(schema='BYOR_NATIVE_PLAYER_SPAWN_INPUTS_V1',status='PASS'if all(ok for _,ok in reporter.results)else'FAIL',rom_sha256=hashlib.sha256(raw).hexdigest(),cases=len(rows),inputs=rows,results=results,authority_sha256=hashlib.sha256(a.authority.read_bytes()).hexdigest(),source_stage=stage,initial_camera_only=not a.horizontal_camera,integer_horizontal_camera_bound=a.horizontal_camera,fractional_camera_bound=False,actual_constructor_join=False,full_spawnplayer_bound=False,production_consumer_bound=False,no_color_reduction=True)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n');reporter.finish()
 
 

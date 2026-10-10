@@ -50,3 +50,8 @@ UNKNOWN after 300.06 seconds; the unrestricted physical-slot family returns
 UNKNOWN after 1,200.59 seconds, with 58,969 variables and 170,507 constraints.
 Neither result rejects raster. The [retiming receipt](receipts/byor-motu-original-raster-retiming-trials.json)
 retains bounded statistics and full artifact hashes.
+
+A second slot-permutation trial expands noninitial lookahead to 64 lines. It
+also returns UNKNOWN after 1,200.13 seconds, with 47,566 variables and 135,852
+constraints. This remains a bounded search result, without a raster rejection
+or native timing admission.

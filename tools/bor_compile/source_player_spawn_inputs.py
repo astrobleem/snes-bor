@@ -57,34 +57,42 @@ def derive(source):
     return dict(schema='BYOR_4086_PLAYER_SPAWN_INPUTS_V1',engine_commit=ENGINE_COMMIT,stages=stages,source_pak_sha256=hashlib.sha256(source.path.read_bytes()).hexdigest() if hasattr(source,'path')else None,native_placement_bound=False,smartspawn_camera_translation_bound=False,full_spawnplayer_bound=False,no_color_reduction=True)
 
 
-def emit_stage(stage,sy):
-    """Initial-camera native placement, A=index and X/Y=foreign generation.
+def emit_stage(stage,sy,*,horizontal_camera=False):
+    """Native placement, A=index and X/Y=foreign generation.
 
     Publishes actual ctor inputs only after checked stage/camera admission.
-    Nonzero camera, changed geometry or stale owner must use a separate owner.
+    Optional integer horizontal camera translation follows smartspawn. Fractional
+    camera, changed geometry or stale owner must use a separate owner.
     No terrain/constructor child is acknowledged here.
     """
     if stage['diagnostics']or stage['capability']!='SOURCE_EMPTY_TERRAIN_SPAWN_INPUTS':raise ValueError('SPAWN_INPUT_EMPTY_TERRAIN_REQUIRED')
     if [row['index']for row in stage['placements']]!=list(range(4)):raise ValueError('SPAWN_INPUT_INDEX_ROWS')
     if any(row['flip']not in (0,1)or any(not -0x80000000<=row[name]<0x80000000 for name in ('x_q16','z_q16'))for row in stage['placements']):raise ValueError('SPAWN_INPUT_NATIVE_DOMAIN')
+    if horizontal_camera and any(row['x_q16']&65535 for row in stage['placements']):raise ValueError('SPAWN_INPUT_INTEGER_CAMERA_REQUIRES_INTEGER_RELATIVE_X')
     lines=[];serial=0
     def put(s):lines.extend(s.strip().splitlines())
     def label(n):put('SpawnInputs_'+n+':\n.a16\n.i16')
     def guard(op):
         nonlocal serial
         serial+=1;k='SpawnInputs_Guard'+str(serial)
-        put(' '+dict(beq='bne',bne='beq',bcc='bcs',bcs='bcc')[op]+' '+k+'\n jmp SpawnInputs_Bad\n'+k+':\n.a16\n.i16')
+        put(' '+dict(beq='bne',bne='beq',bcc='bcs',bcs='bcc',bvs='bvc')[op]+' '+k+'\n jmp SpawnInputs_Bad\n'+k+':\n.a16\n.i16')
     label('Apply');put(' php\n rep #$39\n pha\n phx\n phy');put(f' jsl {sy["SourceForeignWork_Check"]}');guard('bcs')
     for name,value in (('VmSourceWorld_Ready',0xb4a3),('VmSourceWorld_Level',1),('SourceEnvironment4086_Ready',0xb4d1),('SourceEnvironment4086_Stage',stage['stage_id']),('SourceEnvironment4086_WallCount',0),('SourceCtorState4086_Ready',0xb5c2),('VmSourceWorld_ScrollAxis',0)):
         put(f' lda.l {sy[name]}\n cmp #{value}');guard('bne')
     for name in ('VmSourceWorld_AdvanceX','VmSourceWorld_AdvanceY'):
-        put(f' lda.l {sy[name]}\n ora.l {sy[name]}+2');guard('bne')
+        put(f' lda.l {sy[name]}'+(''if horizontal_camera and name=='VmSourceWorld_AdvanceX'else f'\n ora.l {sy[name]}+2'));guard('bne')
     put(f' lda.l {sy["SourceCtorState4086_Status"]}\n cmp #3');guard('beq')
     put(' lda 5,s\n and #3');put(f' cmp.l {sy["SourceCtorState4086_Player"]}');guard('bne');put(f' lda.l {sy["SourceCtorState4086_Player"]}+2');guard('bne')
     put(' lda 5,s\n and #3')
     for row in stage['placements']:
         i=row['index'];put(f' cmp #{i}\n bne SpawnInputs_Next{i}')
+        if horizontal_camera:
+            # Both inputs are integers in the signed Q16 range. Their sum is
+            # exactly representable in binary32; reject overflow before writes.
+            put(f' lda.l {sy["VmSourceWorld_AdvanceX"]}+2\n clc\n adc #{(row["x_q16"]>>16)&65535}');guard('bvs')
+            put(f' pha\n lda #0\n sta.l {sy["SourceCtorState4086_X"]}\n pla\n sta.l {sy["SourceCtorState4086_X"]}+2')
         for name,value in (('X',row['x_q16']),('Z',row['z_q16']),('Direction',row['flip']),('A',0)):
+            if name=='X'and horizontal_camera:continue
             put(f' lda #{value&65535}\n sta.l {sy["SourceCtorState4086_"+name]}\n lda #{(value>>16)&65535}\n sta.l {sy["SourceCtorState4086_"+name]}+2')
         put(' jmp SpawnInputs_Good');label('Next'+str(i))
     put(' jmp SpawnInputs_Bad')
