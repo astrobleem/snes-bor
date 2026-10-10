@@ -6,6 +6,22 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_additive_only_reserves_normal_banks_and_preserves_pixels(self):
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,8),31,dtype=np.int32);expected=background.copy();expected[:8,:8,0]=248
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            r=probe(None,None,{},size=8,write_budget=0,time_limit=10,additive_only=True)
+        self.assertTrue(r['compiled_pixel_identity_verified']);self.assertEqual(r['opaque_obj_banks_reserved'],4)
+        self.assertTrue(all(p['bank']>=4 for p in r['pieces']))
+        self.assertTrue(all(e['bank']>=4 for row in r['trace']for e in row['updates']))
+
+    def test_additive_only_cannot_silently_approximate_darker_output(self):
+        background=np.zeros((224,256,3),dtype=np.uint8);background[:,:,0]=248
+        expected=background.copy();expected[:8,:8,0]=240;pixels=np.full((8,8),30,dtype=np.int32)
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            r=probe(None,None,{},size=8,write_budget=0,time_limit=10,additive_only=True)
+        self.assertEqual(r['solver']['status'],2);self.assertFalse(r['native_presentation_proven'])
+
     def test_pool_prefetch_obeys_actual_pixel_use_lookahead(self):
         background=np.full((224,256,3),255,dtype=np.uint8)
         pixels=np.full((8,64),-1,dtype=np.int32);pixels[0,:60]=np.arange(1,61);pixels[2,0]=0

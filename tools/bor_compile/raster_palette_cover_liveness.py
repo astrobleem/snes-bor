@@ -9,7 +9,7 @@ from scipy.sparse import coo_matrix
 
 
 def lower_bound(rows, capacities=(60,60), time_limit=45, include_solution=False, integer_budget=None):
-    if len(capacities)!=2 or any(c<=0 for c in capacities):raise ValueError('COVER_POOL_CAPACITY')
+    if len(capacities)!=2 or any(not isinstance(c,int)or c<0 for c in capacities)or not sum(capacities):raise ValueError('COVER_POOL_CAPACITY')
     if integer_budget is not None and (not isinstance(integer_budget,int)or integer_budget<0):raise ValueError('COVER_INTEGER_WRITE_BUDGET')
     # Each pixel may admit several exact saturated additive operands.
     rows=[{(normal,() if additive is None else tuple(sorted(set(additive))) if isinstance(additive,(tuple,list)) else (additive,)) for normal,additive in row} for row in rows]

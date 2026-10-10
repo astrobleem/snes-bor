@@ -4,6 +4,20 @@ from raster_palette_cover_liveness import lower_bound
 
 
 class CoverLivenessTests(unittest.TestCase):
+    def test_zero_normal_capacity_still_allows_exact_additive_reuse(self):
+        result=lower_bound([{(0,(10,12))},{(1,(11,12))}],capacities=(0,1),include_solution=True)
+        self.assertAlmostEqual(result['validated_dual_lower_bound'],0)
+        self.assertTrue(all(e['value']==0 for e in result['fractional_residency'] if e['kind']==0))
+
+    def test_zero_normal_capacity_rejects_forced_opaque_demand(self):
+        result=lower_bound([{(0,None)}],capacities=(0,1))
+        self.assertEqual(result['status'],'RELAXED_COVER_INFEASIBLE')
+
+    def test_invalid_capacity_rejected(self):
+        for capacities in ((0,0),(-1,1),(0,1.5)):
+            with self.subTest(capacities=capacities),self.assertRaisesRegex(ValueError,'COVER_POOL_CAPACITY'):
+                lower_bound([{(0,10)}],capacities=capacities)
+
     def test_forced_opaque_sequence_requires_one_write_each_line(self):
         result=lower_bound([{(0,None)},{(1,None)},{(2,None)}],capacities=(1,1))
         self.assertEqual(result['status'],'FRACTIONAL_COVER_LIVENESS_LOWER_BOUND')
