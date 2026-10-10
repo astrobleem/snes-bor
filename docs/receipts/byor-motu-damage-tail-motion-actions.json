@@ -1,0 +1,31 @@
+{
+  "schema": "BYOR_MOTU_DAMAGE_TAIL_MOTION_ACTIONS_RECEIPT_V1",
+  "status": "PASS",
+  "native_report": "out\\byor-motu-damage-tail-motion-observed-native\\report.json",
+  "native_report_sha256": "85f636a1523ad270e4f8ac5df13f800f6999ddef314251ad9a94fde602d77b18",
+  "native_cases": 757,
+  "rom_sha256": "1d21e222cb57d3251c39bbba3b8a472faf8e78ecc4f39e5095afb7b1f34826e9",
+  "source_attacks": 31,
+  "source_models": 16,
+  "source_toss_exactly_once_observed": true,
+  "source_actions_authority": "out\\byor-motu-common-damage-actions-dispatch-authority\\report.json",
+  "source_actions_authority_sha256": "fff2cb7ac31c1cf1f88b742848aed8e30f41698c3aeb0a71b70cb36602a899da",
+  "source_actions_cases": 8850,
+  "source_actions_function_sha256": {
+    "common_pain": "f42248e5a0727e35811579f154a530345dc8cbef5478409d1768f1669a7cf4ac",
+    "common_fall": "e0424ee56ccfa65dfbb0861009e5e9066d49f9dd380baea5b496baf869a182ee",
+    "common_grabbed": "0d4e5bb0da52fd903ecf9d06dc86f1c2ad7917c14b6e6829f02e95f7faac7183"
+  },
+  "motion_numeric_policy": "ACCEPTED_COMPAT_Q16_16; existing source numeric adaptation, truncate toward zero; per-component deviation retained, no arbitrary binary32-equivalence claim",
+  "maximum_velocity_error": 3.0994415283203125e-06,
+  "nonexact_motion_rows": 12,
+  "new_foreign_arena_bytes": 0,
+  "bank0_unchanged": true,
+  "protected_files_unchanged": 17,
+  "source_action_assignment_bound": false,
+  "native_action_handlers_bound": false,
+  "source_set_fall_joined": false,
+  "full_common_takedamage_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}
