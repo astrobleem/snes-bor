@@ -1,0 +1,1060 @@
+{
+  "schema": "BYOR_CPU_WINDOWS_AFTER_CGRAM_DMA_V1",
+  "runs": [
+    {
+      "name": "byor-motu-cgram-cpu-windows-split38-native",
+      "report": {
+        "rom_sha256": "88fdb6b91e634ab59e470a3c4c9de6c605f186a83c37f19dbd4f9736901b9991",
+        "observed_writes": 100,
+        "field_hclocks_derived": [
+          4,
+          12,
+          20,
+          28,
+          1068,
+          1076,
+          1084,
+          1092,
+          1100,
+          1108,
+          1116,
+          1132,
+          1140,
+          1148,
+          1156,
+          1164,
+          1172,
+          1180,
+          1188,
+          1196,
+          1204,
+          1212,
+          1220,
+          1228,
+          1236,
+          1244,
+          1252,
+          1260,
+          1292,
+          1300,
+          1308,
+          1316,
+          1324,
+          1332,
+          1340,
+          1348,
+          1356,
+          0,
+          8,
+          16,
+          24,
+          32,
+          1072,
+          1080,
+          1088,
+          1096,
+          1104,
+          1112,
+          1128,
+          1136,
+          1144,
+          1152,
+          1160,
+          1168,
+          1176,
+          1184,
+          1192,
+          1200,
+          1208,
+          1216,
+          1224,
+          1232,
+          1240,
+          1248,
+          1256,
+          1264,
+          1296,
+          1304,
+          1312,
+          1320,
+          1328,
+          1336,
+          1344,
+          1352,
+          1360,
+          4,
+          12,
+          20,
+          28,
+          36,
+          1076,
+          1084,
+          1092,
+          1100,
+          1108,
+          1116,
+          1132,
+          1140,
+          1148,
+          1156,
+          1164,
+          1172,
+          1180,
+          1188,
+          1196,
+          1204,
+          1212,
+          1220,
+          1228,
+          1236
+        ],
+        "requested_cgram_bytes": 38,
+        "audio_hdma_stress": true,
+        "math_window_hdma_stress": false,
+        "math_window_hdma_channels": [],
+        "math_window_hdma_bytes_per_line": 0,
+        "cpu_math_window_descriptors": true,
+        "cpu_math_window_rows_observed": 672,
+        "cpu_math_window_last_write_latest_hclock": 414,
+        "cpu_window_live_pixel_deadline_admitted": false,
+        "split_first_bytes": 24,
+        "dma_channels": [
+          5,
+          6,
+          7
+        ],
+        "dma_cgram_address_bytes": 1,
+        "audio_hdma_rows": 73,
+        "minimum_observed_scanline": 75,
+        "observed_audio_register_writes": 64,
+        "mechanism": "HIRQ_PREPARED_DMA",
+        "timer_dots": 155,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "requested_fields_completed": true,
+        "writes_during_active_cgram_window": 10,
+        "trace_sha256": "09b534594ff9c27339edfa68c1fe460662e0a61fcfc9e80c9f7acf8a6a30bd3a",
+        "cpu_state": {
+          "isRunning": true,
+          "isPaused": true,
+          "frameCount": 3
+        },
+        "complete_dma_packets_observed": 447,
+        "complete_range_traces_observed": 447,
+        "complete_commit_traces_observed": 447,
+        "aggregate_high_byte_commits": 8493,
+        "aggregate_active_window_high_byte_commits": 669,
+        "commit_trace_packet_identity_verified": true,
+        "split_range_identity_verified": true,
+        "aggregate_active_window_writes": 1563,
+        "scope": "Isolated timing fixture; includes CPU setup and optional 4-byte APU HDMA bus stress. Not production audio/contention admission."
+      },
+      "maximum_high_commit_span_master_clocks": 320.0,
+      "artifacts": [
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-split38-native/report.json",
+          "sha256": "f8a829a907998ab84452c84cf48e3d39842d5c0bc9dc640cd1fe5ef4a27d9a2a"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-split38-native/window.sfc",
+          "sha256": "88fdb6b91e634ab59e470a3c4c9de6c605f186a83c37f19dbd4f9736901b9991"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-split38-native/observer.lua",
+          "sha256": "8eb347cda600dc4b8dfac535ad7b34414926e19e61a8419ee6a0bd3f27121842"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-split38-native/cpu-window-timing.json",
+          "sha256": "5f6fdb8464d8bb9712875921e7003da27c5502355aa1b2045a974e023d1d4a12"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-split38-native/commits.json",
+          "sha256": "7a5080aefc1411dbe281facad3b632997ac1a40da268adb563bfdd70ea59bcc9"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-split38-native/packets.json",
+          "sha256": "214e733ef30341fd45ded7975b2a58bc8a4cbeaec1baf802fbdf6eabad85bdc5"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-split38-native/ranges.json",
+          "sha256": "f9d397aa143dfadfeef2e3fa9c38dac25d80300ebb0bd8f31f3b1993de0e2377"
+        }
+      ]
+    },
+    {
+      "name": "byor-motu-cgram-cpu-windows-timer161-split38-native",
+      "report": {
+        "rom_sha256": "c338e0a45ab3288c0b75da1e93eee739fe82ff905fbfde634351cbcaac9ec163",
+        "observed_writes": 100,
+        "field_hclocks_derived": [
+          4,
+          12,
+          20,
+          28,
+          36,
+          44,
+          52,
+          60,
+          1100,
+          1108,
+          1116,
+          1132,
+          1140,
+          1148,
+          1156,
+          1164,
+          1172,
+          1180,
+          1188,
+          1196,
+          1204,
+          1212,
+          1220,
+          1228,
+          1236,
+          1244,
+          1252,
+          1260,
+          1268,
+          1276,
+          1284,
+          1292,
+          1324,
+          1332,
+          1340,
+          1348,
+          1356,
+          0,
+          8,
+          16,
+          24,
+          32,
+          40,
+          48,
+          56,
+          64,
+          1088,
+          1096,
+          1104,
+          1112,
+          1128,
+          1136,
+          1144,
+          1152,
+          1160,
+          1168,
+          1176,
+          1184,
+          1192,
+          1200,
+          1208,
+          1216,
+          1224,
+          1232,
+          1240,
+          1248,
+          1256,
+          1264,
+          1272,
+          1280,
+          1312,
+          1320,
+          1328,
+          1336,
+          1344,
+          1352,
+          1360,
+          4,
+          12,
+          20,
+          28,
+          36,
+          44,
+          52,
+          1092,
+          1100,
+          1108,
+          1116,
+          1132,
+          1140,
+          1148,
+          1156,
+          1164,
+          1172,
+          1180,
+          1188,
+          1196,
+          1204,
+          1212,
+          1220
+        ],
+        "requested_cgram_bytes": 38,
+        "audio_hdma_stress": true,
+        "math_window_hdma_stress": false,
+        "math_window_hdma_channels": [],
+        "math_window_hdma_bytes_per_line": 0,
+        "cpu_math_window_descriptors": true,
+        "cpu_math_window_rows_observed": 672,
+        "cpu_math_window_last_write_latest_hclock": 438,
+        "cpu_window_live_pixel_deadline_admitted": false,
+        "split_first_bytes": 24,
+        "dma_channels": [
+          5,
+          6,
+          7
+        ],
+        "dma_cgram_address_bytes": 1,
+        "audio_hdma_rows": 73,
+        "minimum_observed_scanline": 75,
+        "observed_audio_register_writes": 64,
+        "mechanism": "HIRQ_PREPARED_DMA",
+        "timer_dots": 161,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "requested_fields_completed": true,
+        "writes_during_active_cgram_window": 2,
+        "trace_sha256": "f98cf79dc2d83e6bb6818cd472209470864007ce32721da3303ea2fc7345b24b",
+        "cpu_state": {
+          "isRunning": true,
+          "isPaused": true,
+          "frameCount": 3
+        },
+        "complete_dma_packets_observed": 447,
+        "complete_range_traces_observed": 447,
+        "complete_commit_traces_observed": 447,
+        "aggregate_high_byte_commits": 8493,
+        "aggregate_active_window_high_byte_commits": 2,
+        "commit_trace_packet_identity_verified": true,
+        "split_range_identity_verified": true,
+        "aggregate_active_window_writes": 225,
+        "scope": "Isolated timing fixture; includes CPU setup and optional 4-byte APU HDMA bus stress. Not production audio/contention admission."
+      },
+      "maximum_high_commit_span_master_clocks": 320.0,
+      "artifacts": [
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer161-split38-native/report.json",
+          "sha256": "c97b432b051e4b1a286af3c8bdcf26e8f7217b2be9173fc25bef0df7f3c7048f"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer161-split38-native/window.sfc",
+          "sha256": "c338e0a45ab3288c0b75da1e93eee739fe82ff905fbfde634351cbcaac9ec163"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer161-split38-native/observer.lua",
+          "sha256": "8eb347cda600dc4b8dfac535ad7b34414926e19e61a8419ee6a0bd3f27121842"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer161-split38-native/cpu-window-timing.json",
+          "sha256": "c675b301d8e08486969ef0708271bd4dbee2a64eabed3f68d4e4189eb44a2e42"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer161-split38-native/commits.json",
+          "sha256": "148c866981119203a8c3f5ae2bcb20a55357add98d9bfb9f1d37b4301489fb40"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer161-split38-native/packets.json",
+          "sha256": "a1573eba75352271f5f9ba788c907371c7dd081ad3a781fcc5a9bbfb1f0cfabe"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer161-split38-native/ranges.json",
+          "sha256": "f9d397aa143dfadfeef2e3fa9c38dac25d80300ebb0bd8f31f3b1993de0e2377"
+        }
+      ]
+    },
+    {
+      "name": "byor-motu-cgram-cpu-windows-timer162-split38-native",
+      "report": {
+        "rom_sha256": "42f736fbb901f9c6433ccac6798f7601b80d3805b7e4fb746c0c80a80f6dd0c1",
+        "observed_writes": 100,
+        "field_hclocks_derived": [
+          4,
+          12,
+          20,
+          28,
+          36,
+          44,
+          52,
+          60,
+          1100,
+          1108,
+          1116,
+          1132,
+          1140,
+          1148,
+          1156,
+          1164,
+          1172,
+          1180,
+          1188,
+          1196,
+          1204,
+          1212,
+          1220,
+          1228,
+          1236,
+          1244,
+          1252,
+          1260,
+          1268,
+          1276,
+          1284,
+          1292,
+          1324,
+          1332,
+          1340,
+          1348,
+          1356,
+          0,
+          8,
+          16,
+          24,
+          32,
+          40,
+          48,
+          56,
+          64,
+          1104,
+          1112,
+          1128,
+          1136,
+          1144,
+          1152,
+          1160,
+          1168,
+          1176,
+          1184,
+          1192,
+          1200,
+          1208,
+          1216,
+          1224,
+          1232,
+          1240,
+          1248,
+          1256,
+          1264,
+          1272,
+          1280,
+          1288,
+          1296,
+          1328,
+          1336,
+          1344,
+          1352,
+          1360,
+          4,
+          12,
+          20,
+          28,
+          36,
+          44,
+          52,
+          60,
+          68,
+          1092,
+          1100,
+          1108,
+          1116,
+          1132,
+          1140,
+          1148,
+          1156,
+          1164,
+          1172,
+          1180,
+          1188,
+          1196,
+          1204,
+          1212,
+          1220
+        ],
+        "requested_cgram_bytes": 38,
+        "audio_hdma_stress": true,
+        "math_window_hdma_stress": false,
+        "math_window_hdma_channels": [],
+        "math_window_hdma_bytes_per_line": 0,
+        "cpu_math_window_descriptors": true,
+        "cpu_math_window_rows_observed": 672,
+        "cpu_math_window_last_write_latest_hclock": 442,
+        "cpu_window_live_pixel_deadline_admitted": false,
+        "final_owned_cgram_identity_verified": true,
+        "cgram_sha256": "2aaf80ff54ae478455e9529877a105f19377cee793d5fb352bbe529310e08786",
+        "split_first_bytes": 24,
+        "dma_channels": [
+          5,
+          6,
+          7
+        ],
+        "dma_cgram_address_bytes": 1,
+        "audio_hdma_rows": 73,
+        "minimum_observed_scanline": 75,
+        "observed_audio_register_writes": 64,
+        "mechanism": "HIRQ_PREPARED_DMA",
+        "timer_dots": 162,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "requested_fields_completed": true,
+        "writes_during_active_cgram_window": 1,
+        "trace_sha256": "cbc26d9642b1293fe46ec7505746495b0a53114953b4d17bc2ea5dcd8da20076",
+        "cpu_state": {
+          "isRunning": true,
+          "isPaused": true,
+          "frameCount": 3
+        },
+        "complete_dma_packets_observed": 447,
+        "complete_range_traces_observed": 447,
+        "complete_commit_traces_observed": 447,
+        "aggregate_high_byte_commits": 8493,
+        "aggregate_active_window_high_byte_commits": 0,
+        "commit_trace_packet_identity_verified": true,
+        "split_range_identity_verified": true,
+        "aggregate_active_window_writes": 111,
+        "scope": "Isolated timing fixture; includes CPU setup and optional 4-byte APU HDMA bus stress. Not production audio/contention admission."
+      },
+      "maximum_high_commit_span_master_clocks": 320.0,
+      "artifacts": [
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer162-split38-native/report.json",
+          "sha256": "fb37021882204ed0003716bc196118551ec234063c2194f5072dada536ffbfb4"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer162-split38-native/window.sfc",
+          "sha256": "42f736fbb901f9c6433ccac6798f7601b80d3805b7e4fb746c0c80a80f6dd0c1"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer162-split38-native/observer.lua",
+          "sha256": "8eb347cda600dc4b8dfac535ad7b34414926e19e61a8419ee6a0bd3f27121842"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer162-split38-native/cpu-window-timing.json",
+          "sha256": "0d88bf30f67e2f02e3eff84c63bd772d746dfc23cd293c5461633db9781df963"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer162-split38-native/commits.json",
+          "sha256": "a9ea970a160c3083afd6df5bb065a4e13bf632122bd3c0a416858aa9791d2531"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer162-split38-native/packets.json",
+          "sha256": "9ac30c3c7fc717d7a5a804c7bd8be414e19f868246e6a6372d9a0f09a4f848a7"
+        },
+        {
+          "path": "out/byor-motu-cgram-cpu-windows-timer162-split38-native/ranges.json",
+          "sha256": "f9d397aa143dfadfeef2e3fa9c38dac25d80300ebb0bd8f31f3b1993de0e2377"
+        }
+      ],
+      "final_cgram_artifact": {
+        "path": "out/byor-motu-cgram-cpu-windows-timer162-split38-native/cgram.bin",
+        "sha256": "2aaf80ff54ae478455e9529877a105f19377cee793d5fb352bbe529310e08786"
+      }
+    }
+  ],
+  "window_pixel_deadline_proven": false,
+  "production_interrupt_context_preserved": false,
+  "full_hbreath_native_proven": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true
+}

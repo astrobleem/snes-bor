@@ -40,8 +40,9 @@ def make_rom(count,audio_hdma=False,audio_rows=224):
     return bytes(rom)
 
 
-def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_bytes=None,math_window_hdma=False):
+def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_bytes=None,math_window_hdma=False,cpu_math_windows=False):
     """Prepared HIRQ DMA, isolated fixture. New handler body lives in bank 1."""
+    if math_window_hdma and cpu_math_windows:raise ValueError('CGRAM_WINDOW_TRANSFER_OWNERS_CONFLICT')
     rom=bytearray([0xff])*131072
     code=bytearray.fromhex('78 18 fb c2 30 a2 ff 1f 9a e2 20')
     def store(address,value):code.extend(bytes([0xa9,value,0x8d,address&255,address>>8]))
@@ -55,22 +56,26 @@ def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_byt
     if audio_hdma:
         for address,value in [(0x4300,4),(0x4301,0x40),(0x4302,0),(0x4303,0x90),(0x4304,3)]:store(address,value)
     window_tables=[]
-    if math_window_hdma:
+    if math_window_hdma or cpu_math_windows:
         from raster_math_windows import compile_mask
         masks=[[1]*256,[int(32<=x<=63 or 128<=x<=191)for x in range(256)],
                [int(not(32<=x<=63 or 128<=x<=191))for x in range(256)],[0]*256]
         descriptors=[compile_mask(mask)for mask in masks]
-        window_tables=[bytearray()for _ in range(4)]
+        window_tables=[bytearray()for _ in range(4)];cpu_descriptors=bytearray()
         for y in range(224):
             d=descriptors[y%4]
             for table,values in zip(window_tables,(sum(d['bounds'],[]),[d['wobjsel_color_bits']],[d['wobjlog_color_bits']],[0x10|(0x40 if y%8>=4 else 0)])):
                 table.extend([0x81,*values])
+            cpu_descriptors.extend([*sum(d['bounds'],[]),d['wobjsel_color_bits'],d['wobjlog_color_bits'],0x10|(0x40 if y%8>=4 else 0),0])
         cursor=0xa000
-        for ch,(table,mode,dest)in enumerate(zip(window_tables,(4,0,0,0),(0x26,0x25,0x2b,0x31)),1):
+        for ch,(table,mode,dest)in ([]if cpu_math_windows else enumerate(zip(window_tables,(4,0,0,0),(0x26,0x25,0x2b,0x31)),1)):
             table.append(0)
             base=0x4300+16*ch
             for address,value in ((base,mode),(base+1,dest),(base+2,cursor&255),(base+3,cursor>>8),(base+4,3)):store(address,value)
             rom[0x18000+cursor-0x8000:0x18000+cursor-0x8000+len(table)]=table;cursor+=len(table)
+        if cpu_math_windows:
+            rom[0x1a000:0x1a000+len(cpu_descriptors)]=cpu_descriptors
+            store(0x420d,1);code.extend(bytes.fromhex('a2 00 00'))
     code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'))
     if audio_hdma or math_window_hdma:store(0x420c,(1 if audio_hdma else 0)|(0x1e if math_window_hdma else 0))
     store(0x2100,15);store(0x4200,0x10);code.extend(bytes.fromhex('58 80 fe'))
@@ -83,13 +88,23 @@ def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_byt
         for address,value in [(0x4355,split_first_bytes),(0x4365,1),(0x4375,count-split_first_bytes),(0x2121,128),(0x420b,224)]:
             irq.extend(bytes([0xa9,value,0x8d,address&255,address>>8]))
         irq.append(0x40)
-    rom[:4]=bytes.fromhex('5c 00 80 01');rom[0x100:0x104]=bytes.fromhex('5c 00 82 01')
+    if cpu_math_windows:
+        if split_first_bytes is None:raise ValueError('CPU_WINDOW_TIMING_REQUIRES_SPLIT_PACKET')
+        irq=bytearray.fromhex('ad 11 42 ad 12 42 29 80 d0 00 e0 00 07 90 04 a2 00 00 40')
+        for address,value in [(0x4355,split_first_bytes),(0x4365,1),(0x4375,count-split_first_bytes),(0x2121,128),(0x420b,224)]:
+            irq.extend(bytes([0xa9,value,0x8d,address&255,address>>8]))
+        # Two word writes publish all four bounds. Three byte writes publish
+        # selection, logic and mode. Data and handler use FastROM aliases.
+        irq.extend(bytes.fromhex('c2 20 bf 00 a0 83 8d 26 21 bf 02 a0 83 8d 28 21 e2 20 bf 04 a0 83 8d 25 21 bf 05 a0 83 8d 2b 21 bf 06 a0 83 8d 31 21'))
+        irq.extend(bytes([0xe8]*8+[0x40]));irq[9]=len(irq)-1-10
+    rom[:4]=bytes.fromhex('5c 00 80 01');rom[0x100:0x104]=bytes.fromhex('5c 00 82 81'if cpu_math_windows else'5c 00 82 01')
     rom[0x8000:0x8000+len(code)]=code;rom[0x8200:0x8200+len(irq)]=irq
     rom[0x10000:0x18000]=bytes([0x11,0x11])*16384
     if split_first_bytes is not None:rom[0x18000]=192
     data=bytes([0x81,0,0,0,57])*audio_rows+bytes([0]);rom[0x19000:0x19000+len(data)]=data
     rom[0x7fc0:0x7fd5]=b'M4 HIRQ CGRAM PROOF'.ljust(21)
     rom[0x7fd5:0x7fdc]=bytes([0x20,0,7,0,1,0,0])
+    if cpu_math_windows:rom[0x7fd5]=0x30
     rom[0x7ffc:0x7ffe]=struct.pack('<H',0x8000);rom[0x7fee:0x7ff0]=struct.pack('<H',0x8100)
     return bytes(rom)
 
@@ -106,13 +121,15 @@ def main():
     parser.add_argument('--split-first-bytes',type=int)
     parser.add_argument('--frame-attempts',type=int,default=8)
     parser.add_argument('--math-window-hdma',action='store_true')
+    parser.add_argument('--cpu-math-windows',action='store_true')
     args=parser.parse_args()
     if not 1<=args.bytes<=255 or not 1<=args.audio_rows<=224 or not 1<=args.min_scanline<224 or not 1<=args.frame_attempts<=64:raise ValueError('CGRAM_PROBE_DOMAIN')
     if args.split_first_bytes is not None and not args.irq:raise ValueError('CGRAM_SPLIT_REQUIRES_IRQ')
     if args.math_window_hdma and not args.irq:raise ValueError('CGRAM_MATH_WINDOW_HDMA_REQUIRES_IRQ')
+    if args.cpu_math_windows and(not args.irq or args.split_first_bytes is None or args.math_window_hdma):raise ValueError('CGRAM_CPU_WINDOWS_REQUIRE_EXCLUSIVE_SPLIT_IRQ')
     folder=args.output.resolve() if args.output else Path(__file__).resolve().parents[2]/'out/byor-motu-cgram-probe'
     folder.mkdir(exist_ok=True)
-    rom=folder/'window.sfc';rom.write_bytes(make_irq_rom(args.bytes,args.audio_hdma,args.timer,args.audio_rows,args.split_first_bytes,args.math_window_hdma) if args.irq else make_rom(args.bytes,args.audio_hdma,args.audio_rows))
+    rom=folder/'window.sfc';rom.write_bytes(make_irq_rom(args.bytes,args.audio_hdma,args.timer,args.audio_rows,args.split_first_bytes,args.math_window_hdma,args.cpu_math_windows) if args.irq else make_rom(args.bytes,args.audio_hdma,args.audio_rows))
     trace=folder/'writes.csv';trace.write_text('')
     lua=folder/'observer.lua'
     lua.write_text('''local n=0;local audio=0;local packet=nil;local cgramAddress=0;local cgramHigh=false
@@ -145,6 +162,13 @@ emu.addMemoryCallback(function(a,v)
  end
 end,emu.callbackType.write,0x2122,0x2122,emu.cpuType.snes,emu.memType.snesMemory)
 '''.replace('SPLIT',str(args.split_first_bytes is not None).lower()).replace('DMAMASK','224' if args.split_first_bytes is not None else '128').replace('MINFRAME','1' if args.audio_hdma else '0').replace('MINLINE',str(args.min_scanline)).replace('AGGREGATE',str(args.aggregate_packets).lower()).replace('BYTECOUNT',str(args.bytes)))
+    if args.cpu_math_windows:
+        with lua.open('a')as script:
+            script.write('''\nemu.addMemoryCallback(function(a,v)
+ local s=emu.getState();if s['ppu.frameCount']>=1 and s['ppu.scanline']<225 then
+ emu.log('M4CPUWINDOW|'..table.concat({s['ppu.frameCount'],s['ppu.scanline'],(s.masterClock+4*(s['ppu.frameCount']//2))%1364,s.masterClock,v},','))end
+end,emu.callbackType.write,0x2131,0x2131,emu.cpuType.snes,emu.memType.snesMemory)
+''')
     class Observed(McpSession):
         def __enter__(self):
             import mesen_mcp.session as module
@@ -158,6 +182,7 @@ end,emu.callbackType.write,0x2122,0x2122,emu.cpuType.snes,emu.memType.snesMemory
             advanced+=result['framesAdvanced']
             if advanced>=target:break
         state=m.tool('get_state')
+        cgram=m.read_memory('SnesCgRam',0,512)
     lines=[line.split('M4CGRAM|',1)[1] for line in (folder/'mesen.log').read_text().splitlines() if 'M4CGRAM|' in line]
     trace.write_text('\n'.join(lines)+'\n')
     rows=[[int(v) for v in line.split(',')] for line in lines]
@@ -166,6 +191,12 @@ end,emu.callbackType.write,0x2122,0x2122,emu.cpuType.snes,emu.memType.snesMemory
     ranges=[[int(v)for v in line.split('M4RANGES|',1)[1].split(',')]for line in (folder/'mesen.log').read_text().splitlines()if 'M4RANGES|'in line]
     if ranges:(folder/'ranges.json').write_text(json.dumps(ranges)+'\n')
     commits=[[int(v)for v in line.split('M4COMMITS|',1)[1].split(',')]for line in (folder/'mesen.log').read_text().splitlines()if 'M4COMMITS|'in line]
+    cpu_windows=[[int(v)for v in line.split('M4CPUWINDOW|',1)[1].split(',')]for line in (folder/'mesen.log').read_text().splitlines()if 'M4CPUWINDOW|'in line]
+    if cpu_windows:(folder/'cpu-window-timing.json').write_text(json.dumps(cpu_windows)+'\n')
+    owned_words=list(range(128,128+(args.split_first_bytes or args.bytes)//2))
+    if args.split_first_bytes is not None:owned_words+=list(range(192,192+(args.bytes-args.split_first_bytes)//2))
+    owned_identity=all(struct.unpack_from('<H',cgram,2*i)[0]==0x1111 for i in owned_words)if args.irq else None
+    (folder/'cgram.bin').write_bytes(cgram)
     if commits:(folder/'commits.json').write_text(json.dumps(commits)+'\n')
     # getState's serialized PPU map lacks HClock in this binary. In the
     # reset field, normal scanlines are 1364 clocks; retain raw clocks too.
@@ -175,6 +206,10 @@ end,emu.callbackType.write,0x2122,0x2122,emu.cpuType.snes,emu.memType.snesMemory
         audio_hdma_stress=args.audio_hdma,
         math_window_hdma_stress=args.math_window_hdma,math_window_hdma_channels=[1,2,3,4]if args.math_window_hdma else[],
         math_window_hdma_bytes_per_line=7 if args.math_window_hdma else 0,
+        cpu_math_window_descriptors=args.cpu_math_windows,cpu_math_window_rows_observed=len(cpu_windows),
+        cpu_math_window_last_write_latest_hclock=max((r[2]for r in cpu_windows),default=None),
+        cpu_window_live_pixel_deadline_admitted=False,
+        final_owned_cgram_identity_verified=owned_identity,cgram_sha256=hashlib.sha256(cgram).hexdigest(),
         split_first_bytes=args.split_first_bytes,dma_channels=[5,6,7] if args.split_first_bytes is not None else [7],
         dma_cgram_address_bytes=1 if args.split_first_bytes is not None else 0,
         audio_hdma_rows=args.audio_rows if args.audio_hdma else 0,minimum_observed_scanline=args.min_scanline,

@@ -31,7 +31,8 @@ def main():
     parser.add_argument('--hardware-windows',action='store_true')
     parser.add_argument('--integer-windows',action='store_true')
     parser.add_argument('--pin-lp-controls',action='store_true')
-    args=parser.parse_args();source=Source(args.source);scene=json.loads(args.scene.read_text())
+    parser.add_argument('--math-mode',action='append',choices=MODES)
+    args=parser.parse_args();source=Source(args.source);scene=json.loads(args.scene.read_text());modes=tuple(dict.fromkeys(args.math_mode or MODES))
     actors,metadata,expected=prepare(source,args.stage,scene)
     background,_=compose_rgb8(source,args.stage,dict(scene,actors=[]));background=rgb555(background)
     if (args.first_line is None)!=(args.last_line is None):raise ValueError('MATH_MODE_SCANLINE_WINDOW_PAIR_REQUIRED')
@@ -50,18 +51,18 @@ def main():
     if args.hardware_windows:requirements=((out,bg,enabled)for y,x,out,bg,_ in pixels for enabled in (False,True))
     elif args.math_window:requirements=((out,bg,enabled)for y,x,out,bg,enabled in pixels)
     else:requirements=((out,bg)for y,x,out,bg,enabled in pixels)
-    started=time.perf_counter();options,cover=complete_math_cover(requirements,tag_modes=True,allow_window_bypass=args.relaxed_window_bypass,fixed_window_context=fixed_context)
+    started=time.perf_counter();options,cover=complete_math_cover(requirements,modes=modes,tag_modes=True,allow_window_bypass=args.relaxed_window_bypass,fixed_window_context=fixed_context)
     cover_seconds=time.perf_counter()-started
-    rows=[{mode:set()for mode in MODES}for y in range(len(background))]
+    rows=[{mode:set()for mode in modes}for y in range(len(background))]
     union_rows=[set()for y in range(len(background))]
     window_pixels=[[]for y in range(len(background))]if args.hardware_windows else None
     for y,x,out,bg,enabled in pixels:
         def values(mode):return options[mode,out,bg,True if args.hardware_windows else enabled]if fixed_context else options[mode,out,bg]
-        for mode in MODES:rows[y][mode].add((out,tuple(values(mode))))
-        union={c for mode in MODES for c in values(mode)}
+        for mode in modes:rows[y][mode].add((out,tuple(values(mode))))
+        union={c for mode in modes for c in values(mode)}
         if args.hardware_windows:
             union.add(out)
-            window_pixels[y].append(dict(x=x,output=out,modes={mode:tuple(values(mode))for mode in MODES}))
+            window_pixels[y].append(dict(x=x,output=out,modes={mode:tuple(values(mode))for mode in modes}))
         union_rows[y].add((out,tuple(sorted(union))))
     report=lower_bound(rows,time_limit=args.time_limit,integer_modes=args.integer_modes,write_budget=args.write_budget,solver_method=args.lp_method,union_rows=union_rows,window_pixels=window_pixels,integer_windows=args.integer_windows,pin_lp_controls=args.pin_lp_controls)
     if 'selected_window_eligibility'in report:
@@ -73,6 +74,7 @@ def main():
                   scanline_window=[args.first_line,args.last_line],outside_window_demand_relaxed=args.first_line is not None,
                   horizontal_math_window=args.math_window,math_enabled_inside_horizontal_window=True if args.math_window else None,
                   window_mask_transition_superset_only=args.hardware_windows,window_register_schedule_proven=False,
+                  math_modes_allowed=list(modes),restricted_math_mode_family=len(modes)!=len(MODES),
                   native_timing_admitted=False,authored_pose_reachability_proven=False,universal_raster_rejected=False)
     args.output.write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps({k:v for k,v in report.items()if not isinstance(v,(dict,list))}))

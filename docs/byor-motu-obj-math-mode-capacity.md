@@ -78,6 +78,21 @@ The separate [contention test](byor-motu-window-cgram-contention.md) rejects
 every-line window HDMA beside the tested split palette packet. CPU window
 updates outside the CGRAM transfer window remain open.
 
+Constant-mode two-window trials further narrow the same explicit context:
+full addition, full subtraction and halved subtraction are infeasible at a
+23-write budget even with fractional palette residency, optimal initial state,
+unlimited preloading and relaxed individual banks/geometry. Each requires at
+least 24 whole palette writes somewhere in the interval, whose 368-clock
+data-only span already exceeds the measured window. Constant halved addition
+reached its 180-second limit without a candidate and remains open. Switching
+modes between lines also remains open; these restricted-mode rejections must
+not be presented as a universal raster rejection.
+
+The [CPU descriptor timing experiment](byor-motu-cpu-window-packet-timing.md)
+finds a safe isolated 38-byte packet at timer 162, with its window/mode writes
+completed by H=442. Source pixel deadlines and production interrupt context
+are still required before using that mechanism for HBreath.
+
 The [receipt](receipts/byor-motu-obj-math-mode-capacity.json) retains the bounded
 results and exact scope. No source pixels or colors are reduced. The ordinary
 static presentation path and bank zero are unchanged; native raster and MOTU
