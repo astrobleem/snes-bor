@@ -58,18 +58,20 @@ def fixture():
 def main():
     from m4_cgram_window import make_irq_rom
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True);p.add_argument('--timer',type=int,default=156);p.add_argument('--preserve-context',action='store_true');p.add_argument('--dma-windows',action='store_true')
-    p.add_argument('--context-widths',choices=('16/16','8/16','16/8','8/8'),default='16/16');p.add_argument('--decimal-context',action='store_true');p.add_argument('--general-windows',action='store_true');args=p.parse_args()
+    p.add_argument('--context-widths',choices=('16/16','8/16','16/8','8/8'),default='16/16');p.add_argument('--decimal-context',action='store_true');p.add_argument('--general-windows',action='store_true');p.add_argument('--three-ranges',action='store_true');p.add_argument('--fixed-math-mode',action='store_true');p.add_argument('--retire-audio-hdma',action='store_true');args=p.parse_args()
+    if args.retire_audio_hdma and not args.dma_windows:raise ValueError('HDMA_RETIREMENT_REQUIRES_DMA_WINDOWS')
     if (args.context_widths!='16/16'or args.decimal_context)and not args.dma_windows:raise ValueError('CONTEXT_VARIANTS_REQUIRE_DMA_WINDOWS')
     if args.general_windows and not args.dma_windows:raise ValueError('GENERAL_WINDOWS_REQUIRE_DMA_WINDOWS')
+    if args.three_ranges and not args.dma_windows:raise ValueError('THREE_RANGES_REQUIRE_DMA_WINDOWS')
     folder=args.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     raw=make_irq_rom(38,True,args.timer,73,24,False,True,True,True,args.preserve_context)
     if args.dma_windows:
         from m4_cgram_dma_windows import compile_rom
-        raw=compile_rom(args.timer,args.context_widths,args.decimal_context,args.general_windows)
+        raw=compile_rom(args.timer,args.context_widths,args.decimal_context,args.general_windows,args.three_ranges,args.fixed_math_mode,args.retire_audio_hdma)
     _,_,expected,oam,initial=fixture();rom=folder/'proof.sfc';rom.write_bytes(raw)
     if args.dma_windows:
         from m4_cgram_dma_windows import expected_frame,palette_color
-        expected=expected_frame(args.general_windows)
+        expected=expected_frame(args.general_windows,args.fixed_math_mode)
     lua=folder/'observer.lua'
     lua.write_text('''local packet=nil;local high=false;local address=0;local low=0
 emu.addMemoryCallback(function(a,v)address=v;high=false end,emu.callbackType.write,0x2121,0x2121,emu.cpuType.snes,emu.memType.snesMemory)
@@ -86,7 +88,7 @@ emu.addMemoryCallback(function(a,v)
  high=not high
 end,emu.callbackType.write,0x2122,0x2122,emu.cpuType.snes,emu.memType.snesMemory)
 emu.addMemoryCallback(function(a,v)local s=emu.getState();if s['ppu.scanline']<224 then emu.log('PIXWINDOW|'..table.concat({s['ppu.frameCount'],s['ppu.scanline'],(s.masterClock+4*(s['ppu.frameCount']//2))%1364,v},','))end end,emu.callbackType.write,0x2131,0x2131,emu.cpuType.snes,emu.memType.snesMemory)
-'''.replace('v==224','v==254'if args.general_windows else'v==206'if args.dma_windows else'v==224'))
+'''.replace('v==224','v==126'if args.fixed_math_mode else'v==254'if args.general_windows or args.three_ranges else'v==206'if args.dma_windows else'v==224').replace('packet.n==19','packet.n==20'if args.three_ranges else'packet.n==19'))
     if args.preserve_context or args.dma_windows:
         # Observe immediately before RTI, after explicit register restoration.
         handler=raw[0x8600:0x8700];ret=0x818600+handler.index(bytes.fromhex('68 40'))+1
@@ -131,7 +133,7 @@ emu.addMemoryCallback(function()local s=emu.getState();emu.log('PIXIRQTIME|'..ta
     status_identity=(bool(contexts)and all(r[6]==wanted_status for r in contexts))if args.dma_windows else None
     packets=[r for r in packets if r[0]>=1];windows=[r for r in windows if r[0]>=1]
     palette=bytearray(initial)
-    addresses=[*range(129,141),*range(193,200)]if args.dma_windows else[*range(128,140),*range(192,199)]
+    addresses=[*range(129,137),*range(161,167),*range(193,199)]if args.three_ranges else[*range(129,141),*range(193,200)]if args.dma_windows else[*range(128,140),*range(192,199)]
     for i in addresses:struct.pack_into('<H',palette,i*2,palette_color(223)if args.dma_windows else 0x1111)
     identity=actual.shape==expected.shape and np.array_equal(actual,expected)
     complete=len(packets)==447 and all(len([r for r in packets if r[0]==field])==149 for field in (1,2,3))
@@ -142,19 +144,22 @@ emu.addMemoryCallback(function()local s=emu.getState();emu.log('PIXIRQTIME|'..ta
     result=dict(schema='BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1',status='PASS'if identity and safe and cgram==palette and observed_oam==oam and context_identity is not False and status_identity is not False and word_identity else'FAIL',
         pixel_identity_verified=identity,pixel_mismatches=int(np.count_nonzero(actual!=expected))if actual.shape==expected.shape else None,
         palette_identity_verified=cgram==palette,oam_identity_verified=observed_oam==oam,
-        every_packet_destination_and_word_identity_verified=word_identity,observed_cgram_word_packets=len(cgram_words),opaque_palette_words_per_line=19 if args.dma_windows else 17,
+        every_packet_destination_and_word_identity_verified=word_identity,observed_cgram_word_packets=len(cgram_words),opaque_palette_words_per_line=20 if args.three_ranges else 19 if args.dma_windows else 17,
         packets=len(packets),high_commits=sum(r[2]for r in packets),unsafe_high_commits=sum(r[3]for r in packets),peak_commit_span=max((r[4]for r in packets),default=None),
         descriptors=len(windows),latest_descriptor_hclock=max((r[2]for r in windows),default=None),
         visible_obj_descriptor_latest_hclock=max((r[2]for r in visible_windows),default=None),
         complete_packet_fields_verified=complete,
         timer=args.timer,first_palette_row=75,first_obj_row=80,first_math_obj_x=128,
-        oam_entries=16,peak_sprites=4,peak_slivers=16,dma_channels=list(range(1,8))if args.general_windows else[1,2,3,6,7]if args.dma_windows else[5,6,7],dummy_apu_hdma_channel=0,dummy_apu_hdma_rows=73,
+        oam_entries=16,peak_sprites=4,peak_slivers=16,dma_channels=list(range(1,7))if args.fixed_math_mode else list(range(1,8))if args.general_windows or args.three_ranges else[1,2,3,6,7]if args.dma_windows else[5,6,7],dummy_apu_hdma_channel=0,dummy_apu_hdma_rows=73,
         rom_sha256=hashlib.sha256(raw).hexdigest(),expected_rgb555_sha256=hashlib.sha256(expected.tobytes()).hexdigest(),
         source_hbreath_proven=False,production_interrupt_context_proven=False,no_color_reduction=True,frame_advancement=advancement,ppu=ppu,cpu=cpu,
         synthetic_register_context_preserved=context_identity,context_observations=len(contexts),cursor_in_private_wram=args.preserve_context and not args.dma_windows,
         automatic_dma_descriptor_cursors=args.dma_windows,window_transfer='DMA'if args.dma_windows else'CPU',
         per_line_palette_payload_changes=args.dma_windows,
         general_window_controls=args.general_windows,window_descriptor_bytes=7 if args.general_windows else 5,
+        cgram_destination_ranges=3 if args.three_ranges else 2,
+        fixed_math_mode=args.fixed_math_mode,
+        completed_dummy_audio_hdma_retired=args.retire_audio_hdma,
         interrupted_context_widths=args.context_widths,interrupted_decimal_context=args.decimal_context,hardware_return_status_verified=status_identity,
         cpu_snapshot_may_be_inside_irq=True,
         irq_entry_to_rti_peak_master_clocks=max((r[2]for r in irq_times),default=None),

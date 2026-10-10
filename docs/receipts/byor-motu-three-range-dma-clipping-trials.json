@@ -1,0 +1,83 @@
+{
+  "schema": "BYOR_THREE_RANGE_DMA_AND_CLIPPING_TRIALS_V1",
+  "trials": [
+    {
+      "path": "out/byor-motu-cgram-three-range-window-pixels-timer60-native/report.json",
+      "sha256": "e4046439f641c331630ec7bf96cc92e83b12da4de35b18bba172c6bed148703c",
+      "result": {
+        "status": "FAIL",
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 53142,
+        "palette_identity_verified": false,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": false,
+        "opaque_palette_words_per_line": 20,
+        "packets": 447,
+        "high_commits": 8940,
+        "unsafe_high_commits": 6358,
+        "peak_commit_span": 392,
+        "irq_entry_to_rti_peak_master_clocks": 1834,
+        "rom_sha256": "475dcc4dcbf56ae8e5811340162204edd686123256ea902bff1b7f6145498bdf"
+      }
+    },
+    {
+      "path": "out/byor-motu-cgram-three-range-fixed-math-timer70-native/report.json",
+      "sha256": "ad4e516bd07e39becbf909185f4b2fc0074cbd2cb2327bef0224c52267636049",
+      "result": {
+        "status": "FAIL",
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 40960,
+        "palette_identity_verified": false,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": true,
+        "opaque_palette_words_per_line": 20,
+        "packets": 447,
+        "high_commits": 8940,
+        "unsafe_high_commits": 703,
+        "peak_commit_span": 360,
+        "irq_entry_to_rti_peak_master_clocks": 1170,
+        "rom_sha256": "01d093251bb81196c050e4a746ad045d745d7330c4c32e53437e60d546809966"
+      }
+    },
+    {
+      "path": "out/byor-motu-three-range-retired-audio-timer58-native/report.json",
+      "sha256": "8b45929e63dead5949dddf951772ad5f738c8b5acba8f0b45daba1b6d4d94603",
+      "result": {
+        "status": "FAIL",
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 41856,
+        "palette_identity_verified": false,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": true,
+        "opaque_palette_words_per_line": 20,
+        "packets": 447,
+        "high_commits": 8940,
+        "unsafe_high_commits": 397,
+        "peak_commit_span": 352,
+        "irq_entry_to_rti_peak_master_clocks": 1206,
+        "rom_sha256": "0833989b0b26e5af4dffe79e019b2f3018de8e5dcf01cee91211093cbd166ba5",
+        "completed_dummy_audio_hdma_retired": true
+      }
+    },
+    {
+      "path": "out/byor-motu-three-enemy-frame14-clipping-relaxed-hardware-window-budget21.json",
+      "sha256": "10f83c0d8104928f9c0517a9fa88266befecc8db7690c0c80597263b9d627940",
+      "result": {
+        "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+        "solver_status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+        "solver_seconds": 180.23553320020437,
+        "write_budget": 21,
+        "schedule_proven": false,
+        "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+        "zero_main_clipping_palette_demand_relaxed": true,
+        "clipping_relaxed_pixels": 4,
+        "universal_raster_rejected": false
+      }
+    }
+  ],
+  "no_color_reduction": true,
+  "raster_rejected": false,
+  "production_admission": false,
+  "source_frame_native_proven": false
+}

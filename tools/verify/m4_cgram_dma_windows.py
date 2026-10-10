@@ -16,7 +16,7 @@ def window_masks(general=False):
             [int(not(32<=x<=63 or 128<=x<=191))for x in range(256)]if general else[int(0<=x<=31 or 96<=x<=127)for x in range(256)],[0]*256]
 
 
-def expected_frame(general_windows=False):
+def expected_frame(general_windows=False,fixed_math_mode=False):
     from m4_cgram_window_pixels import fixture
     expected=fixture()[2]
     masks=window_masks(general_windows)
@@ -24,12 +24,14 @@ def expected_frame(general_windows=False):
         c=palette_color(y);r=c&31;g=(c>>5)&31;b=c>>10
         for x in range(96,224):
             enabled=((x-96)//32)%2==1 and masks[y%4][x]
-            half=y%8>=4
+            half=y%8>=4 and not fixed_math_mode
             expected[y,x]=((r//2)|(((g+5)//2)<<5)|((b//2)<<10))if enabled and half else(r|((g+5)<<5)|(b<<10))if enabled else c
     return expected
 
 
-def compile_rom(timer,context_widths='16/16',decimal_context=False,general_windows=False):
+def compile_rom(timer,context_widths='16/16',decimal_context=False,general_windows=False,three_ranges=False,fixed_math_mode=False,retire_audio_hdma=False):
+    if three_ranges and general_windows:raise ValueError('THREE_PALETTE_RANGES_REQUIRE_NINE_DMA_CHANNELS_WITH_GENERAL_WINDOWS')
+    if fixed_math_mode and (not three_ranges or general_windows):raise ValueError('FIXED_MATH_MODE_THREE_RANGE_PROBE_REQUIRED')
     if context_widths not in ('16/16','8/16','16/8','8/8'):raise ValueError('DMA_WINDOWS_CONTEXT_WIDTHS')
     from m4_cgram_window_pixels import fixture
     visual,assets,_,_,_=fixture()
@@ -48,7 +50,12 @@ def compile_rom(timer,context_widths='16/16',decimal_context=False,general_windo
         for ch,dest,source in ((4,0x25,0xa500),(5,0x2b,0xa600)):
             base=0x4300+16*ch
             for a,v in ((base,0),(base+1,dest),(base+2,source&255),(base+3,source>>8),(base+4,3),(base+6,0)):store(a,v)
+    if three_ranges:
+        for ch,mode,dest,source,bank in ((4,8,0x21,0x8001,3),(5,0,0x22,0xc000,2)):
+            base=0x4300+16*ch
+            for a,v in ((base,mode),(base+1,dest),(base+2,source&255),(base+3,source>>8),(base+4,bank),(base+6,0)):store(a,v)
     for a,v in ((0x4207,timer&255),(0x4208,timer>>8),(0x2125,0xa0),(0x212b,0),(0x420d,1)):store(a,v)
+    if fixed_math_mode:store(0x2131,0x10)
     code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'))
     store(0x420c,1);store(0x2100,15);store(0x4200,0x90)
     code.extend(bytes.fromhex('c2 30 a9 45 23 5b a2 78 56 a0 cd ab e2 20 a9 40 48 ab c2 20 a9 34 12'))
@@ -63,31 +70,40 @@ def compile_rom(timer,context_widths='16/16',decimal_context=False,general_windo
     branch(0xd0,'restore')
     irq.extend(bytes.fromhex('c2 20 af 62 43 00 c9 80 a3'));branch(0xb0,'restore')
     irq.extend(bytes.fromhex('c9 2c a1 e2 20'));branch(0x90,'windows_only')
-    for a,v in ((0x4315,24),(0x4325,1),(0x4335,14),(0x2121,129),(0x4365,4),(0x4375,1)):longstore(a,v)
+    if retire_audio_hdma:longstore(0x420c,0)
+    for a,v in ((0x4315,16 if three_ranges else 24),(0x4325,1),(0x4335,12 if three_ranges else 14),(0x2121,129),(0x4365,4)):longstore(a,v)
+    if not fixed_math_mode:longstore(0x4375,1)
+    if three_ranges:
+        for a,v in ((0x4345,1),(0x4355,12)):longstore(a,v)
     if general_windows:
         for a,v in ((0x4345,1),(0x4355,1)):longstore(a,v)
-    longstore(0x420b,254 if general_windows else 206)
+    longstore(0x420b,126 if fixed_math_mode else 254 if general_windows or three_ranges else 206)
     branch(0x80,'restore')
     labels['windows_only']=len(irq)
-    for a,v in ((0x4365,4),(0x4375,1)):longstore(a,v)
+    longstore(0x4365,4)
+    if not fixed_math_mode:longstore(0x4375,1)
     if general_windows:
         for a,v in ((0x4345,1),(0x4355,1)):longstore(a,v)
-    longstore(0x420b,240 if general_windows else 192)
+    longstore(0x420b,64 if fixed_math_mode else 240 if general_windows else 192)
     labels['restore']=len(irq);irq.extend(bytes.fromhex('c2 30 68 40'))
     for at,label in branches:
         delta=labels[label]-at-1
         if not -128<=delta<=127:raise AssertionError('DMA_WINDOWS_BRANCH_RANGE')
         irq[at]=delta&255
     nmi=bytearray.fromhex('c2 38 48 e2 20 af 10 42 00 c2 20 a9 00 a0 8f 62 43 00 a9 00 a4 8f 72 43 00 a9 00 80 8f 12 43 00 a9 00 a0 8f 32 43 00 68 40')
+    if retire_audio_hdma:nmi[9:9]=bytes.fromhex('a9 01 8f 0c 42 00')
     if general_windows:nmi[-2:-2]=bytes.fromhex('a9 00 a5 8f 42 43 00 a9 00 a6 8f 52 43 00')
+    if three_ranges:nmi[-2:-2]=bytes.fromhex('a9 00 c0 8f 52 43 00')
     raw[:4]=bytes.fromhex('5c 00 80 01');raw[0x100:0x104]=bytes.fromhex('5c 00 86 81');raw[0x120:0x124]=bytes.fromhex('5c 00 88 81')
     if len(code)>0x600:raise AssertionError('DMA_WINDOWS_BOOT_OVERLAP')
     raw[0x8000:0x8000+len(code)]=code;raw[0x8600:0x8600+len(irq)]=irq;raw[0x8800:0x8800+len(nmi)]=nmi
     for y in range(75,224):
         word=struct.pack('<H',palette_color(y));i=y-75
-        raw[0x10000+24*i:0x10000+24*(i+1)]=word*12
-        raw[0x12000+14*i:0x12000+14*(i+1)]=word*7
-    raw[0x18000]=193
+        n1,n2=(16,12)if three_ranges else(24,14)
+        raw[0x10000+n1*i:0x10000+n1*(i+1)]=word*(n1//2)
+        raw[0x12000+n2*i:0x12000+n2*(i+1)]=word*(n2//2)
+        if three_ranges:raw[0x14000+12*i:0x14000+12*(i+1)]=word*6
+    raw[0x18000]=161 if three_ranges else 193;raw[0x18001]=193
     raw[0x19000:0x19000+366]=bytes([0x81,0,0,0,57])*73+bytes([0])
     masks=window_masks(general_windows)
     for y in range(224):

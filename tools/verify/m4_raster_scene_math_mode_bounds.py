@@ -34,6 +34,7 @@ def main():
     parser.add_argument('--math-mode',action='append',choices=MODES)
     parser.add_argument('--positive-windows-only',action='store_true')
     parser.add_argument('--subset-mode-cuts',action='store_true')
+    parser.add_argument('--relax-clipped-pixels',action='store_true',help='Necessary relaxation: remove black and half-subscreen outputs that zero-main clipping may produce.')
     args=parser.parse_args();source=Source(args.source);scene=json.loads(args.scene.read_text());modes=tuple(dict.fromkeys(args.math_mode or MODES))
     actors,metadata,expected=prepare(source,args.stage,scene)
     background,_=compose_rgb8(source,args.stage,dict(scene,actors=[]));background=rgb555(background)
@@ -43,12 +44,15 @@ def main():
     if args.math_window and args.relaxed_window_bypass:raise ValueError('MATH_MODE_WINDOW_POLICIES_CONFLICT')
     if args.hardware_windows and(args.math_window or args.relaxed_window_bypass):raise ValueError('MATH_MODE_WINDOW_POLICIES_CONFLICT')
     if args.integer_windows and not args.hardware_windows:raise ValueError('MATH_MODE_HARDWARE_WINDOWS_REQUIRED')
-    pixels=[]
+    pixels=[];clipped_relaxed=0
     for actor in actors:
         for ly,lx in zip(*np.where(actor['pixels']>=0)):
             y,x=int(ly+actor['top']),int(lx+actor['left'])
             out=int(actor['pixels'][ly,lx]);bg=int(background[y,x])
-            if out!=bg and(args.first_line is None or args.first_line<=y<=args.last_line):pixels.append((y,x,out,bg,args.math_window is None or args.math_window[0]<=x<=args.math_window[1]))
+            if out!=bg and(args.first_line is None or args.first_line<=y<=args.last_line):
+                half_bg=((bg&31)//2)|((((bg>>5)&31)//2)<<5)|((((bg>>10)&31)//2)<<10)
+                if args.relax_clipped_pixels and out in (0,half_bg):clipped_relaxed+=1;continue
+                pixels.append((y,x,out,bg,args.math_window is None or args.math_window[0]<=x<=args.math_window[1]))
     fixed_context=bool(args.math_window or args.hardware_windows)
     if args.hardware_windows:requirements=((out,bg,enabled)for y,x,out,bg,_ in pixels for enabled in (False,True))
     elif args.math_window:requirements=((out,bg,enabled)for y,x,out,bg,enabled in pixels)
@@ -77,6 +81,8 @@ def main():
                   horizontal_math_window=args.math_window,math_enabled_inside_horizontal_window=True if args.math_window else None,
                   window_mask_transition_superset_only=args.hardware_windows,window_register_schedule_proven=False,
                   math_modes_allowed=list(modes),restricted_math_mode_family=len(modes)!=len(MODES),
+                  zero_main_clipping_palette_demand_relaxed=args.relax_clipped_pixels,clipping_relaxed_pixels=clipped_relaxed,
+                  clipping_mode_and_window_constraints_proven=False,
                   native_timing_admitted=False,authored_pose_reachability_proven=False,universal_raster_rejected=False)
     args.output.write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps({k:v for k,v in report.items()if not isinstance(v,(dict,list))}))
