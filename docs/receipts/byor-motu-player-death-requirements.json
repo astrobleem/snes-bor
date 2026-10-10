@@ -1,0 +1,26 @@
+{
+  "schema": "BYOR_PLAYER_DEATH_REQUIREMENT_RECEIPT_V1",
+  "loader_cases_passed": 257,
+  "tests_passed": 3,
+  "native_player_die_bound": false,
+  "production_binding": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true,
+  "proofs": [
+    {
+      "path": "out/byor-motu-death-model-policy-authority/report.json",
+      "sha256": "11db2b2c953114bfad53ba397814d943a46c0abd756b77526f1953fe0304d96b",
+      "bytes": 77626
+    },
+    {
+      "path": "out/byor-motu-player-death-requirements/report.json",
+      "sha256": "19bf37a4b3ec86b63157e93068eca7856b9210272434ef1b658e2853bb6b426a",
+      "bytes": 6160
+    },
+    {
+      "path": "out/byor-motu-player-death-requirements/model_policy.bin",
+      "sha256": "c9a2b2c59c0955b0eca4f678d17750206c0d762fde75f3ddf843a58f1f3153e9",
+      "bytes": 144
+    }
+  ]
+}
