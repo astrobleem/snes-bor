@@ -33,3 +33,13 @@ The [receipt](receipts/byor-motu-raster-reload-scheduler.json) records artifact
 hashes and bounded summaries. Production presentation, bank zero and the
 ordinary static path are unchanged. No color reduction is applied. MOTU native
 presentation and full Demo remain open.
+
+The reload witness also supplies a different lifetime grouping to the physical
+constraint solver: 600 used segments, rather than the original 530 used
+segments. Two 64-line lookahead searches allow retiming, bank permutation and
+split ranges. Free physical slots return UNKNOWN after 301.74 seconds
+(208,298 variables and 616,989 constraints); permutations of the witness's
+slots return UNKNOWN after 300.09 seconds (50,563 variables and 144,512
+constraints). These are additional bounded searches, not infeasibility.
+The [retiming receipt](receipts/byor-motu-reload-raster-retiming-trials.json)
+retains their hashes and exact solver statistics.
