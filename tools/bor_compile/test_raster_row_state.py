@@ -49,5 +49,18 @@ class RowStateTests(unittest.TestCase):
         self.assertEqual(result['trace'][0]['updates'],[dict(e,kind='required') for e in source['trace'][0]['updates']])
         self.assertTrue(result['physical_slot_layout']['pixel_color_identity_verified'])
 
+    def test_fixed_initial_bank_can_prefetch_before_first_visible_row(self):
+        source=source_schedule();source['trace']=source['trace'][:3]
+        source['trace'][2]['updates']=[dict(bank=0,slot=s+1,old=s,color=15+s) for s in range(15)]
+        source['pieces']=source['pieces'][:1];source['piece_pixel_masks']=source['piece_pixel_masks'][:1]
+        p=source['pieces'][0];mask=source['piece_pixel_masks'][0];p['height']=3
+        image=unpack(mask)[:3];image[:2]=0;flat=image.flatten()
+        mask.update(height=3,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex())
+        result=optimize(source,window=200,lookahead=1,time_limit=15,fixed_initial_slots=True)
+        self.assertTrue(result['physical_slot_layout']['pixel_color_identity_verified'])
+        self.assertGreater(result['trace'][1]['colors_written'],0)
+        self.assertEqual(sum(r['colors_written'] for r in result['trace'][1:]),15)
+        self.assertLess(result['physical_slot_layout']['peak_prepared_commit_span'],200)
+
 
 if __name__=='__main__':unittest.main()

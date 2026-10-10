@@ -16,7 +16,7 @@ Successful schedules independently replay every CGRAM word and every visible
 piece pixel against the input colors. Four tests cover reload/black identity,
 preserved initial preloads, invalid input, and a full-bank replacement that
 cannot fit the test transfer window. The related slot-layout, heuristic and
-row-state suite passes 21 tests. The width guard remains clean.
+row-state suite passes 22 tests. The width guard remains clean.
 
 The isolated mixed-encoding HBreath witness was searched with a 356-clock
 window, seventeen-line lookahead and four ranges. The first search returned
@@ -25,6 +25,14 @@ branches. That trial preceded redundant full-bank domain propagation. A second
 trial additionally fixes the input initial slot contents and includes that
 propagation. It returned UNKNOWN after 90.72 seconds, with 77,728 constraints
 and 1,969,440 branches. Both retain fixed bank numbering.
+
+The second trial froze each unused bank until its first visible row. That
+restriction is now removed for fixed-initial searches: writes may begin within
+the lookahead interval before first use. A regression requires this early
+prefetch to spread a full-bank replacement across two lines; it preserves every
+pixel and fits the 200-clock test window where one-line replacement cannot.
+The corrected source search returns UNKNOWN after 91.10 seconds, with 43,056
+variables and 110,810 constraints. No physical source witness is found.
 
 Neither trial finds a physical schedule or rejects raster. The authored
 concurrent scene, native transfer latency, alpha/layer integration and MOTU

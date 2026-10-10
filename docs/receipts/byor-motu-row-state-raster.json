@@ -63,12 +63,47 @@
       "artifact": "out/byor-motu-isolated-row-state-fixed-initial-physical.json",
       "artifact_sha256": "6e158a29d3c4799a080681ddf19ecb4f4fc4909243745b217a39c1f5ddffcc3a",
       "full_bank_domain_propagation": true,
-      "implementation_sha256": "80c82d89a1cbfcad049a3e35c187a6938386ebcea46a6319b11241d0400b14bc"
+      "implementation_sha256": "80c82d89a1cbfcad049a3e35c187a6938386ebcea46a6319b11241d0400b14bc",
+      "inactive_bank_prefix_frozen_until_first_visible_row": true
+    },
+    {
+      "schema": "BYOR_ROW_STATE_RASTER_V1",
+      "status": "BOUNDED_ROW_STATE_NO_CANDIDATE",
+      "solver_status": "UNKNOWN",
+      "solver_seconds": 91.09530000000001,
+      "solver_model_variables": 43056,
+      "solver_model_constraints": 110810,
+      "solver_branches": 640,
+      "solver_conflicts": 0,
+      "window_master_clocks": 356,
+      "lookahead_lines": 17,
+      "maximum_ranges": 4,
+      "fixed_initial_slots": true,
+      "fixed_piece_bank_permutation": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7
+      },
+      "initial_palette_may_preload_entire_frame": true,
+      "universal_raster_rejected": false,
+      "native_timing_admitted": false,
+      "no_color_reduction": true,
+      "artifact": "out/byor-motu-isolated-row-state-fixed-initial-prefix-physical.json",
+      "artifact_sha256": "8c88fb5ccb6b37178ecb49b619c9084498b46f8e9cb633c92634a0c7a621791f",
+      "implementation_sha256": "342dac456745afbc0891d33f5f3e40c20afb3f9fcdf29c33118672a5b8b99893",
+      "full_bank_domain_propagation": true,
+      "inactive_bank_prefix_frozen_until_first_visible_row": false
     }
   ],
   "no_color_reduction": true,
   "universal_raster_rejected": false,
   "native_timing_admitted": false,
   "production_bank_zero_bytes_added": 0,
-  "protected_unrelated_tracked_files": 17
+  "protected_unrelated_tracked_files": 17,
+  "focused_tests_passed": 22
 }

@@ -26,13 +26,15 @@ def optimize(schedule, window=356, lookahead=17, maximum_ranges=4, time_limit=18
     for row in schedule['trace']:
         for e in row['updates']: original[e['bank']][e['slot']-1] = e['color']
         hints.append(copy.deepcopy(original))
+    first_use = {b:min(y for y in range(height) if required[y][b]) for b in active_banks}
+    variable_begin = {b:max(1,first_use[b]-lookahead) if fixed_initial_slots else first_use[b] for b in active_banks}
     for y in range(height):
         for b in active_banks:
             # Idle prefix/suffix shares state, avoiding unneeded IRQ events.
             if y and not any(required[t][b] for t in range(y, height)):
                 rows[y,b] = rows[y-1,b]
                 continue
-            if y and not any(required[t][b] for t in range(y+1)):
+            if y and y < variable_begin[b]:
                 rows[y,b] = rows[0,b]
                 continue
             full = len(required[y][b]) == 15
@@ -139,6 +141,12 @@ def optimize(schedule, window=356, lookahead=17, maximum_ranges=4, time_limit=18
         peak_cgram_data_bytes=max(r['cgram_data_bytes'] for r in trace[1:]),
         average_writes=float(np.mean([r['colors_written'] for r in trace[1:]])),
         worst_scanline=1+int(np.argmax([r['colors_written'] for r in trace[1:]])),native_presentation_proven=False)
+    result.update(write_budget=None,lookahead_lines=lookahead,
+        prepared_dma_window_master_clocks=window,prepared_dma_partition_bound_enforced=True,
+        prepared_dma_window_is_optimistic_necessary_only=True,
+        maximum_noninitial_prefetch_latency_lines=latency,noninitial_prefetch_lookahead_enforced=True,
+        noninitial_prefetch_latency_replayed=True,
+        schedule_latency_requirement=dict(maximum_noninitial_prefetch_lines=latency,initial_palette_may_preload_entire_frame=True))
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=result['pieces'],pixel_masks=images,trace=trace),sort_keys=True).encode()).hexdigest()
     return result
 
