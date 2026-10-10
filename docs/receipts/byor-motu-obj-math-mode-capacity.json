@@ -59,7 +59,7 @@
       "initial_residency_optimal": true,
       "peak_write_lower_bound": 21.4,
       "validated_dual_lower_bound": 21.400000000000006,
-      "maximum_primal_violation": 2.1316282072803006e-14,
+      "maximum_primal_violation": 2.1316282072803006E-14,
       "maximum_dual_residual": 0.0,
       "visible_final_obj_output_full_frame_colors": 704,
       "peak_visible_final_obj_output_colors_per_scanline": 79,
@@ -110,7 +110,7 @@
       "solver_method": "highs-ds",
       "peak_write_lower_bound": 21.4,
       "validated_dual_lower_bound": 21.4,
-      "maximum_primal_violation": 7.105427357601002e-15,
+      "maximum_primal_violation": 7.105427357601002E-15,
       "maximum_dual_residual": 0.0,
       "visible_final_obj_output_full_frame_colors": 704,
       "peak_visible_final_obj_output_colors_per_scanline": 79,
@@ -153,5 +153,725 @@
   "native_timing_admitted": false,
   "no_color_reduction": true,
   "math_formula_source": "E:\\gh\\Mesen2-mcp-frameexact\\Core\\SNES\\SnesPpu.cpp",
-  "math_formula_source_sha256": "5823ac6e89e8966ae2a8186f368ef4abb4d09bd4535e1483ff4a6871dd35f1f5"
+  "math_formula_source_sha256": "5823ac6e89e8966ae2a8186f368ef4abb4d09bd4535e1483ff4a6871dd35f1f5",
+  "shared_mode_and_window_trials": [
+    {
+      "artifact": "out/byor-motu-three-enemy-frame14-shared-math-mode-window120-152-union-lp-bound.json",
+      "artifact_sha256": "87016eb0a1a1525f5c8d136e55e750b895895258a0db55d3b5b658e1fc21b2be",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "solver_status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "variables": 84162,
+      "constraints": 52744,
+      "mode_variables": 132,
+      "integer_modes": false,
+      "write_budget": null,
+      "solver_seconds": 30.246175999753177,
+      "solver_method": "highs-ds",
+      "peak_write_objective": 23.45,
+      "validated_dual_lower_bound": 23.45000000000001,
+      "maximum_primal_violation": 7.105427357601002E-15,
+      "maximum_dual_residual": 4.440892098500626E-16,
+      "scanline_window": [
+        120,
+        152
+      ],
+      "complete_mode_tagged_operand_cover": {
+        "modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "rgb555_operands_examined": 32768,
+        "distinct_requirements": 4768,
+        "valid_operands": 8323,
+        "maximal_cover_operands": 1425,
+        "dominance_mapping_sha256": "037b434b4bb5d1e9f1db362b95c70c93a7a3c0d909e869c8a32f956dd9576cd4",
+        "modes_relaxed_per_pixel": false,
+        "mode_tagged_coverage": true,
+        "global_mode_schedule_proven": false,
+        "all_valid_operand_coverages_retained": true,
+        "no_color_reduction": true
+      },
+      "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+      "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+      "outside_window_demand_relaxed": true,
+      "schedule_proven": false
+    },
+    {
+      "artifact": "out/byor-motu-three-enemy-frame14-shared-math-mode-window120-152-pruned-union-lp-bound.json",
+      "artifact_sha256": "b51f0b2bebde8d1828f9d99a479dda0491e2a370a1aae818afb2201791ee9734",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "solver_status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "variables": 83709,
+      "constraints": 51303,
+      "mode_variables": 115,
+      "integer_modes": false,
+      "write_budget": null,
+      "solver_seconds": 29.62524349987507,
+      "solver_method": "highs-ds",
+      "peak_write_objective": 23.799999999999997,
+      "validated_dual_lower_bound": 23.80000000000001,
+      "maximum_primal_violation": 7.105427357601002E-15,
+      "maximum_dual_residual": 3.0531133177191805E-16,
+      "scanline_window": [
+        120,
+        152
+      ],
+      "complete_mode_tagged_operand_cover": {
+        "modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "rgb555_operands_examined": 32768,
+        "distinct_requirements": 4768,
+        "valid_operands": 8323,
+        "maximal_cover_operands": 1425,
+        "dominance_mapping_sha256": "037b434b4bb5d1e9f1db362b95c70c93a7a3c0d909e869c8a32f956dd9576cd4",
+        "modes_relaxed_per_pixel": false,
+        "mode_tagged_coverage": true,
+        "global_mode_schedule_proven": false,
+        "all_valid_operand_coverages_retained": true,
+        "no_color_reduction": true
+      },
+      "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+      "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+      "outside_window_demand_relaxed": true,
+      "schedule_proven": false
+    },
+    {
+      "artifact": "out/byor-motu-three-enemy-frame14-window-bypass-relaxed-lp-bound.json",
+      "artifact_sha256": "ec0ad48b06eed019bc553adc64e377c698e19643064965bbe7e0cd9755d015a6",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "solver_status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "variables": 85854,
+      "constraints": 53275,
+      "mode_variables": 132,
+      "integer_modes": false,
+      "write_budget": null,
+      "solver_seconds": 66.36836459999904,
+      "solver_method": "highs-ds",
+      "peak_write_objective": 20.690677966101696,
+      "validated_dual_lower_bound": 20.690677966101703,
+      "maximum_primal_violation": 7.105427357601002E-15,
+      "maximum_dual_residual": 4.440892098500626E-16,
+      "scanline_window": [
+        120,
+        152
+      ],
+      "complete_mode_tagged_operand_cover": {
+        "modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "rgb555_operands_examined": 32768,
+        "distinct_requirements": 4768,
+        "valid_operands": 8538,
+        "maximal_cover_operands": 1275,
+        "dominance_mapping_sha256": "4c3429f70c2515ec0221e7382432197561c0031557c75726e1733d555f238c18",
+        "modes_relaxed_per_pixel": false,
+        "mode_tagged_coverage": true,
+        "global_mode_schedule_proven": false,
+        "color_math_window_bypass_relaxed_per_pixel": true,
+        "all_valid_operand_coverages_retained": true,
+        "no_color_reduction": true
+      },
+      "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+      "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+      "outside_window_demand_relaxed": true,
+      "schedule_proven": false
+    },
+    {
+      "artifact": "out/byor-motu-three-enemy-frame14-fixed-window84-193-lp-bound.json",
+      "artifact_sha256": "64617264502c7622a0c4861eccbb1b2bdf4cf622574165f593d2a54c3b1a6038",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "solver_status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "variables": 83283,
+      "constraints": 51249,
+      "mode_variables": 119,
+      "integer_modes": false,
+      "write_budget": null,
+      "solver_seconds": 34.83905059983954,
+      "solver_method": "highs-ds",
+      "peak_write_objective": 23.8,
+      "validated_dual_lower_bound": 23.80000000000001,
+      "maximum_primal_violation": 1.0658141036401503E-14,
+      "maximum_dual_residual": 2.220446049250313E-16,
+      "scanline_window": [
+        120,
+        152
+      ],
+      "horizontal_math_window": [
+        84,
+        193
+      ],
+      "complete_mode_tagged_operand_cover": {
+        "modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "rgb555_operands_examined": 32768,
+        "distinct_requirements": 4960,
+        "valid_operands": 8272,
+        "maximal_cover_operands": 1413,
+        "dominance_mapping_sha256": "025e6886d9c388de8f2456e234c399b859ae3b8fc49441235bddd188c208b2e3",
+        "modes_relaxed_per_pixel": false,
+        "mode_tagged_coverage": true,
+        "global_mode_schedule_proven": false,
+        "color_math_window_bypass_relaxed_per_pixel": false,
+        "fixed_color_math_window_context": true,
+        "all_valid_operand_coverages_retained": true,
+        "no_color_reduction": true
+      },
+      "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+      "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+      "outside_window_demand_relaxed": true,
+      "schedule_proven": false
+    },
+    {
+      "artifact": "out/byor-motu-three-enemy-frame14-fixed-window110-174-lp-bound.json",
+      "artifact_sha256": "3226f497335ed768f7d908a7a334b9bc4da580e5cfa745a347ad472c7cded7ea",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "solver_status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "variables": 77633,
+      "constraints": 48939,
+      "mode_variables": 132,
+      "integer_modes": false,
+      "write_budget": null,
+      "solver_seconds": 45.60183009970933,
+      "solver_method": "highs-ds",
+      "peak_write_objective": 23.75,
+      "validated_dual_lower_bound": 23.75000000000001,
+      "maximum_primal_violation": 8.43769498715119E-15,
+      "maximum_dual_residual": 2.220446049250313E-16,
+      "scanline_window": [
+        120,
+        152
+      ],
+      "horizontal_math_window": [
+        110,
+        174
+      ],
+      "complete_mode_tagged_operand_cover": {
+        "modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "rgb555_operands_examined": 32768,
+        "distinct_requirements": 4880,
+        "valid_operands": 5506,
+        "maximal_cover_operands": 1244,
+        "dominance_mapping_sha256": "f9ab8f16929d8e7af888fe64a9a8c793e457c9007cb7cbe57b313bb8d5bb32b5",
+        "modes_relaxed_per_pixel": false,
+        "mode_tagged_coverage": true,
+        "global_mode_schedule_proven": false,
+        "color_math_window_bypass_relaxed_per_pixel": false,
+        "fixed_color_math_window_context": true,
+        "all_valid_operand_coverages_retained": true,
+        "no_color_reduction": true
+      },
+      "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+      "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+      "outside_window_demand_relaxed": true,
+      "schedule_proven": false
+    },
+    {
+      "artifact": "out/byor-motu-three-enemy-frame14-fixed-window130-164-lp-bound.json",
+      "artifact_sha256": "cac37c9cc8bad06c8beb9c7ca1a19306d8c2fa4858feddb7f47ce1b4175a9c3d",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "solver_status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "variables": 63774,
+      "constraints": 42009,
+      "mode_variables": 132,
+      "integer_modes": false,
+      "write_budget": null,
+      "solver_seconds": 19.760957699734718,
+      "solver_method": "highs-ds",
+      "peak_write_objective": 26.750000000000004,
+      "validated_dual_lower_bound": 26.75000000000001,
+      "maximum_primal_violation": 3.552713678800501E-15,
+      "maximum_dual_residual": 2.220446049250313E-16,
+      "scanline_window": [
+        120,
+        152
+      ],
+      "horizontal_math_window": [
+        130,
+        164
+      ],
+      "complete_mode_tagged_operand_cover": {
+        "modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "rgb555_operands_examined": 32768,
+        "distinct_requirements": 5124,
+        "valid_operands": 3444,
+        "maximal_cover_operands": 949,
+        "dominance_mapping_sha256": "933cf55810e1dd4fb474e04e49c43ac28860a41aeb2461ce76a9e1810384a478",
+        "modes_relaxed_per_pixel": false,
+        "mode_tagged_coverage": true,
+        "global_mode_schedule_proven": false,
+        "color_math_window_bypass_relaxed_per_pixel": false,
+        "fixed_color_math_window_context": true,
+        "all_valid_operand_coverages_retained": true,
+        "no_color_reduction": true
+      },
+      "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+      "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+      "outside_window_demand_relaxed": true,
+      "schedule_proven": false
+    },
+    {
+      "artifact": "out/byor-motu-three-enemy-frame14-hardware-window-lp-bound.json",
+      "artifact_sha256": "e49554c1c867fe8e8f40005887bdb9ae2fd2c65cf38855bb959d579f81704755",
+      "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+      "solver_status": 1,
+      "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+      "variables": 114981,
+      "constraints": 80131,
+      "mode_variables": 132,
+      "integer_modes": false,
+      "integer_windows": false,
+      "write_budget": null,
+      "solver_seconds": 180.20683489972726,
+      "solver_method": "highs-ds",
+      "hardware_window_masks_modeled": true,
+      "window_eligibility_variables": 3551,
+      "maximum_window_transitions": 4,
+      "scanline_window": [
+        120,
+        152
+      ],
+      "horizontal_math_window": null,
+      "complete_mode_tagged_operand_cover": {
+        "modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "rgb555_operands_examined": 32768,
+        "distinct_requirements": 9536,
+        "valid_operands": 8538,
+        "maximal_cover_operands": 1941,
+        "dominance_mapping_sha256": "efe0cb4072180363bd3e1c02780eb3fa1a2badb40b03f7ff0c021bc8c6c87dbc",
+        "modes_relaxed_per_pixel": false,
+        "mode_tagged_coverage": true,
+        "global_mode_schedule_proven": false,
+        "color_math_window_bypass_relaxed_per_pixel": false,
+        "fixed_color_math_window_context": true,
+        "all_valid_operand_coverages_retained": true,
+        "no_color_reduction": true
+      },
+      "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+      "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+      "outside_window_demand_relaxed": true,
+      "schedule_proven": false
+    },
+    {
+      "artifact": "out/byor-motu-three-enemy-frame14-hardware-window-budget22-mip.json",
+      "artifact_sha256": "c04a729a3ebb7ba55fc47ee8d5273ddffc5320d5fff0f1871c8af27061df4743",
+      "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+      "solver_status": 1,
+      "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+      "variables": 114981,
+      "constraints": 80131,
+      "mode_variables": 132,
+      "integer_modes": true,
+      "integer_windows": true,
+      "write_budget": 22,
+      "solver_seconds": 180.26564380014315,
+      "solver_method": "highs-mip",
+      "hardware_window_masks_modeled": true,
+      "window_eligibility_variables": 3551,
+      "maximum_window_transitions": 4,
+      "scanline_window": [
+        120,
+        152
+      ],
+      "horizontal_math_window": null,
+      "complete_mode_tagged_operand_cover": {
+        "modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "rgb555_operands_examined": 32768,
+        "distinct_requirements": 9536,
+        "valid_operands": 8538,
+        "maximal_cover_operands": 1941,
+        "dominance_mapping_sha256": "efe0cb4072180363bd3e1c02780eb3fa1a2badb40b03f7ff0c021bc8c6c87dbc",
+        "modes_relaxed_per_pixel": false,
+        "mode_tagged_coverage": true,
+        "global_mode_schedule_proven": false,
+        "color_math_window_bypass_relaxed_per_pixel": false,
+        "fixed_color_math_window_context": true,
+        "all_valid_operand_coverages_retained": true,
+        "no_color_reduction": true
+      },
+      "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+      "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+      "outside_window_demand_relaxed": true,
+      "schedule_proven": false
+    },
+    {
+      "artifact": "out/byor-motu-three-enemy-frame14-hardware-window-ipm-bound.json",
+      "artifact_sha256": "9af230cad80df931e116047383bb429670d84e411256e55afa0ef9d287103ab8",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "solver_status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "variables": 114981,
+      "constraints": 80131,
+      "mode_variables": 132,
+      "integer_modes": false,
+      "integer_windows": false,
+      "write_budget": null,
+      "solver_seconds": 108.00282300030813,
+      "solver_method": "highs-ipm",
+      "peak_write_objective": 19.916666666666668,
+      "validated_dual_lower_bound": 19.91666666666667,
+      "maximum_primal_violation": 4.263256414560601E-14,
+      "maximum_dual_residual": 1.5265566588595902E-16,
+      "hardware_window_masks_modeled": true,
+      "window_transition_superset_only": true,
+      "window_eligibility_variables": 3551,
+      "maximum_window_transitions": 4,
+      "scanline_window": [
+        120,
+        152
+      ],
+      "horizontal_math_window": null,
+      "complete_mode_tagged_operand_cover": {
+        "modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "rgb555_operands_examined": 32768,
+        "distinct_requirements": 9536,
+        "valid_operands": 8538,
+        "maximal_cover_operands": 1941,
+        "dominance_mapping_sha256": "efe0cb4072180363bd3e1c02780eb3fa1a2badb40b03f7ff0c021bc8c6c87dbc",
+        "modes_relaxed_per_pixel": false,
+        "mode_tagged_coverage": true,
+        "global_mode_schedule_proven": false,
+        "color_math_window_bypass_relaxed_per_pixel": false,
+        "fixed_color_math_window_context": true,
+        "all_valid_operand_coverages_retained": true,
+        "no_color_reduction": true
+      },
+      "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+      "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+      "outside_window_demand_relaxed": true,
+      "schedule_proven": false
+    },
+    {
+      "artifact": "out/byor-motu-three-enemy-frame14-hardware-window-union-ipm-bound.json",
+      "artifact_sha256": "2074c45c1300756184b2b3395980a6abfb2b68a83a5b3664fd2e13d8152c6aec",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "solver_status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "variables": 114981,
+      "constraints": 94335,
+      "mode_variables": 132,
+      "integer_modes": false,
+      "integer_windows": false,
+      "write_budget": null,
+      "solver_seconds": 114.77485640021041,
+      "solver_method": "highs-ipm",
+      "peak_write_objective": 20.690677966101696,
+      "validated_dual_lower_bound": 20.690677966101696,
+      "maximum_primal_violation": 5.684341886080802E-14,
+      "maximum_dual_residual": 9.992007221626409E-16,
+      "hardware_window_masks_modeled": true,
+      "window_transition_superset_only": true,
+      "window_eligibility_variables": 3551,
+      "maximum_window_transitions": 4,
+      "scanline_window": [
+        120,
+        152
+      ],
+      "horizontal_math_window": null,
+      "complete_mode_tagged_operand_cover": {
+        "modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "rgb555_operands_examined": 32768,
+        "distinct_requirements": 9536,
+        "valid_operands": 8538,
+        "maximal_cover_operands": 1941,
+        "dominance_mapping_sha256": "efe0cb4072180363bd3e1c02780eb3fa1a2badb40b03f7ff0c021bc8c6c87dbc",
+        "modes_relaxed_per_pixel": false,
+        "mode_tagged_coverage": true,
+        "global_mode_schedule_proven": false,
+        "color_math_window_bypass_relaxed_per_pixel": false,
+        "fixed_color_math_window_context": true,
+        "all_valid_operand_coverages_retained": true,
+        "no_color_reduction": true
+      },
+      "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+      "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+      "outside_window_demand_relaxed": true,
+      "schedule_proven": false
+    }
+  ],
+  "native_window_component": {
+    "schema": "BYOR_NATIVE_OBJ_COLOR_WINDOWS_V1",
+    "status": "PASS",
+    "rom_sha256": "e49205461fc0c704ac8b55eab3cef4e182528086babbc2c480a813fbb8a107af",
+    "compiled_descriptors": [
+      {
+        "bounds": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "wobjsel_color_bits": 32,
+        "wobjlog_color_bits": 0,
+        "cgwsel_clip_and_prevent_bits": 16,
+        "math_enabled_inside_window": true,
+        "register_timing_admitted": false
+      },
+      {
+        "bounds": [
+          [
+            32,
+            63
+          ],
+          [
+            128,
+            191
+          ]
+        ],
+        "wobjsel_color_bits": 160,
+        "wobjlog_color_bits": 0,
+        "cgwsel_clip_and_prevent_bits": 16,
+        "math_enabled_inside_window": true,
+        "register_timing_admitted": false
+      },
+      {
+        "bounds": [
+          [
+            32,
+            63
+          ],
+          [
+            128,
+            191
+          ]
+        ],
+        "wobjsel_color_bits": 240,
+        "wobjlog_color_bits": 4,
+        "cgwsel_clip_and_prevent_bits": 16,
+        "math_enabled_inside_window": true,
+        "register_timing_admitted": false
+      },
+      {
+        "bounds": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "wobjsel_color_bits": 0,
+        "wobjlog_color_bits": 0,
+        "cgwsel_clip_and_prevent_bits": 16,
+        "math_enabled_inside_window": true,
+        "register_timing_admitted": false
+      }
+    ],
+    "frame_advance": [
+      {
+        "requested": 1,
+        "startFrame": 0,
+        "endFrame": 1,
+        "framesAdvanced": 1,
+        "isPaused": true,
+        "timedOut": false
+      },
+      {
+        "requested": 1,
+        "startFrame": 1,
+        "endFrame": 2,
+        "framesAdvanced": 1,
+        "isPaused": true,
+        "timedOut": false
+      },
+      {
+        "requested": 1,
+        "startFrame": 2,
+        "endFrame": 3,
+        "framesAdvanced": 1,
+        "isPaused": true,
+        "timedOut": false
+      }
+    ],
+    "pixel_identity_verified": true,
+    "pixel_mismatches": 0,
+    "register_identity_verified": true,
+    "observed_register_writes": 1568,
+    "oam_identity_verified": true,
+    "cgram_identity_verified": true,
+    "oam_entries": 56,
+    "peak_sprites_per_line": 8,
+    "peak_slivers_per_line": 32,
+    "hdma_channels": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "hdma_data_bytes_per_line": 7,
+    "cpu_state": {
+      "cpuType": "Snes",
+      "pc": 33236,
+      "k": 1,
+      "a": 15,
+      "x": 8191,
+      "y": 0,
+      "sp": 8191,
+      "d": 0,
+      "dbr": 0,
+      "ps": 37,
+      "emulationMode": false,
+      "stopState": "Running",
+      "cycleCount": 114776
+    },
+    "source_alpha_proven": false,
+    "first_to_last_register_write_peak_master_clocks": 48,
+    "ppu_state": {
+      "frameCount": 3,
+      "scanline": 225,
+      "forcedBlank": false,
+      "brightness": 15,
+      "bgMode": 1,
+      "mainScreenLayers": 16,
+      "subScreenLayers": 1,
+      "mainScreenWindowMask": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "subScreenWindowMask": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "mosaicSize": 0,
+      "mosaicEnabled": 0,
+      "layers": [
+        {
+          "index": 0,
+          "tilemapAddr": 28672,
+          "chrAddr": 8192,
+          "hscroll": 0,
+          "vscroll": 1023,
+          "largeTiles": false,
+          "doubleWidth": false,
+          "doubleHeight": false
+        },
+        {
+          "index": 1,
+          "tilemapAddr": 0,
+          "chrAddr": 0,
+          "hscroll": 0,
+          "vscroll": 0,
+          "largeTiles": false,
+          "doubleWidth": false,
+          "doubleHeight": false
+        },
+        {
+          "index": 2,
+          "tilemapAddr": 0,
+          "chrAddr": 0,
+          "hscroll": 0,
+          "vscroll": 0,
+          "largeTiles": false,
+          "doubleWidth": false,
+          "doubleHeight": false
+        },
+        {
+          "index": 3,
+          "tilemapAddr": 0,
+          "chrAddr": 0,
+          "hscroll": 0,
+          "vscroll": 0,
+          "largeTiles": false,
+          "doubleWidth": false,
+          "doubleHeight": false
+        }
+      ]
+    },
+    "full_hdma_setup_and_transfer_budget_measured": false,
+    "concurrent_palette_dma_admitted": false,
+    "production_presentation_lease_proven": false,
+    "no_color_reduction": true
+  },
+  "native_window_artifacts": [
+    {
+      "path": "out/byor-motu-raster-math-windows-native/report.json",
+      "sha256": "b8543a435f25fb6b4cef4d0827a2ca870586c87a8239d64b9a563bd6203ef300",
+      "bytes": 4348
+    },
+    {
+      "path": "out/byor-motu-raster-math-windows-native/proof.sfc",
+      "sha256": "e49205461fc0c704ac8b55eab3cef4e182528086babbc2c480a813fbb8a107af",
+      "bytes": 131072
+    },
+    {
+      "path": "out/byor-motu-raster-math-windows-native/observer.lua",
+      "sha256": "50ab0e41c85581f8489012611dfa0ac122d971d4509e542f31ecc47175ed8f41",
+      "bytes": 737
+    },
+    {
+      "path": "out/byor-motu-raster-math-windows-native/register-observer.json",
+      "sha256": "0621580300647c0b25f9e6eb81c52385ad4f322ef2e3f62684f93b0dd5fbdc78",
+      "bytes": 24591
+    },
+    {
+      "path": "out/byor-motu-raster-math-windows-native/expected.rgb555",
+      "sha256": "0450d735b0afad85ffc145eb6897771a8329feb26e63d08850bb1a021ea0a0ff",
+      "bytes": 114688
+    },
+    {
+      "path": "out/byor-motu-raster-math-windows-native/screenshot.png",
+      "sha256": "fa9cef6e727d9cc44aa5b43faeaf7b89e3643922856f5d8590ba1ab2cfcc7b6e",
+      "bytes": 1574
+    }
+  ]
 }

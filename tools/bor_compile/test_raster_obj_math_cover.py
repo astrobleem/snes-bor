@@ -38,5 +38,17 @@ class MathCoverTests(unittest.TestCase):
         self.assertTrue(report['mode_tagged_coverage'])
         self.assertFalse(report['modes_relaxed_per_pixel'])
 
+    def test_window_bypass_adds_literal_operand_without_approximating_math(self):
+        options,report=complete_math_cover([(31,0)],('half-add',),tag_modes=True,allow_window_bypass=True)
+        self.assertEqual(options['half-add',31,0],[31])
+        self.assertTrue(report['color_math_window_bypass_relaxed_per_pixel'])
+        self.assertFalse(report['global_mode_schedule_proven'])
+
+    def test_fixed_window_keeps_literal_and_math_contexts_distinct(self):
+        options,report=complete_math_cover([(16,1,True),(16,1,False)],('half-add',),tag_modes=True,fixed_window_context=True)
+        self.assertEqual(options['half-add',16,1,False],[16])
+        self.assertTrue(all(apply_math(c,1,'half-add')==16 for c in options['half-add',16,1,True]))
+        self.assertTrue(report['fixed_color_math_window_context'])
+
 
 if __name__=='__main__':unittest.main()
