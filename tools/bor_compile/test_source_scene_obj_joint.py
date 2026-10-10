@@ -2,10 +2,56 @@ import unittest
 from unittest.mock import patch
 import numpy as np
 from source_bg_feasibility import rgb555
-from source_scene_obj_joint import probe
+from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_complete_additive_family_uses_shared_noncorner_operand(self):
+        word=lambda r,g,b:r|(g<<5)|(b<<10)
+        common=word(5,12,7)
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        background[0,0]=np.array([25,21,13])*8
+        background[0,1]=np.array([29,18,13])*8
+        pixels=np.full((8,8),-1,dtype=np.int32)
+        pixels[0,0]=word(30,31,20);pixels[0,1]=word(31,30,20)
+        expected=background.copy()
+        expected[0,0]=np.array([30,31,20])*8
+        expected[0,1]=np.array([31,30,20])*8
+        pool=dict(status='POOLED_INTEGER_RESIDENCY_CANDIDATE',metadata={},
+                  fractional_residency=[dict(kind=1,color=common,line=0,value=1)])
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            r=probe(None,None,{},size=8,write_budget=0,time_limit=5,
+                    complete_additive_cover=True,pool_residency=pool)
+        self.assertTrue(r['compiled_pixel_identity_verified'])
+        self.assertEqual(r['geometry']['oam_entries'],1)
+        self.assertGreaterEqual(r['pieces'][0]['bank'],4)
+        self.assertTrue(r['complete_additive_cover']['all_valid_operand_coverages_retained'])
+        self.assertEqual(r['complete_additive_cover']['maximal_cover_operands'],1)
+
+    def test_saturated_corners_include_white_missing_from_minimal_corpus(self):
+        background=17|(9<<5)|(12<<10)
+        values=saturated_corners(32767,background)
+        self.assertEqual(len(values),8)
+        self.assertIn(32767,values)
+        from source_scene_obj_math import add_rgb555
+        self.assertTrue(all(add_rgb555(c,background)==32767 for c in values))
+        self.assertEqual(saturated_corners(0,background),[])
+
+    def test_underlay_bypass_preserves_canvas_and_opaque_black(self):
+        background=np.zeros((224,256,3),dtype=np.uint8);background[:,:,0]=255
+        pixels=np.full((32,32),31,dtype=np.int32);pixels[0,0]=0;original=pixels.copy()
+        expected=background.copy();expected[0,0]=0
+        actors=[dict(pixels=pixels,left=0,top=0)]
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            r=probe(None,None,{},size=32,write_budget=0,time_limit=5,underlay_bypass=True,align_visible_bounds=True)
+        self.assertTrue(r['compiled_pixel_identity_verified'])
+        self.assertEqual(r['source_actor_canvases'],[[32,32]])
+        self.assertEqual(r['underlay_bypassed_pixels'],1023)
+        self.assertEqual(r['geometry']['oam_entries'],1)
+        self.assertEqual(r['pieces'][0]['rows'][0],[0])
+        self.assertLess(r['pieces'][0]['bank'],4)
+        np.testing.assert_array_equal(pixels,original)
+
     def test_dma_window_rejects_bank_label_symmetry(self):
         with self.assertRaisesRegex(ValueError,'JOINT_DMA_BANK_SYMMETRY_UNSAFE'):
             probe(None,None,{},prepared_dma_window=356,bank_symmetry=True)

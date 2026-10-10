@@ -63,6 +63,11 @@ def lower_bound(rows, capacities=(60,60), time_limit=45, include_solution=False,
                 return report
             result=integer
             if np.max(np.maximum(matrix@result.x-np.array(limits),0))>1e-6 or any(abs(result.x[v]-round(result.x[v]))>1e-6 for v in resident.values()):raise AssertionError('PINNED_POOL_INTEGER_RESIDENCY_FAULT')
-            report.update(status='POOLED_INTEGER_RESIDENCY_CANDIDATE',candidate_peak_writes=float(result.fun),schedule_proven=False)
+            exact_writes={y:0 for y in write_lines}
+            for (kind,color,y),v in resident.items():
+                if y>first and result.x[v]>.5 and result.x[resident[kind,color,y-1]]<=.5:exact_writes[y]+=1
+            exact_peak=max(exact_writes.values(),default=0)
+            if exact_peak>integer_budget:raise AssertionError('PINNED_POOL_EXACT_WRITE_BUDGET_FAULT')
+            report.update(status='POOLED_INTEGER_RESIDENCY_CANDIDATE',candidate_peak_writes=exact_peak,integer_solver_objective=float(result.fun),exact_new_colors_by_scanline=exact_writes,schedule_proven=False)
         if include_solution:report['fractional_residency']=[dict(kind=kind,color=color,line=y,value=float(result.x[variable]))for (kind,color,y),variable in resident.items()if result.x[variable]>1e-7]
     return report

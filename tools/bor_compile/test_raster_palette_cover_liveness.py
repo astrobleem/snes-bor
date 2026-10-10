@@ -1,4 +1,5 @@
 import unittest
+import json
 from raster_palette_cover_liveness import lower_bound
 
 
@@ -31,6 +32,9 @@ class CoverLivenessTests(unittest.TestCase):
         result=lower_bound([{(0,None)},{(1,None)},{(2,None)}],capacities=(1,1),integer_budget=1,include_solution=True)
         self.assertEqual(result['status'],'POOLED_INTEGER_RESIDENCY_CANDIDATE')
         self.assertEqual(result['candidate_peak_writes'],1)
+        self.assertIsInstance(result['candidate_peak_writes'],int)
+        self.assertEqual(result['exact_new_colors_by_scanline'],{1:1,2:1})
+        json.dumps(result)
         self.assertFalse(result['schedule_proven'])
         self.assertTrue(all(abs(e['value']-1)<1e-6 for e in result['fractional_residency']))
 
