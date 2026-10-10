@@ -133,7 +133,22 @@ def minimum_cover(edges, forced):
     return normal, additive
 
 
-def probe(source, stage, scene, preference='additive', time_limit=20, geometry_mode='mixed', write_budget=None, cover_policy='minimum'):
+def pool_probe(source,stage,scene,time_limit=45,integer_budget=None):
+    from raster_palette_cover_liveness import lower_bound
+    actors,metadata,expected=prepare(source,stage,scene)
+    background,_=compose_rgb8(source,stage,dict(scene,actors=[]));background=rgb555(background)
+    rows=[set()for _ in range(expected.shape[0])]
+    for actor in actors:
+        for ly,lx in zip(*np.where(actor['pixels']>=0)):
+            y,x=int(ly+actor['top']),int(lx+actor['left']);output=int(actor['pixels'][ly,lx])
+            rows[y].add((output,residual(output,int(background[y,x]))))
+    result=lower_bound(rows,time_limit=time_limit,include_solution=True,integer_budget=integer_budget)
+    result.update(metadata=metadata,no_color_reduction=True,native_presentation_proven=False,
+                  source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest())
+    return result
+
+
+def probe(source, stage, scene, preference='additive', time_limit=20, geometry_mode='mixed', write_budget=None, cover_policy='minimum', cover_residency=None):
     actors, metadata, expected = prepare(source, stage, scene)
     background, _ = compose_rgb8(source, stage, dict(scene, actors=[]))
     background = rgb555(background)
@@ -149,7 +164,11 @@ def probe(source, stage, scene, preference='additive', time_limit=20, geometry_m
             else:
                 edges.add((out, value))
     normal, additive = minimum_cover(edges, forced)
-    if cover_policy != 'minimum':
+    weights = {}
+    if cover_residency:
+        weights={(e['kind'],e['color'],e['line']):e['value']for e in cover_residency['fractional_residency']}
+        if cover_residency['metadata'] != metadata:raise ValueError('COVER_CONTEXT_IDENTITY_MISMATCH')
+    if cover_policy not in ('minimum','liveness'):
         normal = set(); additive = set()
         for i, y, x, out, bg, value in records:
             math = value is not None and (cover_policy == 'additive' or actors[i]['metadata']['alpha'] != 0)
@@ -165,6 +184,13 @@ def probe(source, stage, scene, preference='additive', time_limit=20, geometry_m
             math = value is not None and actors[i]['metadata']['alpha'] != 0
         elif cover_policy == 'additive':
             math = value is not None
+        elif cover_policy == 'liveness':
+            if not weights:raise ValueError('COVER_RESIDENCY_REQUIRED')
+            y = y+actors[i]['top']
+            opaque_weight=weights.get((0,out,y),0);additive_weight=weights.get((1,value,y),0)
+            if additive_weight>opaque_weight+1e-7:math=value is not None
+            elif opaque_weight>additive_weight+1e-7:math=False
+            y = y-actors[i]['top']
         encoded = value if math else out
         surfaces[i * 2 + int(math)]['pixels'][y, x] = encoded
         decoded = add_rgb555(encoded, bg) if math else encoded
@@ -183,9 +209,11 @@ def probe(source, stage, scene, preference='additive', time_limit=20, geometry_m
     geom = dict(oam_entries=len(pieces),
                 peak_sprites_per_line=max(sum(p['y'] <= y < p['y'] + p['height'] for p in pieces) for y in range(h)),
                 peak_tile_slivers_per_line=max(sum(p['width'] // 8 for p in pieces if p['y'] <= y < p['y'] + p['height']) for y in range(h)))
+    selected_colors=[set()for _ in range(2)]
+    for surface in surfaces:selected_colors[int(surface['math'])].update(map(int,surface['pixels'][surface['pixels']>=0]))
     r = dict(schema='BYOR_EXACT_CONTEXT_OBJ_MATH_V1', metadata=metadata, geometry=geom,
              status='ENCODING_PIXEL_IDENTITY_PROVEN', preference=preference, geometry_mode=geometry_mode, subdivision=subdivision,
-             selected_global_identities=dict(opaque=len(normal), additive=len(additive)), cover_policy=cover_policy,
+             selected_global_identities=dict(opaque=len(selected_colors[0]), additive=len(selected_colors[1])), cover_policy=cover_policy,
              forced_opaque_identities=len(forced), source_visible_pixels=len(records),
              source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
              exact_final_pixel_identity_verified=True, no_color_reduction=True,
@@ -254,11 +282,15 @@ def main():
     p.add_argument('--geometry', choices=('mixed', 'small', 'adaptive'), default='mixed')
     p.add_argument('--time-limit', type=int, default=20)
     p.add_argument('--write-budget', type=int)
-    p.add_argument('--cover-policy', choices=('minimum', 'additive', 'source-alpha'), default='minimum')
+    p.add_argument('--cover-policy', choices=('minimum', 'additive', 'source-alpha','liveness'), default='minimum')
+    p.add_argument('--cover-residency',type=Path)
+    p.add_argument('--pool-liveness',action='store_true')
+    p.add_argument('--integer-pool-budget',type=int)
     a = p.parse_args()
-    report = probe(Source(a.source), a.stage, json.loads(a.scene.read_text()), a.preference, a.time_limit, a.geometry, a.write_budget, a.cover_policy)
+    source=Source(a.source);scene=json.loads(a.scene.read_text())
+    report = pool_probe(source,a.stage,scene,a.time_limit,a.integer_pool_budget)if a.pool_liveness else probe(source, a.stage, scene, a.preference, a.time_limit, a.geometry, a.write_budget, a.cover_policy,json.loads(a.cover_residency.read_text())if a.cover_residency else None)
     a.output.write_text(json.dumps(report, indent=2) + '\n')
-    print(json.dumps({k: report[k] for k in ('status', 'geometry', 'selected_global_identities')}))
+    print(json.dumps({k: report[k] for k in ('status', 'geometry', 'selected_global_identities','peak_write_lower_bound','candidate_peak_writes')if k in report}))
 
 
 if __name__ == '__main__':

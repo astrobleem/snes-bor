@@ -42,5 +42,19 @@ class JointSceneSolverTests(unittest.TestCase):
                 self.assertEqual(result['peak_scheduled_writes'],1)
                 self.assertTrue(result['compiled_pixel_identity_verified'])
 
+    def test_mixed_geometry_replays_actual_nonoverlapping_piece_masks(self):
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[2,2]=31;pixels[2,3]=0
+        expected=background.copy();expected[46,2]=[255,0,0]
+        actors=[dict(pixels=pixels,left=0,top=44)]
+        pool=dict(status='POOLED_INTEGER_RESIDENCY_CANDIDATE',metadata={},fractional_residency=[dict(kind=0,color=color,line=y,value=1)for color in (0,31)for y in range(44,47)])
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            result=probe(None,None,{},size='mixed',write_budget=0,time_limit=5,pool_residency=pool,clip_horizontal=True)
+        self.assertEqual(result['status'],'JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN')
+        self.assertEqual(result['geometry']['oam_entries'],1)
+        self.assertEqual(len(result['piece_pixel_masks']),1)
+        data=np.frombuffer(bytes.fromhex(result['piece_pixel_masks'][0]['pixels_hex']),dtype=np.uint8)
+        self.assertEqual(int(np.count_nonzero(data&15)+np.count_nonzero(data>>4)),2)
+
 
 if __name__=='__main__':unittest.main()

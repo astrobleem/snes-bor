@@ -1,0 +1,77 @@
+{
+  "schema": "BYOR_POOLED_COVER_LIVENESS_RECEIPT_V1",
+  "status": "POOL_CANDIDATE_PHYSICAL_BANK_PROOF_OPEN",
+  "reports": [
+    {
+      "path": "out/byor-motu-joint-cover-liveness-lp.json",
+      "sha256": "75077197fd8d72cf25c4f0912b92018f025f25837fd3f5d7670e19f2afb3bc6f",
+      "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+      "solver": null,
+      "peak_write_lower_bound": 19.428571428571423,
+      "pooled_candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-cover-liveness-integer22.json",
+      "sha256": "acc55e29e2d3fd9e5bc494710a4ac75490bab61778f19e7199dffb243a39b1a2",
+      "status": "POOLED_INTEGER_RESIDENCY_CANDIDATE",
+      "solver": null,
+      "peak_write_lower_bound": 19.428571428571423,
+      "pooled_candidate_peak_writes": 20.0
+    },
+    {
+      "path": "out/byor-motu-joint-encoding32-pool20-clipped.json",
+      "sha256": "f7e272952f8dc2ae1c3779cd57df102bef7459cb52a8e024436036d552e9f76f",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 2,
+        "message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is At lower/fixed bound)",
+        "variables": 117728,
+        "constraints": 88360
+      },
+      "peak_write_lower_bound": null,
+      "pooled_candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-encoding16-pool20.json",
+      "sha256": "51546aeb128d269d23aefbbc9823e576625006a3342d4c5e43a0761139a19262",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is At lower/fixed bound)",
+        "variables": 119064,
+        "constraints": 90749
+      },
+      "peak_write_lower_bound": null,
+      "pooled_candidate_peak_writes": null
+    },
+    {
+      "path": "out/byor-motu-joint-encoding-mixed-pool22-long.json",
+      "sha256": "dfef3d002649d42a964ba25c0fc9e3792a0837434fad52dad093252c0e9158b7",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is At lower/fixed bound)",
+        "variables": 84480,
+        "constraints": 104194
+      },
+      "peak_write_lower_bound": null,
+      "pooled_candidate_peak_writes": null
+    }
+  ],
+  "no_color_reduction": true,
+  "native_presentation_proven": false,
+  "universal_raster_rejected": false,
+  "bg_hybrid_rejected": false,
+  "motu_gameplay_proven": false,
+  "focused_tests_passed": 31,
+  "protected_tracked_files_verified": 17,
+  "horizontal_fetch_limit_authority": {
+    "path": "E:\\gh\\Mesen2-mcp-frameexact\\Core\\SNES\\SnesPpu.cpp",
+    "sha256": "5823ac6e89e8966ae2a8186f368ef4abb4d09bd4535e1483ff4a6871dd35f1f5",
+    "functions": [
+      "FetchSpritePosition",
+      "FetchSpriteAttributes"
+    ],
+    "scope": "Emulator fetch clipping model; console/native full-scene proof remains required"
+  }
+}
