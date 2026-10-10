@@ -40,10 +40,11 @@ def make_rom(count,audio_hdma=False,audio_rows=224):
     return bytes(rom)
 
 
-def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_bytes=None,math_window_hdma=False,cpu_math_windows=False,fixed_window_controls=False):
+def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_bytes=None,math_window_hdma=False,cpu_math_windows=False,fixed_window_controls=False,pixel_fixture=False):
     """Prepared HIRQ DMA, isolated fixture. New handler body lives in bank 1."""
     if math_window_hdma and cpu_math_windows:raise ValueError('CGRAM_WINDOW_TRANSFER_OWNERS_CONFLICT')
     if fixed_window_controls and not cpu_math_windows:raise ValueError('CGRAM_FIXED_WINDOW_CONTROLS_REQUIRE_CPU_WINDOWS')
+    if pixel_fixture and not fixed_window_controls:raise ValueError('CGRAM_PIXELS_REQUIRE_FIXED_CPU_WINDOWS')
     rom=bytearray([0xff])*131072
     code=bytearray.fromhex('78 18 fb c2 30 a2 ff 1f 9a e2 20')
     def store(address,value):code.extend(bytes([0xa9,value,0x8d,address&255,address>>8]))
@@ -79,6 +80,11 @@ def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_byt
             rom[0x1a000:0x1a000+len(cpu_descriptors)]=cpu_descriptors
             store(0x420d,1);code.extend(bytes.fromhex('a2 00 00'))
             if fixed_window_controls:store(0x2125,0xa0);store(0x212b,0)
+    if pixel_fixture:
+        from m4_cgram_window_pixels import fixture
+        visual,assets,_,_,_=fixture()
+        code.extend(visual)
+        for offset,data in assets.items():rom[offset:offset+len(data)]=data
     code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'))
     if audio_hdma or math_window_hdma:store(0x420c,(1 if audio_hdma else 0)|(0x1e if math_window_hdma else 0))
     store(0x2100,15);store(0x4200,0x10);code.extend(bytes.fromhex('58 80 fe'))
@@ -94,6 +100,7 @@ def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_byt
     if cpu_math_windows:
         if split_first_bytes is None:raise ValueError('CPU_WINDOW_TIMING_REQUIRES_SPLIT_PACKET')
         irq=bytearray.fromhex('ad 11 42 ad 12 42 29 80 d0 00 e0 00 07 90 04 a2 00 00 40')
+        if pixel_fixture:irq.extend(bytes.fromhex('e0 58 02 90 19'))
         for address,value in [(0x4355,split_first_bytes),(0x4365,1),(0x4375,count-split_first_bytes),(0x2121,128),(0x420b,224)]:
             irq.extend(bytes([0xa9,value,0x8d,address&255,address>>8]))
         # Two word writes publish all four bounds. Three byte writes publish
@@ -102,8 +109,10 @@ def make_irq_rom(count,audio_hdma=False,timer=224,audio_rows=224,split_first_byt
         if not fixed_window_controls:irq.extend(bytes.fromhex('bf 04 a0 83 8d 25 21 bf 05 a0 83 8d 2b 21'))
         irq.extend(bytes.fromhex('bf 06 a0 83 8d 31 21'))
         irq.extend(bytes([0xe8]*8+[0x40]));irq[9]=len(irq)-1-10
-    rom[:4]=bytes.fromhex('5c 00 80 01');rom[0x100:0x104]=bytes.fromhex('5c 00 82 81'if cpu_math_windows else'5c 00 82 01')
-    rom[0x8000:0x8000+len(code)]=code;rom[0x8200:0x8200+len(irq)]=irq
+    handler=0x8600 if pixel_fixture else 0x8200
+    if 0x8000+len(code)>handler:raise AssertionError('CGRAM_BOOT_HANDLER_OVERLAP')
+    rom[:4]=bytes.fromhex('5c 00 80 01');rom[0x100:0x104]=bytes([0x5c,handler&255,handler>>8,0x81 if cpu_math_windows else 1])
+    rom[0x8000:0x8000+len(code)]=code;rom[handler:handler+len(irq)]=irq
     rom[0x10000:0x18000]=bytes([0x11,0x11])*16384
     if split_first_bytes is not None:rom[0x18000]=192
     data=bytes([0x81,0,0,0,57])*audio_rows+bytes([0]);rom[0x19000:0x19000+len(data)]=data

@@ -1,0 +1,275 @@
+{
+  "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+  "status": "PASS",
+  "pixel_identity_verified": true,
+  "pixel_mismatches": 0,
+  "palette_identity_verified": true,
+  "oam_identity_verified": true,
+  "packets": 447,
+  "high_commits": 8493,
+  "unsafe_high_commits": 0,
+  "peak_commit_span": 320,
+  "descriptors": 669,
+  "latest_descriptor_hclock": 1188,
+  "visible_obj_descriptor_latest_hclock": 302,
+  "complete_packet_fields_verified": true,
+  "timer": 156,
+  "first_palette_row": 75,
+  "first_obj_row": 80,
+  "first_math_obj_x": 128,
+  "oam_entries": 16,
+  "peak_sprites": 4,
+  "peak_slivers": 16,
+  "dma_channels": [
+    5,
+    6,
+    7
+  ],
+  "dummy_apu_hdma_channel": 0,
+  "dummy_apu_hdma_rows": 73,
+  "rom_sha256": "4ea80514ca7bf3151eeb25f71a0e114bab12510c73d9a2a7f7a64d0c84c44b38",
+  "expected_rgb555_sha256": "7a8858a494681708dcefb48904b823ccbdd766f4d4c7f7e16082b7b1c5adf323",
+  "source_hbreath_proven": false,
+  "production_interrupt_context_proven": false,
+  "no_color_reduction": true,
+  "frame_advancement": [
+    {
+      "requested": 1,
+      "startFrame": 0,
+      "endFrame": 1,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 1,
+      "endFrame": 1,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 1,
+      "endFrame": 1,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 1,
+      "endFrame": 1,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 1,
+      "endFrame": 1,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 1,
+      "endFrame": 1,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 1,
+      "endFrame": 1,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 1,
+      "endFrame": 2,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 2,
+      "endFrame": 2,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 2,
+      "endFrame": 2,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 2,
+      "endFrame": 2,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 2,
+      "endFrame": 2,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 2,
+      "endFrame": 2,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 2,
+      "endFrame": 2,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 2,
+      "endFrame": 3,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    }
+  ],
+  "ppu": {
+    "frameCount": 3,
+    "scanline": 5,
+    "forcedBlank": false,
+    "brightness": 15,
+    "bgMode": 1,
+    "mainScreenLayers": 16,
+    "subScreenLayers": 1,
+    "mainScreenWindowMask": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "subScreenWindowMask": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "mosaicSize": 0,
+    "mosaicEnabled": 0,
+    "layers": [
+      {
+        "index": 0,
+        "tilemapAddr": 28672,
+        "chrAddr": 8192,
+        "hscroll": 0,
+        "vscroll": 1023,
+        "largeTiles": false,
+        "doubleWidth": false,
+        "doubleHeight": false
+      },
+      {
+        "index": 1,
+        "tilemapAddr": 0,
+        "chrAddr": 0,
+        "hscroll": 0,
+        "vscroll": 0,
+        "largeTiles": false,
+        "doubleWidth": false,
+        "doubleHeight": false
+      },
+      {
+        "index": 2,
+        "tilemapAddr": 0,
+        "chrAddr": 0,
+        "hscroll": 0,
+        "vscroll": 0,
+        "largeTiles": false,
+        "doubleWidth": false,
+        "doubleHeight": false
+      },
+      {
+        "index": 3,
+        "tilemapAddr": 0,
+        "chrAddr": 0,
+        "hscroll": 0,
+        "vscroll": 0,
+        "largeTiles": false,
+        "doubleWidth": false,
+        "doubleHeight": false
+      }
+    ]
+  },
+  "artifact_hashes": {
+    "cgram.bin": "5f463e9c4a4b75f1d85ac3d948d893b0fb7164f552d14c3ca1b4a65b99c2d8c5",
+    "expected.rgb555": "7a8858a494681708dcefb48904b823ccbdd766f4d4c7f7e16082b7b1c5adf323",
+    "oam.bin": "615b992aaf902afb8ce1eb4f18316f7907d058075e883e4942e316515172a35e",
+    "observer.lua": "277fcc75680a0b06dd5a6fc0f9619784fbb61ba099a89e73a5be8d5f3f10f9d7",
+    "packets.json": "1db60825f8839cc0a523c205001790fffe56932aa07677fce66478dc22380851",
+    "proof.sfc": "4ea80514ca7bf3151eeb25f71a0e114bab12510c73d9a2a7f7a64d0c84c44b38",
+    "report.json": "d8c2074021c1f97f5725ab108c6432c239369e1ebcff0d54439c6e3be4bbebec",
+    "screenshot.png": "e72f02ec0110a1d2e00c92710147ed97250c0b2e03350fd083665fabf58cf7a6",
+    "windows.json": "a2dfede32607aee8e80206825a48a94266c4454cfdbb8a171bc7cf964402b12f"
+  },
+  "bounded_solver_trial": {
+    "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+    "solver_status": 1,
+    "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+    "variables": 114981,
+    "constraints": 168906,
+    "mode_variables": 132,
+    "integer_modes": false,
+    "write_budget": null,
+    "palette_residency_integrality_relaxed": true,
+    "geometry_and_bank_assignment_relaxed": true,
+    "optimal_initial_residency_allowed": true,
+    "unbounded_preloading_allowed": true,
+    "schedule_proven": false,
+    "no_color_reduction": true,
+    "solver_seconds": 180.27887189993635,
+    "solver_method": "highs-ds",
+    "hardware_window_masks_modeled": true,
+    "integer_windows": false,
+    "window_transition_superset_only": true,
+    "window_register_schedule_proven": false,
+    "positive_union_with_disabled_edges_only": false,
+    "subset_mode_cover_cuts": true,
+    "window_eligibility_variables": 3551,
+    "maximum_window_transitions": 4,
+    "schema": "BYOR_SHARED_SCANLINE_MATH_MODE_LIVENESS_V1",
+    "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+    "source_rgb555_sha256": "d7536f9eaadcd80335e6d70010d44a2d8e193a975c065fa30bd331d4bfb16dce",
+    "scene_sha256": "9eec846c65ebe625b9b8c9ca4c5d3a5649181c5fd19c37588436931418547b3c",
+    "cover_enumeration_seconds": 6.587049300316721,
+    "exact_underlay_bypass": true,
+    "outside_window_demand_relaxed": true,
+    "horizontal_math_window": null,
+    "math_enabled_inside_horizontal_window": null,
+    "window_mask_transition_superset_only": true,
+    "restricted_math_mode_family": false,
+    "native_timing_admitted": false,
+    "authored_pose_reachability_proven": false,
+    "universal_raster_rejected": false
+  }
+}
