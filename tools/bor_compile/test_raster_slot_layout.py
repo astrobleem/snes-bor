@@ -6,6 +6,27 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_paired_ranges_preserve_pixels_and_allow_inactive_pair_gaps(self):
+        from raster_slot_greedy import demand
+        source=self.schedule()
+        source['pieces'][1]['bank']=7
+        for row in source['trace']:
+            row['resident_before'][7],row['resident_before'][1]=row['resident_before'][1],row['resident_before'][7]
+            for event in row['updates']:
+                if event['bank']==1:event['bank']=7
+        _,_,a=demand(source)
+        for flexible in(False,True):
+            result=optimize(source,window=356,time_limit=10,paired_bank_ranges=True,flexible_prefetch=flexible)
+            self.assertTrue(result['physical_slot_layout']['paired_bank_ranges'])
+            self.assertTrue(result['physical_slot_layout']['all_packet_cgram_identities_verified'])
+            _,_,b=demand(result)
+            self.assertTrue(all(np.array_equal(x,y)for x,y in zip(a,b)))
+            for row in result['prepared_dma_packets']:
+                for p in row['packets']:
+                    first=p['cgram_word_address']-128;last=first+p['word_count']-1
+                    self.assertEqual(first//32,last//32)
+        with self.assertRaisesRegex(ValueError,'PAIRED_RANGE_DOMAIN'):optimize(source,paired_bank_ranges=True,reorder_banks=True)
+
     def test_persistent_color_slot_family_replays_every_packet_and_pixel(self):
         result=optimize(self.schedule(),window=356,time_limit=10,
             flexible_prefetch=True,retain_write_times=True,persistent_color_slots=True)

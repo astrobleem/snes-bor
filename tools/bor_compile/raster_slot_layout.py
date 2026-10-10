@@ -10,11 +10,13 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
-def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False,persistent_color_slots=False):
+def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False,persistent_color_slots=False,paired_bank_ranges=False):
     from ortools.sat.python import cp_model
     if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('SLOT_LAYOUT_VALIDATED_SCHEDULE_REQUIRED')
     if not 1<=window or not 1<=maximum_ranges<=4:raise ValueError('SLOT_LAYOUT_TRANSFER_DOMAIN')
+    if paired_bank_ranges and(reorder_banks or maximum_ranges!=4):raise ValueError('SLOT_LAYOUT_PAIRED_RANGE_DOMAIN')
+    if paired_bank_ranges:split_bank_ranges=True
     height=len(schedule['trace']);segments=[];current={};starts={};original_states=[];active_rows=[]
     original={b:[None]*15 for b in range(8)}
     for y,row in enumerate(schedule['trace']):
@@ -196,12 +198,12 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             else:model.add(sum(values)==1)
         model.add(sum(selected)<=maximum_ranges);model.add(sum(costs)<=window+39);model.add(peak>=sum(costs))
     if split_bank_ranges:
-        from raster_physical_ranges import constrain
+        from raster_physical_ranges import constrain,constrain_pairs
         if not flexible_prefetch:write_flags={key:[(i,model.new_constant(1))for i in values]for key,values in starts.items()}
         packet_hints=None
         if layout_hint and layout_hint.get('prepared_dma_packets'):
             packet_hints={row['scanline']:sorted((p['cgram_word_address']-128,p['cgram_word_address']-128+p['word_count']-1)for p in row['packets'])for row in layout_hint['prepared_dma_packets']}
-        ranges,peak=constrain(model,write_flags,slots,height,maximum_ranges,window,destinations if reorder_banks else None,packet_hints,event_hints)
+        ranges,peak=constrain_pairs(model,write_flags,slots,height,window)if paired_bank_ranges else constrain(model,write_flags,slots,height,maximum_ranges,window,destinations if reorder_banks else None,packet_hints,event_hints)
     for i,segment in enumerate(segments):model.add_hint(slots[i],hinted.get(i,(segment['old_slot'],0))[0])
     model.minimize(peak);solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
@@ -220,6 +222,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 retain_write_times=retain_write_times,
                 rectangle_lifetimes=rectangle_lifetimes,persistent_color_slots=persistent_color_slots,
                 split_bank_ranges=split_bank_ranges,
+                paired_bank_ranges=paired_bank_ranges,
                 fixed_slot_write_times_pruned=pruned_write_times,
                 solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),
                 solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
@@ -308,7 +311,8 @@ def main():
     p.add_argument('--retain-write-times',action='store_true')
     p.add_argument('--rectangle-lifetimes',action='store_true')
     p.add_argument('--persistent-color-slots',action='store_true')
-    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots,retain_write_times=a.retain_write_times,rectangle_lifetimes=a.rectangle_lifetimes,persistent_color_slots=a.persistent_color_slots)
+    p.add_argument('--paired-bank-ranges',action='store_true')
+    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots,retain_write_times=a.retain_write_times,rectangle_lifetimes=a.rectangle_lifetimes,persistent_color_slots=a.persistent_color_slots,paired_bank_ranges=a.paired_bank_ranges)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 

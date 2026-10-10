@@ -145,6 +145,10 @@ def rebalance(source,lookahead=17,maximum_moves=20,maximum_interval=32,anneal_st
             if snapshots[y][p['bank']][s]!=c:raise AssertionError('BANK_REBALANCE_PIXEL_IDENTITY')
         flat=image.flatten();images.append(dict(width=p['width'],height=p['height'],packed_nibble_order='low then high',pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
     result=copy.deepcopy(source)
+    # Earlier assignment restrictions describe the input encoding. Rebalancing
+    # can duplicate color identities or exceed its optional per-frame cap.
+    if 'bank_search'in result:result['input_bank_search']=result.pop('bank_search')
+    result['bank_assignment_authority']='bank_rebalance'
     result.update(pieces=pieces,piece_pixel_masks=images,trace=trace,piece_bank_assignment=assignment,
         peak_scheduled_writes=max(r['colors_written']for r in trace[1:]),peak_cgram_data_bytes=max(r['cgram_data_bytes']for r in trace[1:]),
         worst_scanline=1+int(np.argmax([r['colors_written']for r in trace[1:]])),average_writes=float(np.mean([r['colors_written']for r in trace[1:]])),

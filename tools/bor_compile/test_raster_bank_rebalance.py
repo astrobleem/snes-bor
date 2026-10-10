@@ -8,7 +8,11 @@ from test_raster_slot_greedy import source_schedule
 
 class RebalanceTests(unittest.TestCase):
     def test_duplicate_piece_colors_merge_banks_without_pixel_changes(self):
-        source=source_schedule();result=rebalance(source,lookahead=0)
+        source=source_schedule();source['bank_search']={'maximum_frame_colors_per_bank':15,'residency_window_lines':2}
+        result=rebalance(source,lookahead=0)
+        self.assertNotIn('bank_search',result)
+        self.assertEqual(result['input_bank_search'],source['bank_search'])
+        self.assertEqual(result['bank_assignment_authority'],'bank_rebalance')
         r=result['bank_rebalance']
         self.assertLess(r['final_objective'],r['initial_objective'])
         self.assertEqual(result['pieces'][0]['bank'],result['pieces'][1]['bank'])

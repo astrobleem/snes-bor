@@ -5,6 +5,32 @@ still need native admission. Addresses are relative to the 128-word OBJ half.
 """
 
 
+def constrain_pairs(model,write_flags,slots,height,window):
+    """Restricted four adjacent-bank pairs, with arbitrary endpoint slots."""
+    ranges={};peak=model.new_int_var(0,4096,'pairedPhysicalPeak')
+    for y in range(1,height):
+        costs=[]
+        for pair in range(4):
+            events=[(i,b,flag)for (line,b),values in write_flags.items()if line==y and b//2==pair for i,flag in values]
+            if not events:continue
+            active=model.new_bool_var(f'pairActive{y}_{pair}');model.add_max_equality(active,[flag for i,b,flag in events])
+            minima=[];maxima=[]
+            for i,b,flag in events:
+                address=16*b+slots[i]+1
+                lo=model.new_int_var(0,128,f'pairLow{y}_{i}');hi=model.new_int_var(-1,127,f'pairHigh{y}_{i}')
+                model.add(lo==address).only_enforce_if(flag);model.add(lo==128).only_enforce_if(flag.Not())
+                model.add(hi==address).only_enforce_if(flag);model.add(hi==-1).only_enforce_if(flag.Not())
+                minima.append(lo);maxima.append(hi)
+            minimum=model.new_int_var(0,128,f'pairMinimum{y}_{pair}');model.add_min_equality(minimum,minima)
+            end=model.new_int_var(-1,127,f'pairEnd{y}_{pair}');model.add_max_equality(end,maxima)
+            begin=model.new_int_var(0,127,f'pairBegin{y}_{pair}')
+            model.add(begin==minimum).only_enforce_if(active);model.add(begin==0).only_enforce_if(active.Not())
+            length=model.new_int_var(0,32,f'pairLength{y}_{pair}');model.add(length==end-begin+1)
+            ranges[y,pair]=(active,begin,end,length);costs.append(24*active+16*length)
+        if costs:model.add(sum(costs)<=window+39);model.add(peak>=sum(costs))
+    return ranges,peak
+
+
 def constrain(model, write_flags, slots, height, maximum_ranges, window, bank_destinations=None, packet_hints=None, event_hints=None):
     from raster_dma_partition import minimum_commit_span
     color_limit = max((c for c in range(121) if minimum_commit_span(c) < window), default=0)
