@@ -1,0 +1,497 @@
+{
+  "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+  "status": "PASS",
+  "nmi_context_checks": 4,
+  "nmi_context_faults": 0,
+  "peak_nmi_entry_to_rti_master_clocks": 37940,
+  "production_nmi_fields": 4,
+  "nmi_completed_within_vblank": true,
+  "production_queue_vram_identity_verified": true,
+  "production_queue_state_hex": "fe0a0000008091aa",
+  "pixel_identity_verified": true,
+  "pixel_mismatches": 0,
+  "complete_packet_fields": [
+    12,
+    13,
+    14,
+    15
+  ],
+  "packet_identity_faults": 0,
+  "unsafe_high_commits": 0,
+  "peak_observed_commit_span": 344,
+  "first_high_hclock_range": [
+    1096,
+    1104
+  ],
+  "irq_context_checks": 940,
+  "irq_context_faults": 0,
+  "peak_irq_entry_to_rti_master_clocks": 1092,
+  "oam_ram_identity_verified": true,
+  "oam_observer_identity_verified": true,
+  "obj_overflow_flags": [
+    [
+      12,
+      0
+    ],
+    [
+      13,
+      0
+    ],
+    [
+      14,
+      0
+    ],
+    [
+      15,
+      0
+    ]
+  ],
+  "source_frame_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+  "compiled_schedule_sha256": "9449437774d54abfc413e225904e8256f0378b2f073df70326dfc05488bfebdb",
+  "rom_sha256": "e208498437b12c1c48beff484b5eef641b0764c767ac37c1275def0b7d3213f7",
+  "expected_rgb555_sha256": "f91cf9c4be710140e170b678f425b4798d0bbacb716a3dd91e23dfb91fdbf26b",
+  "foreground_wait_for_irq": true,
+  "foreground_stress": false,
+  "dma_counts_prepared_previous_line": true,
+  "timer": 162,
+  "resources": {
+    "chr_report": {
+      "schema": "BYOR_RASTER_OBJ_CHR_V1",
+      "status": "LEGAL_MODE1_CHR_OAM_CONSTRUCTIVE_PROOF",
+      "obj_size_mode": 1,
+      "obj_size_pair": [
+        8,
+        32
+      ],
+      "oam_entries": 107,
+      "obj_chr_bytes": 3424,
+      "occupied_tile_cells": 107,
+      "unique_tiles": 107,
+      "reserved_tile_cells": [],
+      "chr_sha256": "f9f8f456cd519dd2d7fb06512d36f8294b7873027c713dc5e37a40276754904c",
+      "oam_sha256": "abe704fc98d85de2d10005a36fa181246f1e719738073bc971dca22c2ef08c35",
+      "emitted_oam_chr_pixel_indices_verified": true,
+      "native_render_proven": false,
+      "no_color_reduction": true
+    },
+    "stream_offsets": {
+      "1": 40062,
+      "2": 40706,
+      "3": 40736,
+      "4": 40912,
+      "5": 40941,
+      "6": 41115,
+      "7": 41142
+    },
+    "stream_bytes": {
+      "1": 644,
+      "2": 30,
+      "3": 176,
+      "4": 29,
+      "5": 174,
+      "6": 27,
+      "7": 140
+    },
+    "asset_bytes": 8514,
+    "source_metadata": {
+      "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+      "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+      "scene": {
+        "viewport": [
+          256,
+          224
+        ],
+        "piece_size": [
+          16,
+          32
+        ],
+        "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+        "actors": [
+          {
+            "model": "HBreath",
+            "animation": "idle",
+            "frame": 11,
+            "position": [
+              98,
+              220,
+              93
+            ],
+            "order": 2
+          }
+        ]
+      },
+      "layers": [
+        {
+          "kind": "background",
+          "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+          "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+          "source_dimensions": [
+            256,
+            224
+          ],
+          "position": [
+            0,
+            0
+          ],
+          "alpha": 0,
+          "visible_source_pixels": 57344,
+          "source_flip": false
+        },
+        {
+          "kind": "panel",
+          "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+          "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+          "source_dimensions": [
+            256,
+            224
+          ],
+          "position": [
+            0,
+            0
+          ],
+          "alpha": 0,
+          "visible_source_pixels": 0,
+          "source_flip": false
+        },
+        {
+          "kind": "actor:HBreath",
+          "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+          "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+          "source_dimensions": [
+            110,
+            90
+          ],
+          "position": [
+            84,
+            92
+          ],
+          "alpha": 1,
+          "visible_source_pixels": 2751,
+          "source_flip": false,
+          "requested_map": 0,
+          "selected_map": 0,
+          "source_model_type": "none",
+          "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+          "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+        }
+      ],
+      "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+      "alpha_source_dimensions": [
+        [
+          110,
+          90
+        ]
+      ],
+      "camera": [
+        0.0,
+        0.0
+      ],
+      "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+      "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+      "all_actor_models_preserved": true
+    },
+    "empty_scanline_dma_setup_skipped": 193,
+    "private_fixture_only": true,
+    "foreground_context": "WAI_EACH_RASTER_IRQ",
+    "dma_counts_prepared_previous_line": true,
+    "prepared_count_high_bytes_zero": true,
+    "idle_irq_bank_zero_abi": true,
+    "idle_irq_x_untouched": true,
+    "actual_source_vm_execution_proven": false,
+    "production_nmi_service_code_executed": true,
+    "production_nmi_queue_bytes": 2814,
+    "production_queue_registration_executed": false,
+    "production_queue_byte_cap": 2816,
+    "within_production_queue_byte_cap": true,
+    "service_path_stress_only": false,
+    "initial_palette_vblank_bytes": 256,
+    "raster_cgram_owned_word_range": [
+      128,
+      255
+    ],
+    "production_cold_boot_proven": false,
+    "code_rom_banks": [
+      103,
+      104
+    ],
+    "asset_rom_bank": 106,
+    "sa1_mmc_registers_changed": false,
+    "standalone_lorom": false,
+    "production_sa1_mapping_proven": true,
+    "production_sa1_worker_execution_proven": false,
+    "bank_zero_growth_bytes": 0,
+    "irq_dma_channels": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "hdma_channels": [],
+    "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY"
+  },
+  "frame_advancement": [
+    {
+      "requested": 1,
+      "startFrame": 0,
+      "endFrame": 1,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 1,
+      "endFrame": 2,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 2,
+      "endFrame": 3,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 3,
+      "endFrame": 4,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 4,
+      "endFrame": 5,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 5,
+      "endFrame": 6,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 6,
+      "endFrame": 7,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 7,
+      "endFrame": 8,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 8,
+      "endFrame": 9,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 9,
+      "endFrame": 10,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 10,
+      "endFrame": 11,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 11,
+      "endFrame": 12,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 12,
+      "endFrame": 12,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 12,
+      "endFrame": 12,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 12,
+      "endFrame": 13,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 13,
+      "endFrame": 13,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 13,
+      "endFrame": 13,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 13,
+      "endFrame": 14,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    },
+    {
+      "requested": 1,
+      "startFrame": 14,
+      "endFrame": 14,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 14,
+      "endFrame": 14,
+      "framesAdvanced": 0,
+      "isPaused": true,
+      "timedOut": true
+    },
+    {
+      "requested": 1,
+      "startFrame": 14,
+      "endFrame": 15,
+      "framesAdvanced": 1,
+      "isPaused": true,
+      "timedOut": false
+    }
+  ],
+  "ppu": {
+    "frameCount": 15,
+    "scanline": 252,
+    "forcedBlank": false,
+    "brightness": 15,
+    "bgMode": 1,
+    "mainScreenLayers": 16,
+    "subScreenLayers": 0,
+    "mainScreenWindowMask": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "subScreenWindowMask": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "mosaicSize": 0,
+    "mosaicEnabled": 0,
+    "layers": [
+      {
+        "index": 0,
+        "tilemapAddr": 0,
+        "chrAddr": 0,
+        "hscroll": 0,
+        "vscroll": 0,
+        "largeTiles": false,
+        "doubleWidth": false,
+        "doubleHeight": false
+      },
+      {
+        "index": 1,
+        "tilemapAddr": 0,
+        "chrAddr": 0,
+        "hscroll": 0,
+        "vscroll": 0,
+        "largeTiles": false,
+        "doubleWidth": false,
+        "doubleHeight": false
+      },
+      {
+        "index": 2,
+        "tilemapAddr": 0,
+        "chrAddr": 0,
+        "hscroll": 0,
+        "vscroll": 0,
+        "largeTiles": false,
+        "doubleWidth": false,
+        "doubleHeight": false
+      },
+      {
+        "index": 3,
+        "tilemapAddr": 0,
+        "chrAddr": 0,
+        "hscroll": 0,
+        "vscroll": 0,
+        "largeTiles": false,
+        "doubleWidth": false,
+        "doubleHeight": false
+      }
+    ]
+  },
+  "cpu": {
+    "cpuType": "Snes",
+    "pc": 36864,
+    "k": 167,
+    "a": 4660,
+    "x": 22136,
+    "y": 39612,
+    "sp": 8187,
+    "d": 9029,
+    "dbr": 0,
+    "ps": 5,
+    "emulationMode": false,
+    "stopState": "Running",
+    "cycleCount": 786144
+  },
+  "no_color_reduction": true,
+  "production_runtime_admitted": false,
+  "authored_stage_and_concurrent_actors_proven": false,
+  "motu_gameplay_proven": false,
+  "input_schedule_file_sha256": "15e001ce08e54b2a0c84a848c3d78d6c78b55de3494f45795cc2accd33bb561c",
+  "compiled_transfer_descriptor_sha256": "2ae41546d36164b25791726d68110899a09485ba6fc72cf5eb5b6589859ccfdb",
+  "peak_observed_cgram_packet_bytes": 44,
+  "latest_aligned_safe_high_hclock": 1448,
+  "observed_latest_first_high_hclock": 1104,
+  "observed_available_commit_span_master_clocks": 344
+}

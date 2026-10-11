@@ -10,7 +10,7 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
-def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False,persistent_color_slots=False,paired_bank_ranges=False):
+def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False,persistent_color_slots=False,paired_bank_ranges=False,collapse_idle_prefix=False):
     from ortools.sat.python import cp_model
     if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('SLOT_LAYOUT_VALIDATED_SCHEDULE_REQUIRED')
@@ -35,12 +35,14 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
     hint_family=fix_hint_slots or permute_hint_slots
     if retain_write_times and(not flexible_prefetch or demand_gap is not None):raise ValueError('SLOT_LAYOUT_RETAIN_WRITE_TIMES_DOMAIN')
     if rectangle_lifetimes and(not flexible_prefetch or hint_family or retain_write_times):raise ValueError('SLOT_LAYOUT_RECTANGLE_LIFETIME_DOMAIN')
+    if collapse_idle_prefix and(not flexible_prefetch or retain_write_times):raise ValueError('SLOT_LAYOUT_IDLE_PREFIX_DOMAIN')
     required={};last_use={};first_use={}
     for p,mask in zip(schedule['pieces'],schedule['piece_pixel_masks']):
         image=unpack(mask)
         for ly,lx in zip(*np.where(image!=0)):
             y=int(p['y']+ly);bank=p['bank'];s=int(image[ly,lx])-1;i=active_rows[y][bank,s]
             last_use[i]=max(last_use.get(i,-1),y);first_use[i]=min(first_use.get(i,height),y);required.setdefault((y,bank),set()).add(segments[i]['color'])
+    first_visible_line=min(first_use.values(),default=0)
     if demand_gap is not None:
         if not isinstance(demand_gap,int)or demand_gap<0 or not trim_dead_residents:raise ValueError('SLOT_LAYOUT_DEMAND_GAP_DOMAIN')
         uses={}
@@ -120,7 +122,8 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         lanes={(b,s):[]for b in range(8)for s in range(15)}
         rectangles={b:[]for b in range(8)}
         for i in sorted(last_use):
-            first=first_use[i];allowed=[0]+list(range(max(1,first-lookahead),first+1))
+            first=first_use[i];earliest=max(1,first-lookahead,first_visible_line+1 if collapse_idle_prefix else 1)
+            allowed=[0]+list(range(earliest,first+1))
             if retain_write_times:
                 if segments[i]['first']not in allowed:raise ValueError('SLOT_LAYOUT_RETAIN_WRITE_TIMES_LATENCY')
                 allowed=[segments[i]['first']]
@@ -215,6 +218,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 trim_dead_residents=trim_dead_residents,used_lifetime_segments=len(last_use),
                 flexible_prefetch=flexible_prefetch,lookahead_lines=lookahead if flexible_prefetch else None,
                 demand_gap_lines=demand_gap,
+                idle_prefix_collapsed=collapse_idle_prefix,first_visible_source_line=first_visible_line,
                 layout_hint_used=layout_hint is not None,
                 reorder_banks=reorder_banks,
                 fixed_hint_slots=fix_hint_slots,
@@ -315,7 +319,8 @@ def main():
     p.add_argument('--rectangle-lifetimes',action='store_true')
     p.add_argument('--persistent-color-slots',action='store_true')
     p.add_argument('--paired-bank-ranges',action='store_true')
-    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots,retain_write_times=a.retain_write_times,rectangle_lifetimes=a.rectangle_lifetimes,persistent_color_slots=a.persistent_color_slots,paired_bank_ranges=a.paired_bank_ranges)
+    p.add_argument('--collapse-idle-prefix',action='store_true',help='Fold writes through the first visible source row into free VBlank initialization; requires flexible prefetch without fixed write times.')
+    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots,retain_write_times=a.retain_write_times,rectangle_lifetimes=a.rectangle_lifetimes,persistent_color_slots=a.persistent_color_slots,paired_bank_ranges=a.paired_bank_ranges,collapse_idle_prefix=a.collapse_idle_prefix)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 

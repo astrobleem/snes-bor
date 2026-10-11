@@ -6,6 +6,24 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_idle_prefix_fold_preserves_source_words_and_opaque_zero(self):
+        from raster_slot_greedy import demand
+        source=self.schedule();prefix=4
+        empty={b:[None]*15 for b in range(8)}
+        source['trace']=[dict(scanline=y,resident_before=copy.deepcopy(empty),updates=[])for y in range(prefix)]+source['trace']
+        for y,row in enumerate(source['trace']):row['scanline']=y
+        for piece in source['pieces']:piece['y']+=prefix
+        _,_,before=demand(source)
+        result=optimize(source,window=356,time_limit=10,flexible_prefetch=True,
+            split_bank_ranges=True,collapse_idle_prefix=True)
+        self.assertEqual(result['physical_slot_layout']['first_visible_source_line'],prefix)
+        self.assertTrue(result['physical_slot_layout']['idle_prefix_collapsed'])
+        self.assertTrue(all(not row['updates']for row in result['trace'][1:prefix+1]))
+        _,_,after=demand(result)
+        self.assertTrue(all(np.array_equal(a,b)for a,b in zip(before,after)))
+        with self.assertRaisesRegex(ValueError,'IDLE_PREFIX_DOMAIN'):optimize(source,collapse_idle_prefix=True)
+        with self.assertRaisesRegex(ValueError,'IDLE_PREFIX_DOMAIN'):optimize(source,flexible_prefetch=True,retain_write_times=True,collapse_idle_prefix=True)
+
     def test_source_bound_alpha_controls_are_part_of_schedule_identity(self):
         source=self.schedule()
         source.update(scanline_math_controls_source_bound=True,selected_modes={'0':'half-add'},compiled_color_window_descriptors={'0':{'bounds':[[3,8],[255,0]]}})
