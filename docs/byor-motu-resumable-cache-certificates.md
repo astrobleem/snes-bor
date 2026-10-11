@@ -14,8 +14,8 @@ to neighborhood size retain valid cache cuts because the cache model itself
 has not changed. CLI output summarizes progress; complete certificates remain
 in the schedule artifact.
 
-Nine authored peak runs retain 307 certificates and 299 unique evaluated bank
-assignments. The second run restores 34 certificates; the ninth restores 271.
+Ten authored peak runs retain 324 certificates and 315 unique evaluated bank
+assignments. The second run restores 34 certificates; the tenth restores 307.
 Independent source-word and bank-eligibility replay matches every piece. The
 best assignment-specific fractional clock bound improves from 359.650 to
 353.923, above the demonstrated 344-clock constant-control window. The
@@ -32,6 +32,10 @@ bound grants the same favorable fractional active-bank and bridge behavior as
 the cache LP. Each evaluated assignment independently replays these bounds
 against its LP optimum. Changing these redundant master bounds preserves the
 cache basis and permits reuse of the existing dual certificates.
+The tenth run installs 192 interval bounds, each replayed against the cache
+LP. Its unrestricted master lower bounds are positive, ranging from 111.671
+to 199.759 clocks in the retained iterations. They remain below the hardware
+target; this is not a global raster rejection.
 
 Twenty-six focused decomposition, bank-cache, interval-cache and bank-class
 tests pass, including interval bounds with resumed cuts, resumed cut reuse,

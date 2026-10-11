@@ -83,6 +83,15 @@
       "retained_assignments": 299,
       "best_clock_bound": 353.92309486797467,
       "cache_basis_sha256": "962cc4b1a864064e35a948cd98a276f35de5963afd3a613a3fba891553a8d894"
+    },
+    "byor-motu-authored-peak-resumable-dma-decomposition-interval-round10": {
+      "iterations": 17,
+      "seconds": 249.25,
+      "restored_cuts": 307,
+      "retained_cuts": 324,
+      "retained_assignments": 315,
+      "best_clock_bound": 353.92309486797467,
+      "cache_basis_sha256": "962cc4b1a864064e35a948cd98a276f35de5963afd3a613a3fba891553a8d894"
     }
   },
   "saved_duals_validated_before_master_reuse": true,
@@ -107,6 +116,7 @@
     "byor-motu-authored-peak-resumable-dma-decomposition-round6": "09872434240228e5e9af05f464bea3b5f2795a1078d740fe0bda2a511acb58e0",
     "byor-motu-authored-peak-resumable-dma-decomposition-round7": "d8fc2b43fe7b22e77ee9b060220562f1e6690937619f3340ccfcbe236bd10866",
     "byor-motu-authored-peak-resumable-dma-decomposition-round8": "cdb1f43025f2cca409616798d17e3c97a0fa5bbd74dbc84fb4ed642438201a28",
-    "byor-motu-authored-peak-resumable-dma-decomposition-global-round9": "4ab6cefcfe3af219872fec1f4fa226b3a4c3c64e2429aa7a8e8bc6eb1a4140f5"
+    "byor-motu-authored-peak-resumable-dma-decomposition-global-round9": "4ab6cefcfe3af219872fec1f4fa226b3a4c3c64e2429aa7a8e8bc6eb1a4140f5",
+    "byor-motu-authored-peak-resumable-dma-decomposition-interval-round10": "31943eac3a0c3442e044c00483a6899aef2e7de34eed6df8d1497509b73c4fa0"
   }
 }
