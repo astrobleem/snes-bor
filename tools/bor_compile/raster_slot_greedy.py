@@ -27,10 +27,11 @@ def partition(bounds,maximum_ranges=4):
     return max(0,cost-40),groups
 
 
-def demand(schedule,allow_restricted=False):
+def demand(schedule,allow_restricted=False,allow_geometry_hint=False):
     full=schedule.get('status')=='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN'and schedule.get('compiled_pixel_identity_verified')
     restricted=allow_restricted and schedule.get('status')=='RESTRICTED_SCANLINE_DEMAND_ONLY'and schedule.get('restricted_pixel_identity_verified')and schedule.get('outside_interval_pixels_relaxed')and not schedule.get('complete_source_frame_pixel_identity_proven')
-    if not(full or restricted):
+    geometry_hint=allow_geometry_hint and schedule.get('status')=='SOURCE_EXACT_GEOMETRY_SEARCH_HINT'and schedule.get('compiled_pixel_identity_verified')and schedule.get('source_operand_identity_verified')and not schedule.get('hardware_geometry_admitted')and not schedule.get('native_presentation_proven')
+    if not(full or restricted or geometry_hint):
         raise ValueError('GREEDY_VALIDATED_SOURCE_SCHEDULE_REQUIRED')
     height=len(schedule['trace']);state={b:[None]*15 for b in range(8)};original=[]
     for y,row in enumerate(schedule['trace']):

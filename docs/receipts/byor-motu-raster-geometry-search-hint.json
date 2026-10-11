@@ -1,0 +1,135 @@
+{
+  "schema": "BYOR_SOURCE_EXACT_GEOMETRY_SEARCH_HINT_RECEIPT_V1",
+  "search_hint_oam_entries": 162,
+  "search_hint_peak_sprites": 33,
+  "search_hint_peak_tiles": 33,
+  "search_hint_hardware_admitted": false,
+  "search_hint_source_operands": 2668,
+  "search_hint_palette_transitions_unchanged": true,
+  "geometry_search_status": "UNKNOWN",
+  "residency_search_status": "UNKNOWN",
+  "best_complete_physical_span": 552,
+  "measured_isolated_native_window": 336,
+  "focused_tests_passed": 60,
+  "focused_tests_seconds": 31.393,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "no_color_reduction": true,
+  "authored_native_raster_proven": false,
+  "universal_raster_rejected": false,
+  "trials": [
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-source-exact-small-geometry-hint.json",
+      "sha256": "84d280efce49b168f4af156b6d7b4bdf21de7cbb9ee94d1987a802eceb0351f4",
+      "status": "SOURCE_EXACT_GEOMETRY_SEARCH_HINT",
+      "solver": null,
+      "bank_residency": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "FIXED_BANK_RESIDENCY_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_backend": "cp-sat",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 45.1208739,
+        "solver_model_variables": 27167,
+        "solver_model_constraints": 61019,
+        "solver_branches": 59822,
+        "solver_conflicts": 3273,
+        "write_budget": 18,
+        "lookahead_lines": 55,
+        "prepared_window_master_clocks": 377,
+        "range_backend": "adjacent",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "compulsory_bank_interval_cuts": 6564,
+        "soft_residency_hint_interval": null,
+        "total_noninitial_writes_objective": false,
+        "peak_optimistic_prepared_span_objective": true,
+        "peak_optimistic_span_lower_bound_for_this_fixed_bank_family": 266,
+        "peak_scheduled_writes": 17,
+        "maximum_noninitial_prefetch_latency_lines": 19,
+        "pixel_color_identity_verified": true,
+        "independent_prepared_partition_bound_verified": true,
+        "peak_optimistic_prepared_span": 344,
+        "total_noninitial_scheduled_writes": 421
+      },
+      "geometry": {
+        "oam_entries": 162,
+        "peak_sprites": 33,
+        "peak_tile_slivers": 33
+      },
+      "geometry_search_hint": {
+        "origin": [
+          0,
+          0
+        ],
+        "input_geometry": {
+          "oam_entries": 87,
+          "peak_sprites_per_line": 25,
+          "peak_tile_slivers_per_line": 34
+        },
+        "geometry": {
+          "oam_entries": 162,
+          "peak_sprites": 33,
+          "peak_tile_slivers": 33
+        },
+        "source_pixels": 2668,
+        "source_operands_and_banks_exact": true,
+        "input_palette_schedule_unchanged": true,
+        "hardware_candidate": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-small-geometry-joint337.json",
+      "sha256": "a089106af10f310594d8d91386e54ce5df9783f616d0f8408dbd7b83baa79c80",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 107353,
+        "constraints": 266945,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 106528,
+          "hint_is_soft": true,
+          "log_lines": 239,
+          "sat_inprocessing": false,
+          "branches": 184310,
+          "conflicts": 100164,
+          "wall_seconds": 65.26156180000001,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "bank_residency": null,
+      "geometry": null,
+      "geometry_search_hint": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-subdivision-span337-physical-hint.json",
+      "sha256": "c2e5b8e52e4e8f09116287118ff9e60b265cd43a7c1947586fc4e916abd6303d",
+      "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+      "solver": null,
+      "bank_residency": null,
+      "geometry": null,
+      "geometry_search_hint": null
+    }
+  ]
+}

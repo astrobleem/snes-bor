@@ -6,6 +6,26 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_geometry_hint_requires_new_hardware_checked_solution(self):
+        from raster_geometry_hint import construct
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((16,16),-1,dtype=np.int32);pixels[9,9]=1
+        expected=background.copy();expected[53,9,0]=8
+        actors=[dict(pixels=pixels,left=0,top=44)]
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            initial=probe(None,None,{},size=16,write_budget=1,time_limit=5,solver_backend='cp-sat')
+            hint=construct(initial)
+            result=probe(None,None,{},size=8,write_budget=1,time_limit=5,solver_backend='cp-sat',schedule_hint=hint,fixed_rectangles=True)
+            self.assertTrue(result['input_geometry_is_search_hint'])
+            self.assertTrue(result['compiled_pixel_identity_verified'])
+            self.assertEqual(result['geometry']['oam_entries'],1)
+            with self.assertRaisesRegex(ValueError,'GEOMETRY_SEARCH_HINT_REQUIRES_FIXED_RECTANGLES'):
+                probe(None,None,{},size=8,write_budget=1,time_limit=5,solver_backend='cp-sat',schedule_hint=hint)
+            locked=construct(initial)
+            for p in locked['pieces']:p['allowed_banks']=[p['bank']]
+            result=probe(None,None,{},size=8,write_budget=1,time_limit=5,solver_backend='cp-sat',schedule_hint=locked,fixed_rectangles=True)
+            self.assertEqual([p['bank']for p in result['pieces']],[p['bank']for p in locked['pieces']])
+
     def test_extra_fixed_bank_mask_solves_static_lifetime_capacity(self):
         background=np.zeros((224,256,3),dtype=np.uint8)
         pixels=np.full((8,8),-1,dtype=np.int32);pixels[:2]=np.arange(1,17).reshape(2,8)

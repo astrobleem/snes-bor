@@ -143,7 +143,12 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     if row_capacity_only and(write_budget!=120 or lookahead!=0 or early_write_budget is not None or prepared_dma_window is not None or pool_residency or pin_pool_intervals or schedule_hint):raise ValueError('JOINT_ROW_CAPACITY_ONLY_REQUIRES_UNBOUNDED_NO_PREFETCH')
     def line_budget(y):return early_write_budget if early_write_budget is not None and y < late_start else write_budget
     actors, metadata, expected = prepare(source, stage, scene)
-    if schedule_hint is not None and ((solver_backend!='cp-sat' and not(fixed_geometry or fixed_rectangles)) or schedule_hint.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule_hint.get('compiled_pixel_identity_verified') or schedule_hint.get('metadata')!=metadata or schedule_hint.get('source_rgb555_sha256')!=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()):
+    input_geometry_search_hint=schedule_hint is not None and schedule_hint.get('status')=='SOURCE_EXACT_GEOMETRY_SEARCH_HINT'
+    if input_geometry_search_hint:
+        if not(fixed_geometry or fixed_rectangles):raise ValueError('JOINT_GEOMETRY_SEARCH_HINT_REQUIRES_FIXED_RECTANGLES')
+        from raster_slot_greedy import demand as replay_hint
+        replay_hint(schedule_hint,allow_geometry_hint=True)
+    if schedule_hint is not None and ((solver_backend!='cp-sat' and not(fixed_geometry or fixed_rectangles)) or schedule_hint.get('status')not in('JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN','SOURCE_EXACT_GEOMETRY_SEARCH_HINT') or not schedule_hint.get('compiled_pixel_identity_verified') or schedule_hint.get('metadata')!=metadata or schedule_hint.get('source_rgb555_sha256')!=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()):
         raise ValueError('JOINT_SCHEDULE_HINT_IDENTITY')
     if schedule_hint is not None and schedule_hint.get('color_math','additive')!=color_math:raise ValueError('JOINT_SCHEDULE_HINT_COLOR_MATH')
     pool=set();pool_first=0
@@ -277,6 +282,10 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         return result
     owner,chosen_masks,hint_states=hint_ownership(schedule_hint,pieces)if schedule_hint is not None else({},set(),[])
     if fixed_geometry or fixed_rectangles:
+        from raster_obj_compact import unpack
+        pixel_allowed={}
+        for p,m in zip(schedule_hint['pieces'],schedule_hint['piece_pixel_masks']):
+            for ly,lx in zip(*np.where(unpack(m)!=0)):pixel_allowed[int(p['y']+ly),int(p['x']+lx)]=tuple(p.get('allowed_banks',range(8)))
         split=[]
         for atom in atoms:
             groups={}
@@ -284,8 +293,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 if tuple(pixel)not in owner:raise ValueError('JOINT_SCHEDULE_HINT_PIXEL')
                 piece,bank,word=owner[tuple(pixel)]
                 if piece not in atom['options']:raise ValueError('JOINT_FIXED_GEOMETRY_PIXEL_OPTION')
-                groups.setdefault((piece,bank if fixed_geometry else None,kind(bank)if preserve_hint_math_classes else None,word if preserve_hint_words else None),[]).append(pixel)
-            for (piece,bank,hint_class,hint_word),pixels in groups.items():split.append(dict(atom,options=[piece],fixed_bank=bank,hint_class=hint_class,hint_word=hint_word,pixels=pixels))
+                groups.setdefault((piece,bank if fixed_geometry else None,kind(bank)if preserve_hint_math_classes else None,word if preserve_hint_words else None,pixel_allowed[tuple(pixel)]),[]).append(pixel)
+            for (piece,bank,hint_class,hint_word,allowed_banks),pixels in groups.items():split.append(dict(atom,options=[piece],fixed_bank=bank,hint_class=hint_class,hint_word=hint_word,hint_allowed_banks=allowed_banks,pixels=pixels))
         atoms=split
     variable_count = 0;nonboolean_upper={}
     def allocate():
@@ -296,6 +305,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     choices = {}; uses = {};opaque_variables={};opaque_choice_entries=0;math_variables={};math_choice_entries=0
     for i, atom in enumerate(atoms):
         for bank in range(8):
+            if bank not in atom.get('hint_allowed_banks',range(8)):continue
             if fixed_geometry and bank!=atom['fixed_bank']:continue
             if preserve_hint_math_classes and kind(bank)!=atom['hint_class']:continue
             if additive_only and kind(bank)==0:continue
@@ -598,6 +608,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 prepared_dma_window_master_clocks=prepared_dma_window,
                 prepared_dma_window_is_optimistic_necessary_only=prepared_dma_window is not None,
                 schedule_hint_used=schedule_hint is not None,
+                input_geometry_is_search_hint=input_geometry_search_hint,
                 schedule_residency_hint_used=schedule_hint is not None and solver_backend=='cp-sat'and not pin_scanline_pool_intervals,
                 initial_preload_prefix_capacity_modeled=True,
                 initial_preload_prefix_colors=len(preload_prefixes),
