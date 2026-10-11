@@ -10,6 +10,17 @@ from test_raster_slot_layout import SlotLayoutTests
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class WindowSlotTests(unittest.TestCase):
+    def test_joint_bank_assignment_stays_fixed_and_respects_math_eligibility(self):
+        source,bg,expected=self.source();source['pieces'][0]['allowed_banks']=[4,5]
+        result=optimize(source,bg,expected,time_limit=5,maximum_writes=0,movable_pieces=[0])
+        verify_packets(result)
+        self.assertIn(result['pieces'][0]['bank'],[4,5])
+        self.assertTrue(result['physical_slot_layout']['piece_banks_fixed_across_all_scanlines'])
+        self.assertTrue(result['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
+        self.assertEqual(len(result['pieces']),len(source['pieces']))
+        with self.assertRaisesRegex(ValueError,'MOVABLE_PIECES'):optimize(source,bg,expected,movable_pieces=[1])
+        with self.assertRaisesRegex(ValueError,'ENCODING_COMBINATION'):optimize(source,bg,expected,movable_pieces=[0],complete_exact_operands=True)
+
     def test_saturated_exact_operands_can_reuse_resident_words(self):
         source,bg,_=self.source();mask=np.zeros((8,8),dtype=np.uint8);mask[0,:2]=[1,2]
         flat=mask.flatten();source['piece_pixel_masks'][0]['pixels_hex']=(flat[::2]|flat[1::2]<<4).tobytes().hex()

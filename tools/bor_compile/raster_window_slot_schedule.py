@@ -1,4 +1,4 @@
-"""Exact fixed-bank slot allocation with two source-derived color windows.
+"""Exact lifetime-fixed bank/slot allocation with source-derived color windows.
 
 Shared row math modes remain fixed. Upper-bank pixels may use their literal
 output outside the windows or an exact operand inside them. This is a bounded
@@ -54,12 +54,20 @@ def derive(source,background,expected):
     return points,rows,[sorted(v)for v in tables],hint
 
 
-def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,necessary_bank_window=None,search_strategy='portfolio',reuse_exact_operands=False,repair_interval=None,complete_exact_operands=False):
+def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,necessary_bank_window=None,search_strategy='portfolio',reuse_exact_operands=False,repair_interval=None,complete_exact_operands=False,movable_pieces=None):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0 or type(maximum_writes)is not int or not 0<=maximum_writes<=120:raise ValueError('WINDOW_SLOT_DOMAIN')
     if search_strategy not in('portfolio','lns'):raise ValueError('WINDOW_SLOT_SEARCH_STRATEGY')
     if necessary_bank_window is not None and(type(necessary_bank_window)is not int or necessary_bank_window<1):raise ValueError('WINDOW_SLOT_BANK_WINDOW_DOMAIN')
     points,rows,tables,hint=derive(source,background,expected);first,last=min(rows),max(rows);height=len(source['trace'])
+    movable=set(movable_pieces or[])
+    if any(type(i)is not int or not 0<=i<len(source['pieces'])for i in movable):raise ValueError('WINDOW_SLOT_MOVABLE_PIECES')
+    if movable and(reuse_exact_operands or complete_exact_operands or repair_interval is not None):raise ValueError('WINDOW_SLOT_BANK_SEARCH_ENCODING_COMBINATION')
+    bank_options={i:sorted(set(range(4*(p['bank']//4),4*(p['bank']//4)+4))&set(p.get('allowed_banks',range(8))))if i in movable else[p['bank']]for i,p in enumerate(source['pieces'])}
+    for group in(0,4):
+        vocabulary=set().union(*(tables[b]for b in range(group,group+4)))
+        if any(i in movable and p['bank']//4==group//4 for i,p in enumerate(source['pieces'])):
+            for b in range(group,group+4):tables[b]=sorted(vocabulary)
     if repair_interval is not None and(len(repair_interval)!=2 or not first<=repair_interval[0]<=repair_interval[1]<=last):raise ValueError('WINDOW_SLOT_REPAIR_INTERVAL')
     complete_options={};cover_reports={}
     if complete_exact_operands:
@@ -72,7 +80,13 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
             options,cover_reports[b]=complete_math_cover(requirements,modes=modes,tag_modes=True,retained_operands=tables[b])
             complete_options[b]=options;tables[b]=sorted(set(tables[b])|{word for choices in options.values()for word in choices})
     codes=[{word:i for i,word in enumerate(table)}for table in tables]
-    model=cp_model.CpModel();values={};flags={};gates={};selected_indices={};presence={};hint_values={};mandatory={};pixel_reads={}
+    model=cp_model.CpModel();values={};flags={};gates={};selected_indices={};presence={};hint_values={};mandatory={};pixel_reads={};bank_choices={}
+    for i in movable:
+        choices=[]
+        for b in bank_options[i]:
+            choice=model.new_bool_var(f'pieceBank{i}_{b}');bank_choices[i,b]=choice;choices.append(choice)
+            model.add_hint(choice,int(b==source['pieces'][i]['bank']))
+        model.add(sum(choices)==1)
     alternative_pixels=0
     for p in points:
         choices=[p['operand']]if p['operand']is not None else[]
@@ -83,7 +97,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         p['operand_choices']=choices;alternative_pixels+=len(choices)>1
     for y,items in rows.items():
         for p in items:
-            if p['bank']<4 or not p['operand_choices']or set(p['operand_choices'])=={p['output']}:
+            if p['piece']not in movable and(p['bank']<4 or not p['operand_choices']or set(p['operand_choices'])=={p['output']}):
                 mandatory.setdefault((y,p['bank']),set()).add(p['output'])
     for y in range(first,last+1):
         for b in range(8):
@@ -112,6 +126,19 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         needed={}
         for p in rows.get(y,[]):
             b=p['bank'];out=p['output'];operand=p['operand']
+            if p['piece']in movable:
+                for bank in bank_options[p['piece']]:
+                    choice=bank_choices[p['piece'],bank]
+                    if bank<4:needed.setdefault((bank,out),[]).append(choice)
+                    else:
+                        gate=gates[y,p['x']]
+                        for word,condition in((out,gate.Not()),(operand,gate)):
+                            if word is None:continue
+                            active=model.new_bool_var(f'bankWord{y}_{p["piece"]}_{p["ly"]}_{p["lx"]}_{bank}_{word}_{len(needed)}')
+                            model.add(active<=choice);model.add(active<=condition);model.add(active>=choice+condition-1)
+                            needed.setdefault((bank,word),[]).append(active)
+                        if operand is None:model.add(gate==0)
+                continue
             if len(p['operand_choices'])>1:
                 key=p['piece'],p['ly'],p['lx'];index=model.new_int_var(0,14,f'alternativeIndex{key}')
                 read=model.new_int_var(0,len(tables[b])-1,f'alternativeRead{key}');pixel_reads[key]=read
@@ -134,6 +161,20 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
             hv=[0 if c is None else c for c in hint[y][b]];model.add_hint(index,hv.index(word)if word in hv else 0)
             model.add_hint(read,codes[b][word]if word in hv else hint_values[y,b,0])
             old_active=any(p['bank']==b and p['old_word']==word for p in rows.get(y,[]));model.add_hint(active,int(old_active))
+        for b in range(8):
+            entries=sorted((word,active)for(line,bank,word),active in presence.items()if line==y and bank==b)
+            row_presence=[active for word,active in entries]
+            if row_presence:model.add(sum(row_presence)<=15)
+            if movable and len(entries)>1:
+                matching=[]
+                for j,(word,active)in enumerate(entries):
+                    match=model.new_int_var_from_domain(cp_model.Domain.from_values(list(range(15))+[15+j]),f'optionalMatch{y}_{b}_{word}')
+                    model.add(match==selected_indices[y,b,word]).only_enforce_if(active)
+                    model.add(match==15+j).only_enforce_if(active.Not());matching.append(match)
+                    old_active=any(p['bank']==b and p['old_word']==word for p in rows.get(y,[]))
+                    hv=[0 if c is None else c for c in hint[y][b]]
+                    model.add_hint(match,hv.index(word)if old_active else 15+j)
+                model.add_all_different(matching)
     for (y,b),words in mandatory.items():
         indexes=[selected_indices[y,b,word]for word in sorted(words)]
         if len(indexes)>1:model.add_all_different(indexes)
@@ -173,7 +214,8 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
     status=solver.solve(model)
     report=dict(schema='BYOR_FIXED_BANK_WINDOW_SLOT_SCHEDULE_V1',solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
         solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),solver_search_strategy=search_strategy,
-        shared_row_math_modes_unchanged=True,two_color_windows_with_polarity_choice_enforced=True,fixed_piece_banks_unchanged=True,
+        shared_row_math_modes_unchanged=True,two_color_windows_with_polarity_choice_enforced=True,fixed_piece_banks_unchanged=not movable,
+        offline_bank_assignment_movable_pieces=sorted(movable),piece_banks_fixed_across_all_scanlines=True,
         maximum_physical_writes=maximum_writes,necessary_bank_window_master_clocks=necessary_bank_window,physical_window_master_clocks=window,
         mandatory_identity_bank_interval_cuts=interval_cuts,
         resident_exact_operand_reuse_enabled=reuse_exact_operands,pixels_with_multiple_exact_operand_choices=alternative_pixels,
@@ -181,6 +223,8 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         repair_interval=repair_interval,
         native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return dict(report,status='BOUNDED_WINDOW_SLOT_NO_CANDIDATE')
+    assignment={i:next(b for b in bank_options[i]if solver.value(bank_choices[i,b]))for i in movable}
+    for p in points:p['bank']=assignment.get(p['piece'],p['bank'])
     states=[];trace=[];packets=[];old={b:[None]*15 for b in range(8)};windows=copy.deepcopy(source['compiled_color_window_descriptors'])
     selected_uses=[{}for b in range(8)];selected_required={};latency=dead_writes=0
     def selected_word(p,enabled):
@@ -215,6 +259,8 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         replay[y,x]=apply_math(word,int(background[y,x]),source['selected_modes'][str(y)])if enabled else word
     if not np.array_equal(replay,expected):raise AssertionError('WINDOW_SLOT_COMPLETE_OUTPUT_FRAME_REPLAY')
     result=copy.deepcopy(source);masks=[]
+    for i,b in assignment.items():result['pieces'][i]['bank']=b
+    report['selected_fixed_piece_bank_assignment']=assignment
     for image in images:
         flat=image.flatten();masks.append(dict(width=image.shape[1],height=image.shape[0],pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex(),packed_nibble_order='low then high'))
     for key in('bank_residency','physical_slot_layout','physical_slot_refinement','optimistic_bank_order'):
@@ -257,6 +303,7 @@ def main():
     p.add_argument('--reuse-exact-operands',action='store_true')
     p.add_argument('--repair-interval',type=int,nargs=2)
     p.add_argument('--complete-exact-operands',action='store_true')
+    p.add_argument('--movable-pieces',type=int,nargs='+')
     a=p.parse_args()
     from compiler import Source
     from source_scene_obj_raster import prepare
@@ -266,7 +313,7 @@ def main():
     _,metadata,expected=prepare(source,a.stage,scene)
     if schedule['metadata']!=metadata:raise ValueError('WINDOW_SLOT_SOURCE_METADATA_IDENTITY')
     background=rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0])
-    result=optimize(schedule,background,rgb555(expected),a.window,a.time_limit,a.maximum_writes,a.necessary_bank_window,a.search_strategy,a.reuse_exact_operands,a.repair_interval,a.complete_exact_operands)
+    result=optimize(schedule,background,rgb555(expected),a.window,a.time_limit,a.maximum_writes,a.necessary_bank_window,a.search_strategy,a.reuse_exact_operands,a.repair_interval,a.complete_exact_operands,a.movable_pieces)
     Path(a.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('physical_slot_layout',result)))
 
 

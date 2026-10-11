@@ -57,3 +57,13 @@ valid choices in this frame and retains the 472-clock result. All source math,
 transparency and CGRAM identities replay exactly; twelve focused tests pass.
 This rules out a missing operand vocabulary improvement for those fixed modes
 and banks, but does not prove the slot schedule optimal or reject raster.
+
+Optional joint physical bank assignment now searches selected pieces within
+their source-derived eligibility and original color-math bank class. One bank
+choice covers the entire piece, with no scanline changes to OAM. Physical slot
+changes and DMA coverage are solved together. Geometry, transparency and full
+source output replay are retained. Thirty-eight pieces spanning the crowded
+rows were searched for fifty seconds; the 472-clock witness was retained with
+the same assignments. This is a bounded search result, not infeasibility.
+Nine focused tests pass, including eligibility and fixed lifetime assignment.
+Required words receive optional distinct-slot matching and bank capacity cuts.
