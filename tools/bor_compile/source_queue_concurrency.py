@@ -16,6 +16,22 @@ from source_stage_queue_4086 import derive as queues
 from source_stage_dispatch_4086 import dispatch
 
 
+def zero_constructor_requests(records, models):
+    result=[]
+    for i,row in enumerate(records):
+        if row['kind']!='empty':continue
+        # A zero loader entry resolves cache index zero; it is not a noop.
+        # This explorer counts enemies only, so other cache-zero types require
+        # a separate admission model instead of silently ignoring an enemy.
+        if not models or models[0]['declared_type']!='none':
+            raise ValueError('QUEUE_CONCURRENCY_ZERO_ENTRY_TYPE_SERVICE_REQUIRED')
+        result.append(dict(queue_index=i,cache_index=0,model=models[0]['identity'],
+                           declared_type=models[0]['declared_type'],
+                           constructor_if_cache_resident=True,actual_residency_proven=False,
+                           included_in_enemy_count=False))
+    return result
+
+
 def explore(records, *, state_limit=100000):
     # index, groupmin, groupmax, waiting, source scroll position, live queue IDs
     initial=(0,100,100,0,0,())
@@ -72,6 +88,7 @@ def derive(source, state_limit=100000):
     models=registry(source)['models'];stages=queues(source)['stages'];result=[]
     for stage in stages:
         records=stage['records']
+        zero_requests=zero_constructor_requests(records,models)
         for row in records:
             if row['kind']=='spawn' and models[row['model']]['declared_type']!='enemy':
                 raise ValueError('QUEUE_CONCURRENCY_NON_ENEMY_SPAWN_SERVICE_REQUIRED')
@@ -81,11 +98,12 @@ def derive(source, state_limit=100000):
                                          map=records[i]['map'],boss=records[i]['boss'])
                                     for i in combination['queue_indices']]
         result.append(dict(source_path=stage['source_path'],source_sha256=stage['source_sha256'],
-                           queue_records=len(records),spawn_records=sum(r['kind']=='spawn'for r in records),**report))
+                           queue_records=len(records),spawn_records=sum(r['kind']=='spawn'for r in records),
+                           zero_initialized_constructor_requests=zero_requests,**report))
     return dict(schema='BYOR_SOURCE_QUEUE_CONCURRENCY_V1',engine_commit=ENGINE_COMMIT,stages=result,
                 dispatch_reference_sha256=hashlib.sha256(Path(__file__).with_name('source_stage_dispatch_4086.py').read_bytes()).hexdigest(),
                 retirement_and_camera_inputs_nondeterministic=True,
-                scope='Queue-admitted enemy combinations; excludes scripts/minions/projectile births, animation timing, collision, visibility and player multiplicity.',
+                scope='Queue-admitted enemy combinations; zero-entry non-enemy constructor requests are retained separately. Excludes other-effect lifetimes, scripts/minions/projectile births, animation timing, collision, visibility and player multiplicity.',
                 authored_pose_reachability_proven=False,live_world_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
 
 

@@ -1,0 +1,447 @@
+{
+  "status": "STATIC_OBJ_COLOR_CAPACITY_WITHIN_LIMIT",
+  "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "model": "Shock",
+  "role": "idle",
+  "model_source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+  "palette_authority": "DATA\\CHARS\\MISC\\FLASH\\SHOCK01.GIF",
+  "alpha": [],
+  "peak_frame": {
+    "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+    "line": 12,
+    "directive": "frame",
+    "values": [
+      "data/chars/misc/flash/shock02.gif"
+    ],
+    "image_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK02.GIF",
+    "asset_sha256": "a87b91890715a896ce130779b3eed48d78d12bd3429b665017bc91abfa2168d3",
+    "colors": 7,
+    "visible_pixels": 1246,
+    "maximum_scanline_colors": 3,
+    "maximum_adjacent_new_colors": 1,
+    "frame_palette_matches_authority": false
+  },
+  "animation_union_colors": 8,
+  "maximum_animation_scanline_colors": 7,
+  "maximum_animation_adjacent_new_colors": 4,
+  "peak_frame_raw_palette_interval_bounds_by_bank_count": {
+    "1": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 0,
+        "last_line": 1,
+        "distinct_colors": 0,
+        "resident_capacity": 15,
+        "minimum_new_color_commits": 0,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 0,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 0,
+        "minimum_peak_data_master_clocks": 0,
+        "minimum_peak_color_commits": 0,
+        "minimum_peak_commit_span_master_clocks": 0,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -23
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "feasibility_proven": false
+    },
+    "2": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 0,
+        "last_line": 1,
+        "distinct_colors": 0,
+        "resident_capacity": 30,
+        "minimum_new_color_commits": 0,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 0,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 0,
+        "minimum_peak_data_master_clocks": 0,
+        "minimum_peak_color_commits": 0,
+        "minimum_peak_commit_span_master_clocks": 0,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -23
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "feasibility_proven": false
+    },
+    "3": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 0,
+        "last_line": 1,
+        "distinct_colors": 0,
+        "resident_capacity": 45,
+        "minimum_new_color_commits": 0,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 0,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 0,
+        "minimum_peak_data_master_clocks": 0,
+        "minimum_peak_color_commits": 0,
+        "minimum_peak_commit_span_master_clocks": 0,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -23
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "feasibility_proven": false
+    },
+    "4": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 0,
+        "last_line": 1,
+        "distinct_colors": 0,
+        "resident_capacity": 60,
+        "minimum_new_color_commits": 0,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 0,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 0,
+        "minimum_peak_data_master_clocks": 0,
+        "minimum_peak_color_commits": 0,
+        "minimum_peak_commit_span_master_clocks": 0,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -23
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "feasibility_proven": false
+    },
+    "5": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 0,
+        "last_line": 1,
+        "distinct_colors": 0,
+        "resident_capacity": 75,
+        "minimum_new_color_commits": 0,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 0,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 0,
+        "minimum_peak_data_master_clocks": 0,
+        "minimum_peak_color_commits": 0,
+        "minimum_peak_commit_span_master_clocks": 0,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -23
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "feasibility_proven": false
+    },
+    "6": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 0,
+        "last_line": 1,
+        "distinct_colors": 0,
+        "resident_capacity": 90,
+        "minimum_new_color_commits": 0,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 0,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 0,
+        "minimum_peak_data_master_clocks": 0,
+        "minimum_peak_color_commits": 0,
+        "minimum_peak_commit_span_master_clocks": 0,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -23
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "feasibility_proven": false
+    },
+    "7": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 0,
+        "last_line": 1,
+        "distinct_colors": 0,
+        "resident_capacity": 105,
+        "minimum_new_color_commits": 0,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 0,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 0,
+        "minimum_peak_data_master_clocks": 0,
+        "minimum_peak_color_commits": 0,
+        "minimum_peak_commit_span_master_clocks": 0,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -23
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "feasibility_proven": false
+    },
+    "8": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 0,
+        "last_line": 1,
+        "distinct_colors": 0,
+        "resident_capacity": 120,
+        "minimum_new_color_commits": 0,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 0,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 0,
+        "minimum_peak_data_master_clocks": 0,
+        "minimum_peak_color_commits": 0,
+        "minimum_peak_commit_span_master_clocks": 0,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -23
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "feasibility_proven": false
+    }
+  },
+  "raw_palette_interval_scope": "Optimistic source RGB555 residency only; excludes alpha context encoding and fixed bank assignment. Cannot prove feasibility or universally reject raster.",
+  "hardware": {
+    "obj_palette_banks": 8,
+    "opaque_colors_per_bank": 15,
+    "static_opaque_capacity": 120,
+    "source": "E:\\gh\\Mesen2\\Core\\SNES\\SnesPpu.cpp",
+    "source_sha256": "5823ac6e89e8966ae2a8186f368ef4abb4d09bd4535e1483ff4a6871dd35f1f5",
+    "online_source": "https://github.com/SourMesen/Mesen2/blob/master/Core/SNES/SnesPpu.cpp",
+    "invariants": [
+      "Palette=(flags>>1)&7",
+      "GetTilePixelColor<4>",
+      "color zero transparent",
+      "CGRAM offset=128+(palette<<4)+color"
+    ]
+  },
+  "static_color_deficit": -113,
+  "required_static_palettes": 1,
+  "frame_requirements": [
+    {
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "line": 11,
+      "directive": "frame",
+      "values": [
+        "data/chars/misc/flash/shock01.gif"
+      ],
+      "image_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK01.GIF",
+      "asset_sha256": "aefc61a22408947c9c35216cbec564205f572febb838a001ace4d4a6a5bb5cdb",
+      "colors": 1,
+      "visible_pixels": 1246,
+      "maximum_scanline_colors": 1,
+      "maximum_adjacent_new_colors": 1,
+      "frame_palette_matches_authority": false
+    },
+    {
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "line": 12,
+      "directive": "frame",
+      "values": [
+        "data/chars/misc/flash/shock02.gif"
+      ],
+      "image_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK02.GIF",
+      "asset_sha256": "a87b91890715a896ce130779b3eed48d78d12bd3429b665017bc91abfa2168d3",
+      "colors": 7,
+      "visible_pixels": 1246,
+      "maximum_scanline_colors": 3,
+      "maximum_adjacent_new_colors": 1,
+      "frame_palette_matches_authority": false
+    },
+    {
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "line": 13,
+      "directive": "frame",
+      "values": [
+        "data/chars/misc/flash/shock03.gif"
+      ],
+      "image_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK03.GIF",
+      "asset_sha256": "738c08757a431034a23380d0aa5b291a2a07c28bac47097c9bb4a60b77144c78",
+      "colors": 7,
+      "visible_pixels": 1019,
+      "maximum_scanline_colors": 7,
+      "maximum_adjacent_new_colors": 2,
+      "frame_palette_matches_authority": false
+    },
+    {
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "line": 14,
+      "directive": "frame",
+      "values": [
+        "data/chars/misc/flash/shock04.gif"
+      ],
+      "image_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK04.GIF",
+      "asset_sha256": "0099bbe52605ef978b2372f45f595bb1ded61e1b80fa63ce8d686de09507d955",
+      "colors": 6,
+      "visible_pixels": 661,
+      "maximum_scanline_colors": 6,
+      "maximum_adjacent_new_colors": 4,
+      "frame_palette_matches_authority": false
+    },
+    {
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "line": 15,
+      "directive": "frame",
+      "values": [
+        "data/chars/misc/flash/shock05.gif"
+      ],
+      "image_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK05.GIF",
+      "asset_sha256": "c6bef8f1dae3ae440f63921de5dc27fe97c04946a33c8d391da2c56f05acea13",
+      "colors": 6,
+      "visible_pixels": 374,
+      "maximum_scanline_colors": 5,
+      "maximum_adjacent_new_colors": 4,
+      "frame_palette_matches_authority": false
+    },
+    {
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "line": 16,
+      "directive": "frame",
+      "values": [
+        "data/chars/misc/flash/shock06.gif"
+      ],
+      "image_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK06.GIF",
+      "asset_sha256": "e32325e04286f8dfd49bd9a754857f2638262e56dabaab09e6b27ac530abbecc",
+      "colors": 6,
+      "visible_pixels": 243,
+      "maximum_scanline_colors": 5,
+      "maximum_adjacent_new_colors": 3,
+      "frame_palette_matches_authority": false
+    },
+    {
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "line": 17,
+      "directive": "frame",
+      "values": [
+        "data/chars/misc/flash/shock07.gif"
+      ],
+      "image_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK07.GIF",
+      "asset_sha256": "3ca1ebef13fa5129ec7186e2f6db073514eea90f54109a56973960194e9aeeb5",
+      "colors": 6,
+      "visible_pixels": 121,
+      "maximum_scanline_colors": 4,
+      "maximum_adjacent_new_colors": 3,
+      "frame_palette_matches_authority": false
+    },
+    {
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "line": 18,
+      "directive": "frame",
+      "values": [
+        "data/chars/misc/flash/shock08.gif"
+      ],
+      "image_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK08.GIF",
+      "asset_sha256": "8ab2108511e9121263f2d56dddd6b8d4e629efcaf2bbdf23312b7a3cc1899280",
+      "colors": 6,
+      "visible_pixels": 62,
+      "maximum_scanline_colors": 3,
+      "maximum_adjacent_new_colors": 3,
+      "frame_palette_matches_authority": false
+    },
+    {
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "line": 19,
+      "directive": "frame",
+      "values": [
+        "data/chars/misc/flash/shock09.gif"
+      ],
+      "image_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK09.GIF",
+      "asset_sha256": "8a4f134d66521eb9d46e800095748aba06f5854ba9553ff2a5b01cbfede90a34",
+      "colors": 4,
+      "visible_pixels": 17,
+      "maximum_scanline_colors": 2,
+      "maximum_adjacent_new_colors": 2,
+      "frame_palette_matches_authority": false
+    },
+    {
+      "source_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK.TXT",
+      "line": 20,
+      "directive": "frame",
+      "values": [
+        "data/chars/misc/flash/shock10.gif"
+      ],
+      "image_path": "DATA\\CHARS\\MISC\\FLASH\\SHOCK10.GIF",
+      "asset_sha256": "8298de1f6f780aca8b8c102a3aab11617c1cd1b863eb6bc88c2e5fd5e5bf9b23",
+      "colors": 1,
+      "visible_pixels": 6,
+      "maximum_scanline_colors": 1,
+      "maximum_adjacent_new_colors": 1,
+      "frame_palette_matches_authority": false
+    }
+  ],
+  "raster_peak_frame": null,
+  "raster_all_frame_results": null,
+  "other_options": [
+    {
+      "policy": "RASTER_PALETTE_REUSE",
+      "fidelity": "Potential RGB555 color preservation; not proven.",
+      "costs": "Per-line CGRAM traffic and fixed OAM bank/index constraints; competes with actor palettes and HDMA.",
+      "measurements": {
+        "peak_frame_max_line_colors": 3,
+        "peak_frame_max_adjacent_new_colors": 1
+      },
+      "admission": "NOT_PROVEN; no impossibility inference from full-frame color count"
+    },
+    {
+      "policy": "BG_EFFECT_RENDERER",
+      "fidelity": "Potential RGB555 color preservation; not proven.",
+      "costs": "Dedicated BG resources or software compositing; conflicts with stage frontpanel, background and HUD allocation.",
+      "admission": "NOT_PROVEN"
+    }
+  ],
+  "nonclaims": [
+    "No universal SNES rendering impossibility proof.",
+    "Color demand is before alpha compositing; alpha fidelity is a separate unresolved capability.",
+    "No quantization, artwork resize, source substitution or candidate build performed."
+  ]
+}

@@ -1,0 +1,2161 @@
+{
+  "schema": "BYOR_SOURCE_QUEUE_CONCURRENCY_V1",
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "stages": [
+    {
+      "source_path": "DATA\\LEVELS\\GUILE2.TXT",
+      "source_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+      "queue_records": 34,
+      "spawn_records": 21,
+      "zero_initialized_constructor_requests": [
+        {
+          "queue_index": 30,
+          "cache_index": 0,
+          "model": "Shock",
+          "declared_type": "none",
+          "constructor_if_cache_resident": true,
+          "actual_residency_proven": false,
+          "included_in_enemy_count": false
+        }
+      ],
+      "states": 208,
+      "queue_completion_admitted": true,
+      "peak_enemy_count": 3,
+      "combinations": [
+        {
+          "queue_indices": [],
+          "count": 0,
+          "enemies": []
+        },
+        {
+          "queue_indices": [
+            0
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 0,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            0,
+            1
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 0,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 1,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            1
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 1,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            3
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 3,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            3,
+            4
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 3,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 4,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            3,
+            4,
+            7
+          ],
+          "count": 3,
+          "enemies": [
+            {
+              "queue_index": 3,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 4,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 7,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            3,
+            4,
+            8
+          ],
+          "count": 3,
+          "enemies": [
+            {
+              "queue_index": 3,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 4,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 8,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            3,
+            7
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 3,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 7,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            3,
+            7,
+            8
+          ],
+          "count": 3,
+          "enemies": [
+            {
+              "queue_index": 3,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 7,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 8,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            3,
+            8
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 3,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 8,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            4
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 4,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            4,
+            7
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 4,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 7,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            4,
+            7,
+            8
+          ],
+          "count": 3,
+          "enemies": [
+            {
+              "queue_index": 4,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 7,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 8,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            4,
+            8
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 4,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 8,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            7
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 7,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            7,
+            8
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 7,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 8,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            8
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 8,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            11
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 11,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            11,
+            12
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 11,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 12,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            12
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 12,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            15
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 15,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            15,
+            16
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 15,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 16,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            15,
+            16,
+            17
+          ],
+          "count": 3,
+          "enemies": [
+            {
+              "queue_index": 15,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 16,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 17,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            15,
+            17
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 15,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 17,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            16
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 16,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            16,
+            17
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 16,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 17,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            17
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 17,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            19
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 19,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            22
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 22,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            22,
+            23
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 22,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 23,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            22,
+            23,
+            24
+          ],
+          "count": 3,
+          "enemies": [
+            {
+              "queue_index": 22,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 23,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 24,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            22,
+            24
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 22,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 24,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            22,
+            26
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 22,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 26,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            22,
+            27
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 22,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 27,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            22,
+            28
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 22,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 28,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            22,
+            29
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 22,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 29,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            22,
+            31
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 22,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 31,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            23
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 23,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            23,
+            24
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 23,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 24,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            23,
+            26
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 23,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 26,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            23,
+            27
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 23,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 27,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            23,
+            28
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 23,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 28,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            23,
+            29
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 23,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 29,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            23,
+            31
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 23,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 31,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            24
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 24,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            24,
+            26
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 24,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 26,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            24,
+            27
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 24,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 27,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            24,
+            28
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 24,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 28,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            24,
+            29
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 24,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 29,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            24,
+            31
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 24,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 31,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            26
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 26,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            26,
+            27
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 26,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 27,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            26,
+            28
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 26,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 28,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            26,
+            29
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 26,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 29,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            26,
+            31
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 26,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 31,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            26,
+            33
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 26,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 33,
+              "model": "Skeletor",
+              "map": 0,
+              "boss": 1
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            27
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 27,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            27,
+            28
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 27,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 28,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            27,
+            29
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 27,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 29,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            27,
+            31
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 27,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 31,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            27,
+            33
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 27,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 33,
+              "model": "Skeletor",
+              "map": 0,
+              "boss": 1
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            28
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 28,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            28,
+            29
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 28,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 29,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            28,
+            31
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 28,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 31,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            28,
+            33
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 28,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 33,
+              "model": "Skeletor",
+              "map": 0,
+              "boss": 1
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            29
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 29,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            29,
+            31
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 29,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 31,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            29,
+            33
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 29,
+              "model": "Knightbot",
+              "map": 1,
+              "boss": 0
+            },
+            {
+              "queue_index": 33,
+              "model": "Skeletor",
+              "map": 0,
+              "boss": 1
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            31
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 31,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            31,
+            33
+          ],
+          "count": 2,
+          "enemies": [
+            {
+              "queue_index": 31,
+              "model": "Knightbot",
+              "map": 0,
+              "boss": 0
+            },
+            {
+              "queue_index": 33,
+              "model": "Skeletor",
+              "map": 0,
+              "boss": 1
+            }
+          ]
+        },
+        {
+          "queue_indices": [
+            33
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 33,
+              "model": "Skeletor",
+              "map": 0,
+              "boss": 1
+            }
+          ]
+        }
+      ],
+      "peak_witnesses": [
+        {
+          "queue_indices": [
+            3,
+            4,
+            7
+          ],
+          "steps": [
+            {
+              "kind": "camera_arrival_input",
+              "pos": 15
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                0
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 0
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 200
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                1
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 1
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 320
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                2
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 450
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                3
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 470
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                4
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 500
+            },
+            {
+              "kind": "source_dispatch_prefix",
+              "consumed_queue_indices": [
+                5,
+                6,
+                7
+              ]
+            }
+          ],
+          "transient_dispatch_possible": true
+        },
+        {
+          "queue_indices": [
+            4,
+            7,
+            8
+          ],
+          "steps": [
+            {
+              "kind": "camera_arrival_input",
+              "pos": 15
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                0
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 0
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 200
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                1
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 1
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 320
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                2
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 450
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                3
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 3
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 470
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                4
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 500
+            },
+            {
+              "kind": "source_dispatch_prefix",
+              "consumed_queue_indices": [
+                5,
+                6,
+                7,
+                8
+              ]
+            }
+          ],
+          "transient_dispatch_possible": true
+        },
+        {
+          "queue_indices": [
+            3,
+            7,
+            8
+          ],
+          "steps": [
+            {
+              "kind": "camera_arrival_input",
+              "pos": 15
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                0
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 0
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 200
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                1
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 1
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 320
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                2
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 450
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                3
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 470
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                4
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 4
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 500
+            },
+            {
+              "kind": "source_dispatch_prefix",
+              "consumed_queue_indices": [
+                5,
+                6,
+                7,
+                8
+              ]
+            }
+          ],
+          "transient_dispatch_possible": true
+        },
+        {
+          "queue_indices": [
+            3,
+            4,
+            8
+          ],
+          "steps": [
+            {
+              "kind": "camera_arrival_input",
+              "pos": 15
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                0
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 0
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 200
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                1
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 1
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 320
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                2
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 450
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                3
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 470
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                4
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 500
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                5,
+                6,
+                7
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 7
+            },
+            {
+              "kind": "source_dispatch_prefix",
+              "consumed_queue_indices": [
+                8
+              ]
+            }
+          ],
+          "transient_dispatch_possible": true
+        },
+        {
+          "queue_indices": [
+            15,
+            16,
+            17
+          ],
+          "steps": [
+            {
+              "kind": "camera_arrival_input",
+              "pos": 15
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                0
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 0
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 200
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                1
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 1
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 320
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                2
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 450
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                3
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 3
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 470
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                4
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 4
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 500
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                5,
+                6,
+                7,
+                8,
+                9
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 7
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 8
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 510
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                10
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 800
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                11,
+                12
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 11
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 12
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 1200
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                13
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 1500
+            },
+            {
+              "kind": "source_dispatch_prefix",
+              "consumed_queue_indices": [
+                14,
+                15,
+                16,
+                17
+              ]
+            }
+          ],
+          "transient_dispatch_possible": true
+        },
+        {
+          "queue_indices": [
+            22,
+            23,
+            24
+          ],
+          "steps": [
+            {
+              "kind": "camera_arrival_input",
+              "pos": 15
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                0
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 0
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 200
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                1
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 1
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 320
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                2
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 450
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                3
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 3
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 470
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                4
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 4
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 500
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                5,
+                6,
+                7,
+                8,
+                9
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 7
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 8
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 510
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                10
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 800
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                11,
+                12
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 11
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 12
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 1200
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                13
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 1500
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                14,
+                15,
+                16,
+                17
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 15
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 16
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 17
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                18
+              ]
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 1510
+            },
+            {
+              "kind": "source_dispatch",
+              "consumed_queue_indices": [
+                19
+              ]
+            },
+            {
+              "kind": "enemy_retirement_input",
+              "queue_index": 19
+            },
+            {
+              "kind": "camera_arrival_input",
+              "pos": 1800
+            },
+            {
+              "kind": "source_dispatch_prefix",
+              "consumed_queue_indices": [
+                20,
+                21,
+                22,
+                23,
+                24
+              ]
+            }
+          ],
+          "transient_dispatch_possible": true
+        }
+      ]
+    },
+    {
+      "source_path": "DATA\\LEVELS\\HOLES.TXT",
+      "source_sha256": "a75c8f67c4c04036a52e99c2da5d3c58671d8910374dbddda42b0fb3393a3e0d",
+      "queue_records": 1,
+      "spawn_records": 1,
+      "zero_initialized_constructor_requests": [],
+      "states": 3,
+      "queue_completion_admitted": true,
+      "peak_enemy_count": 1,
+      "combinations": [
+        {
+          "queue_indices": [],
+          "count": 0,
+          "enemies": []
+        },
+        {
+          "queue_indices": [
+            0
+          ],
+          "count": 1,
+          "enemies": [
+            {
+              "queue_index": 0,
+              "model": "Skeletor",
+              "map": 0,
+              "boss": 0
+            }
+          ]
+        }
+      ],
+      "peak_witnesses": [
+        {
+          "queue_indices": [
+            0
+          ],
+          "steps": [
+            {
+              "kind": "source_dispatch_prefix",
+              "consumed_queue_indices": [
+                0
+              ]
+            }
+          ],
+          "transient_dispatch_possible": true
+        }
+      ]
+    }
+  ],
+  "dispatch_reference_sha256": "9319edfa51c2b0ea2089782a93735397f7f9271b9161c5745de698125527f95d",
+  "retirement_and_camera_inputs_nondeterministic": true,
+  "scope": "Queue-admitted enemy combinations; zero-entry non-enemy constructor requests are retained separately. Excludes other-effect lifetimes, scripts/minions/projectile births, animation timing, collision, visibility and player multiplicity.",
+  "authored_pose_reachability_proven": false,
+  "live_world_bound": false,
+  "motu_gameplay_proven": false,
+  "no_color_reduction": true
+}

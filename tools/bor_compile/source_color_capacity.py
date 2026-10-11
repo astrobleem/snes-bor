@@ -74,6 +74,8 @@ def measure(path, model_name, role, raster=False, banks=tuple(range(8)), piece_s
         model=model['declaration'],role=role,model_source_path=model['source_path'],
         palette_authority=source.resolve(palette_path),alpha=model['properties'].get('alpha',[]),
         peak_frame=peak, animation_union_colors=len(colors),
+        maximum_animation_scanline_colors=max(r['maximum_scanline_colors']for r in frame_reports),
+        maximum_animation_adjacent_new_colors=max(r['maximum_adjacent_new_colors']for r in frame_reports),
         peak_frame_raw_palette_interval_bounds_by_bank_count=raw_bounds,
         raw_palette_interval_scope='Optimistic source RGB555 residency only; excludes alpha context encoding and fixed bank assignment. Cannot prove feasibility or universally reject raster.',
         hardware=dict(obj_palette_banks=8,opaque_colors_per_bank=15,static_opaque_capacity=120,

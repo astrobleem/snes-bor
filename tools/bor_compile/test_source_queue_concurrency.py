@@ -1,4 +1,5 @@
-from source_queue_concurrency import explore
+import pytest
+from source_queue_concurrency import explore,zero_constructor_requests
 
 
 def record(kind,at=0,group=(0,0)):
@@ -33,3 +34,15 @@ def test_empty_at_is_consumed_without_an_enemy():
     r=explore([record('empty'),record('spawn')])
     assert r['peak_enemy_count']==1
     assert r['queue_completion_admitted']
+
+
+def test_zero_cache_constructor_is_retained_and_enemy_types_reject():
+    records=[record('empty'),record('spawn')]
+    requests=zero_constructor_requests(records,[dict(identity='Effect',declared_type='none')])
+    assert len(requests)==1 and requests[0]['cache_index']==0
+    assert requests[0]['constructor_if_cache_resident']
+    assert not requests[0]['actual_residency_proven']
+    assert not requests[0]['included_in_enemy_count']
+    for declared_type in ('enemy','player',None):
+        with pytest.raises(ValueError,match='ZERO_ENTRY_TYPE_SERVICE_REQUIRED'):
+            zero_constructor_requests(records,[dict(identity='Any',declared_type=declared_type)])

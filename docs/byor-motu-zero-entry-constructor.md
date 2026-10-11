@@ -18,6 +18,17 @@ line 244 contains the extra `at 1800`. Actual cache residency at that point,
 constructor execution and the resulting effect require production binding;
 the declaration alone does not certify them.
 
+The enemy-concurrency audit now retains this conditional non-enemy request
+separately. It rejects a zero entry whose cache-zero actor type is outside its
+closed non-enemy case. GUILE2 still admits at most three queued enemies;
+the additional effect is excluded explicitly from that enemy count. Five
+focused concurrency tests pass. Current source measurements find eight
+RGB555 colors across Shock's ten idle frames, seven in its peak frame and
+seven on its busiest scanline across all frames (three in the selected
+peak-color frame). The capacity report now includes animation-wide maxima,
+separate from that selected frame. These counts do not prove lifetime, visible
+overlap, OAM allocation or a palette lease in gameplay.
+
 `source_spawn_resolution_authority.py` compiles the exact model-resolution
 prefix from pinned engine commit af23dc9c2316bb7853bb266ccf40986aa9765aeb.
 Twenty-four cases cover null and explicit model pointers, loaded and unloaded
