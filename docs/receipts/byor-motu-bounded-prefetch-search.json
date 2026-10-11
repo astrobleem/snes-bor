@@ -155,6 +155,69 @@
         124,
         145
       ]
+    },
+    "byor-motu-authored-peak-pixel-repair124-149-fixed-classes345-sat": {
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 94654,
+        "constraints": 237910,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 1155,
+          "hint_variables": 91519,
+          "hint_is_soft": true,
+          "log_lines": 290,
+          "sat_inprocessing": false,
+          "branches": 1190998,
+          "conflicts": 106459,
+          "wall_seconds": 60.1830087,
+          "probing_level": 0,
+          "workers": 4,
+          "search_strategy": "sat",
+          "optimal": false
+        }
+      },
+      "writes": 21,
+      "window": 345,
+      "preserved_math_classes": true,
+      "lookahead": 90,
+      "pixel_repair_interval": [
+        124,
+        149
+      ]
+    },
+    "byor-motu-authored-peak-mixed-control-complete-operands337-sat": {
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 248155,
+        "constraints": 616485,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 1155,
+          "hint_variables": 245020,
+          "hint_is_soft": true,
+          "log_lines": 261,
+          "sat_inprocessing": false,
+          "branches": 543016,
+          "conflicts": 317210,
+          "wall_seconds": 181.00469320000002,
+          "probing_level": 0,
+          "workers": 4,
+          "search_strategy": "sat",
+          "optimal": false
+        }
+      },
+      "writes": 21,
+      "window": 337,
+      "preserved_math_classes": false,
+      "lookahead": 90,
+      "pixel_repair_interval": null
     }
   },
   "source_context_and_alpha_replayed": true,
@@ -175,6 +238,8 @@
     "byor-motu-authored-peak-flexible-masks-relaxed-operands18-lookahead90-sat": "2a1895a97275bde14e6c3e285c70f2b31737b068ff131d84bc4a0670d9d3339f",
     "byor-motu-authored-peak-flexible-masks-relaxed-operands345-lookahead90-repair": "0fed08ea45e05bea59963a84605e2478eb6af14eabe3f053b4596c97c7e23da0",
     "byor-motu-authored-peak-mixed-control-flexible-classes337-sat": "ebc774b1dc92fd3c6182ef5ad03ebb694f4e588689a46f19f98fb620609057da",
-    "byor-motu-authored-peak-pixel-repair124-145-345-sat": "98e56732ab48638616a8655f6c232b3d81c5d945f0c17170d042c50c9f850977"
+    "byor-motu-authored-peak-pixel-repair124-145-345-sat": "98e56732ab48638616a8655f6c232b3d81c5d945f0c17170d042c50c9f850977",
+    "byor-motu-authored-peak-pixel-repair124-149-fixed-classes345-sat": "7b275238c939c01ed6460e454dab33fbbd323063ff74956550708608f17f5251",
+    "byor-motu-authored-peak-mixed-control-complete-operands337-sat": "32b2f6c920b93a56bda66ba5b4618a7c756e23d99e69b4cca069e4a21cc38240"
   }
 }

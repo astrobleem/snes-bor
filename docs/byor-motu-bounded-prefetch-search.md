@@ -17,6 +17,11 @@ additional fixed-bank mask per rectangle, retaining all OBJ limits. It returns
 UNKNOWN after 120 seconds and 1,218,473 branches. Alpha remains the exact
 source-derived RGB8 SCREEN output projected to RGB555; mode changes are
 alternative exact encodings of that output.
+A broader 180-second trial permits the complete valid operand cover under
+those same source-bound controls, two extra masks per rectangle and up to
+four masks per class. It returns UNKNOWN with 248155 variables, 616485
+constraints and 543016 branches. This does not reject other exact operands,
+control schedules or geometry.
 
 `--pixel-repair-interval` restricts new bank and word choices to a selected
 scanline interval. Outside it, source pixels retain their hinted words and
@@ -26,8 +31,11 @@ to hardware geometry. Invalid intervals or missing fixed rectangles reject.
 The first authored trial, rows 124 through 145, returns UNKNOWN after 120
 seconds. Its failure cannot reject changes outside that interval. A synthetic
 test independently verifies pixel ownership and outside-word/bank identity.
+Extending the repair through row 149 while retaining the original math
+classes also returns UNKNOWN after 60 seconds. The retained restriction is
+explicit; the result does not reject changes to those classes.
 
-The receipt binds all five trials to current source metadata and composed
+The receipt binds all seven trials to current source metadata and composed
 RGB555 output. Sixty-three focused tests pass, and the width audit reports
 9825 labels with zero failures. All 17 protected file hashes match. No color
 reduction or alpha adaptation is applied. Authored peak native presentation,

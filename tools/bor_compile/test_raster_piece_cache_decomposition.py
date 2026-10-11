@@ -7,6 +7,23 @@ from raster_bank_residency import relaxed_bound
 
 
 class DecompositionTests(unittest.TestCase):
+    def test_interval_master_bounds_replay_against_cache_lp_and_resume(self):
+        source=fixtures.WordBankBalanceTests().fixture()[0]
+        for objective in ('writes','dma-window'):
+            before=search(source,iterations=1,time_limit=5,objective_kind=objective)
+            result=search(source,iterations=2,time_limit=10,master_seconds=1,
+                          objective_kind=objective,interval_cut_span=8,
+                          resume_report=before['piece_cache_decomposition'])
+            report=result['piece_cache_decomposition']
+            self.assertGreater(report['interval_cut_count'],0)
+            for iteration in report['iterations']:
+                self.assertLessEqual(iteration['independently_replayed_interval_lower_bound'],
+                                     iteration['validated_dual_lower_bound']+1e-6)
+            for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        for bad in (-1,257,True):
+            with self.assertRaisesRegex(ValueError,'INTERVAL_CUT_DOMAIN'):
+                search(source,interval_cut_span=bad)
+
     def test_resume_checks_duals_and_keeps_prior_assignments(self):
         source=fixtures.WordBankBalanceTests().fixture()[0]
         first=search(source,iterations=2,time_limit=10,master_seconds=1)

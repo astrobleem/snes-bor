@@ -14,8 +14,8 @@ to neighborhood size retain valid cache cuts because the cache model itself
 has not changed. CLI output summarizes progress; complete certificates remain
 in the schedule artifact.
 
-Eight authored peak runs retain 271 certificates and 264 unique evaluated bank
-assignments. The second run restores 34 certificates; the eighth restores 241.
+Nine authored peak runs retain 307 certificates and 299 unique evaluated bank
+assignments. The second run restores 34 certificates; the ninth restores 271.
 Independent source-word and bank-eligibility replay matches every piece. The
 best assignment-specific fractional clock bound improves from 359.650 to
 353.923, above the demonstrated 344-clock constant-control window. The
@@ -25,7 +25,16 @@ The compressed receipt retains the final complete schedule and cumulative
 certificates, with hashes and summaries of the preceding runs. Repeated copies
 of the same restored certificates are omitted.
 
-Twenty-seven focused bank/cache tests pass, including resumed cut reuse,
+Optional `--interval-cut-span` strengthens the bank master using each bank's
+union of required identities over a scanline interval. Shared words are ORed
+before counting; each bank may start with fifteen resident words. The clock
+bound grants the same favorable fractional active-bank and bridge behavior as
+the cache LP. Each evaluated assignment independently replays these bounds
+against its LP optimum. Changing these redundant master bounds preserves the
+cache basis and permits reuse of the existing dual certificates.
+
+Twenty-six focused decomposition, bank-cache, interval-cache and bank-class
+tests pass, including interval bounds with resumed cuts, resumed cut reuse,
 changed-source rejection, malformed dual rejection and illegal assignment
 rejection. The width audit has 9825 labels and zero failures. All 17 protected
 file hashes match. Source RGB555 words and exact source SCREEN semantics are

@@ -14,10 +14,11 @@ from raster_slot_greedy import demand,bank_groups
 from raster_global_bank_classes import rebuild_schedule
 
 
-def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21,row_word_masks=False,resume_report=None):
+def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21,row_word_masks=False,resume_report=None,interval_cut_span=0):
     from ortools.sat.python import cp_model
     if iterations<1 or time_limit<=0 or master_seconds<=0 or (maximum_changes is not None and maximum_changes<1): raise ValueError('PIECE_CACHE_DECOMPOSITION_DOMAIN')
     if objective_kind not in('writes','dma-window')or type(write_budget)is not int or not 0<=write_budget<=120:raise ValueError('PIECE_CACHE_DECOMPOSITION_OBJECTIVE_DOMAIN')
+    if type(interval_cut_span)is not int or not 0<=interval_cut_span<=256:raise ValueError('PIECE_CACHE_INTERVAL_CUT_DOMAIN')
     _,_,images=demand(source); pieces=copy.deepcopy(source['pieces']);groups=bank_groups(source)
     domains=[]; owners={};decision_keys=[];piece_decisions={}
     for i,(p,image) in enumerate(zip(pieces,images)):
@@ -98,6 +99,37 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
             model.add(sum(masks[i,b]*(pieces[i]['width']//8)for i,b in live)<=34)
     # Certified cuts are rounded outward to integers to avoid false rejection.
     scale=1000000;t=model.new_int_var(0,(120 if objective_kind=='writes'else 4096)*scale,'fractionalPeak');model.minimize(t)
+    interval_requirements=[]
+    if interval_cut_span:
+        # A bank starts each interval with at most fifteen resident identities.
+        # Count a shared word once by ORing its object selectors. These bounds
+        # hold even for fractional cache residency and the optimistic bridges.
+        for begin in range(first,last,4):
+            for end in range(begin+1,min(last,begin+interval_cut_span)+1):
+                union={}
+                for (b,c,y),indices in owners.items():
+                    if begin<=y<=end:union.setdefault((b,c),set()).update(indices)
+                deficits=[]
+                for b in range(8):
+                    present=[]
+                    for (bb,c),indices in union.items():
+                        if bb!=b:continue
+                        options=[selection[i][b]for i in sorted(indices)]
+                        signature=tuple(v.index for v in options)
+                        if len(options)==1:v=options[0]
+                        else:
+                            if signature not in aliases:
+                                v=model.new_bool_var(f'intervalAlias{len(aliases)}');model.add_max_equality(v,options);aliases[signature]=v
+                            v=aliases[signature]
+                        present.append(v)
+                    deficit=model.new_int_var(0,len(present),f'intervalDeficit{begin}_{end}_{b}')
+                    model.add(deficit>=sum(present)-15);deficits.append(deficit)
+                lines=end-begin
+                if objective_kind=='writes':model.add(lines*t>=scale*sum(deficits))
+                else:
+                    # Cost >= 16*w + 16*active - 40; active >= w/15.
+                    model.add(15*lines*t>=scale*(256*sum(deficits)-600*lines))
+                interval_requirements.append((lines,union))
     basis=dict(source_rgb555_sha256=source.get('source_rgb555_sha256'),
                pieces=[{k:p.get(k)for k in ('actor','x','y','width','height','rows')}for p in pieces],
                domains=domains,decision_keys=decision_keys,objective_kind=objective_kind,
@@ -151,7 +183,17 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         residual=float(np.max(np.abs(objective-matrix.T@solved.ineqlin.marginals-solved.lower.marginals-solved.upper.marginals)))
         violation=float(np.max(np.maximum(matrix@solved.x-rhs,0)))
         if abs(dual-solved.fun)>1e-6 or residual>1e-6 or violation>1e-6:raise AssertionError('PIECE_CACHE_DECOMPOSITION_DUAL')
+        interval_bound=0.
+        for lines,union in interval_requirements:
+            counts=[0]*8
+            for (b,c),indices in union.items():
+                if any(assignment[i]==b for i in indices):counts[b]+=1
+            loads=sum(max(0,n-15)for n in counts)
+            bound=loads/lines if objective_kind=='writes'else 256*loads/(15*lines)-40
+            interval_bound=max(interval_bound,bound)
+        if interval_bound>solved.fun+1e-6:raise AssertionError('PIECE_CACHE_INTERVAL_BOUND_REPLAY')
         report=dict(iteration=iteration,objective_kind=objective_kind,validated_dual_lower_bound=dual,maximum_dual_residual=residual,maximum_primal_violation=violation)
+        report['independently_replayed_interval_lower_bound']=interval_bound
         report['peak_write_lower_bound'if objective_kind=='writes'else'peak_dma_span_lower_bound']=float(solved.fun)
         reports.append(report)
         if solved.fun<best:best=float(solved.fun);best_assignment=assignment.copy()
@@ -172,6 +214,7 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         assignment=[next(b for b,v in choices.items()if solver.value(v))for choices in selection]
     report=dict(schema='BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1',iterations=reports,seconds=time.monotonic()-started,maximum_changed_pieces_per_master=maximum_changes,
         objective_kind=objective_kind,row_word_masks=row_word_masks,write_budget=write_budget if objective_kind=='dma-window'else None,alias_aware=True,initial_residency_optimal=True,
+        interval_cut_span=interval_cut_span,interval_cut_count=len(interval_requirements),
         cache_basis_sha256=basis_hash,certified_master_cuts=cuts,restored_certified_cuts=restored,
         cache_lp_variables=peak+1,cache_lp_constraints=len(rhs),
         evaluated_assignments=evaluated,best_decision_assignment=best_assignment,
@@ -203,9 +246,10 @@ def main():
     parser.add_argument('--objective',choices=('writes','dma-window'),default='writes');parser.add_argument('--write-budget',type=int,default=21)
     parser.add_argument('--row-word-masks',action='store_true')
     parser.add_argument('--resume-report',type=Path)
+    parser.add_argument('--interval-cut-span',type=int,default=0)
     args=parser.parse_args();resume=json.loads(args.resume_report.read_text())if args.resume_report else None
     if resume is not None:resume=resume.get('piece_cache_decomposition',resume)
-    result=search(json.loads(args.schedule.read_text()),args.iterations,args.time_limit,args.master_seconds,args.maximum_changes,args.objective,args.write_budget,args.row_word_masks,resume)
+    result=search(json.loads(args.schedule.read_text()),args.iterations,args.time_limit,args.master_seconds,args.maximum_changes,args.objective,args.write_budget,args.row_word_masks,resume,args.interval_cut_span)
     args.output.write_text(json.dumps(result,indent=2)+'\n');report=result.get('piece_cache_decomposition',result)
     print(json.dumps(dict({k:v for k,v in report.items()if k not in('iterations','certified_master_cuts','evaluated_assignments','best_decision_assignment')},iterations_completed=len(report['iterations']))))
 
