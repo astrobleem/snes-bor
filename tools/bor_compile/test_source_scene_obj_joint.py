@@ -6,6 +6,41 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_extra_fixed_bank_mask_solves_static_lifetime_capacity(self):
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[:2]=np.arange(1,17).reshape(2,8)
+        expected=background.copy();expected[112:114,:8,0]=np.arange(1,17).reshape(2,8)*8
+        actors=[dict(pixels=pixels,left=0,top=112)]
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            hint=probe(None,None,{},size=8,write_budget=8,time_limit=5,solver_backend='cp-sat')
+            self.assertEqual(hint['geometry']['oam_entries'],1)
+            kwargs=dict(size=8,write_budget=0,time_limit=5,solver_backend='cp-sat',schedule_hint=hint,fixed_rectangles=True,
+                preserve_hint_math_classes=True,preserve_hint_words=True,collapse_inactive_prefix=True,maximum_banks_per_piece_class=2)
+            failed=probe(None,None,{},**kwargs)
+            result=probe(None,None,{},rectangle_bank_slack=1,**kwargs)
+        self.assertEqual(failed['solver']['status'],2)
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertEqual(result['geometry']['oam_entries'],2)
+        self.assertEqual(result['peak_scheduled_writes'],0)
+        self.assertEqual(result['additional_bank_masks_per_hint_rectangle'],1)
+        self.assertFalse(result['native_presentation_proven'])
+        for slack in(-1,8,True):
+            with self.assertRaisesRegex(ValueError,'RECTANGLE_BANK_SLACK_DOMAIN'):probe(None,None,{},rectangle_bank_slack=slack)
+
+    def test_general_empty_prefix_can_hold_first_visible_palette(self):
+        from raster_slot_greedy import demand
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[0,0]=1;pixels[2,0]=2
+        expected=background.copy();expected[112,0,0]=8;expected[114,0,0]=16
+        actors=[dict(pixels=pixels,left=0,top=112)]
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            full=probe(None,None,{},size=8,write_budget=0,lookahead=55,time_limit=5,solver_backend='cp-sat')
+            collapsed=probe(None,None,{},size=8,write_budget=0,lookahead=55,time_limit=5,solver_backend='cp-sat',collapse_inactive_prefix=True)
+        self.assertTrue(collapsed['compiled_pixel_identity_verified'])
+        self.assertEqual(sum(r['colors_written']for r in collapsed['trace'][1:113]),0)
+        self.assertLess(collapsed['solver']['variables'],full['solver']['variables'])
+        for a,b in zip(demand(full)[2],demand(collapsed)[2]):np.testing.assert_array_equal(a,b)
+
     def test_fixed_subdivided_hint_uses_actual_source_rectangles(self):
         import copy
         from raster_bank_rebalance import subdivide

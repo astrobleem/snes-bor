@@ -1,0 +1,1924 @@
+{
+  "schema": "BYOR_EXACT_OPERAND_RETILE_RECEIPT_V1",
+  "retile_oam_entries": 103,
+  "retile_peak_sprites": 18,
+  "retile_peak_tiles": 18,
+  "retile_source_opaque_operands": 2668,
+  "retile_selected_assignment_cache_lower_bound": 21.58333333333334,
+  "minimum_peak_integer_writes_for_that_assignment": 22,
+  "joint_model_variables_before_empty_prefix_collapse": 218390,
+  "joint_model_variables_after_empty_prefix_collapse": 101559,
+  "best_complete_physical_span": 552,
+  "best_complete_aggregate_span": 11264,
+  "measured_native_window": 336,
+  "focused_tests_passed": 55,
+  "focused_tests_seconds": 24.433,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "no_color_reduction": true,
+  "authored_native_raster_proven": false,
+  "concurrent_actor_admission_proven": false,
+  "universal_raster_rejected": false,
+  "trials": [
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-maximum-subdivision-joint337-prefix.json",
+      "sha256": "cfb3d2300662a916711904acd2e8963b9a2df4c5b218f1cd1144dd14c188327e",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 101559,
+        "constraints": 264146,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 1155,
+          "hint_variables": 98424,
+          "hint_is_soft": true,
+          "log_lines": 328,
+          "sat_inprocessing": false,
+          "branches": 32493,
+          "conflicts": 2516,
+          "wall_seconds": 50.215900600000005,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "geometry": null,
+      "operand_retile": null,
+      "bank_lp_refinement": null,
+      "physical_slot_refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-subdivision-joint337-prefix-activity.json",
+      "sha256": "df5fad40e450e7926ddaf950198a30f71c3cbe19659e1220cdbb3c351922ae4c",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 99089,
+        "constraints": 255979,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 98264,
+          "hint_is_soft": true,
+          "log_lines": 270,
+          "sat_inprocessing": false,
+          "branches": 49307,
+          "conflicts": 1420,
+          "wall_seconds": 90.27340690000001,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "geometry": null,
+      "operand_retile": null,
+      "bank_lp_refinement": null,
+      "physical_slot_refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-retile-geometry-probe.json",
+      "sha256": "af50f8630a59ad942b4dc4c6e37fe84b67220e1b94a6a87722cef46eda0ca13d",
+      "status": null,
+      "solver": null,
+      "geometry": null,
+      "operand_retile": null,
+      "bank_lp_refinement": null,
+      "physical_slot_refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-retile37-final-tool.json",
+      "sha256": "beedb6ff1a09124f24b25823e6074268dcd6393ff94df7f3da0bae424524e0d3",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "solver": null,
+      "geometry": {
+        "oam_entries": 103,
+        "peak_sprites": 18,
+        "peak_tile_slivers": 18
+      },
+      "operand_retile": {
+        "schema": "BYOR_EXACT_OPERAND_RETILE_V1",
+        "origin": [
+          3,
+          7
+        ],
+        "geometry": {
+          "oam_entries": 103,
+          "peak_sprites": 18,
+          "peak_tile_slivers": 18
+        },
+        "input_geometry": {
+          "oam_entries": 80,
+          "peak_sprites": 24,
+          "peak_tile_slivers": 34
+        },
+        "source_pixels": 2668,
+        "no_color_reduction": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "status": "RETILED_FIXED_BANK_SOURCE_OPERANDS_PROVEN",
+        "solvers": [
+          {
+            "status": "FIXED_BANK_ASSIGNMENT_PROVEN",
+            "assignment": [
+              0,
+              3,
+              3,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              3,
+              0,
+              3,
+              1,
+              2,
+              3,
+              0,
+              0,
+              0,
+              3,
+              2,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              3,
+              1,
+              3,
+              3,
+              0,
+              2,
+              3,
+              0,
+              0
+            ],
+            "solver_status": 0,
+            "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+          },
+          {
+            "status": "FIXED_BANK_ASSIGNMENT_PROVEN",
+            "assignment": [
+              5,
+              4,
+              7,
+              7,
+              6,
+              7,
+              4,
+              7,
+              4,
+              6,
+              6,
+              5,
+              7,
+              4,
+              7,
+              5,
+              7,
+              4,
+              4,
+              4,
+              6,
+              6,
+              5,
+              4,
+              7,
+              4,
+              4,
+              5,
+              7,
+              7,
+              6,
+              6,
+              4,
+              4,
+              5,
+              6,
+              7,
+              6,
+              4,
+              4,
+              5,
+              4,
+              6,
+              7,
+              4,
+              4,
+              4,
+              6,
+              7,
+              7,
+              4,
+              6,
+              5,
+              4
+            ],
+            "solver_status": 0,
+            "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+          }
+        ],
+        "source_operand_identity_verified": true,
+        "color_math_eligibility_verified": true
+      },
+      "bank_lp_refinement": null,
+      "physical_slot_refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-retile37-rebalanced.json",
+      "sha256": "b15af01582b0cf77f890f84668ebdb740520b56acf48148b1cdb0779c0be1c7f",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "solver": null,
+      "geometry": {
+        "oam_entries": 103,
+        "peak_sprites": 18,
+        "peak_tile_slivers": 18
+      },
+      "operand_retile": {
+        "schema": "BYOR_EXACT_OPERAND_RETILE_V1",
+        "origin": [
+          3,
+          7
+        ],
+        "geometry": {
+          "oam_entries": 103,
+          "peak_sprites": 18,
+          "peak_tile_slivers": 18
+        },
+        "input_geometry": {
+          "oam_entries": 80,
+          "peak_sprites": 24,
+          "peak_tile_slivers": 34
+        },
+        "source_pixels": 2668,
+        "no_color_reduction": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "status": "RETILED_FIXED_BANK_SOURCE_OPERANDS_PROVEN",
+        "solvers": [
+          {
+            "status": "FIXED_BANK_ASSIGNMENT_PROVEN",
+            "assignment": [
+              0,
+              3,
+              3,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              3,
+              0,
+              3,
+              1,
+              2,
+              3,
+              0,
+              0,
+              0,
+              3,
+              2,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              3,
+              1,
+              3,
+              3,
+              0,
+              2,
+              3,
+              0,
+              0
+            ],
+            "solver_status": 0,
+            "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+          },
+          {
+            "status": "FIXED_BANK_ASSIGNMENT_PROVEN",
+            "assignment": [
+              5,
+              4,
+              7,
+              7,
+              6,
+              7,
+              4,
+              7,
+              4,
+              6,
+              6,
+              5,
+              7,
+              4,
+              7,
+              5,
+              7,
+              4,
+              4,
+              4,
+              6,
+              6,
+              5,
+              4,
+              7,
+              4,
+              4,
+              5,
+              7,
+              7,
+              6,
+              6,
+              4,
+              4,
+              5,
+              6,
+              7,
+              6,
+              4,
+              4,
+              5,
+              4,
+              6,
+              7,
+              4,
+              4,
+              4,
+              6,
+              7,
+              7,
+              4,
+              6,
+              5,
+              4
+            ],
+            "solver_status": 0,
+            "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+          }
+        ],
+        "source_operand_identity_verified": true,
+        "color_math_eligibility_verified": true
+      },
+      "bank_lp_refinement": null,
+      "physical_slot_refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-retile37-cache-lp.json",
+      "sha256": "5cae5a34a3e72a42cafcde861e9eb0a7812f6c71da8865ce2b7364dd40162d07",
+      "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+      "solver": null,
+      "geometry": null,
+      "operand_retile": null,
+      "bank_lp_refinement": null,
+      "physical_slot_refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-retile37-lp-refined.json",
+      "sha256": "4ef390a2224e73be1833d7cfed453afe563f2429976cb3822d1e8598d4ed76f6",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "solver": null,
+      "geometry": {
+        "oam_entries": 103,
+        "peak_sprites": 18,
+        "peak_tile_slivers": 18
+      },
+      "operand_retile": {
+        "schema": "BYOR_EXACT_OPERAND_RETILE_V1",
+        "origin": [
+          3,
+          7
+        ],
+        "geometry": {
+          "oam_entries": 103,
+          "peak_sprites": 18,
+          "peak_tile_slivers": 18
+        },
+        "input_geometry": {
+          "oam_entries": 80,
+          "peak_sprites": 24,
+          "peak_tile_slivers": 34
+        },
+        "source_pixels": 2668,
+        "no_color_reduction": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "status": "RETILED_FIXED_BANK_SOURCE_OPERANDS_PROVEN",
+        "solvers": [
+          {
+            "status": "FIXED_BANK_ASSIGNMENT_PROVEN",
+            "assignment": [
+              0,
+              3,
+              3,
+              0,
+              2,
+              0,
+              1,
+              0,
+              0,
+              3,
+              0,
+              3,
+              1,
+              2,
+              3,
+              0,
+              0,
+              0,
+              3,
+              2,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0,
+              2,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              0,
+              0,
+              0,
+              3,
+              1,
+              3,
+              3,
+              0,
+              2,
+              3,
+              0,
+              0
+            ],
+            "solver_status": 0,
+            "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+          },
+          {
+            "status": "FIXED_BANK_ASSIGNMENT_PROVEN",
+            "assignment": [
+              5,
+              4,
+              7,
+              7,
+              6,
+              7,
+              4,
+              7,
+              4,
+              6,
+              6,
+              5,
+              7,
+              4,
+              7,
+              5,
+              7,
+              4,
+              4,
+              4,
+              6,
+              6,
+              5,
+              4,
+              7,
+              4,
+              4,
+              5,
+              7,
+              7,
+              6,
+              6,
+              4,
+              4,
+              5,
+              6,
+              7,
+              6,
+              4,
+              4,
+              5,
+              4,
+              6,
+              7,
+              4,
+              4,
+              4,
+              6,
+              7,
+              7,
+              4,
+              6,
+              5,
+              4
+            ],
+            "solver_status": 0,
+            "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)"
+          }
+        ],
+        "source_operand_identity_verified": true,
+        "color_math_eligibility_verified": true
+      },
+      "bank_lp_refinement": {
+        "schema": "BYOR_FIXED_BANK_LP_REFINEMENT_V1",
+        "initial_validated_lower_bound": 21.625,
+        "final_validated_lower_bound": 21.58333333333334,
+        "seed": 224,
+        "maximum_trials": 80,
+        "trials": [
+          {
+            "proposal": [
+              [
+                95,
+                6
+              ],
+              [
+                77,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                89,
+                5
+              ],
+              [
+                70,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34047,
+              "constraints": 17107,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 23.285714285714285,
+              "validated_dual_lower_bound": 23.285714285714274,
+              "maximum_primal_violation": 1.4210854715202004e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                95,
+                5
+              ],
+              [
+                63,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                83,
+                6
+              ],
+              [
+                77,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 33852,
+              "constraints": 17011,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 21.583333333333332,
+              "validated_dual_lower_bound": 21.58333333333334,
+              "maximum_primal_violation": 1.7763568394002505e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": true
+          },
+          {
+            "proposal": [
+              [
+                95,
+                7
+              ],
+              [
+                49,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 33862,
+              "constraints": 17016,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 21.714285714285715,
+              "validated_dual_lower_bound": 21.714285714285708,
+              "maximum_primal_violation": 4.263256414560601e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                83,
+                7
+              ],
+              [
+                51,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34310,
+              "constraints": 17233,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 23.875,
+              "validated_dual_lower_bound": 23.875,
+              "maximum_primal_violation": 0.0,
+              "maximum_dual_residual": 0.0
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                89,
+                6
+              ],
+              [
+                77,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                89,
+                7
+              ],
+              [
+                51,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34178,
+              "constraints": 17169,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 23.428571428571427,
+              "validated_dual_lower_bound": 23.42857142857142,
+              "maximum_primal_violation": 1.7763568394002505e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                89,
+                7
+              ],
+              [
+                49,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34015,
+              "constraints": 17090,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.857142857142858,
+              "validated_dual_lower_bound": 22.857142857142854,
+              "maximum_primal_violation": 7.105427357601002e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                83,
+                5
+              ],
+              [
+                63,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                83,
+                5
+              ],
+              [
+                70,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                95,
+                7
+              ],
+              [
+                51,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34031,
+              "constraints": 17098,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 23.0,
+              "validated_dual_lower_bound": 23.0,
+              "maximum_primal_violation": 4.440892098500626e-15,
+              "maximum_dual_residual": 0.0
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                95,
+                5
+              ],
+              [
+                70,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34029,
+              "constraints": 17098,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.714285714285715,
+              "validated_dual_lower_bound": 22.714285714285708,
+              "maximum_primal_violation": 3.552713678800501e-15,
+              "maximum_dual_residual": 5.551115123125783e-17
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                95,
+                6
+              ],
+              [
+                58,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 33938,
+              "constraints": 17053,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.25,
+              "validated_dual_lower_bound": 22.25,
+              "maximum_primal_violation": 8.881784197001252e-15,
+              "maximum_dual_residual": 0.0
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                89,
+                5
+              ],
+              [
+                63,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34236,
+              "constraints": 17199,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 23.142857142857142,
+              "validated_dual_lower_bound": 23.142857142857146,
+              "maximum_primal_violation": 1.0769163338864018e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                95,
+                7
+              ],
+              [
+                53,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 33990,
+              "constraints": 17078,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.5,
+              "validated_dual_lower_bound": 22.5,
+              "maximum_primal_violation": 2.55351295663786e-14,
+              "maximum_dual_residual": 0.0
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                89,
+                7
+              ],
+              [
+                53,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34135,
+              "constraints": 17148,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 23.0,
+              "validated_dual_lower_bound": 22.99999999999999,
+              "maximum_primal_violation": 3.552713678800501e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                83,
+                7
+              ],
+              [
+                53,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34267,
+              "constraints": 17212,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 23.25,
+              "validated_dual_lower_bound": 23.25,
+              "maximum_primal_violation": 3.552713678800501e-15,
+              "maximum_dual_residual": 0.0
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                83,
+                6
+              ],
+              [
+                58,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 33798,
+              "constraints": 16985,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.25,
+              "validated_dual_lower_bound": 22.25,
+              "maximum_primal_violation": 0.0,
+              "maximum_dual_residual": 0.0
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                83,
+                7
+              ],
+              [
+                49,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34141,
+              "constraints": 17151,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.444444444444443,
+              "validated_dual_lower_bound": 22.44444444444445,
+              "maximum_primal_violation": 3.730349362740526e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                89,
+                6
+              ],
+              [
+                58,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34066,
+              "constraints": 17115,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.285714285714285,
+              "validated_dual_lower_bound": 22.285714285714285,
+              "maximum_primal_violation": 7.105427357601002e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                83,
+                7
+              ],
+              [
+                52,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                91,
+                4
+              ],
+              [
+                89,
+                6
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                83,
+                7
+              ],
+              [
+                65,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34204,
+              "constraints": 17182,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.57142857142857,
+              "validated_dual_lower_bound": 22.571428571428566,
+              "maximum_primal_violation": 3.907985046680551e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                95,
+                6
+              ],
+              [
+                86,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34113,
+              "constraints": 17139,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.125,
+              "validated_dual_lower_bound": 22.125,
+              "maximum_primal_violation": 3.552713678800501e-15,
+              "maximum_dual_residual": 0.0
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                95,
+                7
+              ],
+              [
+                60,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 33876,
+              "constraints": 17023,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 21.71428571428571,
+              "validated_dual_lower_bound": 21.714285714285715,
+              "maximum_primal_violation": 1.0658141036401503e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                95,
+                6
+              ],
+              [
+                84,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                95,
+                7
+              ],
+              [
+                61,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                83,
+                6
+              ],
+              [
+                73,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 33974,
+              "constraints": 17071,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 21.583333333333332,
+              "validated_dual_lower_bound": 21.583333333333325,
+              "maximum_primal_violation": 7.105427357601002e-15,
+              "maximum_dual_residual": 0.0
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                101,
+                4
+              ],
+              [
+                83,
+                7
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34135,
+              "constraints": 17147,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.571428571428573,
+              "validated_dual_lower_bound": 22.571428571428566,
+              "maximum_primal_violation": 1.4210854715202004e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                89,
+                7
+              ],
+              [
+                54,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34097,
+              "constraints": 17130,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.75,
+              "validated_dual_lower_bound": 22.749999999999993,
+              "maximum_primal_violation": 0.0,
+              "maximum_dual_residual": 0.0
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                84,
+                4
+              ],
+              [
+                83,
+                6
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                89,
+                6
+              ],
+              [
+                86,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                89,
+                5
+              ],
+              [
+                76,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                95,
+                7
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 33862,
+              "constraints": 17016,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 21.714285714285715,
+              "validated_dual_lower_bound": 21.714285714285705,
+              "maximum_primal_violation": 7.105427357601002e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                95,
+                7
+              ],
+              [
+                52,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                100,
+                4
+              ],
+              [
+                95,
+                7
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 33862,
+              "constraints": 17016,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 21.714285714285715,
+              "validated_dual_lower_bound": 21.714285714285705,
+              "maximum_primal_violation": 2.4868995751603507e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          },
+          {
+            "proposal": [
+              [
+                89,
+                6
+              ],
+              [
+                80,
+                4
+              ]
+            ],
+            "status": "ROW_CAPACITY_REJECTED"
+          },
+          {
+            "proposal": [
+              [
+                89,
+                7
+              ],
+              [
+                65,
+                4
+              ]
+            ],
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 34043,
+              "constraints": 17104,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 22.714285714285715,
+              "validated_dual_lower_bound": 22.714285714285705,
+              "maximum_primal_violation": 7.105427357601002e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            },
+            "accepted": false
+          }
+        ],
+        "dual_guidance": true,
+        "swap_proposals": true,
+        "initial_dual_pressure": {
+          "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+          "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+          "solver_status": 0,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "variables": 33604,
+          "constraints": 16890,
+          "lookahead_lines": 55,
+          "geometry_and_pixel_choices_fixed": true,
+          "physical_slots_and_ranges_relaxed": true,
+          "initial_residency_optimal": true,
+          "native_timing_admitted": false,
+          "universal_raster_rejected": false,
+          "no_color_reduction": true,
+          "restricted_scanline_demand_interval": null,
+          "outside_interval_pixels_relaxed": false,
+          "peak_write_lower_bound": 21.625,
+          "validated_dual_lower_bound": 21.625,
+          "maximum_primal_violation": 3.907985046680551e-14,
+          "maximum_dual_residual": 0.0,
+          "dual_active_bank_capacity": [
+            {
+              "bank": 0,
+              "scanline": 127,
+              "marginal": -0.125
+            },
+            {
+              "bank": 1,
+              "scanline": 127,
+              "marginal": -0.125
+            },
+            {
+              "bank": 2,
+              "scanline": 127,
+              "marginal": -0.125
+            },
+            {
+              "bank": 3,
+              "scanline": 128,
+              "marginal": -0.125
+            },
+            {
+              "bank": 3,
+              "scanline": 132,
+              "marginal": -0.125
+            },
+            {
+              "bank": 4,
+              "scanline": 127,
+              "marginal": -0.125
+            },
+            {
+              "bank": 4,
+              "scanline": 128,
+              "marginal": -0.125
+            },
+            {
+              "bank": 4,
+              "scanline": 130,
+              "marginal": -0.125
+            },
+            {
+              "bank": 4,
+              "scanline": 132,
+              "marginal": -0.125
+            },
+            {
+              "bank": 5,
+              "scanline": 127,
+              "marginal": -0.125
+            },
+            {
+              "bank": 6,
+              "scanline": 127,
+              "marginal": -0.125
+            },
+            {
+              "bank": 7,
+              "scanline": 127,
+              "marginal": -0.125
+            }
+          ],
+          "dual_active_write_limits": [
+            {
+              "scanline": 128,
+              "marginal": -0.125
+            },
+            {
+              "scanline": 129,
+              "marginal": -0.125
+            },
+            {
+              "scanline": 130,
+              "marginal": -0.125
+            },
+            {
+              "scanline": 131,
+              "marginal": -0.125
+            },
+            {
+              "scanline": 132,
+              "marginal": -0.125
+            },
+            {
+              "scanline": 133,
+              "marginal": -0.125
+            },
+            {
+              "scanline": 134,
+              "marginal": -0.125
+            },
+            {
+              "scanline": 135,
+              "marginal": -0.125
+            }
+          ]
+        },
+        "seconds": 50.063000000081956,
+        "source_pixel_identity_preserved": true,
+        "geometry_unchanged": true,
+        "lower_bound_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false
+      },
+      "physical_slot_refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-retile37-joint337-slack.json",
+      "sha256": "cca380b574a96fe921223ded49a586e30a03d91df7b46f841b203cea114e4a8f",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 107341,
+        "constraints": 267019,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 106516,
+          "hint_is_soft": true,
+          "log_lines": 241,
+          "sat_inprocessing": false,
+          "branches": 3536435,
+          "conflicts": 63942,
+          "wall_seconds": 65.236395,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "geometry": null,
+      "operand_retile": null,
+      "bank_lp_refinement": null,
+      "physical_slot_refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-retile37-joint18-slack-symmetric.json",
+      "sha256": "fa9acb5b22bcb75a15326d65def6c2665a3d7bd8f6d604e596eaaea5e65cf86c",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 106516,
+        "constraints": 217148,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 106516,
+          "hint_is_soft": true,
+          "log_lines": 240,
+          "sat_inprocessing": false,
+          "branches": 85138,
+          "conflicts": 39082,
+          "wall_seconds": 80.161336,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "geometry": null,
+      "operand_retile": null,
+      "bank_lp_refinement": null,
+      "physical_slot_refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-write21-joint-coverage-refinement.json",
+      "sha256": "4a115e0bc79a47f10a32393d972bb397fdc48c6fd3eaa08a88551e2a8b31abe4",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "solver": null,
+      "geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "operand_retile": null,
+      "bank_lp_refinement": null,
+      "physical_slot_refinement": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 337,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              113,
+              145
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "lns",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 18.052694000000002,
+            "model_variables": 18641,
+            "restricted_model_peak_span_lower_bound": 0,
+            "before": [
+              552,
+              11568
+            ],
+            "candidate": [
+              552,
+              11520
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              116,
+              148
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "lns",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 18.2524857,
+            "model_variables": 18731,
+            "restricted_model_peak_span_lower_bound": 0,
+            "before": [
+              552,
+              11520
+            ],
+            "candidate": [
+              552,
+              11472
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 2,
+            "interval": [
+              117,
+              149
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "lns",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 18.114732500000002,
+            "model_variables": 18751,
+            "restricted_model_peak_span_lower_bound": 0,
+            "before": [
+              552,
+              11472
+            ],
+            "candidate": [
+              552,
+              11392
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 3,
+            "interval": [
+              121,
+              153
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "lns",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 18.091435,
+            "model_variables": 18805,
+            "restricted_model_peak_span_lower_bound": 0,
+            "before": [
+              552,
+              11392
+            ],
+            "candidate": [
+              552,
+              11264
+            ],
+            "accepted": true
+          }
+        ],
+        "maximum_physical_writes_per_transfer_row": 21,
+        "full_frame_write_budget_verified": true
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-retile-bank-geometry-probe.json",
+      "sha256": "c3d10075de5143a097b513b7e2523133eff516114acd8e0c5904f924cd8250b6",
+      "status": null,
+      "solver": null,
+      "geometry": null,
+      "operand_retile": null,
+      "bank_lp_refinement": null,
+      "physical_slot_refinement": null
+    }
+  ]
+}
