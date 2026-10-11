@@ -1,7 +1,7 @@
 import copy,hashlib,itertools,json,unittest
 import numpy as np
 from raster_obj_compact import unpack
-from raster_slot_greedy import partition,schedule_slots
+from raster_slot_greedy import partition,schedule_slots,demand
 
 
 def source_schedule():
@@ -96,6 +96,33 @@ class GreedyTests(unittest.TestCase):
         self.assertTrue(all((b>=4)==(target>=4)for b,target in mapping.items()))
         self.assertEqual([p['bank']for p in result['pieces']],[mapping[p['bank']]for p in source['pieces']])
         self.assertTrue(result['physical_slot_layout']['pixel_color_identity_verified'])
+
+    def test_schedule_initial_residents_remain_a_source_exact_seed(self):
+        source=source_schedule();result=schedule_slots(source,window=2000,lookahead=8,initial_residency='schedule',permute_banks=True)
+        self.assertEqual(result['physical_slot_layout']['initial_residency_policy'],'schedule')
+        failed=schedule_slots(source,window=17,lookahead=0,initial_residency='schedule')
+        self.assertEqual(failed['initial_residency_policy'],'schedule')
+        self.assertFalse(failed['universal_raster_rejected'])
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        mapping=result['physical_slot_layout']['fixed_piece_bank_permutation']
+        for bank in (0,1):
+            actual={e['color']for e in result['trace'][0]['updates']if e['bank']==mapping[bank]}
+            expected={e['color']for e in source['trace'][0]['updates']if e['bank']==bank}
+            self.assertEqual(actual,expected)
+        with self.assertRaisesRegex(ValueError,'INITIAL_RESIDENCY_DOMAIN'):
+            schedule_slots(source,initial_residency='unknown')
+
+    def test_declared_piece_bank_domains_survive_random_permutations(self):
+        source=source_schedule()
+        for piece in source['pieces']:piece['allowed_banks']=[piece['bank']]
+        _,_,before=demand(source)
+        for seed in range(3):
+            result=schedule_slots(source,window=2000,lookahead=8,seed=seed,permute_banks=True)
+            self.assertEqual([p['bank']for p in result['pieces']],[p['bank']for p in source['pieces']])
+            for a,b in zip(before,demand(result)[2]):np.testing.assert_array_equal(a,b)
+        source['pieces'][0]['allowed_banks']=[1]
+        with self.assertRaisesRegex(ValueError,'PIECE_BANK_ELIGIBILITY'):
+            schedule_slots(source,permute_banks=True)
 
     def test_global_beam_replays_complete_state_path(self):
         result=schedule_slots(source_schedule(),window=2000,lookahead=8,global_beam=3,beam=4,repack=True)

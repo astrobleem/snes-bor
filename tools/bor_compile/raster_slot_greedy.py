@@ -53,6 +53,7 @@ def demand(schedule,allow_restricted=False,allow_geometry_hint=False):
     for p,mask in zip(schedule['pieces'],schedule['piece_pixel_masks']):
         image=unpack(mask);colors=np.full(image.shape,-1,dtype=np.int32)
         if image.shape!=(p['height'],p['width'])or not 0<=p['bank']<8:raise ValueError('GREEDY_PIECE_DOMAIN')
+        if p['bank']not in p.get('allowed_banks',range(8)):raise ValueError('GREEDY_PIECE_BANK_ELIGIBILITY')
         for ly,lx in zip(*np.where(image!=0)):
             y,x=int(p['y']+ly),int(p['x']+lx)
             if not 0<=y<height or not 0<=x<256:raise ValueError('GREEDY_VISIBLE_PIXEL_DOMAIN')
@@ -68,8 +69,9 @@ def demand(schedule,allow_restricted=False,allow_geometry_hint=False):
     return required,uses,pixels
 
 
-def schedule_slots(schedule,window=356,lookahead=17,maximum_ranges=4,seed=0,beam=16,repack=False,permute_banks=False,global_beam=1):
+def schedule_slots(schedule,window=356,lookahead=17,maximum_ranges=4,seed=0,beam=16,repack=False,permute_banks=False,global_beam=1,initial_residency='first-use'):
     if not isinstance(lookahead,int)or lookahead<0 or window<1 or not 1<=maximum_ranges<=4 or beam<1 or global_beam<1:raise ValueError('GREEDY_SCHEDULER_DOMAIN')
+    if initial_residency not in('first-use','schedule'):raise ValueError('GREEDY_INITIAL_RESIDENCY_DOMAIN')
     required,uses,pixel_colors=demand(schedule);height=len(required);rng=random.Random(seed)
     bank_mapping={b:b for b in range(8)}
     if permute_banks:
@@ -77,6 +79,20 @@ def schedule_slots(schedule,window=356,lookahead=17,maximum_ranges=4,seed=0,beam
         pools=bank_groups(schedule)
         for pool in pools:
             shuffled=pool.copy();rng.shuffle(shuffled);bank_mapping.update(zip(pool,shuffled))
+        if any(bank_mapping[p['bank']]not in p.get('allowed_banks',range(8))for p in schedule['pieces']):
+            domains={b:set(next(pool for pool in pools if b in pool))for b in range(8)}
+            for piece in schedule['pieces']:domains[piece['bank']].intersection_update(piece.get('allowed_banks',range(8)))
+            order=sorted(range(8),key=lambda b:len(domains[b]))
+            def match(index,assigned):
+                if index==8:return assigned
+                bank=order[index];choices=sorted(domains[bank]-set(assigned.values()));rng.shuffle(choices)
+                for target in choices:
+                    result=match(index+1,{**assigned,bank:target})
+                    if result is not None:return result
+                return None
+            matched=match(0,{})
+            if matched is None:raise ValueError('GREEDY_NO_ELIGIBLE_BANK_PERMUTATION')
+            bank_mapping={int(b):target for b,target in matched.items()}
         inverse={v:k for k,v in bank_mapping.items()}
         required=[[row[inverse[b]]for b in range(8)]for row in required]
         uses=[uses[inverse[b]]for b in range(8)]
@@ -86,9 +102,15 @@ def schedule_slots(schedule,window=356,lookahead=17,maximum_ranges=4,seed=0,beam
         lines=uses[b][c];i=bisect.bisect_left(lines,y)
         return lines[i]if i<len(lines)else height+1
     tie={(b,c):rng.random()for b in range(8)for c in sorted(uses[b])}
+    seeded={b:[]for b in range(8)}
+    if initial_residency=='schedule':
+        for event in schedule['trace'][0]['updates']:
+            bank=bank_mapping[event['bank']];color=event['color']
+            if color in uses[bank]and color not in seeded[bank]:seeded[bank].append(color)
     state=[]
     for b in range(8):
-        colors=sorted(uses[b],key=lambda c:(uses[b][c][0],tie[b,c]))[:15]
+        colors=seeded[b]if initial_residency=='schedule'else sorted(uses[b],key=lambda c:(uses[b][c][0],tie[b,c]))[:15]
+        if len(colors)>15:raise ValueError('GREEDY_INITIAL_RESIDENCY_CAPACITY')
         colors.sort(key=lambda c:(uses[b][c][-1],tie[b,c]))
         values=colors+[None]*(15-len(colors))
         if seed%4==1 or seed%4==2 and b%2==0 or seed%4==3 and b%2==1:values.reverse()
@@ -168,7 +190,7 @@ def schedule_slots(schedule,window=356,lookahead=17,maximum_ranges=4,seed=0,beam
                 else:
                     complete.extend((accumulated+rank,history+[values])for rank,values,bounds in frontier)
             if not complete:
-                return dict(schema='BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1',status='BOUNDED_GREEDY_NO_CANDIDATE',failed_scanline=y,seed=seed,beam=beam,global_beam=global_beam,lookahead_lines=lookahead,window_master_clocks=window,universal_raster_rejected=False,native_timing_admitted=False,no_color_reduction=True)
+                return dict(schema='BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1',status='BOUNDED_GREEDY_NO_CANDIDATE',failed_scanline=y,initial_residency_policy=initial_residency,seed=seed,beam=beam,global_beam=global_beam,lookahead_lines=lookahead,window_master_clocks=window,universal_raster_rejected=False,native_timing_admitted=False,no_color_reduction=True)
             unique={}
             for rank,history in sorted(complete,key=lambda v:(v[0],str(v[1][-1]))):
                 key=tuple(tuple(bank)for bank in history[-1])
@@ -188,7 +210,7 @@ def schedule_slots(schedule,window=356,lookahead=17,maximum_ranges=4,seed=0,beam
                         new_bounds=bounds+([bound]if bound else[]);span,groups=partition(new_bounds,maximum_ranges)
                         if span<window:expanded.append((rank+penalty,values+[local],new_bounds))
                 if not expanded:
-                    return dict(schema='BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1',status='BOUNDED_GREEDY_NO_CANDIDATE',failed_scanline=y,failed_bank=b,seed=seed,beam=beam,lookahead_lines=lookahead,window_master_clocks=window,universal_raster_rejected=False,native_timing_admitted=False,no_color_reduction=True)
+                    return dict(schema='BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1',status='BOUNDED_GREEDY_NO_CANDIDATE',failed_scanline=y,failed_bank=b,initial_residency_policy=initial_residency,seed=seed,beam=beam,lookahead_lines=lookahead,window_master_clocks=window,universal_raster_rejected=False,native_timing_admitted=False,no_color_reduction=True)
                 ranked=sorted(expanded,key=lambda v:(v[0],str(v[1])))
                 cheap=min(expanded,key=lambda v:(partition(v[2],maximum_ranges)[0],v[0]))
                 frontier=ranked[:max(0,beam-1)]
@@ -232,7 +254,7 @@ def schedule_slots(schedule,window=356,lookahead=17,maximum_ranges=4,seed=0,beam
             if states[y][p['bank']][slot-1]!=colors[ly,lx]:raise AssertionError('GREEDY_PIXEL_COLOR_REPLAY')
         flat=image.flatten();images.append(dict(width=p['width'],height=p['height'],packed_nibble_order='low then high',pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
     result=copy.deepcopy(schedule);physical_report=dict(schema='BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1',status='PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN',seed=seed,beam=beam,lookahead_lines=lookahead,window_master_clocks=window,peak_prepared_commit_span=max(p['prepared_commit_span']for p in packets),peak_ranges=max(len(p['packets'])for p in packets),maximum_noninitial_prefetch_latency_lines=latency,initial_palette_may_preload_entire_frame=True,color_reload_events=reloads,pixel_color_identity_verified=True,all_packet_cgram_identities_verified=True,fixed_piece_bank_permutation={b:b for b in range(8)},universal_raster_rejected=False,native_timing_admitted=False,no_color_reduction=True)
-    physical_report.update(global_beam=global_beam,fixed_piece_bank_permutation=bank_mapping,interval_repacking_enabled=repack,peak_packet_data_bytes=max(sum(2*p['word_count']for p in row['packets'])for row in packets),peak_dma_chain_channels=max(max(0,2*len(row['packets'])-1)for row in packets))
+    physical_report.update(initial_residency_policy=initial_residency,global_beam=global_beam,fixed_piece_bank_permutation=bank_mapping,interval_repacking_enabled=repack,peak_packet_data_bytes=max(sum(2*p['word_count']for p in row['packets'])for row in packets),peak_dma_chain_channels=max(max(0,2*len(row['packets'])-1)for row in packets))
     result.update(trace=trace,piece_pixel_masks=images,compiled_indices_sha256=hashlib.sha256(indices.tobytes()).hexdigest(),physical_slot_layout=physical_report,prepared_dma_packets=packets,peak_scheduled_writes=max(r['colors_written']for r in trace[1:]),peak_cgram_data_bytes=2*max(r['colors_written']for r in trace[1:]),average_writes=float(np.mean([r['colors_written']for r in trace[1:]])),worst_scanline=1+int(np.argmax([r['colors_written']for r in trace[1:]])),maximum_noninitial_prefetch_latency_lines=latency,noninitial_prefetch_lookahead_enforced=True,noninitial_prefetch_latency_replayed=True,initial_palette_may_preload_entire_frame=True)
     result.update(input_compiled_schedule_sha256=schedule.get('compiled_schedule_sha256'),
                   write_budget=None,lookahead_lines=lookahead,prepared_dma_window_master_clocks=window,
@@ -247,8 +269,9 @@ def schedule_slots(schedule,window=356,lookahead=17,maximum_ranges=4,seed=0,beam
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--schedule',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--window',type=int,default=356);p.add_argument('--lookahead',type=int,default=17);p.add_argument('--maximum-ranges',type=int,default=4);p.add_argument('--seed',type=int,default=0);p.add_argument('--beam',type=int,default=16)
+    p.add_argument('--initial-residency',choices=('first-use','schedule'),default='first-use')
     p.add_argument('--repack',action='store_true');p.add_argument('--permute-banks',action='store_true');p.add_argument('--global-beam',type=int,default=1);a=p.parse_args()
-    r=schedule_slots(json.loads(a.schedule.read_text()),a.window,a.lookahead,a.maximum_ranges,a.seed,a.beam,a.repack,a.permute_banks,a.global_beam);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
+    r=schedule_slots(json.loads(a.schedule.read_text()),a.window,a.lookahead,a.maximum_ranges,a.seed,a.beam,a.repack,a.permute_banks,a.global_beam,a.initial_residency);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 
 if __name__=='__main__':main()

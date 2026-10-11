@@ -1,0 +1,136 @@
+{
+  "schema": "BYOR_AUTHORED_CONSTRUCTIVE_PALETTE_SEARCH_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "trials": [
+    {
+      "name": "span472-hint-movable345",
+      "artifact_sha256": "ce97213ea3d63abee2933412600a49fab6f96dc1eb21b1a3103e56cfcf91118f",
+      "invocation_parameters": {},
+      "report": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 180.09195880000001,
+        "solver_search_strategy": "portfolio",
+        "solver_objective": "FEASIBILITY_ONLY",
+        "lifetime_segments": 518,
+        "window_master_clocks": 345,
+        "maximum_ranges": 4,
+        "input_schedule_noninitial_prefetch_latency_lines": 11,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 518,
+        "flexible_prefetch": true,
+        "lookahead_lines": 55,
+        "hint_time_radius_lines": 4,
+        "necessary_bank_window_master_clocks": 345,
+        "demand_gap_lines": null,
+        "idle_prefix_collapsed": false,
+        "first_visible_source_line": 112,
+        "layout_hint_used": true,
+        "reorder_banks": false,
+        "fixed_hint_slots": false,
+        "permute_hint_slots": false,
+        "retain_write_times": false,
+        "lifetime_repair_interval": null,
+        "movable_complete_lifetimes": 0,
+        "rectangle_lifetimes": true,
+        "persistent_color_slots": false,
+        "split_bank_ranges": true,
+        "paired_bank_ranges": false,
+        "fixed_slot_write_times_pruned": 0,
+        "solver_model_variables": 20126,
+        "solver_model_constraints": 47372,
+        "solver_branches": 976196,
+        "solver_conflicts": 253596,
+        "solver_probing_level": 0,
+        "solver_sat_inprocessing": false,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "name": "constructive345",
+      "artifact_sha256": "f1c70c1a048375ba069da52dbd365c844918aaa4380dd6e0cd382332eca1b037",
+      "invocation_parameters": {
+        "initial_residency_policy": "first-use"
+      },
+      "report": {
+        "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+        "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+        "failed_scanline": 127,
+        "seed": 1,
+        "beam": 32,
+        "global_beam": 8,
+        "lookahead_lines": 12,
+        "window_master_clocks": 345,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "name": "constructive-permuted345",
+      "artifact_sha256": "250d2b406a3be90f2fe2bdaac80c635320e2e4f5770845135bdcd7134a271b04",
+      "invocation_parameters": {
+        "initial_residency_policy": "first-use"
+      },
+      "report": {
+        "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+        "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+        "failed_scanline": 127,
+        "seed": 3,
+        "beam": 48,
+        "global_beam": 16,
+        "lookahead_lines": 24,
+        "window_master_clocks": 345,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "name": "constructive-permuted-seed7-345",
+      "artifact_sha256": "b287df1ad6d79ea15eabb005da255e0949583af5aba6a2bae3a7097d8a28483a",
+      "invocation_parameters": {
+        "initial_residency_policy": "first-use"
+      },
+      "report": {
+        "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+        "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+        "failed_scanline": 128,
+        "seed": 7,
+        "beam": 64,
+        "global_beam": 32,
+        "lookahead_lines": 55,
+        "window_master_clocks": 345,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "name": "constructive-cache-seeded345",
+      "artifact_sha256": "c779af36bab8ee9b1ac574a33a9c25781341c5dffeeea4110851ecaf8f5d670e",
+      "invocation_parameters": {
+        "initial_residency_policy": "schedule"
+      },
+      "report": {
+        "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+        "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+        "failed_scanline": 128,
+        "seed": 7,
+        "beam": 48,
+        "global_beam": 16,
+        "lookahead_lines": 24,
+        "window_master_clocks": 345,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    }
+  ],
+  "universal_raster_rejected": false,
+  "native_timing_admitted": false,
+  "no_color_reduction": true
+}
