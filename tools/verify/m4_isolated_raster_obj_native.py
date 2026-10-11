@@ -176,15 +176,17 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
     for ch in range(1,8):asm.extend([f' lda #${offsets[ch]:04X}',f' sta ${0x4302+16*ch:04X}'])
     if production_nmi_services:asm.append(' pld')
     asm.extend([' lda #IsolatedRasterRow0',' sta $1E00',' sep #$20','.a8',' stz $1E08',' rep #$20','.a16',' plb',' plx',' pla','IsolatedRasterNmiRti:',' rti','.bank 40','.org $8000'])
-    def emit_controls(y,leave_a8=False):
+    def emit_controls(y,leave_a8=False,part='all',a8_already=False):
         if y not in control_rows:return False
         controls=dict(control_rows[y])
         for address in(0x2126,0x2128):
-            if address in controls:asm.extend([f' lda #${controls[address]|controls[address+1]<<8:04X}',f' sta ${address:04X}'])
-        byte_writes=[(address,value)for address,value in control_rows[y]if address in(0x2125,0x212b,0x2131)]
+            if part!='bytes'and address in controls:
+                value=controls[address]|controls[address+1]<<8
+                asm.extend([f' lda #${value:04X}',f' sta ${address:04X}']if value else[f' stz ${address:04X}'])
+        byte_writes=[(address,value)for address,value in control_rows[y]if part!='words'and address in(0x2125,0x212b,0x2131)]
         if byte_writes:
-            asm.extend([' sep #$20','.a8'])
-            for address,value in byte_writes:asm.extend([f' lda #${value:02X}',f' sta ${address:04X}'])
+            if not a8_already:asm.extend([' sep #$20','.a8'])
+            for address,value in byte_writes:asm.extend([f' lda #${value:02X}',f' sta ${address:04X}']if value else[f' stz ${address:04X}'])
             if not leave_a8:asm.extend([' rep #$20','.a16'])
         return bool(byte_writes)and leave_a8
     for y in range(224):
@@ -195,13 +197,21 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
                 for ch,count in row['counts'].items():asm.extend([f' lda #${count:04X}',f' sta ${0x4305+16*ch:04X}'])
             if not control_a8:asm.append(' sep #$20')
             asm.extend(['.a8',f' lda #${row["first_address"]:02X}',' sta $2121',f' lda #${row["mask"]:02X}',' sta $420B',' rep #$20','.a16'])
+        if not controls_before_palette:emit_controls(y,part='words')
         if prepare_next_line and y+1<len(rows) and rows[y+1]['mask']:
             asm.extend([' sep #$20','.a8'])
+            count_groups={}
             for ch,count in rows[y+1]['counts'].items():
-                target=f'${0x05+16*ch:02X}'if foreground_wai else f'${0x4305+16*ch:04X}'
-                asm.extend([f' lda #${count:02X}',f' sta {target}'])
+                if not count:continue
+                count_groups.setdefault(count,[]).append(ch)
+            for count,channels in count_groups.items():
+                asm.append(f' lda #${count:02X}')
+                for ch in channels:
+                    target=f'${0x05+16*ch:02X}'if foreground_wai else f'${0x4305+16*ch:04X}'
+                    asm.append(f' sta {target}')
+            if not controls_before_palette:emit_controls(y,leave_a8=True,part='bytes',a8_already=True)
             asm.extend([' rep #$20','.a16'])
-        if not controls_before_palette:emit_controls(y)
+        elif not controls_before_palette:emit_controls(y,part='bytes')
         asm.extend([f' lda #IsolatedRasterRow{y+1}',' sta $1E00',' jml IsolatedRasterReturn'])
     asm.extend(['IsolatedRasterRow224:','.a16','.i16',' jml IsolatedRasterReturn'])
     path=folder/'fixture.pasm';path.write_text('\n'.join(asm)+'\n')
@@ -285,7 +295,7 @@ emu.addEventCallback(function()if active then local s=emu.getState();emu.log('IS
     if control_traffic:
         lua+="\nlocal phaseStart=nil;local function phase()local s=emu.getState();return {s['ppu.frameCount'],s['ppu.scanline'],(s.masterClock+4*(s['ppu.frameCount']//2))%1364,s.masterClock}end\n"
         lua+=f"emu.addMemoryCallback(function()if active then phaseStart=phase()end end,emu.callbackType.exec,{prg('IsolatedRasterIrq')},{prg('IsolatedRasterIrq')},emu.cpuType.snes,emu.memType.snesPrgRom)\n"
-        lua+=f"emu.addMemoryCallback(function()if active and phaseStart then local finish=phase();emu.log('ISOIRQPHASE|'..table.concat(phaseStart,',')..','..table.concat(finish,','));phaseStart=nil end end,emu.callbackType.exec,{prg('IsolatedRasterIrqRti')},{prg('IsolatedRasterIrqRti')},emu.cpuType.snes,emu.memType.snesPrgRom)\n"
+        lua+=f"emu.addMemoryCallback(function()if active and phaseStart then local finish=phase();emu.log('ISOIRQPHASE|'..table.concat(phaseStart,',')..','..table.concat(finish,',')..','..controlRow);phaseStart=nil end end,emu.callbackType.exec,{prg('IsolatedRasterIrqRti')},{prg('IsolatedRasterIrqRti')},emu.cpuType.snes,emu.memType.snesPrgRom)\n"
     return lua
 
 

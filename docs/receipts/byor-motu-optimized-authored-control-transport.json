@@ -1,0 +1,44 @@
+{
+  "schema": "BYOR_AUTHORED_CONTROL_OPTIMIZED_IRQ_TRANSPORT_V1",
+  "native": {
+    "status": "PASS",
+    "pixel_mismatches": 0,
+    "unsafe_high_commits": 0,
+    "complete_packet_fields": [
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "peak_observed_commit_span": 344,
+    "first_high_hclock_range": [
+      1096,
+      1104
+    ],
+    "peak_irq_entry_to_rti_master_clocks": 1122,
+    "irq_context_faults": 0,
+    "control_traffic_identity_verified": true,
+    "physical_cgram_identity_verified": true,
+    "obj_chr_vram_identity_verified": true,
+    "oam_observer_identity_verified": true,
+    "production_queue_vram_identity_verified": true,
+    "rom_sha256": "9db96423da433bedc0123ad84fe4962642d0d6cfd08945d20ef849f1f5ffa4bb",
+    "compiled_schedule_sha256": "64541635099c87384e692736fbefefa2783455e4d57b7b9b936177a570ae03fe",
+    "compiled_transfer_descriptor_sha256": "168b0f68972963105a739c9878ca1f719aa0b45ae1444ef40037d84e6823077e",
+    "control_traffic_source_file_sha256": "d2112505ceffe0c642dea1f50cd3217d44d7f0c12e06aaa9f66e5fa1df8dcfa6"
+  },
+  "measured_transport_window_master_clocks": 344,
+  "delta_controls": true,
+  "source_alpha_or_layer_rendering_proven": false,
+  "source_alpha_compatibility_selected": false,
+  "live_audio_contention_proven": false,
+  "live_vram_lease_proven": false,
+  "production_runtime_admitted": false,
+  "universal_raster_rejected": false,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "no_color_reduction": true
+}
