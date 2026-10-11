@@ -1,0 +1,365 @@
+{
+  "schema": "BYOR_FIXED_TRACE_BANK_ORDER_RECEIPT_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "optimistic_peak_span": 336,
+  "measured_isolated_native_window": 336,
+  "logical_peak_writes": 19,
+  "reordered_unchanged_slot_physical_span": 1000,
+  "fixed_slot_permutation_span": 600,
+  "repaired_physical_span": 584,
+  "best_prior_complete_physical_span": 552,
+  "constant_index_family_failed_bank": 3,
+  "constant_index_failure": "INFEASIBLE",
+  "focused_tests_passed": 51,
+  "focused_tests_seconds": 26.234,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "no_color_reduction": true,
+  "authored_native_raster_proven": false,
+  "physical_native_gate_met": false,
+  "universal_raster_rejected": false,
+  "trials": [
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-bank4-dynamic-span-search.json",
+      "sha256": "1ada1be9ee9e89acaa95ad4ed28ce5369443ca5cead7f59ad86592ddb5ebe0f1",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "FIXED_BANK_RESIDENCY_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_backend": "cp-sat",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 55.1003307,
+        "solver_model_variables": 33088,
+        "solver_model_constraints": 71349,
+        "solver_branches": 109344,
+        "solver_conflicts": 1337,
+        "write_budget": 19,
+        "lookahead_lines": 55,
+        "prepared_window_master_clocks": 617,
+        "range_backend": "dp",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": false,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "compulsory_bank_interval_cuts": 6555,
+        "soft_residency_hint_interval": null,
+        "total_noninitial_writes_objective": false,
+        "peak_optimistic_prepared_span_objective": true,
+        "solver_search_strategy": "portfolio",
+        "peak_optimistic_span_lower_bound_for_this_fixed_bank_family": 0,
+        "peak_scheduled_writes": 19,
+        "maximum_noninitial_prefetch_latency_lines": 14,
+        "pixel_color_identity_verified": true,
+        "independent_prepared_partition_bound_verified": true,
+        "peak_optimistic_prepared_span": 360,
+        "total_noninitial_scheduled_writes": 426
+      },
+      "refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-span-bank-order-probe.json",
+      "sha256": "ab7d29719cb554d9b4109bd063b158a3e8becd917e1edb51f451bc40f21d4b9a",
+      "report": {
+        "schema": "SOURCE_TRACE_ELIGIBLE_BANK_ORDER_PROBE_V1",
+        "traces": [
+          {
+            "source": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-subdivision-span377.json",
+            "permutations": 576,
+            "minimum_optimistic_peak_span": 344,
+            "aggregate_span": 8480,
+            "bank_mapping": [
+              3,
+              2,
+              1,
+              0,
+              7,
+              5,
+              4,
+              6
+            ],
+            "fixed_write_trace_only": true,
+            "native_timing_admitted": false,
+            "universal_raster_rejected": false,
+            "no_color_reduction": true
+          },
+          {
+            "source": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-original-span-search.json",
+            "permutations": 576,
+            "minimum_optimistic_peak_span": 336,
+            "aggregate_span": 7768,
+            "bank_mapping": [
+              2,
+              3,
+              0,
+              1,
+              7,
+              4,
+              6,
+              5
+            ],
+            "fixed_write_trace_only": true,
+            "native_timing_admitted": false,
+            "universal_raster_rejected": false,
+            "no_color_reduction": true
+          },
+          {
+            "source": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-bank4-dynamic-span-search.json",
+            "permutations": 576,
+            "minimum_optimistic_peak_span": 360,
+            "aggregate_span": 8432,
+            "bank_mapping": [
+              1,
+              3,
+              0,
+              2,
+              7,
+              5,
+              6,
+              4
+            ],
+            "fixed_write_trace_only": true,
+            "native_timing_admitted": false,
+            "universal_raster_rejected": false,
+            "no_color_reduction": true
+          }
+        ]
+      },
+      "refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-original-span336-ordered-final-tool.json",
+      "sha256": "3d7f85ebbfdc3f01ef38b36e5d9acfd6e1dd7585f061da5baf4b6e22569e38e7",
+      "report": {
+        "schema": "BYOR_FIXED_TRACE_BANK_ORDER_V1",
+        "permutations_evaluated": 576,
+        "eligible_family_exhaustive": true,
+        "minimum_optimistic_peak_span": 336,
+        "aggregate_optimistic_span": 7768,
+        "bank_mapping": [
+          2,
+          3,
+          0,
+          1,
+          7,
+          4,
+          6,
+          5
+        ],
+        "emitted_physical_peak_span": 1000,
+        "source_operands_replayed": true,
+        "fixed_bank_per_piece": true,
+        "palette_write_lifetimes_unchanged": true,
+        "math_eligibility_preserved": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-original-span336-permuted.json",
+      "sha256": "a73e5152a2184341b4ace03660cc918785c84981cdc4c86c815270cb64f566e0",
+      "report": {
+        "schema": "BYOR_FIXED_TRACE_BANK_ORDER_V1",
+        "permutations_evaluated": 576,
+        "eligible_family_exhaustive": true,
+        "minimum_optimistic_peak_span": 336,
+        "aggregate_optimistic_span": 7768,
+        "bank_mapping": [
+          2,
+          3,
+          0,
+          1,
+          7,
+          4,
+          6,
+          5
+        ],
+        "emitted_physical_peak_span": 1000,
+        "source_operands_replayed": true,
+        "fixed_bank_per_piece": true,
+        "palette_write_lifetimes_unchanged": true,
+        "math_eligibility_preserved": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-original-span336-write21-refined.json",
+      "sha256": "c74ad18555700ce826925f6c835c3e6a83916bc92cbd35f228238220125cf632",
+      "report": {
+        "schema": "BYOR_FIXED_TRACE_BANK_ORDER_V1",
+        "permutations_evaluated": 576,
+        "eligible_family_exhaustive": true,
+        "minimum_optimistic_peak_span": 336,
+        "aggregate_optimistic_span": 7768,
+        "bank_mapping": [
+          2,
+          3,
+          0,
+          1,
+          7,
+          4,
+          6,
+          5
+        ],
+        "emitted_physical_peak_span": 1000,
+        "source_operands_replayed": true,
+        "fixed_bank_per_piece": true,
+        "palette_write_lifetimes_unchanged": true,
+        "math_eligibility_preserved": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 337,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              117,
+              137
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "lns",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.0212971,
+            "model_variables": 12226,
+            "restricted_model_peak_span_lower_bound": 0,
+            "before": [
+              600,
+              13416
+            ],
+            "candidate": [
+              600,
+              12752
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              127,
+              147
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "lns",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.0297631,
+            "model_variables": 12479,
+            "restricted_model_peak_span_lower_bound": 0,
+            "before": [
+              600,
+              12752
+            ],
+            "candidate": [
+              600,
+              12152
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 2,
+            "interval": [
+              132,
+              152
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "lns",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.0396824,
+            "model_variables": 12372,
+            "restricted_model_peak_span_lower_bound": 0,
+            "before": [
+              600,
+              12152
+            ],
+            "candidate": [
+              584,
+              11728
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 3,
+            "interval": [
+              126,
+              146
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "lns",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.0838043,
+            "model_variables": 12473,
+            "restricted_model_peak_span_lower_bound": 0,
+            "before": [
+              584,
+              11728
+            ],
+            "candidate": [
+              584,
+              11376
+            ],
+            "accepted": true
+          }
+        ],
+        "maximum_physical_writes_per_transfer_row": 21,
+        "full_frame_write_budget_verified": true
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-original-span336-constant-index-probe.json",
+      "sha256": "ba7b4c04fdb87b5dcc160c6c3bcd0c5cee5876b4602fd4ec47941939f9e75dae",
+      "report": {
+        "schema": "BYOR_CONSTANT_WORD_INDEX_TEMPLATE_V1",
+        "status": "CONSTANT_INDEX_FAMILY_NO_CANDIDATE",
+        "banks": [
+          {
+            "bank": 0,
+            "status": "OPTIMAL",
+            "seconds": 0.0278269
+          },
+          {
+            "bank": 1,
+            "status": "OPTIMAL",
+            "seconds": 0.0603546
+          },
+          {
+            "bank": 2,
+            "status": "OPTIMAL",
+            "seconds": 0.0572852
+          },
+          {
+            "bank": 3,
+            "status": "INFEASIBLE",
+            "seconds": 0.009399900000000001
+          }
+        ],
+        "constant_word_index_family_only": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      },
+      "refinement": null
+    }
+  ]
+}
