@@ -7,6 +7,21 @@ import test_raster_slot_layout as fixtures
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class RowSlotPermutationTests(unittest.TestCase):
+    def test_restricted_interval_retains_explicit_partial_identity_contract(self):
+        from raster_bank_residency import restrict_interval
+        source=restrict_interval(fixtures.SlotLayoutTests().schedule(),2,2)
+        result=optimize(source,348,10,free_residency=True)
+        report=result['physical_slot_layout']
+        self.assertTrue(report['outside_interval_pixels_relaxed'])
+        self.assertFalse(report['complete_source_frame_pixel_identity_proven'])
+        self.assertFalse(report['full_frame_transfer_window_enforced'])
+        self.assertFalse(report['native_timing_admitted'])
+        self.assertEqual(result['status'],'RESTRICTED_SCANLINE_DEMAND_ONLY')
+        with self.assertRaises(ValueError):demand(result)
+        _,_,before=demand(source,allow_restricted=True)
+        _,_,after=demand(result,allow_restricted=True)
+        self.assertTrue(all(np.array_equal(a,b)for a,b in zip(before,after)))
+
     def test_packet_and_pixel_replay_with_fixed_banks_and_opaque_zero(self):
         source=fixtures.SlotLayoutTests().schedule()
         source.update(scanline_math_controls_source_bound=True,selected_modes={'0':'subtract'},compiled_color_window_descriptors={'0':{'bounds':[[0,15],[255,0]]}})

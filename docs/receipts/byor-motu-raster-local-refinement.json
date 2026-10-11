@@ -1,0 +1,828 @@
+{
+  "schema": "BYOR_PHYSICAL_SLOT_LOCAL_REFINEMENT_RECEIPT_V1",
+  "complete_source_frame_pixel_identity_proven": true,
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "compiled_schedule_sha256": "466477aac8736ed57d758dd074705f2b25ad3a3be52252cb2d9a7c3302da612f",
+  "compiled_transfer_descriptor_sha256": "614406afcc9888e935c74213334f2e9f430108de58fa5574369b42160a011521",
+  "physical_peak_master_clocks": 536,
+  "sum_transfer_spans": 11264,
+  "peak_logical_writes": 29,
+  "peak_logical_cgram_bytes": 58,
+  "peak_packet_cgram_bytes": 62,
+  "no_color_reduction": true,
+  "native_timing_admitted": false,
+  "universal_raster_rejected": false,
+  "isolated_private_transport_measured_span": 344,
+  "concurrent_actor_palette_admission": false,
+  "protected_files": 17,
+  "protected_hash_mismatches": 0,
+  "focused_tests_passed": 8,
+  "width_labels": 9825,
+  "width_new_failures": 0,
+  "width_baseline_failures": 0,
+  "trials": [
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-free-interval128135-348.json",
+      "sha256": "681201bc431cd0d84438d5c5302e4099949734a37e1415ab25492964fe7b3efd",
+      "report": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 45.096492000000005,
+        "solver_model_variables": 5773,
+        "solver_model_constraints": 13391,
+        "solver_branches": 363922,
+        "solver_conflicts": 1155,
+        "outside_interval_pixels_relaxed": true,
+        "complete_source_frame_pixel_identity_proven": false,
+        "window_master_clocks": 348,
+        "requested_repair_window_master_clocks": null,
+        "physical_repair_interval": null,
+        "physical_repair_transfer_interval": null,
+        "full_frame_transfer_window_enforced": true,
+        "physical_layout_hint_used": false,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+        "bank_interval_liveness_cuts": 124,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 7,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          128,
+          135
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-free-interval128135-1000.json",
+      "sha256": "c369f5feb82e96556faa87eda0f74974ed0c5870287e27951962786fbcedfab4",
+      "report": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 15.0555876,
+        "solver_model_variables": 5773,
+        "solver_model_constraints": 13391,
+        "solver_branches": 60337,
+        "solver_conflicts": 0,
+        "outside_interval_pixels_relaxed": true,
+        "complete_source_frame_pixel_identity_proven": false,
+        "window_master_clocks": 1000,
+        "requested_repair_window_master_clocks": null,
+        "physical_repair_interval": null,
+        "physical_repair_transfer_interval": null,
+        "full_frame_transfer_window_enforced": false,
+        "physical_layout_hint_used": false,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+        "bank_interval_liveness_cuts": 124,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 7,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          128,
+          135
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "packet_ranges_independently_minimized": true,
+        "peak_prepared_commit_span": 696,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        }
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-free-interval128135-hinted348.json",
+      "sha256": "7e9f62335c66dabc2ff3745eb6cb16b1620eb200e233f2545d6e29926e1095d1",
+      "report": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 45.0890745,
+        "solver_model_variables": 5773,
+        "solver_model_constraints": 13391,
+        "solver_branches": 1034916,
+        "solver_conflicts": 281136,
+        "outside_interval_pixels_relaxed": true,
+        "complete_source_frame_pixel_identity_proven": false,
+        "window_master_clocks": 348,
+        "requested_repair_window_master_clocks": null,
+        "physical_repair_interval": null,
+        "physical_repair_transfer_interval": null,
+        "full_frame_transfer_window_enforced": false,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+        "bank_interval_liveness_cuts": 124,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 7,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          128,
+          135
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-new19-free-repair865-128135.json",
+      "sha256": "d4ea0eac1b89e373712b576c51a6628b685029116e0425b924ea4308df454ec5",
+      "report": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 45.255601600000006,
+        "solver_model_variables": 41792,
+        "solver_model_constraints": 113577,
+        "solver_branches": 1206933,
+        "solver_conflicts": 177279,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "window_master_clocks": 865,
+        "requested_repair_window_master_clocks": 865,
+        "physical_repair_interval": [
+          128,
+          135
+        ],
+        "physical_repair_transfer_interval": [
+          128,
+          136
+        ],
+        "full_frame_transfer_window_enforced": false,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": true,
+        "bank_interval_liveness_cuts": 7413,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 54,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          166
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "packet_ranges_independently_minimized": true,
+        "peak_prepared_commit_span": 856,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        }
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-new19-free-repair865-128135-constants.json",
+      "sha256": "28779b41108e132adc5ba6080d74e01406855c59cdc65cf718f5d5b0e0459d63",
+      "report": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 30.169596700000003,
+        "solver_model_variables": 8496,
+        "solver_model_constraints": 25767,
+        "solver_branches": 642229,
+        "solver_conflicts": 15273,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "window_master_clocks": 865,
+        "requested_repair_window_master_clocks": 865,
+        "physical_repair_interval": [
+          128,
+          135
+        ],
+        "physical_repair_transfer_interval": [
+          128,
+          136
+        ],
+        "full_frame_transfer_window_enforced": false,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": true,
+        "bank_interval_liveness_cuts": 7413,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 54,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          166
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "packet_ranges_independently_minimized": true,
+        "peak_prepared_commit_span": 856,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        }
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-new19-free-repair857-125143-constants.json",
+      "sha256": "cde5ab825493a437d616ed11fefa3505216c05f8a8d4f4c7813e55077f01021c",
+      "report": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 45.1131132,
+        "solver_model_variables": 16016,
+        "solver_model_constraints": 45299,
+        "solver_branches": 1536039,
+        "solver_conflicts": 133090,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "window_master_clocks": 857,
+        "requested_repair_window_master_clocks": 857,
+        "physical_repair_interval": [
+          125,
+          143
+        ],
+        "physical_repair_transfer_interval": [
+          125,
+          144
+        ],
+        "full_frame_transfer_window_enforced": false,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": true,
+        "bank_interval_liveness_cuts": 7413,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 54,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          166
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "packet_ranges_independently_minimized": true,
+        "peak_prepared_commit_span": 712,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        }
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-refinement-pass1.json",
+      "sha256": "de5303dd5c60251ba6d2ca7e2856beb54ae46e4c2a0f763c39d42d04a82c0495",
+      "report": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 348,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              132,
+              142
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 20.079536100000002,
+            "model_variables": 9794,
+            "before": [
+              712,
+              12888
+            ],
+            "candidate": [
+              696,
+              12392
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              121,
+              131
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 20.106445400000002,
+            "model_variables": 9600,
+            "before": [
+              696,
+              12392
+            ],
+            "candidate": [
+              648,
+              12368
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 2,
+            "interval": [
+              129,
+              139
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 20.07207,
+            "model_variables": 9819,
+            "before": [
+              648,
+              12368
+            ],
+            "candidate": [
+              648,
+              12288
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 3,
+            "interval": [
+              136,
+              146
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 20.0732708,
+            "model_variables": 9739,
+            "before": [
+              648,
+              12288
+            ],
+            "candidate": [
+              584,
+              12144
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 4,
+            "interval": [
+              130,
+              140
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 20.064638300000002,
+            "model_variables": 9818,
+            "before": [
+              584,
+              12144
+            ],
+            "candidate": [
+              560,
+              11976
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 5,
+            "interval": [
+              131,
+              141
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 20.0886931,
+            "model_variables": 9805,
+            "before": [
+              560,
+              11976
+            ],
+            "candidate": [
+              560,
+              11944
+            ],
+            "accepted": true
+          }
+        ]
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-refinement-pass2.json",
+      "sha256": "9584e07da655ab39edfa369c8ec816053d79eb4b63a6d03a7051002a0f6f26f7",
+      "report": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 348,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              125,
+              143
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 25.127427200000003,
+            "model_variables": 16018,
+            "before": [
+              560,
+              11944
+            ],
+            "candidate": [
+              560,
+              11744
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              127,
+              145
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 25.0997367,
+            "model_variables": 16031,
+            "before": [
+              560,
+              11744
+            ],
+            "candidate": [
+              560,
+              11568
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 2,
+            "interval": [
+              123,
+              145
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 25.1593127,
+            "model_variables": 19080,
+            "before": [
+              560,
+              11568
+            ],
+            "candidate": [
+              560,
+              11488
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 3,
+            "interval": [
+              125,
+              147
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 25.125134000000003,
+            "model_variables": 19110,
+            "before": [
+              560,
+              11488
+            ],
+            "candidate": [
+              544,
+              11504
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 4,
+            "interval": [
+              121,
+              147
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 25.1480883,
+            "model_variables": 22131,
+            "before": [
+              544,
+              11504
+            ],
+            "candidate": [
+              536,
+              11528
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 5,
+            "interval": [
+              123,
+              141
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 25.1277635,
+            "model_variables": 15977,
+            "before": [
+              536,
+              11528
+            ],
+            "candidate": [
+              536,
+              11480
+            ],
+            "accepted": true
+          }
+        ]
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-refinement-pass3.json",
+      "sha256": "58736a20301258373caae82e1ff166f3fa369abf5b7620b6b4f3d4c25b9101b2",
+      "report": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 348,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              112,
+              156
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 45.2176619,
+            "model_variables": 35016,
+            "before": [
+              536,
+              11480
+            ],
+            "candidate": [
+              536,
+              11368
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              112,
+              157
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_seconds": 45.2167717,
+            "model_variables": 35763,
+            "before": [
+              536,
+              11368
+            ],
+            "candidate": [
+              536,
+              11264
+            ],
+            "accepted": true
+          }
+        ]
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-rebalanced16.json",
+      "sha256": "975c01c27c96721f1f279ae2f51b1308e2edecc8a91dbefd6c556b68018422f4",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+        "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+        "seconds": 2.391000000294298,
+        "explicit_initial_assignment": null,
+        "maximum_interval_lines": 16,
+        "initial_objective": [
+          16.5,
+          39009,
+          430
+        ],
+        "final_objective": [
+          15.285714285714286,
+          36363,
+          471
+        ],
+        "moves": [
+          {
+            "piece": 10,
+            "old_bank": 1,
+            "new_bank": 2
+          },
+          {
+            "piece": 29,
+            "old_bank": 7,
+            "new_bank": 4
+          },
+          {
+            "piece": 39,
+            "old_bank": 7,
+            "new_bank": 4
+          },
+          {
+            "piece": 46,
+            "old_bank": 1,
+            "new_bank": 2
+          },
+          {
+            "piece": 51,
+            "old_bank": 1,
+            "new_bank": 3
+          },
+          {
+            "piece": 52,
+            "old_bank": 3,
+            "new_bank": 2
+          },
+          {
+            "piece": 55,
+            "old_bank": 3,
+            "new_bank": 2
+          },
+          {
+            "piece": 60,
+            "old_bank": 5,
+            "new_bank": 4
+          },
+          {
+            "piece": 62,
+            "old_bank": 5,
+            "new_bank": 4
+          },
+          {
+            "piece": 74,
+            "old_bank": 7,
+            "new_bank": 4
+          },
+          {
+            "piece": 78,
+            "old_bank": 7,
+            "new_bank": 4
+          }
+        ],
+        "anneal_steps_requested": 100,
+        "anneal_proposals_sampled": 100,
+        "anneal_moves_accepted": 40,
+        "anneal_seed": 221,
+        "final_bank_distinct_colors": [
+          77,
+          58,
+          66,
+          76,
+          48,
+          50,
+          56,
+          40
+        ],
+        "final_bank_peak_row_colors": [
+          12,
+          11,
+          7,
+          12,
+          6,
+          11,
+          12,
+          13
+        ],
+        "fixed_bank_per_piece": true,
+        "color_math_classes_preserved": true,
+        "pixel_color_identity_verified": true,
+        "geometry_unchanged": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-rebalanced16-cache-lp.json",
+      "sha256": "2bc759512b341bf8f01ddbe2d44766f8447eddedfe735085a1b1666f9152ec33",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 26600,
+        "constraints": 13488,
+        "lookahead_lines": 55,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 16.0,
+        "validated_dual_lower_bound": 15.999999999999993,
+        "maximum_primal_violation": 0.0,
+        "maximum_dual_residual": 2.220446049250313e-16
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-rebalanced16-cache17.json",
+      "sha256": "3c8a40e49eb43c2605dfce1efd8c3fd488684f315d452fdfa78e11e1611e2789",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_backend": "cp-sat",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 45.1373818,
+        "solver_model_variables": 27571,
+        "solver_model_constraints": 61887,
+        "solver_branches": 24167,
+        "solver_conflicts": 742,
+        "write_budget": 17,
+        "lookahead_lines": 55,
+        "prepared_window_master_clocks": 348,
+        "range_backend": "adjacent",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": false,
+        "compulsory_bank_interval_cuts": 6603,
+        "soft_residency_hint_interval": null,
+        "total_noninitial_writes_objective": true
+      }
+    },
+    {
+      "artifact": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-rebalanced16-greedy348.json",
+      "sha256": "27018fc512d2ac85ca782c5f531a93ad3cb297810db009ef57a8d84ae27c420b",
+      "report": {
+        "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+        "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+        "failed_scanline": 130,
+        "failed_bank": 7,
+        "seed": 221,
+        "beam": 16,
+        "lookahead_lines": 17,
+        "window_master_clocks": 348,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    }
+  ]
+}
