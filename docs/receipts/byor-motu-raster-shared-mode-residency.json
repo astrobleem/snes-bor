@@ -1,0 +1,2861 @@
+{
+  "schema": "BYOR_SHARED_SCANLINE_MATH_MODE_RESIDENCY_RECEIPT_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "geometry_only": {
+    "oam_entries": 103,
+    "peak_sprites": 19,
+    "peak_tile_slivers": 19
+  },
+  "complete_shared_mode_report": {
+    "schema": "BYOR_WINDOW_BANK_RESIDENCY_V1",
+    "status": "SOURCE_EXACT_WINDOW_BANK_RESIDENCY_PROVEN",
+    "solver_backend": "cp-sat",
+    "solver_status": "FEASIBLE",
+    "solver_seconds": 45.1988901,
+    "solver_branches": 809667,
+    "solver_conflicts": 121926,
+    "solver_model_variables": 71455,
+    "solver_model_constraints": 130260,
+    "requested_ideal_window": 473,
+    "bounded_noninitial_lookahead_lines": 16,
+    "initial_palette_may_preload_entire_frame": true,
+    "ideal_endpoint_slot_packing_relaxed": true,
+    "fixed_piece_banks_unchanged": true,
+    "piece_banks_fixed_across_all_scanlines": true,
+    "restricted_family_ideal_prepared_span_lower_bound": 143,
+    "native_timing_admitted": false,
+    "universal_raster_rejected": false,
+    "no_color_reduction": true,
+    "mandatory_identity_bank_interval_cuts": 3990,
+    "shared_scanline_math_mode_search": true,
+    "math_operand_family": "CANONICAL_EXACT_INVERSE_PER_CHANNEL",
+    "changed_scanline_math_modes": 9,
+    "complete_source_frame_pixel_identity_proven": true,
+    "ideal_peak_prepared_commit_span": 352,
+    "peak_emitted_prepared_commit_span": 984,
+    "peak_actual_palette_writes": 19,
+    "all_packet_cgram_identities_verified": true,
+    "physical_slot_window_admitted": false,
+    "maximum_noninitial_prefetch_latency_lines": 16,
+    "noninitial_dead_palette_writes": 1,
+    "peak_packet_data_bytes": 116
+  },
+  "fixed_trace_bank_permutations": {
+    "schema": "BYOR_FIXED_TRACE_BANK_ORDER_V1",
+    "permutations_evaluated": 576,
+    "eligible_family_exhaustive": true,
+    "minimum_optimistic_peak_span": 352,
+    "aggregate_optimistic_span": 7584,
+    "bank_mapping": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "emitted_physical_peak_span": 984,
+    "source_operands_replayed": true,
+    "fixed_bank_per_piece": true,
+    "palette_write_lifetimes_unchanged": true,
+    "math_eligibility_preserved": true,
+    "native_timing_admitted": false,
+    "universal_raster_rejected": false,
+    "no_color_reduction": true
+  },
+  "search_reports": {
+    "byor-motu-authored-fresh-small-joint337": {
+      "schema": "BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "metadata": {
+        "stage": "DATA/LEVELS/GUILE2.TXT",
+        "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+        "scene": {
+          "viewport": [
+            256,
+            224
+          ],
+          "piece_size": [
+            16,
+            32
+          ],
+          "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+          "actors": [
+            {
+              "model": "HBreath",
+              "animation": "idle",
+              "frame": 11,
+              "position": [
+                98,
+                220,
+                93
+              ],
+              "order": 2
+            }
+          ]
+        },
+        "layers": [
+          {
+            "kind": "background",
+            "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+            "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+            "source_dimensions": [
+              800,
+              400
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 57344,
+            "source_flip": false
+          },
+          {
+            "kind": "panel",
+            "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+            "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+            "source_dimensions": [
+              2544,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 44246,
+            "source_flip": false
+          },
+          {
+            "kind": "actor:HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+            "source_dimensions": [
+              110,
+              90
+            ],
+            "position": [
+              84,
+              92
+            ],
+            "alpha": 1,
+            "visible_source_pixels": 2751,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+            "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+            "pre_occlusion_pixels": 2751,
+            "final_visible_pixels": 2751
+          },
+          {
+            "kind": "frontpanel",
+            "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+            "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+            "source_dimensions": [
+              350,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 2749,
+            "source_flip": false
+          }
+        ],
+        "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+        "alpha_source_dimensions": [
+          [
+            110,
+            90
+          ]
+        ],
+        "camera": [
+          0.0,
+          0.0
+        ],
+        "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+        "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+        "all_actor_models_preserved": true
+      },
+      "geometry_size": 8,
+      "mixed_small_size": null,
+      "mixed_large_size": null,
+      "write_budget": 21,
+      "lookahead_lines": 16,
+      "noninitial_prefetch_lookahead_enforced": true,
+      "initial_palette_may_preload_entire_frame": true,
+      "initial_palette_restricted_to_first_pool_row": false,
+      "pool_interval_initial_preload": false,
+      "pool_interval_gap_bridge_lines": 0,
+      "collapse_inactive_prefix": true,
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 221803,
+        "constraints": 550500,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 1155,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 292,
+          "sat_inprocessing": false,
+          "branches": 103435,
+          "conflicts": 1039,
+          "wall_seconds": 50.593229400000006,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "exact_residency_write_indicators": true,
+      "geometry_cover_cuts": 56,
+      "row_capacity_only": false,
+      "palette_transfer_budget_relaxed": false,
+      "fixed_geometry_and_pixel_bank_ownership": false,
+      "fixed_rectangles_and_pixel_rectangle_ownership": false,
+      "preserve_hint_math_classes": false,
+      "preserve_hint_words": false,
+      "fixed_rectangle_bank_assignment_may_change": false,
+      "additional_bank_masks_per_hint_rectangle": 0,
+      "fixed_single_bank_word_ownership_factored": false,
+      "additive_only": false,
+      "opaque_obj_banks_reserved": 0,
+      "color_math": "additive",
+      "opaque_choice_coalescing": true,
+      "opaque_choice_entries": 8252,
+      "math_choice_coalescing": true,
+      "math_choice_entries": 8252,
+      "distinct_math_choice_variables": 8252,
+      "distinct_opaque_choice_variables": 8152,
+      "no_color_reduction": true,
+      "universal_raster_rejected": false,
+      "native_presentation_proven": false,
+      "pooled_residency_pinned": false,
+      "scanline_pool_intervals_single_bank_restricted": false,
+      "pool_interval_bank_copies": 1,
+      "pool_interval_max_lines": 0,
+      "scanline_pool_interval_variables": 0,
+      "full_pool_intervals_retained": false,
+      "pool_residency_intervals": 0,
+      "feasibility_only": false,
+      "bank_symmetry": false,
+      "bank_symmetry_policy": null,
+      "early_write_budget": null,
+      "late_start": 75,
+      "saturated_reuse": false,
+      "align_visible_bounds": false,
+      "maximum_frame_colors_per_bank": null,
+      "additive_alternative_count": 2063,
+      "complete_additive_cover": {
+        "rgb555_operand_domain": 32768,
+        "rgb555_operands_examined": 32768,
+        "distinct_requirements": 671,
+        "valid_operands": 396,
+        "distinct_coverage_sets": 396,
+        "maximal_cover_operands": 396,
+        "maximal_operand_colors": [
+          32,
+          1024,
+          1025,
+          1056,
+          1057,
+          2048,
+          2080,
+          2081,
+          2082,
+          2112,
+          2113,
+          2114,
+          3104,
+          3105,
+          3136,
+          3137,
+          3138,
+          3139,
+          3169,
+          3171,
+          4128,
+          4160,
+          4161,
+          4162,
+          4192,
+          4193,
+          4194,
+          5184,
+          5185,
+          5217,
+          5218,
+          5219,
+          5220,
+          5249,
+          5250,
+          5251,
+          5252,
+          6208,
+          6242,
+          6243,
+          6273,
+          6274,
+          6275,
+          6276,
+          6305,
+          6306,
+          6307,
+          6308,
+          6309,
+          7298,
+          7299,
+          7300,
+          7329,
+          7330,
+          7331,
+          7334,
+          7362,
+          7363,
+          7364,
+          7365,
+          7366,
+          8322,
+          8323,
+          8354,
+          8355,
+          8356,
+          8357,
+          8386,
+          8387,
+          8388,
+          8389,
+          8390,
+          8419,
+          8420,
+          8422,
+          8423,
+          9378,
+          9379,
+          9380,
+          9382,
+          9410,
+          9411,
+          9412,
+          9413,
+          9442,
+          9443,
+          9444,
+          9445,
+          9446,
+          9447,
+          9478,
+          9479,
+          9480,
+          10403,
+          10435,
+          10436,
+          10437,
+          10440,
+          10466,
+          10467,
+          10468,
+          10470,
+          10472,
+          10499,
+          10500,
+          10501,
+          10503,
+          11459,
+          11460,
+          11491,
+          11492,
+          11494,
+          11495,
+          11496,
+          11497,
+          11523,
+          11524,
+          11525,
+          11528,
+          11529,
+          11555,
+          11556,
+          11557,
+          11560,
+          11561,
+          12483,
+          12515,
+          12516,
+          12517,
+          12518,
+          12547,
+          12548,
+          12549,
+          12552,
+          12580,
+          12581,
+          12582,
+          12584,
+          12586,
+          12612,
+          12615,
+          12616,
+          12617,
+          12619,
+          13540,
+          13572,
+          13573,
+          13574,
+          13575,
+          13603,
+          13604,
+          13605,
+          13606,
+          13607,
+          13609,
+          13611,
+          13636,
+          13637,
+          13638,
+          13639,
+          13640,
+          13669,
+          13670,
+          14564,
+          14596,
+          14597,
+          14598,
+          14599,
+          14629,
+          14630,
+          14631,
+          14633,
+          14634,
+          14660,
+          14661,
+          14662,
+          14667,
+          14693,
+          14694,
+          14695,
+          14701,
+          14726,
+          14731,
+          15620,
+          15621,
+          15653,
+          15654,
+          15655,
+          15656,
+          15659,
+          15684,
+          15686,
+          15689,
+          15717,
+          15718,
+          15719,
+          15720,
+          15723,
+          15750,
+          15753,
+          15788,
+          16677,
+          16678,
+          16679,
+          16710,
+          16711,
+          16712,
+          16715,
+          16716,
+          16741,
+          16744,
+          16745,
+          16746,
+          16747,
+          16773,
+          16774,
+          16775,
+          16776,
+          16777,
+          16781,
+          16808,
+          16812,
+          16845,
+          17734,
+          17735,
+          17736,
+          17765,
+          17766,
+          17767,
+          17768,
+          17770,
+          17797,
+          17798,
+          17800,
+          17830,
+          17831,
+          17832,
+          17838,
+          17863,
+          17866,
+          17868,
+          18758,
+          18759,
+          18791,
+          18792,
+          18793,
+          18822,
+          18824,
+          18825,
+          18827,
+          18828,
+          18854,
+          18855,
+          18859,
+          18861,
+          18862,
+          18886,
+          18888,
+          18890,
+          18892,
+          18919,
+          18920,
+          18924,
+          19816,
+          19817,
+          19848,
+          19850,
+          19853,
+          19878,
+          19879,
+          19880,
+          19881,
+          19882,
+          19883,
+          19884,
+          19885,
+          19911,
+          19912,
+          19913,
+          19914,
+          19918,
+          19920,
+          19944,
+          19945,
+          19946,
+          19948,
+          19949,
+          19976,
+          19982,
+          20011,
+          20872,
+          20873,
+          20875,
+          20876,
+          20905,
+          20908,
+          20909,
+          20935,
+          20938,
+          20940,
+          20942,
+          20967,
+          20968,
+          20969,
+          20970,
+          20976,
+          21003,
+          21006,
+          21929,
+          21932,
+          21933,
+          21962,
+          21963,
+          21991,
+          21992,
+          21993,
+          21994,
+          21996,
+          21999,
+          22024,
+          22025,
+          22027,
+          22028,
+          22062,
+          22064,
+          22989,
+          23016,
+          23019,
+          23020,
+          23021,
+          23022,
+          23023,
+          23048,
+          23049,
+          23050,
+          23051,
+          23056,
+          23081,
+          23082,
+          23083,
+          23084,
+          23085,
+          23118,
+          23119,
+          23148,
+          24076,
+          24078,
+          24079,
+          24105,
+          24106,
+          24107,
+          24112,
+          24114,
+          24137,
+          24138,
+          24139,
+          24144,
+          24174,
+          24175,
+          24177,
+          24204,
+          25100,
+          25102,
+          25133,
+          25162,
+          25163,
+          25170,
+          25171,
+          25195,
+          25199,
+          25228,
+          25261,
+          25263,
+          26159,
+          26187,
+          26219,
+          26220,
+          26227,
+          26252,
+          26253,
+          26256,
+          26286,
+          26287,
+          27244,
+          27250,
+          27276,
+          27309,
+          27310,
+          27376,
+          27378,
+          28306,
+          28307,
+          28333,
+          28367,
+          28433,
+          29363
+        ],
+        "dominance_mapping_sha256": "5a666bb5debefbc6299088d0fd8a875f52a2f1abb91f79b745e6cacdc2d2f67d",
+        "all_valid_operand_coverages_retained": true,
+        "complete_for_immutable_context": true,
+        "no_color_reduction": true
+      },
+      "saturated_extrema": false,
+      "additive_operand_corpus_colors": 396,
+      "grid_padding_x": 0,
+      "grid_padding_y": 0,
+      "horizontal_clip_limit_counted": false,
+      "maximum_banks_per_piece_class": 0,
+      "mandatory_geometry_lower_bound": {
+        "oam_entries": 0,
+        "peak_sprites": 0,
+        "peak_tile_slivers": 0
+      },
+      "independent_actor_row_tile_lower_bounds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        1,
+        3,
+        4,
+        5,
+        6,
+        6,
+        6,
+        7,
+        7,
+        7,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        7,
+        7,
+        7,
+        7,
+        7,
+        6,
+        6,
+        6,
+        5,
+        5,
+        4,
+        4,
+        3,
+        3,
+        2,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "independent_actor_peak_tile_lower_bound": 9,
+      "row_tile_lower_bound_relaxes_piece_alignment_and_palette_masks": true,
+      "prepared_dma_partition_bound_enforced": true,
+      "prepared_dma_window_master_clocks": 337,
+      "prepared_dma_window_is_optimistic_necessary_only": true,
+      "schedule_hint_used": false,
+      "input_geometry_is_search_hint": false,
+      "schedule_residency_hint_used": false,
+      "initial_preload_prefix_capacity_modeled": true,
+      "initial_preload_prefix_colors": 3748,
+      "exact_underlay_bypass": true,
+      "underlay_bypassed_pixels": 83,
+      "source_actor_canvases": [
+        [
+          110,
+          90
+        ]
+      ],
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "scope": "Explicit pose. Exact opaque/additive pixel alternatives and fixed OAM color masks on one legal grid. No native layer routing, source reachability or hardware bandwidth admission.",
+      "bounded_solver_log": [
+        "  'default_lp':            53          98               122     146'745             0        16",
+        "       'no_lp':         5'396      21'285             2'702     468'664             0       260",
+        "Vivification     Clauses  Decisions  LitTrue  Subsumed  LitRemoved  DecisionReused  Conflicts",
+        "        'core':        0          0        0         0           0               0          0",
+        "  'default_lp':        0          0        0         0           0               0          0",
+        "       'no_lp':        0          0        0         0           0               0          0",
+        "Clause deletion    at_true  l_and_not(l)  to_binary  sub_conflict  sub_extra  sub_decisions  sub_eager  sub_vivify  sub_probing  sub_inpro  blocked  eliminated  forgotten  promoted  conflicts",
+        "          'core':        0             0          0           534         10              0         19           0            0          0        0           0          0    12'037      5'512",
+        "    'default_lp':        0             0          0            13         22              0          3           0            0          0        0           0          0     2'161      1'039",
+        "         'no_lp':        0             0          0           257         15              0          3           0            0          0        0           0          0    11'706      5'833",
+        "Lp stats         Component  Iterations  AddedCuts  OPTIMAL  DUAL_F.  DUAL_U.",
+        "  'default_lp':         17         338          0    3'287        0        0",
+        "Lp dimension     Final dimension of first component",
+        "  'default_lp':   7 rows, 1150 columns, 416 entries",
+        "Lp debug         CutPropag  CutEqPropag  Adjust  Overflow  Bad  BadScaling",
+        "  'default_lp':          0            0       0         0    0           0",
+        "Lp pool          Constraints  Updates  Simplif  Merged  Shortened  Split  Strengthened  Cuts/Call",
+        "  'default_lp':       18'222        0        0       0          0      0             0        0/0",
+        "LNS stats           Improv/Calls  Closed  Difficulty  TimeLimit",
+        "  'graph_arc_lns':           0/0      0%    5.00e-01       0.10",
+        "  'graph_cst_lns':           0/0      0%    5.00e-01       0.10",
+        "  'graph_dec_lns':           0/0      0%    5.00e-01       0.10",
+        "  'graph_var_lns':           0/0      0%    5.00e-01       0.10",
+        "      'rins/rens':           0/0      0%    5.00e-01       0.10",
+        "    'rnd_cst_lns':           0/0      0%    5.00e-01       0.10",
+        "    'rnd_var_lns':           0/0      0%    5.00e-01       0.10",
+        "LS stats                                Batches  Restarts/Perturbs  LinMoves  GenMoves  CompoundMoves  Bactracks  WeightUpdates  ScoreComputed",
+        "                         'fj_restart':        1                  1    16'736         0              0          0             22        143'277",
+        "        'fj_restart_compound_perturb':        1                  1         0    10'464          9'610        423              0        231'360",
+        "                   'fj_restart_decay':        2                  2    36'249         0              0          0             20        307'459",
+        "  'fj_restart_decay_compound_perturb':        1                  1         0     9'300          8'610        343              0        228'141",
+        "               'fj_restart_decay_obj':        1                  1    18'015         0              0          0             10        153'184",
+        "       'fj_restart_decay_perturb_obj':        1                  1     9'583         0              0          0              4        109'431",
+        "                     'fj_restart_obj':        1                  1    16'648         0              0          0             21        141'759",
+        "Objective bounds     Num",
+        "      'default_lp':    1",
+        "  'initial_domain':    1",
+        "Solution repositories    Added  Queried  Synchro",
+        "    'alternative_path':      0        0        0",
+        "      'best_solutions':      0        0        0",
+        "   'fj solution hints':      0        0        0",
+        "        'lp solutions':      0        0        0",
+        "                'pump':     32       17",
+        "Clauses shared    #Exported  #Imported  #BinaryRead  #BinaryTotal",
+        "         'core':          2          0            2             2",
+        "   'default_lp':          0          0            0             2",
+        "        'no_lp':          0          0            0             2",
+        "LRAT_status: NA",
+        "CpSolverResponse summary:",
+        "status: UNKNOWN",
+        "objective: 511740",
+        "best_bound: 51000",
+        "integers: 170617",
+        "booleans: 178808",
+        "conflicts: 1039",
+        "branches: 103435",
+        "propagations: 2872642",
+        "integer_propagations: 684594",
+        "restarts: 2",
+        "lp_iterations: 338",
+        "walltime: 50.5932",
+        "usertime: 50.5932",
+        "deterministic_time: 11.4409",
+        "gap_integral: 64.0798"
+      ]
+    },
+    "byor-motu-authored-fresh-small-math15-joint337": {
+      "schema": "BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "metadata": {
+        "stage": "DATA/LEVELS/GUILE2.TXT",
+        "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+        "scene": {
+          "viewport": [
+            256,
+            224
+          ],
+          "piece_size": [
+            16,
+            32
+          ],
+          "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+          "actors": [
+            {
+              "model": "HBreath",
+              "animation": "idle",
+              "frame": 11,
+              "position": [
+                98,
+                220,
+                93
+              ],
+              "order": 2
+            }
+          ]
+        },
+        "layers": [
+          {
+            "kind": "background",
+            "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+            "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+            "source_dimensions": [
+              800,
+              400
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 57344,
+            "source_flip": false
+          },
+          {
+            "kind": "panel",
+            "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+            "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+            "source_dimensions": [
+              2544,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 44246,
+            "source_flip": false
+          },
+          {
+            "kind": "actor:HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+            "source_dimensions": [
+              110,
+              90
+            ],
+            "position": [
+              84,
+              92
+            ],
+            "alpha": 1,
+            "visible_source_pixels": 2751,
+            "source_flip": false,
+            "requested_map": 0,
+            "selected_map": 0,
+            "source_model_type": "none",
+            "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+            "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+            "pre_occlusion_pixels": 2751,
+            "final_visible_pixels": 2751
+          },
+          {
+            "kind": "frontpanel",
+            "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+            "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+            "source_dimensions": [
+              350,
+              245
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "alpha": 0,
+            "visible_source_pixels": 2749,
+            "source_flip": false
+          }
+        ],
+        "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+        "alpha_source_dimensions": [
+          [
+            110,
+            90
+          ]
+        ],
+        "camera": [
+          0.0,
+          0.0
+        ],
+        "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+        "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+        "all_actor_models_preserved": true
+      },
+      "geometry_size": 8,
+      "mixed_small_size": null,
+      "mixed_large_size": null,
+      "write_budget": 21,
+      "lookahead_lines": 16,
+      "noninitial_prefetch_lookahead_enforced": true,
+      "initial_palette_may_preload_entire_frame": true,
+      "initial_palette_restricted_to_first_pool_row": false,
+      "pool_interval_initial_preload": false,
+      "pool_interval_gap_bridge_lines": 0,
+      "collapse_inactive_prefix": true,
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 117983,
+        "constraints": 294937,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 1155,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 314,
+          "sat_inprocessing": false,
+          "branches": 22547,
+          "conflicts": 3945,
+          "wall_seconds": 50.248008600000006,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "exact_residency_write_indicators": true,
+      "geometry_cover_cuts": 133,
+      "row_capacity_only": false,
+      "palette_transfer_budget_relaxed": false,
+      "fixed_geometry_and_pixel_bank_ownership": false,
+      "fixed_rectangles_and_pixel_rectangle_ownership": false,
+      "preserve_hint_math_classes": false,
+      "preserve_hint_words": false,
+      "fixed_rectangle_bank_assignment_may_change": false,
+      "additional_bank_masks_per_hint_rectangle": 0,
+      "fixed_single_bank_word_ownership_factored": false,
+      "additive_only": false,
+      "opaque_obj_banks_reserved": 0,
+      "color_math": "additive",
+      "opaque_choice_coalescing": true,
+      "opaque_choice_entries": 3812,
+      "math_choice_coalescing": true,
+      "math_choice_entries": 5076,
+      "distinct_math_choice_variables": 5076,
+      "distinct_opaque_choice_variables": 3684,
+      "no_color_reduction": true,
+      "universal_raster_rejected": false,
+      "native_presentation_proven": false,
+      "pooled_residency_pinned": false,
+      "scanline_pool_intervals_single_bank_restricted": false,
+      "pool_interval_bank_copies": 1,
+      "pool_interval_max_lines": 0,
+      "scanline_pool_interval_variables": 0,
+      "full_pool_intervals_retained": false,
+      "pool_residency_intervals": 0,
+      "feasibility_only": false,
+      "bank_symmetry": false,
+      "bank_symmetry_policy": null,
+      "early_write_budget": null,
+      "late_start": 75,
+      "saturated_reuse": false,
+      "align_visible_bounds": false,
+      "maximum_frame_colors_per_bank": null,
+      "additive_alternative_count": 1269,
+      "complete_additive_cover": null,
+      "saturated_extrema": false,
+      "additive_operand_corpus_colors": 396,
+      "grid_padding_x": 0,
+      "grid_padding_y": 0,
+      "horizontal_clip_limit_counted": false,
+      "maximum_banks_per_piece_class": 0,
+      "mandatory_geometry_lower_bound": {
+        "oam_entries": 101,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "independent_actor_row_tile_lower_bounds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        1,
+        3,
+        4,
+        5,
+        6,
+        6,
+        6,
+        7,
+        7,
+        7,
+        8,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        9,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        8,
+        7,
+        7,
+        7,
+        7,
+        7,
+        6,
+        6,
+        6,
+        5,
+        5,
+        4,
+        4,
+        3,
+        3,
+        2,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "independent_actor_peak_tile_lower_bound": 9,
+      "row_tile_lower_bound_relaxes_piece_alignment_and_palette_masks": true,
+      "prepared_dma_partition_bound_enforced": true,
+      "prepared_dma_window_master_clocks": 337,
+      "prepared_dma_window_is_optimistic_necessary_only": true,
+      "schedule_hint_used": false,
+      "input_geometry_is_search_hint": false,
+      "schedule_residency_hint_used": false,
+      "initial_preload_prefix_capacity_modeled": true,
+      "initial_preload_prefix_colors": 1824,
+      "exact_underlay_bypass": true,
+      "underlay_bypassed_pixels": 83,
+      "source_actor_canvases": [
+        [
+          110,
+          90
+        ]
+      ],
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "scope": "Explicit pose. Exact opaque/additive pixel alternatives and fixed OAM color masks on one legal grid. No native layer routing, source reachability or hardware bandwidth admission.",
+      "scanline_math_controls_source_bound": true,
+      "scanline_math_candidate_sha256": "19ef457a5ea77eae8541cca055ff8e945063890992a29d78e9be3fa15f2e1bbb",
+      "scanline_math_control_rows": [
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166
+      ],
+      "outside_control_rows_math_policy": "FULL_ADD_NO_WINDOW",
+      "scanline_pool_candidate_pixel_coverage_replayed": true,
+      "scanline_pool_operand_choices_restricted": true,
+      "scanline_pool_residency_pinned": false,
+      "selected_modes": {
+        "0": "add",
+        "1": "add",
+        "2": "add",
+        "3": "add",
+        "4": "add",
+        "5": "add",
+        "6": "add",
+        "7": "add",
+        "8": "add",
+        "9": "add",
+        "10": "add",
+        "11": "add",
+        "12": "add",
+        "13": "add",
+        "14": "add",
+        "15": "add",
+        "16": "add",
+        "17": "add",
+        "18": "add",
+        "19": "add",
+        "20": "add",
+        "21": "add",
+        "22": "add",
+        "23": "add",
+        "24": "add",
+        "25": "add",
+        "26": "add",
+        "27": "add",
+        "28": "add",
+        "29": "add",
+        "30": "add",
+        "31": "add",
+        "32": "add",
+        "33": "add",
+        "34": "add",
+        "35": "add",
+        "36": "add",
+        "37": "add",
+        "38": "add",
+        "39": "add",
+        "40": "add",
+        "41": "add",
+        "42": "add",
+        "43": "add",
+        "44": "add",
+        "45": "add",
+        "46": "add",
+        "47": "add",
+        "48": "add",
+        "49": "add",
+        "50": "add",
+        "51": "add",
+        "52": "add",
+        "53": "add",
+        "54": "add",
+        "55": "add",
+        "56": "add",
+        "57": "add",
+        "58": "add",
+        "59": "add",
+        "60": "add",
+        "61": "add",
+        "62": "add",
+        "63": "add",
+        "64": "add",
+        "65": "add",
+        "66": "add",
+        "67": "add",
+        "68": "add",
+        "69": "add",
+        "70": "add",
+        "71": "add",
+        "72": "add",
+        "73": "add",
+        "74": "add",
+        "75": "add",
+        "76": "add",
+        "77": "add",
+        "78": "add",
+        "79": "add",
+        "80": "add",
+        "81": "add",
+        "82": "add",
+        "83": "add",
+        "84": "add",
+        "85": "add",
+        "86": "add",
+        "87": "add",
+        "88": "add",
+        "89": "add",
+        "90": "add",
+        "91": "add",
+        "92": "add",
+        "93": "add",
+        "94": "add",
+        "95": "add",
+        "96": "add",
+        "97": "add",
+        "98": "add",
+        "99": "add",
+        "100": "add",
+        "101": "add",
+        "102": "add",
+        "103": "add",
+        "104": "add",
+        "105": "add",
+        "106": "add",
+        "107": "add",
+        "108": "add",
+        "109": "add",
+        "110": "add",
+        "111": "add",
+        "112": "add",
+        "113": "half-add",
+        "114": "add",
+        "115": "subtract",
+        "116": "add",
+        "117": "add",
+        "118": "add",
+        "119": "add",
+        "120": "add",
+        "121": "add",
+        "122": "add",
+        "123": "add",
+        "124": "add",
+        "125": "add",
+        "126": "add",
+        "127": "add",
+        "128": "add",
+        "129": "add",
+        "130": "add",
+        "131": "add",
+        "132": "add",
+        "133": "add",
+        "134": "add",
+        "135": "add",
+        "136": "add",
+        "137": "add",
+        "138": "add",
+        "139": "add",
+        "140": "add",
+        "141": "add",
+        "142": "add",
+        "143": "add",
+        "144": "add",
+        "145": "add",
+        "146": "add",
+        "147": "add",
+        "148": "add",
+        "149": "add",
+        "150": "add",
+        "151": "add",
+        "152": "add",
+        "153": "add",
+        "154": "add",
+        "155": "add",
+        "156": "add",
+        "157": "add",
+        "158": "add",
+        "159": "half-add",
+        "160": "half-subtract",
+        "161": "subtract",
+        "162": "subtract",
+        "163": "half-add",
+        "164": "subtract",
+        "165": "half-add",
+        "166": "add",
+        "167": "add",
+        "168": "add",
+        "169": "add",
+        "170": "add",
+        "171": "add",
+        "172": "add",
+        "173": "add",
+        "174": "add",
+        "175": "add",
+        "176": "add",
+        "177": "add",
+        "178": "add",
+        "179": "add",
+        "180": "add",
+        "181": "add",
+        "182": "add",
+        "183": "add",
+        "184": "add",
+        "185": "add",
+        "186": "add",
+        "187": "add",
+        "188": "add",
+        "189": "add",
+        "190": "add",
+        "191": "add",
+        "192": "add",
+        "193": "add",
+        "194": "add",
+        "195": "add",
+        "196": "add",
+        "197": "add",
+        "198": "add",
+        "199": "add",
+        "200": "add",
+        "201": "add",
+        "202": "add",
+        "203": "add",
+        "204": "add",
+        "205": "add",
+        "206": "add",
+        "207": "add",
+        "208": "add",
+        "209": "add",
+        "210": "add",
+        "211": "add",
+        "212": "add",
+        "213": "add",
+        "214": "add",
+        "215": "add",
+        "216": "add",
+        "217": "add",
+        "218": "add",
+        "219": "add",
+        "220": "add",
+        "221": "add",
+        "222": "add",
+        "223": "add"
+      },
+      "compiled_color_window_descriptors": {
+        "112": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "113": {
+          "bounds": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 0,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "114": {
+          "bounds": [
+            [
+              0,
+              132
+            ],
+            [
+              134,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "115": {
+          "bounds": [
+            [
+              133,
+              133
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "116": {
+          "bounds": [
+            [
+              0,
+              140
+            ],
+            [
+              148,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "117": {
+          "bounds": [
+            [
+              0,
+              130
+            ],
+            [
+              140,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "118": {
+          "bounds": [
+            [
+              0,
+              122
+            ],
+            [
+              124,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "119": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "120": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "121": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "122": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "123": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "124": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "125": {
+          "bounds": [
+            [
+              0,
+              116
+            ],
+            [
+              118,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "126": {
+          "bounds": [
+            [
+              0,
+              140
+            ],
+            [
+              143,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "127": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "128": {
+          "bounds": [
+            [
+              0,
+              140
+            ],
+            [
+              144,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "129": {
+          "bounds": [
+            [
+              103,
+              110
+            ],
+            [
+              149,
+              149
+            ]
+          ],
+          "wobjsel_color_bits": 240,
+          "wobjlog_color_bits": 4,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "130": {
+          "bounds": [
+            [
+              0,
+              116
+            ],
+            [
+              118,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "131": {
+          "bounds": [
+            [
+              0,
+              107
+            ],
+            [
+              114,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "132": {
+          "bounds": [
+            [
+              0,
+              145
+            ],
+            [
+              147,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "133": {
+          "bounds": [
+            [
+              0,
+              104
+            ],
+            [
+              128,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "134": {
+          "bounds": [
+            [
+              0,
+              100
+            ],
+            [
+              112,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "135": {
+          "bounds": [
+            [
+              0,
+              106
+            ],
+            [
+              108,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "136": {
+          "bounds": [
+            [
+              0,
+              105
+            ],
+            [
+              109,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "137": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "138": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "139": {
+          "bounds": [
+            [
+              0,
+              110
+            ],
+            [
+              118,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "140": {
+          "bounds": [
+            [
+              0,
+              106
+            ],
+            [
+              109,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "141": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "142": {
+          "bounds": [
+            [
+              0,
+              109
+            ],
+            [
+              111,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "143": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "144": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "145": {
+          "bounds": [
+            [
+              0,
+              125
+            ],
+            [
+              131,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "146": {
+          "bounds": [
+            [
+              0,
+              126
+            ],
+            [
+              140,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "147": {
+          "bounds": [
+            [
+              0,
+              135
+            ],
+            [
+              147,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "148": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "149": {
+          "bounds": [
+            [
+              0,
+              134
+            ],
+            [
+              147,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "150": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "151": {
+          "bounds": [
+            [
+              0,
+              136
+            ],
+            [
+              138,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "152": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "153": {
+          "bounds": [
+            [
+              137,
+              140
+            ],
+            [
+              150,
+              150
+            ]
+          ],
+          "wobjsel_color_bits": 240,
+          "wobjlog_color_bits": 4,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "154": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "155": {
+          "bounds": [
+            [
+              0,
+              133
+            ],
+            [
+              138,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "156": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "157": {
+          "bounds": [
+            [
+              0,
+              151
+            ],
+            [
+              155,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "158": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "159": {
+          "bounds": [
+            [
+              0,
+              127
+            ],
+            [
+              130,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "160": {
+          "bounds": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 0,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "161": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "162": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "163": {
+          "bounds": [
+            [
+              0,
+              144
+            ],
+            [
+              146,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "164": {
+          "bounds": [
+            [
+              0,
+              137
+            ],
+            [
+              140,
+              255
+            ]
+          ],
+          "wobjsel_color_bits": 160,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "165": {
+          "bounds": [
+            [
+              137,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        },
+        "166": {
+          "bounds": [
+            [
+              0,
+              255
+            ],
+            [
+              0,
+              0
+            ]
+          ],
+          "wobjsel_color_bits": 32,
+          "wobjlog_color_bits": 0,
+          "cgwsel_clip_and_prevent_bits": 16,
+          "math_enabled_inside_window": true,
+          "register_timing_admitted": false
+        }
+      },
+      "complete_outside_control_math_cover": null,
+      "window_register_schedule_proven": false,
+      "bounded_solver_log": [
+        "          'core':        0             0          0        27'676      1'250              0      1'845           0            0          0        0           0     73'278   259'475    117'756",
+        "    'default_lp':        0             0          0            40         43              0          3           0            0          0        0           0          0     8'183      3'945",
+        "         'no_lp':        0             0          0         4'601         75              0         75           0            0          0        0           0     95'562   250'323    115'289",
+        "Lp stats         Component  Iterations  AddedCuts  OPTIMAL  DUAL_F.  DUAL_U.",
+        "  'default_lp':          9         322          0    6'747        0        0",
+        "Lp dimension     Final dimension of first component",
+        "  'default_lp':  7 rows, 40837 columns, 265 entries",
+        "Lp debug         CutPropag  CutEqPropag  Adjust  Overflow  Bad  BadScaling",
+        "  'default_lp':          0            0       0         0    0           0",
+        "Lp pool          Constraints  Updates  Simplif  Merged  Shortened  Split  Strengthened  Cuts/Call",
+        "  'default_lp':       10'361        0        0       0          0      0             0        0/0",
+        "LNS stats           Improv/Calls  Closed  Difficulty  TimeLimit",
+        "  'graph_arc_lns':           0/0      0%    5.00e-01       0.10",
+        "  'graph_cst_lns':           0/0      0%    5.00e-01       0.10",
+        "  'graph_dec_lns':           0/0      0%    5.00e-01       0.10",
+        "  'graph_var_lns':           0/0      0%    5.00e-01       0.10",
+        "      'rins/rens':           0/0      0%    5.00e-01       0.10",
+        "    'rnd_cst_lns':           0/0      0%    5.00e-01       0.10",
+        "    'rnd_var_lns':           0/0      0%    5.00e-01       0.10",
+        "LS stats                                    Batches  Restarts/Perturbs  LinMoves  GenMoves  CompoundMoves  Bactracks  WeightUpdates  ScoreComputed",
+        "                             'fj_restart':        8                  2   235'782         0              0          0          1'213        631'203",
+        "                'fj_restart_compound_obj':        3                  2         0    51'038         28'560     11'225              6        924'893",
+        "            'fj_restart_compound_perturb':        2                  2         0    35'116         20'346      7'368              0        564'435",
+        "        'fj_restart_compound_perturb_obj':        1                  1         0    17'176         10'235      3'470              1        283'131",
+        "                       'fj_restart_decay':        4                  1   113'453         0              0          0            101        382'043",
+        "              'fj_restart_decay_compound':       10                  4         0   168'281         85'512     41'375             21      3'106'178",
+        "          'fj_restart_decay_compound_obj':        1                  1         0    17'681          9'848      3'906              1        301'090",
+        "  'fj_restart_decay_compound_perturb_obj':        3                  2         0    52'842         28'449     12'194              3        897'908",
+        "                   'fj_restart_decay_obj':        5                  4   147'372         0              0          0            132        460'730",
+        "               'fj_restart_decay_perturb':       14                  6   385'675         0              0          0            338      1'301'869",
+        "           'fj_restart_decay_perturb_obj':        9                  5   247'189         0              0          0            217        837'364",
+        "                         'fj_restart_obj':        5                  2   139'233         0              0          0            563        416'694",
+        "                     'fj_restart_perturb':        5                  5   128'001         0              0          0            232        456'981",
+        "                 'fj_restart_perturb_obj':        3                  2    83'355         0              0          0            218        266'887",
+        "Objective bounds     Num",
+        "      'default_lp':    1",
+        "  'initial_domain':    1",
+        "Solution repositories    Added  Queried  Synchro",
+        "    'alternative_path':      0        0        0",
+        "      'best_solutions':      0        0        0",
+        "   'fj solution hints':     31        0       31",
+        "        'lp solutions':      0        0        0",
+        "                'pump':    167      167",
+        "Clauses shared    #Exported  #Imported  #BinaryRead  #BinaryTotal",
+        "         'core':        107          0           18            18",
+        "   'default_lp':          0          4            0            18",
+        "        'no_lp':          0          0            0            18",
+        "LRAT_status: NA",
+        "CpSolverResponse summary:",
+        "status: UNKNOWN",
+        "objective: 453956",
+        "best_bound: 53000",
+        "integers: 85281",
+        "booleans: 87598",
+        "conflicts: 3945",
+        "branches: 22547",
+        "propagations: 1235528",
+        "integer_propagations: 2683344",
+        "restarts: 2",
+        "lp_iterations: 322",
+        "walltime: 50.248",
+        "usertime: 50.248",
+        "deterministic_time: 44.0436",
+        "gap_integral: 530.528"
+      ]
+    },
+    "byor-motu-authored-fresh-small-shared-mode-residency337": {
+      "schema": "BYOR_WINDOW_BANK_RESIDENCY_V1",
+      "status": "BOUNDED_WINDOW_BANK_RESIDENCY_NO_CANDIDATE",
+      "solver_backend": "cp-sat",
+      "solver_status": "UNKNOWN",
+      "solver_seconds": 50.221870900000006,
+      "solver_branches": 366483,
+      "solver_conflicts": 896,
+      "solver_model_variables": 104366,
+      "solver_model_constraints": 183148,
+      "requested_ideal_window": 337,
+      "bounded_noninitial_lookahead_lines": 16,
+      "initial_palette_may_preload_entire_frame": true,
+      "ideal_endpoint_slot_packing_relaxed": true,
+      "fixed_piece_banks_unchanged": true,
+      "piece_banks_fixed_across_all_scanlines": true,
+      "restricted_family_ideal_prepared_span_lower_bound": 272,
+      "native_timing_admitted": false,
+      "universal_raster_rejected": false,
+      "no_color_reduction": true,
+      "mandatory_identity_bank_interval_cuts": 4135,
+      "shared_scanline_math_mode_search": true,
+      "math_operand_family": "CANONICAL_EXACT_INVERSE_PER_CHANNEL"
+    },
+    "byor-motu-authored-fresh-small-rebalanced-shared-mode337": {
+      "schema": "BYOR_WINDOW_BANK_RESIDENCY_V1",
+      "status": "BOUNDED_WINDOW_BANK_RESIDENCY_NO_CANDIDATE",
+      "solver_backend": "cp-sat",
+      "solver_status": "UNKNOWN",
+      "solver_seconds": 50.2215934,
+      "solver_branches": 307252,
+      "solver_conflicts": 281,
+      "solver_model_variables": 97414,
+      "solver_model_constraints": 173651,
+      "requested_ideal_window": 337,
+      "bounded_noninitial_lookahead_lines": 16,
+      "initial_palette_may_preload_entire_frame": true,
+      "ideal_endpoint_slot_packing_relaxed": true,
+      "fixed_piece_banks_unchanged": true,
+      "piece_banks_fixed_across_all_scanlines": true,
+      "restricted_family_ideal_prepared_span_lower_bound": 222,
+      "native_timing_admitted": false,
+      "universal_raster_rejected": false,
+      "no_color_reduction": true,
+      "mandatory_identity_bank_interval_cuts": 4491,
+      "shared_scanline_math_mode_search": true,
+      "math_operand_family": "CANONICAL_EXACT_INVERSE_PER_CHANNEL"
+    },
+    "byor-motu-authored-original-shared-mode337": {
+      "schema": "BYOR_WINDOW_BANK_RESIDENCY_V1",
+      "status": "BOUNDED_WINDOW_BANK_RESIDENCY_NO_CANDIDATE",
+      "solver_backend": "cp-sat",
+      "solver_status": "UNKNOWN",
+      "solver_seconds": 60.234046000000006,
+      "solver_branches": 755080,
+      "solver_conflicts": 135299,
+      "solver_model_variables": 71455,
+      "solver_model_constraints": 130260,
+      "requested_ideal_window": 337,
+      "bounded_noninitial_lookahead_lines": 16,
+      "initial_palette_may_preload_entire_frame": true,
+      "ideal_endpoint_slot_packing_relaxed": true,
+      "fixed_piece_banks_unchanged": true,
+      "piece_banks_fixed_across_all_scanlines": true,
+      "restricted_family_ideal_prepared_span_lower_bound": 147,
+      "native_timing_admitted": false,
+      "universal_raster_rejected": false,
+      "no_color_reduction": true,
+      "mandatory_identity_bank_interval_cuts": 3990,
+      "shared_scanline_math_mode_search": true,
+      "math_operand_family": "CANONICAL_EXACT_INVERSE_AND_INPUT_WORD"
+    },
+    "byor-motu-authored-original-shared-mode-greedy337": {
+      "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+      "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+      "failed_scanline": 128,
+      "seed": 0,
+      "beam": 16,
+      "global_beam": 4,
+      "lookahead_lines": 16,
+      "window_master_clocks": 337,
+      "universal_raster_rejected": false,
+      "native_timing_admitted": false,
+      "no_color_reduction": true
+    }
+  },
+  "pure_literal_pool_bound": {
+    "status": "LOWER_BOUND_DOES_NOT_REJECT",
+    "worst_interval": {
+      "first_line": 128,
+      "last_line": 135,
+      "distinct_colors": 275,
+      "resident_capacity": 120,
+      "minimum_new_color_commits": 155,
+      "hblanks": 7,
+      "minimum_window_cgram_data_bytes": 303,
+      "maximum_window_data_bytes": 315,
+      "byte_deficit": 0,
+      "minimum_peak_data_bytes": 44,
+      "minimum_peak_data_master_clocks": 352,
+      "minimum_peak_color_commits": 23,
+      "minimum_peak_commit_span_master_clocks": 352,
+      "maximum_color_commits_per_hblank": 23,
+      "commit_deficit": -6
+    },
+    "available_master_clocks_per_line": 356,
+    "minimum_master_clocks_per_byte": 8,
+    "preloaded_low_byte_latch_allowed": true,
+    "low_preload_per_hblank_allowed": true,
+    "window_budget_is_first_to_last_commit_span": true,
+    "addresses_setup_and_contention_excluded": true,
+    "bank_assignment_relaxed_for_lower_bound": true,
+    "feasibility_proven": false,
+    "scope": "Exact precomposited RGB555 OBJ outputs in the explicit pose. Excludes alternative BG/OBJ math decompositions; not a universal raster rejection."
+  },
+  "pure_literal_pool_rejected_at_measured_native_window": true,
+  "measured_native_window_master_clocks": 336,
+  "focused_tests_passed": 49,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "native_timing_admitted": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true
+}

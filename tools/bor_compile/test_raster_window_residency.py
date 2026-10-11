@@ -6,6 +6,37 @@ import test_raster_window_slot_schedule as fixtures
 
 
 class WindowResidencyTests(unittest.TestCase):
+    def test_shared_mode_search_preserves_exact_pixels_with_fixed_banks(self):
+        import copy,hashlib,itertools
+        import numpy as np
+        from raster_obj_math_cover import apply_math
+        source,_,_=fixtures.WindowSlotTests().source()
+        image=np.tile(np.arange(1,9,dtype=np.uint8),(8,1));flat=image.flatten()
+        source['piece_pixel_masks'][0]['pixels_hex']=(flat[::2]|flat[1::2]<<4).tobytes().hex()
+        bg=np.zeros((16,256),dtype=np.uint16);expected=bg.copy();words=[]
+        for i,channels in enumerate(itertools.product((8,10,12,14),repeat=3)):
+            y,x=divmod(i,8);under=sum(c<<shift for c,shift in zip(channels,(0,5,10)))
+            bg[y,x]=under;expected[y,x]=apply_math(32767,under,'half-add')
+            words.append(sum(((int(expected[y,x])>>shift&31)-(under>>shift&31))<<shift for shift in(0,5,10)))
+        state={b:[None]*15 for b in range(8)};trace=[]
+        for y in range(16):
+            before=copy.deepcopy(state);events=[]
+            if y<8:
+                for s,c in enumerate(words[y*8:y*8+8]):
+                    events.append(dict(bank=4,slot=s+1,old=state[4][s],color=c));state[4][s]=c
+            trace.append(dict(scanline=y,resident_before=before,updates=events))
+        source['trace']=trace;source['selected_modes']={str(y):'add'for y in range(16)}
+        source['source_rgb555_sha256']=hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest()
+        failed=optimize(source,bg,expected,time_limit=10,maximum_writes=0)
+        self.assertEqual(failed['solver_status'],'INFEASIBLE')
+        for backend in('cp-sat','highs'):
+            result=optimize(source,bg,expected,time_limit=10,maximum_writes=0,movable_math_modes=True,solver_backend=backend)
+            self.assertGreater(result['bank_residency']['changed_scanline_math_modes'],0)
+            self.assertEqual([{k:p[k]for k in source['pieces'][i]}for i,p in enumerate(result['pieces'])],source['pieces'])
+            self.assertEqual(result['bank_residency']['peak_actual_palette_writes'],0)
+            self.assertTrue(result['bank_residency']['complete_source_frame_pixel_identity_proven'])
+            verify_packets(result);demand(result)
+
     def test_liveness_capacity_requires_seven_writes_and_preserves_opaque_zero(self):
         import copy,hashlib
         import numpy as np

@@ -11,23 +11,42 @@ from raster_window_slot_schedule import derive
 from raster_bank_residency import constrain_flow,favorable_span
 from raster_physical_relabel import point_partition
 from raster_math_windows import evaluate,compile_sparse_mask
-from raster_obj_math_cover import apply_math
+from raster_obj_math_cover import apply_math,MODES
 from raster_slot_greedy import demand
 from raster_slot_refine import verify_packets
 
 
-def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,lookahead=16,solver_backend='cp-sat'):
+def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,lookahead=16,solver_backend='cp-sat',movable_math_modes=False):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0 or not 0<=maximum_writes<=120 or type(lookahead)is not int or lookahead<0:raise ValueError('WINDOW_RESIDENCY_DOMAIN')
     if solver_backend not in('cp-sat','highs'):raise ValueError('WINDOW_RESIDENCY_BACKEND')
     points,rows,tables,hint=derive(source,background,expected);first,last=min(rows),max(rows);height=len(source['trace'])
-    potential={}
+    if type(movable_math_modes)is not bool:raise ValueError('WINDOW_RESIDENCY_MODE_POLICY')
+    potential={};inverse={}
+    modes=MODES if movable_math_modes else ()
     for p in points:
-        for c in ([p['output']]if p['bank']<4 else[p['output'],p['operand']]):
+        p['operands']={source['selected_modes'][str(p['y'])]:p['operand']}
+        if movable_math_modes and p['bank']>=4:
+            for mode in modes:
+                operand=0
+                for shift in(0,5,10):
+                    target=p['output']>>shift&31;under=int(background[p['y'],p['x']])>>shift&31;key=mode,target,under
+                    if key not in inverse:inverse[key]=next((c for c in range(32)if apply_math(c,under,mode)&31==target),None)
+                    if inverse[key]is None:operand=None;break
+                    operand|=inverse[key]<<shift
+                if operand is not None and apply_math(operand,int(background[p['y'],p['x']]),mode)!=p['output']:raise AssertionError('WINDOW_RESIDENCY_MODE_INVERSE')
+                p['operands'][mode]=operand
+        p['mode_operands']={mode:tuple(sorted({c for c in(operand,p['old_word']if movable_math_modes and apply_math(p['old_word'],int(background[p['y'],p['x']]),mode)==p['output']else None)if c is not None}))for mode,operand in p['operands'].items()}
+        for c in ([p['output']]if p['bank']<4 else[p['output'],*(c for choices in p['mode_operands'].values()for c in choices)]):
             if c is not None:potential.setdefault((p['bank'],c),set()).add(p['y'])
     tables=[sorted(c for bank,c in potential if bank==b)for b in range(8)]
-    model=cp_model.CpModel();resident={};writes={};gates={};peak=model.new_int_var(0,4096,'idealPeak');costs=[];bank_counts={}
+    model=cp_model.CpModel();resident={};writes={};gates={};mode_choices={};peak=model.new_int_var(0,4096,'idealPeak');costs=[];bank_counts={}
     for y in range(first,last+1):
+        if movable_math_modes:
+            for mode in modes:
+                choice=model.new_bool_var(f'mode{y}_{mode}');mode_choices[y,mode]=choice
+                model.add_hint(choice,int(mode==source['selected_modes'][str(y)]))
+            model.add(sum(mode_choices[y,mode]for mode in modes)==1)
         for b in range(8):
             for c in tables[b]:
                 if y>max(potential[b,c]):
@@ -55,7 +74,12 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
             if b<4:model.add(resident[y,b,out]==1)
             else:
                 gate=gates[y,p['x']];model.add(resident[y,b,out]>=1-gate)
-                if operand is None:model.add(gate==0)
+                if movable_math_modes:
+                    for mode in modes:
+                        choice=mode_choices[y,mode];choices=p['mode_operands'][mode]
+                        if not choices:model.add(choice+gate<=1)
+                        else:model.add(sum(resident[y,b,word]for word in choices)>=choice+gate-1)
+                elif operand is None:model.add(gate==0)
                 else:model.add(resident[y,b,operand]>=gate)
         if y>first:
             counts=[];active=[]
@@ -67,7 +91,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
             cost=constrain_flow(model,counts,active,window,f'row{y}',linear=True);model.add(peak>=cost);costs.append(cost)
     mandatory={}
     for p in points:
-        if p['bank']<4 or p['operand']is None or p['operand']==p['output']:mandatory.setdefault((p['y'],p['bank']),set()).add(p['output'])
+        if p['bank']<4 or all(c==p['output']for choices in p['mode_operands'].values()for c in choices):mandatory.setdefault((p['y'],p['bank']),set()).add(p['output'])
     cuts=0
     for b in range(8):
         prefix={first:model.new_constant(0)}
@@ -88,10 +112,17 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         details=dict(solver_backend='cp-sat',solver_status=solver.status_name(status),solver_seconds=solver.wall_time,solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints))
     report=dict(schema='BYOR_WINDOW_BANK_RESIDENCY_V1',status='BOUNDED_WINDOW_BANK_RESIDENCY_NO_CANDIDATE',**details,requested_ideal_window=window,bounded_noninitial_lookahead_lines=lookahead,initial_palette_may_preload_entire_frame=True,ideal_endpoint_slot_packing_relaxed=True,fixed_piece_banks_unchanged=True,piece_banks_fixed_across_all_scanlines=True,restricted_family_ideal_prepared_span_lower_bound=max(0,int(bound//factor)-40),native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     report['mandatory_identity_bank_interval_cuts']=cuts
+    report.update(shared_scanline_math_mode_search=movable_math_modes,math_operand_family='CANONICAL_EXACT_INVERSE_AND_INPUT_WORD'if movable_math_modes else'INPUT_MODE_WITH_CANONICAL_EXACT_INVERSE')
     if value is None:return report
+    selected_modes=copy.deepcopy(source['selected_modes'])
+    if movable_math_modes:
+        for y in range(first,last+1):selected_modes[str(y)]=next(mode for mode in modes if value(mode_choices[y,mode]))
+    report['changed_scanline_math_modes']=sum(selected_modes[y]!=mode for y,mode in source['selected_modes'].items())
     selected_required={};uses={b:{}for b in range(8)}
     for p in points:
-        enabled=p['bank']>=4 and value(gates[p['y'],p['x']]);word=p['operand']if enabled else p['output']
+        enabled=p['bank']>=4 and value(gates[p['y'],p['x']])
+        word=next(c for c in p['mode_operands'][selected_modes[str(p['y'])]]if value(resident[p['y'],p['bank'],c]))if enabled else p['output']
+        p['selected_word']=word
         selected_required.setdefault((p['y'],p['bank']),set()).add(word);uses[p['bank']].setdefault(word,[]).append(p['y'])
     state={b:[None]*15 for b in range(8)};states=[];trace=[];packets=[];windows=copy.deepcopy(source['compiled_color_window_descriptors']);latency=dead_writes=0
     for y in range(height):
@@ -125,9 +156,9 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         states.append(copy.deepcopy(state))
     images=[np.zeros((p['height'],p['width']),dtype=np.uint8)for p in source['pieces']];replay=np.asarray(background,dtype=np.uint16).copy();indices=np.zeros_like(replay,dtype=np.uint8)
     for p in points:
-        y,x,b=p['y'],p['x'],p['bank'];gate=b>=4 and evaluate(windows[str(y)],x);word=p['operand']if gate else p['output']
+        y,x,b=p['y'],p['x'],p['bank'];gate=b>=4 and evaluate(windows[str(y)],x);word=p['selected_word']
         slot=states[y][b].index(word)+1;images[p['piece']][p['ly'],p['lx']]=slot;indices[y,x]=128+16*b+slot
-        replay[y,x]=apply_math(word,int(background[y,x]),source['selected_modes'][str(y)])if gate else word
+        replay[y,x]=apply_math(word,int(background[y,x]),selected_modes[str(y)])if gate else word
     if not np.array_equal(replay,expected):raise AssertionError('WINDOW_RESIDENCY_COMPLETE_FRAME_REPLAY')
     result=copy.deepcopy(source);masks=[]
     for p,image in zip(result['pieces'],images):
@@ -138,7 +169,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
     if any(favorable_span(r['updates'])>=window for r in trace[1:])or any(len(r['updates'])>maximum_writes for r in trace[1:]):raise AssertionError('WINDOW_RESIDENCY_INDEPENDENT_BANK_BOUND')
     peak_writes=max(len(r['updates'])for r in trace[1:])
     report.update(status='SOURCE_EXACT_WINDOW_BANK_RESIDENCY_PROVEN',complete_source_frame_pixel_identity_proven=True,ideal_peak_prepared_commit_span=max(0,value(peak)-40),peak_emitted_prepared_commit_span=max(r['prepared_commit_span']for r in packets),peak_actual_palette_writes=peak_writes,all_packet_cgram_identities_verified=True,physical_slot_window_admitted=False,maximum_noninitial_prefetch_latency_lines=latency,noninitial_dead_palette_writes=dead_writes,peak_packet_data_bytes=max(sum(2*p['word_count']for p in r['packets'])for r in packets))
-    result.update(trace=trace,piece_pixel_masks=masks,prepared_dma_packets=packets,compiled_color_window_descriptors=windows,bank_residency=report,native_presentation_proven=False)
+    result.update(trace=trace,piece_pixel_masks=masks,prepared_dma_packets=packets,compiled_color_window_descriptors=windows,selected_modes=selected_modes,bank_residency=report,native_presentation_proven=False)
     result.update(peak_scheduled_writes=peak_writes,peak_cgram_data_bytes=2*peak_writes,average_writes=float(np.mean([len(r['updates'])for r in trace[1:]])),worst_scanline=max(trace[1:],key=lambda r:len(r['updates']))['scanline'],prepared_dma_partition_bound_enforced=False,prepared_dma_window_is_optimistic_necessary_only=True,maximum_noninitial_prefetch_latency_lines=latency,schedule_latency_requirement=dict(maximum_noninitial_prefetch_lines=latency,initial_palette_may_preload_entire_frame=True))
     verify_packets(result);demand(result)
     result['compiled_indices_sha256']=hashlib.sha256(indices.tobytes()).hexdigest();result['input_compiled_schedule_sha256']=source.get('compiled_schedule_sha256')
@@ -149,14 +180,14 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in('source','stage','scene','schedule','output'):p.add_argument('--'+name,required=True)
-    p.add_argument('--window',type=int,default=337);p.add_argument('--time-limit',type=float,default=45);p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat');a=p.parse_args()
+    p.add_argument('--window',type=int,default=337);p.add_argument('--time-limit',type=float,default=45);p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat');p.add_argument('--movable-math-modes',action='store_true');a=p.parse_args()
     from compiler import Source
     from source_scene_obj_raster import prepare
     from source_scene_bg import compose_rgb8
     from source_bg_feasibility import rgb555
     source=Source(a.source);scene=json.loads(Path(a.scene).read_text());schedule=json.loads(Path(a.schedule).read_text());_,metadata,expected=prepare(source,a.stage,scene)
     if metadata!=schedule['metadata']:raise ValueError('WINDOW_RESIDENCY_AUTHORED_METADATA')
-    result=optimize(schedule,rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0]),rgb555(expected),a.window,a.time_limit,solver_backend=a.solver_backend)
+    result=optimize(schedule,rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0]),rgb555(expected),a.window,a.time_limit,solver_backend=a.solver_backend,movable_math_modes=a.movable_math_modes)
     Path(a.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('bank_residency',result)))
 
 
