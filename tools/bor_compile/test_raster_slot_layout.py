@@ -6,6 +6,21 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_lifetime_timing_respects_necessary_bank_window(self):
+        from raster_bank_residency import favorable_span
+        from raster_slot_refine import verify_packets
+        source=self.schedule()
+        rejected=optimize(source,window=356,time_limit=3,flexible_prefetch=True,
+            retain_write_times=True,split_bank_ranges=True,necessary_bank_window=32)
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+        accepted=optimize(source,window=356,time_limit=3,flexible_prefetch=True,
+            retain_write_times=True,split_bank_ranges=True,necessary_bank_window=33)
+        verify_packets(accepted)
+        self.assertTrue(all(favorable_span(r['updates'])<33 for r in accepted['trace'][1:]))
+        self.assertEqual(accepted['physical_slot_layout']['necessary_bank_window_master_clocks'],33)
+        with self.assertRaisesRegex(ValueError,'NECESSARY_BANK_WINDOW_DOMAIN'):
+            optimize(source,necessary_bank_window=33)
+
     def test_prefetch_time_neighborhood_preserves_exact_words(self):
         from raster_slot_greedy import demand
         from raster_slot_refine import verify_packets
