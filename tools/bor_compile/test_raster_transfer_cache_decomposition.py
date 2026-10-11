@@ -32,6 +32,20 @@ class TransferCacheTests(unittest.TestCase):
         bad=copy.deepcopy(first['bank_write_caps']);next(iter(bad.values()))[0]=True
         with self.assertRaisesRegex(ValueError,'BUDGET_HINT_DOMAIN'):search(source_schedule(),budget_hint=bad)
 
+    def test_local_budget_rejection_does_not_reject_whole_fixed_bank_family(self):
+        first=search(source_schedule(),write_budget=2,lookahead=0,time_limit=5,master_seconds=1)
+        hint=first['bank_write_caps']
+        local=search(source_schedule(),write_budget=2,lookahead=0,time_limit=5,master_seconds=1,budget_hint=hint,budget_repair_interval=[7,12])
+        self.assertEqual(local['status'],'INTEGER_BANK_BUDGET_FRACTIONAL_CACHE_CANDIDATE')
+        for y,v in local['bank_write_caps'].items():
+            if not 7<=y<=12:self.assertEqual(v,hint[y])
+        blocked=search(source_schedule(),window=17,write_budget=2,time_limit=5,master_seconds=1,budget_hint=hint,budget_repair_interval=[7,12])
+        self.assertTrue(blocked['fixed_budget_repair_family_rejected'])
+        self.assertFalse(blocked['fixed_bank_transfer_family_rejected'])
+        self.assertFalse(blocked['universal_raster_rejected'])
+        with self.assertRaisesRegex(ValueError,'BUDGET_REPAIR_DOMAIN'):
+            search(source_schedule(),budget_repair_interval=[7,12])
+
     def test_positive_deficit_cut_excludes_bad_budget_and_keeps_every_feasible_budget(self):
         # Required resident R=1, R<=W, and W<=budget+deficit.
         matrix=csc_matrix([[1,-1,0],[-1,0,0],[0,1,-1]])

@@ -37,7 +37,7 @@ def cache_cut(matrix,objective,rhs,upper,capacity_rows,lp,plan):
     return coefficients,cut_rhs,certificate
 
 
-def search(source,window=345,write_budget=21,lookahead=90,time_limit=120,iterations=20,master_seconds=5,range_backend='flow',master_backend='cp-sat',budget_hint=None):
+def search(source,window=345,write_budget=21,lookahead=90,time_limit=120,iterations=20,master_seconds=5,range_backend='flow',master_backend='cp-sat',budget_hint=None,budget_repair_interval=None):
     from ortools.sat.python import cp_model
     if (type(window)is not int or window<1 or type(write_budget)is not int or not 0<=write_budget<=120 or
         type(lookahead)is not int or lookahead<0 or time_limit<=0 or iterations<1 or master_seconds<=0):
@@ -54,6 +54,9 @@ def search(source,window=345,write_budget=21,lookahead=90,time_limit=120,iterati
         if (set(budget_hint)!=set(range(first+1,last+1))or
             any(not isinstance(row,list)or len(row)!=8 or any(type(n)is not int or not 0<=n<=15 for n in row)or sum(row)>write_budget for row in budget_hint.values())):
             raise ValueError('TRANSFER_CACHE_BUDGET_HINT_DOMAIN')
+    if budget_repair_interval is not None and(budget_hint is None or len(budget_repair_interval)!=2 or
+        any(type(y)is not int for y in budget_repair_interval)or not first<budget_repair_interval[0]<=budget_repair_interval[1]<=last):
+        raise ValueError('TRANSFER_CACHE_BUDGET_REPAIR_DOMAIN')
     resident={(b,c,y):i for i,(b,c,y)in enumerate((b,c,y)for b in range(8)for c,lines in sorted(uses[b].items())for y in range(first,max(lines)+1))}
     writes={key:len(resident)+i for i,key in enumerate(key for key in resident if key[2]>first)}
     deficit=len(resident)+len(writes);bounds=[(0,1)]*deficit+[(0,None)]
@@ -82,6 +85,7 @@ def search(source,window=345,write_budget=21,lookahead=90,time_limit=120,iterati
             a=model.new_bool_var(f'active{y}_{b}');flags[y,b]=a
             model.add(w<=15*a);model.add(w>=a)
             model.add_hint(w,hint[y][b]);model.add_hint(a,int(hint[y][b]>0))
+            if budget_repair_interval is not None and not budget_repair_interval[0]<=y<=budget_repair_interval[1]:model.add(w==hint[y][b])
         model.add(sum(counts[y,b]for b in range(8))<=write_budget)
         if range_backend=='flow':constrain_flow(model,[counts[y,b]for b in range(8)],[flags[y,b]for b in range(8)],window,f'line{y}',linear=master_backend=='highs',hint_counts=hint[y])
         else:constrain_adjacent(model,[counts[y,b]for b in range(8)],[flags[y,b]for b in range(8)],window,f'line{y}',write_budget)
@@ -142,7 +146,7 @@ def search(source,window=345,write_budget=21,lookahead=90,time_limit=120,iterati
         seconds=time.monotonic()-started,iterations=rows,certified_cuts=certificates,
         interval_cuts=interval_cuts,cache_lp_variables=deficit+1,cache_lp_constraints=len(rhs),
         integer_bank_transfer_budgets=True,fractional_cache_only=True,
-        range_backend=range_backend,master_backend=master_backend,budget_hint_supplied=budget_hint is not None,ranges_restricted_to_single_or_adjacent_pair=range_backend=='adjacent',
+        range_backend=range_backend,master_backend=master_backend,budget_hint_supplied=budget_hint is not None,budget_repair_interval=budget_repair_interval,ranges_restricted_to_single_or_adjacent_pair=range_backend=='adjacent',
         physical_slot_schedule_proven=False,compiled_pixel_identity_verified=False,
         native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     if candidate is not None:
@@ -150,7 +154,8 @@ def search(source,window=345,write_budget=21,lookahead=90,time_limit=120,iterati
         if max(costs.values())>=window:raise AssertionError('TRANSFER_CACHE_INDEPENDENT_PARTITION')
         report.update(status='INTEGER_BANK_BUDGET_FRACTIONAL_CACHE_CANDIDATE',bank_write_caps=candidate,
             peak_optimistic_span=max(costs.values()),peak_bank_write_cap=sum(max(candidate.values(),key=sum)))
-    report['fixed_bank_transfer_family_rejected']=master_status=='INFEASIBLE'
+    report['fixed_bank_transfer_family_rejected']=master_status=='INFEASIBLE'and budget_repair_interval is None
+    report['fixed_budget_repair_family_rejected']=master_status=='INFEASIBLE'and budget_repair_interval is not None
     return report
 
 
@@ -163,9 +168,10 @@ def main():
     p.add_argument('--range-backend',choices=('flow','adjacent'),default='flow')
     p.add_argument('--master-backend',choices=('cp-sat','highs'),default='cp-sat')
     p.add_argument('--budget-hint',type=Path,help='Per-line eight-bank budgets, or an object containing bank_write_caps; hints grant no cache admission.')
+    p.add_argument('--budget-repair-interval',type=int,nargs=2,help='Fix hinted budgets outside these rows; all cache pixels and lifetimes remain modeled.')
     a=p.parse_args();hint=json.loads(a.budget_hint.read_text())if a.budget_hint else None
     if hint is not None:hint=hint.get('bank_write_caps',hint)
-    r=search(json.loads(a.schedule.read_text()),a.window,a.write_budget,a.lookahead,a.time_limit,a.iterations,a.master_seconds,a.range_backend,a.master_backend,hint)
+    r=search(json.loads(a.schedule.read_text()),a.window,a.write_budget,a.lookahead,a.time_limit,a.iterations,a.master_seconds,a.range_backend,a.master_backend,hint,a.budget_repair_interval)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items()if k not in('iterations','certified_cuts','bank_write_caps')}))
 
 
