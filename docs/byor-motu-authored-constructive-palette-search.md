@@ -30,3 +30,16 @@ All 63 focused scheduler and native-compiler tests pass. A fixed slot
 permutation with movable four-line timing neighborhoods returns UNKNOWN
 after 90.056 seconds, with 13,677 variables and 27,175 constraints. It rejects
 no raster family.
+
+Complete-frame free residency allows live slot moves and charges all writes,
+with fixed source pieces and bank assignments. From the verified physical
+hint it returns UNKNOWN after 180.250 seconds, using 36,283 variables and
+62,081 constraints. Its restricted-model span lower bound is 232 clocks,
+below the target; there is no candidate or rejection. All pixels remain
+in the model; no source region is relaxed.
+
+Joint bank choices for the 23 visible pieces crossing rows 132,134,136,138
+return UNKNOWN after 181.140 seconds. Geometry and shared row math modes
+remain fixed; palette residency and two color windows remain variable. The
+model has 63,853 variables and 104,911 constraints, with a restricted span
+lower bound of 109 clocks. No candidate or raster rejection follows.

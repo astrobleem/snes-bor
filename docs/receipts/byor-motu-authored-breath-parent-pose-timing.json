@@ -1,0 +1,109 @@
+{
+  "schema": "BYOR_CONDITIONAL_SOURCE_SPAWN_POSE_V1",
+  "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "engine_authority": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "parent_model": "He_ManB",
+  "parent_animation": "freespecial4",
+  "parent_position": [
+    80.0,
+    220.0,
+    0.0
+  ],
+  "direction": 1,
+  "parent_source_sha256": "a2a7f5589ecef7231586d525db18ed0963ef241d46bb011dc858abdc1b7f07ea",
+  "script_sha256": "fdf517b371ce1d5a3beb55df748972041ca6fe4830d5ef7b163666367ce9d9ba",
+  "parent_nominal_duration_ticks": 312,
+  "child_model": "HBreath",
+  "child_frame": 11,
+  "events": [
+    {
+      "birth": {
+        "source_callback": {
+          "frame_index": 4,
+          "declaration": {
+            "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+            "line": 227,
+            "directive": "@cmd",
+            "values": [
+              "spawn01",
+              "\"HBreath\"",
+              "18",
+              "93",
+              "0"
+            ]
+          },
+          "function": "spawn01",
+          "arguments": [
+            "\"HBreath\"",
+            "18",
+            "93",
+            "0"
+          ],
+          "runtime_lowered": false,
+          "start_tick": 48
+        },
+        "model": "HBreath",
+        "model_source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+        "model_source_sha256": "eb3a9fad4f5f89866820127ed048b5de5646730b4e8faef699e5b078fa77fe36",
+        "birth_tick": 48,
+        "expiry_tick": 348,
+        "lifespan_ticks": 300,
+        "script_position_changes": [
+          [
+            2,
+            "position",
+            98.0,
+            220.0,
+            93.0
+          ],
+          [
+            2,
+            "direction",
+            1
+          ]
+        ],
+        "allocation_assumed_successful": true
+      },
+      "child_nominal_frame_interval": [
+        114,
+        120
+      ],
+      "parent_child_intersections": [
+        {
+          "parent_frame": 6,
+          "child_frame": 11,
+          "interval_ticks": [
+            114,
+            120
+          ],
+          "parent_frame_source": {
+            "source_path": "DATA\\CHARS\\HE-MAN\\HE-MANB.TXT",
+            "line": 233,
+            "directive": "frame",
+            "values": [
+              "data/chars/he-man/barehand/breath7.png"
+            ]
+          },
+          "child_frame_source": {
+            "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+            "line": 26,
+            "directive": "frame",
+            "values": [
+              "data/chars/he-man/fx/br12.png"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "scope": "Source script bytecode and nominal uninterrupted loader frame intervals. Successful allocation, child idle startup at birth and fixed parent position assumed.",
+  "source_reachability_proven": false,
+  "child_constructor_dispatch_phase_bound": false,
+  "loop_and_interrupt_behavior_bound": false,
+  "world_motion_and_collision_bound": false,
+  "universal_concurrency_bound": false,
+  "native_presentation_proven": false,
+  "no_color_reduction": true,
+  "existing_scene_sha256": "30b7901dc2b95b8c980b87ad5bdc17c4ea6e6703e921e4dfe85654cbe97d481d",
+  "existing_scene_pose_matches_nominal_source_timeline": true
+}
