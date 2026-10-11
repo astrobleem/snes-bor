@@ -7,6 +7,20 @@ from test_raster_slot_greedy import source_schedule
 
 
 class ResidencyTests(unittest.TestCase):
+    def test_bank_budget_candidate_requires_integer_cache_and_cap_replay(self):
+        caps={y:[int(y in(7,12)and b in(0,1))for b in range(8)]for y in range(1,16)}
+        source=source_schedule()
+        for backend in('cp-sat','highs'):
+            result=optimize(source,2,0,None,5,solver_backend=backend,bank_write_caps=caps)
+            self.assertTrue(result['bank_residency']['per_bank_write_caps_enforced'])
+            self.assertTrue(result['bank_residency']['complete_source_frame_pixel_identity_proven'])
+            self.assertFalse(result['bank_residency']['native_timing_admitted'])
+            for row in result['trace'][1:]:
+                self.assertTrue(all(sum(e['bank']==b for e in row['updates'])<=caps[row['scanline']][b]for b in range(8)))
+            blocked={y:list(v)for y,v in caps.items()};blocked[7][0]=0
+            self.assertEqual(optimize(source,2,0,None,5,solver_backend=backend,bank_write_caps=blocked)['solver_status'],'INFEASIBLE')
+        with self.assertRaisesRegex(ValueError,'WRITE_CAPS_DOMAIN'):optimize(source,bank_write_caps={})
+
     def test_flow_partition_hints_match_independent_endpoint_dp(self):
         rng=np.random.default_rng(1729)
         for counts in [[0]*8,[1,9,7,1,0,0,0,0],*[list(map(int,rng.integers(0,16,8)))for _ in range(100)]]:

@@ -260,7 +260,7 @@ def solve_linear(model,time_limit,continuous_variables=None):
     return lambda variable:float(values[variable.index])if variable.index in continuous else int(values[variable.index]),report
 
 
-def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None,minimize_writes=False,minimize_span=False,search_strategy='portfolio',relax_cache=False,maximum_active_banks=None):
+def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None,minimize_writes=False,minimize_span=False,search_strategy='portfolio',relax_cache=False,maximum_active_banks=None,bank_write_caps=None):
     from ortools.sat.python import cp_model
     if write_budget<0 or lookahead<0 or(window is not None and window<1):raise ValueError('BANK_RESIDENCY_DOMAIN')
     if range_backend not in('dp','ranges','adjacent','flow'):raise ValueError('BANK_RESIDENCY_RANGE_BACKEND')
@@ -274,6 +274,12 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     active=[y for y,row in enumerate(required)if any(row)]
     if not active:raise ValueError('BANK_RESIDENCY_EMPTY')
     first,last=min(active),max(active);model=cp_model.CpModel();resident={};writes={};variables=[]
+    if bank_write_caps is not None:
+        if not isinstance(bank_write_caps,dict):raise ValueError('BANK_RESIDENCY_WRITE_CAPS_DOMAIN')
+        bank_write_caps={int(y):row for y,row in bank_write_caps.items()}
+        if (set(bank_write_caps)!=set(range(first+1,last+1))or
+            any(not isinstance(row,list)or len(row)!=8 or any(type(n)is not int or not 0<=n<=15 for n in row)for row in bank_write_caps.values())):
+            raise ValueError('BANK_RESIDENCY_WRITE_CAPS_DOMAIN')
     before={b:[None]*15 for b in range(8)};hints=[]
     for row in source['trace']:
         for e in row['updates']:before[e['bank']][e['slot']-1]=e['color']
@@ -334,6 +340,9 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     for y in range(first+1,last+1):
         line={b:write_lines.get((b,y),[])for b in range(8)}
         model.add(sum(variables[i]for values in line.values()for i in values)<=write_budget)
+        if bank_write_caps is not None:
+            for b,indices in line.items():
+                if indices:model.add(sum(variables[i]for i in indices)<=bank_write_caps[y][b])
         if window is None and maximum_active_banks is None:continue
         active_flags={}
         for b,values in line.items():
@@ -388,6 +397,8 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     report['solver_search_strategy']=search_strategy
     report['palette_residency_integrality_relaxed']=relax_cache
     report['maximum_active_banks_per_line']=maximum_active_banks
+    report['per_bank_write_caps_enforced']=bank_write_caps is not None
+    if bank_write_caps is not None:report['per_bank_write_caps_sha256']=hashlib.sha256(json.dumps(bank_write_caps,sort_keys=True).encode()).hexdigest()
     if minimize_span:
         bound=statistics.get('solver_objective_lower_bound',0)if solver_backend=='highs'else solver.best_objective_bound
         report['peak_optimistic_span_lower_bound_for_this_fixed_bank_family']=max(0,int(bound)-40)
@@ -422,6 +433,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         if y and window is not None and favorable_span(events)>=window:raise AssertionError('BANK_RESIDENCY_INDEPENDENT_PREPARED_BOUND')
         trace.append(dict(scanline=y,resident_before=before,retained={b:[c for c in before[b]if c is not None and c in state[b]]for b in range(8)},evicted=[e['old']for e in events if e['old']is not None],prefetched=[e for e in events if e['kind']=='prefetch'],updates=events,colors_written=len(events),cgram_data_bytes=2*len(events),affected_banks=sorted({e['bank']for e in events})))
         if y and maximum_active_banks is not None and len(trace[-1]['affected_banks'])>maximum_active_banks:raise AssertionError('BANK_RESIDENCY_ACTIVE_BANK_REPLAY')
+        if first<y<=last and bank_write_caps is not None and any(sum(e['bank']==b for e in events)>bank_write_caps[y][b]for b in range(8)):raise AssertionError('BANK_RESIDENCY_WRITE_CAPS_REPLAY')
         states.append(copy.deepcopy(state))
     images=[];indices=np.zeros((height,256),dtype=np.uint8)
     for p,colors in zip(source['pieces'],pixels):
@@ -470,9 +482,12 @@ def main():
     p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
     p.add_argument('--relax-cache',action='store_true',help='HiGHS necessary relaxation: keep integer transfer decisions but allow fractional cache residency; never emits a palette schedule.')
     p.add_argument('--maximum-active-banks',type=int,help='Restricted cache family limiting banks receiving writes on each noninitial scanline; physical slot admission remains separate.')
+    p.add_argument('--bank-write-caps',type=Path,help='Per-line eight-bank upper bounds; compile only after integer residency and independent cap replay.')
     a=p.parse_args();source=json.loads(a.schedule.read_text())
+    caps=json.loads(a.bank_write_caps.read_text())if a.bank_write_caps else None
+    if caps is not None:caps=caps.get('bank_write_caps',caps)
     if a.scanline_interval:source=restrict_interval(source,*a.scanline_interval)
-    r=relaxed_bound(source,a.lookahead,a.time_limit)if a.relaxed_bound else optimize(source,a.write_budget,a.lookahead,None if a.no_prepared_range_bound else a.window,a.time_limit,a.range_backend,a.repair_interval,a.solver_backend,json.loads(a.residency_hint.read_text())if a.residency_hint else None,a.minimize_writes,a.minimize_span,a.search_strategy,a.relax_cache,a.maximum_active_banks);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('bank_residency',r)))
+    r=relaxed_bound(source,a.lookahead,a.time_limit)if a.relaxed_bound else optimize(source,a.write_budget,a.lookahead,None if a.no_prepared_range_bound else a.window,a.time_limit,a.range_backend,a.repair_interval,a.solver_backend,json.loads(a.residency_hint.read_text())if a.residency_hint else None,a.minimize_writes,a.minimize_span,a.search_strategy,a.relax_cache,a.maximum_active_banks,caps);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('bank_residency',r)))
 
 
 if __name__=='__main__':main()
