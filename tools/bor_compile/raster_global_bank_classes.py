@@ -119,8 +119,9 @@ def permutation_bound(schedule):
         math_bank_eligibility_preserved=True,physical_slots_relaxed=True,native_timing_admitted=False,universal_raster_rejected=False)
 
 
-def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_slivers=34,persistent_word_indices=False,maximum_oam_entries=None,prepared_dma_window=None,write_budget=21,word_epoch_lines=None,word_bank_hint=None):
+def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_slivers=34,persistent_word_indices=False,maximum_oam_entries=None,prepared_dma_window=None,write_budget=21,word_epoch_lines=None,word_bank_hint=None,search_strategy='portfolio'):
     from ortools.sat.python import cp_model
+    if search_strategy not in ('portfolio','sat'):raise ValueError('JOINT_GLOBAL_BANK_CLASS_SEARCH_STRATEGY')
     if time_limit<=0 or not 1<=maximum_tile_slivers<=34 or(residency_window_lines is not None and(type(residency_window_lines)is not int or residency_window_lines<1)):
         raise ValueError('JOINT_GLOBAL_BANK_CLASS_DOMAIN')
     if maximum_oam_entries is not None and(type(maximum_oam_entries)is not int or not 1<=maximum_oam_entries<=128):raise ValueError('JOINT_GLOBAL_BANK_CLASS_OAM_DOMAIN')
@@ -190,9 +191,11 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
             preceding.append(key)
     interval_transfer_cuts=0;peak_transfer_cost=None
     if prepared_dma_window is not None:
-        # Uniform eligibility makes each (domain,word) one physical identity.
-        # Different overlapping domains require alias-aware union accounting.
-        if len(set(domains.values()))!=1:raise ValueError('JOINT_GLOBAL_BANK_CLASS_TRANSFER_REQUIRES_UNIFORM_DOMAIN')
+        # Disjoint eligibility classes cannot duplicate a word in one bank.
+        # Overlapping classes need alias-aware per-row capacity accounting too.
+        distinct_domains=set(domains.values())
+        if any(set(a)&set(b)for a in distinct_domains for b in distinct_domains if a!=b):
+            raise ValueError('JOINT_GLOBAL_BANK_CLASS_TRANSFER_OVERLAPPING_DOMAINS')
         from raster_bank_residency import constrain_flow
         if not active_rows:raise ValueError('JOINT_GLOBAL_BANK_CLASS_TRANSFER_EMPTY')
         first,last=min(active_rows),max(active_rows);counts={};prefix={};costs=[]
@@ -233,6 +236,9 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
     else:model.minimize(sum(masks.values()))
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
+    if search_strategy=='sat':
+        solver.parameters.subsolvers.append('no_lp');solver.parameters.num_full_subsolvers=1
+        solver.parameters.linearization_level=0
     status=solver.solve(model)
     result=dict(schema='BYOR_JOINT_GLOBAL_WORD_BANK_CLASSES_V1',status='BOUNDED_JOINT_GLOBAL_BANK_CLASSES_NO_CANDIDATE',
         solver_status=solver.status_name(status),solver_seconds=solver.wall_time,solver_variables=len(model.proto.variables),
@@ -242,6 +248,7 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
         prepared_dma_window=prepared_dma_window,aggregate_bank_transfer_interval_cuts=interval_transfer_cuts,palette_residency_and_physical_slots_relaxed=prepared_dma_window is not None,
         global_word_bank_identity_restricted=word_epoch_lines is None,word_epoch_lines=word_epoch_lines,oam_and_sprite_admission_deferred=True,
         soft_word_bank_hint_colors=len(word_bank_hint or{}),
+        search_strategy=search_strategy,
         persistent_word_indices=persistent_word_indices,persistent_slot_symmetry_anchor_words=len(anchor),
         persistent_slot_symmetry_excludes_transfer_constraints=True,
         physical_transfer_admitted=False,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)

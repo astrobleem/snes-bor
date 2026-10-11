@@ -4,6 +4,18 @@ from test_raster_slot_greedy import source_schedule
 
 
 class GlobalBankClassTests(unittest.TestCase):
+    def test_sat_strategy_preserves_transfer_witness(self):
+        pieces=[dict(x=0,y=0,width=8,height=8,
+                     rows={y:list(range(y*8,y*8+8))for y in range(8)},allowed_banks=[0])]
+        result=assign_masks(pieces,time_limit=5,prepared_dma_window=97,
+                            write_budget=7,search_strategy='sat')
+        self.assertEqual(result['status'],'JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN')
+        self.assertTrue(result['aggregate_transfer_intervals_and_partitions_replayed'])
+        self.assertEqual(result['aggregate_transfer_span'],96)
+        self.assertFalse(result['physical_transfer_admitted'])
+        with self.assertRaisesRegex(ValueError,'SEARCH_STRATEGY'):
+            assign_masks(pieces,search_strategy='unknown')
+
     def test_epoch_transfer_unions_count_repeated_identity_once(self):
         # Sixteen identities repeat across two epochs, not thirty-two colors.
         pieces=[dict(x=0,y=0,width=8,height=8,rows={y:list(range(8*(y%2),8*(y%2)+8))for y in range(4)},allowed_banks=[0])]
@@ -43,8 +55,13 @@ class GlobalBankClassTests(unittest.TestCase):
         self.assertTrue(admitted['aggregate_transfer_intervals_and_partitions_replayed'])
         self.assertTrue(admitted['palette_residency_and_physical_slots_relaxed'])
         self.assertFalse(admitted['physical_transfer_admitted'])
-        with self.assertRaisesRegex(ValueError,'UNIFORM_DOMAIN'):
-            assign_masks(pieces+[dict(pieces[0],allowed_banks=[1])],prepared_dma_window=337)
+        disjoint=assign_masks(pieces+[dict(pieces[0],allowed_banks=[1])],
+                              time_limit=5,prepared_dma_window=337)
+        self.assertEqual(disjoint['status'],'JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN')
+        self.assertTrue(disjoint['aggregate_transfer_intervals_and_partitions_replayed'])
+        self.assertFalse(disjoint['physical_transfer_admitted'])
+        with self.assertRaisesRegex(ValueError,'OVERLAPPING_DOMAINS'):
+            assign_masks(pieces+[dict(pieces[0],allowed_banks=[0,1])],prepared_dma_window=337)
 
     def test_explicit_oam_ceiling_counts_split_masks(self):
         pieces=[dict(x=(i%8)*16,y=(i//8)*16,width=16,height=16,rows={(i//8)*16:list(range(16))},allowed_banks=[0,1])for i in range(17)]

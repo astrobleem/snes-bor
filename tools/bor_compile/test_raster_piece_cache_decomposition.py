@@ -47,5 +47,20 @@ class DecompositionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'OBJECTIVE_DOMAIN'):
                 search(source,**kwargs)
 
+    def test_row_word_masks_keep_source_pixels_and_full_geometry_limits(self):
+        source=fixtures.WordBankBalanceTests().fixture()[0]
+        result=search(source,iterations=3,time_limit=10,master_seconds=1,
+                      row_word_masks=True)
+        def pixels(frame):
+            return {(p['actor'],p['x']+x,p['y']+y):int(c)
+                    for p,image in zip(frame['pieces'],demand(frame)[2])
+                    for y,row in enumerate(image)for x,c in enumerate(row)if c>=0}
+        self.assertEqual(pixels(source),pixels(result))
+        self.assertTrue(result['piece_cache_decomposition']['row_word_masks'])
+        self.assertLessEqual(result['geometry']['oam_entries'],128)
+        self.assertLessEqual(result['geometry']['peak_sprites'],32)
+        self.assertLessEqual(result['geometry']['peak_tile_slivers'],34)
+        self.assertFalse(result['piece_cache_decomposition']['native_timing_admitted'])
+
 
 if __name__=='__main__':unittest.main()

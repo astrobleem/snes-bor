@@ -1,6 +1,8 @@
 """Choose fixed piece banks with independently certified fractional cache cuts.
 
 The master selects OAM banks; a separate cache LP supplies valid lower bounds.
+Optional row-word masks split source pixels into fixed-bank OAM entries and
+count every entry's complete hardware rectangle against all three OBJ limits.
 A candidate is only a fixed bank assignment. Integer residency, physical slots,
 transfer timing and source alpha still require their existing verification.
 """
@@ -12,19 +14,24 @@ from raster_slot_greedy import demand,bank_groups
 from raster_global_bank_classes import rebuild_schedule
 
 
-def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21):
+def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21,row_word_masks=False):
     from ortools.sat.python import cp_model
     if iterations<1 or time_limit<=0 or master_seconds<=0 or (maximum_changes is not None and maximum_changes<1): raise ValueError('PIECE_CACHE_DECOMPOSITION_DOMAIN')
     if objective_kind not in('writes','dma-window')or type(write_budget)is not int or not 0<=write_budget<=120:raise ValueError('PIECE_CACHE_DECOMPOSITION_OBJECTIVE_DOMAIN')
     _,_,images=demand(source); pieces=copy.deepcopy(source['pieces']);groups=bank_groups(source)
-    domains=[]; owners={}
+    domains=[]; owners={};decision_keys=[];piece_decisions={}
     for i,(p,image) in enumerate(zip(pieces,images)):
         p['rows']={p['y']+y:sorted(set(map(int,row[row>=0]))) for y,row in enumerate(image) if np.any(row>=0)}
-        domains.append(tuple(b for b in next(g for g in groups if p['bank'] in g) if b in p.get('allowed_banks',range(8))))
-        if not domains[-1]:raise ValueError('PIECE_CACHE_DECOMPOSITION_ELIGIBILITY')
+        domain=tuple(b for b in next(g for g in groups if p['bank'] in g) if b in p.get('allowed_banks',range(8)))
+        if not domain:raise ValueError('PIECE_CACHE_DECOMPOSITION_ELIGIBILITY')
+        piece_decisions[i]=[]
+        keys=[(i,c,y)for y,cs in p['rows'].items()for c in cs]if row_word_masks else [(i,)]
+        for key in keys:
+            piece_decisions.setdefault(i,[]).append(len(domains));domains.append(domain);decision_keys.append(key)
+        decisions={key:j for key,j in zip(keys,piece_decisions[i])}
         for y,cs in p['rows'].items():
             for c in cs:
-                for b in domains[-1]:owners.setdefault((b,c,y),set()).add(i)
+                for b in domain:owners.setdefault((b,c,y),set()).add(decisions[i,c,y]if row_word_masks else decisions[i,])
     first=min(y for b,c,y in owners);last=max(y for b,c,y in owners)
     uses={}
     for b,c,y in owners:uses.setdefault((b,c),set()).add(y)
@@ -77,9 +84,21 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
             required[key]=aliases[signature]
     for b in range(8):
         for y in range(first,last+1):model.add(sum(v for (bb,c,yy),v in required.items() if bb==b and yy==y)<=15)
+    if row_word_masks:
+        masks={}
+        for i,indices in piece_decisions.items():
+            if not indices:continue
+            for b in domains[indices[0]]:
+                v=model.new_bool_var(f'pieceMask{i}_{b}')
+                model.add_max_equality(v,[selection[j][b]for j in indices]);masks[i,b]=v
+        model.add(sum(masks.values())<=128)
+        for y in range(len(source['trace'])):
+            live=[(i,b)for i,b in masks if pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height']]
+            model.add(sum(masks[i,b]for i,b in live)<=32)
+            model.add(sum(masks[i,b]*(pieces[i]['width']//8)for i,b in live)<=34)
     # Certified cuts are rounded outward to integers to avoid false rejection.
     scale=1000000;t=model.new_int_var(0,(120 if objective_kind=='writes'else 4096)*scale,'fractionalPeak');model.minimize(t)
-    assignment=[p['bank'] for p in pieces];best=float('inf');best_assignment=None;reports=[];started=time.monotonic()
+    assignment=[pieces[key[0]]['bank'] for key in decision_keys];best=float('inf');best_assignment=None;reports=[];started=time.monotonic()
     for iteration in range(iterations):
         if time.monotonic()-started>time_limit:break
         for key,row in required_rows.items():rhs[row]=-int(any(assignment[i]==key[0] for i in owners[key]))
@@ -108,17 +127,27 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
             for bb,v in selection[i].items():model.add_hint(v,int(bb==b))
         master=model.clone()
         if maximum_changes is not None:
-            master.add(sum(selection[i][b]for i,b in enumerate(best_assignment))>=len(pieces)-maximum_changes)
+            master.add(sum(selection[i][b]for i,b in enumerate(best_assignment))>=len(selection)-maximum_changes)
         solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=master_seconds;solver.parameters.num_search_workers=4
         status=solver.solve(master);report.update(master_status=solver.status_name(status),master_seconds=solver.wall_time,master_lower_bound=float(solver.best_objective_bound)/scale)
         if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):break
         assignment=[next(b for b,v in choices.items()if solver.value(v))for choices in selection]
     report=dict(schema='BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1',iterations=reports,seconds=time.monotonic()-started,maximum_changed_pieces_per_master=maximum_changes,
-        objective_kind=objective_kind,write_budget=write_budget if objective_kind=='dma-window'else None,alias_aware=True,initial_residency_optimal=True,
+        objective_kind=objective_kind,row_word_masks=row_word_masks,write_budget=write_budget if objective_kind=='dma-window'else None,alias_aware=True,initial_residency_optimal=True,
         fractional_residency_only=True,physical_transfer_admitted=False,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     report['best_fractional_cache_bound'if objective_kind=='writes'else'best_fractional_dma_span_bound']=best if best_assignment is not None else None
     if best_assignment is None:return report
-    rebuilt=rebuild_schedule(source,dict(status='JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN',pieces=[dict(p,source_piece=i)for i,p in enumerate(pieces)],assignment=best_assignment,pixel_word_identities_replayed=True),last-first)
+    expanded=[];banks=[]
+    if row_word_masks:
+        for i,p in enumerate(pieces):
+            if not piece_decisions[i]:continue
+            for b in domains[piece_decisions[i][0]]:
+                rows={y:[]for y in p['rows']}
+                for j in piece_decisions[i]:
+                    if best_assignment[j]==b:rows[decision_keys[j][2]].append(decision_keys[j][1])
+                if any(rows.values()):expanded.append(dict(p,source_piece=i,rows=rows));banks.append(b)
+    else:expanded=[dict(p,source_piece=i)for i,p in enumerate(pieces)];banks=best_assignment
+    rebuilt=rebuild_schedule(source,dict(status='JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN',pieces=expanded,assignment=banks,pixel_word_identities_replayed=True),last-first)
     rebuilt['piece_cache_decomposition']=report
     return rebuilt
 
@@ -131,7 +160,8 @@ def main():
     parser.add_argument('--iterations',type=int,default=20);parser.add_argument('--time-limit',type=float,default=120)
     parser.add_argument('--master-seconds',type=float,default=3);parser.add_argument('--maximum-changes',type=int)
     parser.add_argument('--objective',choices=('writes','dma-window'),default='writes');parser.add_argument('--write-budget',type=int,default=21)
-    args=parser.parse_args();result=search(json.loads(args.schedule.read_text()),args.iterations,args.time_limit,args.master_seconds,args.maximum_changes,args.objective,args.write_budget)
+    parser.add_argument('--row-word-masks',action='store_true')
+    args=parser.parse_args();result=search(json.loads(args.schedule.read_text()),args.iterations,args.time_limit,args.master_seconds,args.maximum_changes,args.objective,args.write_budget,args.row_word_masks)
     args.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('piece_cache_decomposition',result)))
 
 
