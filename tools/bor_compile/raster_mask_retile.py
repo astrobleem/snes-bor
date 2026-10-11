@@ -1,0 +1,115 @@
+"""Cover fixed-bank source pixels with legal, freely aligned OBJ masks.
+
+Palette words, indices, write times and actor coordinates stay unchanged.
+All hardware rectangles count even where their mask is transparent.
+Bounded search failure never rejects general raster feasibility.
+"""
+import argparse,copy,hashlib,json
+from pathlib import Path
+import numpy as np
+from raster_obj_compact import unpack
+from raster_slot_greedy import demand
+
+
+def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,large_size=None):
+    from ortools.sat.python import cp_model
+    if time_limit<=0 or any(type(v)is not int or not 0<=v<=m for v,m in
+                           [(oam_limit,128),(sprite_limit,32),(tile_limit,34)]):
+        raise ValueError('MASK_RETILE_RESOURCE_DOMAIN')
+    if large_size not in(None,16):raise ValueError('MASK_RETILE_SIZE_PAIR_DOMAIN')
+    _,_,words=demand(source)
+    height=len(source['trace']);points={};origins={};seed=set()
+    for p,mask,image in zip(source['pieces'],source['piece_pixel_masks'],words):
+        if p['width']!=8 or p['height']!=8:raise ValueError('MASK_RETILE_SMALL_GEOMETRY_REQUIRED')
+        origin=p['x']-p['local_x'],p['y']-p['local_y']
+        if p['actor']in origins and origins[p['actor']]!=origin:raise ValueError('MASK_RETILE_ACTOR_ORIGIN')
+        origins[p['actor']]=origin;seed.add((p['actor'],p['bank'],p['x'],p['y'],8))
+        indices=unpack(mask)
+        for ly,lx in zip(*np.where(image>=0)):
+            key=p['actor'],p['bank'],p['x']+int(lx),p['y']+int(ly)
+            if key in points:raise ValueError('MASK_RETILE_INPUT_OVERLAP')
+            points[key]=int(indices[ly,lx]),int(image[ly,lx])
+    candidates={}
+    for actor,bank,x,y in points:
+        for size in ((8,16)if large_size else(8,)):
+            for dx in range(size):
+                for dy in range(size):
+                    left,top=x-dx,y-dy
+                    if 0<=left<=256-size and 0<=top<=height-size:
+                        candidates.setdefault((actor,bank,left,top,size),[]).append((actor,bank,x,y))
+    keys=sorted(candidates);model=cp_model.CpModel()
+    selected=[model.new_bool_var('rectangle'+str(i))for i in range(len(keys))]
+    owners={key:[]for key in points}
+    for i,key in enumerate(keys):
+        for pixel in candidates[key]:owners[pixel].append(i)
+        model.add_hint(selected[i],int(key in seed))
+    for choices in owners.values():model.add(sum(selected[i]for i in choices)>=1)
+    model.add(sum(selected)<=oam_limit)
+    for y in range(height):
+        live=[i for i,key in enumerate(keys)if key[3]<=y<key[3]+key[4]]
+        model.add(sum(selected[i]for i in live)<=sprite_limit)
+        model.add(sum(selected[i]*(keys[i][4]//8)for i in live)<=tile_limit)
+    model.minimize(sum(selected))
+    solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit
+    solver.parameters.num_search_workers=4
+    status=solver.solve(model)
+    report=dict(schema='BYOR_FIXED_BANK_MASK_RETILE_V1',solver_status=solver.status_name(status),
+        seconds=solver.wall_time,candidate_rectangles=len(keys),source_pixels=len(points),legal_sizes=[8,16]if large_size else[8],
+        minimum_oam_lower_bound=solver.best_objective_bound,
+        resource_limits=dict(oam_entries=oam_limit,sprites_per_line=sprite_limit,tile_slivers_per_line=tile_limit),
+        status='BOUNDED_MASK_RETILE_NO_CANDIDATE',native_timing_admitted=False,
+        concurrent_palette_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
+    if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return report
+    chosen=[i for i in range(len(keys))if solver.value(selected[i])]
+    ownership={pixel:next(i for i in owners[pixel]if i in chosen)for pixel in points}
+    pieces=[];masks=[];replayed={}
+    for i in chosen:
+        actor,bank,x,y,size=keys[i];ox,oy=origins[actor];image=np.zeros((size,size),dtype=np.uint8);rows={}
+        for pixel in candidates[keys[i]]:
+            if ownership[pixel]!=i:continue
+            _,_,px,py=pixel;index,word=points[pixel]
+            image[py-y,px-x]=index;rows.setdefault(py,set()).add(word);replayed[pixel]=(index,word)
+        if not np.any(image):continue
+        pieces.append(dict(actor=actor,bank=bank,x=x,y=y,local_x=x-ox,local_y=y-oy,width=size,height=size,
+                           rows={line:sorted(colors)for line,colors in rows.items()}))
+        flat=image.flatten();masks.append(dict(width=size,height=size,packed_nibble_order='low then high',pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
+    if replayed!=points:raise AssertionError('MASK_RETILE_PIXEL_INDEX_WORD_IDENTITY')
+    peak=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height))
+    tiles=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(height))
+    geometry=dict(oam_entries=len(pieces),peak_sprites=peak,peak_tile_slivers=tiles)
+    if len(pieces)>oam_limit or peak>sprite_limit or tiles>tile_limit:raise AssertionError('MASK_RETILE_HARDWARE_GEOMETRY')
+    result=copy.deepcopy(source)
+    for field in ('physical_slot_layout','prepared_dma_packets'):result.pop(field,None)
+    report.update(status='FIXED_BANK_RETILED_PIXEL_IDENTITIES_PROVEN',pixel_bank_index_word_identity_replayed=True,
+                  original_geometry=source['geometry'],geometry=geometry)
+    result.update(pieces=pieces,piece_pixel_masks=masks,geometry=geometry,geometry_mode='SOURCE_EXACT_FREE_ALIGNMENT_MASKS',
+        mixed_small_size=8,mixed_large_size=16,obsel_mode=0,mask_retile=report,
+        piece_bank_assignment=[p['bank']for p in pieces],bank_assignment_authority='source_exact_fixed_bank_mask_retile',
+        input_compiled_schedule_sha256=source.get('compiled_schedule_sha256'),
+        hardware_geometry_admitted=True,native_presentation_proven=False)
+    payload=dict(pieces=pieces,pixel_masks=masks,trace=result['trace'])
+    if result.get('scanline_math_controls_source_bound'):
+        payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
+    result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+    rebuilt={}
+    for p,indices,words in zip(pieces,masks,demand(result)[2]):
+        image=unpack(indices)
+        for ly,lx in zip(*np.where(words>=0)):
+            key=p['actor'],p['bank'],p['x']+int(lx),p['y']+int(ly)
+            if key in rebuilt:raise AssertionError('MASK_RETILE_OUTPUT_OVERLAP')
+            rebuilt[key]=int(image[ly,lx]),int(words[ly,lx])
+    if rebuilt!=points:raise AssertionError('MASK_RETILE_INDEPENDENT_REPLAY')
+    return result
+
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--schedule',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--time-limit',type=float,default=30)
+    p.add_argument('--oam-limit',type=int,default=128);p.add_argument('--sprite-limit',type=int,default=32);p.add_argument('--tile-limit',type=int,default=34)
+    p.add_argument('--large-size',type=int,choices=(16,),help='Also permit legal 16x16 objects, charging two tile slivers on every rectangle row.')
+    a=p.parse_args();r=retile(json.loads(a.schedule.read_text()),a.time_limit,a.oam_limit,a.sprite_limit,a.tile_limit,a.large_size)
+    a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('mask_retile',r)))
+
+
+if __name__=='__main__':main()

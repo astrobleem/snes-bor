@@ -274,7 +274,7 @@ def main():
     if resume is not None:resume=resume.get('piece_cache_decomposition',resume)
     result=search(json.loads(args.schedule.read_text()),args.iterations,args.time_limit,args.master_seconds,args.maximum_changes,args.objective,args.write_budget,args.row_word_masks,resume,args.interval_cut_span,json.loads(args.geometry_reservation.read_text())if args.geometry_reservation else None)
     args.output.write_text(json.dumps(result,indent=2)+'\n');report=result.get('piece_cache_decomposition',result)
-    print(json.dumps(dict({k:v for k,v in report.items()if k not in('iterations','certified_master_cuts','evaluated_assignments','best_decision_assignment')},iterations_completed=len(report['iterations']))))
+    print(json.dumps(dict({k:v for k,v in report.items()if k not in('iterations','certified_master_cuts','evaluated_assignments','best_decision_assignment','geometry_reservation')},iterations_completed=len(report['iterations']))))
 
 
 if __name__=='__main__':main()

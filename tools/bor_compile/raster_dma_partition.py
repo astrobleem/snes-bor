@@ -19,7 +19,7 @@ def minimum_commit_span(colors):
     return 0 if not colors else 16*(colors+(colors+14)//15-2)
 
 
-def constrain_ranges(bank_writes, active, allocate, constraint, window, maximum_ranges=None):
+def constrain_ranges(bank_writes, active, allocate, constraint, window, maximum_ranges=None,peak_cost_index=None):
     if maximum_ranges is not None and not 1<=maximum_ranges<=4:raise ValueError('DMA_PARTITION_RANGE_LIMIT')
     ranges={};word_counts={};domains={}
     for first in range(8):
@@ -45,5 +45,6 @@ def constrain_ranges(bank_writes, active, allocate, constraint, window, maximum_
     # First-to-last data span subtracts 32; preloading the first low byte
     # grants another 8. Strictly fit the window's last accessible clock.
     constraint(cost,-math.inf,window+39)
+    if peak_cost_index is not None:constraint(cost+[(peak_cost_index,-1)],-math.inf,0)
     if maximum_ranges is not None:constraint([(q,1)for q in ranges.values()],-math.inf,maximum_ranges)
     return domains

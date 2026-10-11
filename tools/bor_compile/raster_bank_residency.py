@@ -242,7 +242,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     if solver_backend not in('cp-sat','highs')or(solver_backend=='highs'and window is not None and range_backend!='ranges'):raise ValueError('BANK_RESIDENCY_SOLVER_BACKEND')
     if relax_cache and solver_backend!='highs':raise ValueError('BANK_RESIDENCY_RELAXED_CACHE_BACKEND')
     if search_strategy not in('portfolio','lns')or(search_strategy=='lns'and solver_backend!='cp-sat'):raise ValueError('BANK_RESIDENCY_SEARCH_STRATEGY')
-    if minimize_span and(window is None or solver_backend!='cp-sat'or range_backend=='ranges'or minimize_writes):raise ValueError('BANK_RESIDENCY_SPAN_OBJECTIVE_DOMAIN')
+    if minimize_span and(window is None or minimize_writes):raise ValueError('BANK_RESIDENCY_SPAN_OBJECTIVE_DOMAIN')
     if repair_interval is not None and (len(repair_interval)!=2 or repair_interval[0]<0 or repair_interval[1]<repair_interval[0]):raise ValueError('BANK_RESIDENCY_REPAIR_INTERVAL')
     required,uses,pixels=demand(source,allow_restricted=True);height=len(required)
     active=[y for y,row in enumerate(required)if any(row)]
@@ -302,6 +302,9 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         if np.isfinite(lo):model.add(expression>=int(lo))
         if np.isfinite(hi):model.add(expression<=int(hi))
     peak_span_cost=model.new_int_var(0,4096,'favorablePeakCost')if minimize_span else None
+    peak_cost_index=None
+    if minimize_span and range_backend=='ranges':
+        peak_cost_index=len(variables);variables.append(peak_span_cost)
     for y in range(first+1,last+1):
         line={b:write_lines.get((b,y),[])for b in range(8)}
         model.add(sum(variables[i]for values in line.values()for i in values)<=write_budget)
@@ -322,7 +325,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
             if range_backend=='dp':cost=constrain_dp(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}')
             else:cost=constrain_adjacent(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',write_budget)
             if minimize_span:model.add(peak_span_cost>=cost)
-        else:constrain_ranges(line,active_flags,allocate,constraint,window,maximum_ranges=4)
+        else:constrain_ranges(line,active_flags,allocate,constraint,window,maximum_ranges=4,peak_cost_index=peak_cost_index)
     if minimize_span:
         model.minimize(peak_span_cost)
         model.add_hint(peak_span_cost,max(favorable_span(row['updates'])for row in source['trace'][1:])+40)
@@ -352,7 +355,9 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     report['peak_optimistic_prepared_span_objective']=minimize_span
     report['solver_search_strategy']=search_strategy
     report['palette_residency_integrality_relaxed']=relax_cache
-    if minimize_span:report['peak_optimistic_span_lower_bound_for_this_fixed_bank_family']=max(0,int(solver.best_objective_bound)-40)
+    if minimize_span:
+        bound=statistics.get('solver_objective_lower_bound',0)if solver_backend=='highs'else solver.best_objective_bound
+        report['peak_optimistic_span_lower_bound_for_this_fixed_bank_family']=max(0,int(bound)-40)
     if value is None:return report
     if relax_cache:
         # Integer range activation with fractional slots is only a necessary
@@ -426,7 +431,7 @@ def main():
     p.add_argument('--scanline-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
     p.add_argument('--residency-hint',type=Path)
     p.add_argument('--minimize-writes',action='store_true')
-    p.add_argument('--minimize-span',action='store_true',help='Minimize the optimistic peak bank-partition cost; CP-SAT dp/adjacent backends only, physical slot admission still required.')
+    p.add_argument('--minimize-span',action='store_true',help='Minimize the optimistic peak bank-partition cost; physical slot admission still required. HiGHS requires the linear ranges backend.')
     p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
     p.add_argument('--relax-cache',action='store_true',help='HiGHS necessary relaxation: keep integer transfer decisions but allow fractional cache residency; never emits a palette schedule.')
     a=p.parse_args();source=json.loads(a.schedule.read_text())
