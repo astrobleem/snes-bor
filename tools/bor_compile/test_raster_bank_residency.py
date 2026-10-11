@@ -7,6 +7,23 @@ from test_raster_slot_greedy import source_schedule
 
 
 class ResidencyTests(unittest.TestCase):
+    def test_integer_transfer_fractional_cache_does_not_emit_schedule(self):
+        source=source_schedule()
+        result=optimize(source,write_budget=2,lookahead=0,time_limit=10,
+                        window=345,range_backend='ranges',solver_backend='highs',relax_cache=True)
+        self.assertEqual(result['status'],'FRACTIONAL_CACHE_INTEGER_TRANSFER_CANDIDATE')
+        self.assertTrue(result['palette_residency_integrality_relaxed'])
+        self.assertGreater(result['fractional_cache_variables'],0)
+        self.assertFalse(result['integer_palette_schedule_proven'])
+        self.assertFalse(result['complete_source_frame_pixel_identity_proven'])
+        self.assertNotIn('trace',result)
+        rejected=optimize(source,write_budget=1,lookahead=0,time_limit=10,
+                          window=345,range_backend='ranges',solver_backend='highs',relax_cache=True)
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+        self.assertFalse(rejected['universal_raster_rejected'])
+        with self.assertRaisesRegex(ValueError,'RELAXED_CACHE_BACKEND'):
+            optimize(source,relax_cache=True)
+
     def test_cache_solution_preserves_fixed_bank_pixels_and_black(self):
         source=source_schedule();result=optimize(source,write_budget=2,lookahead=0,time_limit=10)
         self.assertEqual(result['pieces'],source['pieces'])

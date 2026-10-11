@@ -235,11 +235,12 @@ def solve_linear(model,time_limit,continuous_variables=None):
     return lambda variable:float(values[variable.index])if variable.index in continuous else int(values[variable.index]),report
 
 
-def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None,minimize_writes=False,minimize_span=False,search_strategy='portfolio'):
+def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None,minimize_writes=False,minimize_span=False,search_strategy='portfolio',relax_cache=False):
     from ortools.sat.python import cp_model
     if write_budget<0 or lookahead<0 or(window is not None and window<1):raise ValueError('BANK_RESIDENCY_DOMAIN')
     if range_backend not in('dp','ranges','adjacent'):raise ValueError('BANK_RESIDENCY_RANGE_BACKEND')
     if solver_backend not in('cp-sat','highs')or(solver_backend=='highs'and window is not None and range_backend!='ranges'):raise ValueError('BANK_RESIDENCY_SOLVER_BACKEND')
+    if relax_cache and solver_backend!='highs':raise ValueError('BANK_RESIDENCY_RELAXED_CACHE_BACKEND')
     if search_strategy not in('portfolio','lns')or(search_strategy=='lns'and solver_backend!='cp-sat'):raise ValueError('BANK_RESIDENCY_SEARCH_STRATEGY')
     if minimize_span and(window is None or solver_backend!='cp-sat'or range_backend=='ranges'or minimize_writes):raise ValueError('BANK_RESIDENCY_SPAN_OBJECTIVE_DOMAIN')
     if repair_interval is not None and (len(repair_interval)!=2 or repair_interval[0]<0 or repair_interval[1]<repair_interval[0]):raise ValueError('BANK_RESIDENCY_REPAIR_INTERVAL')
@@ -326,7 +327,8 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         model.minimize(peak_span_cost)
         model.add_hint(peak_span_cost,max(favorable_span(row['updates'])for row in source['trace'][1:])+40)
     elif minimize_writes:model.minimize(sum(writes.values()))
-    if solver_backend=='highs':value,statistics=solve_linear(model,time_limit)
+    if solver_backend=='highs':value,statistics=solve_linear(model,time_limit,
+        {v.index for v in [*resident.values(),*writes.values()]}if relax_cache else None)
     else:
         solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
         if search_strategy=='lns':solver.parameters.use_lns_only=True
@@ -349,8 +351,16 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     report['total_noninitial_writes_objective']=minimize_writes
     report['peak_optimistic_prepared_span_objective']=minimize_span
     report['solver_search_strategy']=search_strategy
+    report['palette_residency_integrality_relaxed']=relax_cache
     if minimize_span:report['peak_optimistic_span_lower_bound_for_this_fixed_bank_family']=max(0,int(solver.best_objective_bound)-40)
     if value is None:return report
+    if relax_cache:
+        # Integer range activation with fractional slots is only a necessary
+        # transfer-family test. Never compile fractional contents into tiles.
+        report.update(status='FRACTIONAL_CACHE_INTEGER_TRANSFER_CANDIDATE',
+                      integer_palette_schedule_proven=False,
+                      compiled_pixel_identity_verified=False)
+        return report
     planned={y:{b:set()for b in range(8)}for y in range(first,last+1)}
     for (b,c,y),r in resident.items():
         if value(r):planned[y][b].add(c)
@@ -418,9 +428,10 @@ def main():
     p.add_argument('--minimize-writes',action='store_true')
     p.add_argument('--minimize-span',action='store_true',help='Minimize the optimistic peak bank-partition cost; CP-SAT dp/adjacent backends only, physical slot admission still required.')
     p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
+    p.add_argument('--relax-cache',action='store_true',help='HiGHS necessary relaxation: keep integer transfer decisions but allow fractional cache residency; never emits a palette schedule.')
     a=p.parse_args();source=json.loads(a.schedule.read_text())
     if a.scanline_interval:source=restrict_interval(source,*a.scanline_interval)
-    r=relaxed_bound(source,a.lookahead,a.time_limit)if a.relaxed_bound else optimize(source,a.write_budget,a.lookahead,None if a.no_prepared_range_bound else a.window,a.time_limit,a.range_backend,a.repair_interval,a.solver_backend,json.loads(a.residency_hint.read_text())if a.residency_hint else None,a.minimize_writes,a.minimize_span,a.search_strategy);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('bank_residency',r)))
+    r=relaxed_bound(source,a.lookahead,a.time_limit)if a.relaxed_bound else optimize(source,a.write_budget,a.lookahead,None if a.no_prepared_range_bound else a.window,a.time_limit,a.range_backend,a.repair_interval,a.solver_backend,json.loads(a.residency_hint.read_text())if a.residency_hint else None,a.minimize_writes,a.minimize_span,a.search_strategy,a.relax_cache);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('bank_residency',r)))
 
 
 if __name__=='__main__':main()
