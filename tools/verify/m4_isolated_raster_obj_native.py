@@ -31,6 +31,21 @@ def lease_queue_vram(occupied,byte_count):
     raise ValueError('NATIVE_QUEUE_VRAM_NO_DISJOINT_LEASE')
 
 
+def verify_precomposited_pixels(schedule,background,expected):
+    """Replay the supplied row palettes against an independently composed source."""
+    replay=np.asarray(background,dtype='<u2').copy()
+    if replay.shape!=np.asarray(expected).shape:raise ValueError('NATIVE_PRECOMPOSITED_SOURCE_SHAPE')
+    owned=np.zeros(replay.shape,dtype=bool)
+    for piece,image in zip(schedule['pieces'],demand(schedule)[2]):
+        for ly,lx in zip(*np.where(image>=0)):
+            y,x=piece['y']+int(ly),piece['x']+int(lx)
+            if owned[y,x]:raise ValueError('NATIVE_PRECOMPOSITED_PIXEL_OVERLAP')
+            owned[y,x]=True;replay[y,x]=int(image[ly,lx])
+    if not np.array_equal(replay,expected):raise ValueError('NATIVE_PRECOMPOSITED_SOURCE_PIXEL_IDENTITY')
+    return dict(viewport_pixels=int(replay.size),visible_obj_pixels=int(owned.sum()),
+                source_rgb555_sha256=hashlib.sha256(replay.tobytes()).hexdigest())
+
+
 def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=False,foreground_stress=False,production_nmi_services=False,nmi_queue_bytes=512,foreground_wai=False,prepare_next_line=False,control_traffic=None,delta_control_traffic=False,controls_before_palette=False,authored_context=None):
     if production_nmi_services and(not sa1_mapping or not 0<=nmi_queue_bytes<=4096 or nmi_queue_bytes%2):raise ValueError('NATIVE_PRODUCTION_NMI_SERVICE_DOMAIN')
     if foreground_wai and foreground_stress:raise ValueError('NATIVE_WAI_AND_FOREGROUND_STRESS_CONFLICT')
@@ -77,6 +92,7 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
         if not isolation:raise ValueError('NATIVE_CONTROLLED_UNDERLAY_REQUIRED')
         source,stage,_=isolated_source(source_path,tuple(isolation['underlay_rgb8']))
         expected,metadata=compose_rgb8(source,stage,scene);expected=rgb555(expected).astype('<u2')
+        verify_precomposited_pixels(schedule,rgb555(compose_rgb8(source,stage,dict(scene,actors=[]))[0]),expected)
     else:
         if authored_main:
             if control_traffic is None or not schedule.get('scanline_math_controls_source_bound')or control_traffic.get('source_rgb555_sha256')!=schedule.get('source_rgb555_sha256')or control_traffic.get('metadata')!=schedule.get('metadata')or set(map(int,control_traffic['compiled_color_window_descriptors']))!=set(range(224)):raise ValueError('NATIVE_AUTHORED_MAIN_COMPLETE_SOURCE_CONTROLS_REQUIRED')
@@ -426,6 +442,7 @@ def main():
         oam_ram_identity_verified=observed_oam==oam,oam_observer_identity_verified=oamlog==[oam.hex()],obj_overflow_flags=flags,
         obj_chr_vram_identity_verified=chr_identity,obj_chr_vram_sha256=hashlib.sha256(observed_chr).hexdigest(),
         source_frame_sha256=next(l['sha256']for l in resources['source_metadata']['layers']if l['kind'].startswith('actor:')),
+        source_actor_frames=[dict(model=l['kind'].removeprefix('actor:'),path=l['path'],sha256=l['sha256'])for l in resources['source_metadata']['layers']if l['kind'].startswith('actor:')],
         input_schedule_file_sha256=hashlib.sha256(a.schedule.read_bytes()).hexdigest(),
         compiled_transfer_descriptor_sha256=hashlib.sha256(json.dumps(schedule['prepared_dma_packets'],sort_keys=True).encode()).hexdigest(),
         compiled_schedule_sha256=schedule['compiled_schedule_sha256'],rom_sha256=hashlib.sha256(raw).hexdigest(),expected_rgb555_sha256=hashlib.sha256(expected.tobytes()).hexdigest(),
