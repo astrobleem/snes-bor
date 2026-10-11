@@ -67,3 +67,12 @@ rows were searched for fifty seconds; the 472-clock witness was retained with
 the same assignments. This is a bounded search result, not infeasibility.
 Nine focused tests pass, including eligibility and fixed lifetime assignment.
 Required words receive optional distinct-slot matching and bank capacity cuts.
+
+Selective subdivision reuses the existing bank subdivision implementation,
+retains its palette packets as an exact optimization hint, and independently
+compares every source position, word and bank. Ten selected 16x16 parents
+produce 107 OAM entries and 33 sprites on one line: explicitly rejected. Nine
+produce 104 entries, 32 sprites and 34 tile slivers: admitted for offline
+geometry only. Joint physical bank search retains 472 clocks after fifty
+seconds. The full alpha output, masks and CGRAM packets replay exactly.
+Eighteen focused tests pass. Native timing for this layout remains untested.

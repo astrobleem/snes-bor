@@ -1,0 +1,299 @@
+{
+  "schema": "BYOR_SELECTIVE_SUBDIVISION_RECEIPT_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "source_alpha_output_exact": true,
+  "source_transparency_exact": true,
+  "source_pixel_positions_exact": true,
+  "native_tested_transfer_window": 336,
+  "physical_peak": 472,
+  "native_timing_admitted": false,
+  "native_gate_status": "NOT_YET_TESTED_FOR_SUBDIVISION",
+  "universal_raster_rejected": false,
+  "no_color_reduction": true,
+  "focused_tests_passed": 18,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "trials": [
+    {
+      "path": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-critical-subdivision.json",
+      "sha256": "e2030c499a12b164143cfa0adaba47ad5af0c4aaa76ed6f1ad2ce60ba39293ef",
+      "report": {
+        "status": "SELECTIVE_SUBDIVISION_HARDWARE_GEOMETRY_LIMIT",
+        "geometry": {
+          "oam_entries": 107,
+          "peak_sprites_per_line": 33,
+          "peak_tile_slivers_per_line": 34
+        },
+        "selected_parent_pieces": [
+          41,
+          43,
+          45,
+          53,
+          58,
+          60,
+          64,
+          67,
+          69,
+          76
+        ],
+        "child_piece_indices": {
+          "41": [
+            41,
+            42,
+            43,
+            44
+          ],
+          "43": [
+            46,
+            47,
+            48,
+            49
+          ],
+          "45": [
+            51,
+            52,
+            53,
+            54
+          ],
+          "53": [
+            62,
+            63,
+            64,
+            65
+          ],
+          "58": [
+            70,
+            71,
+            72,
+            73
+          ],
+          "60": [
+            75,
+            76,
+            77
+          ],
+          "64": [
+            81,
+            82,
+            83
+          ],
+          "67": [
+            86,
+            87,
+            88,
+            89
+          ],
+          "69": [
+            91,
+            92,
+            93
+          ],
+          "76": [
+            100,
+            101,
+            102,
+            103
+          ]
+        },
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-critical-subdivision-nine.json",
+      "sha256": "c3e0aba45a661b9549dd8c5d36f6b076c078212594fd7db8683606fe05072442",
+      "report": {
+        "schema": "BYOR_SELECTIVE_OBJ_SUBDIVISION_V1",
+        "selected_parent_pieces": [
+          41,
+          43,
+          45,
+          53,
+          58,
+          60,
+          64,
+          67,
+          69
+        ],
+        "child_piece_indices": {
+          "41": [
+            41,
+            42,
+            43,
+            44
+          ],
+          "43": [
+            46,
+            47,
+            48,
+            49
+          ],
+          "45": [
+            51,
+            52,
+            53,
+            54
+          ],
+          "53": [
+            62,
+            63,
+            64,
+            65
+          ],
+          "58": [
+            70,
+            71,
+            72,
+            73
+          ],
+          "60": [
+            75,
+            76,
+            77
+          ],
+          "64": [
+            81,
+            82,
+            83
+          ],
+          "67": [
+            86,
+            87,
+            88,
+            89
+          ],
+          "69": [
+            91,
+            92,
+            93
+          ]
+        },
+        "geometry": {
+          "oam_entries": 104,
+          "peak_sprites_per_line": 32,
+          "peak_tile_slivers_per_line": 34
+        },
+        "no_color_reduction": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "status": "SOURCE_EXACT_SELECTIVE_SUBDIVISION_PROVEN",
+        "source_pixel_word_bank_identity_verified": true,
+        "opaque_source_pixels": 2668
+      }
+    },
+    {
+      "path": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-critical-subdivision-nine-banks.json",
+      "sha256": "849290f6c8838348a1fa777db6bf58fbd1ea2edc050c284975203fa6e8bd5463",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_WINDOW_SLOT_SCHEDULE_V1",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 50.492090700000006,
+        "solver_model_variables": 54829,
+        "solver_model_constraints": 87745,
+        "solver_search_strategy": "lns",
+        "shared_row_math_modes_unchanged": true,
+        "two_color_windows_with_polarity_choice_enforced": true,
+        "fixed_piece_banks_unchanged": false,
+        "offline_bank_assignment_movable_pieces": [
+          41,
+          42,
+          43,
+          44,
+          46,
+          47,
+          48,
+          49,
+          51,
+          52,
+          53,
+          54,
+          62,
+          63,
+          64,
+          65,
+          70,
+          71,
+          72,
+          73,
+          75,
+          76,
+          77,
+          81,
+          82,
+          83,
+          86,
+          87,
+          88,
+          89,
+          91,
+          92,
+          93
+        ],
+        "piece_banks_fixed_across_all_scanlines": true,
+        "maximum_physical_writes": 21,
+        "necessary_bank_window_master_clocks": null,
+        "physical_window_master_clocks": 473,
+        "mandatory_identity_bank_interval_cuts": 3524,
+        "resident_exact_operand_reuse_enabled": false,
+        "pixels_with_multiple_exact_operand_choices": 0,
+        "complete_rgb555_operand_covers": {},
+        "repair_interval": null,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "selected_fixed_piece_bank_assignment": {
+          "41": 2,
+          "42": 2,
+          "43": 2,
+          "44": 2,
+          "46": 2,
+          "47": 2,
+          "48": 2,
+          "49": 2,
+          "51": 3,
+          "52": 3,
+          "53": 3,
+          "54": 3,
+          "62": 1,
+          "63": 1,
+          "64": 1,
+          "65": 1,
+          "70": 4,
+          "71": 4,
+          "72": 4,
+          "73": 4,
+          "75": 4,
+          "76": 4,
+          "77": 4,
+          "81": 4,
+          "82": 4,
+          "83": 4,
+          "86": 6,
+          "87": 6,
+          "88": 6,
+          "89": 6,
+          "91": 6,
+          "92": 6,
+          "93": 6
+        },
+        "status": "SOURCE_EXACT_WINDOW_SLOT_PACKETS_PROVEN",
+        "peak_prepared_commit_span": 472,
+        "peak_actual_palette_writes": 21,
+        "complete_source_frame_pixel_identity_proven": true,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "palette_operand_encoding_unchanged": true,
+        "changed_exact_pixel_operands": 0,
+        "changed_observed_pixel_window_gates": 0,
+        "peak_packet_data_bytes": 52,
+        "peak_dma_chain_channels": 7,
+        "maximum_noninitial_prefetch_latency_lines": 12,
+        "noninitial_dead_palette_writes": 0,
+        "initial_palette_may_preload_entire_frame": true
+      }
+    }
+  ]
+}

@@ -11,13 +11,14 @@ from raster_palette import schedule as logical_schedule
 from raster_obj_compact import unpack
 
 
-def subdivide(source,indices):
+def subdivide(source,indices,preserve_packets=False,report_limits=False):
     """Replace chosen square legal pieces with exact nonempty 8x8 children."""
-    _,_,pixels=demand(source);pieces=[];masks=[];selected=set(indices)
+    _,_,pixels=demand(source);pieces=[];masks=[];selected=set(indices);children={}
     if any(i not in range(len(source['pieces']))for i in selected):raise ValueError('BANK_SUBDIVISION_INDEX')
     for i,(p,m,colors)in enumerate(zip(source['pieces'],source['piece_pixel_masks'],pixels)):
         if i not in selected:pieces.append(copy.deepcopy(p));masks.append(copy.deepcopy(m));continue
         if p['width']not in(8,16,32)or p['height']!=p['width']:raise ValueError('BANK_SUBDIVISION_LEGAL_SQUARE_REQUIRED')
+        children[i]=[]
         image=unpack(m)
         for y in range(0,p['height'],8):
             for x in range(0,p['width'],8):
@@ -28,7 +29,7 @@ def subdivide(source,indices):
                     if key in p:q[key]=p[key]+offset
                 q['rows']={p['y']+y+ly:sorted(set(map(int,row[row>=0])))for ly,row in enumerate(colors[y:y+8,x:x+8])}
                 flat=child.flatten();mask=dict(width=8,height=8,packed_nibble_order='low then high',pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex())
-                pieces.append(q);masks.append(mask)
+                children[i].append(len(pieces));pieces.append(q);masks.append(mask)
     sizes={p['width']for p in pieces}
     if any(p['width']!=p['height']or p['width']not in(8,16,32)for p in pieces)or sizes=={8,16,32}:
         raise ValueError('BANK_SUBDIVISION_GLOBAL_SIZE_PAIR')
@@ -37,11 +38,13 @@ def subdivide(source,indices):
         if not clip or p['x']==-256:return p['width']//8
         return sum(p['x']+8*c+8>0 and p['x']+8*c<256 for c in range(p['width']//8))
     geometry=dict(oam_entries=len(pieces),peak_sprites_per_line=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height)),peak_tile_slivers_per_line=max(sum(slivers(p)for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(height)))
-    if geometry['oam_entries']>128 or geometry['peak_sprites_per_line']>32 or geometry['peak_tile_slivers_per_line']>34:raise ValueError('BANK_SUBDIVISION_HARDWARE_GEOMETRY_LIMIT')
+    if geometry['oam_entries']>128 or geometry['peak_sprites_per_line']>32 or geometry['peak_tile_slivers_per_line']>34:
+        if report_limits:return dict(status='SELECTIVE_SUBDIVISION_HARDWARE_GEOMETRY_LIMIT',geometry=geometry,selected_parent_pieces=sorted(selected),child_piece_indices=children,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
+        raise ValueError('BANK_SUBDIVISION_HARDWARE_GEOMETRY_LIMIT')
     result=copy.deepcopy(source);result.update(pieces=pieces,piece_pixel_masks=masks,geometry=geometry,piece_bank_assignment=[p['bank']for p in pieces])
     result.update(mixed_small_size=8,mixed_large_size=16 if 16 in sizes else 32)
-    result['bank_subdivision']=dict(selected_input_pieces=sorted(selected),geometry=geometry,pixels_exact=True,input_compiled_schedule_sha256=source.get('compiled_schedule_sha256'))
-    for field in ('prepared_dma_packets','physical_slot_layout'):result.pop(field,None)
+    result['bank_subdivision']=dict(selected_input_pieces=sorted(selected),child_piece_indices=children,geometry=geometry,pixels_exact=True,input_compiled_schedule_sha256=source.get('compiled_schedule_sha256'))
+    for field in (('physical_slot_layout',)if preserve_packets else('prepared_dma_packets','physical_slot_layout')):result.pop(field,None)
     result['native_presentation_proven']=False
     payload=dict(pieces=pieces,pixel_masks=masks,trace=result['trace'])
     if result.get('scanline_math_controls_source_bound'):
