@@ -9,8 +9,9 @@ from collections import deque
 import numpy as np
 
 
-def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None, variable_upper=None):
+def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None, variable_upper=None,search_strategy='portfolio'):
     from ortools.sat.python import cp_model
+    if search_strategy not in ('portfolio','sat'):raise ValueError('BOOLEAN_SEARCH_STRATEGY')
     model=cp_model.CpModel()
     domains=np.ones(matrix.shape[1]) if variable_upper is None else np.asarray(variable_upper)
     if domains.shape!=(matrix.shape[1],) or any(not np.isfinite(v) or v<0 or float(v)!=int(v) for v in domains):raise ValueError('INTEGER_VARIABLE_UPPER_DOMAIN')
@@ -41,6 +42,9 @@ def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None, 
     # pre-search probing consumed the initial bounded trial without conflicts.
     solver.parameters.cp_model_probing_level=0
     solver.parameters.use_sat_inprocessing=False
+    if search_strategy=='sat':
+        solver.parameters.subsolvers.append('no_lp');solver.parameters.num_full_subsolvers=1
+        solver.parameters.linearization_level=0
     solver.parameters.log_search_progress=True;solver.parameters.log_to_stdout=False
     log=deque(maxlen=64);log_lines=0
     def capture(message):
@@ -53,4 +57,4 @@ def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None, 
     values=np.array([solver.value(v) for v in variables],dtype=float) if feasible else None
     return SimpleNamespace(x=values,status=0 if feasible else 2 if status==cp_model.INFEASIBLE else 1,
                            message=solver.status_name(status),mip_node_count=None,mip_gap=None,
-                           bounded_log=list(log),boolean_stats=dict(nonboolean_integer_variables=int(np.count_nonzero(domains>1)),hint_variables=len(hint or {}),hint_is_soft=True,log_lines=log_lines,sat_inprocessing=False,branches=solver.num_branches,conflicts=solver.num_conflicts,wall_seconds=solver.wall_time,probing_level=0,workers=workers,optimal=status==cp_model.OPTIMAL))
+                           bounded_log=list(log),boolean_stats=dict(nonboolean_integer_variables=int(np.count_nonzero(domains>1)),hint_variables=len(hint or {}),hint_is_soft=True,log_lines=log_lines,sat_inprocessing=False,branches=solver.num_branches,conflicts=solver.num_conflicts,wall_seconds=solver.wall_time,probing_level=0,workers=workers,search_strategy=search_strategy,optimal=status==cp_model.OPTIMAL))

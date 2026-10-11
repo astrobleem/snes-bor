@@ -6,6 +6,38 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_relaxed_control_cover_retains_exact_saturated_hint_operand(self):
+        import hashlib
+        from raster_math_windows import compile_mask
+        from raster_slot_greedy import demand
+        background=np.zeros((224,256,3),dtype=np.uint8);background[:8,:8,0]=248
+        actor=dict(pixels=np.full((8,8),31,dtype=np.int32),left=0,top=0)
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(background).astype('<u2').tobytes()).hexdigest(),
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            selected_modes={'0':'add'},compiled_color_window_descriptors={'0':compile_mask([True]*256)},
+            selected_palette_residency={'0':{'0':[],'1':[17]}})
+        with patch('source_scene_obj_joint.prepare',return_value=([actor],{},background)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            hint=probe(None,None,{},size=8,write_budget=0,time_limit=5,solver_backend='cp-sat',
+                       additive_only=True,scanline_math_candidate=candidate)
+            # Initial control row selects 17. Keep it on all rows: 17 + 31
+            # saturates exactly to source red 31, though cover dominance prefers 0.
+            for row in hint['trace']:
+                for values in row['resident_before'].values():
+                    for i,c in enumerate(values):
+                        if c==0:values[i]=17
+                for event in row['updates']:
+                    if event['color']==0:event['color']=17
+                    if event.get('old')==0:event['old']=17
+            result=probe(None,None,{},size=8,write_budget=0,time_limit=5,solver_backend='cp-sat',
+                         additive_only=True,scanline_math_candidate=candidate,relax_scanline_pool=True,
+                         schedule_hint=hint,fixed_geometry=True,preserve_hint_math_classes=True,preserve_hint_words=True,
+                         cp_search_strategy='sat')
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertGreater(result['complete_outside_control_math_cover']['retained_seed_operands'],0)
+        self.assertEqual(result['solver']['boolean_stats']['search_strategy'],'sat')
+        self.assertTrue(all(np.all(im[im>=0]==17)for im in demand(result)[2]))
+
     def test_literal_ordinary_actors_share_one_fixed_bank(self):
         background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy();actors=[]
         for i in range(2):
