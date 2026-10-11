@@ -1,0 +1,9 @@
+{
+  "schema": "BYOR_RASTER_NATIVE_DEFAULT_PATH_REGRESSION_V1",
+  "before_commit": "6802181cafa8c658f0d9d2ed3159afcd1f2e97e7",
+  "rom_sha256": [
+    "29aa7d9863ab4042de71cea0acdb8568a61f58bb6a6c5044ce7cda5879d5e9e6",
+    "29aa7d9863ab4042de71cea0acdb8568a61f58bb6a6c5044ce7cda5879d5e9e6"
+  ],
+  "byte_identity_verified": true
+}

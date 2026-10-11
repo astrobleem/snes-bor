@@ -31,9 +31,8 @@ def constrain_pairs(model,write_flags,slots,height,window):
     return ranges,peak
 
 
-def constrain(model, write_flags, slots, height, maximum_ranges, window, bank_destinations=None, packet_hints=None, event_hints=None):
+def constrain(model, write_flags, slots, height, maximum_ranges, window, bank_destinations=None, packet_hints=None, event_hints=None,line_windows=None):
     from raster_dma_partition import minimum_commit_span
-    color_limit = max((c for c in range(121) if minimum_commit_span(c) < window), default=0)
     ranges = {}
     peak = model.new_int_var(0, 4096, 'physicalPeak')
     for y in range(1, height):
@@ -41,6 +40,8 @@ def constrain(model, write_flags, slots, height, maximum_ranges, window, bank_de
                   if line == y for i, flag in values]
         if not events:
             continue
+        row_window=(line_windows or {}).get(y,window)
+        color_limit=max((c for c in range(121) if minimum_commit_span(c)<row_window),default=0)
         row = []
         hints = (packet_hints or {}).get(y, [])
         for r in range(maximum_ranges):
@@ -82,6 +83,6 @@ def constrain(model, write_flags, slots, height, maximum_ranges, window, bank_de
         # writes occupy distinct opaque slots, at most fifteen per bank.
         model.add(writes <= color_limit)
         model.add(sum(length for active, begin, end, length in row) >= writes)
-        model.add(cost <= window + 39)
+        model.add(cost <= row_window + 39)
         model.add(peak >= cost)
     return ranges, peak

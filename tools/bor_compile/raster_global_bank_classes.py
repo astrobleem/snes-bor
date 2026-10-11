@@ -83,6 +83,7 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
         live=[(i,b)for i,p in enumerate(pieces)if p['y']<=y<p['y']+p['height']for b in domains[i]]
         model.add(sum(masks[i,b]*(pieces[i]['width']//8)for i,b in live)<=maximum_tile_slivers)
     active_rows=sorted({y for y,key in users});window=residency_window_lines or 1
+    anchor=set()
     indices={}
     if persistent_word_indices:
         for key,variables in words.items():
@@ -92,10 +93,22 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
                 model.add(index>=16*b+1).only_enforce_if(v);model.add(index<=16*b+15).only_enforce_if(v)
     for y in active_rows:
         needed={key for yy,key in users if y<=yy<y+window}
-        if indices:model.add_all_different([indices[key]for key in needed])
+        if indices:
+            model.add_all_different([indices[key]for key in needed])
+            if len(needed)>len(anchor):anchor=needed
         for b in range(8):
             variables=[words[key][b]for key in needed if b in words[key]]
             if variables:model.add(sum(variables)<=15)
+    # Slot labels have no transfer cost in this geometry-only constructor.
+    # A co-live clique has distinct slots in each chosen bank, so sort just
+    # those slots within each bank to remove equivalent label permutations.
+    if indices:
+        preceding=[]
+        for key in sorted(anchor):
+            for b,v in words[key].items():
+                rank=sum(words[old][b]for old in preceding if b in words[old])
+                model.add(indices[key]==16*b+1+rank).only_enforce_if(v)
+            preceding.append(key)
     model.minimize(sum(masks.values()))
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
@@ -105,7 +118,8 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
         solver_constraints=len(model.proto.constraints),solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
         maximum_tile_slivers=maximum_tile_slivers,residency_window_lines=residency_window_lines,
         global_word_bank_identity_restricted=True,oam_and_sprite_admission_deferred=True,
-        persistent_word_indices=persistent_word_indices,
+        persistent_word_indices=persistent_word_indices,persistent_slot_symmetry_anchor_words=len(anchor),
+        persistent_slot_symmetry_excludes_transfer_constraints=True,
         physical_transfer_admitted=False,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     if status not in(cp_model.OPTIMAL,cp_model.FEASIBLE):return result
     expanded=[];assignment=[]

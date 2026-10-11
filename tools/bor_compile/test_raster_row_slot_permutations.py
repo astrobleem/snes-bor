@@ -21,6 +21,38 @@ class RowSlotPermutationTests(unittest.TestCase):
         self.assertEqual(result['compiled_schedule_sha256'],hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest())
         self.assertFalse(result['physical_slot_layout']['native_timing_admitted'])
 
+    def test_source_word_verified_physical_hint(self):
+        import copy
+        source=fixtures.SlotLayoutTests().schedule()
+        hint=optimize(source,356,10,free_residency=True)
+        result=optimize(source,356,10,free_residency=True,layout_hint=hint)
+        self.assertTrue(result['physical_slot_layout']['physical_layout_hint_used'])
+        self.assertTrue(result['physical_slot_layout']['pixel_color_identity_verified'])
+        invalid=copy.deepcopy(hint);invalid['source_rgb555_sha256']='different'
+        with self.assertRaisesRegex(ValueError,'ROW_SLOT_HINT_IDENTITY'):
+            optimize(source,356,10,free_residency=True,layout_hint=invalid)
+
+    def test_local_repair_keeps_surrounding_physical_states_and_full_pixels(self):
+        source=fixtures.SlotLayoutTests().schedule()
+        hint=optimize(source,356,10,free_residency=True)
+        result=optimize(source,1,10,free_residency=True,layout_hint=hint,repair_interval=(1,1))
+        self.assertFalse(result['physical_slot_layout']['full_frame_transfer_window_enforced'])
+        self.assertEqual(result['physical_slot_layout']['physical_repair_interval'],[1,1])
+        self.assertEqual(result['physical_slot_layout']['physical_repair_transfer_interval'],[1,2])
+        self.assertEqual(result['physical_slot_layout']['requested_repair_window_master_clocks'],1)
+        def states(schedule):
+            state={b:[None]*15 for b in range(8)};rows=[]
+            for row in schedule['trace']:
+                for event in row['updates']:state[event['bank']][event['slot']-1]=event['color']
+                rows.append({b:values.copy()for b,values in state.items()})
+            return rows
+        a,b=states(hint),states(result)
+        self.assertTrue(all(a[y]==b[y]for y in range(len(a))if y!=1))
+        _,_,before=demand(source);_,_,after=demand(result)
+        self.assertTrue(all(np.array_equal(a,b)for a,b in zip(before,after)))
+        with self.assertRaisesRegex(ValueError,'ROW_SLOT_REPAIR_DOMAIN'):
+            optimize(source,356,10,repair_interval=(1,1))
+
     def test_invalid_transfer_domain_is_explicit(self):
         with self.assertRaisesRegex(ValueError,'ROW_SLOT_PERMUTATION_DOMAIN'):
             optimize(fixtures.SlotLayoutTests().schedule(),0,10)
