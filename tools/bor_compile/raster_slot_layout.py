@@ -4,7 +4,7 @@ Piece geometry stays fixed; bank permutations preserve color-math eligibility.
 A solver timeout
 does not reject raster. Native CPU/setup/contention admission remains separate.
 """
-import argparse,copy,hashlib,json
+import argparse,copy,hashlib,json,math
 from pathlib import Path
 import numpy as np
 from raster_obj_compact import unpack
@@ -240,14 +240,16 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         ranges,peak=constrain_pairs(model,write_flags,slots,height,window)if paired_bank_ranges else constrain(model,write_flags,slots,height,maximum_ranges,window,destinations if reorder_banks else None,packet_hints,event_hints)
         all_costs=[sum(24*a+16*n for(line,r),(a,begin,end,n)in ranges.items()if line==y)for y in range(1,height)]
     for i,segment in enumerate(segments):model.add_hint(slots[i],hinted.get(i,(segment['old_slot'],0))[0])
+    objective_scale=4096*len(all_costs)+1
     if feasibility_only:pass
-    elif lifetime_repair_interval is None:model.minimize(peak*(4096*len(all_costs)+1)+sum(all_costs))
+    elif lifetime_repair_interval is None:model.minimize(peak*objective_scale+sum(all_costs))
     else:
         left,right=lifetime_repair_interval;costs=[];repair_peak=model.new_int_var(0,4096,'lifetimeRepairPeak')
         for y in range(max(1,left),right+1):
             cost=sum(24*a+16*n for(line,r),(a,begin,end,n)in ranges.items()if line==y)
             model.add(repair_peak>=cost);costs.append(cost)
-        model.minimize(repair_peak*(4096*len(costs)+1)+sum(costs))
+        objective_scale=4096*len(costs)+1
+        model.minimize(repair_peak*objective_scale+sum(costs))
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     if search_strategy=='lns':solver.parameters.use_lns_only=True
     solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
@@ -256,6 +258,9 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
                 solver_search_strategy=search_strategy,
                 solver_objective='FEASIBILITY_ONLY'if feasibility_only else('PEAK_THEN_TOTAL_TRANSFER_COST'if lifetime_repair_interval is None else'REPAIR_PEAK_THEN_REPAIR_TOTAL_TRANSFER_COST'),
+                solver_objective_lower_bound=None if feasibility_only else solver.best_objective_bound,
+                restricted_family_peak_span_lower_bound=None if feasibility_only else max(0,8*math.ceil(math.floor(solver.best_objective_bound/objective_scale)/8)-40),
+                lower_bound_scope=None if feasibility_only else 'SUPPLIED_PIECES_BANKS_LIFETIME_GROUPING_AND_TIMING_CONSTRAINTS',
                 lifetime_segments=len(segments),window_master_clocks=window,maximum_ranges=maximum_ranges,
                 input_schedule_noninitial_prefetch_latency_lines=max((first_use[i]-segments[i]['first']for i in last_use if segments[i]['first']>0),default=0),
                 trim_dead_residents=trim_dead_residents,used_lifetime_segments=len(last_use),

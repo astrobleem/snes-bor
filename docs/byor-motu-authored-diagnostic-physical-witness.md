@@ -37,3 +37,12 @@ after 90.201 seconds. Fixed-write-time optimization from the verified seed
 returns FEASIBLE after 180.126 seconds and lowers the physical peak to 472
 clocks. Full pixel and packet identities replay; this is neither an optimum
 proof nor native admission.
+
+The fixed-time search with a 472-clock bound returns FEASIBLE in 90.099
+seconds, retaining a 472-clock witness. Its weighted-objective lower bound
+is 386,376,007; the conservative extracted span bound is 383 clocks. Prepared
+spans are multiples of eight, so the derived necessary bound is 384 clocks,
+above even the generous 356-clock access window. This rejects only the
+supplied pieces, bank assignment, lifetime grouping and fixed write times.
+Movable residency and timing are not rejected. The report now exposes this
+bound and its restricted scope; all eighteen physical-layout tests pass.

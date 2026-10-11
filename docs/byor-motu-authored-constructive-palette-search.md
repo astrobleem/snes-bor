@@ -25,3 +25,8 @@ claimed. Defaults stay unchanged; no production source presentation is edited.
 
 NO color reduction or alpha adaptation is applied. Peak authored native proof,
 concurrent actors, live leases and MOTU gameplay remain open.
+
+All 63 focused scheduler and native-compiler tests pass. A fixed slot
+permutation with movable four-line timing neighborhoods returns UNKNOWN
+after 90.056 seconds, with 13,677 variables and 27,175 constraints. It rejects
+no raster family.

@@ -13,6 +13,7 @@ class SlotLayoutTests(unittest.TestCase):
         result=optimize(source,window=33,time_limit=3,feasibility_only=True)
         verify_packets(result)
         self.assertEqual(result['physical_slot_layout']['solver_objective'],'FEASIBILITY_ONLY')
+        self.assertIsNone(result['physical_slot_layout']['restricted_family_peak_span_lower_bound'])
         self.assertLess(result['physical_slot_layout']['peak_prepared_commit_span'],33)
         _,_,a=demand(source);_,_,b=demand(result)
         self.assertTrue(all(np.array_equal(x,y)for x,y in zip(a,b)))
@@ -35,6 +36,7 @@ class SlotLayoutTests(unittest.TestCase):
         costs=[r['prepared_commit_span']for r in accepted['prepared_dma_packets']]
         self.assertEqual((max(costs),sum(costs)),(32,32))
         self.assertEqual(accepted['physical_slot_layout']['solver_objective'],'PEAK_THEN_TOTAL_TRANSFER_COST')
+        self.assertEqual(accepted['physical_slot_layout']['restricted_family_peak_span_lower_bound'],32)
         self.assertEqual(accepted['physical_slot_layout']['necessary_bank_window_master_clocks'],33)
         with self.assertRaisesRegex(ValueError,'NECESSARY_BANK_WINDOW_DOMAIN'):
             optimize(source,necessary_bank_window=33)
