@@ -1,0 +1,35 @@
+{
+  "schema": "BYOR_ROW_MASK_INTERVAL_CACHE_RECEIPT_V1",
+  "fixed_bank_per_compiled_oam_entry": true,
+  "source_pixel_exact_row_masks": true,
+  "hardware_limits": {
+    "oam": 128,
+    "sprites_per_line": 32,
+    "tile_slivers_per_line": 34,
+    "opaque_slots_per_bank": 15
+  },
+  "interval_trial_status": "UNKNOWN",
+  "interval_variables": 51056,
+  "interval_constraints": 110690,
+  "interval_branches": 1899884,
+  "interval_conflicts": 20490,
+  "maximum_loads_per_word_bank": 2,
+  "write_budget": 21,
+  "lookahead": 16,
+  "search_family_reload_limit_explicit": true,
+  "physical_transfer_admitted": false,
+  "native_authored_peak_admitted": false,
+  "production_runtime_admitted": false,
+  "motu_demo_complete": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true,
+  "focused_tests_passed": 37,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "artifact_hashes": {
+    "byor-motu-authored-peak-add-phase44-row-word-masks4-cache21-logical-no-lp": "a99d69bc796580d6645079993be33bb1689a28bd88d73ab555b08101ee9ea945",
+    "byor-motu-authored-peak-add-phase44-row-word-masks-interval-loads2": "cbf35c0f38fdded202fe4d48bc461f34061ed7ceae67136c4d8d7e19cbe0053d"
+  }
+}

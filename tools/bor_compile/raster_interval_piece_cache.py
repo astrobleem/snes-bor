@@ -11,9 +11,10 @@ from raster_global_bank_classes import rebuild_schedule
 from raster_word_cache_repair import compile_cache_rows
 
 
-def optimize(source,time_limit=120,write_budget=21,lookahead=55,maximum_loads=2):
+def optimize(source,time_limit=120,write_budget=21,lookahead=55,maximum_loads=2,row_word_masks=False,maximum_masks_per_piece=4):
     from ortools.sat.python import cp_model
     if time_limit<=0 or not 0<=write_budget<=120 or lookahead<0 or not 1<=maximum_loads<=8:raise ValueError('INTERVAL_PIECE_CACHE_DOMAIN')
+    if not 1<=maximum_masks_per_piece<=8:raise ValueError('INTERVAL_PIECE_CACHE_MASK_DOMAIN')
     _,_,images=demand(source);pieces=copy.deepcopy(source['pieces']);groups=bank_groups(source);owners={};domains=[]
     for i,(p,image)in enumerate(zip(pieces,images)):
         p['rows']={p['y']+y:sorted(set(map(int,row[row>=0])))for y,row in enumerate(image)if np.any(row>=0)}
@@ -23,10 +24,22 @@ def optimize(source,time_limit=120,write_budget=21,lookahead=55,maximum_loads=2)
             for c in cs:
                 for b in domains[-1]:owners.setdefault((c,b,y),set()).add(i)
     first=min(y for c,b,y in owners);last=max(y for c,b,y in owners);height=last-first+1
-    model=cp_model.CpModel();selection=[];required={};color_uses={};aliases={}
+    model=cp_model.CpModel();selection={};masks={};required={};color_uses={};aliases={}
     for i,p in enumerate(pieces):
-        choices={b:model.new_bool_var(f'piece{i}_{b}')for b in domains[i]};model.add_exactly_one(list(choices.values()));selection.append(choices)
-        for b,v in choices.items():model.add_hint(v,int(b==p['bank']))
+        keys=[(i,c,y)for y,cs in p['rows'].items()for c in cs]if row_word_masks else[i]
+        for key in keys:
+            choices={b:model.new_bool_var(f'piece{key}_{b}')for b in domains[i]};model.add_exactly_one(list(choices.values()));selection[key]=choices
+            for b,v in choices.items():model.add_hint(v,int(b==p['bank']))
+        for b in domains[i]:
+            mask=model.new_bool_var(f'mask{i}_{b}')if row_word_masks else selection[i][b]
+            if row_word_masks:model.add_max_equality(mask,[selection[key][b]for key in keys])
+            masks[i,b]=mask
+        if row_word_masks:model.add(sum(masks[i,b]for b in domains[i])<=maximum_masks_per_piece)
+    def selected(i,c,y,b):return selection[(i,c,y)if row_word_masks else i][b]
+    model.add(sum(masks.values())<=128)
+    for y in range(first,last+1):
+        live=[(i,v)for(i,b),v in masks.items()if pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height']]
+        model.add(sum(v for i,v in live)<=32);model.add(sum(v*(pieces[i]['width']//8)for i,v in live)<=34)
     canonical_groups=[]
     # These labels are interchangeable only because this model has no physical
     # address or DMA range constraints. Explicit narrower domains disable it.
@@ -36,9 +49,9 @@ def optimize(source,time_limit=120,write_budget=21,lookahead=55,maximum_loads=2)
         if not indices:continue
         canonical_groups.append(group)
         for position,i in enumerate(indices):
-            for left,right in zip(group,group[1:]):model.add(selection[i][right]<=sum(selection[j][left]for j in indices[:position]))
+            for left,right in zip(group,group[1:]):model.add(masks[i,right]<=sum(masks[j,left]for j in indices[:position+int(row_word_masks)]))
     for(c,b,y),indices in owners.items():
-        options=[selection[i][b]for i in sorted(indices)];signature=tuple(v.index for v in options)
+        options=[selected(i,c,y,b)for i in sorted(indices)];signature=tuple(v.index for v in options)
         if len(options)==1:r=options[0]
         else:
             if signature not in aliases:
@@ -78,12 +91,17 @@ def optimize(source,time_limit=120,write_budget=21,lookahead=55,maximum_loads=2)
     status=solver.solve(model)
     report=dict(schema='BYOR_BOUNDED_RELOAD_INTERVAL_PIECE_CACHE_V1',status='BOUNDED_INTERVAL_CACHE_NO_CANDIDATE',solver_status=solver.status_name(status),
         solver_seconds=solver.wall_time,branches=solver.num_branches,conflicts=solver.num_conflicts,variables=len(model.proto.variables),constraints=len(model.proto.constraints),
-        maximum_loads_per_word_bank=maximum_loads,write_budget=write_budget,lookahead=lookahead,source_piece_geometry_and_encoding_class_fixed=True,
+        maximum_loads_per_word_bank=maximum_loads,write_budget=write_budget,lookahead=lookahead,source_piece_geometry_and_encoding_class_fixed=not row_word_masks,source_rectangles_and_encoding_classes_fixed=True,
+        row_word_masks_allowed=row_word_masks,maximum_masks_per_piece=maximum_masks_per_piece if row_word_masks else 1,fixed_bank_per_compiled_oam_entry=True,
         bank_labels_canonicalized_without_transfer_constraints=canonical_groups,
         word_bank_copies_allowed=True,shared_color_residency_counted_once_per_bank=True,physical_transfer_admitted=False,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return report
-    assignment=[next(b for b,v in choices.items()if solver.value(v))for choices in selection]
-    frame=rebuild_schedule(source,dict(status='JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN',pieces=[dict(p,source_piece=i)for i,p in enumerate(pieces)],assignment=assignment,pixel_word_identities_replayed=True),lookahead)
+    expanded=[];assignment=[]
+    for i,p in enumerate(pieces):
+        for b in domains[i]:
+            rs={y:[c for c in cs if solver.value(selected(i,c,y,b))]for y,cs in p['rows'].items()}
+            if any(rs.values()):expanded.append(dict(p,source_piece=i,rows=rs));assignment.append(b)
+    frame=rebuild_schedule(source,dict(status='JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN',pieces=expanded,assignment=assignment,pixel_word_identities_replayed=True),lookahead)
     rows={y:{b:set()for b in range(8)}for y in range(first,last+1)}
     for(c,b),segments in loads.items():
         for present,start,end in segments:
@@ -102,7 +120,8 @@ def main():
     parser.add_argument('--schedule',type=Path,required=True);parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--time-limit',type=float,default=120);parser.add_argument('--write-budget',type=int,default=21)
     parser.add_argument('--lookahead',type=int,default=55);parser.add_argument('--maximum-loads',type=int,default=2)
-    args=parser.parse_args();result=optimize(json.loads(args.schedule.read_text()),args.time_limit,args.write_budget,args.lookahead,args.maximum_loads)
+    parser.add_argument('--row-word-masks',action='store_true');parser.add_argument('--maximum-masks-per-piece',type=int,default=4)
+    args=parser.parse_args();result=optimize(json.loads(args.schedule.read_text()),args.time_limit,args.write_budget,args.lookahead,args.maximum_loads,args.row_word_masks,args.maximum_masks_per_piece)
     args.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('interval_piece_cache',result)))
 
 
