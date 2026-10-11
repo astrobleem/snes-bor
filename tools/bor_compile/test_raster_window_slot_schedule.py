@@ -27,6 +27,10 @@ class WindowSlotTests(unittest.TestCase):
         self.assertEqual([r['resident_before']for r in repaired['trace'][2:]],[r['resident_before']for r in result['trace'][2:]])
         self.assertTrue(repaired['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
         with self.assertRaisesRegex(ValueError,'REPAIR_INTERVAL'):optimize(result,bg,expected,repair_interval=(4,3))
+        complete=optimize(source,bg,expected,time_limit=5,maximum_writes=0,complete_exact_operands=True)
+        verify_packets(complete)
+        self.assertEqual(complete['physical_slot_layout']['complete_rgb555_operand_covers'][4]['rgb555_operands_examined'],32768)
+        self.assertTrue(complete['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
 
     def test_mandatory_bank_lifetimes_require_writes_beyond_fifteen_colors(self):
         source=SlotLayoutTests().schedule();source['color_math']='additive';source['pieces']=[dict(source['pieces'][0],width=32,height=32)]

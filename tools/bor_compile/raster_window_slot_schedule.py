@@ -54,19 +54,31 @@ def derive(source,background,expected):
     return points,rows,[sorted(v)for v in tables],hint
 
 
-def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,necessary_bank_window=None,search_strategy='portfolio',reuse_exact_operands=False,repair_interval=None):
+def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,necessary_bank_window=None,search_strategy='portfolio',reuse_exact_operands=False,repair_interval=None,complete_exact_operands=False):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0 or type(maximum_writes)is not int or not 0<=maximum_writes<=120:raise ValueError('WINDOW_SLOT_DOMAIN')
     if search_strategy not in('portfolio','lns'):raise ValueError('WINDOW_SLOT_SEARCH_STRATEGY')
     if necessary_bank_window is not None and(type(necessary_bank_window)is not int or necessary_bank_window<1):raise ValueError('WINDOW_SLOT_BANK_WINDOW_DOMAIN')
     points,rows,tables,hint=derive(source,background,expected);first,last=min(rows),max(rows);height=len(source['trace'])
     if repair_interval is not None and(len(repair_interval)!=2 or not first<=repair_interval[0]<=repair_interval[1]<=last):raise ValueError('WINDOW_SLOT_REPAIR_INTERVAL')
+    complete_options={};cover_reports={}
+    if complete_exact_operands:
+        from raster_obj_math_cover import complete_math_cover
+        for b in range(4,8):
+            items=[p for p in points if p['bank']==b]
+            if not items:continue
+            requirements={(p['output'],int(background[p['y'],p['x']]))for p in items}
+            modes=tuple(sorted({source['selected_modes'][str(p['y'])]for p in items}))
+            options,cover_reports[b]=complete_math_cover(requirements,modes=modes,tag_modes=True,retained_operands=tables[b])
+            complete_options[b]=options;tables[b]=sorted(set(tables[b])|{word for choices in options.values()for word in choices})
     codes=[{word:i for i,word in enumerate(table)}for table in tables]
     model=cp_model.CpModel();values={};flags={};gates={};selected_indices={};presence={};hint_values={};mandatory={};pixel_reads={}
     alternative_pixels=0
     for p in points:
         choices=[p['operand']]if p['operand']is not None else[]
-        if reuse_exact_operands and p['bank']>=4:
+        if complete_exact_operands and p['bank']>=4:
+            choices=complete_options[p['bank']][source['selected_modes'][str(p['y'])],p['output'],int(background[p['y'],p['x']])]
+        elif reuse_exact_operands and p['bank']>=4:
             choices=[word for word in tables[p['bank']]if apply_math(word,int(background[p['y'],p['x']]),source['selected_modes'][str(p['y'])])==p['output']]
         p['operand_choices']=choices;alternative_pixels+=len(choices)>1
     for y,items in rows.items():
@@ -165,6 +177,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         maximum_physical_writes=maximum_writes,necessary_bank_window_master_clocks=necessary_bank_window,physical_window_master_clocks=window,
         mandatory_identity_bank_interval_cuts=interval_cuts,
         resident_exact_operand_reuse_enabled=reuse_exact_operands,pixels_with_multiple_exact_operand_choices=alternative_pixels,
+        complete_rgb555_operand_covers=cover_reports,
         repair_interval=repair_interval,
         native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return dict(report,status='BOUNDED_WINDOW_SLOT_NO_CANDIDATE')
@@ -243,6 +256,7 @@ def main():
     p.add_argument('--necessary-bank-window',type=int);p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
     p.add_argument('--reuse-exact-operands',action='store_true')
     p.add_argument('--repair-interval',type=int,nargs=2)
+    p.add_argument('--complete-exact-operands',action='store_true')
     a=p.parse_args()
     from compiler import Source
     from source_scene_obj_raster import prepare
@@ -252,7 +266,7 @@ def main():
     _,metadata,expected=prepare(source,a.stage,scene)
     if schedule['metadata']!=metadata:raise ValueError('WINDOW_SLOT_SOURCE_METADATA_IDENTITY')
     background=rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0])
-    result=optimize(schedule,background,rgb555(expected),a.window,a.time_limit,a.maximum_writes,a.necessary_bank_window,a.search_strategy,a.reuse_exact_operands,a.repair_interval)
+    result=optimize(schedule,background,rgb555(expected),a.window,a.time_limit,a.maximum_writes,a.necessary_bank_window,a.search_strategy,a.reuse_exact_operands,a.repair_interval,a.complete_exact_operands)
     Path(a.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('physical_slot_layout',result)))
 
 

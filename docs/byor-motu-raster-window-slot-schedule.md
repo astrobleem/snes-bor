@@ -49,3 +49,11 @@ frame. Complete replay remains exact at 472 clocks; the native gate remains
 UNKNOWN. Saturation reuse and a bounded repair interval have focused tests.
 Repairs retain surrounding palette states and charge the boundary update.
 Mandatory distinct words also receive explicit slot matching constraints.
+
+The complete operand option enumerator examines all 32768 RGB555 words for
+each eligible bank, retaining seeded words and coverage dominance witnesses.
+The shared modes remain fixed. It finds the same six pixels with multiple
+valid choices in this frame and retains the 472-clock result. All source math,
+transparency and CGRAM identities replay exactly; twelve focused tests pass.
+This rules out a missing operand vocabulary improvement for those fixed modes
+and banks, but does not prove the slot schedule optimal or reject raster.
