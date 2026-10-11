@@ -8,6 +8,30 @@ from test_raster_slot_greedy import source_schedule
 
 
 class TransferCacheTests(unittest.TestCase):
+    def test_linear_master_preserves_fractional_and_failure_scopes(self):
+        r=search(source_schedule(),write_budget=2,lookahead=0,time_limit=5,master_seconds=2,master_backend='highs')
+        self.assertEqual(r['status'],'INTEGER_BANK_BUDGET_FRACTIONAL_CACHE_CANDIDATE')
+        self.assertAlmostEqual(r['iterations'][-1]['cache_fractional_deficit'],0)
+        self.assertFalse(r['compiled_pixel_identity_verified'])
+        self.assertFalse(r['native_timing_admitted'])
+        r=search(source_schedule(),write_budget=1,time_limit=5,master_seconds=2,master_backend='highs')
+        self.assertTrue(r['fixed_bank_transfer_family_rejected'])
+        self.assertFalse(r['universal_raster_rejected'])
+        with self.assertRaisesRegex(ValueError,'MASTER_BACKEND'):
+            search(source_schedule(),master_backend='highs',range_backend='adjacent')
+
+    def test_budget_hint_is_checked_and_never_grants_pixel_admission(self):
+        first=search(source_schedule(),write_budget=2,lookahead=0,time_limit=5,master_seconds=1)
+        result=search(source_schedule(),write_budget=2,lookahead=0,time_limit=5,master_seconds=1,budget_hint=first['bank_write_caps'])
+        self.assertTrue(result['budget_hint_supplied'])
+        self.assertEqual(result['status'],'INTEGER_BANK_BUDGET_FRACTIONAL_CACHE_CANDIDATE')
+        self.assertFalse(result['compiled_pixel_identity_verified'])
+        self.assertFalse(result['native_timing_admitted'])
+        for bad in ({},dict(first['bank_write_caps'],junk=[0]*8)):
+            with self.assertRaises(ValueError):search(source_schedule(),budget_hint=bad)
+        bad=copy.deepcopy(first['bank_write_caps']);next(iter(bad.values()))[0]=True
+        with self.assertRaisesRegex(ValueError,'BUDGET_HINT_DOMAIN'):search(source_schedule(),budget_hint=bad)
+
     def test_positive_deficit_cut_excludes_bad_budget_and_keeps_every_feasible_budget(self):
         # Required resident R=1, R<=W, and W<=budget+deficit.
         matrix=csc_matrix([[1,-1,0],[-1,0,0],[0,1,-1]])

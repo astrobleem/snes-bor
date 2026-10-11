@@ -10,7 +10,7 @@ import numpy as np
 from scipy.optimize import linprog
 from scipy.sparse import coo_matrix
 from raster_slot_greedy import demand
-from raster_bank_residency import favorable_span,constrain_flow,constrain_adjacent
+from raster_bank_residency import favorable_span,constrain_flow,constrain_adjacent,solve_linear
 
 
 def cache_cut(matrix,objective,rhs,upper,capacity_rows,lp,plan):
@@ -37,16 +37,23 @@ def cache_cut(matrix,objective,rhs,upper,capacity_rows,lp,plan):
     return coefficients,cut_rhs,certificate
 
 
-def search(source,window=345,write_budget=21,lookahead=90,time_limit=120,iterations=20,master_seconds=5,range_backend='flow'):
+def search(source,window=345,write_budget=21,lookahead=90,time_limit=120,iterations=20,master_seconds=5,range_backend='flow',master_backend='cp-sat',budget_hint=None):
     from ortools.sat.python import cp_model
     if (type(window)is not int or window<1 or type(write_budget)is not int or not 0<=write_budget<=120 or
         type(lookahead)is not int or lookahead<0 or time_limit<=0 or iterations<1 or master_seconds<=0):
         raise ValueError('TRANSFER_CACHE_DECOMPOSITION_DOMAIN')
     if range_backend not in('flow','adjacent'):raise ValueError('TRANSFER_CACHE_RANGE_BACKEND')
+    if master_backend not in('cp-sat','highs')or(master_backend=='highs'and range_backend!='flow'):raise ValueError('TRANSFER_CACHE_MASTER_BACKEND')
     required,uses,_=demand(source);height=len(required)
     visible=[y for y,row in enumerate(required)if any(row)]
     if not visible:raise ValueError('TRANSFER_CACHE_EMPTY_DEMAND')
     first,last=min(visible),max(visible)
+    if budget_hint is not None:
+        if not isinstance(budget_hint,dict):raise ValueError('TRANSFER_CACHE_BUDGET_HINT_DOMAIN')
+        budget_hint={int(y):row for y,row in budget_hint.items()}
+        if (set(budget_hint)!=set(range(first+1,last+1))or
+            any(not isinstance(row,list)or len(row)!=8 or any(type(n)is not int or not 0<=n<=15 for n in row)or sum(row)>write_budget for row in budget_hint.values())):
+            raise ValueError('TRANSFER_CACHE_BUDGET_HINT_DOMAIN')
     resident={(b,c,y):i for i,(b,c,y)in enumerate((b,c,y)for b in range(8)for c,lines in sorted(uses[b].items())for y in range(first,max(lines)+1))}
     writes={key:len(resident)+i for i,key in enumerate(key for key in resident if key[2]>first)}
     deficit=len(resident)+len(writes);bounds=[(0,1)]*deficit+[(0,None)]
@@ -69,14 +76,14 @@ def search(source,window=345,write_budget=21,lookahead=90,time_limit=120,iterati
     objective=np.zeros(deficit+1);objective[deficit]=1
     model=cp_model.CpModel();counts={};prefix={};flags={};hint={}
     for y in range(first+1,last+1):
-        hint[y]=[sum(e['bank']==b for e in source['trace'][y]['updates'])for b in range(8)]
+        hint[y]=budget_hint[y]if budget_hint is not None else[sum(e['bank']==b for e in source['trace'][y]['updates'])for b in range(8)]
         for b in range(8):
             w=model.new_int_var(0,15,f'count{y}_{b}');counts[y,b]=w
             a=model.new_bool_var(f'active{y}_{b}');flags[y,b]=a
             model.add(w<=15*a);model.add(w>=a)
             model.add_hint(w,hint[y][b]);model.add_hint(a,int(hint[y][b]>0))
         model.add(sum(counts[y,b]for b in range(8))<=write_budget)
-        if range_backend=='flow':constrain_flow(model,[counts[y,b]for b in range(8)],[flags[y,b]for b in range(8)],window,f'line{y}')
+        if range_backend=='flow':constrain_flow(model,[counts[y,b]for b in range(8)],[flags[y,b]for b in range(8)],window,f'line{y}',linear=master_backend=='highs',hint_counts=hint[y])
         else:constrain_adjacent(model,[counts[y,b]for b in range(8)],[flags[y,b]for b in range(8)],window,f'line{y}',write_budget)
     interval_cuts=0
     for b in range(8):
@@ -92,14 +99,21 @@ def search(source,window=345,write_budget=21,lookahead=90,time_limit=120,iterati
                     model.add(prefix[right,b]-prefix[left,b]>=len(union)-15);interval_cuts+=1
     rows=[];certificates=[];started=time.monotonic();candidate=None;master_status=None
     while len(rows)<iterations and time.monotonic()-started<time_limit:
-        solver=cp_model.CpSolver();solver.parameters.num_search_workers=4
-        solver.parameters.max_time_in_seconds=min(master_seconds,time_limit-(time.monotonic()-started))
-        solver.parameters.cp_model_probing_level=0
-        status=solver.solve(model);master_status=solver.status_name(status)
-        report=dict(iteration=len(rows),master_status=master_status,master_seconds=solver.wall_time)
+        duration=min(master_seconds,time_limit-(time.monotonic()-started))
+        if master_backend=='highs':
+            value,statistics=solve_linear(model,duration)
+            master_status=statistics['solver_status'];elapsed=statistics['solver_seconds']
+        else:
+            solver=cp_model.CpSolver();solver.parameters.num_search_workers=4
+            solver.parameters.max_time_in_seconds=duration
+            solver.parameters.cp_model_probing_level=0
+            status=solver.solve(model);master_status=solver.status_name(status)
+            value=solver.value if status in(cp_model.FEASIBLE,cp_model.OPTIMAL)else None
+            elapsed=solver.wall_time
+        report=dict(iteration=len(rows),master_status=master_status,master_seconds=elapsed)
         rows.append(report)
-        if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):break
-        plan={key:solver.value(v)for key,v in counts.items()}
+        if value is None:break
+        plan={key:value(v)for key,v in counts.items()}
         for key,index in capacity_rows.items():rhs[index]=plan[key]
         lp=linprog(objective,A_ub=matrix,b_ub=rhs,bounds=bounds,method='highs-ipm',options={'time_limit':30})
         if not lp.success:
@@ -128,7 +142,7 @@ def search(source,window=345,write_budget=21,lookahead=90,time_limit=120,iterati
         seconds=time.monotonic()-started,iterations=rows,certified_cuts=certificates,
         interval_cuts=interval_cuts,cache_lp_variables=deficit+1,cache_lp_constraints=len(rhs),
         integer_bank_transfer_budgets=True,fractional_cache_only=True,
-        range_backend=range_backend,ranges_restricted_to_single_or_adjacent_pair=range_backend=='adjacent',
+        range_backend=range_backend,master_backend=master_backend,budget_hint_supplied=budget_hint is not None,ranges_restricted_to_single_or_adjacent_pair=range_backend=='adjacent',
         physical_slot_schedule_proven=False,compiled_pixel_identity_verified=False,
         native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     if candidate is not None:
@@ -147,7 +161,11 @@ def main():
     p.add_argument('--lookahead',type=int,default=90);p.add_argument('--time-limit',type=float,default=120)
     p.add_argument('--iterations',type=int,default=20);p.add_argument('--master-seconds',type=float,default=5)
     p.add_argument('--range-backend',choices=('flow','adjacent'),default='flow')
-    a=p.parse_args();r=search(json.loads(a.schedule.read_text()),a.window,a.write_budget,a.lookahead,a.time_limit,a.iterations,a.master_seconds,a.range_backend)
+    p.add_argument('--master-backend',choices=('cp-sat','highs'),default='cp-sat')
+    p.add_argument('--budget-hint',type=Path,help='Per-line eight-bank budgets, or an object containing bank_write_caps; hints grant no cache admission.')
+    a=p.parse_args();hint=json.loads(a.budget_hint.read_text())if a.budget_hint else None
+    if hint is not None:hint=hint.get('bank_write_caps',hint)
+    r=search(json.loads(a.schedule.read_text()),a.window,a.write_budget,a.lookahead,a.time_limit,a.iterations,a.master_seconds,a.range_backend,a.master_backend,hint)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items()if k not in('iterations','certified_cuts','bank_write_caps')}))
 
 
