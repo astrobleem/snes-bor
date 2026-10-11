@@ -196,7 +196,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 model.add(count==sum(flag for i,flag in write_flags.get((y,b),[])));counts.append(count)
                 flag=model.new_bool_var(f'idealActive{y}_{b}');model.add(count>=flag);model.add(count<=15*flag);active.append(flag)
             constrain_dp(model,counts,active,necessary_bank_window,f'idealLifetimeBank{y}',4)
-    ranges={};peak=model.new_int_var(0,4096,'peak')
+    ranges={};peak=model.new_int_var(0,4096,'peak');all_costs=[]
     for y in range(1,height):
         if split_bank_ranges:break
         banks=[b for b in range(8)if(y,b)in(write_flags if flexible_prefetch else starts)]
@@ -229,7 +229,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         for b,values in cover.items():
             if flexible_prefetch:model.add(sum(values)<=1);model.add(sum(values)>=active[b])
             else:model.add(sum(values)==1)
-        model.add(sum(selected)<=maximum_ranges);model.add(sum(costs)<=window+39);model.add(peak>=sum(costs))
+        model.add(sum(selected)<=maximum_ranges);model.add(sum(costs)<=window+39);model.add(peak>=sum(costs));all_costs.append(sum(costs))
     if split_bank_ranges:
         from raster_physical_ranges import constrain,constrain_pairs
         if not flexible_prefetch:write_flags={key:[(i,model.new_constant(1))for i in values]for key,values in starts.items()}
@@ -237,8 +237,9 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         if layout_hint and layout_hint.get('prepared_dma_packets'):
             packet_hints={row['scanline']:sorted((p['cgram_word_address']-128,p['cgram_word_address']-128+p['word_count']-1)for p in row['packets'])for row in layout_hint['prepared_dma_packets']}
         ranges,peak=constrain_pairs(model,write_flags,slots,height,window)if paired_bank_ranges else constrain(model,write_flags,slots,height,maximum_ranges,window,destinations if reorder_banks else None,packet_hints,event_hints)
+        all_costs=[sum(24*a+16*n for(line,r),(a,begin,end,n)in ranges.items()if line==y)for y in range(1,height)]
     for i,segment in enumerate(segments):model.add_hint(slots[i],hinted.get(i,(segment['old_slot'],0))[0])
-    if lifetime_repair_interval is None:model.minimize(peak)
+    if lifetime_repair_interval is None:model.minimize(peak*(4096*len(all_costs)+1)+sum(all_costs))
     else:
         left,right=lifetime_repair_interval;costs=[];repair_peak=model.new_int_var(0,4096,'lifetimeRepairPeak')
         for y in range(max(1,left),right+1):
@@ -252,6 +253,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
     result=dict(schema='BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1',status='BOUNDED_SLOT_LAYOUT_NO_CANDIDATE',
                 solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
                 solver_search_strategy=search_strategy,
+                solver_objective='PEAK_THEN_TOTAL_TRANSFER_COST'if lifetime_repair_interval is None else'REPAIR_PEAK_THEN_REPAIR_TOTAL_TRANSFER_COST',
                 lifetime_segments=len(segments),window_master_clocks=window,maximum_ranges=maximum_ranges,
                 input_schedule_noninitial_prefetch_latency_lines=max((first_use[i]-segments[i]['first']for i in last_use if segments[i]['first']>0),default=0),
                 trim_dead_residents=trim_dead_residents,used_lifetime_segments=len(last_use),

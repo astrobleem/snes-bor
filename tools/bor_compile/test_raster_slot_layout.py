@@ -17,6 +17,9 @@ class SlotLayoutTests(unittest.TestCase):
             retain_write_times=True,split_bank_ranges=True,necessary_bank_window=33)
         verify_packets(accepted)
         self.assertTrue(all(favorable_span(r['updates'])<33 for r in accepted['trace'][1:]))
+        costs=[r['prepared_commit_span']for r in accepted['prepared_dma_packets']]
+        self.assertEqual((max(costs),sum(costs)),(32,32))
+        self.assertEqual(accepted['physical_slot_layout']['solver_objective'],'PEAK_THEN_TOTAL_TRANSFER_COST')
         self.assertEqual(accepted['physical_slot_layout']['necessary_bank_window_master_clocks'],33)
         with self.assertRaisesRegex(ValueError,'NECESSARY_BANK_WINDOW_DOMAIN'):
             optimize(source,necessary_bank_window=33)
