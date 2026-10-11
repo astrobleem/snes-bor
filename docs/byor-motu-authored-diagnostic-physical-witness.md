@@ -20,3 +20,8 @@ full frame. Neither diagnostic search nor local repair rejects raster.
 
 Authored alpha native proof, concurrent actors and production admission remain
 open. NO color reduction applied.
+
+Eight further repairs expand local windows through lines 126..149. All return
+FEASIBLE and preserve the full-frame pixel/CGRAM identities, write cap and
+ideal bank bound. Six improvements reduce aggregate span to 11,624 clocks;
+the peak remains 536 clocks. No native admission follows.

@@ -329,6 +329,269 @@
         "necessary_bank_window_master_clocks": 345,
         "full_frame_necessary_bank_window_verified": true
       }
+    },
+    {
+      "name": "diagnostic-refined2",
+      "artifact_sha256": "836ba7f4cc6898f0494e3c2265e0ce367581f1637c11b6f1dddddd6d93ba4346",
+      "physical_report": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 20.139512200000002,
+        "solver_search_strategy": "portfolio",
+        "solver_probing_level": 2,
+        "physical_range_encoding": "coverage",
+        "persistent_word_index_family_only": false,
+        "solver_model_variables": 15331,
+        "solver_model_constraints": 30417,
+        "solver_branches": 115067,
+        "solver_conflicts": 0,
+        "solver_objective_lower_bound": 28804591.0,
+        "maximum_physical_writes_per_transfer_row": 21,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_write_budget_enforced": false,
+        "objective_peak_scale": 90113,
+        "peak_commit_span_lower_bound_for_this_restricted_model": 279,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "window_master_clocks": 537,
+        "requested_repair_window_master_clocks": 537,
+        "physical_repair_interval": [
+          128,
+          148
+        ],
+        "physical_repair_transfer_interval": [
+          128,
+          149
+        ],
+        "full_frame_transfer_window_enforced": false,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "physical_change_and_range_membership_hints_coherent": true,
+        "distinct_required_word_slot_matching_enforced": true,
+        "full_bank_demand_value_matching_enforced": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": true,
+        "bank_interval_liveness_cuts": 7413,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 54,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          166
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "packet_ranges_independently_minimized": true,
+        "peak_prepared_commit_span": 536,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        }
+      },
+      "refinement": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 345,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              130,
+              142
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.0940619,
+            "model_variables": 9950,
+            "restricted_model_peak_span_lower_bound": 301,
+            "before": [
+              536,
+              12016
+            ],
+            "candidate": [
+              536,
+              12016
+            ],
+            "accepted": false
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              132,
+              144
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.075639600000002,
+            "model_variables": 9919,
+            "restricted_model_peak_span_lower_bound": 309,
+            "before": [
+              536,
+              12016
+            ],
+            "candidate": [
+              536,
+              11944
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 2,
+            "interval": [
+              135,
+              147
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.0611654,
+            "model_variables": 9880,
+            "restricted_model_peak_span_lower_bound": 312,
+            "before": [
+              536,
+              11944
+            ],
+            "candidate": [
+              536,
+              11832
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 3,
+            "interval": [
+              137,
+              149
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.0903692,
+            "model_variables": 9823,
+            "restricted_model_peak_span_lower_bound": 278,
+            "before": [
+              536,
+              11832
+            ],
+            "candidate": [
+              536,
+              11816
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 4,
+            "interval": [
+              128,
+              144
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.111567400000002,
+            "model_variables": 12656,
+            "restricted_model_peak_span_lower_bound": 253,
+            "before": [
+              536,
+              11816
+            ],
+            "candidate": [
+              536,
+              11752
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 5,
+            "interval": [
+              130,
+              146
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.0976679,
+            "model_variables": 12639,
+            "restricted_model_peak_span_lower_bound": 301,
+            "before": [
+              536,
+              11752
+            ],
+            "candidate": [
+              536,
+              11752
+            ],
+            "accepted": false
+          },
+          {
+            "iteration": 6,
+            "interval": [
+              126,
+              146
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.106718700000002,
+            "model_variables": 15328,
+            "restricted_model_peak_span_lower_bound": 252,
+            "before": [
+              536,
+              11752
+            ],
+            "candidate": [
+              536,
+              11640
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 7,
+            "interval": [
+              128,
+              148
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 20.139512200000002,
+            "model_variables": 15331,
+            "restricted_model_peak_span_lower_bound": 279,
+            "before": [
+              536,
+              11640
+            ],
+            "candidate": [
+              536,
+              11624
+            ],
+            "accepted": true
+          }
+        ],
+        "maximum_physical_writes_per_transfer_row": 21,
+        "full_frame_write_budget_verified": true,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_necessary_bank_window_verified": true
+      }
     }
   ],
   "native_timing_admitted": false,
