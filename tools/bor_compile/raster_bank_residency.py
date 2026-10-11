@@ -155,7 +155,7 @@ def constrain_adjacent(model,counts,active,window,tag,write_budget,maximum_range
     model.add_allowed_assignments([mask,total],allowed)
 
 
-def solve_linear(model,time_limit):
+def solve_linear(model,time_limit,continuous_variables=None):
     """Independent MILP backend for the same explicit integer linear model."""
     from scipy.optimize import milp,Bounds,LinearConstraint
     from scipy.sparse import coo_matrix
@@ -172,17 +172,21 @@ def solve_linear(model,time_limit):
     bounds=Bounds([d[0]for d in domains],[d[-1]for d in domains])
     objective=np.zeros(n)
     for i,c in zip(proto.objective.vars,proto.objective.coeffs):objective[i]=c
-    started=time.monotonic();r=milp(objective,integrality=np.ones(n),bounds=bounds,constraints=LinearConstraint(matrix,lower,upper),options={'time_limit':time_limit,'mip_rel_gap':0})
+    continuous=set(continuous_variables or ());integrality=np.ones(n)
+    if any(type(i)is not int or not 0<=i<n for i in continuous):raise ValueError('BANK_RESIDENCY_CONTINUOUS_DOMAIN')
+    for i in continuous:integrality[i]=0
+    started=time.monotonic();r=milp(objective,integrality=integrality,bounds=bounds,constraints=LinearConstraint(matrix,lower,upper),options={'time_limit':time_limit,'mip_rel_gap':0})
     report=dict(solver_backend='highs',solver_status=('OPTIMAL'if r.status==0 else'INFEASIBLE'if r.status==2 else'FEASIBLE'if r.x is not None else'UNKNOWN'),
         solver_seconds=time.monotonic()-started,solver_model_variables=n,solver_model_constraints=len(lower),solver_branches=getattr(r,'mip_node_count',None),solver_conflicts=None,
         solver_message=r.message)
     if r.x is None:return None,report
-    values=np.rint(r.x);lhs=matrix@values
+    values=np.where(integrality,np.rint(r.x),r.x);lhs=matrix@values
     violation=max(float(np.max(np.maximum(np.array(lower)-lhs,0))),float(np.max(np.maximum(lhs-np.array(upper),0))),
         float(np.max(np.maximum(bounds.lb-values,0))),float(np.max(np.maximum(values-bounds.ub,0))),float(np.max(np.abs(values-r.x))))
     if violation>1e-6:raise AssertionError('BANK_RESIDENCY_MILP_INTEGER_REPLAY')
     report['maximum_integer_constraint_violation']=violation
-    return lambda variable:int(values[variable.index]),report
+    report['fractional_cache_variables']=len(continuous)
+    return lambda variable:float(values[variable.index])if variable.index in continuous else int(values[variable.index]),report
 
 
 def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None,minimize_writes=False):
