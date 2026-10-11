@@ -6,6 +6,18 @@ from test_raster_slot_layout import SlotLayoutTests
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotRefinementTests(unittest.TestCase):
+    def test_necessary_bank_window_is_inherited_and_verified_globally(self):
+        from test_raster_slot_greedy import source_schedule
+        from raster_bank_residency import favorable_span
+        source=source_schedule();hint=optimize(source,1001,5,True,necessary_bank_window=33,range_encoding='coverage')
+        result=refine(source,hint,1,1,1,2,range_encoding='coverage')
+        report=result['physical_slot_refinement']
+        self.assertEqual(report['necessary_bank_window_master_clocks'],33)
+        self.assertTrue(report['full_frame_necessary_bank_window_verified'])
+        self.assertTrue(all(favorable_span(row['updates'])<33 for row in result['trace'][1:]))
+        bad=copy.deepcopy(hint);bad['physical_slot_layout']['necessary_bank_window_master_clocks']=32
+        with self.assertRaisesRegex(ValueError,'HINT_NECESSARY_BANK_WINDOW'):refine(source,bad)
+
     def test_met_offline_target_does_not_claim_native_admission(self):
         source=SlotLayoutTests().schedule();hint=optimize(source,356,10,True)
         result=refine(source,hint,356,1,1,1)

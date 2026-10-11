@@ -11,9 +11,10 @@ from raster_slot_greedy import demand,partition
 from raster_physical_ranges import constrain,constrain_fixed_addresses
 
 
-def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals',persistent_word_indices=False):
+def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals',persistent_word_indices=False,necessary_bank_window=None):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0:raise ValueError('ROW_SLOT_PERMUTATION_DOMAIN')
+    if necessary_bank_window is not None and(type(necessary_bank_window)is not int or necessary_bank_window<1):raise ValueError('ROW_SLOT_NECESSARY_BANK_WINDOW')
     if search_strategy not in('portfolio','lns'):raise ValueError('ROW_SLOT_SEARCH_STRATEGY')
     if range_encoding not in('intervals','coverage'):raise ValueError('ROW_SLOT_RANGE_ENCODING')
     if persistent_word_indices and(not free_residency or repair_interval is not None):raise ValueError('ROW_SLOT_PERSISTENT_INDEX_DOMAIN')
@@ -127,6 +128,17 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
                 if len(union)>15:
                     model.add(prefixes[right,b]-prefixes[left,b]>=len(union)-15);interval_cuts+=1
     transfer_flags={key:value for key,value in flags.items()if transfer_interval is None or transfer_interval[0]<=key[0]<=transfer_interval[1]}
+    if necessary_bank_window is not None:
+        from raster_bank_residency import constrain_dp
+        for y in sorted({line for line,b in transfer_flags}):
+            counts=[];active=[]
+            for b in range(8):
+                events=transfer_flags.get((y,b),[])
+                total=model.new_int_var(0,15,f'necessaryWrites{y}_{b}');model.add(total==sum(flag for i,flag in events));counts.append(total)
+                flag=model.new_bool_var(f'necessaryActive{y}_{b}');active.append(flag)
+                model.add(total>=flag);model.add(total<=15*flag)
+            model.add(16*sum(counts)+20*sum(active)<=necessary_bank_window+39)
+            constrain_dp(model,counts,active,necessary_bank_window,f'necessaryBank{y}',4)
     if maximum_writes is not None:
         for y in range(first+1,last+1):
             if transfer_interval is None or transfer_interval[0]<=y<=transfer_interval[1]:
@@ -160,6 +172,7 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
         solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
         solver_objective_lower_bound=solver.best_objective_bound,
         maximum_physical_writes_per_transfer_row=maximum_writes,
+        necessary_bank_window_master_clocks=necessary_bank_window,
         full_frame_write_budget_enforced=maximum_writes is not None and repair_interval is None and not restricted,
         objective_peak_scale=objective_scale,
         peak_commit_span_lower_bound_for_this_restricted_model=max(0,math.floor(solver.best_objective_bound/objective_scale)-40),
@@ -203,6 +216,9 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
         span=max(0,sum(16*p['word_count']+24 for p in groups)-40)
         if span>=(line_windows or {}).get(y,window):raise AssertionError('ROW_SLOT_PHYSICAL_WINDOW')
         packets.append(dict(scanline=y,packets=groups,prepared_commit_span=span))
+        if necessary_bank_window is not None and any(line==y for line,b in transfer_flags):
+            from raster_bank_residency import favorable_span
+            if favorable_span(events)>=necessary_bank_window:raise AssertionError('ROW_SLOT_NECESSARY_BANK_WINDOW_REPLAY')
         trace.append(dict(scanline=y,resident_before=copy.deepcopy(before),updates=events,
             retained={b:[c for c in before[b]if c is not None and c in state[b]]for b in range(8)},
             evicted=[e['old']for e in events if e['old']is not None],prefetched=[e for e in events if e['kind']!='required'],
@@ -246,12 +262,13 @@ def main():
     p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
     p.add_argument('--range-encoding',choices=('intervals','coverage'),default='intervals')
     p.add_argument('--persistent-word-indices',action='store_true',help='Optional restricted family assigning each bank word one index for the entire frame.')
+    p.add_argument('--necessary-bank-window',type=int,help='Also bound the ideal bank partition of every actual changed word; physical slot packing remains separately measured.')
     p.add_argument('--window',type=int,default=332);p.add_argument('--time-limit',type=float,default=60)
     a=p.parse_args();source=json.loads(a.schedule.read_text())
     if a.scanline_interval:
         from raster_bank_residency import restrict_interval
         source=restrict_interval(source,*a.scanline_interval)
-    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval,a.maximum_writes,a.search_strategy,a.range_encoding,a.persistent_word_indices);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.get('physical_slot_layout',r).items()if k!='word_indices'}))
+    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval,a.maximum_writes,a.search_strategy,a.range_encoding,a.persistent_word_indices,a.necessary_bank_window);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.get('physical_slot_layout',r).items()if k!='word_indices'}))
 
 
 if __name__=='__main__':main()

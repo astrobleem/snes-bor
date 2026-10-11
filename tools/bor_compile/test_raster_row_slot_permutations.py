@@ -7,6 +7,19 @@ import test_raster_slot_layout as fixtures
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class RowSlotPermutationTests(unittest.TestCase):
+    def test_necessary_bank_window_charges_all_physical_changes(self):
+        from test_raster_slot_greedy import source_schedule
+        from raster_bank_residency import favorable_span
+        source=source_schedule()
+        failed=optimize(source,1001,5,free_residency=True,necessary_bank_window=32,range_encoding='coverage')
+        self.assertEqual(failed['solver_status'],'INFEASIBLE')
+        result=optimize(source,1001,5,free_residency=True,necessary_bank_window=33,range_encoding='coverage')
+        self.assertTrue(result['physical_slot_layout']['pixel_color_identity_verified'])
+        self.assertEqual(result['physical_slot_layout']['necessary_bank_window_master_clocks'],33)
+        self.assertTrue(all(favorable_span(r['updates'])<33 for r in result['trace'][1:]))
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        with self.assertRaisesRegex(ValueError,'ROW_SLOT_NECESSARY_BANK_WINDOW'):optimize({},necessary_bank_window=0)
+
     def test_write_cap_counts_physical_changes_but_allows_initial_prefill(self):
         source=fixtures.SlotLayoutTests().schedule()
         result=optimize(source,356,10,free_residency=True,maximum_writes=0)

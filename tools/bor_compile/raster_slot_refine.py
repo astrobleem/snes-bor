@@ -35,7 +35,7 @@ def verify_packets(schedule):
         if span!=row['prepared_commit_span']:raise ValueError('SLOT_REFINEMENT_PACKET_SPAN')
 
 
-def refine(source,hint,target_window=348,iterations=6,radius=6,time_limit=20,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals'):
+def refine(source,hint,target_window=348,iterations=6,radius=6,time_limit=20,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals',necessary_bank_window=None):
     if target_window<1 or iterations<1 or radius<1 or time_limit<=0:
         raise ValueError('SLOT_REFINEMENT_DOMAIN')
     if search_strategy not in('portfolio','lns')or range_encoding not in('intervals','coverage'):
@@ -47,6 +47,11 @@ def refine(source,hint,target_window=348,iterations=6,radius=6,time_limit=20,max
     if not hint.get('physical_slot_layout',{}).get('all_packet_cgram_identities_verified'):
         raise ValueError('SLOT_REFINEMENT_PHYSICAL_HINT_REQUIRED')
     verify_packets(hint)
+    if necessary_bank_window is None:necessary_bank_window=hint['physical_slot_layout'].get('necessary_bank_window_master_clocks')
+    if necessary_bank_window is not None:
+        from raster_bank_residency import favorable_span
+        if type(necessary_bank_window)is not int or necessary_bank_window<1:raise ValueError('SLOT_REFINEMENT_NECESSARY_BANK_DOMAIN')
+        if any(favorable_span(row['updates'])>=necessary_bank_window for row in hint['trace'][1:]):raise ValueError('SLOT_REFINEMENT_HINT_NECESSARY_BANK_WINDOW')
     if maximum_writes is not None:
         if not 0<=maximum_writes<=120:raise ValueError('SLOT_REFINEMENT_WRITE_BUDGET_DOMAIN')
         if any(len(row['updates'])>maximum_writes for row in hint['trace'][1:]):
@@ -64,13 +69,14 @@ def refine(source,hint,target_window=348,iterations=6,radius=6,time_limit=20,max
         reach=radius+(visited[row]-1)*2
         interval=(max(first,row-reach),min(last,row+reach))
         before=score(best)
-        result=optimize(source,max(target_window,before[0]+1),time_limit,True,best,interval,maximum_writes,search_strategy,range_encoding)
+        result=optimize(source,max(target_window,before[0]+1),time_limit,True,best,interval,maximum_writes,search_strategy,range_encoding,necessary_bank_window=necessary_bank_window)
         report=result.get('physical_slot_layout',result)
         accepted=False;after=None
         if 'prepared_dma_packets'in result:
             verify_packets(result)
             if maximum_writes is not None and any(len(r['updates'])>maximum_writes for r in result['trace'][1:]):
                 raise AssertionError('SLOT_REFINEMENT_GLOBAL_WRITE_BUDGET')
+            if necessary_bank_window is not None and any(favorable_span(r['updates'])>=necessary_bank_window for r in result['trace'][1:]):raise AssertionError('SLOT_REFINEMENT_GLOBAL_NECESSARY_BANK_WINDOW')
             after=score(result)
             if after<before:best=result;accepted=True
         trial=dict(iteration=iteration,interval=list(interval),solver_status=report['solver_status'],
@@ -86,6 +92,8 @@ def refine(source,hint,target_window=348,iterations=6,radius=6,time_limit=20,max
         native_timing_admitted=False,no_color_reduction=True,trials=trials)
     best['physical_slot_refinement']['maximum_physical_writes_per_transfer_row']=maximum_writes
     best['physical_slot_refinement']['full_frame_write_budget_verified']=maximum_writes is not None
+    best['physical_slot_refinement']['necessary_bank_window_master_clocks']=necessary_bank_window
+    best['physical_slot_refinement']['full_frame_necessary_bank_window_verified']=necessary_bank_window is not None
     best['native_presentation_proven']=False
     return best
 
@@ -97,10 +105,11 @@ def main():
     p.add_argument('--iterations',type=int,default=6);p.add_argument('--radius',type=int,default=6)
     p.add_argument('--time-limit',type=float,default=20)
     p.add_argument('--maximum-writes',type=int,help='Preserve a verified full-frame physical write cap during every local repair.')
+    p.add_argument('--necessary-bank-window',type=int,help='Preserve an ideal bank partition bound for all actual changes; defaults to the hint bound when present.')
     p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
     p.add_argument('--range-encoding',choices=('intervals','coverage'),default='intervals')
     a=p.parse_args()
-    result=refine(json.loads(a.schedule.read_text()),json.loads(a.layout_hint.read_text()),a.target_window,a.iterations,a.radius,a.time_limit,a.maximum_writes,a.search_strategy,a.range_encoding)
+    result=refine(json.loads(a.schedule.read_text()),json.loads(a.layout_hint.read_text()),a.target_window,a.iterations,a.radius,a.time_limit,a.maximum_writes,a.search_strategy,a.range_encoding,a.necessary_bank_window)
     a.output.write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result['physical_slot_refinement']))
 
