@@ -101,3 +101,9 @@ packet replay are unchanged. The corrected authored gate remains UNKNOWN.
 Window/slot search now reports branch and conflict counts and permits bounded
 solver probing configuration. The probing-zero authored native gate explores
 411225 branches in fifty seconds but remains UNKNOWN. It grants no admission.
+
+The general row solver also exposes the probing setting, retaining its default.
+Its probing-zero corrected native gate remains UNKNOWN; the joint bank/slot
+probing-zero search retains the source-exact 472-clock witness with unchanged
+piece banks. Fourteen row-slot tests pass, including the strict three-bank
+boundary with probing disabled. All protected hashes and width checks pass.

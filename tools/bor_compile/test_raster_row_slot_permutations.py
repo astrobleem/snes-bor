@@ -33,12 +33,12 @@ class RowSlotPermutationTests(unittest.TestCase):
         # One range covers twenty dirty opaque words and two transparent words.
         # raw cost=22*16+24=376, prepared span=336. The old 20/active-bank
         # shortcut would demand 380 and incorrectly exclude this valid case.
-        result=optimize(source,337,5,necessary_bank_window=337,range_encoding='coverage',maximum_writes=20)
+        result=optimize(source,337,5,necessary_bank_window=337,range_encoding='coverage',maximum_writes=20,probing_level=0)
         verify_packets(result)
         self.assertEqual(result['peak_scheduled_writes'],20)
         self.assertLessEqual(result['physical_slot_layout']['peak_prepared_commit_span'],336)
         self.assertTrue(all(np.array_equal(a,b)for a,b in zip(demand(source)[2],demand(result)[2])))
-        failed=optimize(source,336,5,necessary_bank_window=336,range_encoding='coverage',maximum_writes=20)
+        failed=optimize(source,336,5,necessary_bank_window=336,range_encoding='coverage',maximum_writes=20,probing_level=0)
         self.assertEqual(failed['solver_status'],'INFEASIBLE')
 
     def test_dense_bank_rows_match_fifteen_words_and_preserve_opaque_zero(self):

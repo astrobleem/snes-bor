@@ -11,11 +11,12 @@ from raster_slot_greedy import demand,partition
 from raster_physical_ranges import constrain,constrain_fixed_addresses
 
 
-def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals',persistent_word_indices=False,necessary_bank_window=None):
+def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals',persistent_word_indices=False,necessary_bank_window=None,probing_level=2):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0:raise ValueError('ROW_SLOT_PERMUTATION_DOMAIN')
     if necessary_bank_window is not None and(type(necessary_bank_window)is not int or necessary_bank_window<1):raise ValueError('ROW_SLOT_NECESSARY_BANK_WINDOW')
     if search_strategy not in('portfolio','lns'):raise ValueError('ROW_SLOT_SEARCH_STRATEGY')
+    if type(probing_level)is not int or probing_level not in(0,1,2):raise ValueError('ROW_SLOT_PROBING_LEVEL')
     if range_encoding not in('intervals','coverage'):raise ValueError('ROW_SLOT_RANGE_ENCODING')
     if persistent_word_indices and(not free_residency or repair_interval is not None):raise ValueError('ROW_SLOT_PERSISTENT_INDEX_DOMAIN')
     if maximum_writes is not None and(type(maximum_writes)is not int or not 0<=maximum_writes<=120):raise ValueError('ROW_SLOT_WRITE_BUDGET_DOMAIN')
@@ -170,11 +171,13 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
         model.minimize(objective_scale*repair_peak+sum(costs))
         if packet_hints is not None:model.add_hint(repair_peak,hinted_cost)
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
+    solver.parameters.cp_model_probing_level=probing_level
     if search_strategy=='lns':solver.parameters.use_lns_only=True
     status=solver.solve(model)
     report=dict(schema='BYOR_ROW_SLOT_PERMUTATION_V1',status='BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE',
         solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
         solver_search_strategy=search_strategy,
+        solver_probing_level=probing_level,
         physical_range_encoding=range_encoding,
         persistent_word_index_family_only=persistent_word_indices,
         solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),
@@ -272,6 +275,7 @@ def main():
     p.add_argument('--free-residency',action='store_true',help='Allow any required bank word to occupy a slot, with every physical change charged; prefetch is bounded by the full visible source interval.')
     p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
     p.add_argument('--range-encoding',choices=('intervals','coverage'),default='intervals')
+    p.add_argument('--probing-level',type=int,choices=(0,1,2),default=2)
     p.add_argument('--persistent-word-indices',action='store_true',help='Optional restricted family assigning each bank word one index for the entire frame.')
     p.add_argument('--necessary-bank-window',type=int,help='Also bound the ideal bank partition of every actual changed word; physical slot packing remains separately measured.')
     p.add_argument('--window',type=int,default=332);p.add_argument('--time-limit',type=float,default=60)
@@ -279,7 +283,7 @@ def main():
     if a.scanline_interval:
         from raster_bank_residency import restrict_interval
         source=restrict_interval(source,*a.scanline_interval)
-    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval,a.maximum_writes,a.search_strategy,a.range_encoding,a.persistent_word_indices,a.necessary_bank_window);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.get('physical_slot_layout',r).items()if k!='word_indices'}))
+    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval,a.maximum_writes,a.search_strategy,a.range_encoding,a.persistent_word_indices,a.necessary_bank_window,a.probing_level);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.get('physical_slot_layout',r).items()if k!='word_indices'}))
 
 
 if __name__=='__main__':main()
