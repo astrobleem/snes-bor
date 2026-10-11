@@ -30,6 +30,21 @@ The authored integer-transfer/fractional-cache trial returns UNKNOWN after
 certificate. Full viewport replay of the nineteen-write schedule matches all
 57344 source-composed RGB555 pixels, including exact SCREEN alpha.
 
+Starting from the valid nineteen-write cache and minimizing the optimistic
+bank-partition span yields a 392-clock candidate after 180 seconds. It has
+twenty peak writes, 512 total writes and twenty-one-line prefetch latency.
+A subsequent 180-second neighborhood search holds at 392 clocks, with 514
+total writes and fifteen-line latency. All 576 eligible bank permutations of
+the first trace also have a minimum optimistic peak of 392 clocks. This
+exhausts only relabelings of that fixed trace. Its emitted unchanged-slot
+physical layout reaches 1208 clocks and is not admitted. The 392-clock
+optimistic span already exceeds the measured safe window; source identity
+alone is insufficient for native admission.
+An independent integer bank-interval span relaxation retains 9034 interval
+cuts and gives a 272-clock lower bound after sixty seconds. Its relaxed
+aggregate candidate is 392 clocks. The gap prevents rejection of this bank
+assignment's entire transfer family; no universal limit is claimed.
+
 The source SCREEN output and source RGB555 word identities are unchanged.
 No color reduction or alpha adaptation is applied. Concurrent actor space,
 physical layout, native timing and MOTU gameplay remain open.
