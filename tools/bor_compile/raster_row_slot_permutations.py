@@ -11,11 +11,12 @@ from raster_slot_greedy import demand,partition
 from raster_physical_ranges import constrain,constrain_fixed_addresses
 
 
-def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals'):
+def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals',persistent_word_indices=False):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0:raise ValueError('ROW_SLOT_PERMUTATION_DOMAIN')
     if search_strategy not in('portfolio','lns'):raise ValueError('ROW_SLOT_SEARCH_STRATEGY')
     if range_encoding not in('intervals','coverage'):raise ValueError('ROW_SLOT_RANGE_ENCODING')
+    if persistent_word_indices and(not free_residency or repair_interval is not None):raise ValueError('ROW_SLOT_PERSISTENT_INDEX_DOMAIN')
     if maximum_writes is not None and(type(maximum_writes)is not int or not 0<=maximum_writes<=120):raise ValueError('ROW_SLOT_WRITE_BUDGET_DOMAIN')
     restricted=source.get('status')=='RESTRICTED_SCANLINE_DEMAND_ONLY'
     required,uses,pixels=demand(source,allow_restricted=True);height=len(required)
@@ -53,7 +54,8 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
             for y in(max(0,left-1),min(height-1,right+1)):
                 relevant.update(c for c in hinted[y][b]if c is not None)
             repair_domains[b]=sorted(word_codes[b][c]for c in relevant)
-    model=cp_model.CpModel();values={};flags={};slot_constants={};value_hints={};change_hints={};used_rank_hints={}
+    model=cp_model.CpModel();values={};flags={};slot_constants={};value_hints={};change_hints={};used_rank_hints={};persistent_indices={}
+    persistent_hints={int(b):{int(c):int(s)-1 for c,s in words.items()}for b,words in(layout_hint or{}).get('physical_slot_layout',{}).get('word_indices',{}).items()}
     for b in range(8):
         for s in range(15):slot_constants[b*15+s]=model.new_constant(s)
     for y in range(first,last+1):
@@ -100,9 +102,14 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
             if free_residency:
                 for word in sorted(required[y][b]):
                     c=word_codes[b][word]
-                    index=model.new_int_var(0,14,f'requiredIndex{y}_{b}_{c}')
+                    if persistent_word_indices:
+                        if(b,word)not in persistent_indices:
+                            persistent_indices[b,word]=model.new_int_var(0,14,f'globalIndex{b}_{word}')
+                            if word in persistent_hints.get(b,{}):model.add_hint(persistent_indices[b,word],persistent_hints[b][word])
+                        index=persistent_indices[b,word]
+                    else:index=model.new_int_var(0,14,f'requiredIndex{y}_{b}_{c}')
                     model.add_element(index,[values[y,b,s]for s in range(15)],c)
-                    model.add_hint(index,(hint_colors if c in hint_colors else colors).index(c))
+                    if not persistent_word_indices:model.add_hint(index,(hint_colors if c in hint_colors else colors).index(c))
             else:model.add_all_different(ranks)
     prefixes={};interval_cuts=0;prefix_hints={}
     for b in range(8):
@@ -148,6 +155,7 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
         solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
         solver_search_strategy=search_strategy,
         physical_range_encoding=range_encoding,
+        persistent_word_index_family_only=persistent_word_indices,
         solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),
         solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
         solver_objective_lower_bound=solver.best_objective_bound,
@@ -204,10 +212,11 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
     for piece,colors in zip(source['pieces'],pixels):
         image=np.zeros(colors.shape,dtype=np.uint8)
         for ly,lx in zip(*np.where(colors>=0)):
-            y,x=int(piece['y']+ly),int(piece['x']+lx);c=int(colors[ly,lx]);slot=states[y][piece['bank']].index(c)+1
+            y,x=int(piece['y']+ly),int(piece['x']+lx);c=int(colors[ly,lx]);slot=(solver.value(persistent_indices[piece['bank'],c])if persistent_word_indices else states[y][piece['bank']].index(c))+1
             image[ly,lx]=slot;indices[y,x]=128+16*piece['bank']+slot
         flat=image.flatten();masks.append(dict(width=piece['width'],height=piece['height'],packed_nibble_order='low then high',pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
     result=copy.deepcopy(source)
+    if persistent_word_indices:report['word_indices']={b:{c:solver.value(v)+1 for(bank,c),v in persistent_indices.items()if bank==b}for b in range(8)}
     report.update(status='PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN',
         complete_source_frame_pixel_identity_proven=not restricted,
         packet_ranges_independently_minimized=True,
@@ -236,12 +245,13 @@ def main():
     p.add_argument('--free-residency',action='store_true',help='Allow any required bank word to occupy a slot, with every physical change charged; prefetch is bounded by the full visible source interval.')
     p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
     p.add_argument('--range-encoding',choices=('intervals','coverage'),default='intervals')
+    p.add_argument('--persistent-word-indices',action='store_true',help='Optional restricted family assigning each bank word one index for the entire frame.')
     p.add_argument('--window',type=int,default=332);p.add_argument('--time-limit',type=float,default=60)
     a=p.parse_args();source=json.loads(a.schedule.read_text())
     if a.scanline_interval:
         from raster_bank_residency import restrict_interval
         source=restrict_interval(source,*a.scanline_interval)
-    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval,a.maximum_writes,a.search_strategy,a.range_encoding);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
+    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval,a.maximum_writes,a.search_strategy,a.range_encoding,a.persistent_word_indices);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.get('physical_slot_layout',r).items()if k!='word_indices'}))
 
 
 if __name__=='__main__':main()

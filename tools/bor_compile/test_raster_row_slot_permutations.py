@@ -115,6 +115,19 @@ class RowSlotPermutationTests(unittest.TestCase):
         self.assertEqual(result['physical_slot_layout']['physical_repair_transfer_interval'],[1,2])
         self.assertTrue(all(np.array_equal(a,b)for a,b in zip(demand(source)[2],demand(result)[2])))
 
+    def test_persistent_word_indices_keep_compiled_indices_constant(self):
+        from raster_constant_index_template import construct
+        from raster_obj_compact import unpack
+        source=fixtures.SlotLayoutTests().schedule();hint=construct(source,5)
+        result=optimize(hint,356,5,True,hint,range_encoding='coverage',persistent_word_indices=True)
+        indices={}
+        for p,m,words in zip(result['pieces'],result['piece_pixel_masks'],demand(result)[2]):
+            image=unpack(m)
+            for y,x in zip(*np.where(image)):
+                key=p['bank'],int(words[y,x]);s=int(image[y,x]);self.assertEqual(indices.setdefault(key,s),s)
+        self.assertTrue(result['physical_slot_layout']['persistent_word_index_family_only'])
+        self.assertFalse(result['physical_slot_layout']['native_timing_admitted'])
+
     def test_fixed_resident_multisets_preserve_every_source_pixel(self):
         source=fixtures.SlotLayoutTests().schedule()
         result=optimize(source,356,10)
