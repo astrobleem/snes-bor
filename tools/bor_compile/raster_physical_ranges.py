@@ -53,8 +53,12 @@ def constrain_fixed_addresses(model,write_flags,height,maximum_ranges,window,pac
             covers.append(cover);starts.append(start)
             ranges[y,address]=(start,0,0,cover)
             if packet_hints is not None:
-                model.add_hint(cover,int(any(lo<=address<=hi for lo,hi in hints)))
-                model.add_hint(start,int(any(lo==address for lo,hi in hints)))
+                covered=any(lo<=address<=hi for lo,hi in hints)
+                previous_covered=address>0 and any(lo<=address-1<=hi for lo,hi in hints)
+                # Packet tables may split adjacent words across DMA channels.
+                # Coverage has one start for their union, not one per packet.
+                model.add_hint(cover,int(covered))
+                model.add_hint(start,int(covered and not previous_covered))
         model.add(sum(starts)<=maximum_ranges)
         bank_active=[]
         for b in range(8):

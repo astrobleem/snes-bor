@@ -5,6 +5,16 @@ from raster_physical_relabel import point_partition
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class FixedAddressRangeTests(unittest.TestCase):
+    def test_adjacent_and_overlapping_packet_hints_have_one_union_start(self):
+        from ortools.sat.python import cp_model
+        for hints in([(1,2),(3,4)],[(1,3),(2,4)],[(1,4)]):
+            model=cp_model.CpModel();flags={(1,0):[(a-1,model.new_constant(1))for a in(1,2,3,4)]}
+            _,peak=constrain_fixed_addresses(model,flags,2,4,49,packet_hints={1:hints})
+            model.minimize(peak);solver=cp_model.CpSolver();solver.parameters.fix_variables_to_their_hinted_value=True
+            status=solver.solve(model)
+            self.assertEqual(status,cp_model.OPTIMAL)
+            self.assertEqual(solver.value(peak),88)
+
     def solve(self,points,window=3001):
         from ortools.sat.python import cp_model
         model=cp_model.CpModel();flags={}
