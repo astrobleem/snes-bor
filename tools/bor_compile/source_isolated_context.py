@@ -11,16 +11,27 @@ from source_scene_obj_joint import probe
 import numpy as np
 from source_scene_obj_raster import prepare,geometry
 from raster_bank_search import assign
-from raster_palette import schedule,split_color_masks
+from raster_palette import schedule,split_color_masks,pieces_for_grid
 from source_bg_feasibility import rgb555
 from source_scene_bg import compose_rgb8
 
 
-def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_budget=21,global_color_banks=False,maximum_frame_colors_per_bank=None,compact_geometry=False,residency_window_lines=None):
+def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_budget=21,global_color_banks=False,maximum_frame_colors_per_bank=None,compact_geometry=False,residency_window_lines=None,explicit_actor_banks=None,literal_piece_size=16):
     """Compile a source-exact small-OBJ bank assignment before cache repair."""
     if residency_window_lines is not None and not global_color_banks:raise ValueError('ISOLATED_WINDOW_REQUIRES_GLOBAL_BANKS')
     actors,metadata,expected=prepare(source,stage,scene);pieces=geometry(actors,'small');height=expected.shape[0]
-    if global_color_banks:
+    if explicit_actor_banks is not None:
+        if global_color_banks or compact_geometry or residency_window_lines is not None:raise ValueError('LITERAL_OBJ_INCOMPATIBLE_SEARCH_OPTIONS')
+        if literal_piece_size not in (8,16,32):raise ValueError('LITERAL_OBJ_LEGAL_PIECE_SIZE_REQUIRED')
+        if len(explicit_actor_banks)!=len(actors)or any(type(b)is not int or not 0<=b<8 for b in explicit_actor_banks):raise ValueError('LITERAL_OBJ_ACTOR_BANK_DOMAIN')
+        if any(a['metadata']['alpha']!=0 for a in actors):raise ValueError('LITERAL_OBJ_ALPHA_REQUIRES_SEPARATE_PRESENTATION')
+        pieces=[]
+        for i,actor in enumerate(actors):
+            for p in pieces_for_grid(actor['pixels'],(literal_piece_size,literal_piece_size)):
+                p.update(actor=i,local_x=p['x'],local_y=p['y']);p['x']+=actor['left'];p['y']+=actor['top']
+                p['rows']={y+actor['top']:cs for y,cs in p['rows'].items()if 0<=y+actor['top']<height};pieces.append(p)
+        assignment=dict(status='EXPLICIT_LITERAL_ACTOR_BANK_ASSIGNMENT',assignment=[explicit_actor_banks[p['actor']]for p in pieces])
+    elif global_color_banks:
         assignment=split_color_masks(pieces,tuple(range(8)),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',maximum_frame_colors_per_bank=maximum_frame_colors_per_bank,defer_oam_admission=compact_geometry,residency_window_lines=residency_window_lines)
         if 'pieces'in assignment:pieces=assignment.pop('pieces')
     else:assignment=assign(pieces,tuple(range(8)),time_limit=time_limit,interval_write_budget=interval_budget,interval_lines=8)
@@ -57,7 +68,7 @@ def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_bu
     if not np.array_equal(ownership,required_mask):raise AssertionError('ISOLATED_SOURCE_OPAQUE_MASK_REPLAY')
     counts=[r['colors_written']for r in trace[1:]]
     report.update(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN',compiled_pixel_identity_verified=True,pieces=compiled,piece_pixel_masks=images,trace=trace,
-        geometry_size=8,peak_scheduled_writes=max(counts,default=0),peak_cgram_data_bytes=2*max(counts,default=0),average_writes=float(np.mean(counts)),
+        geometry_size=literal_piece_size if explicit_actor_banks is not None else 8,peak_scheduled_writes=max(counts,default=0),peak_cgram_data_bytes=2*max(counts,default=0),average_writes=float(np.mean(counts)),
         worst_scanline=1+int(np.argmax(counts)),lookahead_lines=lookahead,compiled_indices_sha256=hashlib.sha256(indices.tobytes()).hexdigest())
     outputs=rgb555(expected)
     report.update(source_opaque_mask_identity_verified=True,source_visible_opaque_pixels=int(ownership.sum()),
@@ -79,6 +90,19 @@ def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_bu
         report['geometry_compaction_attempts']=attempts
     if report['status']=='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN':report['hardware_geometry_admitted']=True
     return report
+
+
+def literal_actor_context(source,stage,scene,actor_banks,lookahead=16,piece_size=16):
+    """Exact visible alpha-zero source pixels with one fixed bank per actor.
+
+    Admission checks combined bank-row capacity and legal OBJ geometry. This
+    explicit pose compiler does not claim animation, timing or reachability.
+    """
+    result=fixed_bank_context(source,stage,scene,lookahead=lookahead,
+        explicit_actor_banks=actor_banks,literal_piece_size=piece_size)
+    result.update(alpha_policy='SOURCE_ALPHA_ZERO_LITERAL_RGB555',actor_banks=list(actor_banks),
+        source_dimensions_preserved=True,production_static_path_changed=False)
+    return result
 
 
 def isolated_source(path,rgb8=(0,0,0)):

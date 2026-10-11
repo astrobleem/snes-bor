@@ -3,6 +3,14 @@ from raster_math_mode_liveness import lower_bound,verify_integer_pool
 
 
 class ModeLivenessTests(unittest.TestCase):
+    def test_required_normal_rows_are_fixed_without_reserving_whole_frame_union(self):
+        rows=[{'a':set()},{'a':{(2,(2,))}}]
+        report=lower_bound(rows,capacities=(1,1),required_normal_rows={0:{0},1:{1}},time_limit=5)
+        self.assertAlmostEqual(report['validated_dual_lower_bound'],1)
+        self.assertEqual(report['required_normal_rows'],{0:[0],1:[1]})
+        blocked=lower_bound([{'a':{(0,(0,)),(1,())}}],capacities=(1,1),required_normal_rows={0:{0}},time_limit=5)
+        self.assertIn(blocked['status'],('RELAXED_MODE_LIVENESS_INFEASIBLE','ALL_MODES_FORCED_OPAQUE_CAPACITY_INFEASIBLE'))
+
     def test_per_scanline_capacity_cannot_hide_required_reload(self):
         rows=[{'a':{(i,())}}for i in range(3)]
         blocked=lower_bound(rows,capacities=(1,1),scanline_write_limits={1:0},time_limit=5)

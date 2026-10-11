@@ -4,6 +4,18 @@ from raster_slot_greedy import demand
 
 
 class PieceBankCacheTests(unittest.TestCase):
+    def test_lossless_word_masks_preload_sixteenth_word_with_hardware_geometry(self):
+        source=self.fixture()
+        blocked=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,maximum_oam=2)
+        self.assertEqual(blocked['solver_status'],'INFEASIBLE')
+        result=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,maximum_oam=4)
+        self.assertEqual(result['peak_scheduled_writes'],0)
+        self.assertEqual(result['geometry']['oam_entries'],4)
+        self.assertTrue(result['piece_bank_cache']['source_pixel_exact_word_masks_allowed'])
+        def pixels(frame):return{(p['actor'],p['y']+y,p['x']+x):int(c)for p,image in zip(frame['pieces'],demand(frame)[2])for y,row in enumerate(image)for x,c in enumerate(row)if c>=0}
+        self.assertEqual(pixels(source),pixels(result))
+        self.assertFalse(result['piece_bank_cache']['physical_transfer_admitted'])
+
     def fixture(self):
         from test_raster_word_bank_balance import WordBankBalanceTests
         return WordBankBalanceTests().fixture()[0]

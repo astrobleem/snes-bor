@@ -11,16 +11,17 @@ from source_palette import model_palettes,select_model_palette
 from source_scene_obj_raster import prepare
 from source_scene_bg import compose_rgb8
 from source_bg_feasibility import decode,rgb555
-from raster_obj_math_cover import MODES,complete_math_cover
+from raster_obj_math_cover import MODES,complete_math_cover,apply_math
 from raster_math_mode_liveness import lower_bound
 
 
-def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_interval=None,solver_method='highs-ipm',scanline_write_limits=None):
+def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_interval=None,solver_method='highs-ipm',scanline_write_limits=None,ordinary_residency='static',integer_pool_budget=None):
     if scanline_interval is not None and (len(scanline_interval)!=2 or not 0<=scanline_interval[0]<=scanline_interval[1]<224):raise ValueError('STATIC_OBJ_BOUND_SCANLINE_DOMAIN')
+    if ordinary_residency not in ('static','scanline'):raise ValueError('STATIC_OBJ_BOUND_RESIDENCY_POLICY')
     actors,metadata,expected=prepare(source,stage,scene)
     background=rgb555(compose_rgb8(source,stage,dict(scene,actors=[]))[0])
     docs={k:document(source,n)for k,(n,_)in source.index.items()if k.endswith('.txt')}
-    models=discover(source,docs)['models'];reserve=set();records=[];pixels=[]
+    models=discover(source,docs)['models'];reserve=set();records=[];pixels=[];ordinary_rows={}
     for actor in actors:
         layer=actor['metadata']
         if not layer['alpha']:
@@ -30,6 +31,11 @@ def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_inte
             all_words=set(map(int,raw[indices!=0]))
             if layer['source_flip']:raw=raw[:,::-1]
             words=set(map(int,raw[actor['pixels']>=0]));reserve|=words
+            for ly,row in enumerate(raw):
+                y=actor['top']+ly
+                if not 0<=y<len(background)or(scanline_interval is not None and not scanline_interval[0]<=y<=scanline_interval[1]):continue
+                cs=set(map(int,row[actor['pixels'][ly]>=0]))
+                if cs:ordinary_rows.setdefault(y,set()).update(cs)
             records.append(dict(source_model=model['name'],source_asset_path=layer['path'],whole_frame_raw_words=len(all_words),visible_raw_words=len(words)))
         else:
             for ly,lx in zip(*np.where(actor['pixels']>=0)):
@@ -38,8 +44,9 @@ def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_inte
                 if out!=bg and (scanline_interval is None or scanline_interval[0]<=y<=scanline_interval[1]):pixels.append((y,x,out,bg))
     report=dict(schema='BYOR_STATIC_ORDINARY_OBJ_EFFECT_MATH_BOUND_V1',scene=scene,source_metadata=metadata,
         source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),ordinary_actors=records,
-        reserved_visible_source_words=sorted(reserve),reserved_word_count=len(reserve),minimum_static_banks=(len(reserve)+14)//15,
-        static_words_fixed_in_lower_class=True,source_context_reachability_certified=False,
+        reserved_visible_source_words=sorted(reserve)if ordinary_residency=='static'else[],reserved_word_count=len(reserve)if ordinary_residency=='static'else 0,
+        ordinary_union_word_count=len(reserve),ordinary_residency_policy=ordinary_residency,ordinary_peak_required_words=max(map(len,ordinary_rows.values()),default=0),minimum_static_banks=(len(reserve)+14)//15,
+        static_words_fixed_in_lower_class=ordinary_residency=='static',source_context_reachability_certified=False,
         palette_bank_assignment_proven=False,physical_transfer_admitted=False,native_timing_admitted=False,
         zero_main_clipping_not_modeled=True,scanline_interval=scanline_interval,outside_interval_demand_relaxed=scanline_interval is not None,universal_raster_rejected=False,no_color_reduction=True)
     if not pixels:
@@ -52,8 +59,40 @@ def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_inte
         for mode in MODES:rows[y][mode].add((out,choices[mode]))
         if window_pixels is not None:window_pixels[y].append(dict(x=x,output=out,modes=choices))
     report['operand_cover']=cover
-    report['cache_bound']=lower_bound(rows,time_limit=time_limit,window_pixels=window_pixels,reserved_normal_colors=reserve,solver_method=solver_method,scanline_write_limits=scanline_write_limits)
+    integer_options={}if integer_pool_budget is None else dict(integer_modes=True,integer_windows=hardware_windows,integer_palette=True,integer_backend='cp-sat',write_budget=integer_pool_budget)
+    report['cache_bound']=lower_bound(rows,time_limit=time_limit,window_pixels=window_pixels,reserved_normal_colors=reserve if ordinary_residency=='static'else(),solver_method=solver_method,scanline_write_limits=scanline_write_limits,required_normal_rows=ordinary_rows if ordinary_residency=='scanline'else None,**integer_options)
     report['status']=report['cache_bound']['status']
+    bound=report['cache_bound']
+    if integer_pool_budget is not None and bound.get('integer_pool_pixel_coverage_verified'):
+        from raster_math_mode_liveness import verify_integer_pool
+        verify_integer_pool(bound,rows,window_pixels=window_pixels)
+        from raster_math_windows import compile_sparse_mask,evaluate
+        states={int(y):{int(k):set(v)for k,v in state.items()}for y,state in bound['selected_palette_residency'].items()}
+        modes={int(y):mode for y,mode in bound['selected_modes'].items()}
+        masks={int(y):{int(x):v for x,v in mask.items()}for y,mask in bound.get('selected_window_eligibility',{}).items()}
+        windows={}
+        for y in modes:
+            eligibility=masks.get(y,{})
+            # Ordinary-only rows have no effect pixels constraining a window.
+            windows[y]=compile_sparse_mask(eligibility)if eligibility else compile_sparse_mask({0:0})
+        checked=0
+        for actor in actors:
+            for ly,lx in zip(*np.where(actor['pixels']>=0)):
+                y,x=actor['top']+int(ly),actor['left']+int(lx)
+                if y not in states:continue
+                out=int(actor['pixels'][ly,lx]);bg=int(background[y,x])
+                if out==bg:continue
+                covered=out in states[y][0]or any((apply_math(c,bg,modes[y])if evaluate(windows[y],x)else c)==out for c in states[y][1])
+                if not covered:raise AssertionError('ORDINARY_EFFECT_INTEGER_SOURCE_PIXEL_REPLAY')
+                checked+=1
+        report['source_control_candidate']=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata=metadata,
+            source_rgb555_sha256=report['source_rgb555_sha256'],selected_modes=modes,
+            selected_palette_residency=bound['selected_palette_residency'],compiled_color_window_descriptors=windows,
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            checked_visible_source_pixels=checked,integer_pool_pixel_coverage_verified=True,
+            geometry_and_bank_assignment_relaxed=True,physical_transfer_admitted=False,
+            outside_control_rows_math_policy='FULL_ADD_NO_WINDOW_MINIMAL_OPERAND_OR_LITERAL',
+            peak_replayed_pool_writes=bound['peak_replayed_pool_writes'],no_color_reduction=True)
     return report
 
 
@@ -67,10 +106,13 @@ def main():
     parser.add_argument('--time-limit',type=float,default=60);parser.add_argument('--no-windows',action='store_true')
     parser.add_argument('--scanline-interval',type=int,nargs=2);parser.add_argument('--lp-method',choices=('highs-ipm','highs-ds'),default='highs-ipm')
     parser.add_argument('--scanline-write-limits',type=Path)
+    parser.add_argument('--ordinary-residency',choices=('static','scanline'),default='static')
+    parser.add_argument('--integer-pool-budget',type=int,help='Search an independently replayed integer two-class cache; bank geometry and physical timing remain relaxed.')
     args=parser.parse_args();limits={int(y):n for y,n in json.loads(args.scanline_write_limits.read_text()).items()}if args.scanline_write_limits else None
-    result=measure(Source(args.source),args.stage,json.loads(args.scene.read_text()),args.time_limit,not args.no_windows,args.scanline_interval,args.lp_method,limits)
+    result=measure(Source(args.source),args.stage,json.loads(args.scene.read_text()),args.time_limit,not args.no_windows,args.scanline_interval,args.lp_method,limits,args.ordinary_residency,args.integer_pool_budget)
     args.output.write_text(json.dumps(result,indent=2)+'\n')
-    print(json.dumps({k:result[k]for k in ('status','reserved_word_count','cache_bound') if k in result}))
+    bound=result.get('cache_bound',{})
+    print(json.dumps(dict(status=result['status'],reserved_word_count=result['reserved_word_count'],cache_bound={k:bound[k]for k in ('status','message','validated_dual_lower_bound','peak_replayed_pool_writes','solver_seconds','variables','constraints')if k in bound})))
 
 
 if __name__=='__main__':main()

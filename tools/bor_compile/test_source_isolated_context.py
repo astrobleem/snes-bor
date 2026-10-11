@@ -1,12 +1,34 @@
 import io,tempfile,unittest
 from pathlib import Path
 from PIL import Image
-from source_isolated_context import isolated_source,fixed_bank_context
+from source_isolated_context import isolated_source,fixed_bank_context,literal_actor_context
 from unittest.mock import patch
 import numpy as np
 
 
 class IsolatedContextTests(unittest.TestCase):
+    def test_literal_actor_bank_replays_black_and_rejects_alpha(self):
+        pixels=np.full((16,16),-1,dtype=np.int32);pixels[0,:2]=[0,31]
+        background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy();expected[0,1,0]=248
+        actor=dict(pixels=pixels,left=0,top=0,metadata=dict(alpha=0))
+        with patch('source_isolated_context.prepare',return_value=([actor],{},expected)),patch('source_isolated_context.compose_rgb8',return_value=(background,{})):
+            result=literal_actor_context(None,None,{},[2])
+            self.assertEqual(result['pieces'][0]['bank'],2)
+            self.assertEqual(result['pieces'][0]['width'],16)
+            self.assertTrue(result['source_opaque_mask_identity_verified'])
+            actor['metadata']['alpha']=1
+            with self.assertRaisesRegex(ValueError,'LITERAL_OBJ_ALPHA'):literal_actor_context(None,None,{},[2])
+
+    def test_literal_shared_bank_checks_combined_row_capacity(self):
+        actors=[];background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy()
+        for i in range(2):
+            pixels=np.full((16,16),-1,dtype=np.int32);pixels[0,:8]=np.arange(i*8+1,i*8+9)
+            actors.append(dict(pixels=pixels,left=i*16,top=0,metadata=dict(alpha=0)))
+            expected[0,i*16:i*16+8,0]=pixels[0,:8]*8
+        with patch('source_isolated_context.prepare',return_value=(actors,{},expected)),patch('source_isolated_context.compose_rgb8',return_value=(background,{})):
+            with self.assertRaisesRegex(ValueError,'BANK_ROW_OVERFLOW'):literal_actor_context(None,None,{},[0,0])
+            self.assertTrue(literal_actor_context(None,None,{},[0,1])['compiled_pixel_identity_verified'])
+
     def test_compaction_checks_final_oam_limit_after_exact_mask_merging(self):
         pixels=np.ones((72,128),dtype=np.int32)
         background=np.zeros((224,256,3),dtype=np.uint8)

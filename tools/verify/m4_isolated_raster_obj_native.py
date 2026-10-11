@@ -297,7 +297,7 @@ def main():
         authored_context=dict(metadata=metadata,expected=rgb555(composed),background=background)
     raw,expected,initial,oam,sy,resources=compile_rom(a.rom.read_bytes(),a.source,scene,schedule,folder,a.timer,a.sa1_mapping,a.foreground_stress,a.production_nmi_services,a.nmi_queue_bytes,a.foreground_wai,a.prepare_next_line,json.loads(a.control_traffic.read_text())if a.control_traffic else None,a.delta_control_traffic,a.controls_before_palette,authored_context)
     production_sy=symbols(Path('src/main.sym'))if a.production_nmi_services else {}
-    rom=folder/'proof.sfc';rom.write_bytes(raw);lua=folder/'observer.lua';lua.write_text(observer(sy,a.sa1_mapping,production_sy.get('DmaQueue',0),a.nmi_queue_bytes,a.control_traffic is not None,authored_context is not None))
+    rom=folder/'proof.sfc';rom.write_bytes(raw);lua=folder/'observer.lua';lua.write_text(observer(sy,a.sa1_mapping,production_sy.get('DmaQueue',0),a.nmi_queue_bytes,a.control_traffic is not None,True))
     if authored_context is not None:
         with lua.open('a')as f:f.write("\nlocal routing={};emu.addMemoryCallback(function(a,v)if a==0x2105 or a==0x2107 or a==0x210b or a==0x212c or a==0x212d or a==0x2130 or a==0x2131 or a==0x2132 then routing[a]=v end end,emu.callbackType.write,0x2105,0x2132,emu.cpuType.snes,emu.memType.snesMemory)\nemu.addEventCallback(function()if active then for a,v in pairs(routing)do emu.log('ISOROUTE|'..a..','..v)end end end,emu.eventType.endFrame)\n")
     class Observed(McpSession):
@@ -348,7 +348,7 @@ def main():
         if seen==expected_controls:control_fields.append(frame)
     control_identity=a.control_traffic is None or len(control_fields)>=2
     physical_checks=[list(map(int,line.split('ISOCGRAM|',1)[1].split(',')))for line in log.splitlines()if'ISOCGRAM|'in line]
-    physical_identity=authored_context is None or(not expected_rows and cg==initial)or(bool(physical_checks)and all(row[2]==0 for row in physical_checks))
+    physical_identity=(not expected_rows and cg==initial)or(bool(physical_checks)and all(row[2]==0 for row in physical_checks))
     routing={}
     for line in log.splitlines():
         if 'ISOROUTE|'in line:
@@ -357,6 +357,7 @@ def main():
     result=dict(schema='BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1',status='PASS'if identity and len(complete)>=2 and word_faults==0 and sum(r[3]for r in packets)==0 and observed_oam==oam and oamlog==[oam.hex()]and context[1]==0 and all(not(r[1]&192)for r in flags)and queue_identity and control_identity and underlay_identity and routing_identity and physical_identity else'FAIL',
         control_traffic_fields=control_fields,control_traffic_identity_verified=control_identity,control_traffic_source_file_sha256=hashlib.sha256(a.control_traffic.read_bytes()).hexdigest()if a.control_traffic else None,
         nmi_context_checks=nmi_context[0],nmi_context_faults=nmi_context[1],peak_nmi_entry_to_rti_master_clocks=nmi_context[2],production_nmi_fields=nmi_fields,nmi_completed_within_vblank=nmi_window,production_queue_vram_identity_verified=queue_identity if a.production_nmi_services else None,production_queue_state_hex=queue_state.hex(),
+        physical_cgram_identity_verified=physical_identity,physical_cgram_checks=len(physical_checks),physical_cgram_byte_identity_faults=sum(row[2]for row in physical_checks),
         pixel_identity_verified=identity,pixel_mismatches=int(np.count_nonzero(actual!=expected))if actual.shape==expected.shape else None,
         complete_packet_fields=complete,packet_identity_faults=word_faults,unsafe_high_commits=sum(r[3]for r in packets),
         peak_observed_commit_span=max((r[4]for r in packets),default=None),first_high_hclock_range=[min((r[5]for r in packets),default=0),max((r[5]for r in packets),default=0)],

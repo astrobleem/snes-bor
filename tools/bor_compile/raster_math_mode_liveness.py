@@ -23,6 +23,7 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
         if set(state)!={0,1}or any(not isinstance(c,(int,np.integer))or not 0<=c<32768 for colors in state.values()for c in colors):raise ValueError('MODE_INTEGER_POOL_COLOR_DOMAIN')
         if any(len(state[k])>capacities[k]for k in range(2)):raise AssertionError('MODE_INTEGER_POOL_CAPACITY_REPLAY')
         if not set(report.get('reserved_normal_colors',())).issubset(state[0]):raise AssertionError('MODE_INTEGER_POOL_STATIC_RESERVATION_REPLAY')
+        if not {int(yy):set(cs)for yy,cs in report.get('required_normal_rows',{}).items()}.get(y,set()).issubset(state[0]):raise AssertionError('MODE_INTEGER_POOL_NORMAL_ROW_REPLAY')
         if y>first:
             line_writes=sum(len(state[k]-states[y-1][k])for k in range(2));peak=max(peak,line_writes)
             limit={int(yy):n for yy,n in report.get('scanline_write_limits',{}).items()}.get(y)
@@ -44,11 +45,19 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     return report
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None):
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None):
     reserved_normal_colors=tuple(sorted(set(reserved_normal_colors)))
     if any(type(c)is not int or not 0<=c<32768 for c in reserved_normal_colors):raise ValueError('MODE_LIVENESS_STATIC_RESERVATION_DOMAIN')
     scanline_write_limits=dict(scanline_write_limits or {})
     if any(type(y)is not int or not 0<=y<len(rows) or type(n)is not int or not 0<=n<=120 for y,n in scanline_write_limits.items()):raise ValueError('MODE_LIVENESS_SCANLINE_WRITE_LIMIT_DOMAIN')
+    required_normal_rows={y:set(cs)for y,cs in (required_normal_rows or {}).items()}
+    if any(type(y)is not int or not 0<=y<len(rows)or any(type(c)is not int or not 0<=c<32768 for c in cs)for y,cs in required_normal_rows.items()):raise ValueError('MODE_LIVENESS_REQUIRED_NORMAL_ROW_DOMAIN')
+    if required_normal_rows:
+        names={m for row in rows for m in row}
+        if not names:raise ValueError('MODE_LIVENESS_NORMAL_ROW_REQUIRES_MODE_DOMAIN')
+        rows=[{m:set(reqs)for m,reqs in row.items()}for row in rows]
+        for y,cs in required_normal_rows.items():
+            for m in rows[y]or names:rows[y].setdefault(m,set()).update((c,())for c in cs)
     if len(capacities)!=2 or any(not isinstance(c,int)or c<0 for c in capacities)or not sum(capacities):raise ValueError('MODE_LIVENESS_CAPACITY')
     if write_budget is not None and(not isinstance(write_budget,int)or write_budget<0):raise ValueError('MODE_LIVENESS_WRITE_BUDGET')
     if solver_method not in ('highs-ipm','highs-ds'):raise ValueError('MODE_LIVENESS_LP_METHOD')
@@ -165,6 +174,8 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     lower=np.zeros(peak+1);upper=np.ones(peak+1);upper[peak]=np.inf if write_budget is None else write_budget
     for c in reserved_normal_colors:
         for y in range(first,max(active)+1):lower[resident[0,c,y]]=1
+    for y,cs in required_normal_rows.items():
+        for c in cs:lower[resident[0,c,y]]=1
     started=time.perf_counter()
     mixed_integer=integer_modes or integer_windows
     pinned_control_report=None
@@ -230,6 +241,7 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     report['reserved_normal_colors']=list(reserved_normal_colors)
     report['static_normal_residency_fixed_for_complete_interval']=bool(reserved_normal_colors)
     report['scanline_write_limits']=scanline_write_limits
+    report['required_normal_rows']={y:sorted(cs)for y,cs in required_normal_rows.items()}
     if pinned_control_report is not None:
         report['pinned_lp_control_family']=pinned_control_report
         if result.status==2:report['status']='PINNED_MODE_CONTROL_FAMILY_INFEASIBLE'

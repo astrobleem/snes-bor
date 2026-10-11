@@ -13,7 +13,8 @@ from source_profile import document, discover, sha
 from source_palette import model_palettes
 
 
-def measure(path, model_name, role, raster=False, banks=tuple(range(8)), piece_size=(8,8), color_masks=False):
+def measure(path, model_name, role, raster=False, banks=tuple(range(8)), piece_size=(8,8), color_masks=False, raster_all_frames=False):
+    if raster_all_frames and not raster:raise ValueError('COLOR_ALL_RASTER_FRAMES_REQUIRES_RASTER')
     source = Source(path)
     docs = {k:document(source,n) for k,(n,_) in source.index.items() if k.endswith('.txt')}
     structure = discover(source,docs)
@@ -60,10 +61,14 @@ def measure(path, model_name, role, raster=False, banks=tuple(range(8)), piece_s
     from raster_palette_interval import interval_bound
     peak_lines=frame_line_sets[frame_reports.index(peak)]
     raw_bounds={str(count):interval_bound(peak_lines,slots=15*count)for count in range(1,9)}
-    raster_report=None
+    raster_report=None;raster_frames=None
     if raster:
         from raster_palette import prove_frame
         raster_report=prove_frame(raster_pixels[frame_reports.index(peak)],piece_size,banks,color_masks=color_masks)
+        if raster_all_frames:
+            raster_frames=[dict(frame=i,image_path=f['image_path'],asset_sha256=f['asset_sha256'],
+                **(raster_report if i==frame_reports.index(peak)else prove_frame(pixels,piece_size,banks,color_masks=color_masks)))
+                for i,(f,pixels)in enumerate(zip(frame_reports,raster_pixels))]
     hardware_source = ROOT.parent/'Mesen2/Core/SNES/SnesPpu.cpp'
     return dict(status='STATIC_OBJ_COLOR_RESOURCE_LIMIT' if peak['colors']>120 else 'STATIC_OBJ_COLOR_CAPACITY_WITHIN_LIMIT',source_sha256=sha(Path(path).read_bytes()),
         model=model['declaration'],role=role,model_source_path=model['source_path'],
@@ -78,7 +83,7 @@ def measure(path, model_name, role, raster=False, banks=tuple(range(8)), piece_s
             invariants=['Palette=(flags>>1)&7','GetTilePixelColor<4>','color zero transparent','CGRAM offset=128+(palette<<4)+color']),
         static_color_deficit=peak['colors']-120,
         required_static_palettes=(peak['colors']+14)//15,
-        frame_requirements=frame_reports,raster_peak_frame=raster_report,
+        frame_requirements=frame_reports,raster_peak_frame=raster_report,raster_all_frame_results=raster_frames,
         other_options=[dict(policy='RASTER_PALETTE_REUSE',
             fidelity='Potential RGB555 color preservation; not proven.',
             costs='Per-line CGRAM traffic and fixed OAM bank/index constraints; competes with actor palettes and HDMA.',
@@ -100,12 +105,13 @@ if __name__=='__main__':
     parser.add_argument('--role',required=True)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--raster',action='store_true')
+    parser.add_argument('--raster-all-frames',action='store_true')
     parser.add_argument('--banks',default='0,1,2,3,4,5,6,7')
     parser.add_argument('--piece-size',default='8,8')
     parser.add_argument('--color-masks',action='store_true')
     args=parser.parse_args()
     report=measure(args.source,args.model,args.role,args.raster,
-                   tuple(map(int,args.banks.split(','))),tuple(map(int,args.piece_size.split(','))),args.color_masks)
+                   tuple(map(int,args.banks.split(','))),tuple(map(int,args.piece_size.split(','))),args.color_masks,args.raster_all_frames)
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(json.dumps({k:report[k] for k in ('status','static_color_deficit','required_static_palettes','animation_union_colors')},indent=2))
