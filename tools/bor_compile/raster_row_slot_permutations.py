@@ -147,7 +147,6 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
                 total=model.new_int_var(0,15,f'necessaryWrites{y}_{b}');model.add(total==sum(flag for i,flag in events));counts.append(total)
                 flag=model.new_bool_var(f'necessaryActive{y}_{b}');active.append(flag)
                 model.add(total>=flag);model.add(total<=15*flag)
-            model.add(16*sum(counts)+20*sum(active)<=necessary_bank_window+39)
             constrain_dp(model,counts,active,necessary_bank_window,f'necessaryBank{y}',4)
     if maximum_writes is not None:
         for y in range(first+1,last+1):

@@ -7,6 +7,40 @@ import test_raster_slot_layout as fixtures
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class RowSlotPermutationTests(unittest.TestCase):
+    def test_full_middle_bank_can_bridge_three_banks_at_native_boundary(self):
+        import copy
+        from raster_slot_refine import verify_packets
+        source=fixtures.SlotLayoutTests().schedule();source['pieces']=[];source['piece_pixel_masks']=[]
+        for x,bank,slots in((0,0,[15]),(8,1,list(range(1,9))),(16,1,list(range(9,16))),(24,2,list(range(1,5)))):
+            image=np.zeros((8,8),dtype=np.uint8);image[:2,:len(slots)]=slots;flat=image.flatten()
+            source['pieces'].append(dict(x=x,y=0,width=8,height=8,bank=bank))
+            source['piece_pixel_masks'].append(dict(width=8,height=8,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
+        state={b:[None]*15 for b in range(8)};trace=[]
+        for y in range(16):
+            before=copy.deepcopy(state);target=copy.deepcopy(state);events=[]
+            if y==0:target={b:[0]*15 for b in range(8)}
+            if y<2:
+                target[0][14]=101+300*y;target[1]=list(range(201+300*y,216+300*y));target[2][:4]=list(range(301+300*y,305+300*y))
+            for b in range(8):
+                for s,c in enumerate(target[b]):
+                    if c!=state[b][s]:events.append(dict(bank=b,slot=s+1,old=state[b][s],color=c))
+            state=target;trace.append(dict(scanline=y,resident_before=before,updates=events))
+        source['trace']=trace
+        expected=np.zeros((16,256),dtype=np.uint16)
+        for p,words in zip(source['pieces'],demand(source)[2]):
+            for y,x in zip(*np.where(words>=0)):expected[p['y']+y,p['x']+x]=words[y,x]
+        source['source_rgb555_sha256']=hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest()
+        # One range covers twenty dirty opaque words and two transparent words.
+        # raw cost=22*16+24=376, prepared span=336. The old 20/active-bank
+        # shortcut would demand 380 and incorrectly exclude this valid case.
+        result=optimize(source,337,5,necessary_bank_window=337,range_encoding='coverage',maximum_writes=20)
+        verify_packets(result)
+        self.assertEqual(result['peak_scheduled_writes'],20)
+        self.assertLessEqual(result['physical_slot_layout']['peak_prepared_commit_span'],336)
+        self.assertTrue(all(np.array_equal(a,b)for a,b in zip(demand(source)[2],demand(result)[2])))
+        failed=optimize(source,336,5,necessary_bank_window=336,range_encoding='coverage',maximum_writes=20)
+        self.assertEqual(failed['solver_status'],'INFEASIBLE')
+
     def test_dense_bank_rows_match_fifteen_words_and_preserve_opaque_zero(self):
         import copy
         from raster_slot_refine import verify_packets

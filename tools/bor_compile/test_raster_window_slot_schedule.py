@@ -12,7 +12,7 @@ from test_raster_slot_layout import SlotLayoutTests
 class WindowSlotTests(unittest.TestCase):
     def test_joint_bank_assignment_stays_fixed_and_respects_math_eligibility(self):
         source,bg,expected=self.source();source['pieces'][0]['allowed_banks']=[4,5]
-        result=optimize(source,bg,expected,time_limit=5,maximum_writes=0,movable_pieces=[0])
+        result=optimize(source,bg,expected,time_limit=5,maximum_writes=0,movable_pieces=[0],probing_level=0)
         verify_packets(result)
         self.assertIn(result['pieces'][0]['bank'],[4,5])
         self.assertTrue(result['physical_slot_layout']['piece_banks_fixed_across_all_scanlines'])

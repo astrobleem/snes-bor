@@ -54,10 +54,11 @@ def derive(source,background,expected):
     return points,rows,[sorted(v)for v in tables],hint
 
 
-def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,necessary_bank_window=None,search_strategy='portfolio',reuse_exact_operands=False,repair_interval=None,complete_exact_operands=False,movable_pieces=None):
+def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,necessary_bank_window=None,search_strategy='portfolio',reuse_exact_operands=False,repair_interval=None,complete_exact_operands=False,movable_pieces=None,probing_level=2):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0 or type(maximum_writes)is not int or not 0<=maximum_writes<=120:raise ValueError('WINDOW_SLOT_DOMAIN')
     if search_strategy not in('portfolio','lns'):raise ValueError('WINDOW_SLOT_SEARCH_STRATEGY')
+    if type(probing_level)is not int or probing_level not in(0,1,2):raise ValueError('WINDOW_SLOT_PROBING_LEVEL')
     if necessary_bank_window is not None and(type(necessary_bank_window)is not int or necessary_bank_window<1):raise ValueError('WINDOW_SLOT_BANK_WINDOW_DOMAIN')
     points,rows,tables,hint=derive(source,background,expected);first,last=min(rows),max(rows);height=len(source['trace'])
     movable=set(movable_pieces or[])
@@ -210,10 +211,12 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
     costs=[sum(24*a+16*n for(line,r),(a,begin,end,n)in ranges.items()if line==y)for y in range(first+1,last+1)]
     model.minimize(peak*(4096*len(costs)+1)+sum(costs))
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
+    solver.parameters.cp_model_probing_level=probing_level
     if search_strategy=='lns':solver.parameters.use_lns_only=True
     status=solver.solve(model)
     report=dict(schema='BYOR_FIXED_BANK_WINDOW_SLOT_SCHEDULE_V1',solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
         solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),solver_search_strategy=search_strategy,
+        solver_probing_level=probing_level,solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
         shared_row_math_modes_unchanged=True,two_color_windows_with_polarity_choice_enforced=True,fixed_piece_banks_unchanged=not movable,
         offline_bank_assignment_movable_pieces=sorted(movable),piece_banks_fixed_across_all_scanlines=True,
         maximum_physical_writes=maximum_writes,necessary_bank_window_master_clocks=necessary_bank_window,physical_window_master_clocks=window,
@@ -304,6 +307,7 @@ def main():
     p.add_argument('--repair-interval',type=int,nargs=2)
     p.add_argument('--complete-exact-operands',action='store_true')
     p.add_argument('--movable-pieces',type=int,nargs='+')
+    p.add_argument('--probing-level',type=int,choices=(0,1,2),default=2)
     a=p.parse_args()
     from compiler import Source
     from source_scene_obj_raster import prepare
@@ -313,7 +317,7 @@ def main():
     _,metadata,expected=prepare(source,a.stage,scene)
     if schedule['metadata']!=metadata:raise ValueError('WINDOW_SLOT_SOURCE_METADATA_IDENTITY')
     background=rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0])
-    result=optimize(schedule,background,rgb555(expected),a.window,a.time_limit,a.maximum_writes,a.necessary_bank_window,a.search_strategy,a.reuse_exact_operands,a.repair_interval,a.complete_exact_operands,a.movable_pieces)
+    result=optimize(schedule,background,rgb555(expected),a.window,a.time_limit,a.maximum_writes,a.necessary_bank_window,a.search_strategy,a.reuse_exact_operands,a.repair_interval,a.complete_exact_operands,a.movable_pieces,a.probing_level)
     Path(a.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('physical_slot_layout',result)))
 
 

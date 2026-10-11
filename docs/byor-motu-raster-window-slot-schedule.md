@@ -86,3 +86,18 @@ the saved trace. Physical packing reaches 680 clocks, then retiming reaches
 Free physical residency at the 336-clock gate remains UNKNOWN after fifty
 seconds. The original geometry's 472-clock witness remains better; neither
 layout has authored native admission. These bounds do not reject raster.
+
+The general row-slot solver had an invalid auxiliary bound charging twenty
+clocks per active bank. Counts `[1,15,4]` in three adjacent banks have one
+22-word transfer: 376 raw clocks and a 336-clock prepared span. The old cut
+demanded 380 raw clocks and excluded this valid case. It is removed from the
+general solver; the restricted adjacent-pair solver's separate twenty-clock
+bound remains valid and unchanged. The exact counterexample is admitted at
+the strict 337-clock gate and rejected at 336. Thirty-eight focused tests pass.
+Previous general row-slot failures using the optional necessary-bank bound
+must not be relied on without the corrected solve. Independent DP and physical
+packet replay are unchanged. The corrected authored gate remains UNKNOWN.
+
+Window/slot search now reports branch and conflict counts and permits bounded
+solver probing configuration. The probing-zero authored native gate explores
+411225 branches in fifty seconds but remains UNKNOWN. It grants no admission.
