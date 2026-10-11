@@ -61,7 +61,11 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
     if necessary_bank_window is not None and(type(necessary_bank_window)is not int or necessary_bank_window<1):raise ValueError('WINDOW_SLOT_BANK_WINDOW_DOMAIN')
     points,rows,tables,hint=derive(source,background,expected);first,last=min(rows),max(rows);height=len(source['trace'])
     codes=[{word:i for i,word in enumerate(table)}for table in tables]
-    model=cp_model.CpModel();values={};flags={};gates={};selected_indices={};presence={};hint_values={}
+    model=cp_model.CpModel();values={};flags={};gates={};selected_indices={};presence={};hint_values={};mandatory={}
+    for y,items in rows.items():
+        for p in items:
+            if p['bank']<4 or p['operand']is None or p['operand']==p['output']:
+                mandatory.setdefault((y,p['bank']),set()).add(p['output'])
     for y in range(first,last+1):
         for b in range(8):
             for s in range(15):
@@ -101,6 +105,18 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
             hv=[0 if c is None else c for c in hint[y][b]];model.add_hint(index,hv.index(word)if word in hv else 0)
             model.add_hint(read,codes[b][word]if word in hv else hint_values[y,b,0])
             old_active=any(p['bank']==b and p['old_word']==word for p in rows.get(y,[]));model.add_hint(active,int(old_active))
+    interval_cuts=0
+    for b in range(8):
+        prefix={first:model.new_constant(0)}
+        for y in range(first+1,last+1):
+            prefix[y]=model.new_int_var(0,15*(y-first),f'mandatoryPrefix{y}_{b}')
+            model.add(prefix[y]==prefix[y-1]+sum(flag for i,flag in flags[y,b]))
+        for left in range(first,last):
+            union=set()
+            for right in range(left,last+1):
+                union.update(mandatory.get((right,b),set()))
+                if len(union)>15:
+                    model.add(prefix[right]-prefix[left]>=len(union)-15);interval_cuts+=1
     for y in range(first+1,last+1):
         model.add(sum(flag for(line,b),events in flags.items()if line==y for i,flag in events)<=maximum_writes)
         if necessary_bank_window is not None:
@@ -121,6 +137,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),solver_search_strategy=search_strategy,
         shared_row_math_modes_unchanged=True,two_color_windows_with_polarity_choice_enforced=True,fixed_piece_banks_unchanged=True,
         maximum_physical_writes=maximum_writes,necessary_bank_window_master_clocks=necessary_bank_window,physical_window_master_clocks=window,
+        mandatory_identity_bank_interval_cuts=interval_cuts,
         native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return dict(report,status='BOUNDED_WINDOW_SLOT_NO_CANDIDATE')
     states=[];trace=[];packets=[];old={b:[None]*15 for b in range(8)};windows=copy.deepcopy(source['compiled_color_window_descriptors'])

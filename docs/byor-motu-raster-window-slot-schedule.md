@@ -31,3 +31,13 @@ The focused suite passes 40 tests. All 17 protected files retain their hashes;
 the width guard checks 9825 labels with zero failures. No runtime assembly
 changed. Authored native raster, concurrent-actor admission and MOTU completion
 remain open. No color reduction was applied.
+
+Mandatory identities now constrain each bank over every scanline interval:
+if more than fifteen distinct required words occur, at least the excess must
+be written after the interval's first palette. This counts prefetch and slot
+moves without treating adjacent set differences as transfer bandwidth. The
+authored frame adds 3990 necessary cuts. Its fixed witness still replays at
+536 clocks; the native gate remains UNKNOWN. The 472-clock witness remains
+source exact, with six changed operand/gate choices and one unused write.
+Seven focused tests pass, including twenty mandatory colors in one fixed bank:
+zero updates is infeasible, while a writable schedule preserves every pixel.

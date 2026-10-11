@@ -10,6 +10,27 @@ from test_raster_slot_layout import SlotLayoutTests
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class WindowSlotTests(unittest.TestCase):
+    def test_mandatory_bank_lifetimes_require_writes_beyond_fifteen_colors(self):
+        source=SlotLayoutTests().schedule();source['color_math']='additive';source['pieces']=[dict(source['pieces'][0],width=32,height=32)]
+        mask=np.zeros((32,32),dtype=np.uint8);mask[:20,0]=1;flat=mask.flatten()
+        source['piece_pixel_masks']=[dict(width=32,height=32,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex())]
+        state={b:[None]*15 for b in range(8)};trace=[]
+        for y in range(32):
+            before=copy.deepcopy(state);events=[]
+            if y<20:events=[dict(bank=0,slot=1,old=state[0][0],color=y)];state[0][0]=y
+            trace.append(dict(scanline=y,resident_before=before,updates=events))
+        source['trace']=trace;source['scanline_math_controls_source_bound']=True
+        source['selected_modes']={str(y):'add'for y in range(32)}
+        source['compiled_color_window_descriptors']={str(y):compile_mask([False]*256)for y in range(32)}
+        bg=np.full((32,256),33,dtype=np.uint16);expected=bg.copy();expected[:20,0]=np.arange(20,dtype=np.uint16)
+        source['source_rgb555_sha256']=hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest()
+        failed=optimize(source,bg,expected,time_limit=3,maximum_writes=0)
+        self.assertEqual(failed['solver_status'],'INFEASIBLE');self.assertGreater(failed['mandatory_identity_bank_interval_cuts'],0)
+        result=optimize(source,bg,expected,time_limit=5,maximum_writes=1)
+        verify_packets(result)
+        self.assertTrue(result['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
+        self.assertGreaterEqual(sum(len(r['updates'])for r in result['trace'][1:]),5)
+
     def source(self):
         source=SlotLayoutTests().schedule();source['color_math']='additive'
         source['pieces']=source['pieces'][:1];source['pieces'][0]['bank']=4
