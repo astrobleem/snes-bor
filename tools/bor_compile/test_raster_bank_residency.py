@@ -1,12 +1,23 @@
 import unittest
 import numpy as np
-from raster_bank_residency import optimize,favorable_span,relaxed_bound,constrain_dp,constrain_adjacent,restrict_interval
+from raster_bank_residency import optimize,favorable_span,relaxed_bound,constrain_dp,constrain_adjacent,restrict_interval,flow_partition_hint
 from raster_cgram_packets import optimistic_dma_span
 from raster_slot_greedy import demand
 from test_raster_slot_greedy import source_schedule
 
 
 class ResidencyTests(unittest.TestCase):
+    def test_flow_partition_hints_match_independent_endpoint_dp(self):
+        rng=np.random.default_rng(1729)
+        for counts in [[0]*8,[1,9,7,1,0,0,0,0],*[list(map(int,rng.integers(0,16,8)))for _ in range(100)]]:
+            cost,ranges=flow_partition_hint(counts)
+            updates=[dict(bank=b)for b,n in enumerate(counts)for _ in range(n)]
+            self.assertEqual(max(0,cost-40),favorable_span(updates))
+            self.assertLessEqual(len(ranges),4)
+            self.assertTrue(all(sum(a<=b<=z for a,z in ranges)==1 for b,n in enumerate(counts)if n))
+        with self.assertRaisesRegex(ValueError,'COUNTS'):flow_partition_hint([16]*8)
+        with self.assertRaisesRegex(ValueError,'RANGES'):flow_partition_hint([1]*8,0)
+
     def test_active_bank_batching_counts_actual_writes_without_timing_admission(self):
         source=source_schedule()
         for backend in ('cp-sat','highs'):

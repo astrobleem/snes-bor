@@ -131,7 +131,24 @@ def constrain_dp(model,counts,active,window,tag,maximum_ranges=4):
     return dp[maximum_ranges,8]
 
 
-def constrain_flow(model,counts,active,window,tag,maximum_ranges=4,linear=False):
+def flow_partition_hint(counts,maximum_ranges=4):
+    """Exact ideal endpoint partition for a concrete eight-bank write row."""
+    if len(counts)!=8 or any(type(n)is not int or not 0<=n<=15 for n in counts):raise ValueError('FLOW_PARTITION_HINT_COUNTS')
+    if type(maximum_ranges)is not int or not 1<=maximum_ranges<=4:raise ValueError('FLOW_PARTITION_HINT_RANGES')
+    banks=[b for b,n in enumerate(counts)if n]
+    if not banks:return 0,[]
+    best=None
+    for mask in range(1<<(len(banks)-1)):
+        groups=[];start=0
+        for i in range(len(banks)):
+            if i==len(banks)-1 or mask&(1<<i):groups.append((banks[start],banks[i]));start=i+1
+        if len(groups)>maximum_ranges:continue
+        cost=sum(24+16*(counts[a]if a==b else counts[a]+counts[b]+16*(b-a-1)+1)for a,b in groups)
+        if best is None or cost<best[0]:best=cost,groups
+    return best
+
+
+def constrain_flow(model,counts,active,window,tag,maximum_ranges=4,linear=False,hint_counts=None):
     """Equivalent favorable bank partition using disjoint selected intervals.
 
     Endpoint words pack freely; every intervening bank is transferred in full.
@@ -139,6 +156,10 @@ def constrain_flow(model,counts,active,window,tag,maximum_ranges=4,linear=False)
     as constrain_dp, without constructing its nested minimum expressions.
     """
     choices=[];costs=[];coverage=[[]for b in range(8)]
+    hint=None
+    if hint_counts is not None:
+        cost,groups=flow_partition_hint(hint_counts,maximum_ranges)
+        if cost<=window+39:hint=set(groups)
     for a in range(8):
         for b in range(a,8):
             overhead=24+(16*(16*(b-a-1)+1)if b!=a else 0)
@@ -154,6 +175,10 @@ def constrain_flow(model,counts,active,window,tag,maximum_ranges=4,linear=False)
             else:
                 model.add(cost==expression).only_enforce_if(chosen);model.add(cost==0).only_enforce_if(chosen.Not())
             costs.append(cost)
+            if hint is not None:
+                selected=(a,b)in hint
+                model.add_hint(chosen,int(selected))
+                model.add_hint(cost,16*(hint_counts[a]+(hint_counts[b]if a!=b else 0))+overhead if selected else 0)
     for b in range(8):
         model.add(sum(coverage[b])>=active[b]);model.add(sum(coverage[b])<=1)
     model.add(sum(choices)<=maximum_ranges);model.add(sum(costs)<=window+39)
@@ -329,7 +354,8 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
                 model.add_hint(count,sum(c in hints[y][b]and c not in hints[y-1][b]for c in uses[b]))
             if range_backend=='dp':cost=constrain_dp(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}')
             elif range_backend=='adjacent':cost=constrain_adjacent(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',write_budget)
-            else:cost=constrain_flow(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',linear=solver_backend=='highs')
+            else:cost=constrain_flow(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',linear=solver_backend=='highs',
+                hint_counts=[sum(c in hints[y][b]and c not in hints[y-1][b]for c in uses[b])for b in range(8)])
             if minimize_span:model.add(peak_span_cost>=cost)
         else:constrain_ranges(line,active_flags,allocate,constraint,window,maximum_ranges=4,peak_cost_index=peak_cost_index)
     if minimize_span:
