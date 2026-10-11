@@ -1,0 +1,517 @@
+{
+  "schema": "BYOR_FIXED_BANK_REFINEMENT_V1",
+  "trials": [
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-lp-refined48.json",
+      "artifact_sha256": "e83e0dcdd51570b44987a6ad33fb4adc476ca861b28e62430d9b63c11a16ac9c",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "geometry": {
+        "oam_entries": 48,
+        "peak_sprites": 16,
+        "peak_tile_slivers": 34
+      },
+      "bank_lp_refinement": {
+        "schema": "BYOR_FIXED_BANK_LP_REFINEMENT_V1",
+        "initial_validated_lower_bound": 20.285714285714274,
+        "final_validated_lower_bound": 20.285714285714274,
+        "seed": 224,
+        "maximum_trials": 36,
+        "seconds": 43.186999999918044,
+        "source_pixel_identity_preserved": true,
+        "geometry_unchanged": true,
+        "lower_bound_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "trials_evaluated": 36,
+        "accepted": 0
+      },
+      "geometry_compaction": {
+        "candidate_merges": 21,
+        "selected_merges": 12,
+        "original_geometry": {
+          "oam_entries": 137,
+          "peak_sprites": 28,
+          "peak_tile_slivers": 28
+        },
+        "solver_status": 0,
+        "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "pixel_bank_slot_identity_verified": true,
+        "native_geometry_admitted": false
+      },
+      "compiled_schedule_sha256": "860795a09c449afc1baf63280ec2c5b82b8f5ea5e1c8c78e2c115f27db652b25",
+      "peak_scheduled_writes": 30,
+      "write_budget": null,
+      "lookahead_lines": 17
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-lp-refined52.json",
+      "artifact_sha256": "ae275c7bd121ec7449deb4f5567efac592d20e559af9d482a0cfbeba29bc63a6",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "geometry": {
+        "oam_entries": 52,
+        "peak_sprites": 17,
+        "peak_tile_slivers": 33
+      },
+      "bank_lp_refinement": {
+        "schema": "BYOR_FIXED_BANK_LP_REFINEMENT_V1",
+        "initial_validated_lower_bound": 20.71428571428572,
+        "final_validated_lower_bound": 20.142857142857146,
+        "seed": 225,
+        "maximum_trials": 36,
+        "seconds": 35.0,
+        "source_pixel_identity_preserved": true,
+        "geometry_unchanged": true,
+        "lower_bound_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "trials_evaluated": 36,
+        "accepted": 1
+      },
+      "geometry_compaction": {
+        "candidate_merges": 42,
+        "selected_merges": 42,
+        "original_geometry": {
+          "oam_entries": 136,
+          "peak_sprites": 28,
+          "peak_tile_slivers": 28
+        },
+        "objective": "MINIMUM_OAM_ENTRIES",
+        "solver_status": 0,
+        "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "pixel_bank_slot_identity_verified": true,
+        "native_geometry_admitted": false
+      },
+      "compiled_schedule_sha256": "dc9de78574035d2097332b49f16e432e1cf9b615d6d4cdcbbb84668e1bdb8178",
+      "peak_scheduled_writes": 33,
+      "write_budget": null,
+      "lookahead_lines": 55
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-dual-refined48.json",
+      "artifact_sha256": "bfb6b38046c23e7e804bf21c58d5af35ef14efb8143964ab94657d2f678b74d7",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "geometry": {
+        "oam_entries": 48,
+        "peak_sprites": 16,
+        "peak_tile_slivers": 34
+      },
+      "bank_lp_refinement": {
+        "schema": "BYOR_FIXED_BANK_LP_REFINEMENT_V1",
+        "initial_validated_lower_bound": 20.285714285714274,
+        "final_validated_lower_bound": 20.285714285714274,
+        "seed": 227,
+        "maximum_trials": 48,
+        "dual_guidance": true,
+        "swap_proposals": true,
+        "seconds": 26.969000000040978,
+        "source_pixel_identity_preserved": true,
+        "geometry_unchanged": true,
+        "lower_bound_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "trials_evaluated": 48,
+        "accepted": 0
+      },
+      "geometry_compaction": {
+        "candidate_merges": 21,
+        "selected_merges": 12,
+        "original_geometry": {
+          "oam_entries": 137,
+          "peak_sprites": 28,
+          "peak_tile_slivers": 28
+        },
+        "solver_status": 0,
+        "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "pixel_bank_slot_identity_verified": true,
+        "native_geometry_admitted": false
+      },
+      "compiled_schedule_sha256": "860795a09c449afc1baf63280ec2c5b82b8f5ea5e1c8c78e2c115f27db652b25",
+      "peak_scheduled_writes": 30,
+      "write_budget": null,
+      "lookahead_lines": 17
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-dual-refined52.json",
+      "artifact_sha256": "95f60d2991bb11d6085533abc4d3ecf98acf6d5e0681923ae0805d2e3fe875f9",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "geometry": {
+        "oam_entries": 52,
+        "peak_sprites": 17,
+        "peak_tile_slivers": 33
+      },
+      "bank_lp_refinement": {
+        "schema": "BYOR_FIXED_BANK_LP_REFINEMENT_V1",
+        "initial_validated_lower_bound": 20.142857142857146,
+        "final_validated_lower_bound": 20.142857142857146,
+        "seed": 226,
+        "maximum_trials": 48,
+        "dual_guidance": true,
+        "swap_proposals": true,
+        "seconds": 22.405999999959022,
+        "source_pixel_identity_preserved": true,
+        "geometry_unchanged": true,
+        "lower_bound_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "trials_evaluated": 48,
+        "accepted": 0
+      },
+      "geometry_compaction": {
+        "candidate_merges": 42,
+        "selected_merges": 42,
+        "original_geometry": {
+          "oam_entries": 136,
+          "peak_sprites": 28,
+          "peak_tile_slivers": 28
+        },
+        "objective": "MINIMUM_OAM_ENTRIES",
+        "solver_status": 0,
+        "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "pixel_bank_slot_identity_verified": true,
+        "native_geometry_admitted": false
+      },
+      "compiled_schedule_sha256": "dc9de78574035d2097332b49f16e432e1cf9b615d6d4cdcbbb84668e1bdb8178",
+      "peak_scheduled_writes": 33,
+      "write_budget": null,
+      "lookahead_lines": 55
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-critical-subdivided.json",
+      "artifact_sha256": "1991a5c6695970197fdc0018eaa1d423fded222294268804efacfeedbec90032",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "geometry": {
+        "oam_entries": 70,
+        "peak_sprites_per_line": 23,
+        "peak_tile_slivers_per_line": 31
+      },
+      "bank_lp_refinement": {
+        "schema": "BYOR_FIXED_BANK_LP_REFINEMENT_V1",
+        "initial_validated_lower_bound": 20.142857142857146,
+        "final_validated_lower_bound": 20.142857142857146,
+        "seed": 226,
+        "maximum_trials": 48,
+        "dual_guidance": true,
+        "swap_proposals": true,
+        "seconds": 22.405999999959022,
+        "source_pixel_identity_preserved": true,
+        "geometry_unchanged": true,
+        "lower_bound_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "trials_evaluated": 48,
+        "accepted": 0
+      },
+      "bank_subdivision": {
+        "selected_input_pieces": [
+          14,
+          16,
+          30,
+          35,
+          39,
+          42,
+          48,
+          50
+        ],
+        "geometry": {
+          "oam_entries": 70,
+          "peak_sprites_per_line": 23,
+          "peak_tile_slivers_per_line": 31
+        },
+        "pixels_exact": true,
+        "input_compiled_schedule_sha256": "dc9de78574035d2097332b49f16e432e1cf9b615d6d4cdcbbb84668e1bdb8178"
+      },
+      "geometry_compaction": {
+        "candidate_merges": 42,
+        "selected_merges": 42,
+        "original_geometry": {
+          "oam_entries": 136,
+          "peak_sprites": 28,
+          "peak_tile_slivers": 28
+        },
+        "objective": "MINIMUM_OAM_ENTRIES",
+        "solver_status": 0,
+        "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "pixel_bank_slot_identity_verified": true,
+        "native_geometry_admitted": false
+      },
+      "compiled_schedule_sha256": "c21341ae67bdaf7da3a6acab4aa28cf51ae8bf66cc7e93315f8345aa1429c80a",
+      "peak_scheduled_writes": 33,
+      "write_budget": null,
+      "lookahead_lines": 55
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-refined52-flexible-lp.json",
+      "artifact_sha256": "20e7e60af6ec8ba5e1d0954393060f423ad54344a7285ac19682f7581d746867",
+      "status": "FRACTIONAL_RELAXATION_DOES_NOT_PROVE_SCHEDULE",
+      "solver": {
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 64803,
+        "constraints": 132028,
+        "mip_nodes": 0,
+        "mip_gap": 0.0,
+        "backend": "highs",
+        "relaxation_algorithm": "HIGHS_IPM"
+      },
+      "write_budget": 120,
+      "lookahead_lines": 55
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-subdivided-flexible-lp.json",
+      "artifact_sha256": "1859f72a6645528ea94bb053f5d90c097449984d37e34457bf6a269995da6c7c",
+      "status": "FRACTIONAL_RELAXATION_DOES_NOT_PROVE_SCHEDULE",
+      "solver": {
+        "status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 64823,
+        "constraints": 132100,
+        "mip_nodes": 0,
+        "mip_gap": 0.0,
+        "backend": "highs",
+        "relaxation_algorithm": "HIGHS_IPM"
+      },
+      "write_budget": 120,
+      "lookahead_lines": 55
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-subdivided-rebank18.json",
+      "artifact_sha256": "a8fd9664e2cecbf5457733ced8f499d9e73be5fa6c91aa3f14a5e98ffb12d60b",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 218144,
+        "constraints": 436820,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 218144,
+          "hint_is_soft": true,
+          "log_lines": 308,
+          "sat_inprocessing": false,
+          "branches": 167748,
+          "conflicts": 55,
+          "wall_seconds": 60.40102400000001,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "write_budget": 18,
+      "lookahead_lines": 55,
+      "preserve_hint_math_classes": true,
+      "preserve_hint_words": true
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-subdivided-rebank-bridged1-19.json",
+      "artifact_sha256": "2286dbf644032dd4746824da8a3b857b98505ae14d13b161f3afc1e94f42de85",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 486537,
+        "constraints": 1033660,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 8464,
+          "hint_is_soft": true,
+          "log_lines": 299,
+          "sat_inprocessing": false,
+          "branches": 20063,
+          "conflicts": 64,
+          "wall_seconds": 60.3239243,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "write_budget": 19,
+      "lookahead_lines": 55,
+      "preserve_hint_math_classes": true,
+      "preserve_hint_words": true,
+      "pool_interval_initial_preload": true,
+      "pool_interval_gap_bridge_lines": 55
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-subdivided-rebank-prefixcollapsed19.json",
+      "artifact_sha256": "7eeaba06eb8883e663d6cb0c2f44c75f5c7dbf75689f18ed9c936646d8cfdf6e",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 104841,
+        "constraints": 222444,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 8464,
+          "hint_is_soft": true,
+          "log_lines": 311,
+          "sat_inprocessing": false,
+          "branches": 81841,
+          "conflicts": 25578,
+          "wall_seconds": 60.202622000000005,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "write_budget": 19,
+      "lookahead_lines": 55,
+      "preserve_hint_math_classes": true,
+      "preserve_hint_words": true,
+      "collapse_inactive_prefix": true,
+      "pool_interval_initial_preload": true,
+      "pool_interval_gap_bridge_lines": 55
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-known48-bridged21-check-corrected.json",
+      "artifact_sha256": "41adcd83b78f6f7c39d8408301b541b316bb855fb986f77e3d2c83d32ed4dbd5",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "solver": {
+        "status": 0,
+        "message": "FEASIBLE",
+        "variables": 145223,
+        "constraints": 353514,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 2371,
+          "hint_is_soft": true,
+          "log_lines": 340,
+          "sat_inprocessing": false,
+          "branches": 173463,
+          "conflicts": 15614,
+          "wall_seconds": 30.108725500000002,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "geometry": {
+        "oam_entries": 48,
+        "peak_sprites": 16,
+        "peak_tile_slivers": 34
+      },
+      "compiled_schedule_sha256": "5fc07cf008b2674eba4e4a3b6acdf207ee4817becfb449f3f85542f79f64728f",
+      "peak_scheduled_writes": 21,
+      "maximum_noninitial_prefetch_latency_lines": 9,
+      "write_budget": 21,
+      "lookahead_lines": 55,
+      "preserve_hint_math_classes": true,
+      "preserve_hint_words": true,
+      "pool_interval_initial_preload": true,
+      "pool_interval_gap_bridge_lines": 55,
+      "total_noninitial_writes": 535,
+      "peak_favorable_high_commit_span": 456
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-known48-prefixcollapsed21-check.json",
+      "artifact_sha256": "b830b88e4083b7f5d5a6a813dfbd0a9bd1bcd1428ec8d7e4e31626a91cd3787e",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "solver": {
+        "status": 0,
+        "message": "FEASIBLE",
+        "variables": 31655,
+        "constraints": 78106,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 2371,
+          "hint_is_soft": true,
+          "log_lines": 354,
+          "sat_inprocessing": false,
+          "branches": 1470748,
+          "conflicts": 1150132,
+          "wall_seconds": 30.062954,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "geometry": {
+        "oam_entries": 48,
+        "peak_sprites": 16,
+        "peak_tile_slivers": 34
+      },
+      "compiled_schedule_sha256": "248c6a6b978a971f38e487a3d9b061abc967f2d0e64eead78406775f64a586f5",
+      "peak_scheduled_writes": 21,
+      "maximum_noninitial_prefetch_latency_lines": 9,
+      "write_budget": 21,
+      "lookahead_lines": 55,
+      "preserve_hint_math_classes": true,
+      "preserve_hint_words": true,
+      "collapse_inactive_prefix": true,
+      "pool_interval_initial_preload": true,
+      "pool_interval_gap_bridge_lines": 55,
+      "total_noninitial_writes": 506,
+      "peak_favorable_high_commit_span": 456
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-constructed.json",
+      "artifact_sha256": "17e04b282fd1d81c1e19557a9a76d48f5f1a1fa29e25e52c0fe0c7970340b2ac",
+      "status": "POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW",
+      "geometry": {
+        "oam_entries": 161,
+        "peak_sprites": 36,
+        "peak_tile_slivers": 36
+      },
+      "compiled_schedule_sha256": "f33da7adc84f78e2231c99f559a540a69c44a6f98b55fe7eeb4723af7945416e",
+      "peak_scheduled_writes": 23,
+      "lookahead_lines": 17
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-compacted16.json",
+      "artifact_sha256": "9c67c52e6236ce583478eb576e381598ee12890af6f255443e19881e18436aed",
+      "status": "BOUNDED_FIXED_BANK_COMPACTION_NO_LEGAL_GEOMETRY",
+      "geometry": {
+        "oam_entries": 161,
+        "peak_sprites": 36,
+        "peak_tile_slivers": 36
+      },
+      "geometry_compaction": {
+        "candidate_merges": 52,
+        "selected_merges": 0,
+        "original_geometry": {
+          "oam_entries": 161,
+          "peak_sprites": 36,
+          "peak_tile_slivers": 36
+        },
+        "objective": "MINIMUM_OAM_ENTRIES",
+        "solver_status": 2,
+        "solver_message": "The problem is infeasible. (HiGHS Status 8: model_status is Infeasible; primal_status is None)",
+        "pixel_bank_slot_identity_verified": true,
+        "native_geometry_admitted": false,
+        "universal_raster_rejected": false
+      },
+      "compiled_schedule_sha256": "f33da7adc84f78e2231c99f559a540a69c44a6f98b55fe7eeb4723af7945416e",
+      "peak_scheduled_writes": 23,
+      "lookahead_lines": 17
+    }
+  ],
+  "obsolete_preload_bug_trials_excluded": [
+    "known48-bridged21-check",
+    "subdivided-rebank-chunk4-preload18",
+    "subdivided-rebank-bridged21"
+  ],
+  "no_color_reduction": true,
+  "physical_transfer_admitted": false,
+  "native_authored_alpha_proven": false,
+  "universal_raster_rejected": false
+}

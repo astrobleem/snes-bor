@@ -17,7 +17,7 @@ def subdivide(source,indices):
     if any(i not in range(len(source['pieces']))for i in selected):raise ValueError('BANK_SUBDIVISION_INDEX')
     for i,(p,m,colors)in enumerate(zip(source['pieces'],source['piece_pixel_masks'],pixels)):
         if i not in selected:pieces.append(copy.deepcopy(p));masks.append(copy.deepcopy(m));continue
-        if p['width']not in(8,32)or p['height']!=p['width']:raise ValueError('BANK_SUBDIVISION_OBSEL_8_32_REQUIRED')
+        if p['width']not in(8,16,32)or p['height']!=p['width']:raise ValueError('BANK_SUBDIVISION_LEGAL_SQUARE_REQUIRED')
         image=unpack(m)
         for y in range(0,p['height'],8):
             for x in range(0,p['width'],8):
@@ -40,12 +40,18 @@ def subdivide(source,indices):
     if geometry['oam_entries']>128 or geometry['peak_sprites_per_line']>32 or geometry['peak_tile_slivers_per_line']>34:raise ValueError('BANK_SUBDIVISION_HARDWARE_GEOMETRY_LIMIT')
     result=copy.deepcopy(source);result.update(pieces=pieces,piece_pixel_masks=masks,geometry=geometry,piece_bank_assignment=[p['bank']for p in pieces])
     result.update(mixed_small_size=8,mixed_large_size=16 if 16 in sizes else 32)
-    result['bank_subdivision']=dict(selected_input_pieces=sorted(selected),geometry=geometry,pixels_exact=True)
+    result['bank_subdivision']=dict(selected_input_pieces=sorted(selected),geometry=geometry,pixels_exact=True,input_compiled_schedule_sha256=source.get('compiled_schedule_sha256'))
+    for field in ('prepared_dma_packets','physical_slot_layout'):result.pop(field,None)
+    result['native_presentation_proven']=False
+    payload=dict(pieces=pieces,pixel_masks=masks,trace=result['trace'])
+    if result.get('scanline_math_controls_source_bound'):
+        payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
+    result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
     demand(result)
     return result
 
 
-def rebalance(source,lookahead=17,maximum_moves=20,maximum_interval=32,anneal_steps=0,seed=221,time_limit=60):
+def rebalance(source,lookahead=17,maximum_moves=20,maximum_interval=32,anneal_steps=0,seed=221,time_limit=60,initial_assignment=None):
     if lookahead<0 or maximum_moves<0 or maximum_interval<1 or anneal_steps<0 or time_limit<=0:raise ValueError('BANK_REBALANCE_DOMAIN')
     required,_,pixels=demand(source);height=len(required)
     colors=sorted({int(c)for image in pixels for c in image[image>=0]});bits={c:1<<i for i,c in enumerate(colors)}
@@ -61,12 +67,13 @@ def rebalance(source,lookahead=17,maximum_moves=20,maximum_interval=32,anneal_st
     first,last=min(active),max(active)
     intervals=[(a,b)for a in range(first,last)for b in range(a+1,min(last,a+maximum_interval)+1)]
     denominators=np.array([b-a for a,b in intervals],dtype=float)
-    assignment=[p['bank']for p in source['pieces']];moves=[];started=time.monotonic()
+    assignment=[p['bank']for p in source['pieces']]if initial_assignment is None else list(initial_assignment);moves=[];started=time.monotonic()
     additive=source.get('color_math','additive')!='precomposited'
     allowed=[]
     for p in source['pieces']:
         banks=set(range(4*(p['bank']//4),4*(p['bank']//4)+4))if additive else set(range(8))
         banks.intersection_update(p.get('allowed_banks',range(8)));allowed.append(sorted(banks))
+    if len(assignment)!=len(allowed)or any(type(b)is not int or b not in banks for b,banks in zip(assignment,allowed)):raise ValueError('BANK_REBALANCE_EXPLICIT_ASSIGNMENT_DOMAIN')
     cache={}
     def stats(indices):
         key=tuple(indices)
@@ -92,7 +99,7 @@ def rebalance(source,lookahead=17,maximum_moves=20,maximum_interval=32,anneal_st
     for step in range(maximum_moves+1):
         cache.clear();members=[[i for i,b in enumerate(assignment)if b==bank]for bank in range(8)]
         base=[stats(v)for v in members]
-        if any(v is None for v in base):raise AssertionError('BANK_REBALANCE_INPUT_ROW_CAPACITY')
+        if any(v is None for v in base):raise ValueError('BANK_REBALANCE_INPUT_ROW_CAPACITY')
         current=score(base)
         if initial is None:initial=current
         if step==maximum_moves:break
@@ -153,7 +160,7 @@ def rebalance(source,lookahead=17,maximum_moves=20,maximum_interval=32,anneal_st
         peak_scheduled_writes=max(r['colors_written']for r in trace[1:]),peak_cgram_data_bytes=max(r['cgram_data_bytes']for r in trace[1:]),
         worst_scanline=1+int(np.argmax([r['colors_written']for r in trace[1:]])),average_writes=float(np.mean([r['colors_written']for r in trace[1:]])),
         bank_rebalance=dict(schema='BYOR_FIXED_BANK_REBALANCE_V1',status='REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN',seconds=time.monotonic()-started,
-            maximum_interval_lines=maximum_interval,initial_objective=list(initial),final_objective=list(current),moves=moves,
+            explicit_initial_assignment=None if initial_assignment is None else list(initial_assignment),maximum_interval_lines=maximum_interval,initial_objective=list(initial),final_objective=list(current),moves=moves,
             anneal_steps_requested=anneal_steps,anneal_proposals_sampled=sampled,anneal_moves_accepted=accepted,anneal_seed=seed,
             final_bank_distinct_colors=[v[1]for v in base],final_bank_peak_row_colors=[v[2]for v in base],
             fixed_bank_per_piece=True,color_math_classes_preserved=additive,pixel_color_identity_verified=True,

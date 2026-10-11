@@ -34,7 +34,7 @@ def select_words(requirements,preferences=None):
     return owners,selected
 
 
-def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False):
+def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None):
     if frame_word_cover and prefer_resident_words:raise ValueError('POOL_CONSTRUCT_FRAME_AND_RESIDENT_POLICY_CONFLICT')
     actors,metadata,expected=prepare(source,stage,scene)
     background=rgb555(compose_rgb8(source,stage,dict(scene,actors=[]))[0])
@@ -86,7 +86,7 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
                 p['x']+=a['left'];p['y']+=a['top'];p['rows']={y+a['top']:cs for y,cs in p['rows'].items()if cs and 0<=y+a['top']<len(background)}
                 cells.append(p)
         if not cells:continue
-        search=split_color_masks(cells,tuple(range(k*4,k*4+4)),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',defer_geometry_admission=True)
+        search=split_color_masks(cells,tuple(range(k*4,k*4+4)),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',defer_geometry_admission=True,residency_window_lines=bank_residency_window_lines)
         expanded=search.pop('pieces',None);report['bank_search'].append(dict(kind=k,**search))
         if expanded is None:return report
         pieces.extend(expanded);assignment.extend(search['assignment'])
@@ -128,9 +128,10 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('source','stage','scene','candidate','output'):p.add_argument('--'+name,required=True)
     p.add_argument('--time-limit',type=int,default=30)
+    p.add_argument('--bank-residency-window-lines',type=int,help='Restricted global bank assignment: every rolling window union must fit fifteen slots per bank.')
     p.add_argument('--frame-word-cover',action='store_true',help='Choose exact words by shared coverage across the full source frame rather than independently per row.')
     p.add_argument('--prefer-resident-words',action='store_true')
-    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover)
+    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines)
     Path(a.output).write_text(json.dumps(r,indent=2)+'\n')
     summary={k:r[k]for k in ('status','peak_selected_colors_by_class','geometry','hardware_geometry_admitted','peak_scheduled_writes')if k in r}
     summary['bank_search']=[{k:v for k,v in search.items()if k!='assignment'}for search in r['bank_search']]

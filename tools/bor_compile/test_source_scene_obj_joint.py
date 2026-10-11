@@ -6,6 +6,89 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_unused_pool_gap_and_actor_free_prefix_allow_real_retention(self):
+        import hashlib
+        from raster_math_windows import compile_mask
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[3,0]=pixels[5,0]=1
+        expected=background.copy();expected[3,0,0]=expected[5,0,0]=8
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            selected_modes={str(y):'add'for y in range(3,6)},
+            compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(3,6)},
+            selected_palette_residency={str(y):{'0':[],'1':[1]if y!=4 else[]}for y in range(3,6)})
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            result=probe(None,None,{},size=8,write_budget=0,time_limit=10,solver_backend='cp-sat',
+                scanline_math_candidate=candidate,pin_scanline_pool_intervals=True,
+                pool_interval_initial_preload=True,pool_interval_max_lines=1,pool_interval_gap_bridge_lines=1,collapse_inactive_prefix=True)
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertEqual(result['trace'][0]['colors_written'],1)
+        self.assertEqual(result['peak_scheduled_writes'],0)
+        self.assertTrue(result['collapse_inactive_prefix'])
+
+    def test_future_interval_can_load_late_when_initial_bank_is_full(self):
+        import hashlib
+        from raster_math_windows import compile_mask
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,16),-1,dtype=np.int32);pixels[0,:15]=np.arange(1,16);pixels[1,0]=16
+        expected=background.copy();expected[0,:15,0]=np.arange(1,16)*8;expected[1,0,0]=128
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            selected_modes={'0':'add','1':'add'},
+            compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(2)},
+            selected_palette_residency={'0':{'0':[],'1':list(range(1,16))},'1':{'0':[],'1':[16]}})
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            hint=probe(None,None,{},size=16,write_budget=1,time_limit=10,solver_backend='cp-sat',additive_only=True)
+            result=probe(None,None,{},size=16,write_budget=1,time_limit=10,solver_backend='cp-sat',
+                schedule_hint=hint,fixed_geometry=True,preserve_hint_math_classes=True,preserve_hint_words=True,
+                scanline_math_candidate=candidate,pin_scanline_pool_intervals=True,
+                pool_interval_initial_preload=True,pool_interval_max_lines=1)
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertEqual(result['geometry']['oam_entries'],1)
+        self.assertEqual(result['trace'][0]['colors_written'],15)
+        self.assertEqual(result['trace'][1]['colors_written'],1)
+        self.assertEqual(result['trace'][1]['updates'][0]['color'],16)
+
+    def test_future_pool_interval_initial_preload_counts_occupied_prefix(self):
+        import hashlib
+        from raster_math_windows import compile_mask
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[1:3,0]=[1,2]
+        expected=background.copy();expected[1:3,0,0]=[8,16]
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            selected_modes={str(y):'add'for y in range(3)},
+            compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(3)},
+            selected_palette_residency={str(y):{'0':[],'1':[y]if y else[]}for y in range(3)})
+        for preload in (False,True):
+            with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+                result=probe(None,None,{},size=8,write_budget=0,time_limit=10,solver_backend='cp-sat',
+                    scanline_math_candidate=candidate,pin_scanline_pool_intervals=True,pool_interval_initial_preload=preload)
+            if not preload:self.assertEqual(result['solver']['message'],'INFEASIBLE')
+            else:
+                self.assertTrue(result['compiled_pixel_identity_verified'])
+                self.assertEqual(result['trace'][0]['colors_written'],2)
+                self.assertEqual(result['peak_scheduled_writes'],0)
+                self.assertTrue(result['initial_palette_may_preload_entire_frame'])
+
+    def test_fixed_rectangle_search_can_preserve_words_and_math_classes(self):
+        from raster_slot_greedy import demand
+        background=np.zeros((224,256,3),dtype=np.uint8);background[:8,:16,0]=32
+        pixels=np.full((8,16),6,dtype=np.int32);expected=background.copy();expected[:8,:16,0]=48
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            hint=probe(None,None,{},size=8,write_budget=0,time_limit=10,solver_backend='cp-sat',additive_only=True)
+            result=probe(None,None,{},size=8,write_budget=0,time_limit=10,solver_backend='cp-sat',
+                schedule_hint=hint,fixed_rectangles=True,preserve_hint_math_classes=True,preserve_hint_words=True,bank_symmetry=True)
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertTrue(result['preserve_hint_words'])
+        self.assertTrue(all(p['bank']>=4 for p in result['pieces']))
+        _,_,a=demand(hint);_,_,b=demand(result)
+        for old,new in zip(a,b):np.testing.assert_array_equal(old,new)
+        with self.assertRaisesRegex(ValueError,'PRESERVED_HINT_POLICY'):probe(None,None,{},preserve_hint_words=True)
+
     def test_shared_parent_math_choices_coalesce_with_exact_source_replay(self):
         background=np.zeros((224,256,3),dtype=np.uint8);background[:8,:16,0]=32
         pixels=np.full((8,16),6,dtype=np.int32);expected=background.copy();expected[:8,:16,0]=48

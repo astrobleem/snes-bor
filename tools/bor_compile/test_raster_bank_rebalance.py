@@ -52,8 +52,16 @@ class RebalanceTests(unittest.TestCase):
         self.assertLessEqual(result['geometry']['peak_sprites_per_line'],32)
         self.assertLessEqual(result['geometry']['peak_tile_slivers_per_line'],34)
 
-    def test_subdivision_rejects_unsupported_size_pair(self):
-        with self.assertRaisesRegex(ValueError,'OBSEL_8_32_REQUIRED'):subdivide(source_schedule(),[0])
+    def test_legal_sixteen_pixel_subdivision_and_invalid_square(self):
+        source=source_schedule();source['compiled_schedule_sha256']='old';source['physical_slot_layout']={'status':'old'};result=subdivide(source,[0])
+        self.assertEqual(result['geometry']['oam_entries'],5)
+        self.assertEqual(result['mixed_large_size'],16)
+        self.assertNotEqual(result['compiled_schedule_sha256'],'old')
+        self.assertEqual(result['bank_subdivision']['input_compiled_schedule_sha256'],'old')
+        self.assertNotIn('physical_slot_layout',result)
+        self.assertTrue(result['bank_subdivision']['pixels_exact'])
+        source['pieces'][0]['width']=12
+        with self.assertRaisesRegex(ValueError,'GREEDY_PIECE_DOMAIN'):subdivide(source,[0])
 
 
 if __name__=='__main__':unittest.main()

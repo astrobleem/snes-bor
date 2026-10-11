@@ -8,6 +8,10 @@ zero additional writes. Optional unused words may be omitted. Initial preloads
 are restricted to words present in the first saved pool row; their slots remain
 counted through the entire preceding screen interval.
 
+The later optional future-preload, gap-bridge and inactive-prefix construction
+is described in `docs/byor-motu-fixed-bank-refinement.md`. The first-row
+restriction above remains the default, not a hardware limitation.
+
 This is an explicitly restricted construction, not a complete raster solver.
 Every visible non-underlay-equal source pixel must lie within the saved controls.
 The existing source-bound math/window checks and independent pixel replay remain

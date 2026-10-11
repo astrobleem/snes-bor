@@ -37,7 +37,7 @@ def restrict_interval(source,first,last):
     return result
 
 
-def relaxed_bound(source,lookahead=17,time_limit=60):
+def relaxed_bound(source,lookahead=17,time_limit=60,include_dual_pressure=False):
     """Fractional fixed-bank cache lower bound, with independently checked dual."""
     from scipy.optimize import linprog
     from scipy.sparse import coo_matrix
@@ -59,8 +59,11 @@ def relaxed_bound(source,lookahead=17,time_limit=60):
             w=writes[b,c,y];constraint([(v,1),(resident[b,c,y-1],-1),(w,-1)],0)
             write_lines.setdefault(y,[]).append(w)
             if not any(y<=t<=y+lookahead for t in uses[b][c]):bounds[w]=(0,0)
-    for values in bank_lines.values():constraint([(v,1)for v in values],15)
-    for values in write_lines.values():constraint([(v,1)for v in values]+[(peak,-1)],0)
+    capacity_rows={};write_rows={}
+    for key,values in bank_lines.items():
+        capacity_rows[key]=len(limits);constraint([(v,1)for v in values],15)
+    for y,values in write_lines.items():
+        write_rows[y]=len(limits);constraint([(v,1)for v in values]+[(peak,-1)],0)
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(limits),peak+1)).tocsc();objective=np.zeros(peak+1);objective[peak]=1
     r=linprog(objective,A_ub=matrix,b_ub=limits,bounds=bounds,method='highs-ipm',options={'time_limit':time_limit})
     report=dict(schema='BYOR_FIXED_BANK_CACHE_LP_BOUND_V1',status='BOUNDED_FIXED_BANK_LP_NO_BOUND',solver_status=int(r.status),message=r.message,
@@ -75,6 +78,9 @@ def relaxed_bound(source,lookahead=17,time_limit=60):
         if violation>1e-6 or residual>1e-6 or abs(dual-r.fun)>1e-6:raise AssertionError('BANK_CACHE_LP_PRIMAL_DUAL_CERTIFICATE')
         report.update(status='FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND',peak_write_lower_bound=float(r.fun),validated_dual_lower_bound=dual,
             maximum_primal_violation=violation,maximum_dual_residual=residual)
+        if include_dual_pressure:
+            report['dual_active_bank_capacity']=[dict(bank=b,scanline=y,marginal=float(r.ineqlin.marginals[row]))for (b,y),row in capacity_rows.items()if abs(r.ineqlin.marginals[row])>1e-8]
+            report['dual_active_write_limits']=[dict(scanline=y,marginal=float(r.ineqlin.marginals[row]))for y,row in write_rows.items()if abs(r.ineqlin.marginals[row])>1e-8]
     return report
 
 

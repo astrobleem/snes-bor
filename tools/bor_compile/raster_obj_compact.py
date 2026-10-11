@@ -66,7 +66,17 @@ def compact(schedule,time_limit=30,large_size=32,retain_small_geometry=False):
     pixels=[m for i,m in enumerate(masks)if i not in replaced]
     for i in sorted(selected):pieces.append(options[i][1]);pixels.append(options[i][2])
     final=costs(pieces)
-    if np.any(final>limits):raise AssertionError('OBJ_COMPACT_HARDWARE_OVERFLOW')
+    if np.any(final>limits):
+        if selected:raise AssertionError('OBJ_COMPACT_HARDWARE_OVERFLOW')
+        result=copy.deepcopy(schedule)
+        result.update(status='BOUNDED_FIXED_BANK_COMPACTION_NO_LEGAL_GEOMETRY',hardware_geometry_admitted=False,native_presentation_proven=False,
+            geometry=dict(oam_entries=len(pieces),peak_sprites=int(max(final[1:height+1],default=0)),peak_tile_slivers=int(max(final[height+1:],default=0))),
+            geometry_compaction=dict(candidate_merges=len(options),selected_merges=0,original_geometry=schedule['geometry'],
+                objective='FEWEST_MERGES_WITHIN_HARDWARE_LIMITS'if retain_small_geometry else'MINIMUM_OAM_ENTRIES',
+                solver_status=int(solver.status)if solver is not None else None,solver_message=solver.message if solver is not None else'NO_MERGE_CHOICES',
+                pixel_bank_slot_identity_verified=True,native_geometry_admitted=False,universal_raster_rejected=False))
+        for field in ('prepared_dma_packets','physical_slot_layout'):result.pop(field,None)
+        return result
     def encoded(objects,images):
         result={}
         for p,image in zip(objects,images):

@@ -3,6 +3,16 @@ from raster_obj_compact import compact,unpack
 
 
 class ObjCompactionTests(unittest.TestCase):
+    def test_no_legal_merge_reports_hardware_failure_without_admission(self):
+        source=self.schedule([(i,0,i,0)for i in range(33)])
+        source['status']='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW'
+        result=compact(source)
+        self.assertEqual(result['status'],'BOUNDED_FIXED_BANK_COMPACTION_NO_LEGAL_GEOMETRY')
+        self.assertEqual(result['geometry']['peak_sprites'],33)
+        self.assertFalse(result['hardware_geometry_admitted'])
+        self.assertFalse(result['native_presentation_proven'])
+        self.assertFalse(result['geometry_compaction']['universal_raster_rejected'])
+
     def schedule(self,positions):
         pieces=[];masks=[]
         for actor,bank,x,y in positions:
