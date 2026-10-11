@@ -24,3 +24,9 @@ The seventeen protected files still match their original hashes.
 
 Authored alpha native proof, concurrent actors and production admission remain
 open. NO color reduction or alpha adaptation is applied.
+
+Paired and general rectangle feasibility-only searches also return UNKNOWN
+after 90.069 and 90.089 seconds. The general search includes the 345-clock
+necessary bank partition bound. Neither result rejects raster. The physical
+range model now includes a redundant transparent-bank crossing lower bound;
+all eighteen layout tests still pass, including exhaustive small partitions.

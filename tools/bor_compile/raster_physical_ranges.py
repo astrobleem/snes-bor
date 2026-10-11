@@ -130,6 +130,15 @@ def constrain(model, write_flags, slots, height, maximum_ranges, window, bank_de
         # writes occupy distinct opaque slots, at most fifteen per bank.
         model.add(writes <= color_limit)
         model.add(sum(length for active, begin, end, length in row) >= writes)
+        if bank_destinations is None:
+            bank_active=[]
+            for bank in sorted({b for i,b,flag in events}):
+                active=model.new_bool_var(f'physicalBankActive{y}_{bank}')
+                model.add_max_equality(active,[flag for i,b,flag in events if b==bank])
+                bank_active.append(active)
+            # R ranges spanning B active banks include at least B-R
+            # transparent words. This bound also permits intra-bank splits.
+            model.add(sum(length for active,begin,end,length in row)>=writes+sum(bank_active)-sum(active for active,begin,end,length in row))
         model.add(cost <= row_window + 39)
         model.add(peak >= cost)
     return ranges, peak
