@@ -12,13 +12,21 @@ from raster_physical_relabel import point_partition
 from raster_slot_refine import verify_packets
 
 
-def optimize(source):
+def paired_span(updates):
+    counts=[sum(e['bank']==b for e in updates)for b in range(8)]
+    return max(0,sum(24+16*(counts[b]+counts[b+1]+int(bool(counts[b])and bool(counts[b+1])))
+                     for b in range(0,8,2)if counts[b]or counts[b+1])-40)
+
+
+def optimize(source,objective_kind='general'):
+    if objective_kind not in('general','fixed-pairs'):raise ValueError('BANK_ORDER_OBJECTIVE_DOMAIN')
     _,_,pixels=demand(source);pools=bank_groups(source)
     best=None;mapping=None;trials=0
     for groups in itertools.product(*(itertools.permutations(p)for p in pools)):
         candidate=tuple(b for group in groups for b in group)
         if any(candidate[p['bank']]not in p.get('allowed_banks',range(8))for p in source['pieces']):continue
-        costs=[favorable_span([dict(e,bank=candidate[e['bank']])for e in row['updates']])for row in source['trace'][1:]]
+        metric=paired_span if objective_kind=='fixed-pairs'else favorable_span
+        costs=[metric([dict(e,bank=candidate[e['bank']])for e in row['updates']])for row in source['trace'][1:]]
         score=max(costs,default=0),sum(costs);trials+=1
         if best is None or score<best:best=score;mapping=candidate
     if mapping is None:raise ValueError('BANK_ORDER_NO_ELIGIBLE_PERMUTATION')
@@ -51,6 +59,7 @@ def optimize(source):
         for ly,lx in zip(*np.where(image)):indices[p['y']+ly,p['x']+lx]=128+16*p['bank']+image[ly,lx]
     peak=max(r['prepared_commit_span']for r in packets)
     result['optimistic_bank_order']=dict(schema='BYOR_FIXED_TRACE_BANK_ORDER_V1',permutations_evaluated=trials,eligible_family_exhaustive=True,
+        objective_kind=objective_kind,
         minimum_optimistic_peak_span=best[0],aggregate_optimistic_span=best[1],bank_mapping=list(mapping),
         emitted_physical_peak_span=peak,source_operands_replayed=True,fixed_bank_per_piece=True,palette_write_lifetimes_unchanged=True,
         math_eligibility_preserved=True,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
@@ -67,7 +76,8 @@ def optimize(source):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--schedule',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()));a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r['optimistic_bank_order']))
+    p.add_argument('--objective',choices=('general','fixed-pairs'),default='general')
+    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.objective);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r['optimistic_bank_order']))
 
 
 if __name__=='__main__':main()

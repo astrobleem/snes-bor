@@ -6,6 +6,21 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_feasibility_only_keeps_transfer_and_pixel_checks(self):
+        from raster_slot_greedy import demand
+        from raster_slot_refine import verify_packets
+        source=self.schedule()
+        result=optimize(source,window=33,time_limit=3,feasibility_only=True)
+        verify_packets(result)
+        self.assertEqual(result['physical_slot_layout']['solver_objective'],'FEASIBILITY_ONLY')
+        self.assertLess(result['physical_slot_layout']['peak_prepared_commit_span'],33)
+        _,_,a=demand(source);_,_,b=demand(result)
+        self.assertTrue(all(np.array_equal(x,y)for x,y in zip(a,b)))
+        rejected=optimize(source,window=32,time_limit=3,feasibility_only=True)
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+        with self.assertRaisesRegex(ValueError,'FEASIBILITY_DOMAIN'):
+            optimize(source,feasibility_only=1)
+
     def test_lifetime_timing_respects_necessary_bank_window(self):
         from raster_bank_residency import favorable_span
         from raster_slot_refine import verify_packets

@@ -1,12 +1,23 @@
 import unittest
 import numpy as np
-from raster_bank_order import optimize
+from raster_bank_order import optimize,paired_span
+from raster_bank_residency import favorable_span
 from raster_slot_greedy import demand
 from raster_slot_refine import verify_packets
 from test_raster_slot_greedy import source_schedule
 
 
 class BankOrderTests(unittest.TestCase):
+    def test_fixed_pairs_are_explicit_and_preserve_operand_identities(self):
+        updates=[dict(bank=1),dict(bank=2)]
+        self.assertEqual(paired_span(updates),40)
+        self.assertEqual(favorable_span(updates),32)
+        source=source_schedule();result=optimize(source,'fixed-pairs');verify_packets(result)
+        self.assertEqual(result['optimistic_bank_order']['objective_kind'],'fixed-pairs')
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        self.assertFalse(result['optimistic_bank_order']['native_timing_admitted'])
+        with self.assertRaisesRegex(ValueError,'OBJECTIVE_DOMAIN'):optimize(source,'unknown')
+
     def test_exhaustive_eligible_trace_order_preserves_pixels_and_packets(self):
         source=source_schedule();source['bank_residency']={'peak_optimistic_prepared_span':999}
         result=optimize(source);verify_packets(result)
