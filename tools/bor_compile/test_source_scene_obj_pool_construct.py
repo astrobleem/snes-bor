@@ -18,14 +18,16 @@ class PoolConstructionTests(unittest.TestCase):
             selected_modes={str(y):'subtract'for y in range(8)},
             compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(8)},
             selected_palette_residency={str(y):{'0':[],'1':[6]}for y in range(8)})
-        with patch('source_scene_obj_pool_construct.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_pool_construct.compose_rgb8',return_value=(background,{})):
-            result=construct(None,None,{},candidate,time_limit=10)
-        self.assertTrue(result['compiled_pixel_identity_verified'])
-        self.assertTrue(result['hardware_geometry_admitted'])
-        self.assertEqual(result['geometry']['oam_entries'],1)
-        self.assertGreaterEqual(result['pieces'][0]['bank'],4)
-        self.assertEqual(result['peak_selected_colors_by_class'],[0,1])
-        self.assertFalse(result['native_presentation_proven'])
+        for frame_cover in (False,True):
+            with patch('source_scene_obj_pool_construct.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_pool_construct.compose_rgb8',return_value=(background,{})):
+                result=construct(None,None,{},candidate,time_limit=10,frame_word_cover=frame_cover)
+            self.assertTrue(result['compiled_pixel_identity_verified'])
+            self.assertTrue(result['hardware_geometry_admitted'])
+            self.assertEqual(result['geometry']['oam_entries'],1)
+            self.assertGreaterEqual(result['pieces'][0]['bank'],4)
+            self.assertEqual(result['peak_selected_colors_by_class'],[0,1])
+            self.assertFalse(result['native_presentation_proven'])
+            self.assertEqual(result['operand_selection_policy'],'GREEDY_EXACT_FRAME_SET_COVER'if frame_cover else'GREEDY_EXACT_ROW_SET_COVER')
 
     def test_deferred_geometry_does_not_silently_admit_sprite_overflow(self):
         pieces=[dict(x=0,y=0,width=8,height=8,rows={0:[1]})for _ in range(33)]

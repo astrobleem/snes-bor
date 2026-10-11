@@ -72,7 +72,7 @@ def hint_ownership(schedule,pieces):
     return owner,chosen_masks,states
 
 
-def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive", mixed_small_size=8, mixed_large_size=32, additive_only=False,pool_math_modes=None,fixed_geometry=False,maximum_frame_colors_per_bank=None,scanline_math_candidate=None,row_capacity_only=False,coalesce_math_choices=False,fixed_rectangles=False,pin_scanline_pool_intervals=False,pool_interval_bank_copies=1,pool_interval_max_lines=0):
+def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive", mixed_small_size=8, mixed_large_size=32, additive_only=False,pool_math_modes=None,fixed_geometry=False,maximum_frame_colors_per_bank=None,scanline_math_candidate=None,row_capacity_only=False,coalesce_math_choices=False,fixed_rectangles=False,pin_scanline_pool_intervals=False,pool_interval_bank_copies=1,pool_interval_max_lines=0,maximum_banks_per_piece_class=0):
     if solver_backend not in ('highs','cp-sat') or (relaxed and solver_backend!='highs'):raise ValueError('JOINT_SOLVER_BACKEND')
     if fixed_geometry and fixed_rectangles:raise ValueError('JOINT_FIXED_GEOMETRY_AND_RECTANGLES_CONFLICT')
     if (fixed_geometry or fixed_rectangles)and(schedule_hint is None or pool_only or bank_symmetry):raise ValueError('JOINT_FIXED_GEOMETRY_REQUIRES_HINT_WITHOUT_POOL_OR_SYMMETRY')
@@ -88,6 +88,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     if pin_scanline_pool_intervals and (scanline_math_candidate is None or pool_residency or row_capacity_only):raise ValueError('JOINT_SCANLINE_INTERVAL_POLICY')
     if type(pool_interval_bank_copies)is not int or not 1<=pool_interval_bank_copies<=4 or(pool_interval_bank_copies!=1 and not pin_scanline_pool_intervals):raise ValueError('JOINT_SCANLINE_INTERVAL_COPIES')
     if type(pool_interval_max_lines)is not int or pool_interval_max_lines<0 or(pool_interval_max_lines and not pin_scanline_pool_intervals):raise ValueError('JOINT_SCANLINE_INTERVAL_LENGTH')
+    if type(maximum_banks_per_piece_class)is not int or not 0<=maximum_banks_per_piece_class<=8:raise ValueError('JOINT_PIECE_CLASS_BANK_CAP')
     def kind(bank):return int(color_math=='additive' and bank>=4)
     def banks_for_kind(k):return range(4*k,4*k+4) if color_math=='additive' else range(8)
     base_size=mixed_large_size if size=='mixed'else size
@@ -354,6 +355,10 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         constraint([(masks[key],1)]+[(v,-1)for v in variables],-np.inf,0)
     for (p,k,y),colors in forced_colors.items():
         mandatory[p,k]=max(mandatory[p,k],(len(colors)+14)//15)
+    if maximum_banks_per_piece_class:
+        for p in range(len(pieces)):
+            for k in ((0,1)if color_math=='additive'else(0,)):
+                constraint([(masks[p,b],1)for b in banks_for_kind(k)],0,maximum_banks_per_piece_class)
     for (p,k),count in mandatory.items():
         constraint([(masks[p,b],1)for b in banks_for_kind(k)],count,np.inf)
     mandatory_geometry=dict(oam_entries=sum(mandatory.values()),
@@ -518,6 +523,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 saturated_extrema=saturated_extrema,additive_operand_corpus_colors=len(residual_corpus),
                 grid_padding_x=grid_padding_x,grid_padding_y=grid_padding_y,
                 horizontal_clip_limit_counted=clip_horizontal,
+                maximum_banks_per_piece_class=maximum_banks_per_piece_class,
                 mandatory_geometry_lower_bound=mandatory_geometry,
                 independent_actor_row_tile_lower_bounds=row_tile_lower_bounds,
                 independent_actor_peak_tile_lower_bound=max(row_tile_lower_bounds,default=0),
@@ -656,6 +662,7 @@ def main():
     p.add_argument('--pool-math-mode',action='append',choices=('add','half-add','subtract','half-subtract'),help='Necessary pool relaxation only; modes may differ per pixel.')
     p.add_argument('--color-math',choices=('additive','precomposited'),default='additive',help='Precomposited stores exact final context RGB555 in all eight banks; native alpha/context ownership remains required.')
     p.add_argument('--schedule-hint',type=Path)
+    p.add_argument('--maximum-banks-per-piece-class',type=int,default=0,help='Optional restricted maximum OAM bank masks per geometry rectangle and color-math class; zero is unrestricted.')
     p.add_argument('--pool-interval-max-lines',type=int,default=0,help='Optional subdivision of pool lifetimes into bounded chunks; retained bank copies across chunks incur no new write.')
     p.add_argument('--pool-interval-bank-copies',type=int,default=1,help='Maximum bank copies of a retained saved pool interval, each charged as a write when newly loaded.')
     p.add_argument('--pin-scanline-pool-intervals',action='store_true',help='Restricted construction: retain bounded bank copies through each saved word interval or chunk; requires full source-pixel scope.')
@@ -668,7 +675,7 @@ def main():
     p.add_argument('--maximum-frame-colors-per-bank',type=int)
     p.add_argument('--row-capacity-only',action='store_true',help='Geometry/bank search only: requires 120 writes and zero lookahead; no transfer admission.')
     p.add_argument('--scanline-math-candidate',type=Path,help='Source-replayed integer pool controls and operand choices; outside its rows explicitly uses full add without a window.')
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size,additive_only=a.additive_only,pool_math_modes=a.pool_math_mode,fixed_geometry=a.fixed_geometry,maximum_frame_colors_per_bank=a.maximum_frame_colors_per_bank,scanline_math_candidate=json.loads(a.scanline_math_candidate.read_text())if a.scanline_math_candidate else None,row_capacity_only=a.row_capacity_only,coalesce_math_choices=a.coalesce_math_choices,fixed_rectangles=a.fixed_rectangles,pin_scanline_pool_intervals=a.pin_scanline_pool_intervals,pool_interval_bank_copies=a.pool_interval_bank_copies,pool_interval_max_lines=a.pool_interval_max_lines)
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size,additive_only=a.additive_only,pool_math_modes=a.pool_math_mode,fixed_geometry=a.fixed_geometry,maximum_frame_colors_per_bank=a.maximum_frame_colors_per_bank,scanline_math_candidate=json.loads(a.scanline_math_candidate.read_text())if a.scanline_math_candidate else None,row_capacity_only=a.row_capacity_only,coalesce_math_choices=a.coalesce_math_choices,fixed_rectangles=a.fixed_rectangles,pin_scanline_pool_intervals=a.pin_scanline_pool_intervals,pool_interval_bank_copies=a.pool_interval_bank_copies,pool_interval_max_lines=a.pool_interval_max_lines,maximum_banks_per_piece_class=a.maximum_banks_per_piece_class)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
 
 

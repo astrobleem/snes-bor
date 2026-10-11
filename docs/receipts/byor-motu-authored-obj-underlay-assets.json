@@ -1,0 +1,120 @@
+{
+  "schema": "BYOR_STATIC_OBJ_MATH_UNDERLAY_V1",
+  "status": "OFFLINE_BG1_CHR_MAP_PALETTE_SOURCE_IDENTITY_PROVEN",
+  "viewport": [
+    256,
+    224
+  ],
+  "colors": 58,
+  "unique_8x8_tiles": 596,
+  "chr_bytes": 38144,
+  "map_bytes": 2048,
+  "palette_bytes": 256,
+  "bg_mode": 3,
+  "bg1_chr_byte_range": [
+    0,
+    45056
+  ],
+  "bg1_map_byte_range": [
+    45056,
+    47104
+  ],
+  "obj_chr_byte_range": [
+    49152,
+    65536
+  ],
+  "bg_palette_word_range": [
+    1,
+    58
+  ],
+  "obj_palette_word_range": [
+    128,
+    255
+  ],
+  "visible_nonzero_bg_indices_verified": true,
+  "source_rgb555_sha256": "b709ce24b7bed3d5b275f5039619ef256f02f6b04a610994c096103b7c0d27c3",
+  "chr_sha256": "f2da057830adc6ad23fbe0c28cc11cd7c2174d2ad056cf84fd05cdd061dc2ca0",
+  "map_sha256": "a827759fcbd12a82f26d2789ec38e2f1ac4b80396cf9c22a7a4af79656326072",
+  "palette_sha256": "8b3f8671ac91d19975a6aea94a8b23a9d2942df37b8fcbaa1903b90eee008206",
+  "source_pixel_identity_verified": true,
+  "no_color_reduction": true,
+  "native_presentation_proven": false,
+  "source_alpha_math_routing_proven": false,
+  "scope": "One actor-free static source viewport. No native routing, front-layer ownership, background streaming or joint runtime budget proof.",
+  "metadata": {
+    "stage": "DATA/LEVELS/GUILE2.TXT",
+    "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+    "scene": {
+      "viewport": [
+        256,
+        224
+      ],
+      "piece_size": [
+        16,
+        32
+      ],
+      "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+      "actors": []
+    },
+    "layers": [
+      {
+        "kind": "background",
+        "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+        "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+        "source_dimensions": [
+          800,
+          400
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 57344,
+        "source_flip": false
+      },
+      {
+        "kind": "panel",
+        "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+        "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+        "source_dimensions": [
+          2544,
+          245
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 44246,
+        "source_flip": false
+      },
+      {
+        "kind": "frontpanel",
+        "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+        "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+        "source_dimensions": [
+          350,
+          245
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 2749,
+        "source_flip": false
+      }
+    ],
+    "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+    "alpha_source_dimensions": [],
+    "camera": [
+      0.0,
+      0.0
+    ],
+    "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+    "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+    "all_actor_models_preserved": true
+  },
+  "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0"
+}

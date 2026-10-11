@@ -94,6 +94,17 @@ class JointSceneSolverTests(unittest.TestCase):
                     self.assertEqual(result['peak_scheduled_writes'],23)
                     self.assertEqual([r['colors_written']for r in result['trace'][:4]],[0,23,0,0])
 
+    def test_piece_class_mask_cap_is_an_explicit_construction_restriction(self):
+        pixels=np.arange(16,dtype=np.int32).reshape(2,8)
+        background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy();expected[:2,:8,0]=(pixels*8).astype(np.uint8)
+        for cap in (1,2):
+            with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+                result=probe(None,None,{},size=8,write_budget=0,time_limit=10,solver_backend='cp-sat',
+                    color_math='precomposited',maximum_banks_per_piece_class=cap)
+            self.assertEqual(result['maximum_banks_per_piece_class'],cap)
+            if cap==1:self.assertEqual(result['solver']['message'],'INFEASIBLE')
+            else:self.assertTrue(result['compiled_pixel_identity_verified'])
+
     def test_row_capacity_search_replays_eviction_and_later_reuse(self):
         background=np.zeros((224,256,3),dtype=np.uint8)
         pixels=np.full((8,8),-1,dtype=np.int32);pixels[:3,0]=[1,2,1]
