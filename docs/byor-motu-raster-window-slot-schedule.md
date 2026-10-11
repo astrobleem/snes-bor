@@ -107,3 +107,17 @@ Its probing-zero corrected native gate remains UNKNOWN; the joint bank/slot
 probing-zero search retains the source-exact 472-clock witness with unchanged
 piece banks. Fourteen row-slot tests pass, including the strict three-bank
 boundary with probing disabled. All protected hashes and width checks pass.
+
+When piece banks are movable, redundant interval cuts now count mandatory
+identities within each color-math class's sixty opaque slots. The complete
+bank-specific fifteen-slot and physical-transfer model remains in force;
+these pooled cuts cannot admit a schedule by themselves. A sixty-four-color
+fixture proves that bank reassignment cannot avoid required palette writes,
+including opaque RGB555 zero. Ten focused tests pass. The authored 472-clock
+hint remains valid with all hints fixed. The low-sprite 103-piece layout gains
+1092 cuts but its fifty-second joint native gate remains UNKNOWN.
+
+Emitted CHR/OAM replay verifies the actual tile footprint: the original
+80-piece layout uses 6400 bytes and the 104-piece subdivision uses 6304 bytes,
+both with 163 unique tile patterns. These fit the isolated OBJ region. This
+does not admit animation upload bandwidth or production VRAM leases.

@@ -10,6 +10,27 @@ from test_raster_slot_layout import SlotLayoutTests
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class WindowSlotTests(unittest.TestCase):
+    def test_movable_piece_keeps_math_class_capacity_liveness(self):
+        source,_,_=self.source();source['pieces'][0]['bank']=0
+        image=np.tile(np.arange(1,9,dtype=np.uint8),(8,1));flat=image.flatten()
+        source['piece_pixel_masks'][0]['pixels_hex']=(flat[::2]|flat[1::2]<<4).tobytes().hex()
+        state={b:[None]*15 for b in range(8)};trace=[]
+        for y in range(16):
+            before=copy.deepcopy(state);events=[]
+            if y<8:
+                for s in range(8):
+                    color=8*y+s;events.append(dict(bank=0,slot=s+1,old=state[0][s],color=color));state[0][s]=color
+            trace.append(dict(scanline=y,resident_before=before,updates=events))
+        source['trace']=trace;bg=np.zeros((16,256),dtype=np.uint16);expected=bg.copy();expected[:8,:8]=np.arange(64,dtype=np.uint16).reshape(8,8)
+        source['source_rgb555_sha256']=hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest()
+        failed=optimize(source,bg,expected,time_limit=5,maximum_writes=0,movable_pieces=[0],probing_level=0)
+        self.assertEqual(failed['solver_status'],'INFEASIBLE');self.assertGreater(failed['mandatory_math_class_interval_cuts'],0)
+        result=optimize(source,bg,expected,time_limit=5,maximum_writes=8,movable_pieces=[0],probing_level=0)
+        verify_packets(result)
+        self.assertTrue(result['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
+        self.assertLess(result['pieces'][0]['bank'],4)
+        self.assertEqual(set(demand(result)[2][0].flatten()),set(range(64)))
+
     def test_joint_bank_assignment_stays_fixed_and_respects_math_eligibility(self):
         source,bg,expected=self.source();source['pieces'][0]['allowed_banks']=[4,5]
         result=optimize(source,bg,expected,time_limit=5,maximum_writes=0,movable_pieces=[0],probing_level=0)

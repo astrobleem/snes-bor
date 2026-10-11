@@ -81,7 +81,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
             options,cover_reports[b]=complete_math_cover(requirements,modes=modes,tag_modes=True,retained_operands=tables[b])
             complete_options[b]=options;tables[b]=sorted(set(tables[b])|{word for choices in options.values()for word in choices})
     codes=[{word:i for i,word in enumerate(table)}for table in tables]
-    model=cp_model.CpModel();values={};flags={};gates={};selected_indices={};presence={};hint_values={};mandatory={};pixel_reads={};bank_choices={}
+    model=cp_model.CpModel();values={};flags={};gates={};selected_indices={};presence={};hint_values={};mandatory={};pool_mandatory={};pixel_reads={};bank_choices={}
     for i in movable:
         choices=[]
         for b in bank_options[i]:
@@ -98,6 +98,8 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         p['operand_choices']=choices;alternative_pixels+=len(choices)>1
     for y,items in rows.items():
         for p in items:
+            if p['bank']<4 or not p['operand_choices']or set(p['operand_choices'])=={p['output']}:
+                pool_mandatory.setdefault((y,p['bank']//4),set()).add(p['output'])
             if p['piece']not in movable and(p['bank']<4 or not p['operand_choices']or set(p['operand_choices'])=={p['output']}):
                 mandatory.setdefault((y,p['bank']),set()).add(p['output'])
     for y in range(first,last+1):
@@ -182,18 +184,27 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         if len(words)==15:
             model.add_all_different([values[y,b,s]for s in range(15)])
             for s in range(15):model.add_allowed_assignments([values[y,b,s]],[(codes[b][word],)for word in sorted(words)])
-    interval_cuts=0
+    interval_cuts=0;prefixes={}
     for b in range(8):
         prefix={first:model.new_constant(0)}
         for y in range(first+1,last+1):
             prefix[y]=model.new_int_var(0,15*(y-first),f'mandatoryPrefix{y}_{b}')
             model.add(prefix[y]==prefix[y-1]+sum(flag for i,flag in flags[y,b]))
+        prefixes[b]=prefix
         for left in range(first,last):
             union=set()
             for right in range(left,last+1):
                 union.update(mandatory.get((right,b),set()))
                 if len(union)>15:
                     model.add(prefix[right]-prefix[left]>=len(union)-15);interval_cuts+=1
+    pool_cuts=0
+    for group in range(2):
+        for left in range(first,last):
+            union=set()
+            for right in range(left,last+1):
+                union.update(pool_mandatory.get((right,group),set()))
+                if len(union)>60:
+                    model.add(sum(prefixes[b][right]-prefixes[b][left]for b in range(4*group,4*group+4))>=len(union)-60);pool_cuts+=1
     for y in range(first+1,last+1):
         model.add(sum(flag for(line,b),events in flags.items()if line==y for i,flag in events)<=maximum_writes)
         if necessary_bank_window is not None:
@@ -221,6 +232,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         offline_bank_assignment_movable_pieces=sorted(movable),piece_banks_fixed_across_all_scanlines=True,
         maximum_physical_writes=maximum_writes,necessary_bank_window_master_clocks=necessary_bank_window,physical_window_master_clocks=window,
         mandatory_identity_bank_interval_cuts=interval_cuts,
+        mandatory_math_class_interval_cuts=pool_cuts,
         resident_exact_operand_reuse_enabled=reuse_exact_operands,pixels_with_multiple_exact_operand_choices=alternative_pixels,
         complete_rgb555_operand_covers=cover_reports,
         repair_interval=repair_interval,
