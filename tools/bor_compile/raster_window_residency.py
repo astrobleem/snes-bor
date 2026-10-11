@@ -180,14 +180,14 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in('source','stage','scene','schedule','output'):p.add_argument('--'+name,required=True)
-    p.add_argument('--window',type=int,default=337);p.add_argument('--time-limit',type=float,default=45);p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat');p.add_argument('--movable-math-modes',action='store_true');a=p.parse_args()
+    p.add_argument('--window',type=int,default=337);p.add_argument('--time-limit',type=float,default=45);p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat');p.add_argument('--movable-math-modes',action='store_true');p.add_argument('--lookahead',type=int,default=16);a=p.parse_args()
     from compiler import Source
     from source_scene_obj_raster import prepare
     from source_scene_bg import compose_rgb8
     from source_bg_feasibility import rgb555
     source=Source(a.source);scene=json.loads(Path(a.scene).read_text());schedule=json.loads(Path(a.schedule).read_text());_,metadata,expected=prepare(source,a.stage,scene)
     if metadata!=schedule['metadata']:raise ValueError('WINDOW_RESIDENCY_AUTHORED_METADATA')
-    result=optimize(schedule,rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0]),rgb555(expected),a.window,a.time_limit,solver_backend=a.solver_backend,movable_math_modes=a.movable_math_modes)
+    result=optimize(schedule,rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0]),rgb555(expected),a.window,a.time_limit,lookahead=a.lookahead,solver_backend=a.solver_backend,movable_math_modes=a.movable_math_modes)
     Path(a.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('bank_residency',result)))
 
 

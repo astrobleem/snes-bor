@@ -7,6 +7,24 @@ from test_raster_slot_greedy import source_schedule
 
 
 class RebalanceTests(unittest.TestCase):
+    def test_exact_math_class_reencoding_keeps_source_context_and_bank_eligibility(self):
+        from test_raster_window_slot_schedule import WindowSlotTests
+        from raster_window_slot_schedule import derive
+        source,bg,expected=WindowSlotTests().source()
+        for bank in(0,4):
+            result=rebalance(source,maximum_moves=0,initial_assignment=[bank],background=bg,expected=expected,reencode_math_classes=True)
+            self.assertEqual(result['pieces'][0]['bank'],bank)
+            self.assertTrue(result['bank_rebalance']['complete_source_frame_pixel_identity_proven'])
+            self.assertFalse(result['bank_rebalance']['color_math_classes_preserved'])
+            derive(result,bg,expected)
+            source=result
+        source['pieces'][0]['allowed_banks']=[4]
+        with self.assertRaisesRegex(ValueError,'EXPLICIT_ASSIGNMENT_DOMAIN'):
+            rebalance(source,initial_assignment=[0],background=bg,expected=expected,reencode_math_classes=True)
+        wrong=expected.copy();wrong[0,0]^=1
+        with self.assertRaisesRegex(ValueError,'CONTEXT_IDENTITY'):
+            rebalance(source,background=bg,expected=wrong,reencode_math_classes=True)
+
     def test_duplicate_piece_colors_merge_banks_without_pixel_changes(self):
         source=source_schedule();source['bank_search']={'maximum_frame_colors_per_bank':15,'residency_window_lines':2}
         result=rebalance(source,lookahead=0)
