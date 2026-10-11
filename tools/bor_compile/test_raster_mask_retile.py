@@ -25,8 +25,16 @@ class RetileTests(unittest.TestCase):
         result=retile(source,5,oam_limit=1,large_size=16)
         self.assertEqual(result['geometry'],dict(oam_entries=1,peak_sprites=1,peak_tile_slivers=2))
         self.assertEqual(result['pieces'][0]['width'],16)
+        again=retile(result,5,large_size=16)
+        self.assertEqual(again['geometry'],result['geometry'])
+        small=retile(result,5)
+        self.assertEqual(small['geometry']['oam_entries'],2)
         self.assertEqual(retile(source,5,oam_limit=1,tile_limit=1,large_size=16)['solver_status'],'INFEASIBLE')
         with self.assertRaisesRegex(ValueError,'SIZE_PAIR_DOMAIN'):retile(source,large_size=32)
+        with self.assertRaisesRegex(ValueError,'OBJECTIVE_DOMAIN'):retile(source,objective_kind='unknown')
+        result=retile(source,5,large_size=16,objective_kind='tiles')
+        self.assertEqual(result['geometry']['peak_tile_slivers'],2)
+        self.assertEqual(result['mask_retile']['objective_kind'],'tiles')
 
     def test_shifted_sparse_masks_merge_without_changing_source_or_palette(self):
         source=fixture([(0,4,7,4),(0,4,8,4)])

@@ -7,6 +7,23 @@ from test_raster_slot_greedy import source_schedule
 
 
 class ResidencyTests(unittest.TestCase):
+    def test_active_bank_batching_counts_actual_writes_without_timing_admission(self):
+        source=source_schedule()
+        for backend in ('cp-sat','highs'):
+            for limit in (1,2):
+                result=optimize(source,2,0,None,5,solver_backend=backend,maximum_active_banks=limit)
+                if limit==1:
+                    self.assertEqual(result['solver_status'],'INFEASIBLE')
+                    self.assertFalse(result['universal_raster_rejected'])
+                else:
+                    report=result['bank_residency']
+                    self.assertEqual(report['peak_noninitial_active_banks'],2)
+                    self.assertFalse(report['physical_slot_schedule_proven'])
+                    for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        for bad in (0,9,True):
+            with self.assertRaisesRegex(ValueError,'ACTIVE_BANK_DOMAIN'):
+                optimize(source,maximum_active_banks=bad)
+
     def test_integer_transfer_fractional_cache_does_not_emit_schedule(self):
         source=source_schedule()
         result=optimize(source,write_budget=2,lookahead=0,time_limit=10,

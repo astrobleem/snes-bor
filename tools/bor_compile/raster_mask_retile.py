@@ -11,19 +11,20 @@ from raster_obj_compact import unpack
 from raster_slot_greedy import demand
 
 
-def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,large_size=None):
+def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,large_size=None,objective_kind='oam'):
     from ortools.sat.python import cp_model
     if time_limit<=0 or any(type(v)is not int or not 0<=v<=m for v,m in
                            [(oam_limit,128),(sprite_limit,32),(tile_limit,34)]):
         raise ValueError('MASK_RETILE_RESOURCE_DOMAIN')
     if large_size not in(None,16):raise ValueError('MASK_RETILE_SIZE_PAIR_DOMAIN')
+    if objective_kind not in('oam','tiles'):raise ValueError('MASK_RETILE_OBJECTIVE_DOMAIN')
     _,_,words=demand(source)
     height=len(source['trace']);points={};origins={};seed=set()
     for p,mask,image in zip(source['pieces'],source['piece_pixel_masks'],words):
-        if p['width']!=8 or p['height']!=8:raise ValueError('MASK_RETILE_SMALL_GEOMETRY_REQUIRED')
+        if p['width']not in(8,16)or p['height']!=p['width']:raise ValueError('MASK_RETILE_LEGAL_8_16_GEOMETRY_REQUIRED')
         origin=p['x']-p['local_x'],p['y']-p['local_y']
         if p['actor']in origins and origins[p['actor']]!=origin:raise ValueError('MASK_RETILE_ACTOR_ORIGIN')
-        origins[p['actor']]=origin;seed.add((p['actor'],p['bank'],p['x'],p['y'],8))
+        origins[p['actor']]=origin;seed.add((p['actor'],p['bank'],p['x'],p['y'],p['width']))
         indices=unpack(mask)
         for ly,lx in zip(*np.where(image>=0)):
             key=p['actor'],p['bank'],p['x']+int(lx),p['y']+int(ly)
@@ -38,6 +39,12 @@ def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,larg
                     if 0<=left<=256-size and 0<=top<=height-size:
                         candidates.setdefault((actor,bank,left,top,size),[]).append((actor,bank,x,y))
     keys=sorted(candidates);model=cp_model.CpModel()
+    row_points={};row_tile_bounds=[0]*height
+    for actor,bank,x,y in points:row_points.setdefault((actor,bank,y),set()).add(x)
+    for (actor,bank,y),xs in row_points.items():
+        end=-1
+        for x in sorted(xs):
+            if x>end:row_tile_bounds[y]+=1;end=x+7
     selected=[model.new_bool_var('rectangle'+str(i))for i in range(len(keys))]
     owners={key:[]for key in points}
     for i,key in enumerate(keys):
@@ -45,17 +52,23 @@ def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,larg
         model.add_hint(selected[i],int(key in seed))
     for choices in owners.values():model.add(sum(selected[i]for i in choices)>=1)
     model.add(sum(selected)<=oam_limit)
+    peak_tiles=model.new_int_var(0,tile_limit,'peakTiles')if objective_kind=='tiles'else None
     for y in range(height):
         live=[i for i,key in enumerate(keys)if key[3]<=y<key[3]+key[4]]
         model.add(sum(selected[i]for i in live)<=sprite_limit)
-        model.add(sum(selected[i]*(keys[i][4]//8)for i in live)<=tile_limit)
-    model.minimize(sum(selected))
+        line_tiles=sum(selected[i]*(keys[i][4]//8)for i in live)
+        model.add(line_tiles<=tile_limit)
+        model.add(line_tiles>=row_tile_bounds[y])
+        if peak_tiles is not None:model.add(line_tiles<=peak_tiles)
+    model.minimize(sum(selected)if peak_tiles is None else peak_tiles*(oam_limit+1)+sum(selected))
+    if peak_tiles is not None:model.add_hint(peak_tiles,source['geometry']['peak_tile_slivers'])
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit
     solver.parameters.num_search_workers=4
     status=solver.solve(model)
     report=dict(schema='BYOR_FIXED_BANK_MASK_RETILE_V1',solver_status=solver.status_name(status),
         seconds=solver.wall_time,candidate_rectangles=len(keys),source_pixels=len(points),legal_sizes=[8,16]if large_size else[8],
-        minimum_oam_lower_bound=solver.best_objective_bound,
+        objective_kind=objective_kind,objective_lower_bound=solver.best_objective_bound,
+        independent_row_tile_lower_bound=max(row_tile_bounds),row_tile_lower_bounds=row_tile_bounds,
         resource_limits=dict(oam_entries=oam_limit,sprites_per_line=sprite_limit,tile_slivers_per_line=tile_limit),
         status='BOUNDED_MASK_RETILE_NO_CANDIDATE',native_timing_admitted=False,
         concurrent_palette_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
@@ -108,7 +121,8 @@ def main():
     p.add_argument('--time-limit',type=float,default=30)
     p.add_argument('--oam-limit',type=int,default=128);p.add_argument('--sprite-limit',type=int,default=32);p.add_argument('--tile-limit',type=int,default=34)
     p.add_argument('--large-size',type=int,choices=(16,),help='Also permit legal 16x16 objects, charging two tile slivers on every rectangle row.')
-    a=p.parse_args();r=retile(json.loads(a.schedule.read_text()),a.time_limit,a.oam_limit,a.sprite_limit,a.tile_limit,a.large_size)
+    p.add_argument('--objective',choices=('oam','tiles'),default='oam',help='Tiles minimizes peak tile slivers first, then OAM count.')
+    a=p.parse_args();r=retile(json.loads(a.schedule.read_text()),a.time_limit,a.oam_limit,a.sprite_limit,a.tile_limit,a.large_size,a.objective)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('mask_retile',r)))
 
 
