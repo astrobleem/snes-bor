@@ -5,6 +5,15 @@ from raster_palette import prove_frame, schedule,bounded_schedule, assign_banks,
 
 
 class RasterPaletteTests(unittest.TestCase):
+    def test_prefetch_limits_allow_other_class_to_share_write_budget(self):
+        piece=dict(rows={0:[0],2:[1],3:[2]})
+        trace,states=schedule([piece],[0],4,lookahead=1,capacity=3,prefetch_write_limits={1:0,2:1})
+        self.assertEqual(trace[1]['colors_written'],0)
+        self.assertEqual(trace[2]['colors_written'],1)
+        self.assertIn(1,states[2][0])
+        self.assertIn(2,states[3][0])
+        with self.assertRaisesRegex(ValueError,'PREFETCH_WRITE_LIMIT_DOMAIN'):schedule([piece],[0],4,prefetch_write_limits={1:-1})
+
     def test_temporal_union_restriction_preserves_colors_and_is_not_universal_rejection(self):
         pieces=[dict(x=0,y=0,width=8,height=8,rows={0:list(range(8)),1:list(range(8,16))})]
         for backend in('highs','cp-sat'):

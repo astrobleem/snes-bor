@@ -61,6 +61,10 @@ class JointSceneSolverTests(unittest.TestCase):
             for p in locked['pieces']:p['allowed_banks']=[p['bank']]
             result=probe(None,None,{},size=8,write_budget=1,time_limit=5,solver_backend='cp-sat',schedule_hint=locked,fixed_rectangles=True)
             self.assertEqual([p['bank']for p in result['pieces']],[p['bank']for p in locked['pieces']])
+            row_result=probe(None,None,{},size=8,write_budget=120,lookahead=0,row_capacity_only=True,time_limit=5,solver_backend='cp-sat',schedule_hint=locked,fixed_rectangles=True)
+            self.assertTrue(row_result['compiled_pixel_identity_verified'])
+            self.assertTrue(row_result['palette_transfer_budget_relaxed'])
+            self.assertEqual([p['bank']for p in row_result['pieces']],[p['bank']for p in locked['pieces']])
 
     def test_extra_fixed_bank_mask_solves_static_lifetime_capacity(self):
         background=np.zeros((224,256,3),dtype=np.uint8)

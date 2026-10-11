@@ -264,13 +264,15 @@ def split_scene_color_masks(pieces, banks=tuple(range(8)), time_limit=60, adjace
         complete_palette_write_schedule_proven=False)
 
 
-def schedule(pieces, assignment, height, lookahead=16, prefetch_write_budget=16, capacity=15):
+def schedule(pieces, assignment, height, lookahead=16, prefetch_write_budget=16, capacity=15, prefetch_write_limits=None):
     """Retain resident colors; evict farthest future use; preload empty slots.
 
     Lookahead bounds prefetch latency. Required misses are not artificially
     bandwidth capped. First row is VBlank initialization, not an HBlank write.
     This heuristic produces a valid schedule, not a minimum-bandwidth proof.
     """
+    prefetch_write_limits=dict(prefetch_write_limits or {})
+    if any(type(y)is not int or not 0<=y<height or type(n)is not int or n<0 for y,n in prefetch_write_limits.items()):raise ValueError('RASTER_PREFETCH_WRITE_LIMIT_DOMAIN')
     demands=[{} for _ in range(height)]
     for p,b in zip(pieces,assignment):
         for y,cs in p['rows'].items(): demands[y].setdefault(b,set()).update(cs)
@@ -298,7 +300,7 @@ def schedule(pieces, assignment, height, lookahead=16, prefetch_write_budget=16,
         future=sorted((next_use(b,c,y),b,c) for b,c in uses if c not in slots[b])
         for when,b,c in future:
             if when>y+lookahead: break
-            if y and len(events)>=prefetch_write_budget: break
+            if y and len(events)>=prefetch_write_limits.get(y,prefetch_write_budget): break
             s=slots[b];required=line.get(b,set())
             free=[i for i,v in enumerate(s) if v not in required]
             if not free: continue

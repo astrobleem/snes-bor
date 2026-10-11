@@ -1,6 +1,6 @@
-"""Measure static ordinary OBJ coexistence with exact source effect math.
+"""Measure ordinary OBJ coexistence with exact source effect math.
 
-Ordinary visible source words are pinned in the four math-ineligible banks.
+Ordinary words may be pinned statically or only on their visible scanlines.
 Effect banks, slot integrality and geometry are relaxed. Window controls are
 a four-transition superset; these bounds cover this presentation policy only.
 """
@@ -15,9 +15,10 @@ from raster_obj_math_cover import MODES,complete_math_cover,apply_math
 from raster_math_mode_liveness import lower_bound
 
 
-def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_interval=None,solver_method='highs-ipm',scanline_write_limits=None,ordinary_residency='static',integer_pool_budget=None,initial_state=None):
+def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_interval=None,solver_method='highs-ipm',scanline_write_limits=None,ordinary_residency='static',integer_pool_budget=None,initial_state=None,allowed_modes=MODES):
     if scanline_interval is not None and (len(scanline_interval)!=2 or not 0<=scanline_interval[0]<=scanline_interval[1]<224):raise ValueError('STATIC_OBJ_BOUND_SCANLINE_DOMAIN')
     if ordinary_residency not in ('static','scanline'):raise ValueError('STATIC_OBJ_BOUND_RESIDENCY_POLICY')
+    if not allowed_modes or any(mode not in MODES for mode in allowed_modes):raise ValueError('STATIC_OBJ_BOUND_MATH_MODE_DOMAIN')
     actors,metadata,expected=prepare(source,stage,scene)
     background=rgb555(compose_rgb8(source,stage,dict(scene,actors=[]))[0])
     docs={k:document(source,n)for k,(n,_)in source.index.items()if k.endswith('.txt')}
@@ -48,15 +49,15 @@ def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_inte
         ordinary_union_word_count=len(reserve),ordinary_residency_policy=ordinary_residency,ordinary_peak_required_words=max(map(len,ordinary_rows.values()),default=0),minimum_static_banks=(len(reserve)+14)//15,
         static_words_fixed_in_lower_class=ordinary_residency=='static',source_context_reachability_certified=False,
         palette_bank_assignment_proven=False,physical_transfer_admitted=False,native_timing_admitted=False,
-        zero_main_clipping_not_modeled=True,scanline_interval=scanline_interval,outside_interval_demand_relaxed=scanline_interval is not None,universal_raster_rejected=False,no_color_reduction=True)
+        zero_main_clipping_not_modeled=True,scanline_interval=scanline_interval,outside_interval_demand_relaxed=scanline_interval is not None,allowed_math_modes=list(allowed_modes),universal_raster_rejected=False,no_color_reduction=True)
     if not pixels:
         report.update(status='NO_NONBYPASSED_EFFECT_PIXELS');return report
-    options,cover=complete_math_cover(((out,bg)for y,x,out,bg in pixels),modes=MODES,tag_modes=True)
-    rows=[{mode:set()for mode in MODES}for _ in range(len(background))]
+    options,cover=complete_math_cover(((out,bg)for y,x,out,bg in pixels),modes=allowed_modes,tag_modes=True)
+    rows=[{mode:set()for mode in allowed_modes}for _ in range(len(background))]
     window_pixels=[[]for _ in rows]if hardware_windows else None
     for y,x,out,bg in pixels:
-        choices={mode:tuple(options[mode,out,bg])for mode in MODES}
-        for mode in MODES:rows[y][mode].add((out,choices[mode]))
+        choices={mode:tuple(options[mode,out,bg])for mode in allowed_modes}
+        for mode in allowed_modes:rows[y][mode].add((out,choices[mode]))
         if window_pixels is not None:window_pixels[y].append(dict(x=x,output=out,modes=choices))
     report['operand_cover']=cover
     integer_options={}if integer_pool_budget is None else dict(integer_modes=True,integer_windows=hardware_windows,integer_palette=True,integer_backend='cp-sat',write_budget=integer_pool_budget)
@@ -65,7 +66,11 @@ def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_inte
     bound=report['cache_bound']
     if integer_pool_budget is not None and bound.get('integer_pool_pixel_coverage_verified'):
         from raster_math_mode_liveness import verify_integer_pool
-        verify_integer_pool(bound,rows,window_pixels=window_pixels)
+        replay_rows=[{mode:set(reqs)for mode,reqs in row.items()}for row in rows]
+        if ordinary_residency=='scanline':
+            for y,cs in ordinary_rows.items():
+                for mode in replay_rows[y]or allowed_modes:replay_rows[y].setdefault(mode,set()).update((c,())for c in cs)
+        verify_integer_pool(bound,replay_rows,window_pixels=window_pixels)
         from raster_math_windows import compile_sparse_mask,evaluate
         states={int(y):{int(k):set(v)for k,v in state.items()}for y,state in bound['selected_palette_residency'].items()}
         modes={int(y):mode for y,mode in bound['selected_modes'].items()}
@@ -74,7 +79,7 @@ def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_inte
         for y in modes:
             eligibility=masks.get(y,{})
             # Ordinary-only rows have no effect pixels constraining a window.
-            windows[y]=compile_sparse_mask(eligibility)if eligibility else compile_sparse_mask({0:0})
+            windows[y]=compile_sparse_mask({0:1})if window_pixels is None else compile_sparse_mask(eligibility)if eligibility else compile_sparse_mask({0:0})
         checked=0
         for actor in actors:
             for ly,lx in zip(*np.where(actor['pixels']>=0)):
@@ -108,8 +113,11 @@ def main():
     parser.add_argument('--scanline-write-limits',type=Path)
     parser.add_argument('--ordinary-residency',choices=('static','scanline'),default='static')
     parser.add_argument('--integer-pool-budget',type=int,help='Search an independently replayed integer two-class cache; bank geometry and physical timing remain relaxed.')
+    parser.add_argument('--math-mode',action='append',choices=MODES,help='Restrict the globally selected scanline math modes; repeat to allow multiple modes.')
+    parser.add_argument('--initial-palette-state',type=Path,help='Pin both class caches at the first controlled row, for continuation without a palette reset.')
     args=parser.parse_args();limits={int(y):n for y,n in json.loads(args.scanline_write_limits.read_text()).items()}if args.scanline_write_limits else None
-    result=measure(Source(args.source),args.stage,json.loads(args.scene.read_text()),args.time_limit,not args.no_windows,args.scanline_interval,args.lp_method,limits,args.ordinary_residency,args.integer_pool_budget)
+    initial=json.loads(args.initial_palette_state.read_text())if args.initial_palette_state else None
+    result=measure(Source(args.source),args.stage,json.loads(args.scene.read_text()),args.time_limit,not args.no_windows,args.scanline_interval,args.lp_method,limits,args.ordinary_residency,args.integer_pool_budget,initial,args.math_mode or MODES)
     args.output.write_text(json.dumps(result,indent=2)+'\n')
     bound=result.get('cache_bound',{})
     print(json.dumps(dict(status=result['status'],reserved_word_count=result['reserved_word_count'],cache_bound={k:bound[k]for k in ('status','message','validated_dual_lower_bound','peak_replayed_pool_writes','solver_seconds','variables','constraints')if k in bound})))

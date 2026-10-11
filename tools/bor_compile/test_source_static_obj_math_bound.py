@@ -7,20 +7,21 @@ from raster_obj_math_cover import MODES
 
 
 class StaticObjBoundTests(unittest.TestCase):
-    def run_fixture(self,effect=False,ordinary_residency='static',scanline_interval=(125,139),integer_bound=None):
+    def run_fixture(self,effect=False,ordinary_residency='static',scanline_interval=(125,139),integer_bound=None,ordinary_top=0,hardware_windows=True,background_red=0,allowed_modes=MODES):
         layer=dict(kind='actor:Ordinary',alpha=0,path='ordinary.png',requested_map=0,source_flip=True)
-        actors=[dict(metadata=layer,pixels=np.array([[-1,1]]),left=0,top=0)]
+        actors=[dict(metadata=layer,pixels=np.array([[-1,1]]),left=0,top=ordinary_top)]
         if effect:actors.append(dict(metadata=dict(alpha=1),pixels=np.array([[15]]),left=0,top=128))
         canvas=np.zeros((224,256,3),dtype=np.uint8)
+        background=canvas.copy();background[:,:,0]=background_red
         with patch('source_static_obj_math_bound.prepare',return_value=(actors,{},canvas)), \
-             patch('source_static_obj_math_bound.compose_rgb8',return_value=(canvas,{})), \
+             patch('source_static_obj_math_bound.compose_rgb8',return_value=(background,{})), \
              patch('source_static_obj_math_bound.discover',return_value={'models':[{'name':'Ordinary'}]}), \
              patch('source_static_obj_math_bound.model_palettes',return_value={}), \
              patch('source_static_obj_math_bound.select_model_palette',return_value=({'rgb8':[]},0)), \
              patch('source_static_obj_math_bound.decode',return_value=(np.array([[1,2]]),np.array([[[8,0,0],[16,0,0]]]),'hash')), \
-             patch('source_static_obj_math_bound.complete_math_cover',return_value=({(mode,15,0):[15]for mode in MODES},{})), \
+             patch('source_static_obj_math_bound.complete_math_cover',return_value=({(mode,15,background_red//8):[15-background_red//8]for mode in MODES},{})), \
              patch('source_static_obj_math_bound.lower_bound',return_value=integer_bound or {'status':'TEST_BOUND'}) as bound:
-            result=measure(SimpleNamespace(index={}), 'stage', {},scanline_interval=scanline_interval,ordinary_residency=ordinary_residency,integer_pool_budget=21 if integer_bound else None)
+            result=measure(SimpleNamespace(index={}), 'stage', {},scanline_interval=scanline_interval,ordinary_residency=ordinary_residency,integer_pool_budget=21 if integer_bound else None,hardware_windows=hardware_windows,allowed_modes=allowed_modes)
         return result,bound
 
     def test_static_words_use_flipped_visible_source_pixels(self):
@@ -56,6 +57,31 @@ class StaticObjBoundTests(unittest.TestCase):
         witness['selected_palette_residency']['128']['1']=[14]
         with self.assertRaisesRegex(AssertionError,'MODE_INTEGER_POOL_PIXEL_REPLAY'):
             self.run_fixture(effect=True,integer_bound=witness)
+
+    def test_integer_replay_includes_ordinary_only_interval_endpoint(self):
+        witness=dict(status='RELAXED_MODE_LIVENESS_CANDIDATE',integer_pool_pixel_coverage_verified=True,
+            selected_palette_residency={str(y):{'0':[1],'1':[15]}for y in range(128,131)},
+            selected_modes={str(y):'add'for y in range(128,131)},
+            selected_window_eligibility={'128':{'0':1},'129':{},'130':{}},peak_write_objective=0)
+        result,_=self.run_fixture(effect=True,ordinary_residency='scanline',scanline_interval=(128,130),integer_bound=witness,ordinary_top=130)
+        self.assertEqual(result['source_control_candidate']['checked_visible_source_pixels'],2)
+        self.assertEqual(set(result['source_control_candidate']['selected_modes']),{128,129,130})
+
+    def test_no_window_policy_compiles_math_enabled_everywhere(self):
+        from raster_math_windows import evaluate
+        witness=dict(status='RELAXED_MODE_LIVENESS_CANDIDATE',integer_pool_pixel_coverage_verified=True,
+            selected_palette_residency={'128':{'0':[1],'1':[14]}},selected_modes={'128':'add'},
+            reserved_normal_colors=[1],peak_write_objective=0)
+        result,_=self.run_fixture(effect=True,integer_bound=witness,hardware_windows=False,background_red=8)
+        descriptor=result['source_control_candidate']['compiled_color_window_descriptors'][128]
+        self.assertTrue(all(evaluate(descriptor,x)for x in range(256)))
+
+    def test_constant_math_mode_restricts_solver_choices(self):
+        result,bound=self.run_fixture(effect=True,allowed_modes=('add',))
+        self.assertEqual(result['allowed_math_modes'],['add'])
+        self.assertEqual(set(bound.call_args.args[0][128]),{'add'})
+        with self.assertRaisesRegex(ValueError,'MATH_MODE_DOMAIN'):
+            self.run_fixture(effect=True,allowed_modes=('invalid',))
 
 
 if __name__=='__main__':unittest.main()
