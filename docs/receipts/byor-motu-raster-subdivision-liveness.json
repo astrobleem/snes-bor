@@ -1,0 +1,753 @@
+{
+  "schema": "BYOR_SUBDIVISION_LIVENESS_RECEIPT_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "source_alpha_output_exact": true,
+  "source_transparency_exact": true,
+  "source_pixel_positions_exact": true,
+  "original_geometry_best_physical_peak": 472,
+  "subdivided_rebalanced_best_physical_peak": 648,
+  "subdivided_ideal_bank_peak": 360,
+  "independently_validated_fractional_peak_write_bound": 15.857142857142858,
+  "native_tested_transfer_window": 336,
+  "native_gate_status": "UNKNOWN",
+  "native_timing_admitted": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "trials": [
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-critical-subdivision-nine-rebalanced.json",
+      "sha256": "aefa454d07804257b325aaab48024597507a5c9899269934a9e30df3396fda87",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+        "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+        "seconds": 4.453999999910593,
+        "explicit_initial_assignment": null,
+        "maximum_interval_lines": 24,
+        "initial_objective": [
+          16.5,
+          84000,
+          430
+        ],
+        "final_objective": [
+          15.142857142857142,
+          82874,
+          456
+        ],
+        "moves": [
+          {
+            "piece": 13,
+            "old_bank": 3,
+            "new_bank": 0
+          },
+          {
+            "piece": 20,
+            "old_bank": 5,
+            "new_bank": 7
+          },
+          {
+            "piece": 29,
+            "old_bank": 5,
+            "new_bank": 7
+          },
+          {
+            "piece": 39,
+            "old_bank": 5,
+            "new_bank": 7
+          },
+          {
+            "piece": 60,
+            "old_bank": 3,
+            "new_bank": 0
+          },
+          {
+            "piece": 63,
+            "old_bank": 1,
+            "new_bank": 0
+          },
+          {
+            "piece": 77,
+            "old_bank": 4,
+            "new_bank": 7
+          },
+          {
+            "piece": 98,
+            "old_bank": 5,
+            "new_bank": 7
+          },
+          {
+            "piece": 102,
+            "old_bank": 5,
+            "new_bank": 7
+          }
+        ],
+        "anneal_steps_requested": 160,
+        "anneal_proposals_sampled": 160,
+        "anneal_moves_accepted": 52,
+        "anneal_seed": 1031,
+        "final_bank_distinct_colors": [
+          40,
+          75,
+          77,
+          75,
+          56,
+          38,
+          56,
+          39
+        ],
+        "final_bank_peak_row_colors": [
+          6,
+          12,
+          12,
+          12,
+          11,
+          13,
+          12,
+          6
+        ],
+        "fixed_bank_per_piece": true,
+        "color_math_classes_preserved": true,
+        "pixel_color_identity_verified": true,
+        "geometry_unchanged": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-critical-subdivision-nine-rebalanced-lp.json",
+      "sha256": "608772d06eb6bde41632f036bfb96e7ae893f0933b23cc6d5f99e4ebca58c17d",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 25657,
+        "constraints": 13015,
+        "lookahead_lines": 55,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 15.857142857142858,
+        "validated_dual_lower_bound": 15.857142857142858,
+        "maximum_primal_violation": 1.0658141036401503e-14,
+        "maximum_dual_residual": 2.220446049250313e-16
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-critical-subdivision-nine-rebalanced-residency.json",
+      "sha256": "7d8758b7304e3cc64b44cca98846c1ac58ca45a3eabc189c092bceb2d7406b26",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "FIXED_BANK_RESIDENCY_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_backend": "cp-sat",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 50.0984138,
+        "solver_model_variables": 33650,
+        "solver_model_constraints": 72559,
+        "solver_branches": 8382,
+        "solver_conflicts": 0,
+        "write_budget": 21,
+        "lookahead_lines": 55,
+        "prepared_window_master_clocks": 1001,
+        "range_backend": "dp",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": false,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "compulsory_bank_interval_cuts": 6423,
+        "soft_residency_hint_interval": null,
+        "total_noninitial_writes_objective": false,
+        "peak_optimistic_prepared_span_objective": true,
+        "solver_search_strategy": "lns",
+        "peak_optimistic_span_lower_bound_for_this_fixed_bank_family": 0,
+        "peak_scheduled_writes": 18,
+        "maximum_noninitial_prefetch_latency_lines": 12,
+        "pixel_color_identity_verified": true,
+        "independent_prepared_partition_bound_verified": true,
+        "peak_optimistic_prepared_span": 360,
+        "total_noninitial_scheduled_writes": 429
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-critical-subdivision-nine-rebalanced-ordered.json",
+      "sha256": "7b0f621fee734c974495a9b36495e37077c39b4aaf0fd83e913482c7e930b813",
+      "report": {
+        "schema": "BYOR_BANK_ORDER_UNCHANGED_SLOT_PHYSICAL_WITNESS_V1",
+        "peak_prepared_commit_span": 1144,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-critical-subdivision-nine-rebalanced-slots.json",
+      "sha256": "3b3bd639ab02941f91e04e71b507411594a582142eff90888cb91170baa3a443",
+      "report": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 50.0030699,
+        "solver_search_strategy": "lns",
+        "solver_objective": "PEAK_THEN_TOTAL_TRANSFER_COST",
+        "lifetime_segments": 549,
+        "window_master_clocks": 1201,
+        "maximum_ranges": 4,
+        "input_schedule_noninitial_prefetch_latency_lines": 12,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 547,
+        "flexible_prefetch": true,
+        "lookahead_lines": 55,
+        "hint_time_radius_lines": null,
+        "necessary_bank_window_master_clocks": null,
+        "demand_gap_lines": null,
+        "idle_prefix_collapsed": false,
+        "first_visible_source_line": 112,
+        "layout_hint_used": true,
+        "reorder_banks": false,
+        "fixed_hint_slots": false,
+        "permute_hint_slots": false,
+        "retain_write_times": true,
+        "lifetime_repair_interval": null,
+        "movable_complete_lifetimes": 0,
+        "rectangle_lifetimes": false,
+        "persistent_color_slots": false,
+        "split_bank_ranges": true,
+        "paired_bank_ranges": false,
+        "fixed_slot_write_times_pruned": 0,
+        "solver_model_variables": 4640,
+        "solver_model_constraints": 8745,
+        "solver_branches": 0,
+        "solver_conflicts": 0,
+        "solver_probing_level": 0,
+        "solver_sat_inprocessing": false,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        },
+        "initial_palette_may_preload_entire_frame": true,
+        "maximum_noninitial_prefetch_latency_lines": 12,
+        "peak_prepared_commit_span": 680,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-critical-subdivision-nine-rebalanced-retimed.json",
+      "sha256": "37f8becaa0c9d67ffb369e1606f2e9f71493b7abd721e885b6226f0c81ac9d70",
+      "report": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 50.12664,
+        "solver_search_strategy": "lns",
+        "solver_objective": "PEAK_THEN_TOTAL_TRANSFER_COST",
+        "lifetime_segments": 547,
+        "window_master_clocks": 681,
+        "maximum_ranges": 4,
+        "input_schedule_noninitial_prefetch_latency_lines": 12,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 547,
+        "flexible_prefetch": true,
+        "lookahead_lines": 55,
+        "hint_time_radius_lines": 2,
+        "necessary_bank_window_master_clocks": 361,
+        "demand_gap_lines": null,
+        "idle_prefix_collapsed": true,
+        "first_visible_source_line": 112,
+        "layout_hint_used": true,
+        "reorder_banks": false,
+        "fixed_hint_slots": false,
+        "permute_hint_slots": false,
+        "retain_write_times": false,
+        "lifetime_repair_interval": null,
+        "movable_complete_lifetimes": 0,
+        "rectangle_lifetimes": false,
+        "persistent_color_slots": false,
+        "split_bank_ranges": true,
+        "paired_bank_ranges": false,
+        "fixed_slot_write_times_pruned": 0,
+        "solver_model_variables": 25504,
+        "solver_model_constraints": 62234,
+        "solver_branches": 167,
+        "solver_conflicts": 0,
+        "solver_probing_level": 0,
+        "solver_sat_inprocessing": false,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        },
+        "initial_palette_may_preload_entire_frame": true,
+        "maximum_noninitial_prefetch_latency_lines": 13,
+        "peak_prepared_commit_span": 648,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-critical-subdivision-nine-rebalanced-row-refined.json",
+      "sha256": "fde69ef57bed0f81b3479762e23e10c8614763fd66b7e63d95ff4bfab311c0a3",
+      "report": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 337,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              129,
+              135
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "lns",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 18.0197164,
+            "model_variables": 5850,
+            "restricted_model_peak_span_lower_bound": 152,
+            "before": [
+              648,
+              12360
+            ],
+            "candidate": [
+              648,
+              12216
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              133,
+              139
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "lns",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 17.949126800000002,
+            "model_variables": 5843,
+            "restricted_model_peak_span_lower_bound": 0,
+            "before": [
+              648,
+              12216
+            ],
+            "candidate": [
+              648,
+              12216
+            ],
+            "accepted": false
+          },
+          {
+            "iteration": 2,
+            "interval": [
+              135,
+              141
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "lns",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 18.015453400000002,
+            "model_variables": 5826,
+            "restricted_model_peak_span_lower_bound": 0,
+            "before": [
+              648,
+              12216
+            ],
+            "candidate": [
+              648,
+              12216
+            ],
+            "accepted": false
+          }
+        ],
+        "maximum_physical_writes_per_transfer_row": 21,
+        "full_frame_write_budget_verified": true,
+        "necessary_bank_window_master_clocks": 361,
+        "full_frame_necessary_bank_window_verified": true
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-critical-subdivision-nine-rebalanced-native-gate.json",
+      "sha256": "77a780f708f945e90837901025eaef4dbd7baaa1d04ed2acdee6376d091a9206",
+      "report": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 50.3259976,
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "persistent_word_index_family_only": false,
+        "solver_model_variables": 36301,
+        "solver_model_constraints": 63204,
+        "solver_branches": 208261,
+        "solver_conflicts": 0,
+        "solver_objective_lower_bound": 272.0,
+        "maximum_physical_writes_per_transfer_row": 21,
+        "necessary_bank_window_master_clocks": 337,
+        "full_frame_write_budget_enforced": true,
+        "objective_peak_scale": 1,
+        "peak_commit_span_lower_bound_for_this_restricted_model": 232,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": false,
+        "window_master_clocks": 337,
+        "requested_repair_window_master_clocks": null,
+        "physical_repair_interval": null,
+        "physical_repair_transfer_interval": null,
+        "full_frame_transfer_window_enforced": true,
+        "physical_layout_hint_used": false,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "physical_change_and_range_membership_hints_coherent": true,
+        "distinct_required_word_slot_matching_enforced": true,
+        "full_bank_demand_value_matching_enforced": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+        "bank_interval_liveness_cuts": 8447,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 54,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          166
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-selective-subdivision-bank-neighborhood.json",
+      "sha256": "82ccf4e5dc1a4edb2c56c2e139ef5fbad2ee9cd859654f3955524db6af192057",
+      "report": {
+        "trials": [
+          {
+            "seed": 1032,
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 4.469000000040978,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 55,
+              "initial_objective": [
+                16.5,
+                205887,
+                430
+              ],
+              "final_objective": [
+                15.142857142857142,
+                210542,
+                445
+              ],
+              "moves": [
+                {
+                  "piece": 20,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 63,
+                  "old_bank": 1,
+                  "new_bank": 0
+                },
+                {
+                  "piece": 77,
+                  "old_bank": 4,
+                  "new_bank": 7
+                }
+              ],
+              "anneal_steps_requested": 256,
+              "anneal_proposals_sampled": 256,
+              "anneal_moves_accepted": 65,
+              "anneal_seed": 1032,
+              "final_bank_distinct_colors": [
+                26,
+                75,
+                77,
+                79,
+                56,
+                41,
+                56,
+                35
+              ],
+              "final_bank_peak_row_colors": [
+                5,
+                12,
+                12,
+                12,
+                11,
+                13,
+                12,
+                6
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 24518,
+              "constraints": 12435,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 15.857142857142858,
+              "validated_dual_lower_bound": 15.857142857142854,
+              "maximum_primal_violation": 3.552713678800501e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          },
+          {
+            "seed": 1033,
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 4.657000000122935,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 55,
+              "initial_objective": [
+                16.5,
+                205887,
+                430
+              ],
+              "final_objective": [
+                15.142857142857142,
+                210542,
+                445
+              ],
+              "moves": [
+                {
+                  "piece": 20,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 63,
+                  "old_bank": 1,
+                  "new_bank": 0
+                },
+                {
+                  "piece": 77,
+                  "old_bank": 4,
+                  "new_bank": 7
+                }
+              ],
+              "anneal_steps_requested": 256,
+              "anneal_proposals_sampled": 256,
+              "anneal_moves_accepted": 72,
+              "anneal_seed": 1033,
+              "final_bank_distinct_colors": [
+                26,
+                75,
+                77,
+                79,
+                56,
+                41,
+                56,
+                35
+              ],
+              "final_bank_peak_row_colors": [
+                5,
+                12,
+                12,
+                12,
+                11,
+                13,
+                12,
+                6
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 24518,
+              "constraints": 12435,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 15.857142857142858,
+              "validated_dual_lower_bound": 15.857142857142854,
+              "maximum_primal_violation": 3.552713678800501e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          },
+          {
+            "seed": 1034,
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 4.717999999877065,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 55,
+              "initial_objective": [
+                16.5,
+                205887,
+                430
+              ],
+              "final_objective": [
+                15.142857142857142,
+                210542,
+                445
+              ],
+              "moves": [
+                {
+                  "piece": 20,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 63,
+                  "old_bank": 1,
+                  "new_bank": 0
+                },
+                {
+                  "piece": 77,
+                  "old_bank": 4,
+                  "new_bank": 7
+                }
+              ],
+              "anneal_steps_requested": 256,
+              "anneal_proposals_sampled": 256,
+              "anneal_moves_accepted": 97,
+              "anneal_seed": 1034,
+              "final_bank_distinct_colors": [
+                26,
+                75,
+                77,
+                79,
+                56,
+                41,
+                56,
+                35
+              ],
+              "final_bank_peak_row_colors": [
+                5,
+                12,
+                12,
+                12,
+                11,
+                13,
+                12,
+                6
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 24518,
+              "constraints": 12435,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 15.857142857142858,
+              "validated_dual_lower_bound": 15.857142857142854,
+              "maximum_primal_violation": 3.552713678800501e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          }
+        ],
+        "seconds": 17.530999999959022,
+        "no_color_reduction": true,
+        "universal_raster_rejected": false
+      }
+    }
+  ]
+}

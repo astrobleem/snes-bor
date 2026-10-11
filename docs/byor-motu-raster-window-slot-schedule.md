@@ -76,3 +76,13 @@ produce 104 entries, 32 sprites and 34 tile slivers: admitted for offline
 geometry only. Joint physical bank search retains 472 clocks after fifty
 seconds. The full alpha output, masks and CGRAM packets replay exactly.
 Eighteen focused tests pass. Native timing for this layout remains untested.
+
+Rebalancing the nine-parent layout lowers the validated fractional write bound
+from 17 to 15.857142857. Three further bounded neighborhoods reach the same
+bound. An exact integer residency uses eighteen peak writes with a 360-clock
+ideal bank estimate; all 576 eligible bank orders retain that estimate for
+the saved trace. Physical packing reaches 680 clocks, then retiming reaches
+648 clocks. The complete source alpha output and every CGRAM packet replay.
+Free physical residency at the 336-clock gate remains UNKNOWN after fifty
+seconds. The original geometry's 472-clock witness remains better; neither
+layout has authored native admission. These bounds do not reject raster.
