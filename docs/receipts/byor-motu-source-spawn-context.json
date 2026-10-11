@@ -1,0 +1,33 @@
+{
+  "schema": "BYOR_SOURCE_SPAWN_CONTEXT_RECEIPT_V1",
+  "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "source_pose_reachability_proven": false,
+  "actor_owned_tile_limit": 34,
+  "actor_owned_tile_lower_bound_peak": 36,
+  "actor_owned_geometry_rejected_for_conditional_pose": true,
+  "cross_actor_geometry_rejected": false,
+  "universal_raster_rejected": false,
+  "native_presentation_proven": false,
+  "focused_source_callback_tests_passed": 10,
+  "width_failures": 0,
+  "protected_mismatches": 0,
+  "no_color_reduction": true,
+  "source_callback_timeline_sha256": "b7fa70d25225a3efde9a0d08ef2f5ebe831d0c428bc7635035e73aaa33fa8827",
+  "conditional_visual_report_sha256": "db186ec061ba978c401a743af1489a4a306090818e3af402c90bfe6163ae5a47",
+  "color_peak": {
+    "tick": 329,
+    "surviving_declared_lifetimes_active": 9,
+    "visible_children": 3,
+    "peak_final_obj_scanline_colors": 85,
+    "peak_actor_owned_tile_lower_bound": 30,
+    "source_rgb555_sha256": "5d3bdfc065fe6df1e9b661b451c21b43befc862de6e28269d6500245859e4082"
+  },
+  "tile_peak": {
+    "tick": 341,
+    "surviving_declared_lifetimes_active": 9,
+    "visible_children": 3,
+    "peak_final_obj_scanline_colors": 72,
+    "peak_actor_owned_tile_lower_bound": 36,
+    "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de"
+  }
+}
