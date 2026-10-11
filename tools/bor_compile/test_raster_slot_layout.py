@@ -6,6 +6,32 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_bounded_lifetime_repair_preserves_pixels_and_external_slots(self):
+        from raster_slot_greedy import demand
+        from raster_slot_refine import verify_packets
+        source=self.schedule()
+        hint=optimize(source,window=356,time_limit=3,flexible_prefetch=True,retain_write_times=True,split_bank_ranges=True)
+        result=optimize(source,window=356,time_limit=3,flexible_prefetch=True,retain_write_times=True,
+            split_bank_ranges=True,layout_hint=hint,lifetime_repair_interval=(1,2),search_strategy='lns')
+        self.assertEqual(result['physical_slot_layout']['solver_search_strategy'],'lns')
+        self.assertEqual(result['physical_slot_layout']['lifetime_repair_interval'],[1,2])
+        self.assertGreater(result['physical_slot_layout']['movable_complete_lifetimes'],0)
+        verify_packets(result)
+        _,_,a=demand(source);_,_,b=demand(result)
+        self.assertTrue(all(np.array_equal(x,y)for x,y in zip(a,b)))
+        # The row-zero lifetime crosses the repair boundary and remains fixed.
+        a=next(e for e in hint['trace'][0]['updates']if e['bank']==0)
+        b=next(e for e in result['trace'][0]['updates']if e['bank']==0)
+        self.assertEqual(a['slot'],b['slot'])
+        for interval in((-1,2),(2,1),(0,16)):
+            with self.assertRaisesRegex(ValueError,'LIFETIME_REPAIR_DOMAIN'):
+                optimize(source,flexible_prefetch=True,retain_write_times=True,split_bank_ranges=True,
+                    layout_hint=hint,lifetime_repair_interval=interval)
+        with self.assertRaisesRegex(ValueError,'LIFETIME_REPAIR_DOMAIN'):
+            optimize(source,lifetime_repair_interval=(1,2))
+        with self.assertRaisesRegex(ValueError,'SEARCH_STRATEGY'):
+            optimize(source,search_strategy='invalid')
+
     def test_idle_prefix_fold_preserves_source_words_and_opaque_zero(self):
         from raster_slot_greedy import demand
         source=self.schedule();prefix=4

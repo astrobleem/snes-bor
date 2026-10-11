@@ -10,11 +10,12 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
-def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False,persistent_color_slots=False,paired_bank_ranges=False,collapse_idle_prefix=False):
+def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False,persistent_color_slots=False,paired_bank_ranges=False,collapse_idle_prefix=False,lifetime_repair_interval=None,search_strategy='portfolio'):
     from ortools.sat.python import cp_model
     if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('SLOT_LAYOUT_VALIDATED_SCHEDULE_REQUIRED')
     if not 1<=window or not 1<=maximum_ranges<=4:raise ValueError('SLOT_LAYOUT_TRANSFER_DOMAIN')
+    if search_strategy not in('portfolio','lns'):raise ValueError('SLOT_LAYOUT_SEARCH_STRATEGY')
     if paired_bank_ranges and(reorder_banks or maximum_ranges!=4):raise ValueError('SLOT_LAYOUT_PAIRED_RANGE_DOMAIN')
     if paired_bank_ranges:split_bank_ranges=True
     height=len(schedule['trace']);segments=[];current={};starts={};original_states=[];active_rows=[]
@@ -36,6 +37,10 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
     if retain_write_times and(not flexible_prefetch or demand_gap is not None):raise ValueError('SLOT_LAYOUT_RETAIN_WRITE_TIMES_DOMAIN')
     if rectangle_lifetimes and(not flexible_prefetch or hint_family or retain_write_times):raise ValueError('SLOT_LAYOUT_RECTANGLE_LIFETIME_DOMAIN')
     if collapse_idle_prefix and(not flexible_prefetch or retain_write_times):raise ValueError('SLOT_LAYOUT_IDLE_PREFIX_DOMAIN')
+    if lifetime_repair_interval is not None:
+        if (not retain_write_times or layout_hint is None or not split_bank_ranges or paired_bank_ranges or reorder_banks or
+            len(lifetime_repair_interval)!=2 or any(type(y)is not int for y in lifetime_repair_interval) or
+            not 0<=lifetime_repair_interval[0]<=lifetime_repair_interval[1]<height):raise ValueError('SLOT_LAYOUT_LIFETIME_REPAIR_DOMAIN')
     required={};last_use={};first_use={}
     for p,mask in zip(schedule['pieces'],schedule['piece_pixel_masks']):
         image=unpack(mask)
@@ -84,6 +89,13 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             slot=pixels[i];s=segments[i];events=[row['scanline']for row in layout_hint['trace']if row['scanline']<=first_use[i]for e in row['updates']if e['bank']==hint_banks[s['bank']]and e['slot']==slot+1 and e['color']==s['color']]
             if events:hinted[i]=(slot,max(events))
     model=cp_model.CpModel();slots=[model.new_int_var(0,14,'s'+str(i))for i in range(len(segments))]
+    repair_lifetimes=[]
+    if lifetime_repair_interval is not None:
+        if set(hinted)!=set(last_use):raise ValueError('SLOT_LAYOUT_LIFETIME_REPAIR_HINT_INCOMPLETE')
+        left,right=lifetime_repair_interval
+        for i in sorted(last_use):
+            if left<=segments[i]['first']<=segments[i]['last']<=right:repair_lifetimes.append(i)
+            else:model.add(slots[i]==hinted[i][0])
     if persistent_color_slots:
         anchors={}
         for i in sorted(last_use):
@@ -208,11 +220,20 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             packet_hints={row['scanline']:sorted((p['cgram_word_address']-128,p['cgram_word_address']-128+p['word_count']-1)for p in row['packets'])for row in layout_hint['prepared_dma_packets']}
         ranges,peak=constrain_pairs(model,write_flags,slots,height,window)if paired_bank_ranges else constrain(model,write_flags,slots,height,maximum_ranges,window,destinations if reorder_banks else None,packet_hints,event_hints)
     for i,segment in enumerate(segments):model.add_hint(slots[i],hinted.get(i,(segment['old_slot'],0))[0])
-    model.minimize(peak);solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
+    if lifetime_repair_interval is None:model.minimize(peak)
+    else:
+        left,right=lifetime_repair_interval;costs=[];repair_peak=model.new_int_var(0,4096,'lifetimeRepairPeak')
+        for y in range(max(1,left),right+1):
+            cost=sum(24*a+16*n for(line,r),(a,begin,end,n)in ranges.items()if line==y)
+            model.add(repair_peak>=cost);costs.append(cost)
+        model.minimize(repair_peak*(4096*len(costs)+1)+sum(costs))
+    solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
+    if search_strategy=='lns':solver.parameters.use_lns_only=True
     solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
     status=solver.solve(model)
     result=dict(schema='BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1',status='BOUNDED_SLOT_LAYOUT_NO_CANDIDATE',
                 solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
+                solver_search_strategy=search_strategy,
                 lifetime_segments=len(segments),window_master_clocks=window,maximum_ranges=maximum_ranges,
                 input_schedule_noninitial_prefetch_latency_lines=max((first_use[i]-segments[i]['first']for i in last_use if segments[i]['first']>0),default=0),
                 trim_dead_residents=trim_dead_residents,used_lifetime_segments=len(last_use),
@@ -224,6 +245,8 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 fixed_hint_slots=fix_hint_slots,
                 permute_hint_slots=permute_hint_slots,
                 retain_write_times=retain_write_times,
+                lifetime_repair_interval=list(lifetime_repair_interval)if lifetime_repair_interval is not None else None,
+                movable_complete_lifetimes=len(repair_lifetimes),
                 rectangle_lifetimes=rectangle_lifetimes,persistent_color_slots=persistent_color_slots,
                 split_bank_ranges=split_bank_ranges,
                 paired_bank_ranges=paired_bank_ranges,
@@ -320,7 +343,9 @@ def main():
     p.add_argument('--persistent-color-slots',action='store_true')
     p.add_argument('--paired-bank-ranges',action='store_true')
     p.add_argument('--collapse-idle-prefix',action='store_true',help='Fold writes through the first visible source row into free VBlank initialization; requires flexible prefetch without fixed write times.')
-    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots,retain_write_times=a.retain_write_times,rectangle_lifetimes=a.rectangle_lifetimes,persistent_color_slots=a.persistent_color_slots,paired_bank_ranges=a.paired_bank_ranges,collapse_idle_prefix=a.collapse_idle_prefix)
+    p.add_argument('--lifetime-repair-interval',type=int,nargs=2,help='Reassign only complete lifetimes inside this inclusive interval; requires a physical hint, retained write times and split ranges.')
+    p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
+    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots,retain_write_times=a.retain_write_times,rectangle_lifetimes=a.rectangle_lifetimes,persistent_color_slots=a.persistent_color_slots,paired_bank_ranges=a.paired_bank_ranges,collapse_idle_prefix=a.collapse_idle_prefix,lifetime_repair_interval=a.lifetime_repair_interval,search_strategy=a.search_strategy)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 
