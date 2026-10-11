@@ -226,12 +226,12 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
     for y in range(first+1,last+1):
         model.add(sum(flag for(line,b),events in flags.items()if line==y for i,flag in events)<=maximum_writes)
         if necessary_bank_window is not None:
-            from raster_bank_residency import constrain_dp
+            from raster_bank_residency import constrain_flow
             counts=[];active=[]
             for b in range(8):
                 n=model.new_int_var(0,15,f'count{y}_{b}');model.add(n==sum(flag for i,flag in flags[y,b]));counts.append(n)
                 a=model.new_bool_var(f'activeBank{y}_{b}');model.add(n>=a);model.add(n<=15*a);active.append(a)
-            constrain_dp(model,counts,active,necessary_bank_window,f'windowBank{y}',4)
+            constrain_flow(model,counts,active,necessary_bank_window,f'windowBank{y}',4)
     packet_hints={r['scanline']:sorted((p['cgram_word_address']-128,p['cgram_word_address']-129+p['word_count'])for p in r['packets'])for r in source.get('prepared_dma_packets',[])}
     if bank_class_scope is not None:
         # The full-frame packet union includes the excluded class. Rebuild
@@ -265,6 +265,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         offline_bank_assignment_movable_pieces=sorted(movable),piece_banks_fixed_across_all_scanlines=True,
         exact_math_class_reencoding_enabled=reencode_math_classes,
         maximum_physical_writes=maximum_writes,necessary_bank_window_master_clocks=necessary_bank_window,physical_window_master_clocks=window,
+        necessary_bank_partition_solver='DISJOINT_INTERVAL_FLOW'if necessary_bank_window is not None else None,
         mandatory_identity_bank_interval_cuts=interval_cuts,
         mandatory_math_class_interval_cuts=pool_cuts,
         resident_exact_operand_reuse_enabled=reuse_exact_operands,pixels_with_multiple_exact_operand_choices=alternative_pixels,

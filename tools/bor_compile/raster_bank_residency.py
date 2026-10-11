@@ -131,6 +131,39 @@ def constrain_dp(model,counts,active,window,tag,maximum_ranges=4):
     return dp[maximum_ranges,8]
 
 
+def constrain_flow(model,counts,active,window,tag,maximum_ranges=4,linear=False):
+    """Equivalent favorable bank partition using disjoint selected intervals.
+
+    Endpoint words pack freely; every intervening bank is transferred in full.
+    Empty intervening banks remain legal. This grants the same ideal geometry
+    as constrain_dp, without constructing its nested minimum expressions.
+    """
+    choices=[];costs=[];coverage=[[]for b in range(8)]
+    for a in range(8):
+        for b in range(a,8):
+            overhead=24+(16*(16*(b-a-1)+1)if b!=a else 0)
+            if overhead+16*(1 if a==b else 2)>window+39:continue
+            chosen=model.new_bool_var(f'{tag}interval{a}_{b}')
+            model.add(chosen<=active[a]);model.add(chosen<=active[b]);choices.append(chosen)
+            for k in range(a,b+1):coverage[k].append(chosen)
+            cost=model.new_int_var(0,window+39,f'{tag}cost{a}_{b}')
+            expression=16*(counts[a]+(counts[b]if a!=b else 0))+overhead
+            if linear:
+                maximum=16*(15+(15 if a!=b else 0))+overhead
+                model.add(cost<=maximum*chosen);model.add(cost<=expression);model.add(cost>=expression-maximum*(1-chosen))
+            else:
+                model.add(cost==expression).only_enforce_if(chosen);model.add(cost==0).only_enforce_if(chosen.Not())
+            costs.append(cost)
+    for b in range(8):
+        model.add(sum(coverage[b])>=active[b]);model.add(sum(coverage[b])<=1)
+    model.add(sum(choices)<=maximum_ranges);model.add(sum(costs)<=window+39)
+    # Each partition covers every write and crosses at least one transparent
+    # word between active banks in the same interval. Unlike a twenty-clock
+    # per-bank shortcut, this also holds when a whole middle bank is written.
+    model.add(sum(costs)>=16*sum(counts)+16*sum(active)+8*sum(choices))
+    return sum(costs)
+
+
 def constrain_adjacent(model,counts,active,window,tag,write_budget,maximum_ranges=4):
     """Sufficient packet bound restricted to singles and adjacent-bank pairs.
 
