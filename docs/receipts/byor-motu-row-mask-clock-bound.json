@@ -1,0 +1,48 @@
+{
+  "schema": "BYOR_ROW_MASK_CLOCK_BOUND_RECEIPT_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "source_pixel_word_ownership_and_bank_eligibility_replayed": true,
+  "source_pixels": 2668,
+  "search_results": {
+    "byor-motu-authored-peak-row-word-improved-seed-dma-decomposition": {
+      "best_clock_bound": 353.92309486797467,
+      "iterations": 1,
+      "seconds": 9.688000000081956,
+      "geometry": {
+        "oam_entries": 101,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 20
+      },
+      "interval_bounds": 104
+    },
+    "byor-motu-authored-peak-row-word-improved-seed-dma-decomposition-long-master": {
+      "best_clock_bound": 304.3361349242966,
+      "iterations": 3,
+      "seconds": 198.35999999986961,
+      "geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "interval_bounds": 104
+    }
+  },
+  "alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555",
+  "fractional_cache_only": true,
+  "integer_residency_admitted": false,
+  "physical_transfer_admitted": false,
+  "native_authored_peak_admitted": false,
+  "concurrent_actor_admitted": false,
+  "production_runtime_admitted": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true,
+  "focused_tests_passed": 26,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "artifact_hashes": {
+    "byor-motu-authored-peak-row-word-improved-seed-dma-decomposition": "03427090e7e47a58f9aac8ec7dda8fc9b09da2e0d88232dea10d266828ebcbd4",
+    "byor-motu-authored-peak-row-word-improved-seed-dma-decomposition-long-master": "9234863b15d93502968c506acda992a3e8793667b77414461e6037ee3f70a382"
+  }
+}
