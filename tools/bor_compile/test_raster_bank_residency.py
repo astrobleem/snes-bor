@@ -96,6 +96,27 @@ class ResidencyTests(unittest.TestCase):
     def test_milp_rejects_non_linear_backend(self):
         with self.assertRaisesRegex(ValueError,'BANK_RESIDENCY_SOLVER_BACKEND'):optimize(source_schedule(),solver_backend='highs')
 
+    def test_peak_span_objective_preserves_source_and_agrees_across_exact_bounds(self):
+        source=source_schedule()
+        results=[optimize(source,2,0,356,5,backend,minimize_span=True)for backend in('dp','adjacent')]
+        for result in results:
+            report=result['bank_residency']
+            self.assertTrue(report['peak_optimistic_prepared_span_objective'])
+            self.assertFalse(report['physical_slot_schedule_proven'])
+            self.assertFalse(report['native_timing_admitted'])
+            for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        self.assertEqual(results[0]['bank_residency']['peak_optimistic_prepared_span'],results[1]['bank_residency']['peak_optimistic_prepared_span'])
+        self.assertEqual(results[0]['bank_residency']['peak_optimistic_span_lower_bound_for_this_fixed_bank_family'],results[0]['bank_residency']['peak_optimistic_prepared_span'])
+        with self.assertRaisesRegex(ValueError,'SPAN_OBJECTIVE_DOMAIN'):optimize(source,window=None,minimize_span=True)
+        with self.assertRaisesRegex(ValueError,'SPAN_OBJECTIVE_DOMAIN'):optimize(source,minimize_span=True,minimize_writes=True)
+
+    def test_lns_peak_span_search_replays_complete_pixels(self):
+        source=source_schedule();result=optimize(source,2,0,356,2,'adjacent',minimize_span=True,search_strategy='lns')
+        self.assertEqual(result['bank_residency']['solver_search_strategy'],'lns')
+        self.assertTrue(result['bank_residency']['complete_source_frame_pixel_identity_proven'])
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        with self.assertRaisesRegex(ValueError,'SEARCH_STRATEGY'):optimize(source,search_strategy='invalid')
+
     def test_interval_relaxation_preserves_only_retained_pixels_and_geometry(self):
         source=source_schedule();relaxed=restrict_interval(source,4,9)
         self.assertEqual(relaxed['pieces'],source['pieces'])

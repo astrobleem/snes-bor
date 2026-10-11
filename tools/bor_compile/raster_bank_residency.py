@@ -128,6 +128,7 @@ def constrain_dp(model,counts,active,window,tag,maximum_ranges=4):
             candidates=[skip]+[dp[n-1,j]+edges[j,k-1]for j in range(k)if(j,k-1)in edges]
             dp[n,k]=model.new_int_var(0,infinity,f'{tag}dp{n}_{k}');model.add_min_equality(dp[n,k],candidates)
     model.add(dp[maximum_ranges,8]<=window+39)
+    return dp[maximum_ranges,8]
 
 
 def constrain_adjacent(model,counts,active,window,tag,write_budget,maximum_ranges=4):
@@ -153,6 +154,16 @@ def constrain_adjacent(model,counts,active,window,tag,write_budget,maximum_range
             span=max(0,16*words+24*banks-8*pairs-40)
             if span<window:allowed.append((value,words))
     model.add_allowed_assignments([mask,total],allowed)
+    pair_count=model.new_int_var(0,4,tag+'pairCount')
+    pair_table=[]
+    for value in range(256):
+        pairs=0;b=0
+        while b<7:
+            if value&(1<<b)and value&(1<<(b+1)):pairs+=1;b+=2
+            else:b+=1
+        pair_table.append((value,pairs))
+    model.add_allowed_assignments([mask,pair_count],pair_table)
+    return 16*total+24*sum(active)-8*pair_count
 
 
 def solve_linear(model,time_limit,continuous_variables=None):
@@ -189,11 +200,13 @@ def solve_linear(model,time_limit,continuous_variables=None):
     return lambda variable:float(values[variable.index])if variable.index in continuous else int(values[variable.index]),report
 
 
-def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None,minimize_writes=False):
+def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None,minimize_writes=False,minimize_span=False,search_strategy='portfolio'):
     from ortools.sat.python import cp_model
     if write_budget<0 or lookahead<0 or(window is not None and window<1):raise ValueError('BANK_RESIDENCY_DOMAIN')
     if range_backend not in('dp','ranges','adjacent'):raise ValueError('BANK_RESIDENCY_RANGE_BACKEND')
     if solver_backend not in('cp-sat','highs')or(solver_backend=='highs'and window is not None and range_backend!='ranges'):raise ValueError('BANK_RESIDENCY_SOLVER_BACKEND')
+    if search_strategy not in('portfolio','lns')or(search_strategy=='lns'and solver_backend!='cp-sat'):raise ValueError('BANK_RESIDENCY_SEARCH_STRATEGY')
+    if minimize_span and(window is None or solver_backend!='cp-sat'or range_backend=='ranges'or minimize_writes):raise ValueError('BANK_RESIDENCY_SPAN_OBJECTIVE_DOMAIN')
     if repair_interval is not None and (len(repair_interval)!=2 or repair_interval[0]<0 or repair_interval[1]<repair_interval[0]):raise ValueError('BANK_RESIDENCY_REPAIR_INTERVAL')
     required,uses,pixels=demand(source,allow_restricted=True);height=len(required)
     active=[y for y,row in enumerate(required)if any(row)]
@@ -252,6 +265,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         expression=sum(variables[i]*v for i,v in items)
         if np.isfinite(lo):model.add(expression>=int(lo))
         if np.isfinite(hi):model.add(expression<=int(hi))
+    peak_span_cost=model.new_int_var(0,4096,'favorablePeakCost')if minimize_span else None
     for y in range(first+1,last+1):
         line={b:write_lines.get((b,y),[])for b in range(8)}
         model.add(sum(variables[i]for values in line.values()for i in values)<=write_budget)
@@ -263,19 +277,26 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
                 for i in values:model.add(flag>=variables[i])
                 model.add(flag<=sum(variables[i]for i in values))
             else:model.add(flag==0)
+            model.add_hint(flag,int(any(c in hints[y][b]and c not in hints[y-1][b]for c in uses[b])))
         if range_backend in('dp','adjacent'):
             counts=[]
             for b in range(8):
                 count=model.new_int_var(0,15,f'count{b}_{y}');model.add(count==sum(variables[i]for i in line[b]));counts.append(count)
-            if range_backend=='dp':constrain_dp(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}')
-            else:constrain_adjacent(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',write_budget)
+                model.add_hint(count,sum(c in hints[y][b]and c not in hints[y-1][b]for c in uses[b]))
+            if range_backend=='dp':cost=constrain_dp(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}')
+            else:cost=constrain_adjacent(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',write_budget)
+            if minimize_span:model.add(peak_span_cost>=cost)
         else:constrain_ranges(line,active_flags,allocate,constraint,window,maximum_ranges=4)
-    if minimize_writes:model.minimize(sum(writes.values()))
+    if minimize_span:
+        model.minimize(peak_span_cost)
+        model.add_hint(peak_span_cost,max(favorable_span(row['updates'])for row in source['trace'][1:])+40)
+    elif minimize_writes:model.minimize(sum(writes.values()))
     if solver_backend=='highs':value,statistics=solve_linear(model,time_limit)
     else:
         solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
+        if search_strategy=='lns':solver.parameters.use_lns_only=True
         solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
-        solver.parameters.stop_after_first_solution=not minimize_writes
+        solver.parameters.stop_after_first_solution=not(minimize_writes or minimize_span)
         status=solver.solve(model);value=solver.value if status in(cp_model.FEASIBLE,cp_model.OPTIMAL)else None
         statistics=dict(solver_backend='cp-sat',solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
             solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts)
@@ -291,6 +312,9 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     report['compulsory_bank_interval_cuts']=interval_cuts
     report['soft_residency_hint_interval']=hint_interval
     report['total_noninitial_writes_objective']=minimize_writes
+    report['peak_optimistic_prepared_span_objective']=minimize_span
+    report['solver_search_strategy']=search_strategy
+    if minimize_span:report['peak_optimistic_span_lower_bound_for_this_fixed_bank_family']=max(0,int(solver.best_objective_bound)-40)
     if value is None:return report
     planned={y:{b:set()for b in range(8)}for y in range(first,last+1)}
     for (b,c,y),r in resident.items():
@@ -357,9 +381,11 @@ def main():
     p.add_argument('--scanline-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
     p.add_argument('--residency-hint',type=Path)
     p.add_argument('--minimize-writes',action='store_true')
+    p.add_argument('--minimize-span',action='store_true',help='Minimize the optimistic peak bank-partition cost; CP-SAT dp/adjacent backends only, physical slot admission still required.')
+    p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
     a=p.parse_args();source=json.loads(a.schedule.read_text())
     if a.scanline_interval:source=restrict_interval(source,*a.scanline_interval)
-    r=relaxed_bound(source,a.lookahead,a.time_limit)if a.relaxed_bound else optimize(source,a.write_budget,a.lookahead,None if a.no_prepared_range_bound else a.window,a.time_limit,a.range_backend,a.repair_interval,a.solver_backend,json.loads(a.residency_hint.read_text())if a.residency_hint else None,a.minimize_writes);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('bank_residency',r)))
+    r=relaxed_bound(source,a.lookahead,a.time_limit)if a.relaxed_bound else optimize(source,a.write_budget,a.lookahead,None if a.no_prepared_range_bound else a.window,a.time_limit,a.range_backend,a.repair_interval,a.solver_backend,json.loads(a.residency_hint.read_text())if a.residency_hint else None,a.minimize_writes,a.minimize_span,a.search_strategy);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('bank_residency',r)))
 
 
 if __name__=='__main__':main()
