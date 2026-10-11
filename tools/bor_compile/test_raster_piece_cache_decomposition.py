@@ -1,4 +1,4 @@
-import unittest
+import copy,unittest
 import numpy as np
 import test_raster_word_bank_balance as fixtures
 from raster_slot_greedy import demand
@@ -7,6 +7,34 @@ from raster_bank_residency import relaxed_bound
 
 
 class DecompositionTests(unittest.TestCase):
+    def test_resume_checks_duals_and_keeps_prior_assignments(self):
+        source=fixtures.WordBankBalanceTests().fixture()[0]
+        first=search(source,iterations=2,time_limit=10,master_seconds=1)
+        saved=first['piece_cache_decomposition']
+        resumed=search(source,iterations=2,time_limit=10,master_seconds=1,resume_report=saved)
+        report=resumed['piece_cache_decomposition']
+        self.assertEqual(report['restored_certified_cuts'],len(saved['certified_master_cuts']))
+        self.assertTrue(set(map(tuple,saved['evaluated_assignments']))<=set(map(tuple,report['evaluated_assignments'])))
+        for a,b in zip(demand(source)[2],demand(resumed)[2]):np.testing.assert_array_equal(a,b)
+        bad=copy.deepcopy(saved);bad['cache_basis_sha256']='stale'
+        with self.assertRaisesRegex(ValueError,'SOURCE_BASIS'):
+            search(source,resume_report=bad)
+        bad=copy.deepcopy(saved);bad['certified_master_cuts'][0]['inequality_dual']=[[0,1.]]
+        with self.assertRaisesRegex(ValueError,'DUAL_DOMAIN'):
+            search(source,resume_report=bad)
+        bad=copy.deepcopy(saved);bad['certified_master_cuts'][0]['inequality_dual']=[[0,-100.]]
+        with self.assertRaisesRegex(ValueError,'DUAL_STATIONARITY'):
+            search(source,resume_report=bad)
+        bad=copy.deepcopy(saved);bad['certified_master_cuts'][0]['upper_dual']=[[saved['cache_lp_variables']-1,-1.]]
+        with self.assertRaisesRegex(ValueError,'UNBOUNDED_PEAK_DUAL'):
+            search(source,resume_report=bad)
+        bad=copy.deepcopy(saved);bad['certified_master_cuts'][0]['upper_dual']=[[0,-100.]]
+        # A nonpositive bound multiplier alone is valid but weak, so accepts.
+        search(source,iterations=1,time_limit=5,resume_report=bad)
+        bad=copy.deepcopy(saved);bad['evaluated_assignments'][0][0]=8
+        with self.assertRaisesRegex(ValueError,'ASSIGNMENT_DOMAIN'):
+            search(source,resume_report=bad)
+
     def test_dual_cuts_and_rebuilt_operands(self):
         source=fixtures.WordBankBalanceTests().fixture()[0]
         result=search(source,iterations=4,time_limit=10,master_seconds=1)

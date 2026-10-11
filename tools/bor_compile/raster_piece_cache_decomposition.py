@@ -6,7 +6,7 @@ count every entry's complete hardware rectangle against all three OBJ limits.
 A candidate is only a fixed bank assignment. Integer residency, physical slots,
 transfer timing and source alpha still require their existing verification.
 """
-import copy,time
+import copy,hashlib,json,time
 import numpy as np
 from scipy.optimize import linprog
 from scipy.sparse import coo_matrix
@@ -14,7 +14,7 @@ from raster_slot_greedy import demand,bank_groups
 from raster_global_bank_classes import rebuild_schedule
 
 
-def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21,row_word_masks=False):
+def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21,row_word_masks=False,resume_report=None):
     from ortools.sat.python import cp_model
     if iterations<1 or time_limit<=0 or master_seconds<=0 or (maximum_changes is not None and maximum_changes<1): raise ValueError('PIECE_CACHE_DECOMPOSITION_DOMAIN')
     if objective_kind not in('writes','dma-window')or type(write_budget)is not int or not 0<=write_budget<=120:raise ValueError('PIECE_CACHE_DECOMPOSITION_OBJECTIVE_DOMAIN')
@@ -98,7 +98,46 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
             model.add(sum(masks[i,b]*(pieces[i]['width']//8)for i,b in live)<=34)
     # Certified cuts are rounded outward to integers to avoid false rejection.
     scale=1000000;t=model.new_int_var(0,(120 if objective_kind=='writes'else 4096)*scale,'fractionalPeak');model.minimize(t)
-    assignment=[pieces[key[0]]['bank'] for key in decision_keys];best=float('inf');best_assignment=None;reports=[];started=time.monotonic()
+    basis=dict(source_rgb555_sha256=source.get('source_rgb555_sha256'),
+               pieces=[{k:p.get(k)for k in ('actor','x','y','width','height','rows')}for p in pieces],
+               domains=domains,decision_keys=decision_keys,objective_kind=objective_kind,
+               write_budget=write_budget,row_word_masks=row_word_masks)
+    basis_hash=hashlib.sha256(json.dumps(basis,sort_keys=True).encode()).hexdigest()
+    cuts=[];evaluated=[];restored=0
+    def install_cut(certificate):
+        def vector(entries,length):
+            result=np.zeros(length);seen=set()
+            for i,value in entries:
+                if type(i)is not int or not 0<=i<length or i in seen or not np.isfinite(value)or value>0:raise ValueError('PIECE_CACHE_RESUME_DUAL_DOMAIN')
+                seen.add(i);result[i]=value
+            return result
+        q=vector(certificate['inequality_dual'],len(rhs));u=vector(certificate['upper_dual'],peak+1)
+        if u[peak]!=0:raise ValueError('PIECE_CACHE_RESUME_UNBOUNDED_PEAK_DUAL')
+        lower=objective-matrix.T@q-u
+        if float(lower.min()) < -1e-6:raise ValueError('PIECE_CACHE_RESUME_DUAL_STATIONARITY')
+        # Normalize the unbounded peak column strictly inward. Finite columns
+        # have upper bound one; subtract their aggregate negative residual.
+        factor=min(1.,1/(1-float(lower[peak])+1e-12))
+        q*=factor;u*=factor;lower=objective-matrix.T@q-u
+        base=np.array(rhs,copy=True)
+        for row in required_rows.values():base[row]=0
+        constant=float(base@q+u.sum()-np.maximum(-lower[:-1],0).sum())
+        weights={key:max(0.,-float(q[row]))for key,row in required_rows.items()}
+        model.add(t>=sum(int(np.floor(value*scale))*required[key]for key,value in weights.items()if value>1e-9)+int(np.floor(constant*scale)))
+        cuts.append(copy.deepcopy(certificate))
+    def valid_assignment(a):
+        return isinstance(a,list)and len(a)==len(domains)and all(type(b)is int and b in domain for b,domain in zip(a,domains))
+    assignment=[pieces[key[0]]['bank'] for key in decision_keys]
+    if resume_report is not None:
+        if resume_report.get('cache_basis_sha256')!=basis_hash:raise ValueError('PIECE_CACHE_RESUME_SOURCE_BASIS')
+        for cut in resume_report['certified_master_cuts']:install_cut(cut)
+        restored=len(cuts)
+        for a in resume_report['evaluated_assignments']:
+            if not valid_assignment(a):raise ValueError('PIECE_CACHE_RESUME_ASSIGNMENT_DOMAIN')
+            model.add(sum(selection[i][b]for i,b in enumerate(a))<=len(a)-1);evaluated.append(a.copy())
+        assignment=resume_report['best_decision_assignment']
+        if not valid_assignment(assignment):raise ValueError('PIECE_CACHE_RESUME_ASSIGNMENT_DOMAIN')
+    best=float('inf');best_assignment=None;reports=[];started=time.monotonic()
     for iteration in range(iterations):
         if time.monotonic()-started>time_limit:break
         for key,row in required_rows.items():rhs[row]=-int(any(assignment[i]==key[0] for i in owners[key]))
@@ -116,12 +155,11 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         report['peak_write_lower_bound'if objective_kind=='writes'else'peak_dma_span_lower_bound']=float(solved.fun)
         reports.append(report)
         if solved.fun<best:best=float(solved.fun);best_assignment=assignment.copy()
-        weights={key:max(0.,-float(solved.ineqlin.marginals[row]))for key,row in required_rows.items()}
-        constant=dual-sum(weights[key] for key in weights if rhs[required_rows[key]]==-1)
-        terms=[int(np.floor(value*scale))*required[key] for key,value in weights.items() if value>1e-9]
-        model.add(t>=sum(terms)+int(np.floor(constant*scale)))
+        install_cut(dict(inequality_dual=[[i,float(v)]for i,v in enumerate(solved.ineqlin.marginals)if v],
+                         upper_dual=[[i,float(v)]for i,v in enumerate(solved.upper.marginals)if v]))
         # Exclude an evaluated assignment so a rounded tie cannot stall search.
         model.add(sum(selection[i][b]for i,b in enumerate(assignment))<=len(assignment)-1)
+        if assignment not in evaluated:evaluated.append(assignment.copy())
         model.clear_hints()
         for i,b in enumerate(best_assignment):
             for bb,v in selection[i].items():model.add_hint(v,int(bb==b))
@@ -134,6 +172,9 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         assignment=[next(b for b,v in choices.items()if solver.value(v))for choices in selection]
     report=dict(schema='BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1',iterations=reports,seconds=time.monotonic()-started,maximum_changed_pieces_per_master=maximum_changes,
         objective_kind=objective_kind,row_word_masks=row_word_masks,write_budget=write_budget if objective_kind=='dma-window'else None,alias_aware=True,initial_residency_optimal=True,
+        cache_basis_sha256=basis_hash,certified_master_cuts=cuts,restored_certified_cuts=restored,
+        cache_lp_variables=peak+1,cache_lp_constraints=len(rhs),
+        evaluated_assignments=evaluated,best_decision_assignment=best_assignment,
         fractional_residency_only=True,physical_transfer_admitted=False,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     report['best_fractional_cache_bound'if objective_kind=='writes'else'best_fractional_dma_span_bound']=best if best_assignment is not None else None
     if best_assignment is None:return report
@@ -161,8 +202,12 @@ def main():
     parser.add_argument('--master-seconds',type=float,default=3);parser.add_argument('--maximum-changes',type=int)
     parser.add_argument('--objective',choices=('writes','dma-window'),default='writes');parser.add_argument('--write-budget',type=int,default=21)
     parser.add_argument('--row-word-masks',action='store_true')
-    args=parser.parse_args();result=search(json.loads(args.schedule.read_text()),args.iterations,args.time_limit,args.master_seconds,args.maximum_changes,args.objective,args.write_budget,args.row_word_masks)
-    args.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('piece_cache_decomposition',result)))
+    parser.add_argument('--resume-report',type=Path)
+    args=parser.parse_args();resume=json.loads(args.resume_report.read_text())if args.resume_report else None
+    if resume is not None:resume=resume.get('piece_cache_decomposition',resume)
+    result=search(json.loads(args.schedule.read_text()),args.iterations,args.time_limit,args.master_seconds,args.maximum_changes,args.objective,args.write_budget,args.row_word_masks,resume)
+    args.output.write_text(json.dumps(result,indent=2)+'\n');report=result.get('piece_cache_decomposition',result)
+    print(json.dumps(dict({k:v for k,v in report.items()if k not in('iterations','certified_master_cuts','evaluated_assignments','best_decision_assignment')},iterations_completed=len(report['iterations']))))
 
 
 if __name__=='__main__':main()
