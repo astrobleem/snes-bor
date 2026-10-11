@@ -24,5 +24,17 @@ class SlotRefinementTests(unittest.TestCase):
         from raster_bank_residency import restrict_interval
         with self.assertRaises(ValueError):refine(source,restrict_interval(hint,1,2))
 
+    def test_full_frame_write_budget_is_preserved_and_invalid_hint_rejected(self):
+        source=SlotLayoutTests().schedule();hint=optimize(source,356,10,True)
+        peak=max(len(row['updates'])for row in hint['trace'][1:])
+        result=refine(source,hint,356,1,1,1,peak)
+        self.assertTrue(result['physical_slot_refinement']['full_frame_write_budget_verified'])
+        self.assertEqual(result['physical_slot_refinement']['maximum_physical_writes_per_transfer_row'],peak)
+        if peak:
+            with self.assertRaisesRegex(ValueError,'HINT_WRITE_BUDGET'):
+                refine(source,hint,356,1,1,1,peak-1)
+        with self.assertRaisesRegex(ValueError,'WRITE_BUDGET_DOMAIN'):
+            refine(source,hint,356,1,1,1,121)
+
 
 if __name__=='__main__':unittest.main()

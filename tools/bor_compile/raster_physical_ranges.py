@@ -31,6 +31,36 @@ def constrain_pairs(model,write_flags,slots,height,window):
     return ranges,peak
 
 
+def constrain_fixed_addresses(model,write_flags,height,maximum_ranges,window,packet_hints=None,line_windows=None):
+    """Exact contiguous coverage costs when each event has a fixed OBJ slot.
+
+    Keys use i=15*bank+opaque_slot-1. Each covered word costs sixteen clocks;
+    every run costs twenty-four. Coverage may include unchanged and transparent
+    words. The returned per-address cost terms share the interval API, but are
+    not transfer descriptors; callers independently partition actual changes.
+    """
+    ranges={};peak=model.new_int_var(0,4096,'fixedAddressPeak')
+    for y in range(1,height):
+        events={16*b+(i-15*b)+1:flag for(line,b),values in write_flags.items()if line==y for i,flag in values}
+        if not events:continue
+        hints=(packet_hints or {}).get(y,[]);covers=[];starts=[]
+        for address in range(128):
+            cover=model.new_bool_var(f'covered{y}_{address}');start=model.new_bool_var(f'runStart{y}_{address}')
+            if address in events:model.add(cover>=events[address])
+            if address==0:model.add(start==cover)
+            else:
+                model.add(start<=cover);model.add(start<=1-covers[-1]);model.add(start>=cover-covers[-1])
+            covers.append(cover);starts.append(start)
+            ranges[y,address]=(start,0,0,cover)
+            if packet_hints is not None:
+                model.add_hint(cover,int(any(lo<=address<=hi for lo,hi in hints)))
+                model.add_hint(start,int(any(lo==address for lo,hi in hints)))
+        model.add(sum(starts)<=maximum_ranges)
+        cost=16*sum(covers)+24*sum(starts)
+        model.add(cost<=(line_windows or {}).get(y,window)+39);model.add(peak>=cost)
+    return ranges,peak
+
+
 def constrain(model, write_flags, slots, height, maximum_ranges, window, bank_destinations=None, packet_hints=None, event_hints=None,line_windows=None,fixed_address_change_hints=None):
     from raster_dma_partition import minimum_commit_span
     ranges = {}

@@ -35,7 +35,7 @@ def verify_packets(schedule):
         if span!=row['prepared_commit_span']:raise ValueError('SLOT_REFINEMENT_PACKET_SPAN')
 
 
-def refine(source,hint,target_window=348,iterations=6,radius=6,time_limit=20):
+def refine(source,hint,target_window=348,iterations=6,radius=6,time_limit=20,maximum_writes=None):
     if target_window<1 or iterations<1 or radius<1 or time_limit<=0:
         raise ValueError('SLOT_REFINEMENT_DOMAIN')
     required,_,pixels=demand(source);_,_,hint_pixels=demand(hint)
@@ -45,6 +45,10 @@ def refine(source,hint,target_window=348,iterations=6,radius=6,time_limit=20):
     if not hint.get('physical_slot_layout',{}).get('all_packet_cgram_identities_verified'):
         raise ValueError('SLOT_REFINEMENT_PHYSICAL_HINT_REQUIRED')
     verify_packets(hint)
+    if maximum_writes is not None:
+        if not 0<=maximum_writes<=120:raise ValueError('SLOT_REFINEMENT_WRITE_BUDGET_DOMAIN')
+        if any(len(row['updates'])>maximum_writes for row in hint['trace'][1:]):
+            raise ValueError('SLOT_REFINEMENT_HINT_WRITE_BUDGET')
     visible=[y for y,row in enumerate(required)if any(row)]
     first,last=min(visible),max(visible)
     best=copy.deepcopy(hint);trials=[];visited={}
@@ -58,11 +62,13 @@ def refine(source,hint,target_window=348,iterations=6,radius=6,time_limit=20):
         reach=radius+(visited[row]-1)*2
         interval=(max(first,row-reach),min(last,row+reach))
         before=score(best)
-        result=optimize(source,max(target_window,before[0]+1),time_limit,True,best,interval)
+        result=optimize(source,max(target_window,before[0]+1),time_limit,True,best,interval,maximum_writes)
         report=result.get('physical_slot_layout',result)
         accepted=False;after=None
         if 'prepared_dma_packets'in result:
             verify_packets(result)
+            if maximum_writes is not None and any(len(r['updates'])>maximum_writes for r in result['trace'][1:]):
+                raise AssertionError('SLOT_REFINEMENT_GLOBAL_WRITE_BUDGET')
             after=score(result)
             if after<before:best=result;accepted=True
         trial=dict(iteration=iteration,interval=list(interval),solver_status=report['solver_status'],
@@ -75,6 +81,8 @@ def refine(source,hint,target_window=348,iterations=6,radius=6,time_limit=20):
         target_window_master_clocks=target_window,target_window_met_by_all_packets=score(best)[0]<target_window,
         complete_source_frame_pixel_identity_proven=True,universal_raster_rejected=False,
         native_timing_admitted=False,no_color_reduction=True,trials=trials)
+    best['physical_slot_refinement']['maximum_physical_writes_per_transfer_row']=maximum_writes
+    best['physical_slot_refinement']['full_frame_write_budget_verified']=maximum_writes is not None
     best['native_presentation_proven']=False
     return best
 
@@ -85,8 +93,9 @@ def main():
     p.add_argument('--output',type=Path,required=True);p.add_argument('--target-window',type=int,default=348)
     p.add_argument('--iterations',type=int,default=6);p.add_argument('--radius',type=int,default=6)
     p.add_argument('--time-limit',type=float,default=20)
+    p.add_argument('--maximum-writes',type=int,help='Preserve a verified full-frame physical write cap during every local repair.')
     a=p.parse_args()
-    result=refine(json.loads(a.schedule.read_text()),json.loads(a.layout_hint.read_text()),a.target_window,a.iterations,a.radius,a.time_limit)
+    result=refine(json.loads(a.schedule.read_text()),json.loads(a.layout_hint.read_text()),a.target_window,a.iterations,a.radius,a.time_limit,a.maximum_writes)
     a.output.write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result['physical_slot_refinement']))
 

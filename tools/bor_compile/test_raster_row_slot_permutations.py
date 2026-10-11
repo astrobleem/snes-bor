@@ -96,6 +96,24 @@ class RowSlotPermutationTests(unittest.TestCase):
     def test_invalid_transfer_domain_is_explicit(self):
         with self.assertRaisesRegex(ValueError,'ROW_SLOT_PERMUTATION_DOMAIN'):
             optimize(fixtures.SlotLayoutTests().schedule(),0,10)
+        with self.assertRaisesRegex(ValueError,'ROW_SLOT_SEARCH_STRATEGY'):
+            optimize(fixtures.SlotLayoutTests().schedule(),search_strategy='unknown')
+
+    def test_lns_hint_retains_exact_source_and_no_native_claim(self):
+        source=fixtures.SlotLayoutTests().schedule()
+        hint=optimize(source,356,10,True)
+        result=optimize(source,356,2,True,hint,search_strategy='lns')
+        self.assertEqual(result['physical_slot_layout']['solver_search_strategy'],'lns')
+        self.assertFalse(result['physical_slot_layout']['native_timing_admitted'])
+        self.assertTrue(all(np.array_equal(a,b)for a,b in zip(demand(source)[2],demand(result)[2])))
+
+    def test_fixed_address_coverage_preserves_source_and_local_exit_transfer(self):
+        source=fixtures.SlotLayoutTests().schedule()
+        hint=optimize(source,356,10,True)
+        result=optimize(source,356,10,True,hint,(1,1),range_encoding='coverage')
+        self.assertEqual(result['physical_slot_layout']['physical_range_encoding'],'coverage')
+        self.assertEqual(result['physical_slot_layout']['physical_repair_transfer_interval'],[1,2])
+        self.assertTrue(all(np.array_equal(a,b)for a,b in zip(demand(source)[2],demand(result)[2])))
 
     def test_fixed_resident_multisets_preserve_every_source_pixel(self):
         source=fixtures.SlotLayoutTests().schedule()
