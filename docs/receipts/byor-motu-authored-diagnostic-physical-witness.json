@@ -1,0 +1,337 @@
+{
+  "schema": "BYOR_AUTHORED_DIAGNOSTIC_PHYSICAL_WITNESS_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "source_screen_pixels_replayed": 57344,
+  "source_metadata_identity": true,
+  "trials": [
+    {
+      "name": "paired-rectangle-feasibility-diagnostic536",
+      "artifact_sha256": "a153ba8399e69c5823cd64960da2a6b890b787d67cb33b4e13fee8d5fcfa77e3",
+      "physical_report": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 60.055525100000004,
+        "solver_search_strategy": "portfolio",
+        "solver_objective": "FEASIBILITY_ONLY",
+        "lifetime_segments": 518,
+        "window_master_clocks": 537,
+        "maximum_ranges": 4,
+        "input_schedule_noninitial_prefetch_latency_lines": 11,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 518,
+        "flexible_prefetch": true,
+        "lookahead_lines": 55,
+        "hint_time_radius_lines": 3,
+        "necessary_bank_window_master_clocks": null,
+        "demand_gap_lines": null,
+        "idle_prefix_collapsed": false,
+        "first_visible_source_line": 112,
+        "layout_hint_used": true,
+        "reorder_banks": false,
+        "fixed_hint_slots": false,
+        "permute_hint_slots": false,
+        "retain_write_times": false,
+        "lifetime_repair_interval": null,
+        "movable_complete_lifetimes": 0,
+        "rectangle_lifetimes": true,
+        "persistent_color_slots": false,
+        "split_bank_ranges": true,
+        "paired_bank_ranges": true,
+        "fixed_slot_write_times_pruned": 0,
+        "solver_model_variables": 7854,
+        "solver_model_constraints": 13766,
+        "solver_branches": 5015,
+        "solver_conflicts": 274,
+        "solver_probing_level": 0,
+        "solver_sat_inprocessing": false,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      },
+      "refinement": null
+    },
+    {
+      "name": "fixed-times-diagnostic536",
+      "artifact_sha256": "5e4010965c97c6e281f8389e3ca055ceca78d57c9440453bbc6d15cfe9b9aec3",
+      "physical_report": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 25.0114343,
+        "solver_search_strategy": "portfolio",
+        "solver_objective": "FEASIBILITY_ONLY",
+        "lifetime_segments": 518,
+        "window_master_clocks": 537,
+        "maximum_ranges": 4,
+        "input_schedule_noninitial_prefetch_latency_lines": 11,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 518,
+        "flexible_prefetch": true,
+        "lookahead_lines": 55,
+        "hint_time_radius_lines": null,
+        "necessary_bank_window_master_clocks": null,
+        "demand_gap_lines": null,
+        "idle_prefix_collapsed": false,
+        "first_visible_source_line": 112,
+        "layout_hint_used": true,
+        "reorder_banks": false,
+        "fixed_hint_slots": false,
+        "permute_hint_slots": false,
+        "retain_write_times": true,
+        "lifetime_repair_interval": null,
+        "movable_complete_lifetimes": 0,
+        "rectangle_lifetimes": false,
+        "persistent_color_slots": false,
+        "split_bank_ranges": true,
+        "paired_bank_ranges": false,
+        "fixed_slot_write_times_pruned": 0,
+        "solver_model_variables": 4509,
+        "solver_model_constraints": 8386,
+        "solver_branches": 1289756,
+        "solver_conflicts": 623956,
+        "solver_probing_level": 0,
+        "solver_sat_inprocessing": false,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        },
+        "initial_palette_may_preload_entire_frame": true,
+        "maximum_noninitial_prefetch_latency_lines": 11,
+        "peak_prepared_commit_span": 536,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true
+      },
+      "refinement": null
+    },
+    {
+      "name": "diagnostic-relabel",
+      "artifact_sha256": "095b7d2d595c0f23ad24da7f5e82095c1a9f58f0f2067299e4a9e8aaf88f3bb4",
+      "physical_report": {
+        "schema": "BYOR_PHYSICAL_BANK_REFLECTION_SEARCH_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "seconds": 1.9690000000409782,
+        "eligible_permutations_tested": 576,
+        "slot_reflections_per_permutation": 256,
+        "eligible_permutation_family_exhaustive": true,
+        "fixed_piece_bank_permutation": [
+          1,
+          0,
+          2,
+          3,
+          7,
+          6,
+          5,
+          4
+        ],
+        "reversed_original_banks": [
+          0,
+          1,
+          5,
+          6,
+          7
+        ],
+        "peak_prepared_commit_span": 536,
+        "aggregate_commit_span": 11856,
+        "geometry_unchanged": true,
+        "math_eligibility_preserved": true,
+        "peak_changed_physical_words": 20,
+        "necessary_span_from_changed_word_count": 320,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null
+    },
+    {
+      "name": "diagnostic-refined",
+      "artifact_sha256": "933229c6fc4e6e74c4f4331a09f668d0869c643d73200870a42aef749ce04d0b",
+      "physical_report": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 15.0696267,
+        "solver_search_strategy": "portfolio",
+        "solver_probing_level": 2,
+        "physical_range_encoding": "coverage",
+        "persistent_word_index_family_only": false,
+        "solver_model_variables": 7223,
+        "solver_model_constraints": 18137,
+        "solver_branches": 305758,
+        "solver_conflicts": 257,
+        "solver_objective_lower_bound": 14372409.0,
+        "maximum_physical_writes_per_transfer_row": 21,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_write_budget_enforced": false,
+        "objective_peak_scale": 40961,
+        "peak_commit_span_lower_bound_for_this_restricted_model": 310,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "window_master_clocks": 537,
+        "requested_repair_window_master_clocks": 537,
+        "physical_repair_interval": [
+          131,
+          139
+        ],
+        "physical_repair_transfer_interval": [
+          131,
+          140
+        ],
+        "full_frame_transfer_window_enforced": false,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "physical_change_and_range_membership_hints_coherent": true,
+        "distinct_required_word_slot_matching_enforced": true,
+        "full_bank_demand_value_matching_enforced": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": true,
+        "bank_interval_liveness_cuts": 7413,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 54,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          166
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "packet_ranges_independently_minimized": true,
+        "peak_prepared_commit_span": 536,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        }
+      },
+      "refinement": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 345,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              115,
+              123
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.0529732,
+            "model_variables": 6839,
+            "restricted_model_peak_span_lower_bound": 0,
+            "before": [
+              536,
+              22056
+            ],
+            "candidate": [
+              536,
+              12304
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              124,
+              132
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.070992200000001,
+            "model_variables": 7109,
+            "restricted_model_peak_span_lower_bound": 290,
+            "before": [
+              536,
+              12304
+            ],
+            "candidate": [
+              536,
+              12160
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 2,
+            "interval": [
+              126,
+              134
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.054106,
+            "model_variables": 7167,
+            "restricted_model_peak_span_lower_bound": 272,
+            "before": [
+              536,
+              12160
+            ],
+            "candidate": [
+              536,
+              12064
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 3,
+            "interval": [
+              131,
+              139
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.0696267,
+            "model_variables": 7223,
+            "restricted_model_peak_span_lower_bound": 310,
+            "before": [
+              536,
+              12064
+            ],
+            "candidate": [
+              536,
+              12016
+            ],
+            "accepted": true
+          }
+        ],
+        "maximum_physical_writes_per_transfer_row": 21,
+        "full_frame_write_budget_verified": true,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_necessary_bank_window_verified": true
+      }
+    }
+  ],
+  "native_timing_admitted": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true
+}
