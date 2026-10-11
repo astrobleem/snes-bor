@@ -3,6 +3,31 @@ from raster_math_mode_liveness import lower_bound,verify_integer_pool
 
 
 class ModeLivenessTests(unittest.TestCase):
+    def test_per_scanline_capacity_cannot_hide_required_reload(self):
+        rows=[{'a':{(i,())}}for i in range(3)]
+        blocked=lower_bound(rows,capacities=(1,1),scanline_write_limits={1:0},time_limit=5)
+        self.assertEqual(blocked['status'],'RELAXED_MODE_LIVENESS_INFEASIBLE')
+        valid=lower_bound(rows,capacities=(1,1),scanline_write_limits={1:1,2:1},time_limit=5)
+        self.assertAlmostEqual(valid['validated_dual_lower_bound'],1)
+        self.assertEqual(valid['scanline_write_limits'],{1:1,2:1})
+
+    def test_static_reservation_is_fixed_even_when_math_can_encode_same_word(self):
+        rows=[{'a':{(0,(0,)),(1,())},'b':{(0,(0,)),(1,())}}]
+        free=lower_bound(rows,capacities=(1,1),time_limit=5)
+        self.assertEqual(free['status'],'FRACTIONAL_MODE_LIVENESS_LOWER_BOUND')
+        fixed=lower_bound(rows,capacities=(1,1),time_limit=5,reserved_normal_colors=[0])
+        self.assertEqual(fixed['status'],'RELAXED_MODE_LIVENESS_INFEASIBLE')
+        self.assertTrue(fixed['static_normal_residency_fixed_for_complete_interval'])
+
+    def test_static_reservation_dual_and_integer_replay(self):
+        rows=[{'a':{(1,(1,))}},{'a':{(2,(2,))}}]
+        bound=lower_bound(rows,capacities=(1,1),time_limit=5,reserved_normal_colors=[0])
+        self.assertAlmostEqual(bound['validated_dual_lower_bound'],1)
+        for backend in ('highs','cp-sat'):
+            result=lower_bound(rows,capacities=(1,1),time_limit=5,reserved_normal_colors=[0],integer_modes=True,integer_palette=True,integer_backend=backend)
+            self.assertEqual(result['peak_write_objective'],1)
+            self.assertTrue(all(0 in state[0] for state in result['selected_palette_residency'].values()))
+
     def test_verified_residency_hint_can_change_modes_and_words_to_meet_lower_budget(self):
         rows=[{'a':{(0,(7,))},'b':{(0,(9,))}},{'a':{(1,(8,))},'b':{(1,(9,))}}]
         seed=dict(selected_modes={0:'a',1:'a'},selected_palette_residency={0:{0:[],1:[7]},1:{0:[],1:[8]}},peak_write_objective=1)

@@ -22,7 +22,11 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     for y,state in states.items():
         if set(state)!={0,1}or any(not isinstance(c,(int,np.integer))or not 0<=c<32768 for colors in state.values()for c in colors):raise ValueError('MODE_INTEGER_POOL_COLOR_DOMAIN')
         if any(len(state[k])>capacities[k]for k in range(2)):raise AssertionError('MODE_INTEGER_POOL_CAPACITY_REPLAY')
-        if y>first:peak=max(peak,sum(len(state[k]-states[y-1][k])for k in range(2)))
+        if not set(report.get('reserved_normal_colors',())).issubset(state[0]):raise AssertionError('MODE_INTEGER_POOL_STATIC_RESERVATION_REPLAY')
+        if y>first:
+            line_writes=sum(len(state[k]-states[y-1][k])for k in range(2));peak=max(peak,line_writes)
+            limit={int(yy):n for yy,n in report.get('scanline_write_limits',{}).items()}.get(y)
+            if limit is not None and line_writes>limit:raise AssertionError('MODE_INTEGER_POOL_SCANLINE_WRITE_LIMIT_REPLAY')
         if y not in active:continue
         mode=modes[y]
         if mode not in rows[y]:raise ValueError('MODE_INTEGER_POOL_MODE_DOMAIN')
@@ -40,7 +44,11 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     return report
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None):
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None):
+    reserved_normal_colors=tuple(sorted(set(reserved_normal_colors)))
+    if any(type(c)is not int or not 0<=c<32768 for c in reserved_normal_colors):raise ValueError('MODE_LIVENESS_STATIC_RESERVATION_DOMAIN')
+    scanline_write_limits=dict(scanline_write_limits or {})
+    if any(type(y)is not int or not 0<=y<len(rows) or type(n)is not int or not 0<=n<=120 for y,n in scanline_write_limits.items()):raise ValueError('MODE_LIVENESS_SCANLINE_WRITE_LIMIT_DOMAIN')
     if len(capacities)!=2 or any(not isinstance(c,int)or c<0 for c in capacities)or not sum(capacities):raise ValueError('MODE_LIVENESS_CAPACITY')
     if write_budget is not None and(not isinstance(write_budget,int)or write_budget<0):raise ValueError('MODE_LIVENESS_WRITE_BUDGET')
     if solver_method not in ('highs-ipm','highs-ds'):raise ValueError('MODE_LIVENESS_LP_METHOD')
@@ -69,7 +77,7 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     rows=filtered
     active=[y for y,row in enumerate(rows)if any(row.values())]
     if not active:return dict(status='EMPTY_MODE_DEMAND',schedule_proven=False)
-    first=min(active);uses={}
+    first=min(active);uses={(0,c):set(range(first,max(active)+1))for c in reserved_normal_colors}
     for y in active:
         for requirements in rows[y].values():
             for normal,choices in requirements:
@@ -149,10 +157,14 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
             constraint([(variable,1),(resident[kind,color,y-1],-1),(writes[kind,color,y],-1)],0)
             write_lines.setdefault(y,[]).append(writes[kind,color,y])
     for (kind,y),variables in pool_lines.items():constraint([(v,1)for v in variables],capacities[kind])
-    for variables in write_lines.values():constraint([(v,1)for v in variables]+[(peak,-1)],0)
+    for y,variables in write_lines.items():
+        constraint([(v,1)for v in variables]+[(peak,-1)],0)
+        if y in scanline_write_limits:constraint([(v,1)for v in variables],scanline_write_limits[y])
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(limits),peak+1)).tocsc()
     objective=np.zeros(peak+1);objective[peak]=1
     lower=np.zeros(peak+1);upper=np.ones(peak+1);upper[peak]=np.inf if write_budget is None else write_budget
+    for c in reserved_normal_colors:
+        for y in range(first,max(active)+1):lower[resident[0,c,y]]=1
     started=time.perf_counter()
     mixed_integer=integer_modes or integer_windows
     pinned_control_report=None
@@ -215,6 +227,9 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
         palette_residency_integrality_relaxed=not integer_palette,geometry_and_bank_assignment_relaxed=True,
                 optimal_initial_residency_allowed=True,unbounded_preloading_allowed=True,schedule_proven=False,no_color_reduction=True)
     report['forced_opaque_modes_pruned']=pruned
+    report['reserved_normal_colors']=list(reserved_normal_colors)
+    report['static_normal_residency_fixed_for_complete_interval']=bool(reserved_normal_colors)
+    report['scanline_write_limits']=scanline_write_limits
     if pinned_control_report is not None:
         report['pinned_lp_control_family']=pinned_control_report
         if result.status==2:report['status']='PINNED_MODE_CONTROL_FAMILY_INFEASIBLE'
@@ -246,7 +261,7 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                 report['selected_palette_residency']={y:{kind:sorted(colors)for kind,colors in state.items()}for y,state in states.items()}
                 verify_integer_pool(report,rows,capacities,window_pixels,maximum_window_transitions)
         elif result.success:
-            dual=float(np.dot(limits,result.ineqlin.marginals)+np.dot(np.where(np.isfinite(upper),upper,0),result.upper.marginals))
+            dual=float(np.dot(limits,result.ineqlin.marginals)+np.dot(lower,result.lower.marginals)+np.dot(np.where(np.isfinite(upper),upper,0),result.upper.marginals))
             residual=float(np.max(np.abs(objective-matrix.T@result.ineqlin.marginals-result.lower.marginals-result.upper.marginals)))
             if residual>1e-6 or abs(dual-result.fun)>1e-6:raise AssertionError('MODE_LIVENESS_DUAL_RESIDUAL')
             report.update(status='FRACTIONAL_MODE_LIVENESS_LOWER_BOUND',validated_dual_lower_bound=dual,maximum_dual_residual=residual)

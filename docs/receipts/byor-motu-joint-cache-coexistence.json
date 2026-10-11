@@ -1,0 +1,156 @@
+{
+  "schema": "BYOR_JOINT_CACHE_AND_STATIC_ACTOR_COEXISTENCE_RECEIPT_V1",
+  "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "source_hbreath_raw_full_frame_colors": 204,
+  "source_hbreath_raw_peak_scanline_colors": 54,
+  "source_hbreath_raw_maximum_adjacent_new_colors": 32,
+  "fixed_main_encoding_class_cache_lower_bound": 14.857142857142854,
+  "best_piece_balancing_actual_cache_lower_bound": 22.0,
+  "bounded_joint_piece_cache_solver_status": "UNKNOWN",
+  "ordinary_visible_static_word_counts": [
+    31,
+    43,
+    65
+  ],
+  "ordinary_visible_static_bank_lower_bounds": [
+    3,
+    3,
+    5
+  ],
+  "static_actor_no_window_cache_lower_bounds": [
+    23.999999999999996,
+    24.000000000000004
+  ],
+  "static_actor_per_pixel_mode_window_relaxed_cache_lower_bounds": [
+    16.300000000000004,
+    20.25
+  ],
+  "static_actor_two_window_critical_cache_lower_bound": 21.749999999999993,
+  "critical_scanline_interval": [
+    125,
+    139
+  ],
+  "static_actor_words_pinned": 43,
+  "dma_only_alternating_22_21_both_phases_infeasible": true,
+  "minimum_22_word_dma_commit_span": 352,
+  "dma_alignment_necessary_bound": {
+    "schema": "BYOR_DMA_ONLY_CGRAM_ALIGNMENT_NECESSARY_BOUND_V1",
+    "scanline_master_clocks": 1364,
+    "safe_late_high_byte_start": 1096,
+    "safe_early_high_byte_end_exclusive": 88,
+    "dma_alignment_master_clocks": 8,
+    "phases": [
+      {
+        "local_high_byte_phase": 0,
+        "earliest_safe_high_byte": 1096,
+        "maximum_aligned_commit_span": 352,
+        "maximum_opaque_writes": 22
+      },
+      {
+        "local_high_byte_phase": 1,
+        "earliest_safe_high_byte": 1097,
+        "maximum_aligned_commit_span": 352,
+        "maximum_opaque_writes": 22
+      },
+      {
+        "local_high_byte_phase": 2,
+        "earliest_safe_high_byte": 1098,
+        "maximum_aligned_commit_span": 352,
+        "maximum_opaque_writes": 22
+      },
+      {
+        "local_high_byte_phase": 3,
+        "earliest_safe_high_byte": 1099,
+        "maximum_aligned_commit_span": 352,
+        "maximum_opaque_writes": 22
+      },
+      {
+        "local_high_byte_phase": 4,
+        "earliest_safe_high_byte": 1100,
+        "maximum_aligned_commit_span": 344,
+        "maximum_opaque_writes": 21
+      },
+      {
+        "local_high_byte_phase": 5,
+        "earliest_safe_high_byte": 1101,
+        "maximum_aligned_commit_span": 344,
+        "maximum_opaque_writes": 21
+      },
+      {
+        "local_high_byte_phase": 6,
+        "earliest_safe_high_byte": 1102,
+        "maximum_aligned_commit_span": 344,
+        "maximum_opaque_writes": 21
+      },
+      {
+        "local_high_byte_phase": 7,
+        "earliest_safe_high_byte": 1103,
+        "maximum_aligned_commit_span": 344,
+        "maximum_opaque_writes": 21
+      }
+    ],
+    "phase_advance_per_scanline": 4,
+    "native_transport_admitted": false,
+    "cpu_assisted_writes_not_modeled": true,
+    "setup_irq_and_control_contention_relaxed": true,
+    "universal_raster_rejected": false
+  },
+  "dma_alignment_native_packet_checks": 124,
+  "dma_alignment_native_packet_mismatches": 0,
+  "authority": {
+    "SnesDmaController.cpp": {
+      "sha256": "0862d1ee03ccdc8a13108548c3a84b54ae325709fadaa6cf1db9903bc6ca89cf"
+    },
+    "SnesMemoryManager.cpp": {
+      "sha256": "77b770d7847b6c01d20cb0477f9b0a90fcf584bb30ffab0d3566718171477300"
+    },
+    "SnesPpu.cpp": {
+      "sha256": "5823ac6e89e8966ae2a8186f368ef4abb4d09bd4535e1483ff4a6871dd35f1f5"
+    },
+    "commit": "18c05d3f076728d05310c6e591b7d0a08d604d42"
+  },
+  "focused_tests_passed": 66,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "static_actor_dma_only_policy_rejected_for_explicit_context": true,
+  "cpu_assisted_palette_transfer_not_rejected": true,
+  "ordinary_actor_raster_reencoding_not_rejected": true,
+  "zero_main_clipping_not_rejected": true,
+  "source_context_joint_ai_reachability_certified": false,
+  "universal_raster_rejected": false,
+  "peak_authored_native_raster_proven": false,
+  "production_runtime_bound": false,
+  "motu_demo_complete": false,
+  "no_color_reduction": true,
+  "artifact_sha256": {
+    "byor-motu-authored-fresh-small-reencoded-rebalanced": "6868fda09d09f24df1c28b0ee15615ec753224d240187ac4ff04f2b167f9a011",
+    "byor-motu-authored-fresh-small-reencoded-rebalanced-class-cache-lp": "311c5eeb29e6400b39fa00f0ff7b88c1acf843f24db0432ed09b05559b081c6a",
+    "byor-motu-authored-subscreen-word-frontier-schedule-class-cache-lp": "d4f5d998e91fb6bcf021dc8aaf1382c17dac520774bff6c661ad64b19b5dda85",
+    "byor-motu-authored-subscreen-word-cache-neighbor40-345": "ac53adaafba26829b044ae46388a708981719e2cb1a067a9f1804191f43badda",
+    "byor-motu-authored-subscreen-word-cache-allbanks-345": "697dd28a89d80bd50578be4cbc29a23dfce844cb939b4a4e03446cbc41b35cbe",
+    "byor-motu-authored-main-piece-bank-cache337-sat-intervals": "b3f6775722ef237c6b5b9aaea1a5834e162a8bf18157dbfdd1d6d3c1b77b0c54",
+    "byor-motu-authored-main-piece-balanced-cache337-sat300": "dae5088afc093e31a319b45c6edcb9e4f5faebd0f95e13cf02ea47bae8d7cb57",
+    "byor-motu-authored-main-mixed-word-banks": "57c313c452989bcdc3b5abdb5cdbe56f09c7ed01a278dc165a020923ebd8409e",
+    "byor-motu-authored-main-mixed-word-banks34": "3d70aad91d2a18dc36eac2c98fbfb05b1d1e72c9a7ca2040afe07e89deeb3ba9",
+    "byor-motu-authored-main-piece-balanced-frontier": "79a832fa5c4c86cf14e96b1a38687eab4aa89a3c9edb862e7ac18b00fae3f132",
+    "byor-motu-authored-main-piece-balanced": "a475d84ffb30362328adf7cbdd3ca8f13ec220f7d2390c697e3e9c53bc159710",
+    "byor-motu-authored-main-piece-cache-decomposition": "440153b2d1f7539fed270267925bce6673f1281619f9a1aad04ac70fc555cdcb",
+    "byor-motu-authored-main-piece-cache-decomposition-neighbor3": "ab812b72ea8c1cea9ca9a70ccecb467f5ee64a8560d2a50d2c8dbd811d07773a",
+    "byor-motu-authored-hbreath-only-frame11-scene": "2870f7a1e2019effa1dad221fe1730d11b25869b31dd8c21c3c7f9d9c1bad8ef",
+    "byor-motu-screen-player-effect-scene": "0ccf4b582c6abff3aae27a32c75a9ddabf2d5141cbcd91331eadc766561044ef",
+    "byor-motu-source-height-attack-projectiles-frame14-scene": "8af311a240f976bfdeaaf1cf62ced66c7d6e2a8a0847278c799609d4ef6f4d18",
+    "byor-motu-skeletor-rise-conditional-scene": "6e9216a98028c98c0630e4761917a989d2871b34a29e774c4e01bf45d261197a",
+    "byor-motu-authored-hbreath-only-frame11-scene-subscreen-demand": "a1eb8a974d14101092bf74737cda602b76c208b2836d37d3b24f6ce66164aada",
+    "byor-motu-screen-player-effect-scene-subscreen-demand": "b52e6c8ac073dfddac97fb19770f0f09ae405881b16dc9a7d4ae2499bc04201e",
+    "byor-motu-source-height-attack-projectiles-frame14-scene-subscreen-demand": "ddee1ba173f3db9cd4602fb2e76cc737591132b1c085e548ccc9859d82b9ea7f",
+    "byor-motu-skeletor-rise-conditional-scene-subscreen-demand": "df856b54b1932da5c4c3d62c0e5ca7ddd4e28be817fc0b816eed2c393dc290bb",
+    "byor-motu-authored-static-actor-palette-demand": "fe14bf1d3b5dc653c1687ab3cfbda4abd7e9e92d9dc9dd44180dd2a1dfd1ae76",
+    "byor-motu-authored-static-actor-cache-bounds": "e54d666b0671b966dbb3a5c58b6e0625312c33406561ab9c2568567169ced46a",
+    "byor-motu-authored-static-actor-window-relaxed-cache-bounds": "11fd3e99ed93be32a00f2363e922fced3348eb5121d4e8aab364c624a0960c37",
+    "byor-motu-authored-static-actor-two-window-cache-bound": "d3933d0fc76d2c4d76b173990c0530031be6cb8fbe497feab08eae0674685489",
+    "byor-motu-authored-static-actor-two-window-125139-bound": "23d641609117880a31a3db600e8de25c44e07f7cfb0c8e3f7fb41f97f1de12ba",
+    "byor-motu-authored-static-actor-alternating-dma-bound": "f2a582a20dec054bead1d26e47b352e321dc119f94dccb48509d9be581052fd3"
+  }
+}
