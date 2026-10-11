@@ -10,7 +10,7 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
-def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False,persistent_color_slots=False,paired_bank_ranges=False,collapse_idle_prefix=False,lifetime_repair_interval=None,search_strategy='portfolio'):
+def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False,persistent_color_slots=False,paired_bank_ranges=False,collapse_idle_prefix=False,lifetime_repair_interval=None,search_strategy='portfolio',hint_time_radius=None):
     from ortools.sat.python import cp_model
     if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('SLOT_LAYOUT_VALIDATED_SCHEDULE_REQUIRED')
@@ -30,6 +30,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
             starts.setdefault((y,key[0]),[]).append(i);original[key[0]][key[1]]=e['color']
         original_states.append(copy.deepcopy(original));active_rows.append(dict(current))
     if flexible_prefetch and(not trim_dead_residents or not isinstance(lookahead,int)or lookahead<0):raise ValueError('SLOT_LAYOUT_PREFETCH_DOMAIN')
+    if hint_time_radius is not None and(type(hint_time_radius)is not int or hint_time_radius<0 or not flexible_prefetch or layout_hint is None or retain_write_times):raise ValueError('SLOT_LAYOUT_HINT_TIME_RADIUS_DOMAIN')
     if reorder_banks and not flexible_prefetch:raise ValueError('SLOT_LAYOUT_BANK_REORDER_REQUIRES_PREFETCH')
     if fix_hint_slots and(not flexible_prefetch or layout_hint is None):raise ValueError('SLOT_LAYOUT_FIXED_HINT_REQUIRES_PREFETCH_HINT')
     if permute_hint_slots and(not flexible_prefetch or layout_hint is None or fix_hint_slots):raise ValueError('SLOT_LAYOUT_PERMUTE_HINT_DOMAIN')
@@ -144,6 +145,13 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 pruned_write_times+=len(allowed)-len(revised)
                 if revised:allowed=revised
                 else:model.add(False)
+            if hint_time_radius is not None:
+                if i not in hinted:raise ValueError('SLOT_LAYOUT_HINT_TIME_RADIUS_INCOMPLETE')
+                center=hinted[i][1]
+                # Free VBlank initialization stays free when an idle prefix
+                # is collapsed; constrain only noninitial transfer timing.
+                allowed=[y for y in allowed if (y==0 and center<=first_visible_line and collapse_idle_prefix) or abs(y-center)<=hint_time_radius]
+                if not allowed:raise ValueError('SLOT_LAYOUT_HINT_TIME_RADIUS_EMPTY')
             start=model.new_int_var_from_domain(cp_model.Domain.from_values(allowed),'time'+str(i));write_times[i]=start
             original_time=hinted.get(i,(0,segments[i]['first']))[1];hint=original_time if original_time in allowed else allowed[0]
             model.add_hint(start,hint)
@@ -238,6 +246,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 input_schedule_noninitial_prefetch_latency_lines=max((first_use[i]-segments[i]['first']for i in last_use if segments[i]['first']>0),default=0),
                 trim_dead_residents=trim_dead_residents,used_lifetime_segments=len(last_use),
                 flexible_prefetch=flexible_prefetch,lookahead_lines=lookahead if flexible_prefetch else None,
+                hint_time_radius_lines=hint_time_radius,
                 demand_gap_lines=demand_gap,
                 idle_prefix_collapsed=collapse_idle_prefix,first_visible_source_line=first_visible_line,
                 layout_hint_used=layout_hint is not None,
@@ -345,7 +354,8 @@ def main():
     p.add_argument('--collapse-idle-prefix',action='store_true',help='Fold writes through the first visible source row into free VBlank initialization; requires flexible prefetch without fixed write times.')
     p.add_argument('--lifetime-repair-interval',type=int,nargs=2,help='Reassign only complete lifetimes inside this inclusive interval; requires a physical hint, retained write times and split ranges.')
     p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
-    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots,retain_write_times=a.retain_write_times,rectangle_lifetimes=a.rectangle_lifetimes,persistent_color_slots=a.persistent_color_slots,paired_bank_ranges=a.paired_bank_ranges,collapse_idle_prefix=a.collapse_idle_prefix,lifetime_repair_interval=a.lifetime_repair_interval,search_strategy=a.search_strategy)
+    p.add_argument('--hint-time-radius',type=int,help='Restrict noninitial prefetch timing around verified hint writes, while permitting new lifetime slots.')
+    a=p.parse_args();r=optimize(json.loads(a.schedule.read_text()),a.window,a.time_limit,a.maximum_ranges,flexible_prefetch=a.flexible_prefetch,lookahead=a.lookahead,demand_gap=a.demand_gap,layout_hint=json.loads(a.layout_hint.read_text())if a.layout_hint else None,reorder_banks=a.reorder_banks,fix_hint_slots=a.fix_hint_slots,split_bank_ranges=a.split_bank_ranges,permute_hint_slots=a.permute_hint_slots,retain_write_times=a.retain_write_times,rectangle_lifetimes=a.rectangle_lifetimes,persistent_color_slots=a.persistent_color_slots,paired_bank_ranges=a.paired_bank_ranges,collapse_idle_prefix=a.collapse_idle_prefix,lifetime_repair_interval=a.lifetime_repair_interval,search_strategy=a.search_strategy,hint_time_radius=a.hint_time_radius)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 

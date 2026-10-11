@@ -6,6 +6,29 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_prefetch_time_neighborhood_preserves_exact_words(self):
+        from raster_slot_greedy import demand
+        from raster_slot_refine import verify_packets
+        source=self.schedule()
+        hint=optimize(source,window=356,time_limit=3,flexible_prefetch=True,retain_write_times=True,split_bank_ranges=True)
+        result=optimize(source,window=356,time_limit=3,flexible_prefetch=True,
+            rectangle_lifetimes=True,split_bank_ranges=True,layout_hint=hint,hint_time_radius=1)
+        verify_packets(result)
+        self.assertEqual(result['physical_slot_layout']['hint_time_radius_lines'],1)
+        _,_,a=demand(source);_,_,b=demand(result)
+        self.assertTrue(all(np.array_equal(x,y)for x,y in zip(a,b)))
+        times={}
+        for row in hint['trace']:
+            for e in row['updates']:times.setdefault((e['bank'],e['color']),[]).append(row['scanline'])
+        for row in result['trace']:
+            for e in row['updates']:
+                self.assertTrue(any(abs(row['scanline']-y)<=1 for y in times[e['bank'],e['color']]))
+        for radius in(-1,True):
+            with self.assertRaisesRegex(ValueError,'HINT_TIME_RADIUS_DOMAIN'):
+                optimize(source,flexible_prefetch=True,layout_hint=hint,hint_time_radius=radius)
+        with self.assertRaisesRegex(ValueError,'HINT_TIME_RADIUS_DOMAIN'):
+            optimize(source,hint_time_radius=1)
+
     def test_bounded_lifetime_repair_preserves_pixels_and_external_slots(self):
         from raster_slot_greedy import demand
         from raster_slot_refine import verify_packets
