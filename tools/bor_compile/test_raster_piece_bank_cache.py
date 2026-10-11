@@ -4,6 +4,21 @@ from raster_slot_greedy import demand
 
 
 class PieceBankCacheTests(unittest.TestCase):
+    def test_row_masks_keep_fixed_oam_banks_and_exact_source_pixels(self):
+        source=self.fixture()
+        result=optimize(source,time_limit=5,write_budget=0,window=9999,lookahead=0,allow_word_masks=True,row_word_masks=True,maximum_oam=4)
+        def pixels(frame):return{(p['actor'],p['y']+y,p['x']+x):int(c)for p,image in zip(frame['pieces'],demand(frame)[2])for y,row in enumerate(image)for x,c in enumerate(row)if c>=0}
+        self.assertEqual(pixels(source),pixels(result))
+        self.assertEqual(result['peak_scheduled_writes'],0)
+        self.assertEqual(result['piece_bank_cache']['word_bank_selection_scope'],'piece row')
+        self.assertTrue(result['piece_bank_cache']['fixed_bank_per_compiled_oam_entry'])
+        self.assertTrue(result['piece_bank_cache']['interchangeable_bank_first_piece_order'])
+        self.assertLessEqual(result['geometry']['oam_entries'],4)
+        rejected=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,row_word_masks=True,maximum_oam=2)
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+        with self.assertRaisesRegex(ValueError,'ROW_MASKS_REQUIRE'):
+            optimize(source,row_word_masks=True)
+
     def test_lossless_word_masks_preload_sixteenth_word_with_hardware_geometry(self):
         source=self.fixture()
         blocked=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,maximum_oam=2)

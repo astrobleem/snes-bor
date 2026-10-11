@@ -1,0 +1,47 @@
+{
+  "schema": "BYOR_ROW_MASK_FIXED_OAM_CACHE_SEARCH_RECEIPT_V1",
+  "source_context_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "source_pixel_bank_rebuild_verified": true,
+  "fixed_bank_geometry": {
+    "oam_entries": 33,
+    "peak_sprites": 10,
+    "peak_tile_slivers": 20
+  },
+  "initial_fixed_bank_lp_lower_bound": 24.0,
+  "balanced_fixed_bank_interval_lower_bound": 22.142857142857142,
+  "pooled_fixed_encoding_lp_lower_bound": 14.42857142857143,
+  "word_masks_per_source_row_supported": true,
+  "fixed_bank_per_compiled_oam_entry": true,
+  "physical_transfer_admitted": false,
+  "native_authored_peak_admitted": false,
+  "production_runtime_admitted": false,
+  "motu_demo_complete": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true,
+  "focused_tests_passed": 35,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "bounded_no_lp_trial": {
+    "status": "UNKNOWN",
+    "branches": 704082,
+    "conflicts": 32833,
+    "lp_iterations": 0,
+    "time_limit_seconds": 90
+  },
+  "artifact_hashes": {
+    "byor-motu-authored-peak-add-phase44-row-capacity": "0599ab8b0908e96d273ee0221b92a7eaf9ff6609de0c0acff3222efadfec1970",
+    "byor-motu-authored-peak-add-phase44-balanced": "51b1651816fb69e3f27890f14ec42a3c94b3d4f3f753832f2664d802300a9d1d",
+    "byor-motu-authored-peak-add-phase44-fixed-cache-lp": "adc9280b97a6eb9c60a68c01e550b370720688d8851a160603834a2931bf3f9f",
+    "byor-motu-authored-peak-add-phase44-class-cache-lp": "d29055b603fe7e1cd27e2280c290537e73f74cf66d7fa8fed831752def83f331",
+    "byor-motu-authored-peak-add-phase44-word-masks-cache337": "86d8b9bf38c67c6fb4cda30bf85b6f16f71ca554a678689eaaa6a0ccd03b01ad",
+    "byor-motu-authored-peak-add-phase44-row-word-masks-cache337": "ce656316f7e934e9deff0728caa214dd018315288b8e38c4e0f607c486ac2b13",
+    "byor-motu-authored-peak-add-phase44-row-word-masks-cache21-logical": "16d6f20a4819797718048ac023ffdf7b85a8aa61262c7102694ccb518f3a8716",
+    "byor-motu-authored-peak-add-phase44-row-word-masks-cache21-logical-cuts8": "72d056e10245cbd84167100b14d9744744de799062af0428df783d2d19a3aada",
+    "byor-motu-authored-peak-add-phase44-row-word-masks-cache21-logical-canonical": "4f368f501db8c2c769d820602f39a111391f71e2a08c50ce09488c64617bfe56",
+    "byor-motu-authored-peak-add-phase44-row-word-masks-cache21-logical-no-lp": "a55fe034734afe85432be14066e6073dbc787a0de71647e10f0230f53c64bb9b",
+    "byor-motu-authored-peak-add-phase44-cache21-window337-full-intervals": "0d67bd7b0c3d5d79f417c3ff4208f3526843d3ec42db74ee76b1698f73f38461",
+    "byor-motu-authored-peak-add-phase44-cache21-window337-active-lookahead16": "b9dd11f981a8924883488cc8e00dd8fcfe10186daa460e20f464e9e807705289"
+  }
+}
