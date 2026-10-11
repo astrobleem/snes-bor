@@ -190,6 +190,8 @@ def solve_linear(model,time_limit,continuous_variables=None):
     report=dict(solver_backend='highs',solver_status=('OPTIMAL'if r.status==0 else'INFEASIBLE'if r.status==2 else'FEASIBLE'if r.x is not None else'UNKNOWN'),
         solver_seconds=time.monotonic()-started,solver_model_variables=n,solver_model_constraints=len(lower),solver_branches=getattr(r,'mip_node_count',None),solver_conflicts=None,
         solver_message=r.message)
+    dual=getattr(r,'mip_dual_bound',None)
+    if dual is not None and np.isfinite(dual):report['solver_objective_lower_bound']=float(dual)
     if r.x is None:return None,report
     values=np.where(integrality,np.rint(r.x),r.x);lhs=matrix@values
     violation=max(float(np.max(np.maximum(np.array(lower)-lhs,0))),float(np.max(np.maximum(lhs-np.array(upper),0))),
