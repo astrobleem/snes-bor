@@ -7,6 +7,30 @@ import test_raster_slot_layout as fixtures
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class RowSlotPermutationTests(unittest.TestCase):
+    def test_write_cap_counts_physical_changes_but_allows_initial_prefill(self):
+        source=fixtures.SlotLayoutTests().schedule()
+        result=optimize(source,356,10,free_residency=True,maximum_writes=0)
+        self.assertEqual(result['peak_scheduled_writes'],0)
+        self.assertTrue(result['physical_slot_layout']['full_frame_write_budget_enforced'])
+        self.assertTrue(result['physical_slot_layout']['pixel_color_identity_verified'])
+        with self.assertRaisesRegex(ValueError,'WRITE_BUDGET_DOMAIN'):
+            optimize(source,maximum_writes=-1)
+
+    def test_verified_physical_hint_can_be_fixed_without_hint_contradictions(self):
+        from ortools.sat.python import cp_model
+        from unittest.mock import patch
+        constructor=cp_model.CpSolver
+        def fixed_hint_solver():
+            solver=constructor()
+            solver.parameters.fix_variables_to_their_hinted_value=True
+            return solver
+        for free in(False,True):
+            source=fixtures.SlotLayoutTests().schedule()
+            hint=optimize(source,356,10,free_residency=free)
+            with patch.object(cp_model,'CpSolver',fixed_hint_solver):
+                result=optimize(source,356,10,free_residency=free,layout_hint=hint)
+            self.assertTrue(result['physical_slot_layout']['all_packet_cgram_identities_verified'])
+
     def test_restricted_interval_retains_explicit_partial_identity_contract(self):
         from raster_bank_residency import restrict_interval
         source=restrict_interval(fixtures.SlotLayoutTests().schedule(),2,2)
@@ -29,6 +53,7 @@ class RowSlotPermutationTests(unittest.TestCase):
         self.assertTrue(result['physical_slot_layout']['live_slot_moves_allowed'])
         self.assertFalse(result['physical_slot_layout']['fixed_resident_sets'])
         self.assertTrue(result['physical_slot_layout']['all_packet_cgram_identities_verified'])
+        self.assertLessEqual(result['physical_slot_layout']['peak_commit_span_lower_bound_for_this_restricted_model'],result['physical_slot_layout']['peak_prepared_commit_span'])
         self.assertEqual(result['pieces'],source['pieces'])
         _,_,a=demand(source);_,_,b=demand(result)
         self.assertTrue(all(np.array_equal(x,y)for x,y in zip(a,b)))

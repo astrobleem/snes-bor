@@ -31,7 +31,7 @@ def constrain_pairs(model,write_flags,slots,height,window):
     return ranges,peak
 
 
-def constrain(model, write_flags, slots, height, maximum_ranges, window, bank_destinations=None, packet_hints=None, event_hints=None,line_windows=None):
+def constrain(model, write_flags, slots, height, maximum_ranges, window, bank_destinations=None, packet_hints=None, event_hints=None,line_windows=None,fixed_address_change_hints=None):
     from raster_dma_partition import minimum_commit_span
     ranges = {}
     peak = model.new_int_var(0, 4096, 'physicalPeak')
@@ -76,6 +76,9 @@ def constrain(model, write_flags, slots, height, maximum_ranges, window, bank_de
                 if packet_hints is not None and i in (event_hints or {}):
                     address_hint,time_hint=event_hints[i]
                     model.add_hint(member,int(time_hint==y and r<len(hints)and hints[r][0]<=address_hint<=hints[r][1]))
+                elif packet_hints is not None and (y,i,bank)in(fixed_address_change_hints or {}):
+                    address_hint,changed_hint=fixed_address_change_hints[y,i,bank]
+                    model.add_hint(member,int(changed_hint and r<len(hints)and hints[r][0]<=address_hint<=hints[r][1]))
             model.add(sum(choices) == flag)
         cost = sum(24 * active + 16 * length for active, begin, end, length in row)
         writes = sum(flag for i, b, flag in events)

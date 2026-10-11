@@ -67,6 +67,7 @@ def refine(source,hint,target_window=348,iterations=6,radius=6,time_limit=20):
             if after<before:best=result;accepted=True
         trial=dict(iteration=iteration,interval=list(interval),solver_status=report['solver_status'],
             solver_seconds=report['solver_seconds'],model_variables=report['solver_model_variables'],
+            restricted_model_peak_span_lower_bound=report['peak_commit_span_lower_bound_for_this_restricted_model'],
             before=list(before),candidate=list(after)if after else None,accepted=accepted)
         trials.append(trial)
         print(json.dumps(trial),flush=True)

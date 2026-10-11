@@ -4,16 +4,17 @@ Live colors may move between slots; all resulting writes are charged. This is
 one restricted residency family, not universal raster feasibility. Native
 transfer timing and shared-resource admission remain separate.
 """
-import argparse,copy,hashlib,json
+import argparse,copy,hashlib,json,math
 from pathlib import Path
 import numpy as np
 from raster_slot_greedy import demand,partition
 from raster_physical_ranges import constrain
 
 
-def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None):
+def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None,maximum_writes=None):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0:raise ValueError('ROW_SLOT_PERMUTATION_DOMAIN')
+    if maximum_writes is not None and(type(maximum_writes)is not int or not 0<=maximum_writes<=120):raise ValueError('ROW_SLOT_WRITE_BUDGET_DOMAIN')
     restricted=source.get('status')=='RESTRICTED_SCANLINE_DEMAND_ONLY'
     required,uses,pixels=demand(source,allow_restricted=True);height=len(required)
     visible=[y for y,row in enumerate(required)if any(row)]
@@ -50,7 +51,7 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
             for y in(max(0,left-1),min(height-1,right+1)):
                 relevant.update(c for c in hinted[y][b]if c is not None)
             repair_domains[b]=sorted(word_codes[b][c]for c in relevant)
-    model=cp_model.CpModel();values={};flags={};slot_constants={}
+    model=cp_model.CpModel();values={};flags={};slot_constants={};value_hints={};change_hints={};used_rank_hints={}
     for b in range(8):
         for s in range(15):slot_constants[b*15+s]=model.new_constant(s)
     for y in range(first,last+1):
@@ -62,6 +63,7 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
             for s in range(15):
                 if repair_interval is not None and not repair_interval[0]<=y<=repair_interval[1]:
                     values[y,b,s]=model.new_constant(hint_colors[s])
+                    value_hints[y,b,s]=hint_colors[s]
                     if y>first:
                         if transfer_interval[0]<=y<=transfer_interval[1]:
                             changed=model.new_bool_var(f'changed{y}_{b}_{s}')
@@ -69,19 +71,28 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
                             model.add(values[y,b,s]==values[y-1,b,s]).only_enforce_if(changed.Not())
                         else:changed=int(hint_colors[s]!=word_codes[b][0 if hinted[y-1][b][s] is None else hinted[y-1][b][s]])
                         flags.setdefault((y,b),[]).append((b*15+s,changed))
+                        change_hints[y,b*15+s,b]=(16*b+s+1,int(hint_colors[s]!=value_hints[y-1,b,s]))
                     continue
                 if not free_residency:rank=model.new_int_var(0,14,f'rank{y}_{b}_{s}')
                 value=model.new_int_var_from_domain(cp_model.Domain.from_values(domain),f'word{y}_{b}_{s}')
                 hint_value=hint_colors[s]if hint_colors[s]in domain else colors[s]if colors[s]in domain else domain[0]
-                if not free_residency:model.add_element(rank,colors,value);model.add_hint(rank,colors.index(hint_value))
+                if not free_residency:
+                    model.add_element(rank,colors,value)
+                    spent=used_rank_hints.setdefault((y,b),set())
+                    choices=[i for i,c in enumerate(colors)if c==hint_value and i not in spent]
+                    rank_hint=choices[0]if choices else next(i for i in range(15)if i not in spent)
+                    spent.add(rank_hint);hint_value=colors[rank_hint];model.add_hint(rank,rank_hint)
                 model.add_hint(value,hint_value)
+                value_hints[y,b,s]=hint_value
                 if not free_residency:ranks.append(rank)
                 values[y,b,s]=value
                 if y>first:
                     changed=model.new_bool_var(f'changed{y}_{b}_{s}')
                     model.add(value!=values[y-1,b,s]).only_enforce_if(changed)
                     model.add(value==values[y-1,b,s]).only_enforce_if(changed.Not())
-                    model.add_hint(changed,int(hint_value!=word_codes[b][0 if hinted[y-1][b][s] is None else hinted[y-1][b][s]]))
+                    changed_hint=int(hint_value!=value_hints[y-1,b,s])
+                    model.add_hint(changed,changed_hint)
+                    change_hints[y,b*15+s,b]=(16*b+s+1,changed_hint)
                     flags.setdefault((y,b),[]).append((b*15+s,changed))
             if repair_interval is not None and not repair_interval[0]<=y<=repair_interval[1]:continue
             if free_residency:
@@ -91,12 +102,15 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
                     model.add_element(index,[values[y,b,s]for s in range(15)],c)
                     model.add_hint(index,(hint_colors if c in hint_colors else colors).index(c))
             else:model.add_all_different(ranks)
-    prefixes={};interval_cuts=0
+    prefixes={};interval_cuts=0;prefix_hints={}
     for b in range(8):
         prefixes[first,b]=model.new_constant(0)
+        prefix_hints[first,b]=0
         for y in range(first+1,last+1):
             total=model.new_int_var(0,15*(y-first),f'bankWrites{y}_{b}');prefixes[y,b]=total
             model.add(total==prefixes[y-1,b]+sum(flag for i,flag in flags[y,b]))
+            prefix_hints[y,b]=prefix_hints[y-1,b]+sum(change_hints[y,i,b][1]for i,flag in flags[y,b])
+            model.add_hint(total,prefix_hints[y,b])
         for left in range(first,last+1):
             union=set()
             for right in range(left,last+1):
@@ -104,25 +118,41 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
                 if len(union)>15:
                     model.add(prefixes[right,b]-prefixes[left,b]>=len(union)-15);interval_cuts+=1
     transfer_flags={key:value for key,value in flags.items()if transfer_interval is None or transfer_interval[0]<=key[0]<=transfer_interval[1]}
-    ranges,peak=constrain(model,transfer_flags,slot_constants,height,4,window,packet_hints=packet_hints,line_windows=line_windows)
+    if maximum_writes is not None:
+        for y in range(first+1,last+1):
+            if transfer_interval is None or transfer_interval[0]<=y<=transfer_interval[1]:
+                model.add(sum(flag for(line,b),events in transfer_flags.items()if line==y for i,flag in events)<=maximum_writes)
+    ranges,peak=constrain(model,transfer_flags,slot_constants,height,4,window,packet_hints=packet_hints,line_windows=line_windows,fixed_address_change_hints=change_hints)
+    if packet_hints is not None:
+        hinted_cost=max((sum(24+16*(hi-lo+1)for lo,hi in row)for y,row in packet_hints.items()if y>first and(transfer_interval is None or transfer_interval[0]<=y<=transfer_interval[1])),default=0)
+        model.add_hint(peak,hinted_cost)
+    objective_scale=1
     if repair_interval is None:model.minimize(peak)
     else:
         repair_peak=model.new_int_var(0,4096,'repairPeak');costs=[]
         for y in range(transfer_interval[0],transfer_interval[1]+1):
             cost=sum(24*active+16*length for(line,r),(active,begin,end,length)in ranges.items()if line==y)
             model.add(repair_peak>=cost);costs.append(cost)
-        model.minimize(100000*repair_peak+sum(costs))
+        objective_scale=4096*len(costs)+1
+        model.minimize(objective_scale*repair_peak+sum(costs))
+        if packet_hints is not None:model.add_hint(repair_peak,hinted_cost)
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     status=solver.solve(model)
     report=dict(schema='BYOR_ROW_SLOT_PERMUTATION_V1',status='BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE',
         solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
         solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),
         solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
+        solver_objective_lower_bound=solver.best_objective_bound,
+        maximum_physical_writes_per_transfer_row=maximum_writes,
+        full_frame_write_budget_enforced=maximum_writes is not None and repair_interval is None and not restricted,
+        objective_peak_scale=objective_scale,
+        peak_commit_span_lower_bound_for_this_restricted_model=max(0,math.floor(solver.best_objective_bound/objective_scale)-40),
         outside_interval_pixels_relaxed=restricted,complete_source_frame_pixel_identity_proven=False,
         window_master_clocks=max((line_windows or {}).values(),default=window),requested_repair_window_master_clocks=window if repair_interval is not None else None,
         physical_repair_interval=list(repair_interval)if repair_interval is not None else None,
         physical_repair_transfer_interval=list(transfer_interval)if transfer_interval is not None else None,full_frame_transfer_window_enforced=repair_interval is None and not restricted,
         physical_layout_hint_used=layout_hint is not None,fixed_resident_sets=not free_residency,live_slot_moves_allowed=True,free_residency=free_residency,
+        physical_change_and_range_membership_hints_coherent=True,
         repair_color_domain_pruned_to_demands_and_boundary_residents=repair_interval is not None,
         bank_interval_liveness_cuts=interval_cuts,palette_word_domain_dense_identity_codes=True,
         lookahead_lines=last-first,noninitial_dead_word_writes_charged=True,
@@ -192,6 +222,7 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--schedule',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--layout-hint',type=Path)
+    p.add_argument('--maximum-writes',type=int,help='Bound every changed physical word, including live moves and prefetch; local repairs enforce this only inside their transfer interval.')
     p.add_argument('--scanline-interval',type=int,nargs=2,metavar=('FIRST','LAST'),help='Explicit restricted-pixel proof with free interval initialization; never complete frame admission.')
     p.add_argument('--repair-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
     p.add_argument('--free-residency',action='store_true',help='Allow any required bank word to occupy a slot, with every physical change charged; prefetch is bounded by the full visible source interval.')
@@ -200,7 +231,7 @@ def main():
     if a.scanline_interval:
         from raster_bank_residency import restrict_interval
         source=restrict_interval(source,*a.scanline_interval)
-    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
+    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval,a.maximum_writes);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('physical_slot_layout',r)))
 
 
 if __name__=='__main__':main()
