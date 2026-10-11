@@ -20,6 +20,17 @@ def fixture(points):
 
 
 class RetileTests(unittest.TestCase):
+    def test_verified_physical_packets_survive_exact_retile(self):
+        source=fixture([(0,4,7,4),(0,4,8,4)])
+        source['physical_slot_layout']=dict(status='PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN',native_timing_admitted=True)
+        source['prepared_dma_packets']=[dict(scanline=y,packets=[],prepared_commit_span=0)for y in range(32)]
+        result=retile(source,5)
+        self.assertEqual(result['prepared_dma_packets'],source['prepared_dma_packets'])
+        self.assertTrue(result['mask_retile']['physical_packets_retained_and_independently_replayed'])
+        self.assertFalse(result['physical_slot_layout']['native_timing_admitted'])
+        source['prepared_dma_packets'][4]['prepared_commit_span']=16
+        with self.assertRaisesRegex(ValueError,'PACKET_SPAN'):retile(source,5)
+
     def test_per_line_other_actor_reservations_are_replayed(self):
         source=fixture([(0,4,7,4),(0,4,8,4)])
         reservation=dict(oam_entries=127,sprites_per_line=[31]*32,tile_slivers_per_line=[33]*32)

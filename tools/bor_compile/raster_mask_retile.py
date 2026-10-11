@@ -125,6 +125,15 @@ def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,larg
             if key in rebuilt:raise AssertionError('MASK_RETILE_OUTPUT_OVERLAP')
             rebuilt[key]=int(image[ly,lx]),int(words[ly,lx])
     if rebuilt!=points:raise AssertionError('MASK_RETILE_INDEPENDENT_REPLAY')
+    if source.get('physical_slot_layout',{}).get('status')=='PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN':
+        from raster_slot_refine import verify_packets
+        verify_packets(source)
+        result['prepared_dma_packets']=copy.deepcopy(source['prepared_dma_packets'])
+        result['physical_slot_layout']=copy.deepcopy(source['physical_slot_layout'])
+        result['physical_slot_layout'].update(native_timing_admitted=False,
+            geometry_rebound_by_exact_pixel_bank_index_replay=True)
+        verify_packets(result)
+        report['physical_packets_retained_and_independently_replayed']=True
     return result
 
 
