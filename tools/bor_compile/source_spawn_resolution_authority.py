@@ -58,7 +58,7 @@ printf("%d|%d|%d|%d|%d|%d\n",resident,explicit_model,named,index,m?m->identity:-
         engine_commit=ENGINE_COMMIT, resolution_prefix_sha256=hashlib.sha256(prefix.encode()).hexdigest(),
         cases=len(actual), actual=actual, expected=expected,
         zero_initialized_entry_cache_index=0, unloaded_cache_returns_null=True,
-        constructor_allocation_instrumented=True, actual_model_residency_proven=False,
+        constructor_allocation_instrumented=False, actual_model_residency_proven=False,
         live_queue_dispatch_bound=False, motu_gameplay_proven=False, no_color_reduction=True)
     (a.output/'report.json').write_text(json.dumps(report,indent=2)+'\n')
     print(report['status'], len(actual), 'pinned model-resolution cases')

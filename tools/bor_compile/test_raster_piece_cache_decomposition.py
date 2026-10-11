@@ -7,6 +7,34 @@ from raster_bank_residency import relaxed_bound
 
 
 class DecompositionTests(unittest.TestCase):
+    def test_other_actor_geometry_reservation_is_enforced(self):
+        source=fixtures.WordBankBalanceTests().fixture()[0]
+        height=len(source['trace'])
+        reserved=dict(oam_entries=128,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
+        result=search(source,iterations=2,time_limit=10,master_seconds=1,row_word_masks=True,
+                      geometry_reservation=reserved)
+        self.assertIsNone(result['best_fractional_cache_bound'])
+        self.assertFalse(result['iterations'][0]['reserved_geometry_admitted'])
+        self.assertEqual(result['iterations'][0]['master_status'],'INFEASIBLE')
+        for field,limit in [('sprites_per_line',32),('tile_slivers_per_line',34)]:
+            full=dict(oam_entries=0,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
+            full[field]=[limit]*height
+            blocked=search(source,iterations=2,time_limit=10,master_seconds=1,
+                           row_word_masks=True,geometry_reservation=full)
+            self.assertIsNone(blocked['best_fractional_cache_bound'])
+            self.assertEqual(blocked['iterations'][0]['master_status'],'INFEASIBLE')
+        reserved['oam_entries']=1
+        result=search(source,iterations=2,time_limit=10,master_seconds=1,row_word_masks=True,
+                      geometry_reservation=reserved)
+        self.assertLessEqual(result['geometry']['oam_entries']+1,128)
+        self.assertFalse(result['piece_cache_decomposition']['reservation_proves_concurrent_palette_or_layer_admission'])
+        for bad in ({},dict(reserved,oam_entries=True),dict(reserved,sprites_per_line=[0]),
+                    dict(reserved,tile_slivers_per_line=[35]*height)):
+            with self.assertRaisesRegex(ValueError,'GEOMETRY_RESERVATION_DOMAIN'):
+                search(source,row_word_masks=True,geometry_reservation=bad)
+        with self.assertRaisesRegex(ValueError,'GEOMETRY_RESERVATION_DOMAIN'):
+            search(source,geometry_reservation=reserved)
+
     def test_interval_master_bounds_replay_against_cache_lp_and_resume(self):
         source=fixtures.WordBankBalanceTests().fixture()[0]
         for objective in ('writes','dma-window'):

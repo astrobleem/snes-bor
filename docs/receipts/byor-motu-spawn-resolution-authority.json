@@ -394,7 +394,7 @@
   ],
   "zero_initialized_entry_cache_index": 0,
   "unloaded_cache_returns_null": true,
-  "constructor_allocation_instrumented": true,
+  "constructor_allocation_instrumented": false,
   "actual_model_residency_proven": false,
   "live_queue_dispatch_bound": false,
   "motu_gameplay_proven": false,

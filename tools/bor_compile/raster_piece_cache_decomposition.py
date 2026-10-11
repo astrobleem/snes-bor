@@ -14,12 +14,24 @@ from raster_slot_greedy import demand,bank_groups
 from raster_global_bank_classes import rebuild_schedule
 
 
-def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21,row_word_masks=False,resume_report=None,interval_cut_span=0):
+def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21,row_word_masks=False,resume_report=None,interval_cut_span=0,geometry_reservation=None):
     from ortools.sat.python import cp_model
     if iterations<1 or time_limit<=0 or master_seconds<=0 or (maximum_changes is not None and maximum_changes<1): raise ValueError('PIECE_CACHE_DECOMPOSITION_DOMAIN')
     if objective_kind not in('writes','dma-window')or type(write_budget)is not int or not 0<=write_budget<=120:raise ValueError('PIECE_CACHE_DECOMPOSITION_OBJECTIVE_DOMAIN')
     if type(interval_cut_span)is not int or not 0<=interval_cut_span<=256:raise ValueError('PIECE_CACHE_INTERVAL_CUT_DOMAIN')
     _,_,images=demand(source); pieces=copy.deepcopy(source['pieces']);groups=bank_groups(source)
+    height=len(source['trace'])
+    reservation=dict(oam_entries=0,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
+    if geometry_reservation is not None:
+        if (not row_word_masks or not isinstance(geometry_reservation,dict) or
+            set(geometry_reservation)!=set(reservation)):
+            raise ValueError('PIECE_CACHE_GEOMETRY_RESERVATION_DOMAIN')
+        reservation=copy.deepcopy(geometry_reservation)
+        if (type(reservation['oam_entries'])is not int or not 0<=reservation['oam_entries']<=128 or
+            any(not isinstance(reservation[k],list)or len(reservation[k])!=height or
+                any(type(v)is not int or not 0<=v<=limit for v in reservation[k])
+                for k,limit in [('sprites_per_line',32),('tile_slivers_per_line',34)])):
+            raise ValueError('PIECE_CACHE_GEOMETRY_RESERVATION_DOMAIN')
     domains=[]; owners={};decision_keys=[];piece_decisions={}
     for i,(p,image) in enumerate(zip(pieces,images)):
         p['rows']={p['y']+y:sorted(set(map(int,row[row>=0]))) for y,row in enumerate(image) if np.any(row>=0)}
@@ -92,11 +104,11 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
             for b in domains[indices[0]]:
                 v=model.new_bool_var(f'pieceMask{i}_{b}')
                 model.add_max_equality(v,[selection[j][b]for j in indices]);masks[i,b]=v
-        model.add(sum(masks.values())<=128)
+        model.add(sum(masks.values())<=128-reservation['oam_entries'])
         for y in range(len(source['trace'])):
             live=[(i,b)for i,b in masks if pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height']]
-            model.add(sum(masks[i,b]for i,b in live)<=32)
-            model.add(sum(masks[i,b]*(pieces[i]['width']//8)for i,b in live)<=34)
+            model.add(sum(masks[i,b]for i,b in live)<=32-reservation['sprites_per_line'][y])
+            model.add(sum(masks[i,b]*(pieces[i]['width']//8)for i,b in live)<=34-reservation['tile_slivers_per_line'][y])
     # Certified cuts are rounded outward to integers to avoid false rejection.
     scale=1000000;t=model.new_int_var(0,(120 if objective_kind=='writes'else 4096)*scale,'fractionalPeak');model.minimize(t)
     interval_requirements=[]
@@ -159,6 +171,13 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         cuts.append(copy.deepcopy(certificate))
     def valid_assignment(a):
         return isinstance(a,list)and len(a)==len(domains)and all(type(b)is int and b in domain for b,domain in zip(a,domains))
+    def geometry_fits(a):
+        if not row_word_masks:return True
+        entries=[i for i,indices in piece_decisions.items()for b in {a[j]for j in indices}]
+        return (len(entries)+reservation['oam_entries']<=128 and
+                all(sum(pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height']for i in entries)+reservation['sprites_per_line'][y]<=32 and
+                    sum(pieces[i]['width']//8 for i in entries if pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height'])+reservation['tile_slivers_per_line'][y]<=34
+                    for y in range(height)))
     assignment=[pieces[key[0]]['bank'] for key in decision_keys]
     if resume_report is not None:
         if resume_report.get('cache_basis_sha256')!=basis_hash:raise ValueError('PIECE_CACHE_RESUME_SOURCE_BASIS')
@@ -196,18 +215,20 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         report['independently_replayed_interval_lower_bound']=interval_bound
         report['peak_write_lower_bound'if objective_kind=='writes'else'peak_dma_span_lower_bound']=float(solved.fun)
         reports.append(report)
-        if solved.fun<best:best=float(solved.fun);best_assignment=assignment.copy()
+        report['reserved_geometry_admitted']=geometry_fits(assignment)
+        if report['reserved_geometry_admitted']and solved.fun<best:best=float(solved.fun);best_assignment=assignment.copy()
         install_cut(dict(inequality_dual=[[i,float(v)]for i,v in enumerate(solved.ineqlin.marginals)if v],
                          upper_dual=[[i,float(v)]for i,v in enumerate(solved.upper.marginals)if v]))
         # Exclude an evaluated assignment so a rounded tie cannot stall search.
         model.add(sum(selection[i][b]for i,b in enumerate(assignment))<=len(assignment)-1)
         if assignment not in evaluated:evaluated.append(assignment.copy())
         model.clear_hints()
-        for i,b in enumerate(best_assignment):
+        incumbent=best_assignment if best_assignment is not None else assignment
+        for i,b in enumerate(incumbent):
             for bb,v in selection[i].items():model.add_hint(v,int(bb==b))
         master=model.clone()
         if maximum_changes is not None:
-            master.add(sum(selection[i][b]for i,b in enumerate(best_assignment))>=len(selection)-maximum_changes)
+            master.add(sum(selection[i][b]for i,b in enumerate(incumbent))>=len(selection)-maximum_changes)
         solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=master_seconds;solver.parameters.num_search_workers=4
         status=solver.solve(master);report.update(master_status=solver.status_name(status),master_seconds=solver.wall_time,master_lower_bound=float(solver.best_objective_bound)/scale)
         if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):break
@@ -215,6 +236,7 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
     report=dict(schema='BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1',iterations=reports,seconds=time.monotonic()-started,maximum_changed_pieces_per_master=maximum_changes,
         objective_kind=objective_kind,row_word_masks=row_word_masks,write_budget=write_budget if objective_kind=='dma-window'else None,alias_aware=True,initial_residency_optimal=True,
         interval_cut_span=interval_cut_span,interval_cut_count=len(interval_requirements),
+        geometry_reservation=reservation,reservation_proves_concurrent_palette_or_layer_admission=False,
         cache_basis_sha256=basis_hash,certified_master_cuts=cuts,restored_certified_cuts=restored,
         cache_lp_variables=peak+1,cache_lp_constraints=len(rhs),
         evaluated_assignments=evaluated,best_decision_assignment=best_assignment,
@@ -247,9 +269,10 @@ def main():
     parser.add_argument('--row-word-masks',action='store_true')
     parser.add_argument('--resume-report',type=Path)
     parser.add_argument('--interval-cut-span',type=int,default=0)
+    parser.add_argument('--geometry-reservation',type=Path,help='JSON with other actors OAM count and sprites/tile slivers per line. Geometry only; concurrent palette and layer admission remain separate.')
     args=parser.parse_args();resume=json.loads(args.resume_report.read_text())if args.resume_report else None
     if resume is not None:resume=resume.get('piece_cache_decomposition',resume)
-    result=search(json.loads(args.schedule.read_text()),args.iterations,args.time_limit,args.master_seconds,args.maximum_changes,args.objective,args.write_budget,args.row_word_masks,resume,args.interval_cut_span)
+    result=search(json.loads(args.schedule.read_text()),args.iterations,args.time_limit,args.master_seconds,args.maximum_changes,args.objective,args.write_budget,args.row_word_masks,resume,args.interval_cut_span,json.loads(args.geometry_reservation.read_text())if args.geometry_reservation else None)
     args.output.write_text(json.dumps(result,indent=2)+'\n');report=result.get('piece_cache_decomposition',result)
     print(json.dumps(dict({k:v for k,v in report.items()if k not in('iterations','certified_master_cuts','evaluated_assignments','best_decision_assignment')},iterations_completed=len(report['iterations']))))
 
