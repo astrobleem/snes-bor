@@ -29,6 +29,51 @@
       "retained_assignments": 72,
       "best_clock_bound": 359.6495556246785,
       "cache_basis_sha256": "962cc4b1a864064e35a948cd98a276f35de5963afd3a613a3fba891553a8d894"
+    },
+    "byor-motu-authored-peak-resumable-dma-decomposition-round4": {
+      "iterations": 52,
+      "seconds": 303.68800000008196,
+      "restored_cuts": 74,
+      "retained_cuts": 126,
+      "retained_assignments": 123,
+      "best_clock_bound": 357.54100048413187,
+      "cache_basis_sha256": "962cc4b1a864064e35a948cd98a276f35de5963afd3a613a3fba891553a8d894"
+    },
+    "byor-motu-authored-peak-resumable-dma-decomposition-round5": {
+      "iterations": 39,
+      "seconds": 242.70299999974668,
+      "restored_cuts": 126,
+      "retained_cuts": 165,
+      "retained_assignments": 161,
+      "best_clock_bound": 357.4099874928795,
+      "cache_basis_sha256": "962cc4b1a864064e35a948cd98a276f35de5963afd3a613a3fba891553a8d894"
+    },
+    "byor-motu-authored-peak-resumable-dma-decomposition-round6": {
+      "iterations": 35,
+      "seconds": 240.53099999995902,
+      "restored_cuts": 165,
+      "retained_cuts": 200,
+      "retained_assignments": 195,
+      "best_clock_bound": 353.92309486797467,
+      "cache_basis_sha256": "962cc4b1a864064e35a948cd98a276f35de5963afd3a613a3fba891553a8d894"
+    },
+    "byor-motu-authored-peak-resumable-dma-decomposition-round7": {
+      "iterations": 41,
+      "seconds": 244.04700000025332,
+      "restored_cuts": 200,
+      "retained_cuts": 241,
+      "retained_assignments": 235,
+      "best_clock_bound": 353.92309486797467,
+      "cache_basis_sha256": "962cc4b1a864064e35a948cd98a276f35de5963afd3a613a3fba891553a8d894"
+    },
+    "byor-motu-authored-peak-resumable-dma-decomposition-round8": {
+      "iterations": 30,
+      "seconds": 240.59400000004098,
+      "restored_cuts": 241,
+      "retained_cuts": 271,
+      "retained_assignments": 264,
+      "best_clock_bound": 353.92309486797467,
+      "cache_basis_sha256": "962cc4b1a864064e35a948cd98a276f35de5963afd3a613a3fba891553a8d894"
     }
   },
   "saved_duals_validated_before_master_reuse": true,
@@ -47,6 +92,11 @@
   "artifact_hashes": {
     "byor-motu-authored-peak-resumable-dma-decomposition-round1": "f98c3baf079443cab50225ea58dd485d23b693d3102f100a3a7eea4505ab3949",
     "byor-motu-authored-peak-resumable-dma-decomposition-round2": "310cda09b69a23d88e27d276bd34b3dbcc7099ef4d4970fe3bec9f7a0dcf1bfd",
-    "byor-motu-authored-peak-resumable-dma-decomposition-round3": "88d633d155bcf331a65bad3d7127a3653961b42924fcf4886af02975a499f481"
+    "byor-motu-authored-peak-resumable-dma-decomposition-round3": "88d633d155bcf331a65bad3d7127a3653961b42924fcf4886af02975a499f481",
+    "byor-motu-authored-peak-resumable-dma-decomposition-round4": "69622e1646e88d65764f6496f1834821c6fc24e8c1673fbcbcf17dc0ab08652d",
+    "byor-motu-authored-peak-resumable-dma-decomposition-round5": "d19caf89afa69572e655ad2c338532023874587d0babfbbae753a161405861d0",
+    "byor-motu-authored-peak-resumable-dma-decomposition-round6": "09872434240228e5e9af05f464bea3b5f2795a1078d740fe0bda2a511acb58e0",
+    "byor-motu-authored-peak-resumable-dma-decomposition-round7": "d8fc2b43fe7b22e77ee9b060220562f1e6690937619f3340ccfcbe236bd10866",
+    "byor-motu-authored-peak-resumable-dma-decomposition-round8": "cdb1f43025f2cca409616798d17e3c97a0fa5bbd74dbc84fb4ed642438201a28"
   }
 }

@@ -14,12 +14,16 @@ to neighborhood size retain valid cache cuts because the cache model itself
 has not changed. CLI output summarizes progress; complete certificates remain
 in the schedule artifact.
 
-Three authored peak runs retain 74 certificates and 72 unique evaluated bank
-assignments. The second run restores 34 certificates; the third restores 54.
+Eight authored peak runs retain 271 certificates and 264 unique evaluated bank
+assignments. The second run restores 34 certificates; the eighth restores 241.
 Independent source-word and bank-eligibility replay matches every piece. The
-best assignment-specific fractional clock bound remains 359.650, above the
-demonstrated constant-control window. The searches do not prove a universal
+best assignment-specific fractional clock bound improves from 359.650 to
+353.923, above the demonstrated 344-clock constant-control window. The
+searches do not prove a universal
 raster limit and do not admit an integer or physical transfer schedule.
+The compressed receipt retains the final complete schedule and cumulative
+certificates, with hashes and summaries of the preceding runs. Repeated copies
+of the same restored certificates are omitted.
 
 Twenty-seven focused bank/cache tests pass, including resumed cut reuse,
 changed-source rejection, malformed dual rejection and illegal assignment
