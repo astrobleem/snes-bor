@@ -1,0 +1,407 @@
+{
+  "byor-motu-authored-hbreath-only-frame11-math15-global-compacted": {
+    "schema": "BYOR_SOURCE_POOL_FIXED_BANK_CONSTRUCTION_V1",
+    "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+    "geometry": {
+      "oam_entries": 48,
+      "peak_sprites": 16,
+      "peak_tile_slivers": 34
+    },
+    "compiled_schedule_sha256": "74ecd7aeb14696b5b111c5e95e2d4976cafabba0c2ba5a88968c4c5f66f12781",
+    "peak_scheduled_writes": 41,
+    "geometry_compaction": {
+      "candidate_merges": 21,
+      "selected_merges": 12,
+      "original_geometry": {
+        "oam_entries": 137,
+        "peak_sprites": 28,
+        "peak_tile_slivers": 28
+      },
+      "solver_status": 0,
+      "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "pixel_bank_slot_identity_verified": true,
+      "native_geometry_admitted": false
+    }
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-global-constructed": {
+    "schema": "BYOR_SOURCE_POOL_FIXED_BANK_CONSTRUCTION_V1",
+    "status": "POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW",
+    "geometry": {
+      "oam_entries": 137,
+      "peak_sprites": 28,
+      "peak_tile_slivers": 28
+    },
+    "compiled_schedule_sha256": "4afd20f185fcba13ce8d03290ad21e9320f4a774526fd96849d1543d95ebe779",
+    "peak_scheduled_writes": 41
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-rebalanced": {
+    "schema": "BYOR_SOURCE_POOL_FIXED_BANK_CONSTRUCTION_V1",
+    "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+    "geometry": {
+      "oam_entries": 48,
+      "peak_sprites": 16,
+      "peak_tile_slivers": 34
+    },
+    "compiled_schedule_sha256": "50e6dd1627bb550d1ea0953925ba86d2f9cc885c6756de2da1c588d8eab69ea8",
+    "peak_scheduled_writes": 30,
+    "geometry_compaction": {
+      "candidate_merges": 21,
+      "selected_merges": 12,
+      "original_geometry": {
+        "oam_entries": 137,
+        "peak_sprites": 28,
+        "peak_tile_slivers": 28
+      },
+      "solver_status": 0,
+      "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "pixel_bank_slot_identity_verified": true,
+      "native_geometry_admitted": false
+    },
+    "bank_rebalance": {
+      "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+      "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+      "seconds": 3.453999999910593,
+      "maximum_interval_lines": 16,
+      "initial_objective": [
+        34.0,
+        55038,
+        430
+      ],
+      "final_objective": [
+        18.5,
+        47648,
+        511
+      ],
+      "moves": [
+        {
+          "piece": 0,
+          "old_bank": 0,
+          "new_bank": 2
+        },
+        {
+          "piece": 1,
+          "old_bank": 0,
+          "new_bank": 2
+        },
+        {
+          "piece": 4,
+          "old_bank": 0,
+          "new_bank": 2
+        },
+        {
+          "piece": 10,
+          "old_bank": 3,
+          "new_bank": 1
+        },
+        {
+          "piece": 12,
+          "old_bank": 3,
+          "new_bank": 2
+        },
+        {
+          "piece": 30,
+          "old_bank": 7,
+          "new_bank": 5
+        },
+        {
+          "piece": 37,
+          "old_bank": 3,
+          "new_bank": 1
+        },
+        {
+          "piece": 40,
+          "old_bank": 6,
+          "new_bank": 4
+        },
+        {
+          "piece": 46,
+          "old_bank": 7,
+          "new_bank": 5
+        },
+        {
+          "piece": 47,
+          "old_bank": 7,
+          "new_bank": 5
+        }
+      ],
+      "anneal_steps_requested": 2000,
+      "anneal_proposals_sampled": 2000,
+      "anneal_moves_accepted": 896,
+      "anneal_seed": 221,
+      "final_bank_distinct_colors": [
+        56,
+        64,
+        56,
+        114,
+        39,
+        72,
+        56,
+        54
+      ],
+      "final_bank_peak_row_colors": [
+        14,
+        12,
+        11,
+        15,
+        8,
+        13,
+        15,
+        7
+      ],
+      "fixed_bank_per_piece": true,
+      "color_math_classes_preserved": true,
+      "pixel_color_identity_verified": true,
+      "geometry_unchanged": true,
+      "native_timing_admitted": false,
+      "universal_raster_rejected": false,
+      "no_color_reduction": true
+    }
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-fixedbank-lp": {
+    "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+    "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+    "peak_write_lower_bound": 34.0,
+    "validated_dual_lower_bound": 34.0,
+    "maximum_primal_violation": 0.0,
+    "maximum_dual_residual": 0.0
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-rebalanced-lp": {
+    "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+    "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+    "peak_write_lower_bound": 20.285714285714285,
+    "validated_dual_lower_bound": 20.28571428571428,
+    "maximum_primal_violation": 3.552713678800501e-15,
+    "maximum_dual_residual": 2.220446049250313e-16
+  },
+  "report": {
+    "schema": "BYOR_RASTER_OBJ_CHR_V1",
+    "status": "LEGAL_MODE1_CHR_OAM_CONSTRUCTIVE_PROOF",
+    "chr_sha256": "04bbc2a96a03bb58f531c0eb2ab1177b5eef4fc8c8b15e255de2ce10e3a25555",
+    "oam_sha256": "17eee74fa0cfab9c03e529c50a733b9fb75fbcb4cdd7b153a774ee6ecea2e7df",
+    "obj_chr_bytes": 7296,
+    "occupied_tile_cells": 228,
+    "unique_tiles": 138
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-joint18": {
+    "schema": "BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1",
+    "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+    "solver": {
+      "status": 1,
+      "message": "UNKNOWN",
+      "variables": 99096,
+      "constraints": 198495,
+      "mip_nodes": null,
+      "mip_gap": null,
+      "backend": "cp-sat",
+      "boolean_stats": {
+        "nonboolean_integer_variables": 0,
+        "hint_variables": 0,
+        "hint_is_soft": true,
+        "log_lines": 274,
+        "sat_inprocessing": false,
+        "branches": 232167,
+        "conflicts": 84856,
+        "wall_seconds": 90.21374680000001,
+        "probing_level": 0,
+        "workers": 4,
+        "optimal": false
+      }
+    },
+    "fixed_geometry_and_pixel_bank_ownership": false,
+    "schedule_residency_hint_used": false
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-geometryhint-joint18": {
+    "schema": "BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1",
+    "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+    "solver": {
+      "status": 1,
+      "message": "UNKNOWN",
+      "variables": 98972,
+      "constraints": 197864,
+      "mip_nodes": null,
+      "mip_gap": null,
+      "backend": "cp-sat",
+      "boolean_stats": {
+        "nonboolean_integer_variables": 0,
+        "hint_variables": 98972,
+        "hint_is_soft": true,
+        "log_lines": 288,
+        "sat_inprocessing": false,
+        "branches": 575909,
+        "conflicts": 136874,
+        "wall_seconds": 120.22298280000001,
+        "probing_level": 0,
+        "workers": 4,
+        "optimal": false
+      }
+    },
+    "fixed_geometry_and_pixel_bank_ownership": false,
+    "schedule_residency_hint_used": true
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-fixed48-flexible-operands-lp": {
+    "schema": "BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1",
+    "status": "FRACTIONAL_RELAXATION_DOES_NOT_PROVE_SCHEDULE",
+    "solver": {
+      "status": 0,
+      "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "variables": 21730,
+      "constraints": 45621,
+      "mip_nodes": null,
+      "mip_gap": null,
+      "backend": "highs"
+    },
+    "fractional_peak_writes": 34.0,
+    "maximum_primal_violation": 0.0,
+    "fixed_geometry_and_pixel_bank_ownership": true,
+    "schedule_residency_hint_used": false
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-fixedrect-joint18.json": {
+    "schema": "BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1",
+    "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+    "solver": {
+      "status": 1,
+      "message": "UNKNOWN",
+      "variables": 90272,
+      "constraints": 180455,
+      "mip_nodes": null,
+      "mip_gap": null,
+      "backend": "cp-sat",
+      "boolean_stats": {
+        "nonboolean_integer_variables": 0,
+        "hint_variables": 90272,
+        "hint_is_soft": true,
+        "log_lines": 306,
+        "sat_inprocessing": false,
+        "branches": 80018,
+        "conflicts": 4207,
+        "wall_seconds": 120.3026921,
+        "probing_level": 0,
+        "workers": 4,
+        "optimal": false
+      }
+    },
+    "fixed_rectangles_and_pixel_rectangle_ownership": true,
+    "schedule_residency_hint_used": true
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-fixedrect16-joint18.json": {
+    "schema": "BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1",
+    "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+    "solver": {
+      "status": 1,
+      "message": "UNKNOWN",
+      "variables": 90688,
+      "constraints": 181179,
+      "mip_nodes": null,
+      "mip_gap": null,
+      "backend": "cp-sat",
+      "boolean_stats": {
+        "nonboolean_integer_variables": 0,
+        "hint_variables": 90688,
+        "hint_is_soft": true,
+        "log_lines": 315,
+        "sat_inprocessing": false,
+        "branches": 89939,
+        "conflicts": 6116,
+        "wall_seconds": 120.19907710000001,
+        "probing_level": 0,
+        "workers": 4,
+        "optimal": false
+      }
+    },
+    "fixed_rectangles_and_pixel_rectangle_ownership": true,
+    "schedule_residency_hint_used": true
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-fine16-fixedrect-joint18.json": {
+    "schema": "BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1",
+    "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+    "solver": {
+      "status": 1,
+      "message": "UNKNOWN",
+      "variables": 91140,
+      "constraints": 182264,
+      "mip_nodes": null,
+      "mip_gap": null,
+      "backend": "cp-sat",
+      "boolean_stats": {
+        "nonboolean_integer_variables": 0,
+        "hint_variables": 91140,
+        "hint_is_soft": true,
+        "log_lines": 324,
+        "sat_inprocessing": false,
+        "branches": 129100,
+        "conflicts": 2766,
+        "wall_seconds": 120.43562870000001,
+        "probing_level": 0,
+        "workers": 4,
+        "optimal": false
+      }
+    },
+    "fixed_rectangles_and_pixel_rectangle_ownership": true,
+    "schedule_residency_hint_used": true
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-global-compacted16.json": {
+    "schema": "BYOR_SOURCE_POOL_FIXED_BANK_CONSTRUCTION_V1",
+    "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+    "geometry": {
+      "oam_entries": 51,
+      "peak_sprites": 17,
+      "peak_tile_slivers": 33
+    },
+    "compiled_schedule_sha256": "6497af1868e959e0d3511aa6f9663b6d9e6d6df2521602b04e1afd8041e7be52",
+    "geometry_compaction": {
+      "candidate_merges": 41,
+      "selected_merges": 41,
+      "original_geometry": {
+        "oam_entries": 137,
+        "peak_sprites": 28,
+        "peak_tile_slivers": 28
+      },
+      "solver_status": 0,
+      "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "pixel_bank_slot_identity_verified": true,
+      "native_geometry_admitted": false
+    }
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-fine16-compacted.json": {
+    "schema": "BYOR_SOURCE_POOL_FIXED_BANK_CONSTRUCTION_V1",
+    "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+    "geometry": {
+      "oam_entries": 128,
+      "peak_sprites": 25,
+      "peak_tile_slivers": 28
+    },
+    "compiled_schedule_sha256": "363c1333478de99b423404bf4793111f42610acbd3d3941bbef7c5a10a258e43",
+    "geometry_compaction": {
+      "candidate_merges": 41,
+      "selected_merges": 3,
+      "original_geometry": {
+        "oam_entries": 137,
+        "peak_sprites": 28,
+        "peak_tile_slivers": 28
+      },
+      "objective": "FEWEST_MERGES_WITHIN_HARDWARE_LIMITS",
+      "solver_status": 0,
+      "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "pixel_bank_slot_identity_verified": true,
+      "native_geometry_admitted": false
+    }
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-chr16\\report.json": {
+    "schema": "BYOR_RASTER_OBJ_CHR_V1",
+    "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+    "chr_sha256": "6d26df838604bd8f7278bd51f997be98cf01f88a741ccd84c38b4fb9b94d18ff",
+    "oam_sha256": "8dbda5040ee8506bd46be5a77969182a58fc5d03d5affcbb250877665e42c14d",
+    "obj_chr_bytes": 5696,
+    "occupied_tile_cells": 174,
+    "unique_tiles": 138
+  },
+  "byor-motu-authored-hbreath-only-frame11-math15-fine16-chr\\report.json": {
+    "schema": "BYOR_RASTER_OBJ_CHR_V1",
+    "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+    "chr_sha256": "0aa8591b0523d09ff1c2ac459fffcb717ee99d9e0629d813f615850080c6248d",
+    "oam_sha256": "a94e47c43a7616e5d286174801e2ba171847bdf3d5ad18278ebab27580c1cdee",
+    "obj_chr_bytes": 4384,
+    "occupied_tile_cells": 137,
+    "unique_tiles": 137
+  }
+}

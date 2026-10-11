@@ -3,6 +3,16 @@ from raster_obj_math_cover import MODES,apply_math,complete_math_cover
 
 
 class MathCoverTests(unittest.TestCase):
+    def test_retained_hint_operand_keeps_exact_coverage_despite_dominance(self):
+        base,_=complete_math_cover([(31,31)],('add',),tag_modes=True)
+        seeded,report=complete_math_cover([(31,31)],('add',),tag_modes=True,retained_operands=(31,))
+        self.assertNotIn(31,base['add',31,31])
+        self.assertIn(31,seeded['add',31,31])
+        self.assertTrue(all(apply_math(c,31,'add')==31 for c in seeded['add',31,31]))
+        self.assertEqual(report['retained_seed_operands'],1)
+        with self.assertRaisesRegex(ValueError,'RETAINED_OPERAND_DOMAIN'):
+            complete_math_cover([(31,31)],retained_operands=(-1,))
+
     def test_halving_precedes_addition_clamping_and_follows_subtraction_clamping(self):
         self.assertEqual(apply_math(31,31,'half-add'),31)
         self.assertEqual(apply_math(31,1,'half-add'),16)

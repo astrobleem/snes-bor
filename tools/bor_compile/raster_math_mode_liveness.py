@@ -40,7 +40,7 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     return report
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False):
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None):
     if len(capacities)!=2 or any(not isinstance(c,int)or c<0 for c in capacities)or not sum(capacities):raise ValueError('MODE_LIVENESS_CAPACITY')
     if write_budget is not None and(not isinstance(write_budget,int)or write_budget<0):raise ValueError('MODE_LIVENESS_WRITE_BUDGET')
     if solver_method not in ('highs-ipm','highs-ds'):raise ValueError('MODE_LIVENESS_LP_METHOD')
@@ -54,6 +54,8 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     if integer_backend not in('highs','cp-sat')or(integer_backend=='cp-sat'and not integer_palette):raise ValueError('MODE_LIVENESS_INTEGER_BACKEND')
     if integer_palette and(not integer_modes or window_pixels is not None and not integer_windows):raise ValueError('MODE_LIVENESS_INTEGER_PALETTE_CONTROLS')
     if lp_hint and integer_backend!='cp-sat':raise ValueError('MODE_LIVENESS_LP_HINT_REQUIRES_CP_SAT')
+    if residency_hint is not None and(not integer_palette or integer_backend!='cp-sat' or lp_hint):raise ValueError('MODE_LIVENESS_RESIDENCY_HINT_REQUIRES_CP_SAT_WITHOUT_LP_HINT')
+    if residency_hint is not None:verify_integer_pool(residency_hint,rows,capacities,window_pixels,maximum_window_transitions)
     pruned=[];filtered=[]
     for y,row in enumerate(rows):
         admitted={}
@@ -185,6 +187,15 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                 if violation>1e-6:raise AssertionError('MODE_LIVENESS_LP_HINT_PRIMAL_RESIDUAL')
                 hint={i:int(round(v))for i,v in enumerate(relaxed.x)if i==peak or v<1e-7 or v>1-1e-7}
                 lp_hint_report.update(relaxed_objective=float(relaxed.fun),hint_variables=len(hint),maximum_primal_violation=violation)
+        if residency_hint is not None:
+            states={int(y):{int(k):set(colors)for k,colors in state.items()}for y,state in residency_hint['selected_palette_residency'].items()}
+            chosen_modes={int(y):m for y,m in residency_hint['selected_modes'].items()}
+            masks={int(y):{int(x):v for x,v in mask.items()}for y,mask in residency_hint.get('selected_window_eligibility',{}).items()}
+            hint={v:int(c in states[y][k])for (k,c,y),v in resident.items()}
+            hint.update({v:int(c in states[y][k]and c not in states[y-1][k])for (k,c,y),v in writes.items()})
+            hint.update({v:int(chosen_modes[y]==mode)for (y,mode),v in modes.items()})
+            hint.update({v:int(masks[y].get(x,0))for (y,x),v in enabled.items()})
+            hint.update({v:int(masks[y].get(left,0)!=masks[y].get(right,0))for (y,left,right),v in transitions.items()})
         solved=solve(all_rows,all_lower,all_upper,objective,time_limit,variable_upper=domains,hint=hint)
         boolean_statistics=solved.boolean_stats
         result=SimpleNamespace(status=solved.status,message=solved.message,x=solved.x,
@@ -216,6 +227,7 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                   window_eligibility_variables=len(enabled),maximum_window_transitions=maximum_window_transitions if window_pixels is not None else None)
     if boolean_statistics is not None:report['boolean_stats']=boolean_statistics
     if lp_hint_report is not None:report['lp_residency_hint']=lp_hint_report
+    if residency_hint is not None:report['source_residency_hint']=dict(hint_is_soft=True,pinned_variables=0,input_peak_replayed_writes=residency_hint['peak_replayed_pool_writes'])
     if result.x is not None:
         violation=max(float(np.max(np.maximum(matrix@result.x-np.array(limits),0))),float(np.max(np.maximum(lower-result.x,0))),float(np.max(np.maximum(result.x-upper,0))))
         if violation>1e-6:raise AssertionError('MODE_LIVENESS_PRIMAL_RESIDUAL')

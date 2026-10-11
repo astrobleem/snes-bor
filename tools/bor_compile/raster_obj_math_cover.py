@@ -20,9 +20,11 @@ def apply_math(operand,background,mode):
     return result
 
 
-def complete_math_cover(requirements,modes=MODES,tag_modes=False,allow_window_bypass=False,fixed_window_context=False):
+def complete_math_cover(requirements,modes=MODES,tag_modes=False,allow_window_bypass=False,fixed_window_context=False,retained_operands=()):
     if not modes or any(m not in MODES for m in modes):raise ValueError('OBJ_MATH_COVER_MODE')
     modes=tuple(dict.fromkeys(modes))
+    retained_operands=set(retained_operands)
+    if any(type(c)is not int or not 0<=c<32768 for c in retained_operands):raise ValueError('OBJ_MATH_COVER_RETAINED_OPERAND_DOMAIN')
     pairs=sorted(set((int(out),int(bg),bool(enabled))for out,bg,enabled in requirements))if fixed_window_context else sorted(set((int(out),int(bg))for out,bg in requirements))
     if any(not 0<=c<32768 for key in pairs for c in key[:2]):raise ValueError('OBJ_MATH_COVER_RGB555_DOMAIN')
     keys=[(mode,*pair)for mode in modes for pair in pairs]if tag_modes else pairs
@@ -60,10 +62,13 @@ def complete_math_cover(requirements,modes=MODES,tag_modes=False,allow_window_by
         representative=representatives[signature]
         if signature&masks[representative]!=signature:raise AssertionError('OBJ_MATH_COVER_DOMINANCE')
         digest.update(color.to_bytes(2,'little')+representative.to_bytes(2,'little'))
-    options={key:sorted(c for mask,c in maximal if mask>>i&1)for i,key in enumerate(keys)}
+    retained={color:signature for color,signature in mapping if color in retained_operands}
+    option_masks=dict(masks);option_masks.update(retained)
+    options={key:sorted(c for c,mask in option_masks.items()if mask>>i&1)for i,key in enumerate(keys)}
     return options,dict(modes=list(modes),rgb555_operands_examined=32768,
                         distinct_requirements=len(keys),valid_operands=len(mapping),
                         maximal_cover_operands=len(maximal),dominance_mapping_sha256=digest.hexdigest(),
+                        retained_seed_operands=len(retained),total_option_operands=len(option_masks),
                         modes_relaxed_per_pixel=len(modes)>1 and not tag_modes,mode_tagged_coverage=tag_modes,global_mode_schedule_proven=False,
                         color_math_window_bypass_relaxed_per_pixel=allow_window_bypass,
                         fixed_color_math_window_context=fixed_window_context,

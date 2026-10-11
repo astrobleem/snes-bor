@@ -17,7 +17,7 @@ from raster_math_windows import evaluate
 from raster_palette import pieces_for_grid,split_color_masks,schedule
 
 
-def select_words(requirements):
+def select_words(requirements,preferences=None):
     """Greedy exact set cover, with stable deterministic tie breaking."""
     pending=set(range(len(requirements)));owners={};selected=[]
     covers={}
@@ -25,7 +25,7 @@ def select_words(requirements):
         if not options:raise ValueError('POOL_CONSTRUCT_PIXEL_WITHOUT_EXACT_WORD')
         for word in options:covers.setdefault(word,set()).add(i)
     while pending:
-        word=max(covers,key=lambda w:(len(covers[w]&pending),-w[0],-w[1]))
+        word=max((w for w in covers if covers[w]&pending),key=lambda w:((preferences or {}).get(w,0),len(covers[w]&pending),-w[0],-w[1]))
         owned=covers[word]&pending
         if not owned:raise AssertionError('POOL_CONSTRUCT_COVER_PROGRESS')
         selected.append(word)
@@ -34,7 +34,7 @@ def select_words(requirements):
     return owners,selected
 
 
-def construct(source,stage,scene,candidate,time_limit=30,lookahead=17):
+def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False):
     actors,metadata,expected=prepare(source,stage,scene)
     background=rgb555(compose_rgb8(source,stage,dict(scene,actors=[]))[0])
     digest=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()
@@ -56,13 +56,15 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17):
     canvases=[[np.full_like(a['pixels'],-1)for a in actors]for _ in range(2)]
     counts=[]
     for y,line in enumerate(requirements):
-        owners,words=select_words(line)if line else({},[])
+        previous=states.get(y-1,{})
+        preferences={(k,c):1 for k,colors in previous.items()for c in colors}if prefer_resident_words else None
+        owners,words=select_words(line,preferences)if line else({},[])
         counts.append([sum(k==kind for k,c in words)for kind in range(2)])
         for j,(i,ly,lx)in enumerate(coordinates[y]):
             k,c=owners[j];canvases[k][i][ly,lx]=c
     report=dict(schema='BYOR_SOURCE_POOL_FIXED_BANK_CONSTRUCTION_V1',status='BOUNDED_POOL_CONSTRUCTION_NO_BANK_ASSIGNMENT',
         source_rgb555_sha256=digest,metadata=metadata,no_color_reduction=True,universal_raster_rejected=False,
-        native_presentation_proven=False,operand_selection_policy='GREEDY_EXACT_ROW_SET_COVER',
+        native_presentation_proven=False,operand_selection_policy='GREEDY_EXACT_ROW_SET_COVER_PREFER_RESIDENT'if prefer_resident_words else'GREEDY_EXACT_ROW_SET_COVER',
         outside_control_rows_math_policy='FULL_ADD_NO_WINDOW_MINIMAL_OPERAND_OR_LITERAL',
         peak_selected_colors_by_class=[max(row[k]for row in counts)for k in range(2)],
         global_color_bank_identity_restricted=True,bank_search=[],exact_underlay_bypass=True,underlay_bypassed_pixels=bypassed)
@@ -117,7 +119,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('source','stage','scene','candidate','output'):p.add_argument('--'+name,required=True)
     p.add_argument('--time-limit',type=int,default=30)
-    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit)
+    p.add_argument('--prefer-resident-words',action='store_true')
+    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words)
     Path(a.output).write_text(json.dumps(r,indent=2)+'\n')
     summary={k:r[k]for k in ('status','peak_selected_colors_by_class','geometry','hardware_geometry_admitted','peak_scheduled_writes')if k in r}
     summary['bank_search']=[{k:v for k,v in search.items()if k!='assignment'}for search in r['bank_search']]

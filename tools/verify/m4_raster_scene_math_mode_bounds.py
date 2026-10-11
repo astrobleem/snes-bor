@@ -39,6 +39,7 @@ def main():
     parser.add_argument('--integer-backend',choices=('highs','cp-sat'),default='highs')
     parser.add_argument('--lp-hint',action='store_true')
     parser.add_argument('--candidate',type=Path,help='Replay a saved integer pool against the same source and scope, without another solve.')
+    parser.add_argument('--residency-hint',type=Path,help='Source-replay a saved integer pool and supply its residency and controls as soft CP-SAT hints.')
     args=parser.parse_args();source=Source(args.source);scene=json.loads(args.scene.read_text());modes=tuple(dict.fromkeys(args.math_mode or MODES))
     actors,metadata,expected=prepare(source,args.stage,scene)
     background,_=compose_rgb8(source,args.stage,dict(scene,actors=[]));background=rgb555(background)
@@ -61,15 +62,17 @@ def main():
     if args.hardware_windows:requirements=((out,bg,enabled)for y,x,out,bg,_ in pixels for enabled in (False,True))
     elif args.math_window:requirements=((out,bg,enabled)for y,x,out,bg,enabled in pixels)
     else:requirements=((out,bg)for y,x,out,bg,enabled in pixels)
-    started=time.perf_counter();options,cover=complete_math_cover(requirements,modes=modes,tag_modes=True,allow_window_bypass=args.relaxed_window_bypass,fixed_window_context=fixed_context)
+    if args.candidate and args.residency_hint:raise ValueError('MATH_MODE_CANDIDATE_AND_HINT_CONFLICT')
+    saved_candidate=json.loads((args.candidate or args.residency_hint).read_text())if args.candidate or args.residency_hint else None
+    retained={c for state in saved_candidate['selected_palette_residency'].values()for c in state['1']}if args.residency_hint else ()
+    started=time.perf_counter();options,cover=complete_math_cover(requirements,modes=modes,tag_modes=True,allow_window_bypass=args.relaxed_window_bypass,fixed_window_context=fixed_context,retained_operands=retained)
     cover_seconds=time.perf_counter()-started
-    saved_candidate=json.loads(args.candidate.read_text())if args.candidate else None
     rows=[{mode:set()for mode in modes}for y in range(len(background))]
     union_rows=[set()for y in range(len(background))]
     window_pixels=[[]for y in range(len(background))]if args.hardware_windows else None
     for y,x,out,bg,enabled in pixels:
         def values(mode):
-            if saved_candidate is not None:
+            if args.candidate:
                 words=saved_candidate['selected_palette_residency'][str(y)]['1']
                 return tuple(c for c in words if(apply_math(c,bg,mode)==out if args.hardware_windows or enabled else c==out))
             return options[mode,out,bg,True if args.hardware_windows else enabled]if fixed_context else options[mode,out,bg]
@@ -80,7 +83,7 @@ def main():
             window_pixels[y].append(dict(x=x,output=out,modes={mode:tuple(values(mode))for mode in modes}))
         union_rows[y].add((out,tuple(sorted(union))))
     source_digest=hashlib.sha256(source.path.read_bytes()).hexdigest();pixel_digest=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()
-    if args.candidate:
+    if args.candidate or args.residency_hint:
         report=saved_candidate
         scope={'source_sha256':source_digest,'source_rgb555_sha256':pixel_digest,'scene_sha256':hashlib.sha256(args.scene.read_bytes()).hexdigest(),
                'scanline_window':[args.first_line,args.last_line],'math_modes_allowed':list(modes),'hardware_window_masks_modeled':args.hardware_windows,
@@ -93,17 +96,30 @@ def main():
                     mask=report['selected_window_eligibility'][str(y)]
                     if str(pixel['x'])not in mask:mask[str(pixel['x'])]=int(evaluate(report['compiled_color_window_descriptors'][str(y)],pixel['x']))
         verify_integer_pool(report,rows,window_pixels=window_pixels)
-        report['saved_candidate_coverage_method']='DIRECT_RGB555_MATH_OF_RESIDENT_WORDS'
+        report['saved_candidate_coverage_method']='DIRECT_RGB555_MATH_OF_RESIDENT_WORDS'if args.candidate else'EXACT_SOURCE_COVER_WITH_RETAINED_HINT_OPERANDS'
         report['saved_candidate_source_replay_verified']=True
-        report['saved_candidate_sha256']=hashlib.sha256(args.candidate.read_bytes()).hexdigest()
+        report['saved_candidate_sha256']=hashlib.sha256((args.candidate or args.residency_hint).read_bytes()).hexdigest()
         if 'candidate_generation'not in report:
             provenance=('status','solver_status','message','variables','constraints','mode_variables','solver_seconds','solver_method','boolean_stats','lp_residency_hint','maximum_primal_violation','maximum_integer_control_residual')
             report['candidate_generation']={k:report.pop(k)for k in provenance if k in report}
         report['status']='INTEGER_POOL_SOURCE_REPLAY_PROVEN'
-    else:
-        report=lower_bound(rows,time_limit=args.time_limit,integer_modes=args.integer_modes or args.integer_palette,write_budget=args.write_budget,solver_method=args.lp_method,union_rows=union_rows,window_pixels=window_pixels,integer_windows=args.integer_windows or args.integer_palette and args.hardware_windows,pin_lp_controls=args.pin_lp_controls,positive_windows_only=args.positive_windows_only,subset_mode_cuts=args.subset_mode_cuts,integer_palette=args.integer_palette,integer_backend=args.integer_backend,lp_hint=args.lp_hint)
+    if not args.candidate:
+        report=lower_bound(rows,time_limit=args.time_limit,integer_modes=args.integer_modes or args.integer_palette,write_budget=args.write_budget,solver_method=args.lp_method,union_rows=union_rows,window_pixels=window_pixels,integer_windows=args.integer_windows or args.integer_palette and args.hardware_windows,pin_lp_controls=args.pin_lp_controls,positive_windows_only=args.positive_windows_only,subset_mode_cuts=args.subset_mode_cuts,integer_palette=args.integer_palette,integer_backend=args.integer_backend,lp_hint=args.lp_hint,residency_hint=saved_candidate if args.residency_hint else None)
+        if args.residency_hint:report['source_residency_hint']['source_replay_sha256']=hashlib.sha256(args.residency_hint.read_bytes()).hexdigest()
     if 'selected_window_eligibility'in report:
         report['compiled_color_window_descriptors']={y:compile_sparse_mask({int(x):v for x,v in mask.items()},args.positive_windows_only)for y,mask in report['selected_window_eligibility'].items()}
+    if report.get('integer_pool_pixel_coverage_verified')and not(args.relax_clipped_pixels or args.relaxed_window_bypass):
+        states={int(y):{int(k):set(v)for k,v in state.items()}for y,state in report['selected_palette_residency'].items()}
+        selected_modes={int(y):m for y,m in report['selected_modes'].items()}
+        descriptors={int(y):d for y,d in report.get('compiled_color_window_descriptors',{}).items()}
+        for y,x,out,bg,enabled in pixels:
+            if args.hardware_windows:enabled=evaluate(descriptors[y],x)
+            if out not in states[y][0]and not any((apply_math(c,bg,selected_modes[y])if enabled else c)==out for c in states[y][1]):
+                raise AssertionError('MATH_MODE_COMPILED_CONTROL_SOURCE_PIXEL_REPLAY')
+        report.update(full_interval_source_pixels_verified=True,source_interval_pixels_verified=len(pixels),
+            complete_source_frame_pixel_identity_proven=args.first_line is None,
+            source_pixel_replay_scope='CLASS_POOL_ONLY_NO_FIXED_BANK_OR_OBJ_GEOMETRY',
+            compiled_mode_window_pixel_coverage_replayed=True)
     report.update(schema='BYOR_SHARED_SCANLINE_MATH_MODE_LIVENESS_V1',source_sha256=source_digest,
                   source_rgb555_sha256=pixel_digest,
                   scene=scene,scene_sha256=hashlib.sha256(args.scene.read_bytes()).hexdigest(),metadata=metadata,

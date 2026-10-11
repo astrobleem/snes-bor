@@ -327,7 +327,10 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         peak_scheduled_writes=report['peak_scheduled_writes'],peak_cgram_data_bytes=max(r['cgram_data_bytes']for r in trace[1:]),
         average_writes=float(np.mean([r['colors_written']for r in trace[1:]])),worst_scanline=1+int(np.argmax([r['colors_written']for r in trace[1:]])),
         compiled_indices_sha256=hashlib.sha256(indices.tobytes()).hexdigest(),native_presentation_proven=False)
-    result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=result['pieces'],pixel_masks=images,trace=trace),sort_keys=True).encode()).hexdigest()
+    payload=dict(pieces=result['pieces'],pixel_masks=images,trace=trace)
+    if result.get('scanline_math_controls_source_bound'):
+        payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
+    result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
     _,_,replay=demand(result,allow_restricted=True)
     if any(not np.array_equal(a,b)for a,b in zip(pixels,replay)):raise AssertionError('BANK_RESIDENCY_INDEPENDENT_PIXEL_REPLAY')
     return result

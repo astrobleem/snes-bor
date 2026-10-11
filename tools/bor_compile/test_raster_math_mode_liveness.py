@@ -3,6 +3,17 @@ from raster_math_mode_liveness import lower_bound,verify_integer_pool
 
 
 class ModeLivenessTests(unittest.TestCase):
+    def test_verified_residency_hint_can_change_modes_and_words_to_meet_lower_budget(self):
+        rows=[{'a':{(0,(7,))},'b':{(0,(9,))}},{'a':{(1,(8,))},'b':{(1,(9,))}}]
+        seed=dict(selected_modes={0:'a',1:'a'},selected_palette_residency={0:{0:[],1:[7]},1:{0:[],1:[8]}},peak_write_objective=1)
+        result=lower_bound(rows,capacities=(0,1),integer_modes=True,integer_palette=True,integer_backend='cp-sat',write_budget=0,time_limit=10,residency_hint=seed)
+        self.assertEqual(result['peak_write_objective'],0)
+        self.assertEqual(result['selected_modes'],{0:'b',1:'b'})
+        self.assertTrue(result['source_residency_hint']['hint_is_soft'])
+        self.assertEqual(result['source_residency_hint']['pinned_variables'],0)
+        self.assertEqual(result['source_residency_hint']['input_peak_replayed_writes'],1)
+        self.assertFalse(result['schedule_proven'])
+
     def test_integer_palette_capacity_is_checked_without_native_admission(self):
         rows=[{'a':{(i,())}}for i in range(3)]
         for backend in('highs','cp-sat'):

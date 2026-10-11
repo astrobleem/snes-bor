@@ -57,6 +57,19 @@ class JointSceneSolverTests(unittest.TestCase):
         self.assertEqual(result['selected_modes'][1],'half-add')
         self.assertEqual(result['selected_modes'][2],'add')
         self.assertFalse(result['window_register_schedule_proven'])
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            hinted=probe(None,None,{},size=8,write_budget=4,time_limit=10,solver_backend='cp-sat',additive_only=True,scanline_math_candidate=candidate,schedule_hint=result,fixed_geometry=True)
+        self.assertTrue(hinted['compiled_pixel_identity_verified'])
+        self.assertTrue(hinted['fixed_geometry_and_pixel_bank_ownership'])
+        self.assertGreater(hinted['solver']['boolean_stats']['hint_variables'],0)
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            literal_hint=probe(None,None,{},size=8,write_budget=4,time_limit=10,solver_backend='cp-sat')
+            moved=probe(None,None,{},size=8,write_budget=4,time_limit=10,solver_backend='cp-sat',additive_only=True,scanline_math_candidate=candidate,schedule_hint=literal_hint,fixed_rectangles=True)
+        self.assertLess(literal_hint['pieces'][0]['bank'],4)
+        self.assertGreaterEqual(moved['pieces'][0]['bank'],4)
+        self.assertEqual(moved['geometry']['oam_entries'],1)
+        self.assertTrue(moved['compiled_pixel_identity_verified'])
+        self.assertTrue(moved['fixed_rectangles_and_pixel_rectangle_ownership'])
         candidate['selected_palette_residency']['0']['1'].remove(10)
         with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
             with self.assertRaisesRegex(ValueError,'JOINT_SCANLINE_CONTROL_SOURCE_PIXEL_COVERAGE'):

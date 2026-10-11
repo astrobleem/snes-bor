@@ -161,7 +161,10 @@ def rebalance(source,lookahead=17,maximum_moves=20,maximum_interval=32,anneal_st
     for field in ('prepared_dma_packets','physical_slot_layout'):result.pop(field,None)
     result.update(write_budget=None,lookahead_lines=lookahead,prepared_dma_partition_bound_enforced=False,
         prepared_dma_window_master_clocks=None,native_presentation_proven=False)
-    result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=pieces,pixel_masks=images,trace=trace),sort_keys=True).encode()).hexdigest()
+    payload=dict(pieces=pieces,pixel_masks=images,trace=trace)
+    if result.get('scanline_math_controls_source_bound'):
+        payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
+    result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
     indices=np.zeros((height,256),dtype=np.uint8)
     for p,mask in zip(pieces,images):
         image=unpack(mask)

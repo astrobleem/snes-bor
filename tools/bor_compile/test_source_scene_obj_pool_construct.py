@@ -39,6 +39,8 @@ class PoolConstructionTests(unittest.TestCase):
         owners,words=select_words([{(0,1),(1,6)},{(0,2),(1,6)}])
         self.assertEqual(words,[(1,6)])
         self.assertEqual(set(owners.values()),{(1,6)})
+        owners,words=select_words([{(0,1),(1,6)},{(0,2),(1,6)}],{(0,1):1,(0,2):1})
+        self.assertEqual(set(words),{(0,1),(0,2)})
         with self.assertRaisesRegex(ValueError,'PIXEL_WITHOUT_EXACT_WORD'):select_words([set()])
 
 

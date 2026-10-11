@@ -1,0 +1,47 @@
+{
+  "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "scene_sha256": "2870f7a1e2019effa1dad221fe1730d11b25869b31dd8c21c3c7f9d9c1bad8ef",
+  "source_interval_pixels_verified": 2668,
+  "complete_source_frame_pixel_identity_proven": true,
+  "peak_replayed_pool_writes": 15,
+  "full_interval_source_pixels_verified": true,
+  "geometry_and_bank_assignment_relaxed": true,
+  "source_residency_hint": {
+    "hint_is_soft": true,
+    "pinned_variables": 0,
+    "input_peak_replayed_writes": 20,
+    "source_replay_sha256": "45f2245a1603bb05d2ef8e4dbc55078dd6ea8a0d889f3ab86c14465c848acdee"
+  },
+  "candidate_generation": {
+    "status": "RELAXED_MODE_LIVENESS_CANDIDATE",
+    "solver_status": 0,
+    "message": "FEASIBLE",
+    "variables": 110933,
+    "constraints": 139138,
+    "mode_variables": 220,
+    "solver_seconds": 125.10553689999506,
+    "solver_method": "cp-sat",
+    "boolean_stats": {
+      "nonboolean_integer_variables": 1,
+      "hint_variables": 110932,
+      "hint_is_soft": true,
+      "log_lines": 273,
+      "sat_inprocessing": false,
+      "branches": 2022,
+      "conflicts": 0,
+      "wall_seconds": 120.21621920000001,
+      "probing_level": 0,
+      "workers": 4,
+      "optimal": false
+    },
+    "maximum_primal_violation": 0.0,
+    "maximum_integer_control_residual": 0.0
+  },
+  "outside_window_demand_relaxed": false,
+  "zero_main_clipping_palette_demand_relaxed": false,
+  "schema": "BYOR_AUTHORED_ALPHA_INTEGER_POOL_V1",
+  "witness_file_sha256": "72ff320cb0a16f3cd088bcf46c8b50ee8b8b921370e75cc5297abe323da925a1",
+  "native_presentation_proven": false,
+  "no_color_reduction": true
+}

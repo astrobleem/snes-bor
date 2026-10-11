@@ -18,9 +18,9 @@ def unpack(mask):
     return result.reshape(mask['height'],mask['width'])
 
 
-def compact(schedule,time_limit=30,large_size=32):
+def compact(schedule,time_limit=30,large_size=32,retain_small_geometry=False):
     if large_size not in (16,32):raise ValueError('OBJ_COMPACT_SIZE_PAIR')
-    if schedule.get('status')not in('JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN','BOUNDED_FIXED_BANK_COMPACTION_NO_LEGAL_GEOMETRY') or not schedule.get('compiled_pixel_identity_verified'):
+    if schedule.get('status')not in('JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN','BOUNDED_FIXED_BANK_COMPACTION_NO_LEGAL_GEOMETRY','POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW') or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('OBJ_COMPACT_VALIDATED_SCHEDULE_REQUIRED')
     original=schedule['pieces'];masks=[unpack(m)for m in schedule['piece_pixel_masks']]
     if len(original)!=len(masks) or any(p['width']!=8 or p['height']!=8 for p in original):
@@ -57,7 +57,8 @@ def compact(schedule,time_limit=30,large_size=32):
     solver=None;selected=set()
     if options:
         matrix=np.column_stack([costs([p])-costs([original[i]for i in indices])for indices,p,pixels in options])
-        solver=milp(matrix[0].astype(float),integrality=np.ones(len(options)),bounds=Bounds(0,1),
+        objective=np.ones(len(options))if retain_small_geometry else matrix[0].astype(float)
+        solver=milp(objective,integrality=np.ones(len(options)),bounds=Bounds(0,1),
             constraints=LinearConstraint(matrix,-np.inf,limits-initial),options={'time_limit':time_limit})
         if solver.x is not None:selected={i for i,v in enumerate(solver.x)if v>.5}
     replaced={child for i in selected for child in options[i][0]}
@@ -81,10 +82,14 @@ def compact(schedule,time_limit=30,large_size=32):
         geometry_mode=f'EXACT_FIXED_BANK_{large_size}_8_COMPACTION',obsel_mode=1 if large_size==32 else 0,
         mixed_small_size=8,mixed_large_size=large_size,
         geometry_compaction=dict(candidate_merges=len(options),selected_merges=len(selected),original_geometry=schedule['geometry'],
+            objective='FEWEST_MERGES_WITHIN_HARDWARE_LIMITS'if retain_small_geometry else'MINIMUM_OAM_ENTRIES',
             solver_status=int(solver.status)if solver is not None else None,solver_message=solver.message if solver is not None else 'NO_MERGE_CHOICES',
             pixel_bank_slot_identity_verified=True,native_geometry_admitted=False),
         piece_pixel_masks=[dict(width=p['width'],height=p['height'],packed_nibble_order='low then high',pixels_hex=(image.flatten()[::2]|(image.flatten()[1::2]<<4)).tobytes().hex())for p,image in zip(pieces,pixels)])
-    result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=pieces,pixel_masks=result['piece_pixel_masks'],trace=result['trace']),sort_keys=True).encode()).hexdigest()
+    payload=dict(pieces=pieces,pixel_masks=result['piece_pixel_masks'],trace=result['trace'])
+    if result.get('scanline_math_controls_source_bound'):
+        payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
+    result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
     return result
 
 
@@ -92,7 +97,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--schedule',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True);p.add_argument('--time-limit',type=int,default=30)
     p.add_argument('--large-size',type=int,choices=(16,32),default=32)
-    a=p.parse_args();r=compact(json.loads(a.schedule.read_text()),a.time_limit,a.large_size)
+    p.add_argument('--retain-small-geometry',action='store_true')
+    a=p.parse_args();r=compact(json.loads(a.schedule.read_text()),a.time_limit,a.large_size,a.retain_small_geometry)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(dict(geometry=r['geometry'],compaction=r['geometry_compaction'])))
 
 
