@@ -19,10 +19,11 @@ from actor_s5_entity_fixture import symbols
 from _harness import McpSession,MESEN_EXE,_free_tcp_port
 
 
-def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=False,foreground_stress=False,production_nmi_services=False,nmi_queue_bytes=512,foreground_wai=False,prepare_next_line=False,control_traffic=None,delta_control_traffic=False):
+def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=False,foreground_stress=False,production_nmi_services=False,nmi_queue_bytes=512,foreground_wai=False,prepare_next_line=False,control_traffic=None,delta_control_traffic=False,controls_before_palette=False):
     if production_nmi_services and(not sa1_mapping or not 0<=nmi_queue_bytes<=4096 or nmi_queue_bytes%2):raise ValueError('NATIVE_PRODUCTION_NMI_SERVICE_DOMAIN')
     if foreground_wai and foreground_stress:raise ValueError('NATIVE_WAI_AND_FOREGROUND_STRESS_CONFLICT')
     if delta_control_traffic and control_traffic is None:raise ValueError('NATIVE_DELTA_CONTROL_TRAFFIC_REQUIRED')
+    if controls_before_palette and control_traffic is None:raise ValueError('NATIVE_PREPALETTE_CONTROL_TRAFFIC_REQUIRED')
     control_rows={}
     if control_traffic is not None:
         if not control_traffic.get('scanline_math_controls_source_bound'):raise ValueError('NATIVE_SOURCE_BOUND_CONTROL_TRAFFIC_REQUIRED')
@@ -31,6 +32,11 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
             y=int(key);bounds=descriptor['bounds'];mode=control_traffic['selected_modes'][str(y)]
             if not 0<=y<224 or len(bounds)!=2 or any(len(pair)!=2 or any(type(v)is not int or not 0<=v<=255 for v in pair)for pair in bounds)or mode not in mode_bits:raise ValueError('NATIVE_CONTROL_TRAFFIC_DOMAIN')
             control_rows[y]=[[0x2126,bounds[0][0]],[0x2127,bounds[0][1]],[0x2128,bounds[1][0]],[0x2129,bounds[1][1]],[0x2125,descriptor['wobjsel_color_bits']],[0x212b,descriptor['wobjlog_color_bits']],[0x2131,mode_bits[mode]]]
+    constant_controls={}
+    if controls_before_palette and control_rows:
+        for address in(0x2125,0x212b):
+            values={dict(row)[address]for row in control_rows.values()}
+            if len(values)==1:constant_controls[address]=next(iter(values))
     if delta_control_traffic:
         previous={a:0 for a in(0x2125,0x2126,0x2127,0x2128,0x2129,0x212b,0x2131)};planned={}
         for y,desired in sorted(control_rows.items()):
@@ -42,6 +48,8 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
             for a,v in desired:previous[a]=v
             if row:planned[y]=[list(value)for value in row]
         control_rows=planned
+    if constant_controls:
+        control_rows={y:[(address,value)for address,value in row if address not in constant_controls]for y,row in control_rows.items()}
     production=symbols(Path('src/main.sym'))if production_nmi_services else {}
     if production_nmi_services:
         address=production['nmi_handler']&65535
@@ -90,6 +98,7 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
     if prepare_next_line:
         for ch in range(1,8):store(0x4306+16*ch,0)
     for a,v in((0x2101,3|(chr_report['obj_size_mode']<<5)),(0x2105,1),(0x212c,16),(0x212d,0),(0x212e,0),(0x212f,0),(0x2130,0),(0x2131,0),(0x2133,0),(0x4207,timer&255),(0x4208,timer>>8)):store(a,v)
+    for address,value in constant_controls.items():store(address,value)
     if production_nmi_services:
         asm.extend([' rep #$20','.a16',' lda #$0000',' ldx #$003E','IsolatedRasterNmiStateClear:','.a16','.i16',' sta.l $7E5000,x',' dex',' dex',' bpl IsolatedRasterNmiStateClear',' ldx #$003E','IsolatedRasterDmaStateClear:','.a16','.i16',f" sta.l ${production['DmaQueue']:06X},x",' dex',' dex',' bpl IsolatedRasterDmaStateClear'])
         for name in('DmaQueue_CurrentSlot','DmaQueue_BudgetTotal','SourceClock4086_Ready','StageWater_Enabled','StageWater_Pending','StageFp_BG2Active','StageFp_BG2Loaded','StreamScrollFp_Enabled','StreamScrollFp_ColPending','Oam_UploadFlag'):
@@ -130,27 +139,32 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
     for ch in range(1,8):asm.extend([f' lda #${offsets[ch]:04X}',f' sta ${0x4302+16*ch:04X}'])
     if production_nmi_services:asm.append(' pld')
     asm.extend([' lda #IsolatedRasterRow0',' sta $1E00',' sep #$20','.a8',' stz $1E08',' rep #$20','.a16',' plb',' plx',' pla','IsolatedRasterNmiRti:',' rti','.bank 40','.org $8000'])
+    def emit_controls(y,leave_a8=False):
+        if y not in control_rows:return False
+        controls=dict(control_rows[y])
+        for address in(0x2126,0x2128):
+            if address in controls:asm.extend([f' lda #${controls[address]|controls[address+1]<<8:04X}',f' sta ${address:04X}'])
+        byte_writes=[(address,value)for address,value in control_rows[y]if address in(0x2125,0x212b,0x2131)]
+        if byte_writes:
+            asm.extend([' sep #$20','.a8'])
+            for address,value in byte_writes:asm.extend([f' lda #${value:02X}',f' sta ${address:04X}'])
+            if not leave_a8:asm.extend([' rep #$20','.a16'])
+        return bool(byte_writes)and leave_a8
     for y in range(224):
         row=rows[y];asm.extend([f'IsolatedRasterRow{y}:','.a16','.i16'])
+        control_a8=emit_controls(y,bool(row['mask']))if controls_before_palette else False
         if row['mask']:
             if not prepare_next_line:
                 for ch,count in row['counts'].items():asm.extend([f' lda #${count:04X}',f' sta ${0x4305+16*ch:04X}'])
-            asm.extend([' sep #$20','.a8',f' lda #${row["first_address"]:02X}',' sta $2121',f' lda #${row["mask"]:02X}',' sta $420B',' rep #$20','.a16'])
+            if not control_a8:asm.append(' sep #$20')
+            asm.extend(['.a8',f' lda #${row["first_address"]:02X}',' sta $2121',f' lda #${row["mask"]:02X}',' sta $420B',' rep #$20','.a16'])
         if prepare_next_line and y+1<len(rows) and rows[y+1]['mask']:
             asm.extend([' sep #$20','.a8'])
             for ch,count in rows[y+1]['counts'].items():
                 target=f'${0x05+16*ch:02X}'if foreground_wai else f'${0x4305+16*ch:04X}'
                 asm.extend([f' lda #${count:02X}',f' sta {target}'])
             asm.extend([' rep #$20','.a16'])
-        if y in control_rows:
-            controls=dict(control_rows[y])
-            for address in(0x2126,0x2128):
-                if address in controls:asm.extend([f' lda #${controls[address]|controls[address+1]<<8:04X}',f' sta ${address:04X}'])
-            byte_writes=[(address,value)for address,value in control_rows[y]if address in(0x2125,0x212b,0x2131)]
-            if byte_writes:
-                asm.extend([' sep #$20','.a8'])
-                for address,value in byte_writes:asm.extend([f' lda #${value:02X}',f' sta ${address:04X}'])
-                asm.extend([' rep #$20','.a16'])
+        if not controls_before_palette:emit_controls(y)
         asm.extend([f' lda #IsolatedRasterRow{y+1}',' sta $1E00',' jml IsolatedRasterReturn'])
     asm.extend(['IsolatedRasterRow224:','.a16','.i16',' jml IsolatedRasterReturn'])
     path=folder/'fixture.pasm';path.write_text('\n'.join(asm)+'\n')
@@ -176,8 +190,10 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
     # Standalone LoROM fixture: production SA-1 mapping is not initialized by
     # this private reset owner and is outside this isolated timing proof.
     if not sa1_mapping:raw[0x7fd5]=0x30;raw[0x7fd6]=0
-    return bytes(raw),expected,bytes(initial),oam,sy,dict(chr_report=chr_report,stream_offsets=offsets,stream_bytes={ch:len(s)for ch,s in streams.items()},asset_bytes=len(assets),source_metadata=metadata,empty_scanline_dma_setup_skipped=sum(not r['mask']for r in rows),
-        private_fixture_only=True,delta_control_traffic=delta_control_traffic,control_traffic_rows=control_rows,control_traffic_math_layer_selection_disabled=control_traffic is not None,foreground_context='BOUNDED_LONG_WRAM_STACK_AND_ACCUMULATOR_WIDTH_MIX'if foreground_stress else'WAI_EACH_RASTER_IRQ'if foreground_wai else'HELD_BRA',dma_counts_prepared_previous_line=prepare_next_line,prepared_count_high_bytes_zero=prepare_next_line,idle_irq_bank_zero_abi=foreground_wai,idle_irq_x_untouched=foreground_wai,idle_irq_direct_page=0x4300 if foreground_wai else None,actual_source_vm_execution_proven=False,production_nmi_service_code_executed=production_nmi_services,production_nmi_queue_bytes=nmi_queue_bytes if production_nmi_services else 0,production_queue_registration_executed=False,production_queue_byte_cap=2816,within_production_queue_byte_cap=nmi_queue_bytes<2816 if production_nmi_services else None,service_path_stress_only=production_nmi_services and nmi_queue_bytes>=2816,initial_palette_vblank_bytes=256,raster_cgram_owned_word_range=[128,255],production_cold_boot_proven=False,code_rom_banks=[code_rom,row_rom],asset_rom_bank=asset_rom,sa1_mmc_registers_changed=False,standalone_lorom=not sa1_mapping,production_sa1_mapping_proven=sa1_mapping,production_sa1_worker_execution_proven=False,bank_zero_growth_bytes=0,irq_dma_channels=list(range(1,8)),hdma_channels=[],source_alpha_policy='BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY')
+    resources=dict(chr_report=chr_report,stream_offsets=offsets,stream_bytes={ch:len(s)for ch,s in streams.items()},asset_bytes=len(assets),source_metadata=metadata,empty_scanline_dma_setup_skipped=sum(not r['mask']for r in rows),
+        private_fixture_only=True,controls_before_palette=controls_before_palette,delta_control_traffic=delta_control_traffic,control_traffic_rows=control_rows,control_traffic_math_layer_selection_disabled=control_traffic is not None,foreground_context='BOUNDED_LONG_WRAM_STACK_AND_ACCUMULATOR_WIDTH_MIX'if foreground_stress else'WAI_EACH_RASTER_IRQ'if foreground_wai else'HELD_BRA',dma_counts_prepared_previous_line=prepare_next_line,prepared_count_high_bytes_zero=prepare_next_line,idle_irq_bank_zero_abi=foreground_wai,idle_irq_x_untouched=foreground_wai,idle_irq_direct_page=0x4300 if foreground_wai else None,actual_source_vm_execution_proven=False,production_nmi_service_code_executed=production_nmi_services,production_nmi_queue_bytes=nmi_queue_bytes if production_nmi_services else 0,production_queue_registration_executed=False,production_queue_byte_cap=2816,within_production_queue_byte_cap=nmi_queue_bytes<2816 if production_nmi_services else None,service_path_stress_only=production_nmi_services and nmi_queue_bytes>=2816,initial_palette_vblank_bytes=256,raster_cgram_owned_word_range=[128,255],production_cold_boot_proven=False,code_rom_banks=[code_rom,row_rom],asset_rom_bank=asset_rom,sa1_mmc_registers_changed=False,standalone_lorom=not sa1_mapping,production_sa1_mapping_proven=sa1_mapping,production_sa1_worker_execution_proven=False,bank_zero_growth_bytes=0,irq_dma_channels=list(range(1,8)),hdma_channels=[],source_alpha_policy='BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY')
+    resources['hoisted_constant_controls']=constant_controls
+    return bytes(raw),expected,bytes(initial),oam,sy,resources
 
 
 def observer(sy,sa1_mapping=False,queue_address=0,queue_bytes=0,control_traffic=False):
@@ -225,11 +241,12 @@ def main():
     p.add_argument('--foreground-wai',action='store_true',help='Measure an explicitly idle 65816 foreground awaiting each raster IRQ; excludes foreground stress.')
     p.add_argument('--production-nmi-services',action='store_true')
     p.add_argument('--delta-control-traffic',action='store_true',help='Write only changed control fields; paired window bounds remain atomic word writes.')
+    p.add_argument('--controls-before-palette',action='store_true',help='Measure source-bound control register writes before palette DMA; previous-line pixel deadlines require a separate check.')
     p.add_argument('--control-traffic',type=Path,help='Execute source-bound alpha/window register traffic with layer math selection disabled; measures transport only, not authored alpha rendering.')
     p.add_argument('--prepare-next-line',action='store_true',help='Prepare the following row DMA counts after the current transfer, shortening the next IRQ critical path.')
     p.add_argument('--nmi-queue-bytes',type=int,default=512)
     p.add_argument('--timer',type=int,default=44);a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
-    schedule=json.loads(a.schedule.read_text());raw,expected,initial,oam,sy,resources=compile_rom(a.rom.read_bytes(),a.source,json.loads(a.scene.read_text()),schedule,folder,a.timer,a.sa1_mapping,a.foreground_stress,a.production_nmi_services,a.nmi_queue_bytes,a.foreground_wai,a.prepare_next_line,json.loads(a.control_traffic.read_text())if a.control_traffic else None,a.delta_control_traffic)
+    schedule=json.loads(a.schedule.read_text());raw,expected,initial,oam,sy,resources=compile_rom(a.rom.read_bytes(),a.source,json.loads(a.scene.read_text()),schedule,folder,a.timer,a.sa1_mapping,a.foreground_stress,a.production_nmi_services,a.nmi_queue_bytes,a.foreground_wai,a.prepare_next_line,json.loads(a.control_traffic.read_text())if a.control_traffic else None,a.delta_control_traffic,a.controls_before_palette)
     production_sy=symbols(Path('src/main.sym'))if a.production_nmi_services else {}
     rom=folder/'proof.sfc';rom.write_bytes(raw);lua=folder/'observer.lua';lua.write_text(observer(sy,a.sa1_mapping,production_sy.get('DmaQueue',0),a.nmi_queue_bytes,a.control_traffic is not None))
     class Observed(McpSession):
@@ -266,7 +283,7 @@ def main():
     nmi_window=bool(nmi_contexts)and all(v[3]==v[5]and 225<=v[4]<=v[6]<262 for v in nmi_contexts)
     queue_identity=not a.production_nmi_services or(nmi_window and len(nmi_queues)>=2 and all(q[1]==0 and not(q[2]&64)for q in nmi_queues)and nmi_fields>=2 and nmi_context[0]>=2 and nmi_context[1]==0 and (not a.nmi_queue_bytes or sum(d[1]==24 and d[2]==a.nmi_queue_bytes for d in nmi_dmas)>=2))
     control_fields=[]
-    expected_controls={int(y):rows for y,rows in resources['control_traffic_rows'].items()}
+    expected_controls={int(y):[list(entry)for entry in rows]for y,rows in resources['control_traffic_rows'].items()}
     for frame in sorted({r[0]for r in register_writes}):
         seen={}
         for f,y,line,h,address,value in register_writes:
