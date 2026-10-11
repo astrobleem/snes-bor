@@ -13,11 +13,12 @@ from raster_slot_refine import verify_packets
 from raster_dma_partition import minimum_commit_span
 
 
-def point_partition(points):
+def point_partition(points,maximum_ranges=4):
+    if type(maximum_ranges)is not int or not 1<=maximum_ranges<=4:raise ValueError('PHYSICAL_PARTITION_RANGE_LIMIT')
     points=sorted(set(points))
     if not points:return 0,[]
     gaps=[(points[i+1]-points[i]-1,i)for i in range(len(points)-1)]
-    cuts=sorted(i for gap,i in sorted(gaps,reverse=True)[:3]if gap>=2)
+    cuts=sorted(i for gap,i in sorted(gaps,reverse=True)[:maximum_ranges-1]if gap>=2)
     groups=[];start=0
     for cut in cuts+[len(points)-1]:
         groups.append((points[start],points[cut]));start=cut+1

@@ -54,15 +54,29 @@ def derive(source,background,expected):
     return points,rows,[sorted(v)for v in tables],hint
 
 
-def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,necessary_bank_window=None,search_strategy='portfolio',reuse_exact_operands=False,repair_interval=None,complete_exact_operands=False,movable_pieces=None,probing_level=2):
+def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,necessary_bank_window=None,search_strategy='portfolio',reuse_exact_operands=False,repair_interval=None,complete_exact_operands=False,movable_pieces=None,probing_level=2,bank_class_scope=None,maximum_ranges=4,line_windows=None):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0 or type(maximum_writes)is not int or not 0<=maximum_writes<=120:raise ValueError('WINDOW_SLOT_DOMAIN')
     if search_strategy not in('portfolio','lns'):raise ValueError('WINDOW_SLOT_SEARCH_STRATEGY')
     if type(probing_level)is not int or probing_level not in(0,1,2):raise ValueError('WINDOW_SLOT_PROBING_LEVEL')
+    if type(maximum_ranges)is not int or not 1<=maximum_ranges<=4:raise ValueError('WINDOW_SLOT_RANGE_LIMIT')
+    if line_windows is not None:
+        if repair_interval is not None or any(type(y)is not int or y<0 or type(w)is not int or w<1 for y,w in line_windows.items()):raise ValueError('WINDOW_SLOT_LINE_WINDOWS')
     if necessary_bank_window is not None and(type(necessary_bank_window)is not int or necessary_bank_window<1):raise ValueError('WINDOW_SLOT_BANK_WINDOW_DOMAIN')
     points,rows,tables,hint=derive(source,background,expected);first,last=min(rows),max(rows);height=len(source['trace'])
+    if bank_class_scope is not None:
+        if type(bank_class_scope)is not int or bank_class_scope not in(0,1):raise ValueError('WINDOW_SLOT_BANK_CLASS_SCOPE')
+        if reuse_exact_operands or complete_exact_operands or repair_interval is not None:raise ValueError('WINDOW_SLOT_PARTIAL_SCOPE_ENCODING_COMBINATION')
+        points=[p for p in points if p['bank']//4==bank_class_scope]
+        if not points:raise ValueError('WINDOW_SLOT_EMPTY_BANK_CLASS_SCOPE')
+        rows={y:[p for p in points if p['y']==y]for y in sorted({p['y']for p in points})};first,last=min(rows),max(rows)
+        for b in range(8):
+            if b//4!=bank_class_scope:
+                tables[b]=[0]
+                for state in hint:state[b]=[0]*15
     movable=set(movable_pieces or[])
     if any(type(i)is not int or not 0<=i<len(source['pieces'])for i in movable):raise ValueError('WINDOW_SLOT_MOVABLE_PIECES')
+    if bank_class_scope is not None:movable={i for i in movable if source['pieces'][i]['bank']//4==bank_class_scope}
     if movable and(reuse_exact_operands or complete_exact_operands or repair_interval is not None):raise ValueError('WINDOW_SLOT_BANK_SEARCH_ENCODING_COMBINATION')
     bank_options={i:sorted(set(range(4*(p['bank']//4),4*(p['bank']//4)+4))&set(p.get('allowed_banks',range(8))))if i in movable else[p['bank']]for i,p in enumerate(source['pieces'])}
     for group in(0,4):
@@ -215,11 +229,24 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
                 a=model.new_bool_var(f'activeBank{y}_{b}');model.add(n>=a);model.add(n<=15*a);active.append(a)
             constrain_dp(model,counts,active,necessary_bank_window,f'windowBank{y}',4)
     packet_hints={r['scanline']:sorted((p['cgram_word_address']-128,p['cgram_word_address']-129+p['word_count'])for p in r['packets'])for r in source.get('prepared_dma_packets',[])}
-    line_windows=None
+    if bank_class_scope is not None:
+        # The full-frame packet union includes the excluded class. Rebuild
+        # the partial hint from actual resident changes, so an otherwise
+        # feasible partial witness is not given an oversized coverage hint.
+        packet_hints={}
+        for y in range(first+1,last+1):
+            addresses=[16*b+s+1 for b in range(4*bank_class_scope,4*bank_class_scope+4)for s in range(15)if hint[y][b][s]!=hint[y-1][b][s]]
+            packet_hints[y]=point_partition(addresses,maximum_ranges)[1]
     if repair_interval is not None:
         line_windows={r['scanline']:window if repair_interval[0]<=r['scanline']<=min(last,repair_interval[1]+1)else max(window,r['prepared_commit_span']+1)for r in source['prepared_dma_packets']}
-    ranges,peak=constrain_fixed_addresses(model,flags,height,4,window,packet_hints=packet_hints or None,line_windows=line_windows)
+    ranges,peak=constrain_fixed_addresses(model,flags,height,maximum_ranges,window,packet_hints=packet_hints or None,line_windows=line_windows)
     costs=[sum(24*a+16*n for(line,r),(a,begin,end,n)in ranges.items()if line==y)for y in range(first+1,last+1)]
+    if line_windows is not None and repair_interval is None:
+        # The reserved cost is the difference from the largest line budget.
+        # Optimize the joint peak rather than moving our peak onto the other
+        # bank class's busiest line. Independent packet replay is still required.
+        largest=max([window,*line_windows.values()])
+        for y,cost in zip(range(first+1,last+1),costs):model.add(peak>=cost+largest-line_windows.get(y,window))
     model.minimize(peak*(4096*len(costs)+1)+sum(costs))
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     solver.parameters.cp_model_probing_level=probing_level
@@ -236,6 +263,8 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         resident_exact_operand_reuse_enabled=reuse_exact_operands,pixels_with_multiple_exact_operand_choices=alternative_pixels,
         complete_rgb555_operand_covers=cover_reports,
         repair_interval=repair_interval,
+        bank_class_scope=bank_class_scope,outside_bank_class_pixels_relaxed=bank_class_scope is not None,
+        maximum_ranges=maximum_ranges,line_windows=line_windows,
         native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return dict(report,status='BOUNDED_WINDOW_SLOT_NO_CANDIDATE')
     assignment={i:next(b for b in bank_options[i]if solver.value(bank_choices[i,b]))for i in movable}
@@ -260,7 +289,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         trace.append(dict(scanline=y,resident_before=copy.deepcopy(old),retained={b:[c for c in old[b]if c is not None and c in state[b]]for b in range(8)},
             evicted=[e['old']for e in events if e['old']is not None],prefetched=[e for e in events if e['kind']=='prefetch'],updates=events,
             colors_written=len(events),cgram_data_bytes=2*len(events),affected_banks=sorted({e['bank']for e in events})))
-        span,groups=point_partition([16*e['bank']+e['slot']for e in events]if y else[])
+        span,groups=point_partition([16*e['bank']+e['slot']for e in events]if y else[],maximum_ranges)
         physical=[0 if s==0 else state[b][s-1]for b in range(8)for s in range(16)]
         packets.append(dict(scanline=y,prepared_commit_span=span,packets=[dict(cgram_word_address=128+lo,word_count=hi-lo+1,data_hex=b''.join(physical[a].to_bytes(2,'little')for a in range(lo,hi+1)).hex())for lo,hi in groups]))
         if any(line==y for line,x in gates):windows[str(y)]=compile_sparse_mask({x:solver.value(gate)for(line,x),gate in gates.items()if line==y})
@@ -272,7 +301,9 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         changed_operands+=word!=p['old_word'];changed_gates+=enabled!=p['old_gate']
         slot=states[y][b].index(word)+1;images[p['piece']][p['ly'],p['lx']]=slot;indices[y,x]=128+16*b+slot
         replay[y,x]=apply_math(word,int(background[y,x]),source['selected_modes'][str(y)])if enabled else word
-    if not np.array_equal(replay,expected):raise AssertionError('WINDOW_SLOT_COMPLETE_OUTPUT_FRAME_REPLAY')
+    if bank_class_scope is None:
+        if not np.array_equal(replay,expected):raise AssertionError('WINDOW_SLOT_COMPLETE_OUTPUT_FRAME_REPLAY')
+    elif any(replay[p['y'],p['x']]!=expected[p['y'],p['x']]for p in points):raise AssertionError('WINDOW_SLOT_PARTIAL_PIXEL_REPLAY')
     result=copy.deepcopy(source);masks=[]
     for i,b in assignment.items():result['pieces'][i]['bank']=b
     report['selected_fixed_piece_bank_assignment']=assignment
@@ -307,6 +338,12 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
     result.update(physical_slot_layout=report,compiled_indices_sha256=hashlib.sha256(indices.tobytes()).hexdigest(),
         input_compiled_schedule_sha256=source.get('compiled_schedule_sha256'),compiled_schedule_sha256=hashlib.sha256(json.dumps(dict(pieces=result['pieces'],pixel_masks=masks,trace=trace,selected_modes=result['selected_modes'],compiled_color_window_descriptors=windows),sort_keys=True).encode()).hexdigest(),
         compiled_transfer_descriptor_sha256=hashlib.sha256(json.dumps(packets,sort_keys=True).encode()).hexdigest())
+    if bank_class_scope is not None:
+        report.update(status='RESTRICTED_BANK_CLASS_PALETTE_SCHEDULE',complete_source_frame_pixel_identity_proven=False,
+                      original_complete_source_input_verified=True,included_source_pixel_identity_proven=True)
+        result.update(status='RESTRICTED_BANK_CLASS_PALETTE_SCHEDULE',compiled_pixel_identity_verified=False,
+                      complete_source_frame_pixel_identity_proven=False,restricted_pixel_identity_verified=True,
+                      outside_bank_class_pixels_relaxed=True,bank_class_scope=bank_class_scope,original_complete_source_input_verified=True)
     return result
 
 
@@ -320,6 +357,8 @@ def main():
     p.add_argument('--complete-exact-operands',action='store_true')
     p.add_argument('--movable-pieces',type=int,nargs='+')
     p.add_argument('--probing-level',type=int,choices=(0,1,2),default=2)
+    p.add_argument('--bank-class-scope',type=int,choices=(0,1))
+    p.add_argument('--maximum-ranges',type=int,choices=(1,2,3,4),default=4);p.add_argument('--line-windows',type=Path)
     a=p.parse_args()
     from compiler import Source
     from source_scene_obj_raster import prepare
@@ -329,7 +368,7 @@ def main():
     _,metadata,expected=prepare(source,a.stage,scene)
     if schedule['metadata']!=metadata:raise ValueError('WINDOW_SLOT_SOURCE_METADATA_IDENTITY')
     background=rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0])
-    result=optimize(schedule,background,rgb555(expected),a.window,a.time_limit,a.maximum_writes,a.necessary_bank_window,a.search_strategy,a.reuse_exact_operands,a.repair_interval,a.complete_exact_operands,a.movable_pieces,a.probing_level)
+    result=optimize(schedule,background,rgb555(expected),a.window,a.time_limit,a.maximum_writes,a.necessary_bank_window,a.search_strategy,a.reuse_exact_operands,a.repair_interval,a.complete_exact_operands,a.movable_pieces,a.probing_level,a.bank_class_scope,a.maximum_ranges,{int(y):w for y,w in json.loads(a.line_windows.read_text()).items()}if a.line_windows else None)
     Path(a.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('physical_slot_layout',result)))
 
 

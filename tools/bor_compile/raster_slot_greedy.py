@@ -30,6 +30,7 @@ def partition(bounds,maximum_ranges=4):
 def demand(schedule,allow_restricted=False,allow_geometry_hint=False):
     full=schedule.get('status')=='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN'and schedule.get('compiled_pixel_identity_verified')
     restricted=allow_restricted and schedule.get('status')=='RESTRICTED_SCANLINE_DEMAND_ONLY'and schedule.get('restricted_pixel_identity_verified')and schedule.get('outside_interval_pixels_relaxed')and not schedule.get('complete_source_frame_pixel_identity_proven')
+    restricted=restricted or(allow_restricted and schedule.get('status')=='RESTRICTED_BANK_CLASS_PALETTE_SCHEDULE'and schedule.get('restricted_pixel_identity_verified')and schedule.get('outside_bank_class_pixels_relaxed')and schedule.get('original_complete_source_input_verified')and schedule.get('bank_class_scope')in(0,1)and not schedule.get('complete_source_frame_pixel_identity_proven')and not schedule.get('compiled_pixel_identity_verified'))
     geometry_hint=allow_geometry_hint and schedule.get('status')=='SOURCE_EXACT_GEOMETRY_SEARCH_HINT'and schedule.get('compiled_pixel_identity_verified')and schedule.get('source_operand_identity_verified')and not schedule.get('hardware_geometry_admitted')and not schedule.get('native_presentation_proven')
     if not(full or restricted or geometry_hint):
         raise ValueError('GREEDY_VALIDATED_SOURCE_SCHEDULE_REQUIRED')

@@ -121,3 +121,20 @@ Emitted CHR/OAM replay verifies the actual tile footprint: the original
 80-piece layout uses 6400 bytes and the 104-piece subdivision uses 6304 bytes,
 both with 163 unique tile patterns. These fit the isolated OBJ region. This
 does not admit animation upload bandwidth or production VRAM leases.
+
+Bank-class decomposition now supports explicit partial schedules, bounded
+physical ranges and per-line budgets. Partial output masks exclude the other
+class and clear complete-frame proof flags. Ordinary schedule consumers reject
+these outputs unless they explicitly request restricted demand. A generic
+recombiner validates both classes against the same complete source schedule,
+fixed piece geometry and bank eligibility, then replays every source pixel,
+transparency mask and physical CGRAM packet. Its trace reports retained,
+evicted, prefetched and written words with future-use latency.
+
+Independent loose class schedules recombine to a source-exact complete frame,
+but need 632 clocks, 24 writes and 72 transfer bytes at peak. This misses the
+strict 337-clock gate and is worse than the retained 472-clock witness. It
+proves recombination correctness, not native admission or raster infeasibility.
+Thirty-six focused tests pass; nine window-scheduler tests also pass after
+adding the reserved-cost objective for coordinated line budgets. The width
+audit and all seventeen protected fingerprints remain clean.

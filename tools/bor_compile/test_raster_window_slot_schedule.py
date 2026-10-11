@@ -10,6 +10,41 @@ from test_raster_slot_layout import SlotLayoutTests
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class WindowSlotTests(unittest.TestCase):
+    def test_range_limit_and_line_windows_replay(self):
+        from raster_physical_relabel import point_partition
+        self.assertEqual(point_partition([1,15,31],1),(480,[(1,31)]))
+        self.assertEqual(len(point_partition([1,15,31],2)[1]),2)
+        source,bg,expected=self.source()
+        result=optimize(source,bg,expected,time_limit=5,maximum_writes=0,maximum_ranges=1,line_windows={y:1 for y in range(1,len(source['trace']))})
+        self.assertTrue(result['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
+        self.assertTrue(all(not row['packets']for row in result['prepared_dma_packets']))
+        with self.assertRaisesRegex(ValueError,'LINE_WINDOWS'):optimize(source,bg,expected,line_windows={1:0})
+
+    def test_bank_class_relaxation_cannot_be_consumed_as_full_frame_proof(self):
+        source,bg,expected=self.source();p=copy.deepcopy(source['pieces'][0]);p.update(x=16,bank=0)
+        source['pieces'].append(p);image=np.zeros((8,8),dtype=np.uint8);image[0,0]=1;flat=image.flatten()
+        source['piece_pixel_masks'].append(dict(width=8,height=8,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
+        for y,row in enumerate(source['trace']):
+            if y:row['resident_before'][0][0]=1
+            else:row['updates'].append(dict(bank=0,slot=1,old=None,color=1))
+        expected[0,16]=1;source['source_rgb555_sha256']=hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest()
+        result=optimize(source,bg,expected,time_limit=5,maximum_writes=0,bank_class_scope=1)
+        verify_packets(result)
+        self.assertFalse(result['compiled_pixel_identity_verified'])
+        self.assertFalse(result['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
+        self.assertTrue(result['physical_slot_layout']['included_source_pixel_identity_proven'])
+        with self.assertRaisesRegex(ValueError,'VALIDATED_SOURCE'):demand(result)
+        self.assertTrue(np.all(demand(result,allow_restricted=True)[2][1]<0))
+        from raster_bank_class_combine import combine
+        lower=optimize(source,bg,expected,time_limit=5,maximum_writes=0,bank_class_scope=0)
+        combined=combine(source,[lower,result],bg,expected)
+        verify_packets(combined);demand(combined)
+        self.assertTrue(combined['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
+        self.assertTrue(combined['physical_slot_layout']['target_window_met_by_all_packets'])
+        self.assertFalse(combined['physical_slot_layout']['native_timing_admitted'])
+        wrong=copy.deepcopy(lower);wrong['source_rgb555_sha256']='bad'
+        with self.assertRaisesRegex(ValueError,'SOURCE_IDENTITY'):combine(source,[wrong,result],bg,expected)
+
     def test_movable_piece_keeps_math_class_capacity_liveness(self):
         source,_,_=self.source();source['pieces'][0]['bank']=0
         image=np.tile(np.arange(1,9,dtype=np.uint8),(8,1));flat=image.flatten()
