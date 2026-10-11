@@ -1,0 +1,1079 @@
+{
+  "schema": "BYOR_DENSE_SLOT_MATCHING_RECEIPT_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "best_complete_physical_span": 472,
+  "peak_actual_writes": 21,
+  "ideal_peak_for_physical_witness": 400,
+  "native_tested_window": 336,
+  "native_gate_met": false,
+  "free_residency_native_gate_status": "UNKNOWN",
+  "authored_native_raster_proven": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true,
+  "focused_tests_passed": 34,
+  "focused_tests_seconds": 21.894,
+  "dense_full_bank_boundary_fixture_passed": true,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "trials": [
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-original-span336-lifetimes-aggregate-time-refined.json",
+      "sha256": "c17b8fcc8357dba35e27c3f6616cde787613573bb32e041cad17ccce9d313046",
+      "report": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 45.0104539,
+        "solver_search_strategy": "lns",
+        "solver_objective": "PEAK_THEN_TOTAL_TRANSFER_COST",
+        "lifetime_segments": 512,
+        "window_master_clocks": 473,
+        "maximum_ranges": 4,
+        "input_schedule_noninitial_prefetch_latency_lines": 16,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 512,
+        "flexible_prefetch": true,
+        "lookahead_lines": 16,
+        "hint_time_radius_lines": 3,
+        "necessary_bank_window_master_clocks": null,
+        "demand_gap_lines": null,
+        "idle_prefix_collapsed": true,
+        "first_visible_source_line": 112,
+        "layout_hint_used": true,
+        "reorder_banks": false,
+        "fixed_hint_slots": false,
+        "permute_hint_slots": false,
+        "retain_write_times": false,
+        "lifetime_repair_interval": null,
+        "movable_complete_lifetimes": 0,
+        "rectangle_lifetimes": true,
+        "persistent_color_slots": false,
+        "split_bank_ranges": true,
+        "paired_bank_ranges": false,
+        "fixed_slot_write_times_pruned": 0,
+        "solver_model_variables": 11779,
+        "solver_model_constraints": 31155,
+        "solver_branches": 0,
+        "solver_conflicts": 0,
+        "solver_probing_level": 0,
+        "solver_sat_inprocessing": false,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        },
+        "initial_palette_may_preload_entire_frame": true,
+        "maximum_noninitial_prefetch_latency_lines": 15,
+        "peak_prepared_commit_span": 472,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true
+      },
+      "peak_actual_writes": 21,
+      "peak_ideal_bank_span": 400,
+      "aggregate_physical_span": 9024
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-original-span336-lifetimes-aggregate-wide-radius4.json",
+      "sha256": "a1489e91d277bda6cd50831a53bcf83784579c009a7052e8eb4799362d21a675",
+      "report": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 50.0208784,
+        "solver_search_strategy": "lns",
+        "solver_objective": "PEAK_THEN_TOTAL_TRANSFER_COST",
+        "lifetime_segments": 512,
+        "window_master_clocks": 473,
+        "maximum_ranges": 4,
+        "input_schedule_noninitial_prefetch_latency_lines": 15,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 512,
+        "flexible_prefetch": true,
+        "lookahead_lines": 16,
+        "hint_time_radius_lines": 4,
+        "necessary_bank_window_master_clocks": null,
+        "demand_gap_lines": null,
+        "idle_prefix_collapsed": true,
+        "first_visible_source_line": 112,
+        "layout_hint_used": true,
+        "reorder_banks": false,
+        "fixed_hint_slots": false,
+        "permute_hint_slots": false,
+        "retain_write_times": false,
+        "lifetime_repair_interval": null,
+        "movable_complete_lifetimes": 0,
+        "rectangle_lifetimes": true,
+        "persistent_color_slots": false,
+        "split_bank_ranges": true,
+        "paired_bank_ranges": false,
+        "fixed_slot_write_times_pruned": 0,
+        "solver_model_variables": 13914,
+        "solver_model_constraints": 37560,
+        "solver_branches": 109,
+        "solver_conflicts": 0,
+        "solver_probing_level": 0,
+        "solver_sat_inprocessing": false,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        },
+        "initial_palette_may_preload_entire_frame": true,
+        "maximum_noninitial_prefetch_latency_lines": 15,
+        "peak_prepared_commit_span": 472,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true
+      },
+      "peak_actual_writes": 21,
+      "peak_ideal_bank_span": 400,
+      "aggregate_physical_span": 8984
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-original-span336-matching-domain-free-gate.json",
+      "sha256": "e99e820afedc12afdb7bb537ab8348231461f89cde8b6e689db330818659d1e3",
+      "report": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 50.189542,
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "persistent_word_index_family_only": false,
+        "solver_model_variables": 36283,
+        "solver_model_constraints": 62135,
+        "solver_branches": 198749,
+        "solver_conflicts": 0,
+        "solver_objective_lower_bound": 304.0,
+        "maximum_physical_writes_per_transfer_row": 21,
+        "necessary_bank_window_master_clocks": 337,
+        "full_frame_write_budget_enforced": true,
+        "objective_peak_scale": 1,
+        "peak_commit_span_lower_bound_for_this_restricted_model": 264,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": false,
+        "window_master_clocks": 337,
+        "requested_repair_window_master_clocks": null,
+        "physical_repair_interval": null,
+        "physical_repair_transfer_interval": null,
+        "full_frame_transfer_window_enforced": true,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "physical_change_and_range_membership_hints_coherent": true,
+        "distinct_required_word_slot_matching_enforced": true,
+        "full_bank_demand_value_matching_enforced": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+        "bank_interval_liveness_cuts": 7413,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 54,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          166
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-original-span336-matching-free-physical.json",
+      "sha256": "b99909404136066fa73a2f0635812867066ac344b7a120f2aed02ca5896f2494",
+      "report": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 45.1567974,
+        "solver_search_strategy": "lns",
+        "physical_range_encoding": "coverage",
+        "persistent_word_index_family_only": false,
+        "solver_model_variables": 36283,
+        "solver_model_constraints": 62135,
+        "solver_branches": 198275,
+        "solver_conflicts": 0,
+        "solver_objective_lower_bound": 0.0,
+        "maximum_physical_writes_per_transfer_row": 21,
+        "necessary_bank_window_master_clocks": 337,
+        "full_frame_write_budget_enforced": true,
+        "objective_peak_scale": 1,
+        "peak_commit_span_lower_bound_for_this_restricted_model": 0,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "window_master_clocks": 537,
+        "requested_repair_window_master_clocks": null,
+        "physical_repair_interval": null,
+        "physical_repair_transfer_interval": null,
+        "full_frame_transfer_window_enforced": true,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "physical_change_and_range_membership_hints_coherent": true,
+        "distinct_required_word_slot_matching_enforced": true,
+        "full_bank_demand_value_matching_enforced": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+        "bank_interval_liveness_cuts": 7413,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 54,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          166
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "packet_ranges_independently_minimized": true,
+        "peak_prepared_commit_span": 536,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        }
+      },
+      "peak_actual_writes": 19,
+      "peak_ideal_bank_span": 336,
+      "aggregate_physical_span": 12424
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-fixed-bank-mode-alternatives.json",
+      "sha256": "8bd49cb9eccee4445f35423cc27ddb2c590a111c5b79d7833d989ed4186d63f8",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_EXACT_MODE_ALTERNATIVES_V1",
+        "rows": [
+          {
+            "scanline": 112,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add",
+              "subtract"
+            ]
+          },
+          {
+            "scanline": 113,
+            "original_mode": "half-add",
+            "valid_modes": [
+              "add",
+              "half-add",
+              "subtract",
+              "half-subtract"
+            ]
+          },
+          {
+            "scanline": 114,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 115,
+            "original_mode": "subtract",
+            "valid_modes": [
+              "add",
+              "half-add",
+              "subtract",
+              "half-subtract"
+            ]
+          },
+          {
+            "scanline": 116,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 117,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 118,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 119,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 120,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 121,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 122,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 123,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 124,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 125,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 126,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 127,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 128,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 129,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 130,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 131,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 132,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 133,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 134,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 135,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 136,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 137,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 138,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 139,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 140,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 141,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 142,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 143,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 144,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 145,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 146,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "subtract"
+            ]
+          },
+          {
+            "scanline": 147,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 148,
+            "original_mode": "add",
+            "valid_modes": [
+              "add"
+            ]
+          },
+          {
+            "scanline": 149,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 150,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 151,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 152,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 153,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 154,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 155,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 156,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 157,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 158,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 159,
+            "original_mode": "half-add",
+            "valid_modes": [
+              "add",
+              "half-add"
+            ]
+          },
+          {
+            "scanline": 160,
+            "original_mode": "half-subtract",
+            "valid_modes": [
+              "add",
+              "half-add",
+              "subtract",
+              "half-subtract"
+            ]
+          },
+          {
+            "scanline": 161,
+            "original_mode": "subtract",
+            "valid_modes": [
+              "add",
+              "half-add",
+              "subtract",
+              "half-subtract"
+            ]
+          },
+          {
+            "scanline": 162,
+            "original_mode": "subtract",
+            "valid_modes": [
+              "add",
+              "half-add",
+              "subtract",
+              "half-subtract"
+            ]
+          },
+          {
+            "scanline": 163,
+            "original_mode": "half-add",
+            "valid_modes": [
+              "add",
+              "half-add",
+              "subtract",
+              "half-subtract"
+            ]
+          },
+          {
+            "scanline": 164,
+            "original_mode": "subtract",
+            "valid_modes": [
+              "add",
+              "half-add",
+              "subtract",
+              "half-subtract"
+            ]
+          },
+          {
+            "scanline": 165,
+            "original_mode": "half-add",
+            "valid_modes": [
+              "add",
+              "half-add",
+              "subtract",
+              "half-subtract"
+            ]
+          },
+          {
+            "scanline": 166,
+            "original_mode": "add",
+            "valid_modes": [
+              "add",
+              "half-add",
+              "subtract",
+              "half-subtract"
+            ]
+          }
+        ],
+        "multiple_modes_rows": 27,
+        "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+        "fixed_bank_row_capacity_verified": true,
+        "source_pixel_math_verified": true,
+        "no_color_reduction": true,
+        "native_presentation_proven": false
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-physical-bank-move-probe.json",
+      "sha256": "01f761fbfe05db0c8d818a56ff980415339e251dd3690e3b2957e9e5aab0c5b9",
+      "report": {
+        "schema": "BOUNDED_PHYSICAL_BANK_MOVE_PROBE",
+        "trials": [
+          {
+            "piece": 76,
+            "new_bank": 7,
+            "critical_row_color_uses": 81,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+              "failed_scanline": 132,
+              "failed_bank": 6,
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true
+            }
+          },
+          {
+            "piece": 53,
+            "new_bank": 0,
+            "critical_row_color_uses": 79,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+              "failed_scanline": 132,
+              "failed_bank": 6,
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true
+            }
+          },
+          {
+            "piece": 58,
+            "new_bank": 7,
+            "critical_row_color_uses": 68,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+              "failed_scanline": 135,
+              "failed_bank": 7,
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true
+            }
+          },
+          {
+            "piece": 67,
+            "new_bank": 7,
+            "critical_row_color_uses": 63,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+              "failed_scanline": 132,
+              "failed_bank": 5,
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true
+            }
+          },
+          {
+            "piece": 41,
+            "new_bank": 3,
+            "critical_row_color_uses": 60,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+              "failed_scanline": 143,
+              "failed_bank": 6,
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true
+            }
+          },
+          {
+            "piece": 41,
+            "new_bank": 0,
+            "critical_row_color_uses": 60,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+              "failed_scanline": 135,
+              "failed_bank": 6,
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true
+            }
+          },
+          {
+            "piece": 64,
+            "new_bank": 7,
+            "critical_row_color_uses": 55,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+              "failed_scanline": 134,
+              "failed_bank": 6,
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true
+            }
+          },
+          {
+            "piece": 64,
+            "new_bank": 6,
+            "critical_row_color_uses": 55,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+              "failed_scanline": 130,
+              "failed_bank": 6,
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true
+            }
+          },
+          {
+            "piece": 69,
+            "new_bank": 7,
+            "critical_row_color_uses": 54,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+              "failed_scanline": 133,
+              "failed_bank": 5,
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true
+            }
+          },
+          {
+            "piece": 45,
+            "new_bank": 0,
+            "critical_row_color_uses": 46,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+              "failed_scanline": 132,
+              "failed_bank": 5,
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true
+            }
+          },
+          {
+            "piece": 43,
+            "new_bank": 3,
+            "critical_row_color_uses": 33,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+              "failed_scanline": 133,
+              "failed_bank": 6,
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true
+            }
+          },
+          {
+            "piece": 43,
+            "new_bank": 1,
+            "critical_row_color_uses": 33,
+            "report": {
+              "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+              "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+              "seed": 0,
+              "beam": 4,
+              "lookahead_lines": 16,
+              "window_master_clocks": 537,
+              "peak_prepared_commit_span": 536,
+              "peak_ranges": 4,
+              "maximum_noninitial_prefetch_latency_lines": 13,
+              "initial_palette_may_preload_entire_frame": true,
+              "color_reload_events": 132,
+              "pixel_color_identity_verified": true,
+              "all_packet_cgram_identities_verified": true,
+              "fixed_piece_bank_permutation": {
+                "0": 0,
+                "1": 1,
+                "2": 2,
+                "3": 3,
+                "4": 4,
+                "5": 5,
+                "6": 6,
+                "7": 7
+              },
+              "universal_raster_rejected": false,
+              "native_timing_admitted": false,
+              "no_color_reduction": true,
+              "global_beam": 1,
+              "interval_repacking_enabled": false,
+              "peak_packet_data_bytes": 66,
+              "peak_dma_chain_channels": 7
+            }
+          }
+        ],
+        "legal_single_moves": 216,
+        "seconds": 31.234000000171363,
+        "no_color_reduction": true,
+        "universal_raster_rejected": false
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-physical-bank-move-lifetimes.json",
+      "sha256": "628b89f234209574d175ec8b13cddd830fe75f287a1a50c0d8042daaf1c1a16f",
+      "report": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 45.040600700000006,
+        "solver_search_strategy": "lns",
+        "solver_objective": "PEAK_THEN_TOTAL_TRANSFER_COST",
+        "lifetime_segments": 572,
+        "window_master_clocks": 537,
+        "maximum_ranges": 4,
+        "input_schedule_noninitial_prefetch_latency_lines": 13,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 572,
+        "flexible_prefetch": true,
+        "lookahead_lines": 16,
+        "hint_time_radius_lines": 2,
+        "necessary_bank_window_master_clocks": null,
+        "demand_gap_lines": null,
+        "idle_prefix_collapsed": true,
+        "first_visible_source_line": 112,
+        "layout_hint_used": true,
+        "reorder_banks": false,
+        "fixed_hint_slots": false,
+        "permute_hint_slots": false,
+        "retain_write_times": false,
+        "lifetime_repair_interval": null,
+        "movable_complete_lifetimes": 0,
+        "rectangle_lifetimes": true,
+        "persistent_color_slots": false,
+        "split_bank_ranges": true,
+        "paired_bank_ranges": false,
+        "fixed_slot_write_times_pruned": 0,
+        "solver_model_variables": 11063,
+        "solver_model_constraints": 28659,
+        "solver_branches": 0,
+        "solver_conflicts": 0,
+        "solver_probing_level": 0,
+        "solver_sat_inprocessing": false,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        },
+        "initial_palette_may_preload_entire_frame": true,
+        "maximum_noninitial_prefetch_latency_lines": 13,
+        "peak_prepared_commit_span": 520,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true
+      },
+      "peak_actual_writes": 27,
+      "peak_ideal_bank_span": 496,
+      "aggregate_physical_span": 9312
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-physical-bank-move-lp.json",
+      "sha256": "2ccc95eb95c622a0dc75162c47a938934e63f0c6f65161fa11d12f116064fcf6",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 24485,
+        "constraints": 12421,
+        "lookahead_lines": 16,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 18.142857142857142,
+        "validated_dual_lower_bound": 18.142857142857135,
+        "maximum_primal_violation": 7.105427357601002e-15,
+        "maximum_dual_residual": 2.220446049250313e-16
+      }
+    },
+    {
+      "path": "out\\byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-original-bank-physical-phase-lp-refined.json",
+      "sha256": "093b923234a880165a1520b6ddcb1ed2e33ae4320471a270a51ec053d48ec95c",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_LP_REFINEMENT_V1",
+        "initial_validated_lower_bound": 16.999999999999996,
+        "final_validated_lower_bound": 16.999999999999996,
+        "seed": 411,
+        "maximum_trials": 32,
+        "dual_guidance": true,
+        "swap_proposals": true,
+        "seconds": 14.953999999910593,
+        "source_pixel_identity_preserved": true,
+        "geometry_unchanged": true,
+        "lower_bound_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "trials_evaluated": 32,
+        "accepted": 0
+      },
+      "peak_actual_writes": 21,
+      "peak_ideal_bank_span": 400,
+      "aggregate_physical_span": 9024
+    }
+  ]
+}

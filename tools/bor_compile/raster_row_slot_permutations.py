@@ -65,6 +65,9 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
             hint_colors=[word_codes[b][0 if c is None else c]for c in hinted[y][b]]
             ranks=[];domain=sorted(word_codes[b][c]for c in set(uses[b])|{0})if free_residency and restricted else list(range(len(word_tables[b])))if free_residency else sorted(set(colors))
             if repair_interval is not None and repair_interval[0]<=y<=repair_interval[1]:domain=repair_domains[b]
+            if free_residency and len(required[y][b])==15:
+                # A completely demanded bank has no spare resident identity.
+                domain=sorted(word_codes[b][c]for c in required[y][b])
             for s in range(15):
                 if repair_interval is not None and not repair_interval[0]<=y<=repair_interval[1]:
                     values[y,b,s]=model.new_constant(hint_colors[s])
@@ -101,6 +104,7 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
                     flags.setdefault((y,b),[]).append((b*15+s,changed))
             if repair_interval is not None and not repair_interval[0]<=y<=repair_interval[1]:continue
             if free_residency:
+                required_indices=[]
                 for word in sorted(required[y][b]):
                     c=word_codes[b][word]
                     if persistent_word_indices:
@@ -110,7 +114,13 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
                         index=persistent_indices[b,word]
                     else:index=model.new_int_var(0,14,f'requiredIndex{y}_{b}_{c}')
                     model.add_element(index,[values[y,b,s]for s in range(15)],c)
+                    required_indices.append(index)
                     if not persistent_word_indices:model.add_hint(index,(hint_colors if c in hint_colors else colors).index(c))
+                # Distinct source words necessarily occupy distinct selected
+                # slots. Make the matching explicit so Hall-set propagation
+                # can prune dense rows without excluding duplicate residents.
+                if len(required_indices)>1:model.add_all_different(required_indices)
+                if len(required_indices)==15:model.add_all_different([values[y,b,s]for s in range(15)])
             else:model.add_all_different(ranks)
     prefixes={};interval_cuts=0;prefix_hints={}
     for b in range(8):
@@ -182,6 +192,8 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
         physical_repair_transfer_interval=list(transfer_interval)if transfer_interval is not None else None,full_frame_transfer_window_enforced=repair_interval is None and not restricted,
         physical_layout_hint_used=layout_hint is not None,fixed_resident_sets=not free_residency,live_slot_moves_allowed=True,free_residency=free_residency,
         physical_change_and_range_membership_hints_coherent=True,
+        distinct_required_word_slot_matching_enforced=free_residency,
+        full_bank_demand_value_matching_enforced=free_residency,
         repair_color_domain_pruned_to_demands_and_boundary_residents=repair_interval is not None,
         bank_interval_liveness_cuts=interval_cuts,palette_word_domain_dense_identity_codes=True,
         lookahead_lines=last-first,noninitial_dead_word_writes_charged=True,

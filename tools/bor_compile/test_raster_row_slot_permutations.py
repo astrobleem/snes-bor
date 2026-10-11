@@ -7,6 +7,31 @@ import test_raster_slot_layout as fixtures
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class RowSlotPermutationTests(unittest.TestCase):
+    def test_dense_bank_rows_match_fifteen_words_and_preserve_opaque_zero(self):
+        import copy
+        from raster_slot_refine import verify_packets
+        source=fixtures.SlotLayoutTests().schedule()
+        piece=dict(source['pieces'][0],width=16,height=16)
+        image=np.zeros((16,16),dtype=np.uint8);image[:2,:15]=np.arange(1,16,dtype=np.uint8)
+        flat=image.flatten();source['pieces']=[piece]
+        source['piece_pixel_masks']=[dict(width=16,height=16,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex())]
+        state={b:[None]*15 for b in range(8)};trace=[]
+        for y in range(16):
+            before=copy.deepcopy(state);events=[]
+            if y<2:
+                for slot in range(15):
+                    color=15*y+slot;events.append(dict(bank=0,slot=slot+1,old=state[0][slot],color=color));state[0][slot]=color
+            trace.append(dict(scanline=y,resident_before=before,updates=events))
+        source['trace']=trace
+        result=optimize(source,225,5,free_residency=True,maximum_writes=15,range_encoding='coverage')
+        verify_packets(result)
+        self.assertEqual(result['physical_slot_layout']['peak_prepared_commit_span'],224)
+        self.assertTrue(result['physical_slot_layout']['distinct_required_word_slot_matching_enforced'])
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        self.assertEqual(demand(result)[2][0][0,0],0)
+        rejected=optimize(source,224,5,free_residency=True,maximum_writes=15,range_encoding='coverage')
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+
     def test_necessary_bank_window_charges_all_physical_changes(self):
         from test_raster_slot_greedy import source_schedule
         from raster_bank_residency import favorable_span
