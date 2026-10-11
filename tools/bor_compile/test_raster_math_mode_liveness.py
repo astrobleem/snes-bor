@@ -3,6 +3,18 @@ from raster_math_mode_liveness import lower_bound,verify_integer_pool
 
 
 class ModeLivenessTests(unittest.TestCase):
+    def test_fixed_initial_cache_cannot_gain_free_colors_at_segment_boundary(self):
+        rows=[{'a':{(1,())}},{'a':{(2,())}}]
+        opts=dict(capacities=(2,0),integer_modes=True,integer_palette=True,integer_backend='cp-sat',time_limit=5)
+        resident=lower_bound(rows,initial_state={0:[1,2],1:[]},**opts)
+        self.assertEqual(resident['peak_replayed_pool_writes'],0)
+        loaded=lower_bound(rows,initial_state={0:[1],1:[]},**opts)
+        self.assertEqual(loaded['peak_replayed_pool_writes'],1)
+        self.assertFalse(loaded['optimal_initial_residency_allowed'])
+        loaded['selected_palette_residency'][0][0]=[1,2]
+        with self.assertRaisesRegex(AssertionError,'INITIAL_STATE'):verify_integer_pool(loaded,rows,(2,0))
+        with self.assertRaisesRegex(ValueError,'INITIAL_STATE_DOMAIN'):lower_bound(rows,capacities=(1,0),initial_state={0:[1,2],1:[]})
+
     def test_required_normal_rows_are_fixed_without_reserving_whole_frame_union(self):
         rows=[{'a':set()},{'a':{(2,(2,))}}]
         report=lower_bound(rows,capacities=(1,1),required_normal_rows={0:{0},1:{1}},time_limit=5)

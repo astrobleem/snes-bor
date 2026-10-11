@@ -6,6 +6,21 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_literal_ordinary_actors_share_one_fixed_bank(self):
+        background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy();actors=[]
+        for i in range(2):
+            pixels=np.full((8,8),-1,dtype=np.int32);pixels[0,:4]=np.arange(1+i*4,5+i*4)
+            actors.append(dict(pixels=pixels,left=i*8,top=0,metadata=dict(alpha=0)))
+            expected[0,i*8:i*8+4,0]=pixels[0,:4]*8
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            result=probe(None,None,{},size=8,write_budget=0,time_limit=3,solver_backend='cp-sat',literal_actor_bank=2)
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertEqual({p['bank']for p in result['pieces']},{2})
+        self.assertEqual(result['literal_alpha_zero_actor_bank'],2)
+        with self.assertRaisesRegex(ValueError,'LITERAL_ACTOR_BANK_POLICY'):
+            with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)):
+                probe(None,None,{},literal_actor_bank=4)
+
     def test_subscreen_operands_use_all_banks_with_explicit_layer_requirements(self):
         # Sixty-four simultaneous residual identities need five OBJ banks.
         background=np.full((224,256,3),8,dtype=np.uint8);expected=background.copy()

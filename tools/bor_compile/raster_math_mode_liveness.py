@@ -19,6 +19,7 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     masks={int(y):{int(x):v for x,v in mask.items()}for y,mask in report.get('selected_window_eligibility',{}).items()}
     first,last=min(active),max(active);peak=0
     if set(states)!=set(range(first,last+1)):raise ValueError('MODE_INTEGER_POOL_STATE_DOMAIN')
+    if report.get('fixed_initial_palette_state')is not None and states[first]!={int(k):set(cs)for k,cs in report['fixed_initial_palette_state'].items()}:raise AssertionError('MODE_INTEGER_POOL_INITIAL_STATE_REPLAY')
     for y,state in states.items():
         if set(state)!={0,1}or any(not isinstance(c,(int,np.integer))or not 0<=c<32768 for colors in state.values()for c in colors):raise ValueError('MODE_INTEGER_POOL_COLOR_DOMAIN')
         if any(len(state[k])>capacities[k]for k in range(2)):raise AssertionError('MODE_INTEGER_POOL_CAPACITY_REPLAY')
@@ -45,7 +46,7 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     return report
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None):
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None):
     reserved_normal_colors=tuple(sorted(set(reserved_normal_colors)))
     if any(type(c)is not int or not 0<=c<32768 for c in reserved_normal_colors):raise ValueError('MODE_LIVENESS_STATIC_RESERVATION_DOMAIN')
     scanline_write_limits=dict(scanline_write_limits or {})
@@ -59,6 +60,9 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
         for y,cs in required_normal_rows.items():
             for m in rows[y]or names:rows[y].setdefault(m,set()).update((c,())for c in cs)
     if len(capacities)!=2 or any(not isinstance(c,int)or c<0 for c in capacities)or not sum(capacities):raise ValueError('MODE_LIVENESS_CAPACITY')
+    if initial_state is not None:
+        initial_state={int(k):set(cs)for k,cs in initial_state.items()}
+        if set(initial_state)!={0,1}or any(len(cs)>capacities[k]or any(type(c)is not int or not 0<=c<32768 for c in cs)for k,cs in initial_state.items()):raise ValueError('MODE_LIVENESS_INITIAL_STATE_DOMAIN')
     if write_budget is not None and(not isinstance(write_budget,int)or write_budget<0):raise ValueError('MODE_LIVENESS_WRITE_BUDGET')
     if solver_method not in ('highs-ipm','highs-ds'):raise ValueError('MODE_LIVENESS_LP_METHOD')
     if union_rows is not None and len(union_rows)!=len(rows):raise ValueError('MODE_LIVENESS_UNION_ROW_COUNT')
@@ -87,6 +91,9 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     active=[y for y,row in enumerate(rows)if any(row.values())]
     if not active:return dict(status='EMPTY_MODE_DEMAND',schedule_proven=False)
     first=min(active);uses={(0,c):set(range(first,max(active)+1))for c in reserved_normal_colors}
+    if initial_state is not None:
+        for kind,colors in initial_state.items():
+            for c in colors:uses.setdefault((kind,c),set()).add(first)
     for y in active:
         for requirements in rows[y].values():
             for normal,choices in requirements:
@@ -176,6 +183,11 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
         for y in range(first,max(active)+1):lower[resident[0,c,y]]=1
     for y,cs in required_normal_rows.items():
         for c in cs:lower[resident[0,c,y]]=1
+    if initial_state is not None:
+        for (kind,c,y),v in resident.items():
+            if y==first:lower[v]=upper[v]=int(c in initial_state[kind])
+        if not set(reserved_normal_colors).issubset(initial_state[0])or not required_normal_rows.get(first,set()).issubset(initial_state[0]):
+            return dict(status='FIXED_INITIAL_PALETTE_REQUIRED_NORMAL_MISSING',schedule_proven=False,universal_raster_rejected=False,no_color_reduction=True)
     started=time.perf_counter()
     mixed_integer=integer_modes or integer_windows
     pinned_control_report=None
@@ -236,7 +248,7 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     report=dict(status='RELAXED_MODE_LIVENESS_INFEASIBLE'if result.status==2 else'BOUNDED_MODE_LIVENESS_NO_CANDIDATE',solver_status=int(result.status),message=result.message,
                 variables=peak+1,constraints=len(limits),mode_variables=len(modes),integer_modes=integer_modes,write_budget=write_budget,
         palette_residency_integrality_relaxed=not integer_palette,geometry_and_bank_assignment_relaxed=True,
-                optimal_initial_residency_allowed=True,unbounded_preloading_allowed=True,schedule_proven=False,no_color_reduction=True)
+                optimal_initial_residency_allowed=initial_state is None,fixed_initial_palette_state=None if initial_state is None else{k:sorted(cs)for k,cs in initial_state.items()},unbounded_preloading_allowed=True,schedule_proven=False,no_color_reduction=True)
     report['forced_opaque_modes_pruned']=pruned
     report['reserved_normal_colors']=list(reserved_normal_colors)
     report['static_normal_residency_fixed_for_complete_interval']=bool(reserved_normal_colors)

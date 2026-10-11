@@ -26,13 +26,15 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
     if delta_control_traffic and control_traffic is None:raise ValueError('NATIVE_DELTA_CONTROL_TRAFFIC_REQUIRED')
     if controls_before_palette and control_traffic is None:raise ValueError('NATIVE_PREPALETTE_CONTROL_TRAFFIC_REQUIRED')
     control_rows={}
+    authored_main=authored_context is not None and schedule.get('color_math')=='additive'
     if control_traffic is not None:
         if not control_traffic.get('scanline_math_controls_source_bound'):raise ValueError('NATIVE_SOURCE_BOUND_CONTROL_TRAFFIC_REQUIRED')
         mode_bits={'add':0,'half-add':0x40,'subtract':0x80,'half-subtract':0xc0}
         for key,descriptor in control_traffic['compiled_color_window_descriptors'].items():
             y=int(key);bounds=descriptor['bounds'];mode=control_traffic['selected_modes'][str(y)]
             if not 0<=y<224 or len(bounds)!=2 or any(len(pair)!=2 or any(type(v)is not int or not 0<=v<=255 for v in pair)for pair in bounds)or mode not in mode_bits:raise ValueError('NATIVE_CONTROL_TRAFFIC_DOMAIN')
-            control_rows[y]=[[0x2126,bounds[0][0]],[0x2127,bounds[0][1]],[0x2128,bounds[1][0]],[0x2129,bounds[1][1]],[0x2125,descriptor['wobjsel_color_bits']],[0x212b,descriptor['wobjlog_color_bits']],[0x2131,mode_bits[mode]]]
+            if descriptor['wobjsel_color_bits']&~0xf0 or descriptor['wobjlog_color_bits']not in(0,4)or descriptor.get('cgwsel_clip_and_prevent_bits')!=0x10:raise ValueError('NATIVE_CONTROL_WINDOW_ROUTING_DOMAIN')
+            control_rows[y]=[[0x2126,bounds[0][0]],[0x2127,bounds[0][1]],[0x2128,bounds[1][0]],[0x2129,bounds[1][1]],[0x2125,descriptor['wobjsel_color_bits']],[0x212b,descriptor['wobjlog_color_bits']],[0x2131,mode_bits[mode]|(0x10 if authored_main else 0)]]
     constant_controls={}
     if controls_before_palette and control_rows:
         for address in(0x2125,0x212b):
@@ -65,7 +67,9 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
         source,stage,_=isolated_source(source_path,tuple(isolation['underlay_rgb8']))
         expected,metadata=compose_rgb8(source,stage,scene);expected=rgb555(expected).astype('<u2')
     else:
-        if control_traffic is not None or schedule.get('color_math')!='subscreen-additive' or not schedule.get('main_screen_obj_disabled'):raise ValueError('NATIVE_AUTHORED_CONSTANT_SUBSCREEN_ROUTING_REQUIRED')
+        if authored_main:
+            if control_traffic is None or not schedule.get('scanline_math_controls_source_bound')or control_traffic.get('source_rgb555_sha256')!=schedule.get('source_rgb555_sha256')or control_traffic.get('metadata')!=schedule.get('metadata')or set(map(int,control_traffic['compiled_color_window_descriptors']))!=set(range(224)):raise ValueError('NATIVE_AUTHORED_MAIN_COMPLETE_SOURCE_CONTROLS_REQUIRED')
+        elif control_traffic is not None or schedule.get('color_math')!='subscreen-additive' or not schedule.get('main_screen_obj_disabled'):raise ValueError('NATIVE_AUTHORED_CONSTANT_SUBSCREEN_ROUTING_REQUIRED')
         from source_obj_underlay import compile_underlay
         from raster_slot_refine import verify_packets
         from raster_obj_math_cover import apply_math
@@ -77,7 +81,11 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
         for p,image in zip(schedule['pieces'],demand(schedule)[2]):
             for ly,lx in zip(*np.where(image>=0)):
                 y,x=p['y']+int(ly),p['x']+int(lx)
-                replay[y,x]=apply_math(int(image[ly,lx]),int(background[y,x]),'add')
+                if authored_main:
+                    from raster_math_windows import evaluate
+                    enabled=p['bank']>=4 and evaluate(control_traffic['compiled_color_window_descriptors'][str(y)],x)
+                    replay[y,x]=apply_math(int(image[ly,lx]),int(background[y,x]),control_traffic['selected_modes'][str(y)])if enabled else int(image[ly,lx])
+                else:replay[y,x]=apply_math(int(image[ly,lx]),int(background[y,x]),'add')
         if not np.array_equal(replay,expected):raise ValueError('NATIVE_AUTHORED_COMPLETE_ALPHA_PIXEL_IDENTITY')
         underlay_report,bgchr,bgmap,bgpal=compile_underlay(background)
         for offset in range(0,len(bgchr),32768):
@@ -126,7 +134,7 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
         for ch in range(1,8):store(0x4306+16*ch,0)
     for a,v in((0x2101,3|(chr_report['obj_size_mode']<<5)),(0x2105,1),(0x212c,16),(0x212d,0),(0x212e,0),(0x212f,0),(0x2130,0),(0x2131,0),(0x2133,0),(0x4207,timer&255),(0x4208,timer>>8)):store(a,v)
     if authored_context is not None:
-        for a,v in((0x2105,3),(0x2107,0x58),(0x210b,0),(0x210d,0),(0x210d,0),(0x210e,255),(0x210e,255),(0x212c,1),(0x212d,16),(0x2125,0),(0x212b,0),(0x2130,2),(0x2131,1),(0x2132,0xe0)):store(a,v)
+        for a,v in((0x2105,3),(0x2107,0x58),(0x210b,0),(0x210d,0),(0x210d,0),(0x210e,255),(0x210e,255),(0x212c,17 if authored_main else 1),(0x212d,1 if authored_main else 16),(0x2125,0),(0x212b,0),(0x2130,0x12 if authored_main else 2),(0x2131,0x10 if authored_main else 1),(0x2132,0xe0)):store(a,v)
     for address,value in constant_controls.items():store(address,value)
     if production_nmi_services:
         asm.extend([' rep #$20','.a16',' lda #$0000',' ldx #$003E','IsolatedRasterNmiStateClear:','.a16','.i16',' sta.l $7E5000,x',' dex',' dex',' bpl IsolatedRasterNmiStateClear',' ldx #$003E','IsolatedRasterDmaStateClear:','.a16','.i16',f" sta.l ${production['DmaQueue']:06X},x",' dex',' dex',' bpl IsolatedRasterDmaStateClear'])
@@ -224,9 +232,12 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
         private_fixture_only=True,controls_before_palette=controls_before_palette,delta_control_traffic=delta_control_traffic,control_traffic_rows=control_rows,control_traffic_math_layer_selection_disabled=control_traffic is not None,foreground_context='BOUNDED_LONG_WRAM_STACK_AND_ACCUMULATOR_WIDTH_MIX'if foreground_stress else'WAI_EACH_RASTER_IRQ'if foreground_wai else'HELD_BRA',dma_counts_prepared_previous_line=prepare_next_line,prepared_count_high_bytes_zero=prepare_next_line,idle_irq_bank_zero_abi=foreground_wai,idle_irq_x_untouched=foreground_wai,idle_irq_direct_page=0x4300 if foreground_wai else None,actual_source_vm_execution_proven=False,production_nmi_service_code_executed=production_nmi_services,production_nmi_queue_bytes=nmi_queue_bytes if production_nmi_services else 0,production_queue_registration_executed=False,production_queue_byte_cap=2816,within_production_queue_byte_cap=nmi_queue_bytes<2816 if production_nmi_services else None,service_path_stress_only=production_nmi_services and nmi_queue_bytes>=2816,initial_palette_vblank_bytes=256,raster_cgram_owned_word_range=[128,255],production_cold_boot_proven=False,code_rom_banks=[code_rom,row_rom],asset_rom_bank=asset_rom,sa1_mmc_registers_changed=False,standalone_lorom=not sa1_mapping,production_sa1_mapping_proven=sa1_mapping,production_sa1_worker_execution_proven=False,bank_zero_growth_bytes=0,irq_dma_channels=list(range(1,8)),hdma_channels=[],source_alpha_policy='BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY')
     resources['hoisted_constant_controls']=constant_controls
     if authored_context is not None:
-        resources.update(underlay=underlay_report,obj_operand_screen='subscreen',main_obj_disabled=True,source_alpha_policy='EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555',authored_source_context_bound=True,
+        resources.update(underlay=underlay_report,obj_operand_screen='main'if authored_main else'subscreen',main_obj_disabled=not authored_main,source_alpha_policy='EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555',authored_source_context_bound=True,
             background_asset_banks=[a['bank']for a in bg_assets],background_asset_rom_banks=[a['rom']for a in bg_assets],background_asset_bytes=sum(len(a['data'])for a in bg_assets),
             concurrent_actor_layer_routing_proven=False,full_field_native_identity_still_required=True)
+    resources.update(authored_main_screen_obj_math=authored_main,
+        control_traffic_math_layer_selection_disabled=control_traffic is not None and not authored_main)
+    if authored_context is not None:resources['source_alpha_policy']='EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555'
     return bytes(raw),expected,bytes(initial),oam,sy,resources
 
 
@@ -277,7 +288,7 @@ emu.addEventCallback(function()if active then local s=emu.getState();emu.log('IS
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in('source','scene','schedule','rom','output'):p.add_argument('--'+name,type=Path,required=True)
-    p.add_argument('--stage',help='Bind an authored static source underlay and exact subscreen-additive frame; private raster proof only.')
+    p.add_argument('--stage',help='Bind an authored source underlay with subscreen ADD or complete source-bound main OBJ controls; private proof only.')
     p.add_argument('--sa1-mapping',action='store_true')
     p.add_argument('--foreground-stress',action='store_true')
     p.add_argument('--foreground-wai',action='store_true',help='Measure an explicitly idle 65816 foreground awaiting each raster IRQ; excludes foreground stress.')
@@ -312,6 +323,8 @@ def main():
             if m.read_memory('SnesMemory',0x7e1e04,2)==bytes.fromhex('01 b4'):ready_fields+=step['framesAdvanced']
             if ready_fields>=4:break
         shot=m.tool('take_screenshot',{'format':'path','path':str(folder/'screenshot.png')});cg=m.read_memory('SnesCgRam',0,512);observed_oam=m.read_memory('SnesSpriteRam',0,544);ppu=m.get_ppu_state();cpu=m.get_cpu_state()
+        observed_chr=m.read_memory('SnesVideoRam',0xc000,resources['chr_report']['obj_chr_bytes'])
+        chr_identity=hashlib.sha256(observed_chr).hexdigest()==resources['chr_report']['chr_sha256']
         queued_vram=m.read_memory('SnesVideoRam',0,a.nmi_queue_bytes)if a.production_nmi_services and a.nmi_queue_bytes else b''
         production_sy=symbols(Path('src/main.sym'))if a.production_nmi_services else {}
         queue_state=m.read_memory('SnesMemory',production_sy['DmaQueue'],8)if a.production_nmi_services else b''
@@ -353,8 +366,13 @@ def main():
     for line in log.splitlines():
         if 'ISOROUTE|'in line:
             address,value=map(int,line.split('ISOROUTE|',1)[1].split(','));routing[address]=value
-    routing_identity=authored_context is None or routing=={0x2105:3,0x2107:0x58,0x210b:0,0x212c:1,0x212d:16,0x2130:2,0x2131:1,0x2132:0xe0}
-    result=dict(schema='BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1',status='PASS'if identity and len(complete)>=2 and word_faults==0 and sum(r[3]for r in packets)==0 and observed_oam==oam and oamlog==[oam.hex()]and context[1]==0 and all(not(r[1]&192)for r in flags)and queue_identity and control_identity and underlay_identity and routing_identity and physical_identity else'FAIL',
+    main_math=resources['authored_main_screen_obj_math']
+    last_math=0x10
+    for row in resources['control_traffic_rows'].values():
+        for address,value in row:
+            if address==0x2131:last_math=value
+    routing_identity=authored_context is None or routing=={0x2105:3,0x2107:0x58,0x210b:0,0x212c:17 if main_math else 1,0x212d:1 if main_math else 16,0x2130:0x12 if main_math else 2,0x2131:last_math if main_math else 1,0x2132:0xe0}
+    result=dict(schema='BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1',status='PASS'if identity and len(complete)>=2 and word_faults==0 and sum(r[3]for r in packets)==0 and observed_oam==oam and oamlog==[oam.hex()]and context[1]==0 and all(not(r[1]&192)for r in flags)and queue_identity and control_identity and underlay_identity and routing_identity and physical_identity and chr_identity else'FAIL',
         control_traffic_fields=control_fields,control_traffic_identity_verified=control_identity,control_traffic_source_file_sha256=hashlib.sha256(a.control_traffic.read_bytes()).hexdigest()if a.control_traffic else None,
         nmi_context_checks=nmi_context[0],nmi_context_faults=nmi_context[1],peak_nmi_entry_to_rti_master_clocks=nmi_context[2],production_nmi_fields=nmi_fields,nmi_completed_within_vblank=nmi_window,production_queue_vram_identity_verified=queue_identity if a.production_nmi_services else None,production_queue_state_hex=queue_state.hex(),
         physical_cgram_identity_verified=physical_identity,physical_cgram_checks=len(physical_checks),physical_cgram_byte_identity_faults=sum(row[2]for row in physical_checks),
@@ -363,6 +381,7 @@ def main():
         peak_observed_commit_span=max((r[4]for r in packets),default=None),first_high_hclock_range=[min((r[5]for r in packets),default=0),max((r[5]for r in packets),default=0)],
         irq_context_checks=context[0],irq_context_faults=context[1],peak_irq_entry_to_rti_master_clocks=context[2],
         oam_ram_identity_verified=observed_oam==oam,oam_observer_identity_verified=oamlog==[oam.hex()],obj_overflow_flags=flags,
+        obj_chr_vram_identity_verified=chr_identity,obj_chr_vram_sha256=hashlib.sha256(observed_chr).hexdigest(),
         source_frame_sha256=next(l['sha256']for l in resources['source_metadata']['layers']if l['kind'].startswith('actor:')),
         input_schedule_file_sha256=hashlib.sha256(a.schedule.read_bytes()).hexdigest(),
         compiled_transfer_descriptor_sha256=hashlib.sha256(json.dumps(schedule['prepared_dma_packets'],sort_keys=True).encode()).hexdigest(),
@@ -375,6 +394,7 @@ def main():
             physical_cgram_identity_verified=physical_identity,physical_cgram_checks=len(physical_checks),physical_cgram_byte_identity_faults=sum(row[2]for row in physical_checks),
             source_alpha_policy='EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555',concurrent_actor_layer_routing_proven=False)
     (folder/'expected.rgb555').write_bytes(expected.tobytes());(folder/'cgram.bin').write_bytes(cg);(folder/'oam.bin').write_bytes(observed_oam)
+    (folder/'obj.chr').write_bytes(observed_chr)
     (folder/'cgram-observer.json').write_text(json.dumps(dict(packets=packets,words=words,nmi_dmas=nmi_dmas,nmi_contexts=nmi_contexts,nmi_queues=nmi_queues,register_writes=register_writes,physical_cgram_checks=physical_checks),separators=(',',':'))+'\n');(folder/'report.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({k:result[k]for k in('status','pixel_mismatches','complete_packet_fields','unsafe_high_commits','peak_observed_commit_span','first_high_hclock_range','irq_context_checks','irq_context_faults','production_runtime_admitted')}))
     if result['status']!='PASS':raise SystemExit(1)

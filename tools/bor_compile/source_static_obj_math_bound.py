@@ -15,7 +15,7 @@ from raster_obj_math_cover import MODES,complete_math_cover,apply_math
 from raster_math_mode_liveness import lower_bound
 
 
-def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_interval=None,solver_method='highs-ipm',scanline_write_limits=None,ordinary_residency='static',integer_pool_budget=None):
+def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_interval=None,solver_method='highs-ipm',scanline_write_limits=None,ordinary_residency='static',integer_pool_budget=None,initial_state=None):
     if scanline_interval is not None and (len(scanline_interval)!=2 or not 0<=scanline_interval[0]<=scanline_interval[1]<224):raise ValueError('STATIC_OBJ_BOUND_SCANLINE_DOMAIN')
     if ordinary_residency not in ('static','scanline'):raise ValueError('STATIC_OBJ_BOUND_RESIDENCY_POLICY')
     actors,metadata,expected=prepare(source,stage,scene)
@@ -60,7 +60,7 @@ def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_inte
         if window_pixels is not None:window_pixels[y].append(dict(x=x,output=out,modes=choices))
     report['operand_cover']=cover
     integer_options={}if integer_pool_budget is None else dict(integer_modes=True,integer_windows=hardware_windows,integer_palette=True,integer_backend='cp-sat',write_budget=integer_pool_budget)
-    report['cache_bound']=lower_bound(rows,time_limit=time_limit,window_pixels=window_pixels,reserved_normal_colors=reserve if ordinary_residency=='static'else(),solver_method=solver_method,scanline_write_limits=scanline_write_limits,required_normal_rows=ordinary_rows if ordinary_residency=='scanline'else None,**integer_options)
+    report['cache_bound']=lower_bound(rows,time_limit=time_limit,window_pixels=window_pixels,reserved_normal_colors=reserve if ordinary_residency=='static'else(),solver_method=solver_method,scanline_write_limits=scanline_write_limits,required_normal_rows=ordinary_rows if ordinary_residency=='scanline'else None,initial_state=initial_state,**integer_options)
     report['status']=report['cache_bound']['status']
     bound=report['cache_bound']
     if integer_pool_budget is not None and bound.get('integer_pool_pixel_coverage_verified'):

@@ -106,9 +106,10 @@ def fixed_hint_geometry(schedule,actors,bg,math_enabled,legal_sizes):
     return pieces,atoms
 
 
-def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive", mixed_small_size=8, mixed_large_size=32, additive_only=False,pool_math_modes=None,fixed_geometry=False,maximum_frame_colors_per_bank=None,scanline_math_candidate=None,row_capacity_only=False,coalesce_math_choices=False,fixed_rectangles=False,pin_scanline_pool_intervals=False,pool_interval_bank_copies=1,pool_interval_max_lines=0,maximum_banks_per_piece_class=0,preserve_hint_math_classes=False,preserve_hint_words=False,pool_interval_initial_preload=False,pool_interval_gap_bridge_lines=0,collapse_inactive_prefix=False,rectangle_bank_slack=0):
+def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive", mixed_small_size=8, mixed_large_size=32, additive_only=False,pool_math_modes=None,fixed_geometry=False,maximum_frame_colors_per_bank=None,scanline_math_candidate=None,row_capacity_only=False,coalesce_math_choices=False,fixed_rectangles=False,pin_scanline_pool_intervals=False,pool_interval_bank_copies=1,pool_interval_max_lines=0,maximum_banks_per_piece_class=0,preserve_hint_math_classes=False,preserve_hint_words=False,pool_interval_initial_preload=False,pool_interval_gap_bridge_lines=0,collapse_inactive_prefix=False,rectangle_bank_slack=0,rectangle_cover=None,literal_actor_bank=None,subdivide_rectangle_cover=False,relax_scanline_pool=False):
     if solver_backend not in ('highs','cp-sat') or (relaxed and solver_backend!='highs'):raise ValueError('JOINT_SOLVER_BACKEND')
     if fixed_geometry and fixed_rectangles:raise ValueError('JOINT_FIXED_GEOMETRY_AND_RECTANGLES_CONFLICT')
+    if subdivide_rectangle_cover and rectangle_cover is None:raise ValueError('JOINT_SUBDIVISION_REQUIRES_RECTANGLE_COVER')
     if type(rectangle_bank_slack)is not int or not 0<=rectangle_bank_slack<=7 or rectangle_bank_slack and not fixed_rectangles:raise ValueError('JOINT_RECTANGLE_BANK_SLACK_DOMAIN')
     if (fixed_geometry or fixed_rectangles)and(schedule_hint is None or pool_only or(bank_symmetry and fixed_geometry)):raise ValueError('JOINT_FIXED_GEOMETRY_REQUIRES_HINT_WITHOUT_POOL_OR_SYMMETRY')
     if maximum_frame_colors_per_bank is not None and(not isinstance(maximum_frame_colors_per_bank,int)or maximum_frame_colors_per_bank<1 or pool_only or relaxed):raise ValueError('JOINT_FRAME_COLOR_LIMIT_DOMAIN')
@@ -144,6 +145,9 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     if row_capacity_only and(write_budget!=120 or lookahead!=0 or early_write_budget is not None or prepared_dma_window is not None or pool_residency or pin_pool_intervals or schedule_hint):raise ValueError('JOINT_ROW_CAPACITY_ONLY_REQUIRES_UNBOUNDED_NO_PREFETCH')
     def line_budget(y):return early_write_budget if early_write_budget is not None and y < late_start else write_budget
     actors, metadata, expected = prepare(source, stage, scene)
+    if literal_actor_bank is not None:
+        if type(literal_actor_bank)is not int or not 0<=literal_actor_bank<4 or color_math!='additive' or fixed_geometry or fixed_rectangles or schedule_hint is not None:raise ValueError('JOINT_LITERAL_ACTOR_BANK_POLICY')
+        if any('metadata'not in actor for actor in actors):raise ValueError('JOINT_LITERAL_ACTOR_SOURCE_ALPHA_REQUIRED')
     input_geometry_search_hint=schedule_hint is not None and schedule_hint.get('status')=='SOURCE_EXACT_GEOMETRY_SEARCH_HINT'
     if input_geometry_search_hint:
         if not(fixed_geometry or fixed_rectangles):raise ValueError('JOINT_GEOMETRY_SEARCH_HINT_REQUIRES_FIXED_RECTANGLES')
@@ -161,6 +165,9 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     def allowed(bank,color,y):return not pool_residency or (kind(bank),color,max(y,pool_first))in pool
     bg, _ = compose_rgb8(source, stage, dict(scene, actors=[])); bg = rgb555(bg)
     control_modes,control_windows,control_states=scanline_controls(scanline_math_candidate,metadata,hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),len(bg))if scanline_math_candidate is not None else({},{},{})
+    if relax_scanline_pool:
+        if scanline_math_candidate is None:raise ValueError('JOINT_RELAXED_POOL_REQUIRES_SOURCE_CONTROLS')
+        control_states={}
     def math_enabled(y,x):return y not in control_windows or evaluate(control_windows[y],x)
     def render_word(c,y,x):return apply_math(c,int(bg[y,x]),control_modes.get(y,'add'))if math_enabled(y,x)else c
     source_canvases=[list(a['pixels'].shape[::-1])for a in actors];bypassed=0
@@ -191,7 +198,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         x=piece['x']
         if x==-256:return width//8
         return sum(x+column*8+8>0 and x+column*8<256 for column in range(width//8))
-    for actor_index, actor in enumerate([]if fixed_geometry or fixed_rectangles else actors):
+    for actor_index, actor in enumerate([]if fixed_geometry or fixed_rectangles or rectangle_cover is not None else actors):
         base_size=mixed_large_size if size=='mixed'else size
         surface=actor['pixels'];origin_x=origin_y=0
         if align_visible_bounds:
@@ -226,8 +233,37 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 for key,pixels in grouped.items():
                     output,value=key[:2]
                     atoms.append(dict(piece=block_index,options=[i,block_index]if size=='mixed'else[i],line=ly+actor['top'], output=output, residual=value, pixels=pixels))
+    if rectangle_cover is not None:
+        if fixed_geometry or fixed_rectangles or schedule_hint is not None or rectangle_cover.get('status')!='SOURCE_EXACT_OBJ_RECTANGLE_COVER_PROVEN' or rectangle_cover.get('metadata')!=metadata or rectangle_cover.get('source_rgb555_sha256')!=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest():raise ValueError('JOINT_RECTANGLE_COVER_SOURCE_IDENTITY')
+        legal_sizes=(mixed_small_size,mixed_large_size)if size=='mixed'else(size,)
+        ownership=[np.zeros_like(a['pixels'],dtype=np.uint8)for a in actors]
+        if subdivide_rectangle_cover and(size!='mixed' or mixed_small_size!=8):raise ValueError('JOINT_RECTANGLE_SUBDIVISION_SIZE_PAIR')
+        for p in rectangle_cover['rectangles']:
+            p=dict(p);actor=actors[p['actor']];x0,y0=p['local_x'],p['local_y']
+            if p['width']!=p['height']or p['width']not in legal_sizes or p['x']!=x0+actor['left']or p['y']!=y0+actor['top']:raise ValueError('JOINT_RECTANGLE_COVER_GEOMETRY')
+            i=len(pieces);pieces.append(p);children={}
+            if subdivide_rectangle_cover and p['width']>8:
+                for dy in range(0,p['height'],8):
+                    for dx in range(0,p['width'],8):
+                        children[dx//8,dy//8]=len(pieces)
+                        pieces.append(dict(p,local_x=x0+dx,local_y=y0+dy,x=p['x']+dx,y=p['y']+dy,width=8,height=8))
+            for ly in range(max(0,y0),min(actor['pixels'].shape[0],y0+p['height'])):
+                grouped={}
+                for lx in range(max(0,x0),min(actor['pixels'].shape[1],x0+p['width'])):
+                    output=int(actor['pixels'][ly,lx])
+                    if output<0:continue
+                    ownership[p['actor']][ly,lx]+=1;y,x=ly+actor['top'],lx+actor['left'];value=residual(output,int(bg[y,x]))
+                    child=children.get(((lx-x0)//8,(ly-y0)//8),i)
+                    grouped.setdefault((output,value,child,int(bg[y,x]),math_enabled(y,x))if scanline_math_candidate is not None else(output,value,child),[]).append((y,x))
+                for key,pixels in grouped.items():atoms.append(dict(piece=key[2],options=[i,key[2]]if key[2]!=i else[i],line=ly+actor['top'],output=key[0],residual=key[1],pixels=pixels))
+        if any(not np.array_equal(mask,(a['pixels']>=0).astype(np.uint8))for a,mask in zip(actors,ownership)):raise ValueError('JOINT_RECTANGLE_COVER_PIXEL_OWNERSHIP')
     if fixed_geometry or fixed_rectangles:
         pieces,atoms=fixed_hint_geometry(schedule_hint,actors,bg,math_enabled,(mixed_small_size,mixed_large_size)if size=='mixed'else(size,))
+    if literal_actor_bank is not None:
+        for piece in pieces:
+            if actors[piece['actor']]['metadata']['alpha']==0:piece['allowed_banks']=[literal_actor_bank]
+        for atom in atoms:
+            if actors[pieces[atom['piece']]['actor']]['metadata']['alpha']==0:atom['literal_bank']=literal_actor_bank
     residual_corpus={a['residual'] for a in atoms if a['residual'] is not None}
     if saturated_extrema:
         for a in atoms:
@@ -306,6 +342,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     choices = {}; uses = {};opaque_variables={};opaque_choice_entries=0;math_variables={};math_choice_entries=0
     for i, atom in enumerate(atoms):
         for bank in range(8):
+            if 'literal_bank'in atom and bank!=atom['literal_bank']:continue
             if bank not in atom.get('hint_allowed_banks',range(8)):continue
             if fixed_geometry and bank!=atom['fixed_bank']:continue
             if preserve_hint_math_classes and kind(bank)!=atom['hint_class']:continue
@@ -537,6 +574,9 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         objective[variable]=.001
         if not pin_scanline_pool_intervals:integrality[variable]=0
     upper=np.ones(variable_count)
+    if literal_actor_bank is not None:
+        for (i,b),v in masks.items():
+            if actors[pieces[i]['actor']]['metadata']['alpha']==0 and b!=literal_actor_bank:upper[v]=0
     if fixed_geometry or fixed_rectangles:
         permitted={p for p,b in chosen_masks}
         for key,v in masks.items():
@@ -578,7 +618,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     report=dict(schema='BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1',status='BOUNDED_JOINT_SOLVER_NO_CANDIDATE',
                 metadata=metadata,geometry_size=size,mixed_small_size=mixed_small_size if size=='mixed'else None,mixed_large_size=mixed_large_size if size=='mixed'else None,write_budget=write_budget,lookahead_lines=lookahead,noninitial_prefetch_lookahead_enforced=True,initial_palette_may_preload_entire_frame=not row_capacity_only and(not pin_scanline_pool_intervals or pool_interval_initial_preload),initial_palette_restricted_to_first_pool_row=pin_scanline_pool_intervals and not pool_interval_initial_preload,pool_interval_initial_preload=pool_interval_initial_preload,pool_interval_gap_bridge_lines=pool_interval_gap_bridge_lines,collapse_inactive_prefix=collapse_inactive_prefix,
                 solver=dict(status=int(result.status),message=result.message,variables=variable_count,constraints=len(lo),mip_nodes=int(result.mip_node_count) if getattr(result,'mip_node_count',None) is not None else None,mip_gap=float(result.mip_gap) if getattr(result,'mip_gap',None) is not None and np.isfinite(result.mip_gap) else None),
-                exact_residency_write_indicators=True,geometry_cover_cuts=len(geometry_cover_cuts),row_capacity_only=row_capacity_only,
+                exact_residency_write_indicators=True,geometry_cover_cuts=len(geometry_cover_cuts),row_capacity_only=row_capacity_only,literal_alpha_zero_actor_bank=literal_actor_bank,
                 palette_transfer_budget_relaxed=row_capacity_only,
                 fixed_geometry_and_pixel_bank_ownership=fixed_geometry,
                 fixed_rectangles_and_pixel_rectangle_ownership=fixed_rectangles,preserve_hint_math_classes=preserve_hint_math_classes,preserve_hint_words=preserve_hint_words,
@@ -622,7 +662,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         report.update(scanline_math_controls_source_bound=True,scanline_math_candidate_sha256=hashlib.sha256(json.dumps(scanline_math_candidate,sort_keys=True).encode()).hexdigest(),
             scanline_math_control_rows=sorted(control_modes),outside_control_rows_math_policy='FULL_ADD_NO_WINDOW',
             scanline_pool_candidate_pixel_coverage_replayed=True,
-            scanline_pool_operand_choices_restricted=True,scanline_pool_residency_pinned=False,
+            scanline_pool_operand_choices_restricted=not relax_scanline_pool,scanline_pool_residency_pinned=False,
             selected_modes={y:control_modes.get(y,'add')for y in range(height)},compiled_color_window_descriptors=control_windows,
             complete_outside_control_math_cover=control_cover,window_register_schedule_proven=False)
     report['solver']['backend']=solver_backend
@@ -761,7 +801,11 @@ def main():
     p.add_argument('--maximum-frame-colors-per-bank',type=int)
     p.add_argument('--row-capacity-only',action='store_true',help='Geometry/bank search only: requires 120 writes and zero lookahead; no transfer admission.')
     p.add_argument('--scanline-math-candidate',type=Path,help='Source-replayed integer pool controls and operand choices; outside its rows explicitly uses full add without a window.')
-    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size,additive_only=a.additive_only,pool_math_modes=a.pool_math_mode,fixed_geometry=a.fixed_geometry,maximum_frame_colors_per_bank=a.maximum_frame_colors_per_bank,scanline_math_candidate=json.loads(a.scanline_math_candidate.read_text())if a.scanline_math_candidate else None,row_capacity_only=a.row_capacity_only,coalesce_math_choices=a.coalesce_math_choices,fixed_rectangles=a.fixed_rectangles,pin_scanline_pool_intervals=a.pin_scanline_pool_intervals,pool_interval_bank_copies=a.pool_interval_bank_copies,pool_interval_max_lines=a.pool_interval_max_lines,maximum_banks_per_piece_class=a.maximum_banks_per_piece_class,preserve_hint_math_classes=a.preserve_hint_math_classes,preserve_hint_words=a.preserve_hint_words,pool_interval_initial_preload=a.pool_interval_initial_preload,pool_interval_gap_bridge_lines=a.pool_interval_gap_bridge_lines,collapse_inactive_prefix=a.collapse_inactive_prefix,rectangle_bank_slack=a.rectangle_bank_slack)
+    p.add_argument('--rectangle-cover',type=Path,help='Source-bound exact visible-pixel rectangles; palette masks still obey OAM and scanline limits.')
+    p.add_argument('--subdivide-rectangle-cover',action='store_true')
+    p.add_argument('--literal-actor-bank',type=int,help='Fix all alpha-zero actors to one shared math-ineligible bank, with combined row capacity enforced.')
+    p.add_argument('--relax-scanline-pool',action='store_true',help='Keep source-bound math modes/windows while allowing new exact operand identities.')
+    a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size,additive_only=a.additive_only,pool_math_modes=a.pool_math_mode,fixed_geometry=a.fixed_geometry,maximum_frame_colors_per_bank=a.maximum_frame_colors_per_bank,scanline_math_candidate=json.loads(a.scanline_math_candidate.read_text())if a.scanline_math_candidate else None,row_capacity_only=a.row_capacity_only,coalesce_math_choices=a.coalesce_math_choices,fixed_rectangles=a.fixed_rectangles,pin_scanline_pool_intervals=a.pin_scanline_pool_intervals,pool_interval_bank_copies=a.pool_interval_bank_copies,pool_interval_max_lines=a.pool_interval_max_lines,maximum_banks_per_piece_class=a.maximum_banks_per_piece_class,preserve_hint_math_classes=a.preserve_hint_math_classes,preserve_hint_words=a.preserve_hint_words,pool_interval_initial_preload=a.pool_interval_initial_preload,pool_interval_gap_bridge_lines=a.pool_interval_gap_bridge_lines,collapse_inactive_prefix=a.collapse_inactive_prefix,rectangle_bank_slack=a.rectangle_bank_slack,rectangle_cover=json.loads(a.rectangle_cover.read_text())if a.rectangle_cover else None,literal_actor_bank=a.literal_actor_bank,subdivide_rectangle_cover=a.subdivide_rectangle_cover,relax_scanline_pool=a.relax_scanline_pool)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
 
 
