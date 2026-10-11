@@ -1,0 +1,1897 @@
+{
+  "schema": "BYOR_FIXED_HINT_GEOMETRY_AND_LITERAL_POOL_RECEIPT_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "literal_pool_validated_dual_lower_bound": 22.142857142857125,
+  "literal_pool_required_integer_peak_writes": 23,
+  "literal_minimum_prepared_dma_span": 368,
+  "measured_native_window": 336,
+  "literal_prepared_dma_family_rejected": true,
+  "universal_raster_rejected": false,
+  "authored_native_raster_proven": false,
+  "no_color_reduction": true,
+  "focused_tests_passed": 49,
+  "focused_tests_seconds": 22.593,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "trials": [
+    {
+      "path": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-maximum-subdivision-probe.json",
+      "sha256": "f7e749216b901b983b4ddbd969c9bfd3860587b17ffe7ca3daa8132703398b05",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "solver": null,
+      "bank_residency": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "FIXED_BANK_RESIDENCY_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_backend": "cp-sat",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 60.04227590000001,
+        "solver_model_variables": 25016,
+        "solver_model_constraints": 63164,
+        "solver_branches": 117696,
+        "solver_conflicts": 18264,
+        "write_budget": 19,
+        "lookahead_lines": 55,
+        "prepared_window_master_clocks": 348,
+        "range_backend": "adjacent",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": [
+          127,
+          145
+        ],
+        "ranges_restricted_to_single_or_adjacent_pair": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "compulsory_bank_interval_cuts": 5657,
+        "soft_residency_hint_interval": [
+          0,
+          223
+        ],
+        "total_noninitial_writes_objective": true,
+        "peak_scheduled_writes": 19,
+        "maximum_noninitial_prefetch_latency_lines": 16,
+        "pixel_color_identity_verified": true,
+        "independent_prepared_partition_bound_verified": true,
+        "peak_optimistic_prepared_span": 344,
+        "total_noninitial_scheduled_writes": 403
+      },
+      "geometry": {
+        "oam_entries": 128,
+        "peak_sprites_per_line": 30,
+        "peak_tile_slivers_per_line": 34
+      },
+      "subdivision_probe": {
+        "trials": [
+          {
+            "seed": 0,
+            "subdivisions": 24,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 28,
+              "peak_tile_slivers_per_line": 33
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 10.155999999959022,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.166666666666666,
+                133188,
+                450
+              ],
+              "moves": [
+                {
+                  "piece": 0,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 20,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 64,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 65,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 88,
+                  "old_bank": 5,
+                  "new_bank": 4
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 2395,
+              "anneal_moves_accepted": 1197,
+              "anneal_seed": 0,
+              "final_bank_distinct_colors": [
+                75,
+                77,
+                33,
+                77,
+                35,
+                56,
+                56,
+                41
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                12,
+                6,
+                12,
+                6,
+                11,
+                12,
+                13
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 25243,
+              "constraints": 12800,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 15.857142857142856,
+              "validated_dual_lower_bound": 15.857142857142858,
+              "maximum_primal_violation": 5.5067062021407764e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          },
+          {
+            "seed": 1,
+            "subdivisions": 24,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 30,
+              "peak_tile_slivers_per_line": 33
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 10.155999999959022,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.166666666666666,
+                132763,
+                444
+              ],
+              "moves": [
+                {
+                  "piece": 0,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 13,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 20,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 53,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 84,
+                  "old_bank": 5,
+                  "new_bank": 4
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 2321,
+              "anneal_moves_accepted": 1156,
+              "anneal_seed": 1,
+              "final_bank_distinct_colors": [
+                72,
+                77,
+                30,
+                77,
+                35,
+                56,
+                56,
+                41
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                12,
+                4,
+                12,
+                6,
+                11,
+                12,
+                13
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 24631,
+              "constraints": 12492,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 15.857142857142858,
+              "validated_dual_lower_bound": 15.85714285714286,
+              "maximum_primal_violation": 1.7763568394002505e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          },
+          {
+            "seed": 2,
+            "subdivisions": 23,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 30,
+              "peak_tile_slivers_per_line": 34
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 10.17200000025332,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.142857142857142,
+                134104,
+                454
+              ],
+              "moves": [
+                {
+                  "piece": 20,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 74,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 75,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 79,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 97,
+                  "old_bank": 5,
+                  "new_bank": 4
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 2299,
+              "anneal_moves_accepted": 1085,
+              "anneal_seed": 2,
+              "final_bank_distinct_colors": [
+                77,
+                77,
+                37,
+                75,
+                35,
+                56,
+                56,
+                41
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                12,
+                6,
+                12,
+                6,
+                11,
+                12,
+                13
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 25349,
+              "constraints": 12851,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 15.857142857142856,
+              "validated_dual_lower_bound": 15.857142857142854,
+              "maximum_primal_violation": 5.329070518200751e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          },
+          {
+            "seed": 3,
+            "subdivisions": 24,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 31,
+              "peak_tile_slivers_per_line": 34
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 10.171999999787658,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.285714285714286,
+                132314,
+                444
+              ],
+              "moves": [
+                {
+                  "piece": 0,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 13,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 57,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 72,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 88,
+                  "old_bank": 5,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 93,
+                  "old_bank": 5,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 94,
+                  "old_bank": 5,
+                  "new_bank": 4
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 1766,
+              "anneal_moves_accepted": 861,
+              "anneal_seed": 3,
+              "final_bank_distinct_colors": [
+                72,
+                77,
+                31,
+                77,
+                38,
+                50,
+                56,
+                43
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                12,
+                4,
+                12,
+                6,
+                11,
+                12,
+                13
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 24701,
+              "constraints": 12527,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 16.142857142857142,
+              "validated_dual_lower_bound": 16.142857142857142,
+              "maximum_primal_violation": 3.552713678800501e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          },
+          {
+            "seed": 4,
+            "subdivisions": 24,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 30,
+              "peak_tile_slivers_per_line": 34
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 9.890999999828637,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.0,
+                158023,
+                534
+              ],
+              "moves": [
+                {
+                  "piece": 4,
+                  "old_bank": 3,
+                  "new_bank": 1
+                },
+                {
+                  "piece": 5,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 8,
+                  "old_bank": 2,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 13,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 14,
+                  "old_bank": 2,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 16,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 17,
+                  "old_bank": 2,
+                  "new_bank": 0
+                },
+                {
+                  "piece": 18,
+                  "old_bank": 2,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 20,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 24,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 5
+                },
+                {
+                  "piece": 33,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 37,
+                  "old_bank": 5,
+                  "new_bank": 6
+                },
+                {
+                  "piece": 39,
+                  "old_bank": 7,
+                  "new_bank": 5
+                },
+                {
+                  "piece": 58,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 60,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 61,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 64,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 65,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 68,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 70,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 72,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 73,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 74,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 75,
+                  "old_bank": 3,
+                  "new_bank": 1
+                },
+                {
+                  "piece": 76,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 77,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 82,
+                  "old_bank": 3,
+                  "new_bank": 0
+                },
+                {
+                  "piece": 83,
+                  "old_bank": 3,
+                  "new_bank": 1
+                },
+                {
+                  "piece": 84,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 85,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 88,
+                  "old_bank": 3,
+                  "new_bank": 1
+                },
+                {
+                  "piece": 94,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 95,
+                  "old_bank": 5,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 99,
+                  "old_bank": 5,
+                  "new_bank": 6
+                },
+                {
+                  "piece": 102,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 103,
+                  "old_bank": 5,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 104,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 111,
+                  "old_bank": 7,
+                  "new_bank": 5
+                },
+                {
+                  "piece": 112,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 116,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 123,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 127,
+                  "old_bank": 7,
+                  "new_bank": 5
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 2500,
+              "anneal_moves_accepted": 1150,
+              "anneal_seed": 4,
+              "final_bank_distinct_colors": [
+                79,
+                84,
+                63,
+                78,
+                58,
+                65,
+                64,
+                43
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                10,
+                11,
+                13,
+                11,
+                12,
+                12,
+                15
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 30747,
+              "constraints": 15553,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 16.600000000000005,
+              "validated_dual_lower_bound": 16.600000000000005,
+              "maximum_primal_violation": 8.759659664292485e-14,
+              "maximum_dual_residual": 1.1102230246251565e-16
+            }
+          },
+          {
+            "seed": 5,
+            "subdivisions": 23,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 30,
+              "peak_tile_slivers_per_line": 34
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 9.936999999918044,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.285714285714286,
+                132714,
+                450
+              ],
+              "moves": [
+                {
+                  "piece": 0,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 59,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 70,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 90,
+                  "old_bank": 5,
+                  "new_bank": 4
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 2500,
+              "anneal_moves_accepted": 1135,
+              "anneal_seed": 5,
+              "final_bank_distinct_colors": [
+                75,
+                76,
+                35,
+                77,
+                35,
+                53,
+                56,
+                43
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                12,
+                7,
+                12,
+                6,
+                11,
+                12,
+                13
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 25319,
+              "constraints": 12838,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 16.142857142857142,
+              "validated_dual_lower_bound": 16.14285714285714,
+              "maximum_primal_violation": 1.0658141036401503e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          }
+        ],
+        "seconds": 79.89000000013039,
+        "no_color_reduction": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false
+      }
+    },
+    {
+      "path": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-maximum-subdivision-span.json",
+      "sha256": "ccd7fa97d0b8c157491d59bdace6fd42b2e6c26b1b3367d28584a27d3edd72cc",
+      "status": "JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN",
+      "solver": null,
+      "bank_residency": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "FIXED_BANK_RESIDENCY_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_backend": "cp-sat",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 50.222582700000004,
+        "solver_model_variables": 31773,
+        "solver_model_constraints": 70618,
+        "solver_branches": 6745,
+        "solver_conflicts": 0,
+        "write_budget": 18,
+        "lookahead_lines": 55,
+        "prepared_window_master_clocks": 617,
+        "range_backend": "adjacent",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "compulsory_bank_interval_cuts": 6937,
+        "soft_residency_hint_interval": null,
+        "total_noninitial_writes_objective": false,
+        "peak_optimistic_prepared_span_objective": true,
+        "solver_search_strategy": "portfolio",
+        "peak_optimistic_span_lower_bound_for_this_fixed_bank_family": 216,
+        "peak_scheduled_writes": 18,
+        "maximum_noninitial_prefetch_latency_lines": 23,
+        "pixel_color_identity_verified": true,
+        "independent_prepared_partition_bound_verified": true,
+        "peak_optimistic_prepared_span": 360,
+        "total_noninitial_scheduled_writes": 543
+      },
+      "geometry": {
+        "oam_entries": 128,
+        "peak_sprites_per_line": 30,
+        "peak_tile_slivers_per_line": 34
+      },
+      "subdivision_probe": {
+        "trials": [
+          {
+            "seed": 0,
+            "subdivisions": 24,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 28,
+              "peak_tile_slivers_per_line": 33
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 10.155999999959022,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.166666666666666,
+                133188,
+                450
+              ],
+              "moves": [
+                {
+                  "piece": 0,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 20,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 64,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 65,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 88,
+                  "old_bank": 5,
+                  "new_bank": 4
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 2395,
+              "anneal_moves_accepted": 1197,
+              "anneal_seed": 0,
+              "final_bank_distinct_colors": [
+                75,
+                77,
+                33,
+                77,
+                35,
+                56,
+                56,
+                41
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                12,
+                6,
+                12,
+                6,
+                11,
+                12,
+                13
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 25243,
+              "constraints": 12800,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 15.857142857142856,
+              "validated_dual_lower_bound": 15.857142857142858,
+              "maximum_primal_violation": 5.5067062021407764e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          },
+          {
+            "seed": 1,
+            "subdivisions": 24,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 30,
+              "peak_tile_slivers_per_line": 33
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 10.155999999959022,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.166666666666666,
+                132763,
+                444
+              ],
+              "moves": [
+                {
+                  "piece": 0,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 13,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 20,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 53,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 84,
+                  "old_bank": 5,
+                  "new_bank": 4
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 2321,
+              "anneal_moves_accepted": 1156,
+              "anneal_seed": 1,
+              "final_bank_distinct_colors": [
+                72,
+                77,
+                30,
+                77,
+                35,
+                56,
+                56,
+                41
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                12,
+                4,
+                12,
+                6,
+                11,
+                12,
+                13
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 24631,
+              "constraints": 12492,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 15.857142857142858,
+              "validated_dual_lower_bound": 15.85714285714286,
+              "maximum_primal_violation": 1.7763568394002505e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          },
+          {
+            "seed": 2,
+            "subdivisions": 23,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 30,
+              "peak_tile_slivers_per_line": 34
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 10.17200000025332,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.142857142857142,
+                134104,
+                454
+              ],
+              "moves": [
+                {
+                  "piece": 20,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 74,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 75,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 79,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 97,
+                  "old_bank": 5,
+                  "new_bank": 4
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 2299,
+              "anneal_moves_accepted": 1085,
+              "anneal_seed": 2,
+              "final_bank_distinct_colors": [
+                77,
+                77,
+                37,
+                75,
+                35,
+                56,
+                56,
+                41
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                12,
+                6,
+                12,
+                6,
+                11,
+                12,
+                13
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 25349,
+              "constraints": 12851,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 15.857142857142856,
+              "validated_dual_lower_bound": 15.857142857142854,
+              "maximum_primal_violation": 5.329070518200751e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          },
+          {
+            "seed": 3,
+            "subdivisions": 24,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 31,
+              "peak_tile_slivers_per_line": 34
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 10.171999999787658,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.285714285714286,
+                132314,
+                444
+              ],
+              "moves": [
+                {
+                  "piece": 0,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 13,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 57,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 72,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 88,
+                  "old_bank": 5,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 93,
+                  "old_bank": 5,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 94,
+                  "old_bank": 5,
+                  "new_bank": 4
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 1766,
+              "anneal_moves_accepted": 861,
+              "anneal_seed": 3,
+              "final_bank_distinct_colors": [
+                72,
+                77,
+                31,
+                77,
+                38,
+                50,
+                56,
+                43
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                12,
+                4,
+                12,
+                6,
+                11,
+                12,
+                13
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 24701,
+              "constraints": 12527,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 16.142857142857142,
+              "validated_dual_lower_bound": 16.142857142857142,
+              "maximum_primal_violation": 3.552713678800501e-15,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          },
+          {
+            "seed": 4,
+            "subdivisions": 24,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 30,
+              "peak_tile_slivers_per_line": 34
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 9.890999999828637,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.0,
+                158023,
+                534
+              ],
+              "moves": [
+                {
+                  "piece": 4,
+                  "old_bank": 3,
+                  "new_bank": 1
+                },
+                {
+                  "piece": 5,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 8,
+                  "old_bank": 2,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 13,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 14,
+                  "old_bank": 2,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 16,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 17,
+                  "old_bank": 2,
+                  "new_bank": 0
+                },
+                {
+                  "piece": 18,
+                  "old_bank": 2,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 20,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 24,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 5
+                },
+                {
+                  "piece": 33,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 37,
+                  "old_bank": 5,
+                  "new_bank": 6
+                },
+                {
+                  "piece": 39,
+                  "old_bank": 7,
+                  "new_bank": 5
+                },
+                {
+                  "piece": 58,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 60,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 61,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 64,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 65,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 68,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 70,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 72,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 73,
+                  "old_bank": 1,
+                  "new_bank": 3
+                },
+                {
+                  "piece": 74,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 75,
+                  "old_bank": 3,
+                  "new_bank": 1
+                },
+                {
+                  "piece": 76,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 77,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 82,
+                  "old_bank": 3,
+                  "new_bank": 0
+                },
+                {
+                  "piece": 83,
+                  "old_bank": 3,
+                  "new_bank": 1
+                },
+                {
+                  "piece": 84,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 85,
+                  "old_bank": 3,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 88,
+                  "old_bank": 3,
+                  "new_bank": 1
+                },
+                {
+                  "piece": 94,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 95,
+                  "old_bank": 5,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 99,
+                  "old_bank": 5,
+                  "new_bank": 6
+                },
+                {
+                  "piece": 102,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 103,
+                  "old_bank": 5,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 104,
+                  "old_bank": 5,
+                  "new_bank": 7
+                },
+                {
+                  "piece": 111,
+                  "old_bank": 7,
+                  "new_bank": 5
+                },
+                {
+                  "piece": 112,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 116,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 123,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 127,
+                  "old_bank": 7,
+                  "new_bank": 5
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 2500,
+              "anneal_moves_accepted": 1150,
+              "anneal_seed": 4,
+              "final_bank_distinct_colors": [
+                79,
+                84,
+                63,
+                78,
+                58,
+                65,
+                64,
+                43
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                10,
+                11,
+                13,
+                11,
+                12,
+                12,
+                15
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 30747,
+              "constraints": 15553,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 16.600000000000005,
+              "validated_dual_lower_bound": 16.600000000000005,
+              "maximum_primal_violation": 8.759659664292485e-14,
+              "maximum_dual_residual": 1.1102230246251565e-16
+            }
+          },
+          {
+            "seed": 5,
+            "subdivisions": 23,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 30,
+              "peak_tile_slivers_per_line": 34
+            },
+            "rebalance": {
+              "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+              "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+              "seconds": 9.936999999918044,
+              "explicit_initial_assignment": null,
+              "maximum_interval_lines": 32,
+              "initial_objective": [
+                16.5,
+                133129,
+                430
+              ],
+              "final_objective": [
+                15.285714285714286,
+                132714,
+                450
+              ],
+              "moves": [
+                {
+                  "piece": 0,
+                  "old_bank": 0,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 29,
+                  "old_bank": 7,
+                  "new_bank": 4
+                },
+                {
+                  "piece": 59,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 70,
+                  "old_bank": 1,
+                  "new_bank": 2
+                },
+                {
+                  "piece": 90,
+                  "old_bank": 5,
+                  "new_bank": 4
+                }
+              ],
+              "anneal_steps_requested": 2500,
+              "anneal_proposals_sampled": 2500,
+              "anneal_moves_accepted": 1135,
+              "anneal_seed": 5,
+              "final_bank_distinct_colors": [
+                75,
+                76,
+                35,
+                77,
+                35,
+                53,
+                56,
+                43
+              ],
+              "final_bank_peak_row_colors": [
+                12,
+                12,
+                7,
+                12,
+                6,
+                11,
+                12,
+                13
+              ],
+              "fixed_bank_per_piece": true,
+              "color_math_classes_preserved": true,
+              "pixel_color_identity_verified": true,
+              "geometry_unchanged": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true
+            },
+            "bound": {
+              "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+              "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+              "solver_status": 0,
+              "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+              "variables": 25319,
+              "constraints": 12838,
+              "lookahead_lines": 55,
+              "geometry_and_pixel_choices_fixed": true,
+              "physical_slots_and_ranges_relaxed": true,
+              "initial_residency_optimal": true,
+              "native_timing_admitted": false,
+              "universal_raster_rejected": false,
+              "no_color_reduction": true,
+              "restricted_scanline_demand_interval": null,
+              "outside_interval_pixels_relaxed": false,
+              "peak_write_lower_bound": 16.142857142857142,
+              "validated_dual_lower_bound": 16.14285714285714,
+              "maximum_primal_violation": 1.0658141036401503e-14,
+              "maximum_dual_residual": 2.220446049250313e-16
+            }
+          }
+        ],
+        "seconds": 79.89000000013039,
+        "no_color_reduction": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false
+      }
+    },
+    {
+      "path": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-maximum-subdivision-joint337.json",
+      "sha256": "49b2d80cd9ebdf197468baad83fb384740241965566ae23c17f0466b5a401f15",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+        "variables": 226450,
+        "constraints": 563123,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "highs"
+      },
+      "bank_residency": null,
+      "geometry": null,
+      "subdivision_probe": null
+    },
+    {
+      "path": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-maximum-subdivision-joint337-factored.json",
+      "sha256": "e6cf53271aab1d641acef6f1b1a116984fe93a21d73b46a6b22e2e211421e260",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 218390,
+        "constraints": 552886,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 2310,
+          "hint_variables": 212120,
+          "hint_is_soft": true,
+          "log_lines": 320,
+          "sat_inprocessing": false,
+          "branches": 3422,
+          "conflicts": 1,
+          "wall_seconds": 45.680299500000004,
+          "probing_level": 0,
+          "workers": 4,
+          "optimal": false
+        }
+      },
+      "bank_residency": null,
+      "geometry": null,
+      "subdivision_probe": null
+    },
+    {
+      "path": "out/byor-motu-authored-hbreath-only-frame11-precomposited-pool-bound.json",
+      "sha256": "d047cd52926c3c4bb477a823d459d4ebb1fdd30778089320e7efcdced1be904f",
+      "status": "FRACTIONAL_COVER_LIVENESS_LOWER_BOUND",
+      "solver": null,
+      "bank_residency": null,
+      "geometry": null,
+      "subdivision_probe": null
+    }
+  ]
+}

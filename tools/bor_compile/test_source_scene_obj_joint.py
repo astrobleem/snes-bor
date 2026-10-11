@@ -6,6 +6,27 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_fixed_subdivided_hint_uses_actual_source_rectangles(self):
+        import copy
+        from raster_bank_rebalance import subdivide
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((16,16),-1,dtype=np.int32);pixels[9,9]=1
+        expected=background.copy();expected[53,9,0]=8
+        actors=[dict(pixels=pixels,left=0,top=44)]
+        with patch('source_scene_obj_joint.prepare',return_value=(actors,{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            initial=probe(None,None,{},size=16,write_budget=1,time_limit=5,solver_backend='cp-sat')
+            hint=subdivide(initial,[0])
+            result=probe(None,None,{},size='mixed',mixed_small_size=8,mixed_large_size=16,write_budget=1,time_limit=5,solver_backend='cp-sat',schedule_hint=hint,fixed_geometry=True,preserve_hint_math_classes=True,preserve_hint_words=True)
+            self.assertTrue(result['compiled_pixel_identity_verified'])
+            self.assertEqual(result['geometry']['oam_entries'],1)
+            self.assertEqual((result['pieces'][0]['local_x'],result['pieces'][0]['local_y']),(8,8))
+            bad=copy.deepcopy(hint);bad['pieces'][0]['x']+=1
+            with self.assertRaisesRegex(ValueError,'JOINT_HINT_SOURCE_COORDINATES'):
+                probe(None,None,{},size='mixed',mixed_small_size=8,mixed_large_size=16,write_budget=1,time_limit=5,solver_backend='cp-sat',schedule_hint=bad,fixed_geometry=True)
+            bad=copy.deepcopy(hint);bad['piece_pixel_masks'][0]['pixels_hex']='00'*32
+            with self.assertRaisesRegex(ValueError,'JOINT_HINT_SOURCE_PIXEL_COVERAGE'):
+                probe(None,None,{},size='mixed',mixed_small_size=8,mixed_large_size=16,write_budget=1,time_limit=5,solver_backend='cp-sat',schedule_hint=bad,fixed_geometry=True)
+
     def test_unused_pool_gap_and_actor_free_prefix_allow_real_retention(self):
         import hashlib
         from raster_math_windows import compile_mask
@@ -81,9 +102,10 @@ class JointSceneSolverTests(unittest.TestCase):
         with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
             hint=probe(None,None,{},size=8,write_budget=0,time_limit=10,solver_backend='cp-sat',additive_only=True)
             result=probe(None,None,{},size=8,write_budget=0,time_limit=10,solver_backend='cp-sat',
-                schedule_hint=hint,fixed_rectangles=True,preserve_hint_math_classes=True,preserve_hint_words=True,bank_symmetry=True)
+                schedule_hint=hint,fixed_rectangles=True,preserve_hint_math_classes=True,preserve_hint_words=True,bank_symmetry=True,maximum_banks_per_piece_class=1)
         self.assertTrue(result['compiled_pixel_identity_verified'])
         self.assertTrue(result['preserve_hint_words'])
+        self.assertTrue(result['fixed_single_bank_word_ownership_factored'])
         self.assertTrue(all(p['bank']>=4 for p in result['pieces']))
         _,_,a=demand(hint);_,_,b=demand(result)
         for old,new in zip(a,b):np.testing.assert_array_equal(old,new)

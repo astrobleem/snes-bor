@@ -72,6 +72,40 @@ def hint_ownership(schedule,pieces):
     return owner,chosen_masks,states
 
 
+def fixed_hint_geometry(schedule,actors,bg,math_enabled,legal_sizes):
+    """Use validated legal hint rectangles, including offline subdivisions."""
+    fields=('actor','local_x','local_y','width','height','x','y')
+    pieces=[];seen=set()
+    for p in schedule['pieces']:
+        key=tuple(p[f]for f in fields)
+        if key in seen:continue
+        seen.add(key)
+        actor_index=p['actor']
+        if type(actor_index)is not int or not 0<=actor_index<len(actors):raise ValueError('JOINT_HINT_ACTOR')
+        actor=actors[actor_index]
+        if p['width']!=p['height']or p['width']not in legal_sizes:raise ValueError('JOINT_HINT_LEGAL_SIZE')
+        if p['x']!=actor['left']+p['local_x']or p['y']!=actor['top']+p['local_y']:raise ValueError('JOINT_HINT_SOURCE_COORDINATES')
+        pieces.append({f:p[f]for f in fields}|{'rows':{}})
+    owner,_,_=hint_ownership(schedule,pieces)
+    expected=set();grouped={}
+    for actor_index,actor in enumerate(actors):
+        for ly,lx in zip(*np.where(actor['pixels']>=0)):
+            y,x=int(actor['top']+ly),int(actor['left']+lx)
+            if not(0<=y<bg.shape[0]and 0<=x<bg.shape[1]):continue
+            expected.add((y,x))
+            if (y,x)not in owner:raise ValueError('JOINT_HINT_SOURCE_PIXEL_COVERAGE')
+            index,_,_=owner[y,x];piece=pieces[index]
+            if piece['actor']!=actor_index:raise ValueError('JOINT_HINT_SOURCE_PIXEL_ACTOR')
+            output=int(actor['pixels'][ly,lx]);value=residual(output,int(bg[y,x]))
+            piece['rows'].setdefault(int(ly),set()).add(output)
+            key=index,y,output,value,int(bg[y,x]),math_enabled(y,x)
+            grouped.setdefault(key,[]).append((y,x))
+    if expected!=set(owner):raise ValueError('JOINT_HINT_SOURCE_PIXEL_COVERAGE')
+    for p in pieces:p['rows']={y:sorted(c)for y,c in p['rows'].items()}
+    atoms=[dict(piece=i,options=[i],line=y,output=output,residual=value,pixels=pixels)for(i,y,output,value,_,_),pixels in grouped.items()]
+    return pieces,atoms
+
+
 def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_limit=45, relaxed=False, pool_residency=None, clip_horizontal=False, feasibility_only=False, bank_symmetry=False, early_write_budget=None, late_start=75, saturated_reuse=False, pool_only=False, integer_pool_budget=None, align_visible_bounds=False, solver_backend='highs', pin_pool_intervals=False, prepared_dma_window=None, schedule_hint=None, underlay_bypass=False, saturated_extrema=False, complete_additive_cover=False, grid_padding_x=0, grid_padding_y=0, prepared_dma_partition=False, coalesce_opaque_choices=False, color_math="additive", mixed_small_size=8, mixed_large_size=32, additive_only=False,pool_math_modes=None,fixed_geometry=False,maximum_frame_colors_per_bank=None,scanline_math_candidate=None,row_capacity_only=False,coalesce_math_choices=False,fixed_rectangles=False,pin_scanline_pool_intervals=False,pool_interval_bank_copies=1,pool_interval_max_lines=0,maximum_banks_per_piece_class=0,preserve_hint_math_classes=False,preserve_hint_words=False,pool_interval_initial_preload=False,pool_interval_gap_bridge_lines=0,collapse_inactive_prefix=False):
     if solver_backend not in ('highs','cp-sat') or (relaxed and solver_backend!='highs'):raise ValueError('JOINT_SOLVER_BACKEND')
     if fixed_geometry and fixed_rectangles:raise ValueError('JOINT_FIXED_GEOMETRY_AND_RECTANGLES_CONFLICT')
@@ -150,7 +184,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         x=piece['x']
         if x==-256:return width//8
         return sum(x+column*8+8>0 and x+column*8<256 for column in range(width//8))
-    for actor_index, actor in enumerate(actors):
+    for actor_index, actor in enumerate([]if fixed_geometry or fixed_rectangles else actors):
         base_size=mixed_large_size if size=='mixed'else size
         surface=actor['pixels'];origin_x=origin_y=0
         if align_visible_bounds:
@@ -185,6 +219,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 for key,pixels in grouped.items():
                     output,value=key[:2]
                     atoms.append(dict(piece=block_index,options=[i,block_index]if size=='mixed'else[i],line=ly+actor['top'], output=output, residual=value, pixels=pixels))
+    if fixed_geometry or fixed_rectangles:
+        pieces,atoms=fixed_hint_geometry(schedule_hint,actors,bg,math_enabled,(mixed_small_size,mixed_large_size)if size=='mixed'else(size,))
     residual_corpus={a['residual'] for a in atoms if a['residual'] is not None}
     if saturated_extrema:
         for a in atoms:
@@ -255,6 +291,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         nonlocal variable_count
         result = variable_count; variable_count += 1; return result
     masks = {(i,b):allocate() for i in range(len(pieces)) for b in range(8)}
+    single_bank_word_ownership=preserve_hint_words and(fixed_geometry or fixed_rectangles and maximum_banks_per_piece_class==1)
     choices = {}; uses = {};opaque_variables={};opaque_choice_entries=0;math_variables={};math_choice_entries=0
     for i, atom in enumerate(atoms):
         for bank in range(8):
@@ -267,7 +304,9 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 if not allowed(bank,color,atom['line']):continue
                 if scanline_math_candidate is not None and atom['line']in control_states and color not in control_states[atom['line']][kind(bank)]:continue
                 for piece_index in atom['options']:
-                    if kind(bank)==0:
+                    if single_bank_word_ownership:
+                        choices[i,piece_index,bank,color]=masks[piece_index,bank]
+                    elif kind(bank)==0:
                         opaque_choice_entries+=1;key=piece_index,bank,color,atom['line']
                         if coalesce_opaque_choices:
                             if key not in opaque_variables:opaque_variables[key]=allocate()
@@ -345,10 +384,12 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         atom_choices.setdefault(i,[]).append((piece_index,bank,color,variable))
         mask_choices[piece_index,bank].append(variable)
     mandatory={};forced_colors={}
-    implications=set();geometry_cover_cuts=set()
+    implications=set();geometry_cover_cuts=set();atom_choice_equalities=set()
     for i,atom in enumerate(atoms):
         options=atom_choices.get(i,[])
-        constraint([(v,1)for p,b,c,v in options],1,1)
+        equality=tuple(sorted(v for p,b,c,v in options))
+        if equality not in atom_choice_equalities:
+            constraint([(v,1)for v in equality],1,1);atom_choice_equalities.add(equality)
         eligible_masks=tuple(sorted({masks[p,b]for p,b,c,v in options}))
         if eligible_masks not in geometry_cover_cuts:
             constraint([(v,1)for v in eligible_masks],1,np.inf)
@@ -525,6 +566,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 fixed_geometry_and_pixel_bank_ownership=fixed_geometry,
                 fixed_rectangles_and_pixel_rectangle_ownership=fixed_rectangles,preserve_hint_math_classes=preserve_hint_math_classes,preserve_hint_words=preserve_hint_words,
                 fixed_rectangle_bank_assignment_may_change=fixed_rectangles,
+                fixed_single_bank_word_ownership_factored=single_bank_word_ownership,
                 additive_only=additive_only,opaque_obj_banks_reserved=4 if additive_only else 0,color_math=color_math,opaque_choice_coalescing=coalesce_opaque_choices,opaque_choice_entries=opaque_choice_entries,
                 math_choice_coalescing=coalesce_math_choices,math_choice_entries=math_choice_entries,
                 distinct_math_choice_variables=len(math_variables)if coalesce_math_choices else math_choice_entries,
