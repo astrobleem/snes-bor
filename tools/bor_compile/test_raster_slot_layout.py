@@ -1,4 +1,4 @@
-import copy,importlib.util,unittest
+import copy,hashlib,importlib.util,json,unittest
 import numpy as np
 from raster_obj_compact import unpack
 from raster_slot_layout import optimize
@@ -6,6 +6,15 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_source_bound_alpha_controls_are_part_of_schedule_identity(self):
+        source=self.schedule()
+        source.update(scanline_math_controls_source_bound=True,selected_modes={'0':'half-add'},compiled_color_window_descriptors={'0':{'bounds':[[3,8],[255,0]]}})
+        result=optimize(source,window=356,time_limit=10)
+        base=dict(pieces=result['pieces'],pixel_masks=result['piece_pixel_masks'],trace=result['trace'])
+        self.assertNotEqual(result['compiled_schedule_sha256'],hashlib.sha256(json.dumps(base,sort_keys=True).encode()).hexdigest())
+        base.update(selected_modes=source['selected_modes'],compiled_color_window_descriptors=source['compiled_color_window_descriptors'])
+        self.assertEqual(result['compiled_schedule_sha256'],hashlib.sha256(json.dumps(base,sort_keys=True).encode()).hexdigest())
+
     def test_paired_ranges_preserve_pixels_and_allow_inactive_pair_gaps(self):
         from raster_slot_greedy import demand
         source=self.schedule()

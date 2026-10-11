@@ -1,4 +1,4 @@
-import copy,itertools,unittest
+import copy,hashlib,itertools,json,unittest
 import numpy as np
 from raster_obj_compact import unpack
 from raster_slot_greedy import partition,schedule_slots
@@ -22,6 +22,15 @@ def source_schedule():
 
 
 class GreedyTests(unittest.TestCase):
+    def test_source_bound_alpha_controls_are_part_of_schedule_identity(self):
+        source=source_schedule()
+        source.update(scanline_math_controls_source_bound=True,selected_modes={'0':'half-add'},compiled_color_window_descriptors={'0':{'bounds':[[3,8],[255,0]]}})
+        result=schedule_slots(source,window=2000,lookahead=8)
+        base=dict(pieces=result['pieces'],pixel_masks=result['piece_pixel_masks'],trace=result['trace'])
+        self.assertNotEqual(result['compiled_schedule_sha256'],hashlib.sha256(json.dumps(base,sort_keys=True).encode()).hexdigest())
+        base.update(selected_modes=source['selected_modes'],compiled_color_window_descriptors=source['compiled_color_window_descriptors'])
+        self.assertEqual(result['compiled_schedule_sha256'],hashlib.sha256(json.dumps(base,sort_keys=True).encode()).hexdigest())
+
     def test_packet_partition_matches_all_small_groupings(self):
         bounds=[(1,1),(15,15),(17,19),(49,49)]
         for maximum in range(1,5):

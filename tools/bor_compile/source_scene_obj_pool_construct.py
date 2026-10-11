@@ -34,8 +34,9 @@ def select_words(requirements,preferences=None):
     return owners,selected
 
 
-def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False):
+def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False,persistent_word_indices=False):
     if frame_word_cover and prefer_resident_words:raise ValueError('POOL_CONSTRUCT_FRAME_AND_RESIDENT_POLICY_CONFLICT')
+    if persistent_word_indices and not joint_bank_geometry:raise ValueError('POOL_CONSTRUCT_FIXED_INDICES_REQUIRE_JOINT')
     actors,metadata,expected=prepare(source,stage,scene)
     background=rgb555(compose_rgb8(source,stage,dict(scene,actors=[]))[0])
     digest=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()
@@ -94,11 +95,15 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
         pieces.extend(expanded);assignment.extend(search['assignment'])
     if joint_bank_geometry:
         from raster_global_bank_classes import assign_masks
-        search=assign_masks(joint_cells,time_limit,bank_residency_window_lines)
+        search=assign_masks(joint_cells,time_limit,bank_residency_window_lines,persistent_word_indices=persistent_word_indices)
         pieces=search.pop('pieces',None);report['bank_search'].append(dict(joint_math_classes=True,**search))
         if pieces is None:return report
         assignment=search['assignment']
-    trace,palette_states=schedule(pieces,assignment,len(background),lookahead)
+    if persistent_word_indices:
+        from raster_global_bank_classes import fixed_slot_schedule
+        trace,palette_states=fixed_slot_schedule(pieces,assignment,search['word_slot_indices'],len(background))
+        report['persistent_word_slot_template']=True
+    else:trace,palette_states=schedule(pieces,assignment,len(background),lookahead)
     for row in trace:row['resident_before']={b:row['resident_before'].get(b,[None]*15)for b in range(8)}
     replay=background.copy();ownership=np.zeros(background.shape,dtype=np.uint8);images=[]
     compiled=[]
@@ -140,10 +145,11 @@ def main():
     p.add_argument('--frame-word-cover',action='store_true',help='Choose exact words by shared coverage across the full source frame rather than independently per row.')
     p.add_argument('--prefer-resident-words',action='store_true')
     p.add_argument('--joint-bank-geometry',action='store_true',help='Solve both eligible math classes together under the shared 34-sliver limit; defer OAM/sprite admission to compaction.')
-    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry)
+    p.add_argument('--persistent-word-indices',action='store_true',help='Restricted joint family assigning each exact word a fixed physical palette index; requires joint bank geometry.')
+    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry,persistent_word_indices=a.persistent_word_indices)
     Path(a.output).write_text(json.dumps(r,indent=2)+'\n')
     summary={k:r[k]for k in ('status','peak_selected_colors_by_class','geometry','hardware_geometry_admitted','peak_scheduled_writes')if k in r}
-    summary['bank_search']=[{k:v for k,v in search.items()if k!='assignment'}for search in r['bank_search']]
+    summary['bank_search']=[{k:v for k,v in search.items()if k not in('assignment','word_slot_indices')}for search in r['bank_search']]
     print(json.dumps(summary))
 
 

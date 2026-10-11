@@ -292,7 +292,10 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                      worst_scanline=1+int(np.argmax([row['colors_written']for row in trace[1:]])),
                      average_writes=float(np.mean([row['colors_written']for row in trace[1:]])))
     for piece in rewritten['pieces']:piece['bank']=bank_map[piece['bank']]
-    rewritten['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=rewritten['pieces'],pixel_masks=images,trace=trace),sort_keys=True).encode()).hexdigest()
+    payload=dict(pieces=rewritten['pieces'],pixel_masks=images,trace=trace)
+    if rewritten.get('scanline_math_controls_source_bound'):
+        payload.update(selected_modes=rewritten['selected_modes'],compiled_color_window_descriptors=rewritten['compiled_color_window_descriptors'])
+    rewritten['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
     result.update(status='PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN',peak_prepared_commit_span=max(p['prepared_commit_span']for p in packets),
                   peak_ranges=max(len(p['packets'])for p in packets),pixel_color_identity_verified=True,all_packet_cgram_identities_verified=True)
     return rewritten

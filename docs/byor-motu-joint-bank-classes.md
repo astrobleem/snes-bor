@@ -49,3 +49,26 @@ Eleven focused global-bank, constructor and compactor tests pass, including
 combined tile rejection, explicit raw sprite deferral, global word identity,
 rolling union capacity, bank eligibility and source-exact constructor replay.
 All seventeen protected tracked files retain their hashes.
+
+Repairing only rows 127--145 finds a source-exact full-frame 19-write schedule
+whose favorable endpoint bound is 352 clocks. It has 402 noninitial writes and
+sixteen-line maximum prefetch. Fixed write-time physical slot placement in the
+paired-range family is infeasible even at 356 clocks: ideal packing cannot be
+assumed to respect live slots. Tightening the residency repair to 332 clocks
+returns UNKNOWN, as does flexible rectangle-lifetime slot placement at 332.
+These bounded results and the 352-clock logical witness are retained in
+`docs/receipts/byor-motu-joint-bank-classes-physical-repair.json` and its gzip.
+No physical admission follows from that witness.
+
+The physical layout and greedy compilers now include source-bound math modes
+and color-window descriptors in their schedule identity. Existing schedules
+without those controls keep their original hash payload. Twenty-one focused
+slot-layout/greedy tests pass; the width audit remains clean at 9,825 labels.
+
+A loose 2,000-clock slot solve supplies an independently replayed physical
+hint with a 904-clock peak. This proves packet data and slot identities only;
+it exceeds the hardware window. Allowing per-bank permutations of those hint
+slots and flexible eight-line prefetch is infeasible at 332 clocks. A broader
+two-line demand-gap rectangle search returns UNKNOWN. Neither result rejects
+different lifetime groupings or unrestricted slot layouts. Thirty combined
+global-bank, constructor, greedy and slot-layout tests pass.

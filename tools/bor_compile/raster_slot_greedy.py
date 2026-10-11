@@ -229,7 +229,10 @@ def schedule_slots(schedule,window=356,lookahead=17,maximum_ranges=4,seed=0,beam
                   write_budget=None,lookahead_lines=lookahead,prepared_dma_window_master_clocks=window,
                   prepared_dma_partition_bound_enforced=True,prepared_dma_window_is_optimistic_necessary_only=True,
                   native_presentation_proven=False,schedule_latency_requirement=dict(maximum_noninitial_prefetch_lines=latency,initial_palette_may_preload_entire_frame=True))
-    result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=result['pieces'],pixel_masks=images,trace=trace),sort_keys=True).encode()).hexdigest()
+    payload=dict(pieces=result['pieces'],pixel_masks=images,trace=trace)
+    if result.get('scanline_math_controls_source_bound'):
+        payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
+    result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
     return result
 
 

@@ -1,0 +1,259 @@
+{
+  "schema": "BYOR_PERSISTENT_WORD_INDEX_RESTRICTION_V1",
+  "trials": [
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-index-bound15.json",
+      "artifact_sha256": "911ccc294877ff002752b1664394d597408af9120b9f92a646ccba46cc285cfb",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_PERSISTENT_INDEX_BOUND_V1",
+        "slots_per_bank": 15,
+        "banks": [
+          {
+            "bank": 0,
+            "distinct_words": 77,
+            "row_conflict_sets": 28,
+            "status": "OPTIMAL",
+            "seconds": 0.0614328
+          },
+          {
+            "bank": 1,
+            "distinct_words": 79,
+            "row_conflict_sets": 39,
+            "status": "INFEASIBLE",
+            "seconds": 0.009503000000000001
+          },
+          {
+            "bank": 2,
+            "distinct_words": 17,
+            "row_conflict_sets": 6,
+            "status": "OPTIMAL",
+            "seconds": 0.0173273
+          },
+          {
+            "bank": 3,
+            "distinct_words": 77,
+            "row_conflict_sets": 33,
+            "status": "OPTIMAL",
+            "seconds": 0.0598665
+          },
+          {
+            "bank": 4,
+            "distinct_words": 15,
+            "row_conflict_sets": 5,
+            "status": "OPTIMAL",
+            "seconds": 0.012954400000000001
+          },
+          {
+            "bank": 5,
+            "distinct_words": 65,
+            "row_conflict_sets": 37,
+            "status": "OPTIMAL",
+            "seconds": 0.0448035
+          },
+          {
+            "bank": 6,
+            "distinct_words": 56,
+            "row_conflict_sets": 22,
+            "status": "OPTIMAL",
+            "seconds": 0.028269100000000002
+          },
+          {
+            "bank": 7,
+            "distinct_words": 44,
+            "row_conflict_sets": 40,
+            "status": "INFEASIBLE",
+            "seconds": 0.00031150000000000004
+          }
+        ],
+        "fixed_word_indices_rejected": true,
+        "input_banks_and_pixel_words_fixed": true,
+        "slot_labels_canonicalized_without_transfer_constraints": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-index-bound16.json",
+      "artifact_sha256": "01e535592512b4557cd283cfa3e2118c25892d021cb4fb02cc5962c4f36da336",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_PERSISTENT_INDEX_BOUND_V1",
+        "slots_per_bank": 16,
+        "banks": [
+          {
+            "bank": 0,
+            "distinct_words": 77,
+            "row_conflict_sets": 28,
+            "status": "OPTIMAL",
+            "seconds": 0.09504850000000001
+          },
+          {
+            "bank": 1,
+            "distinct_words": 79,
+            "row_conflict_sets": 39,
+            "status": "OPTIMAL",
+            "seconds": 0.08937700000000001
+          },
+          {
+            "bank": 2,
+            "distinct_words": 17,
+            "row_conflict_sets": 6,
+            "status": "OPTIMAL",
+            "seconds": 0.0278579
+          },
+          {
+            "bank": 3,
+            "distinct_words": 77,
+            "row_conflict_sets": 33,
+            "status": "OPTIMAL",
+            "seconds": 0.1034506
+          },
+          {
+            "bank": 4,
+            "distinct_words": 15,
+            "row_conflict_sets": 5,
+            "status": "OPTIMAL",
+            "seconds": 0.027733900000000002
+          },
+          {
+            "bank": 5,
+            "distinct_words": 65,
+            "row_conflict_sets": 37,
+            "status": "OPTIMAL",
+            "seconds": 0.059806200000000004
+          },
+          {
+            "bank": 6,
+            "distinct_words": 56,
+            "row_conflict_sets": 22,
+            "status": "OPTIMAL",
+            "seconds": 0.0424459
+          },
+          {
+            "bank": 7,
+            "distinct_words": 44,
+            "row_conflict_sets": 40,
+            "status": "INFEASIBLE",
+            "seconds": 0.0053851
+          }
+        ],
+        "fixed_word_indices_rejected": true,
+        "input_banks_and_pixel_words_fixed": true,
+        "slot_labels_canonicalized_without_transfer_constraints": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-index-bound17.json",
+      "artifact_sha256": "9e8858ee6492482117766e7ebaba3dd80ae5cc3bdc6bdb3af24236d243ac008c",
+      "report": {
+        "schema": "BYOR_FIXED_BANK_PERSISTENT_INDEX_BOUND_V1",
+        "slots_per_bank": 17,
+        "banks": [
+          {
+            "bank": 0,
+            "distinct_words": 77,
+            "row_conflict_sets": 28,
+            "status": "OPTIMAL",
+            "seconds": 0.061885600000000006
+          },
+          {
+            "bank": 1,
+            "distinct_words": 79,
+            "row_conflict_sets": 39,
+            "status": "OPTIMAL",
+            "seconds": 0.058043500000000005
+          },
+          {
+            "bank": 2,
+            "distinct_words": 17,
+            "row_conflict_sets": 6,
+            "status": "OPTIMAL",
+            "seconds": 0.013504700000000001
+          },
+          {
+            "bank": 3,
+            "distinct_words": 77,
+            "row_conflict_sets": 33,
+            "status": "OPTIMAL",
+            "seconds": 0.059817100000000005
+          },
+          {
+            "bank": 4,
+            "distinct_words": 15,
+            "row_conflict_sets": 5,
+            "status": "OPTIMAL",
+            "seconds": 0.0133387
+          },
+          {
+            "bank": 5,
+            "distinct_words": 65,
+            "row_conflict_sets": 37,
+            "status": "OPTIMAL",
+            "seconds": 0.0438407
+          },
+          {
+            "bank": 6,
+            "distinct_words": 56,
+            "row_conflict_sets": 22,
+            "status": "OPTIMAL",
+            "seconds": 0.043694800000000006
+          },
+          {
+            "bank": 7,
+            "distinct_words": 44,
+            "row_conflict_sets": 40,
+            "status": "OPTIMAL",
+            "seconds": 0.028569200000000003
+          }
+        ],
+        "fixed_word_indices_rejected": false,
+        "input_banks_and_pixel_words_fixed": true,
+        "slot_labels_canonicalized_without_transfer_constraints": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    {
+      "artifact": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-fixedwordslots.json",
+      "artifact_sha256": "dd1840ff9c94696af840168a8195c7fb5c3b6a169febbf0b825e3a7dbc474d07",
+      "report": [
+        {
+          "joint_math_classes": true,
+          "schema": "BYOR_JOINT_GLOBAL_WORD_BANK_CLASSES_V1",
+          "status": "BOUNDED_JOINT_GLOBAL_BANK_CLASSES_NO_CANDIDATE",
+          "solver_status": "UNKNOWN",
+          "solver_seconds": 60.067758500000004,
+          "solver_variables": 2571,
+          "solver_constraints": 12573,
+          "solver_branches": 118389,
+          "solver_conflicts": 62142,
+          "maximum_tile_slivers": 34,
+          "residency_window_lines": 2,
+          "global_word_bank_identity_restricted": true,
+          "oam_and_sprite_admission_deferred": true,
+          "persistent_word_indices": true,
+          "physical_transfer_admitted": false,
+          "native_timing_admitted": false,
+          "universal_raster_rejected": false,
+          "no_color_reduction": true
+        }
+      ]
+    }
+  ],
+  "exact_minimum_persistent_indices_in_input_banks": {
+    "1": 16,
+    "7": 17
+  },
+  "source_pixel_words_and_banks_fixed_for_bounds": true,
+  "joint_bank_index_trial_is_not_an_infeasibility_proof": true,
+  "no_color_reduction": true,
+  "universal_raster_rejected": false,
+  "physical_transfer_admitted": false
+}

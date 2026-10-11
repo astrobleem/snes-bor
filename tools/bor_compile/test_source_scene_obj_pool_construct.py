@@ -18,9 +18,9 @@ class PoolConstructionTests(unittest.TestCase):
             selected_modes={str(y):'subtract'for y in range(8)},
             compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(8)},
             selected_palette_residency={str(y):{'0':[],'1':[6]}for y in range(8)})
-        for frame_cover,joint in ((False,False),(True,False),(False,True)):
+        for frame_cover,joint,fixed_indices in ((False,False,False),(True,False,False),(False,True,False),(False,True,True)):
             with patch('source_scene_obj_pool_construct.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_pool_construct.compose_rgb8',return_value=(background,{})):
-                result=construct(None,None,{},candidate,time_limit=10,frame_word_cover=frame_cover,joint_bank_geometry=joint)
+                result=construct(None,None,{},candidate,time_limit=10,frame_word_cover=frame_cover,joint_bank_geometry=joint,persistent_word_indices=fixed_indices)
             self.assertTrue(result['compiled_pixel_identity_verified'])
             self.assertTrue(result['hardware_geometry_admitted'])
             self.assertEqual(result['geometry']['oam_entries'],1)
