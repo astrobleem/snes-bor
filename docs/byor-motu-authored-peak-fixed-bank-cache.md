@@ -26,11 +26,28 @@ The current cache's ideal transfer span peaks at 440 clocks. Exhaustively
 checking all 576 eligible fixed bank permutations cannot reduce that peak.
 The construction therefore does not meet the native transfer window. Prefetch
 times and residency can still change; a 337-clock necessary-bound search returns
-UNKNOWN after 120 seconds. A warm-started search using the complete integer
-cache is ongoing. Neither outcome rejects raster generally.
+UNKNOWN after 120 seconds. Warm-started searches at 337 and 345 clocks also
+return UNKNOWN. None of these outcomes rejects raster generally.
 
 The receipt retains source and compiled hashes, the complete cache, geometry,
 validated bounds and bounded search results. Twenty-three focused subdivision,
 bank/cache and decomposition tests pass. The width audit has 9825 labels and
 zero failures; all 17 protected tracked-file hashes match. Authored peak native
 execution, concurrent actors and production/MOTU completion remain open.
+
+An additional certified cache LP charges palette payload and destination-range
+overhead together. For the next write-count-optimized assignment, its lower
+bound is 380.918 clocks with a 21-write cap, or 359.650 clocks when writes are
+unrestricted. It grants fractional residency, free initial residency and all
+adjacent-bank bridges simultaneously, so these are optimistic bounds. Both
+exceed the 344-clock constant-control native witness. This rejects that fixed
+assignment for the measured prepared-DMA family, not other assignments,
+encodings, transfer mechanisms or raster presentation generally.
+
+The compiler tool now accepts `--objective dma-window`; the default write-count
+objective is unchanged. Bounded one-piece and three-piece neighborhood searches
+do not improve the clock bound. Source words, positions and bank eligibility
+are independently replayed for every retained candidate. The supplemental
+`byor-motu-fixed-bank-dma-cache-bound` receipt retains complete candidates and
+verified primal/dual residuals. Twenty-five focused tests and the width audit
+pass. No color reduction is applied.

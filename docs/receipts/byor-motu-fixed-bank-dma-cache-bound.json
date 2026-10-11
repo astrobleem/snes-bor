@@ -1,0 +1,299 @@
+{
+  "schema": "BYOR_FIXED_BANK_DMA_CACHE_LOWER_BOUND_RECEIPT_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "source_alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555",
+  "initial_assignment_bound_with_write_cap_21": 380.91771365870216,
+  "initial_assignment_bound_without_restrictive_write_cap": 359.6495556246785,
+  "required_native_constant_control_window_clocks": 344,
+  "optimistic_range_cost": "16*writes + 24*active_banks - 8*adjacent_active_bridges - 40",
+  "simultaneous_adjacent_bridges_relaxed": true,
+  "fractional_residency_only": true,
+  "bounded_searches": {
+    "byor-motu-authored-peak-add-phase44-all8-dma-decomposition-neighbor1": {
+      "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+      "iterations": [
+        {
+          "iteration": 0,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 380.91771365870227,
+          "maximum_dual_residual": 2.4868995751603507e-14,
+          "maximum_primal_violation": 3.979039320256561e-13,
+          "peak_dma_span_lower_bound": 380.91771365870216,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.18181650000000002,
+          "master_lower_bound": 104.280473
+        }
+      ],
+      "seconds": 9.25,
+      "maximum_changed_pieces_per_master": 1,
+      "objective_kind": "dma-window",
+      "write_budget": 21,
+      "alias_aware": true,
+      "initial_residency_optimal": true,
+      "fractional_residency_only": true,
+      "physical_transfer_admitted": false,
+      "native_timing_admitted": false,
+      "universal_raster_rejected": false,
+      "no_color_reduction": true,
+      "best_fractional_dma_span_bound": 380.91771365870216
+    },
+    "byor-motu-authored-peak-add-phase44-all8-dma-decomposition-unrestrictedwrites": {
+      "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+      "iterations": [
+        {
+          "iteration": 0,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 359.64955562467867,
+          "maximum_dual_residual": 1.9095836023552692e-14,
+          "maximum_primal_violation": 7.389644451905042e-13,
+          "peak_dma_span_lower_bound": 359.6495556246785,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.1184564,
+          "master_lower_bound": 294.846059
+        },
+        {
+          "iteration": 1,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 371.29925947328104,
+          "maximum_dual_residual": 1.199040866595169e-14,
+          "maximum_primal_violation": 3.979039320256561e-13,
+          "peak_dma_span_lower_bound": 371.299259473281,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.1429138,
+          "master_lower_bound": 294.846059
+        },
+        {
+          "iteration": 2,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 365.5518621869294,
+          "maximum_dual_residual": 3.597122599785507e-14,
+          "maximum_primal_violation": 7.901235221652314e-12,
+          "peak_dma_span_lower_bound": 365.55186218692944,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.2119463,
+          "master_lower_bound": 306.732577
+        },
+        {
+          "iteration": 3,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 399.3919038101583,
+          "maximum_dual_residual": 2.930988785010413e-14,
+          "maximum_primal_violation": 9.663381206337363e-13,
+          "peak_dma_span_lower_bound": 399.3919038101581,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.2135111,
+          "master_lower_bound": 312.31508
+        },
+        {
+          "iteration": 4,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 365.5561774766812,
+          "maximum_dual_residual": 1.2878587085651816e-14,
+          "maximum_primal_violation": 6.821210263296962e-13,
+          "peak_dma_span_lower_bound": 365.55617747668134,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.23541350000000003,
+          "master_lower_bound": 313.329241
+        },
+        {
+          "iteration": 5,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 376.28168420352074,
+          "maximum_dual_residual": 3.907985046680551e-14,
+          "maximum_primal_violation": 2.8421709430404007e-13,
+          "peak_dma_span_lower_bound": 376.2816842035205,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.16283360000000002,
+          "master_lower_bound": 314.216748
+        },
+        {
+          "iteration": 6,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 372.38983741009025,
+          "maximum_dual_residual": 7.105427357601002e-15,
+          "maximum_primal_violation": 6.252776074688882e-13,
+          "peak_dma_span_lower_bound": 372.3898374100901,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.1762016,
+          "master_lower_bound": 316.10385
+        },
+        {
+          "iteration": 7,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 374.32781794137054,
+          "maximum_dual_residual": 1.1235457009206584e-13,
+          "maximum_primal_violation": 1.0800249583553523e-12,
+          "peak_dma_span_lower_bound": 374.32781794137065,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.20112170000000001,
+          "master_lower_bound": 317.382863
+        },
+        {
+          "iteration": 8,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 379.8288275552845,
+          "maximum_dual_residual": 1.5987211554602254e-14,
+          "maximum_primal_violation": 3.410605131648481e-13,
+          "peak_dma_span_lower_bound": 379.8288275552845,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.2073365,
+          "master_lower_bound": 317.382863
+        }
+      ],
+      "seconds": 60.45300000021234,
+      "maximum_changed_pieces_per_master": 1,
+      "objective_kind": "dma-window",
+      "write_budget": 120,
+      "alias_aware": true,
+      "initial_residency_optimal": true,
+      "fractional_residency_only": true,
+      "physical_transfer_admitted": false,
+      "native_timing_admitted": false,
+      "universal_raster_rejected": false,
+      "no_color_reduction": true,
+      "best_fractional_dma_span_bound": 359.6495556246785
+    },
+    "byor-motu-authored-peak-add-phase44-all8-dma-decomposition-neighbor3": {
+      "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+      "iterations": [
+        {
+          "iteration": 0,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 359.64955562467867,
+          "maximum_dual_residual": 1.9095836023552692e-14,
+          "maximum_primal_violation": 7.389644451905042e-13,
+          "peak_dma_span_lower_bound": 359.6495556246785,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.1608652,
+          "master_lower_bound": 192.943248
+        },
+        {
+          "iteration": 1,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 454.8674045451539,
+          "maximum_dual_residual": 3.108624468950438e-14,
+          "maximum_primal_violation": 7.958078640513122e-13,
+          "peak_dma_span_lower_bound": 454.8674045451539,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.1426239,
+          "master_lower_bound": 198.384158
+        },
+        {
+          "iteration": 2,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 392.17446195985417,
+          "maximum_dual_residual": 1.021405182655144e-14,
+          "maximum_primal_violation": 5.115907697472721e-13,
+          "peak_dma_span_lower_bound": 392.174461959854,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.1695943,
+          "master_lower_bound": 200.29868
+        },
+        {
+          "iteration": 3,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 391.9467430049567,
+          "maximum_dual_residual": 1.3322676295501878e-14,
+          "maximum_primal_violation": 1.9895196601282805e-12,
+          "peak_dma_span_lower_bound": 391.94674300495643,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.16927810000000001,
+          "master_lower_bound": 200.427419
+        },
+        {
+          "iteration": 4,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 427.6018925589892,
+          "maximum_dual_residual": 9.325873406851315e-15,
+          "maximum_primal_violation": 6.821210263296962e-13,
+          "peak_dma_span_lower_bound": 427.60189255898916,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.18585710000000003,
+          "master_lower_bound": 201.835783
+        },
+        {
+          "iteration": 5,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 390.2709975120602,
+          "maximum_dual_residual": 1.5987211554602254e-14,
+          "maximum_primal_violation": 1.3642420526593924e-12,
+          "peak_dma_span_lower_bound": 390.27099751206015,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.19804170000000001,
+          "master_lower_bound": 204.43956
+        },
+        {
+          "iteration": 6,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 389.6241727851469,
+          "maximum_dual_residual": 5.46229728115577e-14,
+          "maximum_primal_violation": 1.1368683772161603e-12,
+          "peak_dma_span_lower_bound": 389.6241727851465,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.1972325,
+          "master_lower_bound": 210.000656
+        },
+        {
+          "iteration": 7,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 397.0404124022893,
+          "maximum_dual_residual": 3.108624468950438e-14,
+          "maximum_primal_violation": 5.684341886080801e-13,
+          "peak_dma_span_lower_bound": 397.0404124022892,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.20726470000000002,
+          "master_lower_bound": 211.435406
+        },
+        {
+          "iteration": 8,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 420.25014043711656,
+          "maximum_dual_residual": 2.842170943040401e-14,
+          "maximum_primal_violation": 2.0463630789890885e-12,
+          "peak_dma_span_lower_bound": 420.25014043711667,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.2132969,
+          "master_lower_bound": 211.435406
+        },
+        {
+          "iteration": 9,
+          "objective_kind": "dma-window",
+          "validated_dual_lower_bound": 387.45722501662635,
+          "maximum_dual_residual": 1.3766765505351941e-14,
+          "maximum_primal_violation": 3.0127011996228248e-12,
+          "peak_dma_span_lower_bound": 387.4572250166262,
+          "master_status": "OPTIMAL",
+          "master_seconds": 0.37877120000000003,
+          "master_lower_bound": 214.989214
+        }
+      ],
+      "seconds": 61.875,
+      "maximum_changed_pieces_per_master": 3,
+      "objective_kind": "dma-window",
+      "write_budget": 120,
+      "alias_aware": true,
+      "initial_residency_optimal": true,
+      "fractional_residency_only": true,
+      "physical_transfer_admitted": false,
+      "native_timing_admitted": false,
+      "universal_raster_rejected": false,
+      "no_color_reduction": true,
+      "best_fractional_dma_span_bound": 359.6495556246785
+    }
+  },
+  "source_pixel_word_and_bank_eligibility_replayed": true,
+  "no_color_reduction": true,
+  "native_authored_peak_admitted": false,
+  "production_runtime_admitted": false,
+  "universal_raster_rejected": false,
+  "focused_tests_passed": 25,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_files": 17,
+  "protected_mismatches": 0,
+  "artifact_hashes": {
+    "byor-motu-authored-peak-add-phase44-all8-dma-decomposition-neighbor1": "6e6b612f19c7a42f559b108a099a6b247b724a50a780d2d9684910479aebbfa6",
+    "byor-motu-authored-peak-add-phase44-all8-dma-decomposition-unrestrictedwrites": "301517d410b47e7ae11d701055467336ee2d92e5086eb9440bda32fbf80bf8d2",
+    "byor-motu-authored-peak-add-phase44-all8-dma-decomposition-neighbor3": "6818eef38c4b16ece0f48b41d6cbd0d41d70367b5f585c15cf6860c172307a68"
+  }
+}
