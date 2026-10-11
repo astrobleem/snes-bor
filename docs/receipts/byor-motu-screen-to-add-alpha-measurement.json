@@ -1,0 +1,183 @@
+{
+  "schema": "BYOR_SCREEN_TO_ADDITIVE_ALPHA_MEASUREMENT_V1",
+  "metadata": {
+    "stage": "DATA/LEVELS/GUILE2.TXT",
+    "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+    "scene": {
+      "viewport": [
+        256,
+        224
+      ],
+      "piece_size": [
+        16,
+        32
+      ],
+      "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+      "actors": [
+        {
+          "model": "HBreath",
+          "animation": "idle",
+          "frame": 11,
+          "position": [
+            98,
+            220,
+            93
+          ],
+          "order": 2
+        }
+      ]
+    },
+    "layers": [
+      {
+        "kind": "background",
+        "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+        "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+        "source_dimensions": [
+          800,
+          400
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 57344,
+        "source_flip": false
+      },
+      {
+        "kind": "panel",
+        "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+        "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+        "source_dimensions": [
+          2544,
+          245
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 44246,
+        "source_flip": false
+      },
+      {
+        "kind": "actor:HBreath",
+        "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+        "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+        "source_dimensions": [
+          110,
+          90
+        ],
+        "position": [
+          84,
+          92
+        ],
+        "alpha": 1,
+        "visible_source_pixels": 2751,
+        "source_flip": false,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "none",
+        "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+        "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+      },
+      {
+        "kind": "frontpanel",
+        "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+        "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+        "source_dimensions": [
+          350,
+          245
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 2749,
+        "source_flip": false
+      }
+    ],
+    "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+    "alpha_source_dimensions": [
+      [
+        110,
+        90
+      ]
+    ],
+    "camera": [
+      0.0,
+      0.0
+    ],
+    "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+    "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+    "all_actor_models_preserved": true
+  },
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "source_alpha_policy": "BOR4086_SCREEN_RGB8_THEN_RGB555",
+  "measured_alternative": "SNES_FULL_ADD_OF_UNCHANGED_SOURCE_RGB555",
+  "alpha_compatibility_policy_selected": false,
+  "source_palette_quantized": false,
+  "source_art_palette_identities": [
+    {
+      "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+      "alpha": 0,
+      "opaque_source_rgb555_colors": 73,
+      "opaque_source_pixels": 320000,
+      "source_word_pixels_sha256": "9f8faf8b9cd0619a2e56771c0922b14547092783bdcb0c278ad79a612e356ce8"
+    },
+    {
+      "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+      "alpha": 0,
+      "opaque_source_rgb555_colors": 86,
+      "opaque_source_pixels": 504589,
+      "source_word_pixels_sha256": "b563e7abbe7b167ad85d0cb13aa4d0e1e042caaec88498c4cbf13122ca7cf69d"
+    },
+    {
+      "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+      "alpha": 1,
+      "opaque_source_rgb555_colors": 204,
+      "opaque_source_pixels": 2751,
+      "source_word_pixels_sha256": "eabf815cd2d0f8ca0f92c2d853ffa58dd8cfdb14360f2612701e827be7ceca13"
+    },
+    {
+      "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+      "alpha": 0,
+      "opaque_source_rgb555_colors": 27,
+      "opaque_source_pixels": 18200,
+      "source_word_pixels_sha256": "2a8d3ba22998567441681f6c9ad1e3511d51e5d4ca27e26e050a36b96c145a1f"
+    }
+  ],
+  "exhaustive_channel_comparison": {
+    "exhaustive_source_destination_pairs": 65536,
+    "signed_error_histogram": {
+      "-1": 1530,
+      "0": 16842,
+      "1": 12227,
+      "2": 9694,
+      "3": 7950,
+      "4": 6477,
+      "5": 5129,
+      "6": 3734,
+      "7": 1837,
+      "8": 116
+    },
+    "maximum_absolute_rgb5_channel_error": 8,
+    "maximum_positive_rgb5_channel_error": 8,
+    "minimum_signed_rgb5_channel_error": -1
+  },
+  "source_composite_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "measured_additive_composite_sha256": "31312fa83867913613e823043789b1c99e7e3a4c686f6e55b1ed024195ddd7a4",
+  "compared_pixels": 57344,
+  "changed_pixels": 2447,
+  "maximum_absolute_rgb5_channel_error": 8,
+  "mean_absolute_rgb5_channel_error": 0.09067499069940477,
+  "mean_absolute_changed_pixel_rgb5_channel_error": 2.1249148617354585,
+  "native_layer_routing_admitted": false,
+  "compiled_schedule_admitted": false,
+  "native_timing_admitted": false,
+  "production_runtime_admitted": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true,
+  "input_artifact_sha256": "876db1011689b808bfc5e33ac6fa99aeb86efed00bec0135bdb1f8d11415e49a"
+}

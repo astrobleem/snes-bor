@@ -11,7 +11,7 @@ from raster_obj_compact import unpack
 from raster_slot_greedy import demand
 
 
-def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,large_size=None,objective_kind='oam'):
+def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,large_size=None,objective_kind='oam',geometry_reservation=None):
     from ortools.sat.python import cp_model
     if time_limit<=0 or any(type(v)is not int or not 0<=v<=m for v,m in
                            [(oam_limit,128),(sprite_limit,32),(tile_limit,34)]):
@@ -20,6 +20,15 @@ def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,larg
     if objective_kind not in('oam','tiles'):raise ValueError('MASK_RETILE_OBJECTIVE_DOMAIN')
     _,_,words=demand(source)
     height=len(source['trace']);points={};origins={};seed=set()
+    reservation=dict(oam_entries=0,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
+    if geometry_reservation is not None:
+        if not isinstance(geometry_reservation,dict)or set(geometry_reservation)!=set(reservation):raise ValueError('MASK_RETILE_RESERVATION_DOMAIN')
+        reservation=copy.deepcopy(geometry_reservation)
+        if (type(reservation['oam_entries'])is not int or not 0<=reservation['oam_entries']<=128 or
+            any(not isinstance(reservation[k],list)or len(reservation[k])!=height or
+                any(type(v)is not int or not 0<=v<=limit for v in reservation[k])
+                for k,limit in [('sprites_per_line',32),('tile_slivers_per_line',34)])):
+            raise ValueError('MASK_RETILE_RESERVATION_DOMAIN')
     for p,mask,image in zip(source['pieces'],source['piece_pixel_masks'],words):
         if p['width']not in(8,16)or p['height']!=p['width']:raise ValueError('MASK_RETILE_LEGAL_8_16_GEOMETRY_REQUIRED')
         origin=p['x']-p['local_x'],p['y']-p['local_y']
@@ -51,13 +60,13 @@ def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,larg
         for pixel in candidates[key]:owners[pixel].append(i)
         model.add_hint(selected[i],int(key in seed))
     for choices in owners.values():model.add(sum(selected[i]for i in choices)>=1)
-    model.add(sum(selected)<=oam_limit)
+    model.add(sum(selected)+reservation['oam_entries']<=oam_limit)
     peak_tiles=model.new_int_var(0,tile_limit,'peakTiles')if objective_kind=='tiles'else None
     for y in range(height):
         live=[i for i,key in enumerate(keys)if key[3]<=y<key[3]+key[4]]
-        model.add(sum(selected[i]for i in live)<=sprite_limit)
+        model.add(sum(selected[i]for i in live)+reservation['sprites_per_line'][y]<=sprite_limit)
         line_tiles=sum(selected[i]*(keys[i][4]//8)for i in live)
-        model.add(line_tiles<=tile_limit)
+        model.add(line_tiles+reservation['tile_slivers_per_line'][y]<=tile_limit)
         model.add(line_tiles>=row_tile_bounds[y])
         if peak_tiles is not None:model.add(line_tiles<=peak_tiles)
     model.minimize(sum(selected)if peak_tiles is None else peak_tiles*(oam_limit+1)+sum(selected))
@@ -70,6 +79,7 @@ def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,larg
         objective_kind=objective_kind,objective_lower_bound=solver.best_objective_bound,
         independent_row_tile_lower_bound=max(row_tile_bounds),row_tile_lower_bounds=row_tile_bounds,
         resource_limits=dict(oam_entries=oam_limit,sprites_per_line=sprite_limit,tile_slivers_per_line=tile_limit),
+        geometry_reservation=reservation,reservation_proves_concurrent_palette_or_layer_admission=False,
         status='BOUNDED_MASK_RETILE_NO_CANDIDATE',native_timing_admitted=False,
         concurrent_palette_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return report
@@ -90,11 +100,14 @@ def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,larg
     peak=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height))
     tiles=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(height))
     geometry=dict(oam_entries=len(pieces),peak_sprites=peak,peak_tile_slivers=tiles)
-    if len(pieces)>oam_limit or peak>sprite_limit or tiles>tile_limit:raise AssertionError('MASK_RETILE_HARDWARE_GEOMETRY')
+    combined=dict(oam_entries=len(pieces)+reservation['oam_entries'],
+        peak_sprites=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)+reservation['sprites_per_line'][y]for y in range(height)),
+        peak_tile_slivers=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])+reservation['tile_slivers_per_line'][y]for y in range(height)))
+    if combined['oam_entries']>oam_limit or combined['peak_sprites']>sprite_limit or combined['peak_tile_slivers']>tile_limit:raise AssertionError('MASK_RETILE_HARDWARE_GEOMETRY')
     result=copy.deepcopy(source)
     for field in ('physical_slot_layout','prepared_dma_packets'):result.pop(field,None)
     report.update(status='FIXED_BANK_RETILED_PIXEL_IDENTITIES_PROVEN',pixel_bank_index_word_identity_replayed=True,
-                  original_geometry=source['geometry'],geometry=geometry)
+                  original_geometry=source['geometry'],geometry=geometry,combined_reserved_geometry=combined)
     result.update(pieces=pieces,piece_pixel_masks=masks,geometry=geometry,geometry_mode='SOURCE_EXACT_FREE_ALIGNMENT_MASKS',
         mixed_small_size=8,mixed_large_size=16,obsel_mode=0,mask_retile=report,
         piece_bank_assignment=[p['bank']for p in pieces],bank_assignment_authority='source_exact_fixed_bank_mask_retile',
@@ -122,8 +135,10 @@ def main():
     p.add_argument('--oam-limit',type=int,default=128);p.add_argument('--sprite-limit',type=int,default=32);p.add_argument('--tile-limit',type=int,default=34)
     p.add_argument('--large-size',type=int,choices=(16,),help='Also permit legal 16x16 objects, charging two tile slivers on every rectangle row.')
     p.add_argument('--objective',choices=('oam','tiles'),default='oam',help='Tiles minimizes peak tile slivers first, then OAM count.')
-    a=p.parse_args();r=retile(json.loads(a.schedule.read_text()),a.time_limit,a.oam_limit,a.sprite_limit,a.tile_limit,a.large_size,a.objective)
-    a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r.get('mask_retile',r)))
+    p.add_argument('--geometry-reservation',type=Path,help='Other actors OAM count and per-line sprite/tile counts; palette and layer admission remain separate.')
+    a=p.parse_args();r=retile(json.loads(a.schedule.read_text()),a.time_limit,a.oam_limit,a.sprite_limit,a.tile_limit,a.large_size,a.objective,json.loads(a.geometry_reservation.read_text())if a.geometry_reservation else None)
+    a.output.write_text(json.dumps(r,indent=2)+'\n');report=r.get('mask_retile',r)
+    print(json.dumps({k:v for k,v in report.items()if k not in('geometry_reservation','row_tile_lower_bounds')}))
 
 
 if __name__=='__main__':main()

@@ -132,8 +132,9 @@ class ResidencyTests(unittest.TestCase):
 
     def test_peak_span_objective_preserves_source_and_agrees_across_exact_bounds(self):
         source=source_schedule()
-        results=[optimize(source,2,0,356,5,backend,minimize_span=True)for backend in('dp','adjacent','ranges')]
+        results=[optimize(source,2,0,356,5,backend,minimize_span=True)for backend in('dp','adjacent','ranges','flow')]
         results.append(optimize(source,2,0,356,5,'ranges',solver_backend='highs',minimize_span=True))
+        results.append(optimize(source,2,0,356,5,'flow',solver_backend='highs',minimize_span=True))
         for result in results:
             report=result['bank_residency']
             self.assertTrue(report['peak_optimistic_prepared_span_objective'])

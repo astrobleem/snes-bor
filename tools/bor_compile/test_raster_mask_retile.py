@@ -20,6 +20,16 @@ def fixture(points):
 
 
 class RetileTests(unittest.TestCase):
+    def test_per_line_other_actor_reservations_are_replayed(self):
+        source=fixture([(0,4,7,4),(0,4,8,4)])
+        reservation=dict(oam_entries=127,sprites_per_line=[31]*32,tile_slivers_per_line=[33]*32)
+        result=retile(source,5,geometry_reservation=reservation)
+        self.assertEqual(result['mask_retile']['combined_reserved_geometry'],dict(oam_entries=128,peak_sprites=32,peak_tile_slivers=34))
+        reservation['sprites_per_line'][4]=32
+        self.assertEqual(retile(source,5,geometry_reservation=reservation)['solver_status'],'INFEASIBLE')
+        for bad in ({},dict(reservation,oam_entries=True),dict(reservation,sprites_per_line=[0])):
+            with self.assertRaisesRegex(ValueError,'RESERVATION_DOMAIN'):retile(source,geometry_reservation=bad)
+
     def test_mixed_size_pair_charges_full_tile_width(self):
         source=fixture([(0,4,7,4),(0,4,15,4)])
         result=retile(source,5,oam_limit=1,large_size=16)

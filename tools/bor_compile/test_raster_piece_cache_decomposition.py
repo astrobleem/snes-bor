@@ -7,6 +7,12 @@ from raster_bank_residency import relaxed_bound
 
 
 class DecompositionTests(unittest.TestCase):
+    def test_seed_outside_allowed_banks_is_rejected(self):
+        source=fixtures.WordBankBalanceTests().fixture()[0]
+        source['pieces'][0]['allowed_banks']=[b for b in range(8)if b!=source['pieces'][0]['bank']]
+        with self.assertRaisesRegex(ValueError,'SEED_BANK_ELIGIBILITY'):
+            search(source)
+
     def test_other_actor_geometry_reservation_is_enforced(self):
         source=fixtures.WordBankBalanceTests().fixture()[0]
         height=len(source['trace'])

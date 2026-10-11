@@ -37,6 +37,7 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         p['rows']={p['y']+y:sorted(set(map(int,row[row>=0]))) for y,row in enumerate(image) if np.any(row>=0)}
         domain=tuple(b for b in next(g for g in groups if p['bank'] in g) if b in p.get('allowed_banks',range(8)))
         if not domain:raise ValueError('PIECE_CACHE_DECOMPOSITION_ELIGIBILITY')
+        if p['bank'] not in domain:raise ValueError('PIECE_CACHE_DECOMPOSITION_SEED_BANK_ELIGIBILITY')
         piece_decisions[i]=[]
         keys=[(i,c,y)for y,cs in p['rows'].items()for c in cs]if row_word_masks else [(i,)]
         for key in keys:

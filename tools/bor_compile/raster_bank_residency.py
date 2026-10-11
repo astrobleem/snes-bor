@@ -238,8 +238,8 @@ def solve_linear(model,time_limit,continuous_variables=None):
 def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None,minimize_writes=False,minimize_span=False,search_strategy='portfolio',relax_cache=False,maximum_active_banks=None):
     from ortools.sat.python import cp_model
     if write_budget<0 or lookahead<0 or(window is not None and window<1):raise ValueError('BANK_RESIDENCY_DOMAIN')
-    if range_backend not in('dp','ranges','adjacent'):raise ValueError('BANK_RESIDENCY_RANGE_BACKEND')
-    if solver_backend not in('cp-sat','highs')or(solver_backend=='highs'and window is not None and range_backend!='ranges'):raise ValueError('BANK_RESIDENCY_SOLVER_BACKEND')
+    if range_backend not in('dp','ranges','adjacent','flow'):raise ValueError('BANK_RESIDENCY_RANGE_BACKEND')
+    if solver_backend not in('cp-sat','highs')or(solver_backend=='highs'and window is not None and range_backend not in('ranges','flow')):raise ValueError('BANK_RESIDENCY_SOLVER_BACKEND')
     if relax_cache and solver_backend!='highs':raise ValueError('BANK_RESIDENCY_RELAXED_CACHE_BACKEND')
     if search_strategy not in('portfolio','lns')or(search_strategy=='lns'and solver_backend!='cp-sat'):raise ValueError('BANK_RESIDENCY_SEARCH_STRATEGY')
     if minimize_span and(window is None or minimize_writes):raise ValueError('BANK_RESIDENCY_SPAN_OBJECTIVE_DOMAIN')
@@ -322,13 +322,14 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
             model.add_hint(flag,int(any(c in hints[y][b]and c not in hints[y-1][b]for c in uses[b])))
         if maximum_active_banks is not None:model.add(sum(variables[i]for i in active_flags.values())<=maximum_active_banks)
         if window is None:continue
-        if range_backend in('dp','adjacent'):
+        if range_backend in('dp','adjacent','flow'):
             counts=[]
             for b in range(8):
                 count=model.new_int_var(0,15,f'count{b}_{y}');model.add(count==sum(variables[i]for i in line[b]));counts.append(count)
                 model.add_hint(count,sum(c in hints[y][b]and c not in hints[y-1][b]for c in uses[b]))
             if range_backend=='dp':cost=constrain_dp(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}')
-            else:cost=constrain_adjacent(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',write_budget)
+            elif range_backend=='adjacent':cost=constrain_adjacent(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',write_budget)
+            else:cost=constrain_flow(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',linear=solver_backend=='highs')
             if minimize_span:model.add(peak_span_cost>=cost)
         else:constrain_ranges(line,active_flags,allocate,constraint,window,maximum_ranges=4,peak_cost_index=peak_cost_index)
     if minimize_span:
@@ -433,13 +434,13 @@ def main():
     p.add_argument('--write-budget',type=int,default=18);p.add_argument('--lookahead',type=int,default=17);p.add_argument('--window',type=int,default=344);p.add_argument('--time-limit',type=float,default=180)
     p.add_argument('--relaxed-bound',action='store_true')
     p.add_argument('--no-prepared-range-bound',action='store_true')
-    p.add_argument('--range-backend',choices=('dp','ranges','adjacent'),default='dp')
+    p.add_argument('--range-backend',choices=('dp','ranges','adjacent','flow'),default='dp')
     p.add_argument('--repair-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
     p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat')
     p.add_argument('--scanline-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
     p.add_argument('--residency-hint',type=Path)
     p.add_argument('--minimize-writes',action='store_true')
-    p.add_argument('--minimize-span',action='store_true',help='Minimize the optimistic peak bank-partition cost; physical slot admission still required. HiGHS requires the linear ranges backend.')
+    p.add_argument('--minimize-span',action='store_true',help='Minimize the optimistic peak bank-partition cost; physical slot admission still required. HiGHS requires ranges or flow.')
     p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
     p.add_argument('--relax-cache',action='store_true',help='HiGHS necessary relaxation: keep integer transfer decisions but allow fractional cache residency; never emits a palette schedule.')
     p.add_argument('--maximum-active-banks',type=int,help='Restricted cache family limiting banks receiving writes on each noninitial scanline; physical slot admission remains separate.')
