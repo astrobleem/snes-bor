@@ -21,6 +21,79 @@ class JointSceneSolverTests(unittest.TestCase):
         self.assertEqual(results[0]['math_choice_entries'],results[1]['math_choice_entries'])
         self.assertEqual(results[0]['source_rgb555_sha256'],results[1]['source_rgb555_sha256'])
 
+    def test_saved_pool_intervals_use_one_fixed_bank_and_replay_exactly(self):
+        import hashlib
+        from raster_math_windows import compile_mask
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[:3,0]=[1,2,1]
+        expected=background.copy();expected[:3,0,0]=[8,16,8]
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            selected_modes={str(y):'add'for y in range(3)},
+            compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(3)},
+            selected_palette_residency={str(y):{'0':[],'1':[1,2]}for y in range(3)})
+        for backend in ('cp-sat','highs'):
+            with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+                result=probe(None,None,{},size=8,write_budget=0,time_limit=10,solver_backend=backend,
+                    additive_only=True,scanline_math_candidate=candidate,pin_scanline_pool_intervals=True)
+            self.assertTrue(result['compiled_pixel_identity_verified'])
+            self.assertTrue(result['scanline_pool_intervals_single_bank_restricted'])
+            self.assertEqual(result['peak_scheduled_writes'],0)
+            self.assertEqual(result['geometry']['oam_entries'],1)
+            self.assertEqual(result['scanline_pool_interval_variables'],8)
+        with self.assertRaisesRegex(ValueError,'JOINT_SCANLINE_INTERVAL_POLICY'):
+            probe(None,None,{},pin_scanline_pool_intervals=True)
+
+    def test_interval_bank_copies_are_charged_and_preserve_fixed_rectangles(self):
+        import hashlib
+        from raster_math_windows import compile_mask
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,24),-1,dtype=np.int32)
+        for i in range(3):pixels[0,i*8:(i+1)*8]=[1]+list(range(2+7*i,9+7*i))
+        expected=background.copy();expected[0,:24,0]=(pixels[0]*8).astype(np.uint8)
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            selected_modes={'0':'add'},compiled_color_window_descriptors={'0':compile_mask([True]*256)},
+            selected_palette_residency={'0':{'0':[],'1':list(range(1,23))}})
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            hint=probe(None,None,{},size=8,write_budget=0,time_limit=10,solver_backend='cp-sat')
+            for copies in (1,2):
+                result=probe(None,None,{},size=8,write_budget=0,time_limit=10,solver_backend='cp-sat',
+                    scanline_math_candidate=candidate,pin_scanline_pool_intervals=True,
+                    pool_interval_bank_copies=copies,schedule_hint=hint,fixed_rectangles=True)
+                if copies==1:self.assertEqual(result['solver']['message'],'INFEASIBLE')
+                else:
+                    self.assertTrue(result['compiled_pixel_identity_verified'])
+                    self.assertEqual(result['geometry']['oam_entries'],3)
+                    self.assertEqual(sum(e['color']==1 for e in result['trace'][0]['updates']),2)
+
+    def test_interval_chunk_retention_counts_only_new_bank_copies(self):
+        import hashlib
+        from raster_math_windows import compile_mask
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        pixels=np.full((8,24),-1,dtype=np.int32)
+        for i in range(3):pixels[1:4,i*8:(i+1)*8]=[1]+list(range(2+7*i,9+7*i))
+        expected=background.copy();expected[1:4,:24,0]=(pixels[1:4]*8).astype(np.uint8)
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            selected_modes={str(y):'add'for y in range(4)},
+            compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(4)},
+            selected_palette_residency={str(y):{'0':[],'1':list(range(1,23))if y else[]}for y in range(4)})
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            hint=probe(None,None,{},size=8,write_budget=0,time_limit=10,solver_backend='cp-sat')
+            for budget in (22,23):
+                result=probe(None,None,{},size=8,write_budget=budget,lookahead=0,time_limit=10,solver_backend='cp-sat',
+                    scanline_math_candidate=candidate,pin_scanline_pool_intervals=True,pool_interval_max_lines=1,
+                    pool_interval_bank_copies=2,schedule_hint=hint,fixed_rectangles=True)
+                if budget==22:self.assertEqual(result['solver']['message'],'INFEASIBLE')
+                else:
+                    self.assertTrue(result['compiled_pixel_identity_verified'])
+                    self.assertEqual(result['peak_scheduled_writes'],23)
+                    self.assertEqual([r['colors_written']for r in result['trace'][:4]],[0,23,0,0])
+
     def test_row_capacity_search_replays_eviction_and_later_reuse(self):
         background=np.zeros((224,256,3),dtype=np.uint8)
         pixels=np.full((8,8),-1,dtype=np.int32);pixels[:3,0]=[1,2,1]
