@@ -1,0 +1,54 @@
+{
+  "schema": "BYOR_AUTHORED_SUBSCREEN_FULL_FIELD_NATIVE_RECEIPT_V1",
+  "positive_first_frame": {
+    "expected_rgb555_sha256": "8cdaab5de7e9cbb1897468bff6174120f9183052911454c61bf9f70437b0652a",
+    "complete_packet_fields": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "pixels_compared": 57344,
+    "pixel_mismatches": 0,
+    "static_palette_hardware_identity": true,
+    "underlay_identity": true,
+    "layer_routing_identity": true,
+    "geometry": {
+      "oam_entries": 11,
+      "peak_sprites": 6,
+      "peak_tile_slivers": 6
+    },
+    "peak_transfer_span": 0,
+    "source_alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555"
+  },
+  "negative_peak_layout": {
+    "expected_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+    "offline_peak_transfer_span": 776,
+    "observed_peak_transfer_span": 816,
+    "peak_irq_service": 1562,
+    "scanline_master_clocks": 1364,
+    "unsafe_high_commits": 2914,
+    "physical_cgram_checks": 195,
+    "physical_cgram_byte_identity_faults": 20921,
+    "pixel_mismatches": 33166,
+    "layer_routing_identity": true,
+    "obj_overflow": false,
+    "fixed_construction_rejected": true
+  },
+  "default_compiler": {
+    "reference_commit": "8c2d8dd",
+    "reference_sha256": "aa582edcd169f230e14805579d8c10413af84e4fb9be80c9eb9e532c75922198",
+    "modified_sha256": "aa582edcd169f230e14805579d8c10413af84e4fb9be80c9eb9e532c75922198",
+    "unchanged": true
+  },
+  "focused_compile_tests": 2,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_mismatches": 0,
+  "peak_source_frame_native_admitted": false,
+  "concurrent_actor_routing_proven": false,
+  "production_runtime_bound": false,
+  "motu_demo_complete": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true
+}
