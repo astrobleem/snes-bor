@@ -56,6 +56,16 @@ def constrain_fixed_addresses(model,write_flags,height,maximum_ranges,window,pac
                 model.add_hint(cover,int(any(lo<=address<=hi for lo,hi in hints)))
                 model.add_hint(start,int(any(lo==address for lo,hi in hints)))
         model.add(sum(starts)<=maximum_ranges)
+        bank_active=[]
+        for b in range(8):
+            flags=[flag for address,flag in events.items()if address//16==b]
+            if not flags:continue
+            active=model.new_bool_var(f'coveredBankActive{y}_{b}')
+            model.add_max_equality(active,flags);bank_active.append(active)
+        # Every range spanning distinct active banks crosses transparent slot
+        # zero between them. This necessary cut also holds for wider ranges
+        # and for multiple disjoint ranges within the same bank.
+        model.add(sum(covers)>=sum(events.values())+sum(bank_active)-sum(starts))
         cost=16*sum(covers)+24*sum(starts)
         model.add(cost<=(line_windows or {}).get(y,window)+39);model.add(peak>=cost)
     return ranges,peak

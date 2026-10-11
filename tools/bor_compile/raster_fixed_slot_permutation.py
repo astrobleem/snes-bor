@@ -36,7 +36,7 @@ def optimize(source,time_limit=30,permute_banks=False):
             flags.setdefault((y,e['bank']),[]).append((i,model.new_constant(1)))
             change_hints[y,i,e['bank']]=(16*e['bank']+e['slot'],True)
         packet_hints[y]=[(p['cgram_word_address']-128,p['cgram_word_address']-129+p['word_count'])for p in source['prepared_dma_packets'][y]['packets']]
-    ranges,peak=constrain(model,flags,slots,len(source['trace']),4,2001,bank_destinations=destinations,
+    ranges,peak=constrain(model,flags,slots,len(source['trace']),4,3001,bank_destinations=destinations,
         packet_hints=packet_hints,fixed_address_change_hints=change_hints)
     model.add_hint(peak,max(r['prepared_commit_span']for r in source['prepared_dma_packets'])+40)
     model.minimize(peak)

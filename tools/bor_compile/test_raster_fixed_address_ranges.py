@@ -5,7 +5,7 @@ from raster_physical_relabel import point_partition
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class FixedAddressRangeTests(unittest.TestCase):
-    def solve(self,points,window=2001):
+    def solve(self,points,window=3001):
         from ortools.sat.python import cp_model
         model=cp_model.CpModel();flags={}
         for address in points:
@@ -19,7 +19,7 @@ class FixedAddressRangeTests(unittest.TestCase):
     def test_exact_cost_matches_independent_partition(self):
         from ortools.sat.python import cp_model
         rng=random.Random(3201);opaque=[a for a in range(128)if a%16]
-        cases=[[1],[1,17,33,49,65],[14,15,17,18],[1,15,113,127]]
+        cases=[[1],[1,17,33,49,65],[14,15,17,18],[1,15,113,127],opaque]
         cases += [rng.sample(opaque,n)for n in(3,7,15,24)]
         for points in cases:
             with self.subTest(points=points):
