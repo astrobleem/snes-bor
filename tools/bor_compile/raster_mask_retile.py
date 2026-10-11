@@ -19,7 +19,7 @@ def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,larg
     if large_size not in(None,16):raise ValueError('MASK_RETILE_SIZE_PAIR_DOMAIN')
     if objective_kind not in('oam','tiles'):raise ValueError('MASK_RETILE_OBJECTIVE_DOMAIN')
     _,_,words=demand(source)
-    height=len(source['trace']);points={};origins={};seed=set()
+    height=len(source['trace']);points={};eligibility={};origins={};seed=set()
     reservation=dict(oam_entries=0,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
     if geometry_reservation is not None:
         if not isinstance(geometry_reservation,dict)or set(geometry_reservation)!=set(reservation):raise ValueError('MASK_RETILE_RESERVATION_DOMAIN')
@@ -30,6 +30,10 @@ def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,larg
                 for k,limit in [('sprites_per_line',32),('tile_slivers_per_line',34)])):
             raise ValueError('MASK_RETILE_RESERVATION_DOMAIN')
     for p,mask,image in zip(source['pieces'],source['piece_pixel_masks'],words):
+        allowed=p.get('allowed_banks',list(range(8)))
+        if (not isinstance(allowed,(list,tuple))or not allowed or
+            any(type(b)is not int or not 0<=b<8 for b in allowed)or p['bank']not in allowed):
+            raise ValueError('MASK_RETILE_BANK_ELIGIBILITY')
         if p['width']not in(8,16)or p['height']!=p['width']:raise ValueError('MASK_RETILE_LEGAL_8_16_GEOMETRY_REQUIRED')
         origin=p['x']-p['local_x'],p['y']-p['local_y']
         if p['actor']in origins and origins[p['actor']]!=origin:raise ValueError('MASK_RETILE_ACTOR_ORIGIN')
@@ -39,6 +43,7 @@ def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,larg
             key=p['actor'],p['bank'],p['x']+int(lx),p['y']+int(ly)
             if key in points:raise ValueError('MASK_RETILE_INPUT_OVERLAP')
             points[key]=int(indices[ly,lx]),int(image[ly,lx])
+            eligibility[key]=set(allowed)
     candidates={}
     for actor,bank,x,y in points:
         for size in ((8,16)if large_size else(8,)):
@@ -87,14 +92,15 @@ def retile(source,time_limit=30,oam_limit=128,sprite_limit=32,tile_limit=34,larg
     ownership={pixel:next(i for i in owners[pixel]if i in chosen)for pixel in points}
     pieces=[];masks=[];replayed={}
     for i in chosen:
-        actor,bank,x,y,size=keys[i];ox,oy=origins[actor];image=np.zeros((size,size),dtype=np.uint8);rows={}
+        actor,bank,x,y,size=keys[i];ox,oy=origins[actor];image=np.zeros((size,size),dtype=np.uint8);rows={};allowed=set(range(8))
         for pixel in candidates[keys[i]]:
             if ownership[pixel]!=i:continue
             _,_,px,py=pixel;index,word=points[pixel]
             image[py-y,px-x]=index;rows.setdefault(py,set()).add(word);replayed[pixel]=(index,word)
+            allowed.intersection_update(eligibility[pixel])
         if not np.any(image):continue
         pieces.append(dict(actor=actor,bank=bank,x=x,y=y,local_x=x-ox,local_y=y-oy,width=size,height=size,
-                           rows={line:sorted(colors)for line,colors in rows.items()}))
+                           rows={line:sorted(colors)for line,colors in rows.items()},allowed_banks=sorted(allowed)))
         flat=image.flatten();masks.append(dict(width=size,height=size,packed_nibble_order='low then high',pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
     if replayed!=points:raise AssertionError('MASK_RETILE_PIXEL_INDEX_WORD_IDENTITY')
     peak=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height))

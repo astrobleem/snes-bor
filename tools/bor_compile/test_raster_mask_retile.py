@@ -20,6 +20,15 @@ def fixture(points):
 
 
 class RetileTests(unittest.TestCase):
+    def test_merged_object_keeps_every_source_bank_restriction(self):
+        source=fixture([(0,4,7,4),(0,4,8,4)])
+        source['pieces'][0]['allowed_banks']=[4,5]
+        source['pieces'][1]['allowed_banks']=[4,6]
+        result=retile(source,5,oam_limit=1)
+        self.assertEqual(result['pieces'][0]['allowed_banks'],[4])
+        source['pieces'][0]['allowed_banks']=[5]
+        with self.assertRaisesRegex(ValueError,'BANK_ELIGIBILITY'):retile(source,5)
+
     def test_verified_physical_packets_survive_exact_retile(self):
         source=fixture([(0,4,7,4),(0,4,8,4)])
         source['physical_slot_layout']=dict(status='PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN',native_timing_admitted=True)
