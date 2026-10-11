@@ -25,3 +25,15 @@ Eight further repairs expand local windows through lines 126..149. All return
 FEASIBLE and preserve the full-frame pixel/CGRAM identities, write cap and
 ideal bank bound. Six improvements reduce aggregate span to 11,624 clocks;
 the peak remains 536 clocks. No native admission follows.
+
+A complete exact-operand and color-window repair over rows 128..148 returns
+UNKNOWN after 90.180 seconds. It models 42,839 variables and 74,719 constraints,
+with six pixels having multiple exact operand choices. Shared row math modes
+and piece banks stay fixed. This result rejects no raster family.
+
+A one-line demand-gap model permits reloads across 637 lifetimes with twelve
+lines of lookahead and free idle-prefix initialization. It returns UNKNOWN
+after 90.201 seconds. Fixed-write-time optimization from the verified seed
+returns FEASIBLE after 180.126 seconds and lowers the physical peak to 472
+clocks. Full pixel and packet identities replay; this is neither an optimum
+proof nor native admission.

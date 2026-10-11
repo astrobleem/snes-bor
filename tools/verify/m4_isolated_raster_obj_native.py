@@ -19,9 +19,20 @@ from actor_s5_entity_fixture import symbols
 from _harness import McpSession,MESEN_EXE,_free_tcp_port
 
 
+def lease_queue_vram(occupied,byte_count):
+    """Private fixture allocation from exact uploaded ranges, never live leases."""
+    if type(byte_count)is not int or byte_count<0 or byte_count>4096 or byte_count%2:raise ValueError('NATIVE_QUEUE_VRAM_EXTENT')
+    ranges=sorted(occupied)
+    if any(type(a)is not int or type(b)is not int or not 0<=a<=b<=65536 for a,b in ranges):raise ValueError('NATIVE_QUEUE_VRAM_OCCUPIED_DOMAIN')
+    cursor=0
+    for left,right in ranges+[(65536,65536)]:
+        if cursor+byte_count<=left:return cursor
+        cursor=max(cursor,right);cursor+=(cursor%2)
+    raise ValueError('NATIVE_QUEUE_VRAM_NO_DISJOINT_LEASE')
+
+
 def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=False,foreground_stress=False,production_nmi_services=False,nmi_queue_bytes=512,foreground_wai=False,prepare_next_line=False,control_traffic=None,delta_control_traffic=False,controls_before_palette=False,authored_context=None):
     if production_nmi_services and(not sa1_mapping or not 0<=nmi_queue_bytes<=4096 or nmi_queue_bytes%2):raise ValueError('NATIVE_PRODUCTION_NMI_SERVICE_DOMAIN')
-    if authored_context is not None and production_nmi_services:raise ValueError('NATIVE_AUTHORED_NMI_VRAM_LEASE_NOT_IMPLEMENTED')
     if foreground_wai and foreground_stress:raise ValueError('NATIVE_WAI_AND_FOREGROUND_STRESS_CONFLICT')
     if delta_control_traffic and control_traffic is None:raise ValueError('NATIVE_DELTA_CONTROL_TRAFFIC_REQUIRED')
     if controls_before_palette and control_traffic is None:raise ValueError('NATIVE_PREPALETTE_CONTROL_TRAFFIC_REQUIRED')
@@ -93,6 +104,14 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
         bg_assets.append(dict(bank=0xad,rom=109 if sa1_mapping else 45,target=0x5800,data=bgmap))
     if schedule['source_rgb555_sha256']!=hashlib.sha256(expected.tobytes()).hexdigest():raise ValueError('NATIVE_SOURCE_CONTEXT_IDENTITY')
     _,_,pixels=demand(schedule);chr_report,objchr,oam=compile_chr(schedule)
+    queue_vram_byte_address=0
+    queue_vram_lease=None
+    if authored_context is not None and production_nmi_services:
+        occupied=[[2*a['target'],2*a['target']+len(a['data'])]for a in bg_assets]+[[0xc000,0xc000+len(objchr)]]
+        queue_vram_byte_address=lease_queue_vram(occupied,nmi_queue_bytes)
+        queue_vram_lease=dict(scope='PRIVATE_STATIC_UPLOADED_ASSETS_ONLY',occupied_byte_ranges=occupied,
+            queue_byte_range=[queue_vram_byte_address,queue_vram_byte_address+nmi_queue_bytes],
+            live_background_streaming_admitted=False,production_runtime_admitted=False)
     initial=bytearray(512)
     if authored_context is None:
         underlay=isolation['underlay_rgb8'];struct.pack_into('<H',initial,0,int(rgb555(np.array([[underlay]],dtype=np.uint8))[0,0]))
@@ -143,6 +162,9 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
         asm.extend([' sep #$20','.a8'])
         for address,value in((0x7e5003,0x90),(0x7e5004,15),(0x7e500c,16),(0x7e500f,1)):
             asm.extend([f' lda #${value:02X}',f' sta.l ${address:06X}'])
+    if authored_context is not None and production_nmi_services:
+        for address,value in((0x7e500c,17 if authored_main else 1),(0x7e500f,3),(0x7e5010,0x58),(0x7e5019,255),(0x7e501a,255)):
+            asm.extend([f' lda #${value:02X}',f' sta.l ${address:06X}'])
     asm.extend([' rep #$20','.a16',' lda #IsolatedRasterRow0',' sta $1E00',' sep #$20','.a8',f' lda #${row_bank:02X}',' sta $1E02',' stz $1E08',
         'IsolatedRasterWaitBlank:',' lda $4212',' and #$80',' beq IsolatedRasterWaitBlank'])
     asm.extend([' rep #$20','.a16',' lda #$B401',' sta $1E04',' sep #$20','.a8'])
@@ -164,7 +186,7 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
         for name in('Nmi_FrameBusy','Nmi_Busy'):
             asm.extend([f" sta.l ${production[name]:06X}"])
         if nmi_queue_bytes:
-            for offset,value in((0,nmi_queue_bytes),(2,0),(5,queue_source)):
+            for offset,value in((0,nmi_queue_bytes),(2,queue_vram_byte_address),(5,queue_source)):
                 asm.extend([f' lda #${value:04X}',f" sta.l ${production['DmaQueue']+offset:06X}"])
         asm.extend([' sep #$20','.a8'])
         if nmi_queue_bytes:
@@ -240,6 +262,7 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
     if not sa1_mapping:raw[0x7fd5]=0x30;raw[0x7fd6]=0
     resources=dict(chr_report=chr_report,stream_offsets=offsets,stream_bytes={ch:len(s)for ch,s in streams.items()},asset_bytes=len(assets),source_metadata=metadata,empty_scanline_dma_setup_skipped=sum(not r['mask']for r in rows),
         private_fixture_only=True,controls_before_palette=controls_before_palette,delta_control_traffic=delta_control_traffic,control_traffic_rows=control_rows,control_traffic_math_layer_selection_disabled=control_traffic is not None,foreground_context='BOUNDED_LONG_WRAM_STACK_AND_ACCUMULATOR_WIDTH_MIX'if foreground_stress else'WAI_EACH_RASTER_IRQ'if foreground_wai else'HELD_BRA',dma_counts_prepared_previous_line=prepare_next_line,prepared_count_high_bytes_zero=prepare_next_line,idle_irq_bank_zero_abi=foreground_wai,idle_irq_x_untouched=foreground_wai,idle_irq_direct_page=0x4300 if foreground_wai else None,actual_source_vm_execution_proven=False,production_nmi_service_code_executed=production_nmi_services,production_nmi_queue_bytes=nmi_queue_bytes if production_nmi_services else 0,production_queue_registration_executed=False,production_queue_byte_cap=2816,within_production_queue_byte_cap=nmi_queue_bytes<2816 if production_nmi_services else None,service_path_stress_only=production_nmi_services and nmi_queue_bytes>=2816,initial_palette_vblank_bytes=256,raster_cgram_owned_word_range=[128,255],production_cold_boot_proven=False,code_rom_banks=[code_rom,row_rom],asset_rom_bank=asset_rom,sa1_mmc_registers_changed=False,standalone_lorom=not sa1_mapping,production_sa1_mapping_proven=sa1_mapping,production_sa1_worker_execution_proven=False,bank_zero_growth_bytes=0,irq_dma_channels=list(range(1,8)),hdma_channels=[],source_alpha_policy='BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY')
+    resources.update(production_queue_vram_byte_address=queue_vram_byte_address,production_queue_private_vram_lease=queue_vram_lease)
     resources['hoisted_constant_controls']=constant_controls
     if authored_context is not None:
         resources.update(underlay=underlay_report,obj_operand_screen='main'if authored_main else'subscreen',main_obj_disabled=not authored_main,source_alpha_policy='EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555',authored_source_context_bound=True,
@@ -251,7 +274,7 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
     return bytes(raw),expected,bytes(initial),oam,sy,resources
 
 
-def observer(sy,sa1_mapping=False,queue_address=0,queue_bytes=0,control_traffic=False,physical_cgram=False,foreground_wai=False):
+def observer(sy,sa1_mapping=False,queue_address=0,queue_bytes=0,control_traffic=False,physical_cgram=False,foreground_wai=False,queue_vram_byte_address=0):
     def prg(name):v=sy[name];return((v>>16&127)+(64 if sa1_mapping else 0))*32768+(v&65535)-32768
     register_observer=''
     if control_traffic:
@@ -285,7 +308,7 @@ emu.addMemoryCallback(function()
  if current then emu.log('ISOPACKET|'..table.concat(current,','));emu.log('ISOWORDS|'..current[1]..','..current[2]..','..table.concat(current.words,','));current=nil end
 end,emu.callbackType.exec,RTI,RTI,emu.cpuType.snes,emu.memType.snesPrgRom)
 emu.addEventCallback(function()if active then local s=emu.getState();emu.log('ISOFLAGS|'..s['ppu.frameCount']..','..emu.read(0x213e,emu.memType.snesMemory));emu.log('ISOCONTEXT|'..contexts..','..faults..','..irqpeak)end end,emu.eventType.endFrame)
-'''.replace("nmiChecks=nmiChecks+1;", "nmiChecks=nmiChecks+1;local bad=0;for i=0,"+str(queue_bytes-1)+" do if emu.read(i,emu.memType.snesVideoRam)~=(i*13+7)%256 then bad=bad+1 end end;emu.log('ISONMIQUEUE|'..nmiChecks..','..bad..','..emu.read("+str(queue_address+4)+",emu.memType.snesMemory));" if queue_address else "nmiChecks=nmiChecks+1;").replace('NMIRTI',str(prg('IsolatedRasterNmiRti'))).replace('NMI,NMI',str(prg('IsolatedRasterNmi'))+','+str(prg('IsolatedRasterNmi'))).replace('IRQ',str(prg('IsolatedRasterIrq'))).replace('RTI',str(prg('IsolatedRasterIrqRti')))+register_observer
+'''.replace("nmiChecks=nmiChecks+1;", "nmiChecks=nmiChecks+1;local bad=0;for i=0,"+str(queue_bytes-1)+" do if emu.read(i+"+str(queue_vram_byte_address)+",emu.memType.snesVideoRam)~=(i*13+7)%256 then bad=bad+1 end end;emu.log('ISONMIQUEUE|'..nmiChecks..','..bad..','..emu.read("+str(queue_address+4)+",emu.memType.snesMemory));" if queue_address else "nmiChecks=nmiChecks+1;").replace('NMIRTI',str(prg('IsolatedRasterNmiRti'))).replace('NMI,NMI',str(prg('IsolatedRasterNmi'))+','+str(prg('IsolatedRasterNmi'))).replace('IRQ',str(prg('IsolatedRasterIrq'))).replace('RTI',str(prg('IsolatedRasterIrqRti')))+register_observer
     if physical_cgram:
         lua='local planned={};local initialShadow={};\n'+lua
         lua=lua.replace('restoring=v~=0 end','restoring=v~=0;if restoring and active then for i=0,511 do planned[i]=initialShadow[i]end end end')
@@ -323,7 +346,7 @@ def main():
         authored_context=dict(metadata=metadata,expected=rgb555(composed),background=background)
     raw,expected,initial,oam,sy,resources=compile_rom(a.rom.read_bytes(),a.source,scene,schedule,folder,a.timer,a.sa1_mapping,a.foreground_stress,a.production_nmi_services,a.nmi_queue_bytes,a.foreground_wai,a.prepare_next_line,json.loads(a.control_traffic.read_text())if a.control_traffic else None,a.delta_control_traffic,a.controls_before_palette,authored_context)
     production_sy=symbols(Path('src/main.sym'))if a.production_nmi_services else {}
-    rom=folder/'proof.sfc';rom.write_bytes(raw);lua=folder/'observer.lua';lua.write_text(observer(sy,a.sa1_mapping,production_sy.get('DmaQueue',0),a.nmi_queue_bytes,a.control_traffic is not None,True,a.foreground_wai))
+    rom=folder/'proof.sfc';rom.write_bytes(raw);lua=folder/'observer.lua';lua.write_text(observer(sy,a.sa1_mapping,production_sy.get('DmaQueue',0),a.nmi_queue_bytes,a.control_traffic is not None,True,a.foreground_wai,resources['production_queue_vram_byte_address']))
     if authored_context is not None:
         with lua.open('a')as f:f.write("\nlocal routing={};emu.addMemoryCallback(function(a,v)if a==0x2105 or a==0x2107 or a==0x210b or a==0x212c or a==0x212d or a==0x2130 or a==0x2131 or a==0x2132 then routing[a]=v end end,emu.callbackType.write,0x2105,0x2132,emu.cpuType.snes,emu.memType.snesMemory)\nemu.addEventCallback(function()if active then for a,v in pairs(routing)do emu.log('ISOROUTE|'..a..','..v)end end end,emu.eventType.endFrame)\n")
     class Observed(McpSession):
@@ -340,7 +363,7 @@ def main():
         shot=m.tool('take_screenshot',{'format':'path','path':str(folder/'screenshot.png')});cg=m.read_memory('SnesCgRam',0,512);observed_oam=m.read_memory('SnesSpriteRam',0,544);ppu=m.get_ppu_state();cpu=m.get_cpu_state()
         observed_chr=m.read_memory('SnesVideoRam',0xc000,resources['chr_report']['obj_chr_bytes'])
         chr_identity=hashlib.sha256(observed_chr).hexdigest()==resources['chr_report']['chr_sha256']
-        queued_vram=m.read_memory('SnesVideoRam',0,a.nmi_queue_bytes)if a.production_nmi_services and a.nmi_queue_bytes else b''
+        queued_vram=m.read_memory('SnesVideoRam',resources['production_queue_vram_byte_address'],a.nmi_queue_bytes)if a.production_nmi_services and a.nmi_queue_bytes else b''
         production_sy=symbols(Path('src/main.sym'))if a.production_nmi_services else {}
         queue_state=m.read_memory('SnesMemory',production_sy['DmaQueue'],8)if a.production_nmi_services else b''
         nmi_fields=int.from_bytes(m.read_memory('SnesMemory',production_sy['Nmi_FrameCounter'],2),'little')if a.production_nmi_services else None
@@ -366,7 +389,8 @@ def main():
     identity=actual.shape==expected.shape and np.array_equal(actual,expected);context=contexts[-1]if contexts else[0,-1,0]
     nmi_context=nmi_contexts[-1]if nmi_contexts else[0,-1,0]
     nmi_window=bool(nmi_contexts)and all(v[3]==v[5]and 225<=v[4]<=v[6]<262 for v in nmi_contexts)
-    queue_identity=not a.production_nmi_services or(nmi_window and len(nmi_queues)>=2 and all(q[1]==0 and not(q[2]&64)for q in nmi_queues)and nmi_fields>=2 and nmi_context[0]>=2 and nmi_context[1]==0 and (not a.nmi_queue_bytes or sum(d[1]==24 and d[2]==a.nmi_queue_bytes for d in nmi_dmas)>=2))
+    queue_payload_identity=not a.production_nmi_services or queued_vram==bytes((i*13+7)&255 for i in range(a.nmi_queue_bytes))
+    queue_identity=not a.production_nmi_services or(queue_payload_identity and nmi_window and len(nmi_queues)>=2 and all(q[1]==0 and not(q[2]&64)for q in nmi_queues)and nmi_fields>=2 and nmi_context[0]>=2 and nmi_context[1]==0 and (not a.nmi_queue_bytes or sum(d[1]==24 and d[2]==a.nmi_queue_bytes for d in nmi_dmas)>=2))
     control_fields=[]
     expected_controls={int(y):[list(entry)for entry in rows]for y,rows in resources['control_traffic_rows'].items()}
     for frame in sorted({r[0]for r in register_writes}):
@@ -393,7 +417,7 @@ def main():
         control_traffic_fields=control_fields,control_traffic_identity_verified=control_identity,control_traffic_source_file_sha256=hashlib.sha256(a.control_traffic.read_bytes()).hexdigest()if a.control_traffic else None,
         irq_phase_observer=irq_phases,
         foreground_wait_observer=foreground_waits,
-        nmi_context_checks=nmi_context[0],nmi_context_faults=nmi_context[1],peak_nmi_entry_to_rti_master_clocks=nmi_context[2],production_nmi_fields=nmi_fields,nmi_completed_within_vblank=nmi_window,production_queue_vram_identity_verified=queue_identity if a.production_nmi_services else None,production_queue_state_hex=queue_state.hex(),
+        nmi_context_checks=nmi_context[0],nmi_context_faults=nmi_context[1],peak_nmi_entry_to_rti_master_clocks=nmi_context[2],production_nmi_fields=nmi_fields,nmi_completed_within_vblank=nmi_window,production_queue_vram_identity_verified=queue_identity if a.production_nmi_services else None,production_queue_state_hex=queue_state.hex(),production_queue_payload_identity_verified=queue_payload_identity if a.production_nmi_services else None,
         physical_cgram_identity_verified=physical_identity,physical_cgram_checks=len(physical_checks),physical_cgram_byte_identity_faults=sum(row[2]for row in physical_checks),
         pixel_identity_verified=identity,pixel_mismatches=int(np.count_nonzero(actual!=expected))if actual.shape==expected.shape else None,
         complete_packet_fields=complete,packet_identity_faults=word_faults,unsafe_high_commits=sum(r[3]for r in packets),

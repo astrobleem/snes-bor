@@ -1,0 +1,686 @@
+{
+  "schema": "BYOR_AUTHORED_PRIVATE_NMI_VRAM_LEASE_V1",
+  "proofs": {
+    "authored_first_frame": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "PASS",
+        "control_traffic_fields": [],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": null,
+        "nmi_context_checks": 4,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37938,
+        "production_nmi_fields": 4,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a0095008085aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": true,
+        "physical_cgram_checks": 0,
+        "physical_cgram_byte_identity_faults": 0,
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "complete_packet_fields": [
+          14,
+          15,
+          16
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 0,
+        "peak_observed_commit_span": null,
+        "first_high_hclock_range": [
+          0,
+          0
+        ],
+        "irq_context_checks": 940,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 306,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ],
+          [
+            16,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "765fc5d743072e9244674db8b23610a150542b851c7d5abfdda5194e50cce618",
+        "source_frame_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+        "input_schedule_file_sha256": "ed08ada06618f1f30052f72256f637d2e29c55b2a08c996e5637f326910e2c08",
+        "compiled_transfer_descriptor_sha256": "facfc60e56cd9f82056f37853791e49a9696204d90025c04a3c45bfaf6e7a074",
+        "compiled_schedule_sha256": "b033ef6ba739bf8e97540dfab3118d9f93f0d9b8a36d7e9d391edbbbab22bacd",
+        "rom_sha256": "71cb65e5f0f03adeb2ff9b83d700126cd47169707f0156ed05884f452237e893",
+        "expected_rgb555_sha256": "8cdaab5de7e9cbb1897468bff6174120f9183052911454c61bf9f70437b0652a",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 162,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE1_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 1,
+            "obj_size_pair": [
+              8,
+              32
+            ],
+            "oam_entries": 11,
+            "obj_chr_bytes": 352,
+            "occupied_tile_cells": 11,
+            "unique_tiles": 11,
+            "reserved_tile_cells": [],
+            "chr_sha256": "765fc5d743072e9244674db8b23610a150542b851c7d5abfdda5194e50cce618",
+            "oam_sha256": "ede2a37d3e590c15caa2887b7a03aff5b493d530559855ef101580fc7369545f",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 36990,
+            "2": 36991,
+            "3": 36992,
+            "4": 36993,
+            "5": 36994,
+            "6": 36995,
+            "7": 36996
+          },
+          "stream_bytes": {
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0,
+            "7": 0
+          },
+          "asset_bytes": 4229,
+          "source_metadata": {
+            "stage": "DATA/LEVELS/GUILE2.TXT",
+            "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Source first effect frame over authored underlay; native harness control, no concurrency claim.",
+              "actors": [
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 0,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+                "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+                "source_dimensions": [
+                  800,
+                  400
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+                "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+                "source_dimensions": [
+                  2544,
+                  245
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 44246,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 214,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+                "pre_occlusion_pixels": 214,
+                "final_visible_pixels": 214
+              },
+              {
+                "kind": "frontpanel",
+                "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+                "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+                "source_dimensions": [
+                  350,
+                  245
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 2749,
+                "source_flip": false
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 224,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": false,
+          "control_traffic_math_layer_selection_disabled": false,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555",
+          "production_queue_vram_byte_address": 38144,
+          "production_queue_private_vram_lease": {
+            "scope": "PRIVATE_STATIC_UPLOADED_ASSETS_ONLY",
+            "occupied_byte_ranges": [
+              [
+                0,
+                32768
+              ],
+              [
+                32768,
+                38144
+              ],
+              [
+                45056,
+                47104
+              ],
+              [
+                49152,
+                49504
+              ]
+            ],
+            "queue_byte_range": [
+              38144,
+              40958
+            ],
+            "live_background_streaming_admitted": false,
+            "production_runtime_admitted": false
+          },
+          "hoisted_constant_controls": {},
+          "underlay": {
+            "schema": "BYOR_STATIC_OBJ_MATH_UNDERLAY_V1",
+            "status": "OFFLINE_BG1_CHR_MAP_PALETTE_SOURCE_IDENTITY_PROVEN",
+            "viewport": [
+              256,
+              224
+            ],
+            "colors": 58,
+            "unique_8x8_tiles": 596,
+            "chr_bytes": 38144,
+            "map_bytes": 2048,
+            "palette_bytes": 256,
+            "bg_mode": 3,
+            "bg1_chr_byte_range": [
+              0,
+              45056
+            ],
+            "bg1_map_byte_range": [
+              45056,
+              47104
+            ],
+            "obj_chr_byte_range": [
+              49152,
+              65536
+            ],
+            "bg_palette_word_range": [
+              1,
+              58
+            ],
+            "obj_palette_word_range": [
+              128,
+              255
+            ],
+            "visible_nonzero_bg_indices_verified": true,
+            "source_rgb555_sha256": "b709ce24b7bed3d5b275f5039619ef256f02f6b04a610994c096103b7c0d27c3",
+            "chr_sha256": "f2da057830adc6ad23fbe0c28cc11cd7c2174d2ad056cf84fd05cdd061dc2ca0",
+            "map_sha256": "a827759fcbd12a82f26d2789ec38e2f1ac4b80396cf9c22a7a4af79656326072",
+            "palette_sha256": "8b3f8671ac91d19975a6aea94a8b23a9d2942df37b8fcbaa1903b90eee008206",
+            "source_pixel_identity_verified": true,
+            "no_color_reduction": true,
+            "native_presentation_proven": false,
+            "source_alpha_math_routing_proven": false,
+            "scope": "One actor-free static source viewport. No native routing, front-layer ownership, background streaming or joint runtime budget proof."
+          },
+          "obj_operand_screen": "subscreen",
+          "main_obj_disabled": true,
+          "authored_source_context_bound": true,
+          "background_asset_banks": [
+            171,
+            172,
+            173
+          ],
+          "background_asset_rom_banks": [
+            107,
+            108,
+            109
+          ],
+          "background_asset_bytes": 40192,
+          "concurrent_actor_layer_routing_proven": false,
+          "full_field_native_identity_still_required": true,
+          "authored_main_screen_obj_math": false,
+          "control_traffic_row_count": 0
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false,
+        "authored_stage_source_pixels_proven": true,
+        "authored_underlay_vram_palette_identity": true,
+        "layer_routing_observer_identity": true,
+        "layer_routing_observer": {
+          "8498": 224,
+          "8492": 1,
+          "8493": 16,
+          "8459": 0,
+          "8453": 3,
+          "8496": 2,
+          "8497": 1,
+          "8455": 88
+        },
+        "source_alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555",
+        "concurrent_actor_layer_routing_proven": false,
+        "irq_phase_observer_count": 0,
+        "foreground_wait_observer_count": 0,
+        "frame_advancement_count": 19
+      },
+      "files": {
+        "proof.sfc": "71cb65e5f0f03adeb2ff9b83d700126cd47169707f0156ed05884f452237e893",
+        "fixture.bin": "2b5f6079e113e2b19bef7aacd4e4ae55a2c2526e42ce546667f3154657c27c73",
+        "fixture.pasm": "763e4c77264cb5418460d1d18693beb5cb88627005b19d86a29c45b36eceb1f8",
+        "observer.lua": "1a54bbc80310546818483de1ffeb024dff8a31a28f09eb13381009fb09280fc1",
+        "screenshot.png": "b623f1fe8542328265c7dbb98889f87889cbac14f4aaf3ff8d74f6092388e8de",
+        "cgram-observer.json": "4415e8849c18262b6ec0a059bae65f775c4e162712943bb2b136bcac39193efc"
+      }
+    },
+    "raw_peak_control_transport_regression": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "PASS",
+        "control_traffic_fields": [
+          12,
+          13,
+          14
+        ],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": "0100bc40b6e8cf61a2554c69c877d8a8b2bd9e3716d9738985650ec79e7fafbb",
+        "nmi_context_checks": 3,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37940,
+        "production_nmi_fields": 3,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a0000008091aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": true,
+        "physical_cgram_checks": 90,
+        "physical_cgram_byte_identity_faults": 0,
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "complete_packet_fields": [
+          12,
+          13,
+          14
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 0,
+        "peak_observed_commit_span": 344,
+        "first_high_hclock_range": [
+          1096,
+          1104
+        ],
+        "irq_context_checks": 705,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 1122,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "77b7397c78d03315b22d904481d42bce617c3699b2f78ccc0257f07f200d2771",
+        "source_frame_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+        "input_schedule_file_sha256": "fa014143cff89473510a0d19cb2078a5290e69e2e2e8417fbc72c36105f5ae80",
+        "compiled_transfer_descriptor_sha256": "168b0f68972963105a739c9878ca1f719aa0b45ae1444ef40037d84e6823077e",
+        "compiled_schedule_sha256": "64541635099c87384e692736fbefefa2783455e4d57b7b9b936177a570ae03fe",
+        "rom_sha256": "9db96423da433bedc0123ad84fe4962642d0d6cfd08945d20ef849f1f5ffa4bb",
+        "expected_rgb555_sha256": "f91cf9c4be710140e170b678f425b4798d0bbacb716a3dd91e23dfb91fdbf26b",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 162,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE1_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 1,
+            "obj_size_pair": [
+              8,
+              32
+            ],
+            "oam_entries": 107,
+            "obj_chr_bytes": 3424,
+            "occupied_tile_cells": 107,
+            "unique_tiles": 107,
+            "reserved_tile_cells": [],
+            "chr_sha256": "77b7397c78d03315b22d904481d42bce617c3699b2f78ccc0257f07f200d2771",
+            "oam_sha256": "b2c9939b79bdc2d1e70f9219de77a64f6214be077c956a097bdd9c9a2ab28ad1",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 40062,
+            "2": 40252,
+            "3": 40281,
+            "4": 40417,
+            "5": 40443,
+            "6": 40607,
+            "7": 40628
+          },
+          "stream_bytes": {
+            "1": 190,
+            "2": 29,
+            "3": 136,
+            "4": 26,
+            "5": 164,
+            "6": 21,
+            "7": 94
+          },
+          "asset_bytes": 7954,
+          "source_metadata": {
+            "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+            "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+              "actors": [
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 11,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 0,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 194,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": true,
+          "control_traffic_math_layer_selection_disabled": true,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY",
+          "production_queue_vram_byte_address": 0,
+          "production_queue_private_vram_lease": null,
+          "hoisted_constant_controls": {},
+          "authored_main_screen_obj_math": false,
+          "control_traffic_row_count": 47
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false,
+        "irq_phase_observer_count": 705,
+        "foreground_wait_observer_count": 705,
+        "frame_advancement_count": 24
+      },
+      "files": {
+        "proof.sfc": "9db96423da433bedc0123ad84fe4962642d0d6cfd08945d20ef849f1f5ffa4bb",
+        "fixture.bin": "86048601db0c81216ec1f61c006e6e779b349185fa7f0ccfb6909876f8a28ac8",
+        "fixture.pasm": "1f5a6ae9aedac84caecce268e10c14645b6d7a9114df89f93009b991483eb7ac",
+        "observer.lua": "0bdf72675771a75ef48d7533ee5aaf59f89f024b7a57bd489775a3864e259902",
+        "screenshot.png": "914cb454d54b9c641111dbd0d7374770ffe611373a386455db6a80de3a794432",
+        "cgram-observer.json": "8c7f8d4b7e2eb8dca68e610ad6af84266fe1c39f81d353447f29fa717c1a9aa9"
+      }
+    }
+  },
+  "development_failures": [
+    {
+      "status": "FAIL",
+      "pixel_mismatches": 2878,
+      "production_queue_payload_identity_verified": false,
+      "production_queue_vram_identity_verified": false,
+      "authored_underlay_vram_palette_identity": false
+    },
+    {
+      "status": "FAIL",
+      "pixel_mismatches": 0,
+      "production_queue_payload_identity_verified": true,
+      "production_queue_vram_identity_verified": false,
+      "authored_underlay_vram_palette_identity": true
+    }
+  ],
+  "production_runtime_admitted": false,
+  "authored_peak_proven": false,
+  "concurrent_actors_proven": false,
+  "no_color_reduction": true
+}
