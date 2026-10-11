@@ -6,7 +6,7 @@ interval demand guides search; it is never a physical or native admission.
 import argparse,copy,hashlib,json,time,math,random
 from pathlib import Path
 import numpy as np
-from raster_slot_greedy import demand
+from raster_slot_greedy import demand,bank_groups
 from raster_palette import schedule as logical_schedule
 from raster_obj_compact import unpack
 
@@ -86,7 +86,8 @@ def rebalance(source,lookahead=17,maximum_moves=20,maximum_interval=32,anneal_st
     intervals=[(a,b)for a in range(first,last)for b in range(a+1,min(last,a+maximum_interval)+1)]
     denominators=np.array([b-a for a,b in intervals],dtype=float)
     assignment=[p['bank']for p in source['pieces']]if initial_assignment is None else list(initial_assignment);moves=[];started=time.monotonic()
-    additive=source.get('color_math','additive')!='precomposited'
+    additive=source.get('color_math','additive')=='additive'
+    bank_groups(source)
     allowed=[]
     for i,p in enumerate(source['pieces']):
         banks=set(range(8))if reencode_math_classes or not additive else set(range(4*(p['bank']//4),4*(p['bank']//4)+4))

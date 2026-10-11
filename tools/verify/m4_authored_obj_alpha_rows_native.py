@@ -20,11 +20,13 @@ from raster_slot_greedy import demand
 from raster_obj_compact import unpack
 from raster_obj_chr import compile as compile_chr
 from raster_obj_math_cover import apply_math
-from raster_math_windows import evaluate
+from raster_math_windows import evaluate,compile_mask
 from _harness import McpSession,MESEN_EXE,_free_tcp_port
 
 
-def compile_row(schedule,y,background,complete,states,modes,windows):
+def compile_row(schedule,y,background,complete,states,modes,windows,obj_screen='main'):
+    if obj_screen not in('main','subscreen'):raise ValueError('ALPHA_ROW_OBJ_SCREEN')
+    if obj_screen=='subscreen' and(schedule.get('color_math')!='subscreen-additive' or modes[y]!='add'):raise ValueError('ALPHA_ROW_SUBSCREEN_ADD_REQUIRED')
     _,_,colors=demand(schedule);sample=copy.deepcopy(schedule);masks=[];count=0
     expected=background.copy();descriptor=windows[y];mode=modes[y]
     for p,mask,words in zip(schedule['pieces'],schedule['piece_pixel_masks'],colors):
@@ -33,7 +35,7 @@ def compile_row(schedule,y,background,complete,states,modes,windows):
             if p['y']+ly!=y:image[ly]=0
         for ly,lx in zip(*np.where(image)):
             x=p['x']+int(lx);word=int(words[ly,lx]);value=word
-            if p['bank']>=4 and evaluate(descriptor,x):value=apply_math(word,int(background[y,x]),mode)
+            if obj_screen=='subscreen' or p['bank']>=4 and evaluate(descriptor,x):value=apply_math(word,int(background[y,x]),mode)
             if value!=int(complete[y,x]):raise AssertionError('ALPHA_ROW_SOURCE_IDENTITY')
             expected[y,x]=value;count+=1
         flat=image.flatten();masks.append(dict(width=p['width'],height=p['height'],pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
@@ -58,11 +60,11 @@ def compile_row(schedule,y,background,complete,states,modes,windows):
     dma(0x8800,4,0x18,objchr,1,0x6000)
     # Keep variable CHR separate from OAM/palette in the asset bank.
     store(0x2102,0);store(0x2103,0);dma(0xc800,4,4,oam,0);store(0x2121,0);dma(0xcc00,4,0x22,palette,0)
-    math=0x10|{'add':0,'half-add':0x40,'subtract':0x80,'half-subtract':0xc0}[mode]
+    math=(1 if obj_screen=='subscreen' else 0x10)|{'add':0,'half-add':0x40,'subtract':0x80,'half-subtract':0xc0}[mode]
     for a,v in((0x2101,3|(chr_report['obj_size_mode']<<5)),(0x2105,3),(0x2107,0x58),(0x210b,0),
-                (0x210d,0),(0x210d,0),(0x210e,255),(0x210e,255),(0x212c,17),(0x212d,1),
+                (0x210d,0),(0x210d,0),(0x210e,255),(0x210e,255),(0x212c,1 if obj_screen=='subscreen' else 17),(0x212d,16 if obj_screen=='subscreen' else 1),
                 (0x212e,0),(0x212f,0),(0x2125,descriptor['wobjsel_color_bits']),
-                (0x212b,descriptor['wobjlog_color_bits']),(0x2130,0x12),(0x2131,math),(0x2132,0xe0),(0x2133,0)):
+                (0x212b,descriptor['wobjlog_color_bits']),(0x2130,2 if obj_screen=='subscreen' else 0x12),(0x2131,math),(0x2132,0xe0),(0x2133,0)):
         store(a,v)
     for i,v in enumerate(sum(descriptor['bounds'],[])):store(0x2126+i,v)
     code.extend(bytes.fromhex('ad 12 42 29 80 f0 f9'));store(0x2100,15);code.extend(bytes.fromhex('80 fe'))
@@ -70,19 +72,27 @@ def compile_row(schedule,y,background,complete,states,modes,windows):
     raw[0x7fc0:0x7fd5]=b'M4 SOURCE ALPHA ROW'.ljust(21);raw[0x7fd5:0x7fdc]=bytes([0x20,0,8,0,1,0,0]);raw[0x7ffc:0x7ffe]=struct.pack('<H',0x8000)
     owned=[r for r in registers if 0x2125<=r[0]<=0x2131]
     return bytes(raw),expected,bytes(palette),oam,bgchr,bgmap,objchr,dict(scanline=y,mode=mode,window=descriptor,source_obj_pixels=count,
-        underlay=underlay,obj=chr_report,expected_register_writes=owned)
+        underlay=underlay,obj=chr_report,expected_register_writes=owned,obj_operand_screen=obj_screen,main_obj_disabled=obj_screen=='subscreen',native_raster_timing_proven=False)
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    for name in('source','stage','scene','schedule','controls','output'):p.add_argument('--'+name,required=True)
+    for name in('source','stage','scene','schedule','output'):p.add_argument('--'+name,required=True)
+    p.add_argument('--controls');p.add_argument('--obj-screen',choices=('main','subscreen'),default='main')
     p.add_argument('--rows',type=int,nargs=2,help='Optional bounded subset, inclusive.')
     a=p.parse_args();folder=Path(a.output).resolve();folder.mkdir(parents=True,exist_ok=True)
     source=Source(a.source);scene=json.loads(Path(a.scene).read_text());schedule=json.loads(Path(a.schedule).read_text())
     actors,metadata,expected=prepare(source,a.stage,scene);complete=rgb555(expected)
     digest=hashlib.sha256(complete.astype('<u2').tobytes()).hexdigest()
-    modes,windows,_=scanline_controls(json.loads(Path(a.controls).read_text()),metadata,digest,len(complete))
-    if schedule.get('metadata')!=metadata or schedule.get('source_rgb555_sha256')!=digest or not schedule.get('scanline_math_controls_source_bound') or any(schedule['selected_modes'].get(str(y))!=m for y,m in modes.items())or{int(y):d for y,d in schedule['compiled_color_window_descriptors'].items()}!=windows:
+    if a.obj_screen=='subscreen':
+        if a.controls or schedule.get('color_math')!='subscreen-additive' or not schedule.get('main_screen_obj_disabled'):raise ValueError('ALPHA_NATIVE_SUBSCREEN_ROUTING_REQUIRED')
+        rows={p['y']+ly for p,image in zip(schedule['pieces'],demand(schedule)[2])for ly,row in enumerate(image)if np.any(row>=0)}
+        modes={y:'add'for y in rows};windows={y:compile_mask([True]*256,fixed_positive_union=True)for y in rows}
+    else:
+        if not a.controls:raise ValueError('ALPHA_NATIVE_CONTROLS_REQUIRED')
+        modes,windows,_=scanline_controls(json.loads(Path(a.controls).read_text()),metadata,digest,len(complete))
+        if not schedule.get('scanline_math_controls_source_bound') or any(schedule['selected_modes'].get(str(y))!=m for y,m in modes.items())or{int(y):d for y,d in schedule['compiled_color_window_descriptors'].items()}!=windows:raise ValueError('ALPHA_NATIVE_SCHEDULE_CONTROL_IDENTITY')
+    if schedule.get('metadata')!=metadata or schedule.get('source_rgb555_sha256')!=digest:
         raise ValueError('ALPHA_NATIVE_SCHEDULE_CONTROL_IDENTITY')
     background=rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0]);demand(schedule)
     state={b:[None]*15 for b in range(8)};states=[]
@@ -106,7 +116,7 @@ emu.addEventCallback(function()if shown then emu.log('ALPHAFLAGS|'..emu.read(0x2
             def launch(argv,**kwargs):return subprocess.Popen([*argv,'--Snes.DisableFrameSkipping=true','--donotsavesettings',str(lua)],**kwargs)
             with patch.object(module,'subprocess',SimpleNamespace(Popen=launch,DEVNULL=subprocess.DEVNULL,PIPE=subprocess.PIPE)):return super().__enter__()
     for y in rows:
-        raw,want,palette,oam,bgchr,bgmap,objchr,resources=compile_row(schedule,y,background,complete,states,modes,windows)
+        raw,want,palette,oam,bgchr,bgmap,objchr,resources=compile_row(schedule,y,background,complete,states,modes,windows,a.obj_screen)
         path=folder/'proof.sfc';path.write_bytes(raw);log_path=folder/f'row{y}.log'
         with Observed(rom=path,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=log_path)as m:
             advanced=0
@@ -136,7 +146,7 @@ emu.addEventCallback(function()if shown then emu.log('ALPHAFLAGS|'..emu.read(0x2
     aggregate=full and np.array_equal(reconstructed,complete)
     report=dict(schema='BYOR_NATIVE_AUTHORED_OBJ_ALPHA_ROWS_V1',status='PASS'if passed and(not full or aggregate)else'FAIL',
         input_schedule_sha256=hashlib.sha256(Path(a.schedule).read_bytes()).hexdigest(),source_rgb555_sha256=digest,
-        input_controls_sha256=hashlib.sha256(Path(a.controls).read_bytes()).hexdigest(),
+        input_controls_sha256=hashlib.sha256(Path(a.controls).read_bytes()).hexdigest()if a.controls else None,obj_operand_screen=a.obj_screen,
         source_metadata=metadata,rows=results,all_source_rows_sampled=full,assembled_static_row_pixels_exact=aggregate,
         assembled_rgb555_sha256=hashlib.sha256(reconstructed.astype('<u2').tobytes()).hexdigest(),
         source_alpha_policy='EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555',raster_schedule_executed=False,

@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from raster_physical_ranges import constrain
 from raster_physical_relabel import point_partition
-from raster_slot_greedy import demand
+from raster_slot_greedy import demand,bank_groups
 from raster_slot_refine import verify_packets
 from raster_slot_layout import unpack
 
@@ -16,7 +16,7 @@ def optimize(source,time_limit=30,permute_banks=False):
     model=cp_model.CpModel();slots={};destinations={}
     if permute_banks:
         for b in range(8):
-            eligible=set(range(8)if source.get('color_math')=='precomposited'else range(0,4)if b<4 else range(4,8))
+            eligible=set(next(group for group in bank_groups(source)if b in group))
             for piece in source['pieces']:
                 if piece['bank']==b:eligible.intersection_update(piece.get('allowed_banks',range(8)))
             if not eligible:raise ValueError('FIXED_PERMUTATION_BANK_ELIGIBILITY')

@@ -8,6 +8,28 @@ from test_raster_slot_greedy import source_schedule
 
 
 class NativeAlphaRowCompileTests(unittest.TestCase):
+    def test_subscreen_obj_operands_apply_math_in_lower_palette_banks(self):
+        source=source_schedule();source['color_math']='subscreen-additive'
+        _,_,words=demand(source);state={b:[None]*15 for b in range(8)};states=[]
+        for row in source['trace']:
+            for e in row['updates']:state[e['bank']][e['slot']-1]=e['color']
+            states.append(copy.deepcopy(state))
+        bg=np.full((16,256),10<<5,dtype=np.uint16);complete=bg.copy()
+        for p,image in zip(source['pieces'],words):
+            for x,c in enumerate(image[0]):
+                if c>=0:complete[0,p['x']+x]=apply_math(int(c),int(bg[0,p['x']+x]),'add')
+        descriptor=compile_mask([True]*256,fixed_positive_union=True)
+        raw,expected,palette,oam,bgchr,mapping,objchr,report=compile_row(source,0,bg,complete,states,{0:'add'},{0:descriptor},'subscreen')
+        np.testing.assert_array_equal(expected,complete)
+        self.assertIn([0x212c,1],report['expected_register_writes'])
+        self.assertIn([0x212d,16],report['expected_register_writes'])
+        self.assertIn([0x2130,2],report['expected_register_writes'])
+        self.assertIn([0x2131,1],report['expected_register_writes'])
+        self.assertTrue(report['main_obj_disabled'])
+        self.assertFalse(report['native_raster_timing_proven'])
+        with self.assertRaisesRegex(ValueError,'ADD_REQUIRED'):
+            compile_row(source,0,bg,complete,states,{0:'half-add'},{0:descriptor},'subscreen')
+
     def test_exact_static_row_words_windows_and_math_modes(self):
         source=source_schedule();source['pieces'][1]['bank']=5
         for row in source['trace']:

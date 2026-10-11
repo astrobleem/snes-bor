@@ -4,6 +4,58 @@ from test_raster_slot_greedy import source_schedule
 
 
 class GlobalBankClassTests(unittest.TestCase):
+    def test_epoch_transfer_unions_count_repeated_identity_once(self):
+        # Sixteen identities repeat across two epochs, not thirty-two colors.
+        pieces=[dict(x=0,y=0,width=8,height=8,rows={y:list(range(8*(y%2),8*(y%2)+8))for y in range(4)},allowed_banks=[0])]
+        result=assign_masks(pieces,time_limit=5,prepared_dma_window=1,write_budget=1,word_epoch_lines=2,word_bank_hint={c:0 for c in range(16)})
+        self.assertEqual(result['status'],'JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN')
+        self.assertEqual(result['aggregate_transfer_span'],0)
+        self.assertTrue(result['aggregate_transfer_intervals_and_partitions_replayed'])
+        self.assertFalse(result['global_word_bank_identity_restricted'])
+        self.assertEqual(result['word_epoch_lines'],2)
+        self.assertFalse(result['physical_transfer_admitted'])
+        with self.assertRaisesRegex(ValueError,'EPOCH_POLICY'):assign_masks(pieces,word_epoch_lines=2,persistent_word_indices=True)
+
+    def test_rebuilt_masks_preserve_pixels_and_reject_wrong_ownership(self):
+        import copy
+        from raster_global_bank_classes import rebuild_schedule
+        from raster_slot_greedy import demand
+        source=source_schedule()
+        for p in source['pieces']:p.update(actor=0,local_x=p['x'],local_y=p['y'])
+        pieces=[dict(p,allowed_banks=list(range(4)),rows={p['y']+y:sorted({int(c)for c in row if c>=0})for y,row in enumerate(image)if any(c>=0 for c in row)})for p,image in zip(source['pieces'],demand(source)[2])]
+        search=assign_masks(pieces,time_limit=5,maximum_oam_entries=128)
+        rebuilt=rebuild_schedule(source,search)
+        def pixels(frame):
+            return {(p['actor'],p['y']+y,p['x']+x):int(c)for p,image in zip(frame['pieces'],demand(frame)[2])for y,row in enumerate(image)for x,c in enumerate(row)if c>=0}
+        self.assertEqual(pixels(source),pixels(rebuilt))
+        bad=copy.deepcopy(search);bad['assignment'][0]=4
+        with self.assertRaisesRegex(ValueError,'BANK_ELIGIBILITY'):rebuild_schedule(source,bad)
+        bad=copy.deepcopy(search);bad['pieces'][0]['x']+=1
+        with self.assertRaisesRegex(ValueError,'GEOMETRY'):rebuild_schedule(source,bad)
+
+    def test_aggregate_transfer_bound_replays_and_is_not_residency_admission(self):
+        pieces=[dict(x=0,y=0,width=8,height=8,rows={y:list(range(y*8,y*8+8))for y in range(8)},allowed_banks=[0])]
+        rejected=assign_masks(pieces,time_limit=5,prepared_dma_window=97,write_budget=6)
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+        admitted=assign_masks(pieces,time_limit=5,prepared_dma_window=97,write_budget=7)
+        self.assertEqual(admitted['status'],'JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN')
+        self.assertEqual(admitted['aggregate_transfer_span'],96)
+        self.assertTrue(admitted['aggregate_transfer_intervals_and_partitions_replayed'])
+        self.assertTrue(admitted['palette_residency_and_physical_slots_relaxed'])
+        self.assertFalse(admitted['physical_transfer_admitted'])
+        with self.assertRaisesRegex(ValueError,'UNIFORM_DOMAIN'):
+            assign_masks(pieces+[dict(pieces[0],allowed_banks=[1])],prepared_dma_window=337)
+
+    def test_explicit_oam_ceiling_counts_split_masks(self):
+        pieces=[dict(x=(i%8)*16,y=(i//8)*16,width=16,height=16,rows={(i//8)*16:list(range(16))},allowed_banks=[0,1])for i in range(17)]
+        rejected=assign_masks(pieces,time_limit=5,maximum_oam_entries=33)
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+        admitted=assign_masks(pieces,time_limit=5,maximum_oam_entries=34)
+        self.assertEqual(admitted['oam_entries'],34)
+        self.assertEqual(admitted['peak_tile_slivers'],32)
+        self.assertEqual(admitted['peak_sprites'],16)
+        with self.assertRaisesRegex(ValueError,'OAM_DOMAIN'):assign_masks(pieces,maximum_oam_entries=129)
+
     def test_shared_geometry_ceiling_combines_disjoint_math_domains(self):
         pieces=[dict(x=i*8,y=0,width=8,height=8,rows={0:[1]},allowed_banks=[0]if i<18 else[4])for i in range(35)]
         rejected=assign_masks(pieces,time_limit=5)
@@ -33,6 +85,13 @@ class GlobalBankClassTests(unittest.TestCase):
         self.assertEqual(report['legal_permutations_checked'],576)
         self.assertEqual(report['minimum_peak_favorable_span'],32)
         self.assertTrue(all((b<4)==(target<4)for b,target in enumerate(report['best_bank_mapping'])))
+        self.assertFalse(report['native_timing_admitted'])
+
+    def test_subscreen_permutation_bound_uses_all_eight_banks(self):
+        source=source_schedule();source['color_math']='subscreen-additive'
+        report=permutation_bound(source)
+        self.assertEqual(report['legal_permutations_checked'],40320)
+        self.assertEqual(report['minimum_peak_favorable_span'],32)
         self.assertFalse(report['native_timing_admitted'])
 
     def test_fixed_word_index_template_reuses_slots_only_on_exact_rows(self):

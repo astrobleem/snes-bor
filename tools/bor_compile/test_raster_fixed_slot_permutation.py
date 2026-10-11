@@ -33,5 +33,15 @@ class FixedSlotPermutationTests(unittest.TestCase):
         verify_packets(result)
         for a,b in zip(demand(source)[2],demand(result)[2]):self.assertTrue(np.array_equal(a,b))
 
+    def test_subscreen_allows_cross_class_bank_permutation(self):
+        source=layout(SlotLayoutTests().schedule(),356,10,True)
+        source['color_math']='subscreen-additive'
+        for p in source['pieces']:
+            if p['bank']==0:p['allowed_banks']=[4]
+        result=optimize(source,5,True)
+        self.assertEqual(result['physical_slot_layout']['fixed_piece_bank_permutation'][0],4)
+        verify_packets(result)
+        for a,b in zip(demand(source)[2],demand(result)[2]):self.assertTrue(np.array_equal(a,b))
+
 
 if __name__=='__main__':unittest.main()

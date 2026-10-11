@@ -8,7 +8,7 @@ import argparse,copy,hashlib,itertools,json,time
 from pathlib import Path
 import numpy as np
 from raster_obj_compact import unpack
-from raster_slot_greedy import demand,partition
+from raster_slot_greedy import demand,partition,bank_groups
 from raster_slot_refine import verify_packets
 from raster_dma_partition import minimum_commit_span
 
@@ -38,7 +38,7 @@ def relabel(source,time_limit=30):
         for i,event in enumerate(row['updates']):
             banks[y,i]=event['bank'];slots[y,i]=event['slot'];valid[y,i]=True
     reflections=((np.arange(256)[:,None]>>np.arange(8))&1).astype(bool)
-    pools=[range(8)]if source.get('color_math')=='precomposited'else[range(4),range(4,8)]
+    pools=bank_groups(source)
     choices=[list(itertools.permutations(pool))for pool in pools]
     best=None;best_mapping=None;best_reflection=None;trials=0;exhaustive=True
     for permutation in itertools.product(*choices):

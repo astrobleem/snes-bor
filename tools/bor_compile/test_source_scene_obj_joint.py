@@ -6,6 +6,27 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_subscreen_operands_use_all_banks_with_explicit_layer_requirements(self):
+        # Sixty-four simultaneous residual identities need five OBJ banks.
+        background=np.full((224,256,3),8,dtype=np.uint8);expected=background.copy()
+        pixels=np.full((8,64),-1,dtype=np.int32)
+        values=[r|g<<5|b<<10 for r in range(1,5)for g in range(1,5)for b in range(1,5)]
+        pixels[0]=values
+        for x,c in enumerate(values):expected[0,x]=[(c>>shift&31)*8 for shift in(0,5,10)]
+        actor=dict(pixels=pixels,left=0,top=0)
+        with patch('source_scene_obj_joint.prepare',return_value=([actor],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            result=probe(None,None,{},size=8,write_budget=0,time_limit=10,color_math='subscreen-additive')
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertGreaterEqual(len({p['bank']for p in result['pieces']}),5)
+        self.assertTrue(result['main_screen_obj_disabled'])
+        self.assertEqual(result['main_screen_color_math_layer'],'BG1')
+        self.assertFalse(result['concurrent_main_obj_layer_routing_proven'])
+        self.assertFalse(result['native_layer_routing_proven'])
+        darker=np.full((8,8),0,dtype=np.int32);black=background.copy();black[:8,:8]=0
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=darker,left=0,top=0)],{},black)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            rejected=probe(None,None,{},size=8,write_budget=0,time_limit=10,color_math='subscreen-additive')
+        self.assertEqual(rejected['solver']['status'],2)
+
     def test_geometry_hint_requires_new_hardware_checked_solution(self):
         from raster_geometry_hint import construct
         background=np.zeros((224,256,3),dtype=np.uint8)

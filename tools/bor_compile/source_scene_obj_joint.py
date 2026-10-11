@@ -116,7 +116,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         raise ValueError('JOINT_SOLVER_DOMAIN')
     if mixed_small_size not in (8,16):raise ValueError('JOINT_MIXED_SMALL_SIZE_DOMAIN')
     if (mixed_small_size,mixed_large_size)not in ((8,16),(8,32),(16,32)):raise ValueError('JOINT_MIXED_SIZE_PAIR_DOMAIN')
-    if color_math not in ('additive','precomposited'):raise ValueError('JOINT_COLOR_MATH_DOMAIN')
+    if color_math not in ('additive','precomposited','subscreen-additive'):raise ValueError('JOINT_COLOR_MATH_DOMAIN')
+    if color_math=='subscreen-additive' and (scanline_math_candidate is not None or pool_math_modes is not None or preserve_hint_math_classes):raise ValueError('JOINT_SUBSCREEN_SHARED_ROUTING_POLICY')
     if additive_only and color_math!='additive':raise ValueError('JOINT_ADDITIVE_ONLY_REQUIRES_ADDITIVE_MATH')
     if pool_math_modes is not None and(not pool_only or color_math!='additive' or integer_pool_budget is not None):raise ValueError('JOINT_MATH_MODES_REQUIRE_RELAXED_POOL_ONLY')
     if scanline_math_candidate is not None and(color_math!='additive' or pool_only or pool_residency or complete_additive_cover or saturated_reuse or saturated_extrema):raise ValueError('JOINT_SCANLINE_CONTROL_POLICY_CONFLICT')
@@ -128,7 +129,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     if pool_interval_initial_preload and not pin_scanline_pool_intervals:raise ValueError('JOINT_INTERVAL_INITIAL_PRELOAD_POLICY')
     if type(pool_interval_gap_bridge_lines)is not int or pool_interval_gap_bridge_lines<0 or(pool_interval_gap_bridge_lines and not pin_scanline_pool_intervals):raise ValueError('JOINT_INTERVAL_GAP_BRIDGE_POLICY')
     if collapse_inactive_prefix and(row_capacity_only or pool_residency or pool_only):raise ValueError('JOINT_INACTIVE_PREFIX_POLICY')
-    def kind(bank):return int(color_math=='additive' and bank>=4)
+    def kind(bank):return int(color_math=='subscreen-additive' or color_math=='additive' and bank>=4)
     def banks_for_kind(k):return range(4*k,4*k+4) if color_math=='additive' else range(8)
     base_size=mixed_large_size if size=='mixed'else size
     if not all(isinstance(p,int)and 0<=p<base_size for p in (grid_padding_x,grid_padding_y)) or (not align_visible_bounds and (grid_padding_x or grid_padding_y)):
@@ -233,7 +234,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             y,x=a['pixels'][0];residual_corpus.update(saturated_corners(a['output'],int(bg[y,x])))
     residual_corpus=sorted(residual_corpus)
     complete_options={};complete_cover_report=None
-    if complete_additive_cover and color_math=='additive':
+    if complete_additive_cover and color_math in('additive','subscreen-additive'):
         from raster_additive_cover import complete_cover
         complete_options,complete_cover_report=complete_cover((a["output"],a["residual"])for a in atoms)
         residual_corpus=sorted({c for values in complete_options.values()for c in values})
@@ -270,7 +271,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             rows=[set()for _ in range(height)]
             for atom in atoms:
                 for y,x in atom['pixels']:rows[y].add((atom['output'],tuple(math_options[atom['output'],int(bg[y,x])])))
-        result=lower_bound(rows,capacities=(0,60)if additive_only else(120,60)if color_math=='precomposited'else(60,60),time_limit=time_limit,include_solution=True,integer_budget=integer_pool_budget)
+        result=lower_bound(rows,capacities=(0,120)if color_math=='subscreen-additive'else(0,60)if additive_only else(120,60)if color_math=='precomposited'else(60,60),time_limit=time_limit,include_solution=True,integer_budget=integer_pool_budget)
         output_sets=[{normal for normal,additive in row}for row in rows]
         result.update(visible_final_obj_output_full_frame_colors=len(set().union(*output_sets)),
                       peak_visible_final_obj_output_colors_per_scanline=max(map(len,output_sets),default=0),
@@ -615,6 +616,8 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
                 exact_underlay_bypass=underlay_bypass,underlay_bypassed_pixels=bypassed,source_actor_canvases=source_canvases,
                 source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
                 scope='Explicit pose. Exact opaque/additive pixel alternatives and fixed OAM color masks on one legal grid. No native layer routing, source reachability or hardware bandwidth admission.')
+    if color_math=='subscreen-additive':
+        report.update(obj_operand_screen='SUBSCREEN',operand_palette_banks=list(range(8)),main_screen_color_math_layer='BG1',main_screen_obj_disabled=True,subscreen_background_disabled=True,fixed_color_rgb555=0,shared_scanline_math_mode='add',concurrent_main_obj_layer_routing_proven=False,native_layer_routing_proven=False)
     if scanline_math_candidate is not None:
         report.update(scanline_math_controls_source_bound=True,scanline_math_candidate_sha256=hashlib.sha256(json.dumps(scanline_math_candidate,sort_keys=True).encode()).hexdigest(),
             scanline_math_control_rows=sorted(control_modes),outside_control_rows_math_policy='FULL_ADD_NO_WINDOW',
@@ -737,7 +740,7 @@ def main():
     p.add_argument('--coalesce-math-choices',action='store_true')
     p.add_argument('--additive-only',action='store_true',help='Reserve the four opaque OBJ banks; every visible pixel must use an exact BG-additive operand.')
     p.add_argument('--pool-math-mode',action='append',choices=('add','half-add','subtract','half-subtract'),help='Necessary pool relaxation only; modes may differ per pixel.')
-    p.add_argument('--color-math',choices=('additive','precomposited'),default='additive',help='Precomposited stores exact final context RGB555 in all eight banks; native alpha/context ownership remains required.')
+    p.add_argument('--color-math',choices=('additive','precomposited','subscreen-additive'),default='additive',help='Subscreen operands can use all eight banks with BG1 main-screen math; native routing and concurrent actors remain required.')
     p.add_argument('--schedule-hint',type=Path)
     p.add_argument('--preserve-hint-math-classes',action='store_true',help='Fixed rectangle bank search keeping every hinted pixel in its original color-math bank class.')
     p.add_argument('--preserve-hint-words',action='store_true',help='Also preserve exact per-pixel palette words; requires fixed rectangles and preserved math classes.')

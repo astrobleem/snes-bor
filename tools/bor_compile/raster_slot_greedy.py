@@ -10,6 +10,13 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
+def bank_groups(schedule):
+    mode=schedule.get('color_math','additive')
+    if mode=='additive':return[list(range(4)),list(range(4,8))]
+    if mode in('precomposited','subscreen-additive'):return[list(range(8))]
+    raise ValueError('RASTER_PALETTE_BANK_ELIGIBILITY_MODE')
+
+
 def partition(bounds,maximum_ranges=4):
     """Exact cheapest grouping of ordered physical dirty intervals."""
     bounds=sorted(bounds)
@@ -67,7 +74,7 @@ def schedule_slots(schedule,window=356,lookahead=17,maximum_ranges=4,seed=0,beam
     bank_mapping={b:b for b in range(8)}
     if permute_banks:
         schedule=copy.deepcopy(schedule)
-        pools=[list(range(8))]if schedule.get('color_math','additive')=='precomposited'else[list(range(4)),list(range(4,8))]
+        pools=bank_groups(schedule)
         for pool in pools:
             shuffled=pool.copy();rng.shuffle(shuffled);bank_mapping.update(zip(pool,shuffled))
         inverse={v:k for k,v in bank_mapping.items()}

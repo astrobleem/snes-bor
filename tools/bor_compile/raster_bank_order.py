@@ -6,14 +6,14 @@ the input slot layout; they may exceed the optimistic bound and native budget.
 import argparse,copy,hashlib,itertools,json
 from pathlib import Path
 import numpy as np
-from raster_slot_greedy import demand
+from raster_slot_greedy import demand,bank_groups
 from raster_bank_residency import favorable_span
 from raster_physical_relabel import point_partition
 from raster_slot_refine import verify_packets
 
 
 def optimize(source):
-    _,_,pixels=demand(source);pools=[range(8)]if source.get('color_math')=='precomposited'else[range(4),range(4,8)]
+    _,_,pixels=demand(source);pools=bank_groups(source)
     best=None;mapping=None;trials=0
     for groups in itertools.product(*(itertools.permutations(p)for p in pools)):
         candidate=tuple(b for group in groups for b in group)

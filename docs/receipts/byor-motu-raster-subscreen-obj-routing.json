@@ -1,0 +1,60 @@
+{
+  "schema": "BYOR_SUBSCREEN_OBJ_OPERAND_ROUTING_RECEIPT_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "native_static_rows": 55,
+  "native_fields": 165,
+  "complete_viewport_pixels_checked": 9461760,
+  "drawn_source_pixels": 2668,
+  "exact_underlay_bypassed_pixels": 83,
+  "all_native_observer_identities_match": true,
+  "native_overflow_flags": [
+    0,
+    0,
+    0
+  ],
+  "assembled_static_rows_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "subscreen_palette_banks": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "main_screen_color_math_layer": "BG1",
+  "main_screen_obj_disabled": true,
+  "subscreen_background_disabled": true,
+  "fixed_color_rgb555": 0,
+  "global_word_geometry": {
+    "oam_entries": 95,
+    "peak_sprites": 20,
+    "peak_tile_slivers": 20
+  },
+  "global_word_palette_count": 396,
+  "default_main_row128_rom_sha256": "97d258885596020d5d309dfa236794e24bc4997f0a0a888b741d061c8add090b",
+  "default_main_row128_binary_unchanged": true,
+  "default_main_row128_native_status": "PASS",
+  "focused_tests_passed": 83,
+  "width_labels": 9825,
+  "width_failures": 0,
+  "protected_mismatches": 0,
+  "native_raster_timing_proven": false,
+  "concurrent_main_obj_layer_routing_proven": false,
+  "production_runtime_bound": false,
+  "motu_demo_complete": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true,
+  "ppu_source_sha256": "5823ac6e89e8966ae2a8186f368ef4abb4d09bd4535e1483ff4a6871dd35f1f5",
+  "ppu_source_commit": "18c05d3f076728d05310c6e591b7d0a08d604d42",
+  "word_balancing_frontier": {
+    "seeds": 12,
+    "steps_per_seed": 20000,
+    "best_validated_cache_write_lower_bound": 19.75,
+    "oam_entries": 128,
+    "physical_transfer_admitted": false
+  },
+  "constant_control_transport_native_span": 344,
+  "constant_control_transport_native_receipt": "out/byor-motu-controlled-black-idleabi162-padded344-native/report.json"
+}
