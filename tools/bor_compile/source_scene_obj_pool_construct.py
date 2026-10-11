@@ -34,7 +34,7 @@ def select_words(requirements,preferences=None):
     return owners,selected
 
 
-def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None):
+def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False):
     if frame_word_cover and prefer_resident_words:raise ValueError('POOL_CONSTRUCT_FRAME_AND_RESIDENT_POLICY_CONFLICT')
     actors,metadata,expected=prepare(source,stage,scene)
     background=rgb555(compose_rgb8(source,stage,dict(scene,actors=[]))[0])
@@ -77,7 +77,7 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
         outside_control_rows_math_policy='FULL_ADD_NO_WINDOW_MINIMAL_OPERAND_OR_LITERAL',
         peak_selected_colors_by_class=[max(row[k]for row in counts)for k in range(2)],
         global_color_bank_identity_restricted=True,bank_search=[],exact_underlay_bypass=True,underlay_bypassed_pixels=bypassed)
-    pieces=[];assignment=[]
+    pieces=[];assignment=[];joint_cells=[]
     for k in range(2):
         cells=[]
         for i,a in enumerate(actors):
@@ -86,10 +86,18 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
                 p['x']+=a['left'];p['y']+=a['top'];p['rows']={y+a['top']:cs for y,cs in p['rows'].items()if cs and 0<=y+a['top']<len(background)}
                 cells.append(p)
         if not cells:continue
+        if joint_bank_geometry:
+            joint_cells.extend(dict(p,allowed_banks=list(range(k*4,k*4+4)))for p in cells);continue
         search=split_color_masks(cells,tuple(range(k*4,k*4+4)),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',defer_geometry_admission=True,residency_window_lines=bank_residency_window_lines)
         expanded=search.pop('pieces',None);report['bank_search'].append(dict(kind=k,**search))
         if expanded is None:return report
         pieces.extend(expanded);assignment.extend(search['assignment'])
+    if joint_bank_geometry:
+        from raster_global_bank_classes import assign_masks
+        search=assign_masks(joint_cells,time_limit,bank_residency_window_lines)
+        pieces=search.pop('pieces',None);report['bank_search'].append(dict(joint_math_classes=True,**search))
+        if pieces is None:return report
+        assignment=search['assignment']
     trace,palette_states=schedule(pieces,assignment,len(background),lookahead)
     for row in trace:row['resident_before']={b:row['resident_before'].get(b,[None]*15)for b in range(8)}
     replay=background.copy();ownership=np.zeros(background.shape,dtype=np.uint8);images=[]
@@ -131,7 +139,8 @@ def main():
     p.add_argument('--bank-residency-window-lines',type=int,help='Restricted global bank assignment: every rolling window union must fit fifteen slots per bank.')
     p.add_argument('--frame-word-cover',action='store_true',help='Choose exact words by shared coverage across the full source frame rather than independently per row.')
     p.add_argument('--prefer-resident-words',action='store_true')
-    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines)
+    p.add_argument('--joint-bank-geometry',action='store_true',help='Solve both eligible math classes together under the shared 34-sliver limit; defer OAM/sprite admission to compaction.')
+    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry)
     Path(a.output).write_text(json.dumps(r,indent=2)+'\n')
     summary={k:r[k]for k in ('status','peak_selected_colors_by_class','geometry','hardware_geometry_admitted','peak_scheduled_writes')if k in r}
     summary['bank_search']=[{k:v for k,v in search.items()if k!='assignment'}for search in r['bank_search']]
