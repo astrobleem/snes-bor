@@ -52,7 +52,8 @@ def stage_queue(rows):
                 pending['group_min'] = minimum if minimum >= 1 else 100
                 pending['group_max'] = max(1, maximum)
         elif name == 'at':
-            record = pending if pending is not None else dict(kind='noop', declaration=row, modifiers=[])
+            record = pending if pending is not None else dict(kind='zero_initialized', declaration=row, modifiers=[],
+                constructor_cache_index=0, constructor_model_residency_required=True)
             record['at'] = row
             record['scroll_position'] = int(values[0]) if values else 0
             record['ordinal'] = len(records)
@@ -64,7 +65,7 @@ def stage_queue(rows):
             pending['modifiers'].append(row)
     return dict(records=records, authored_records=len(records),
                 source_spawns=sum(r['kind'] == 'spawn' for r in records),
-                zero_initialized_records=sum(r['kind'] == 'noop' for r in records),
+                zero_initialized_records=sum(r['kind'] == 'zero_initialized' for r in records),
                 replaced_before_commit=replaced, uncommitted_tail=pending,
                 engine_commit=ENGINE_COMMIT, runtime_lowered=False)
 

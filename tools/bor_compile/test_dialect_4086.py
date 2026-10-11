@@ -16,7 +16,9 @@ def rows(text):
 class Dialect4086Tests(unittest.TestCase):
     def test_at_commits_zero_entry_and_reset_replaces_pending(self):
         q = stage_queue(rows('spawn A\nwait\nat 3\nat 4\ngroup 0 0\nat 5\n'))
-        self.assertEqual([r['kind'] for r in q['records']], ['wait', 'noop', 'group'])
+        self.assertEqual([r['kind'] for r in q['records']], ['wait', 'zero_initialized', 'group'])
+        self.assertEqual(q['records'][1]['constructor_cache_index'], 0)
+        self.assertTrue(q['records'][1]['constructor_model_residency_required'])
         self.assertEqual(q['records'][2]['group_min'], 100)
         self.assertEqual(q['records'][2]['group_max'], 1)
         self.assertEqual(q['replaced_before_commit'][0]['kind'], 'spawn')
@@ -38,7 +40,7 @@ class Dialect4086Tests(unittest.TestCase):
         q = stage_queue(rows('coords 5 6 7\nat 8\nmusic a.bor\nat 9\n'))
         self.assertEqual([r['kind'] for r in q['records']], ['zero_base_with_modifiers', 'music'])
         q = stage_queue(rows('music a.bor\n\nat 9\n'))
-        self.assertEqual(q['records'][0]['kind'], 'noop')
+        self.assertEqual(q['records'][0]['kind'], 'zero_initialized')
 
     def test_supplied_demo_empty_entry_and_weapon_event(self):
         source = Source(Path(__file__).resolve().parents[2] / 'Masters of the Universe [v.3.0 Build 4086].pak')
