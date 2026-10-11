@@ -10,6 +10,23 @@ from test_raster_slot_layout import SlotLayoutTests
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class WindowSlotTests(unittest.TestCase):
+    def test_exact_math_class_reencoding_keeps_fixed_piece_and_source_output(self):
+        from ortools.sat.python import cp_model
+        from unittest.mock import patch
+        source,bg,expected=self.source();source['pieces'][0]['allowed_banks']=[0,4]
+        original_solve=cp_model.CpSolver.solve
+        for target in (0,4):
+            def force_bank(solver,model,*args,**kwargs):
+                index=next(i for i,v in enumerate(model.proto.variables)if v.name==f'pieceBank0_{target}')
+                model.add(model.get_bool_var_from_proto_index(index)==1)
+                return original_solve(solver,model,*args,**kwargs)
+            with patch.object(cp_model.CpSolver,'solve',force_bank):
+                result=optimize(source,bg,expected,time_limit=5,maximum_writes=0,movable_pieces=[0],reencode_math_classes=True)
+            self.assertEqual(result['pieces'][0]['bank'],target)
+            self.assertTrue(result['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
+            self.assertTrue(result['physical_slot_layout']['piece_banks_fixed_across_all_scanlines'])
+            verify_packets(result);demand(result);source=result
+
     def test_range_limit_and_line_windows_replay(self):
         from raster_physical_relabel import point_partition
         self.assertEqual(point_partition([1,15,31],1),(480,[(1,31)]))

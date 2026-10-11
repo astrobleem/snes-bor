@@ -15,7 +15,7 @@ from raster_physical_relabel import point_partition
 from raster_slot_refine import verify_packets
 
 
-def derive(source,background,expected):
+def derive(source,background,expected,derive_all_math_operands=False):
     background=np.asarray(background);expected=np.asarray(expected)
     if any(a.dtype.kind not in'ui' or np.any(a<0)or np.any(a>32767)for a in(background,expected)):raise ValueError('WINDOW_SLOT_RGB555_DOMAIN')
     background=background.astype(np.uint16);expected=expected.astype(np.uint16)
@@ -32,7 +32,7 @@ def derive(source,background,expected):
             value=apply_math(old,bg,mode)if gate else old;replay[y,x]=value
             if value!=out:raise ValueError('WINDOW_SLOT_INPUT_PIXEL_MATH_IDENTITY')
             operand=None
-            if bank>=4:
+            if bank>=4 or derive_all_math_operands:
                 if apply_math(old,bg,mode)==out:operand=old
                 else:
                     operand=0
@@ -54,7 +54,7 @@ def derive(source,background,expected):
     return points,rows,[sorted(v)for v in tables],hint
 
 
-def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,necessary_bank_window=None,search_strategy='portfolio',reuse_exact_operands=False,repair_interval=None,complete_exact_operands=False,movable_pieces=None,probing_level=2,bank_class_scope=None,maximum_ranges=4,line_windows=None):
+def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,necessary_bank_window=None,search_strategy='portfolio',reuse_exact_operands=False,repair_interval=None,complete_exact_operands=False,movable_pieces=None,probing_level=2,bank_class_scope=None,maximum_ranges=4,line_windows=None,reencode_math_classes=False):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0 or type(maximum_writes)is not int or not 0<=maximum_writes<=120:raise ValueError('WINDOW_SLOT_DOMAIN')
     if search_strategy not in('portfolio','lns'):raise ValueError('WINDOW_SLOT_SEARCH_STRATEGY')
@@ -63,7 +63,8 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
     if line_windows is not None:
         if repair_interval is not None or any(type(y)is not int or y<0 or type(w)is not int or w<1 for y,w in line_windows.items()):raise ValueError('WINDOW_SLOT_LINE_WINDOWS')
     if necessary_bank_window is not None and(type(necessary_bank_window)is not int or necessary_bank_window<1):raise ValueError('WINDOW_SLOT_BANK_WINDOW_DOMAIN')
-    points,rows,tables,hint=derive(source,background,expected);first,last=min(rows),max(rows);height=len(source['trace'])
+    if reencode_math_classes and(bank_class_scope is not None or not movable_pieces):raise ValueError('WINDOW_SLOT_REENCODE_POLICY')
+    points,rows,tables,hint=derive(source,background,expected,reencode_math_classes);first,last=min(rows),max(rows);height=len(source['trace'])
     if bank_class_scope is not None:
         if type(bank_class_scope)is not int or bank_class_scope not in(0,1):raise ValueError('WINDOW_SLOT_BANK_CLASS_SCOPE')
         if reuse_exact_operands or complete_exact_operands or repair_interval is not None:raise ValueError('WINDOW_SLOT_PARTIAL_SCOPE_ENCODING_COMBINATION')
@@ -78,7 +79,10 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
     if any(type(i)is not int or not 0<=i<len(source['pieces'])for i in movable):raise ValueError('WINDOW_SLOT_MOVABLE_PIECES')
     if bank_class_scope is not None:movable={i for i in movable if source['pieces'][i]['bank']//4==bank_class_scope}
     if movable and(reuse_exact_operands or complete_exact_operands or repair_interval is not None):raise ValueError('WINDOW_SLOT_BANK_SEARCH_ENCODING_COMBINATION')
-    bank_options={i:sorted(set(range(4*(p['bank']//4),4*(p['bank']//4)+4))&set(p.get('allowed_banks',range(8))))if i in movable else[p['bank']]for i,p in enumerate(source['pieces'])}
+    bank_options={i:sorted(set(range(8)if reencode_math_classes else range(4*(p['bank']//4),4*(p['bank']//4)+4))&set(p.get('allowed_banks',range(8))))if i in movable else[p['bank']]for i,p in enumerate(source['pieces'])}
+    if reencode_math_classes:
+        vocabulary=sorted(set().union(*tables))
+        tables=[list(vocabulary)for b in range(8)]
     for group in(0,4):
         vocabulary=set().union(*(tables[b]for b in range(group,group+4)))
         if any(i in movable and p['bank']//4==group//4 for i,p in enumerate(source['pieces'])):
@@ -112,7 +116,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         p['operand_choices']=choices;alternative_pixels+=len(choices)>1
     for y,items in rows.items():
         for p in items:
-            if p['bank']<4 or not p['operand_choices']or set(p['operand_choices'])=={p['output']}:
+            if not(reencode_math_classes and p['piece']in movable)and(p['bank']<4 or not p['operand_choices']or set(p['operand_choices'])=={p['output']}):
                 pool_mandatory.setdefault((y,p['bank']//4),set()).add(p['output'])
             if p['piece']not in movable and(p['bank']<4 or not p['operand_choices']or set(p['operand_choices'])=={p['output']}):
                 mandatory.setdefault((y,p['bank']),set()).add(p['output'])
@@ -126,7 +130,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
                     changed=model.new_bool_var(f'changed{y}_{b}_{s}')
                     model.add(value!=values[y-1,b,s]).only_enforce_if(changed);model.add(value==values[y-1,b,s]).only_enforce_if(changed.Not())
                     model.add_hint(changed,int(h!=hint_values[y-1,b,s]));flags.setdefault((y,b),[]).append((15*b+s,changed))
-        coordinates=sorted({p['x']for p in rows.get(y,[])if p['bank']>=4});starts=[];negative_starts=[];previous=model.new_constant(0);previous_negative=model.new_constant(0)
+        coordinates=sorted({p['x']for p in rows.get(y,[])if any(b>=4 for b in bank_options[p['piece']])});starts=[];negative_starts=[];previous=model.new_constant(0);previous_negative=model.new_constant(0)
         for x in coordinates:
             gate=model.new_bool_var(f'gate{y}_{x}');gates[y,x]=gate
             old=evaluate(source['compiled_color_window_descriptors'][str(y)],x);model.add_hint(gate,int(old))
@@ -154,7 +158,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
                             active=model.new_bool_var(f'bankWord{y}_{p["piece"]}_{p["ly"]}_{p["lx"]}_{bank}_{word}_{len(needed)}')
                             model.add(active<=choice);model.add(active<=condition);model.add(active>=choice+condition-1)
                             needed.setdefault((bank,word),[]).append(active)
-                        if operand is None:model.add(gate==0)
+                        if operand is None:model.add(gate==0).only_enforce_if(choice)
                 continue
             if len(p['operand_choices'])>1:
                 key=p['piece'],p['ly'],p['lx'];index=model.new_int_var(0,14,f'alternativeIndex{key}')
@@ -253,10 +257,13 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
     if search_strategy=='lns':solver.parameters.use_lns_only=True
     status=solver.solve(model)
     report=dict(schema='BYOR_FIXED_BANK_WINDOW_SLOT_SCHEDULE_V1',solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
+        solver_objective_bound=solver.best_objective_bound,
+        restricted_family_prepared_span_lower_bound=max(0,int(solver.best_objective_bound//(4096*len(costs)+1))-40)if line_windows is None else None,
         solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),solver_search_strategy=search_strategy,
         solver_probing_level=probing_level,solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
         shared_row_math_modes_unchanged=True,two_color_windows_with_polarity_choice_enforced=True,fixed_piece_banks_unchanged=not movable,
         offline_bank_assignment_movable_pieces=sorted(movable),piece_banks_fixed_across_all_scanlines=True,
+        exact_math_class_reencoding_enabled=reencode_math_classes,
         maximum_physical_writes=maximum_writes,necessary_bank_window_master_clocks=necessary_bank_window,physical_window_master_clocks=window,
         mandatory_identity_bank_interval_cuts=interval_cuts,
         mandatory_math_class_interval_cuts=pool_cuts,
@@ -359,6 +366,7 @@ def main():
     p.add_argument('--probing-level',type=int,choices=(0,1,2),default=2)
     p.add_argument('--bank-class-scope',type=int,choices=(0,1))
     p.add_argument('--maximum-ranges',type=int,choices=(1,2,3,4),default=4);p.add_argument('--line-windows',type=Path)
+    p.add_argument('--reencode-math-classes',action='store_true')
     a=p.parse_args()
     from compiler import Source
     from source_scene_obj_raster import prepare
@@ -368,7 +376,7 @@ def main():
     _,metadata,expected=prepare(source,a.stage,scene)
     if schedule['metadata']!=metadata:raise ValueError('WINDOW_SLOT_SOURCE_METADATA_IDENTITY')
     background=rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0])
-    result=optimize(schedule,background,rgb555(expected),a.window,a.time_limit,a.maximum_writes,a.necessary_bank_window,a.search_strategy,a.reuse_exact_operands,a.repair_interval,a.complete_exact_operands,a.movable_pieces,a.probing_level,a.bank_class_scope,a.maximum_ranges,{int(y):w for y,w in json.loads(a.line_windows.read_text()).items()}if a.line_windows else None)
+    result=optimize(schedule,background,rgb555(expected),a.window,a.time_limit,a.maximum_writes,a.necessary_bank_window,a.search_strategy,a.reuse_exact_operands,a.repair_interval,a.complete_exact_operands,a.movable_pieces,a.probing_level,a.bank_class_scope,a.maximum_ranges,{int(y):w for y,w in json.loads(a.line_windows.read_text()).items()}if a.line_windows else None,a.reencode_math_classes)
     Path(a.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('physical_slot_layout',result)))
 
 

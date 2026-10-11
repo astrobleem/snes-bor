@@ -138,3 +138,14 @@ proves recombination correctness, not native admission or raster infeasibility.
 Thirty-six focused tests pass; nine window-scheduler tests also pass after
 adding the reserved-cost objective for coordinated line budgets. The width
 audit and all seventeen protected fingerprints remain clean.
+
+Exact math-class re-encoding now permits eligible movable pieces to choose
+literal output in banks zero through three or an exact math operand in banks
+four through seven. Explicit input bank restrictions remain enforced. Every
+piece keeps its selected bank across all rows, and the complete frame is
+replayed after remapping indices. The test forces both directions. Thirty-seven
+focused tests pass. Twelve eligible authored pieces retain a complete 472-clock
+witness; their fifty-second strict native gate remains UNKNOWN after 48449
+branches and 301 conflicts. Alternating two-range class scheduling reaches
+552 clocks and remains worse than the retained witness. No result admits
+native timing or rejects raster universally.
