@@ -11,7 +11,7 @@ import numpy as np
 
 def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None, variable_upper=None,search_strategy='portfolio'):
     from ortools.sat.python import cp_model
-    if search_strategy not in ('portfolio','sat'):raise ValueError('BOOLEAN_SEARCH_STRATEGY')
+    if search_strategy not in ('portfolio','sat','sat-repair'):raise ValueError('BOOLEAN_SEARCH_STRATEGY')
     model=cp_model.CpModel()
     domains=np.ones(matrix.shape[1]) if variable_upper is None else np.asarray(variable_upper)
     if domains.shape!=(matrix.shape[1],) or any(not np.isfinite(v) or v<0 or float(v)!=int(v) for v in domains):raise ValueError('INTEGER_VARIABLE_UPPER_DOMAIN')
@@ -42,9 +42,11 @@ def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None, 
     # pre-search probing consumed the initial bounded trial without conflicts.
     solver.parameters.cp_model_probing_level=0
     solver.parameters.use_sat_inprocessing=False
-    if search_strategy=='sat':
+    if search_strategy in ('sat','sat-repair'):
         solver.parameters.subsolvers.append('no_lp');solver.parameters.num_full_subsolvers=1
         solver.parameters.linearization_level=0
+    if search_strategy=='sat-repair':
+        solver.parameters.repair_hint=True;solver.parameters.hint_conflict_limit=50000
     solver.parameters.log_search_progress=True;solver.parameters.log_to_stdout=False
     log=deque(maxlen=64);log_lines=0
     def capture(message):

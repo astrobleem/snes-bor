@@ -6,6 +6,29 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_pixel_repair_keeps_outside_words_and_banks(self):
+        from raster_slot_greedy import demand
+        background=np.zeros((224,256,3),dtype=np.uint8);background[:8,:8,0]=8
+        pixels=np.full((8,8),-1,dtype=np.int32);pixels[:3,0]=[2,4,6]
+        expected=background.copy();expected[:3,0,0]=[16,32,48]
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            hint=probe(None,None,{},size=8,write_budget=0,time_limit=5,solver_backend='cp-sat',additive_only=True)
+            result=probe(None,None,{},size=8,write_budget=0,time_limit=5,solver_backend='cp-sat',
+                         schedule_hint=hint,fixed_rectangles=True,rectangle_bank_slack=1,pixel_repair_interval=(1,1))
+            with self.assertRaisesRegex(ValueError,'PIXEL_REPAIR'):
+                probe(None,None,{},size=8,schedule_hint=hint,fixed_rectangles=True,pixel_repair_interval=(-1,1))
+            with self.assertRaisesRegex(ValueError,'PIXEL_REPAIR'):
+                probe(None,None,{},size=8,pixel_repair_interval=(1,1))
+        def words(frame):
+            return {(p['x']+x,p['y']+y):(p['bank'],int(c))for p,im in zip(frame['pieces'],demand(frame)[2])
+                    for y,row in enumerate(im)for x,c in enumerate(row)if c>=0}
+        old,new=words(hint),words(result)
+        self.assertEqual(set(old),set(new))
+        for (x,y),value in old.items():
+            if y!=1:self.assertEqual(new[x,y],value)
+        self.assertEqual(result['pixel_repair_interval'],[1,1])
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+
     def test_relaxed_control_cover_retains_exact_saturated_hint_operand(self):
         import hashlib
         from raster_math_windows import compile_mask
@@ -32,10 +55,10 @@ class JointSceneSolverTests(unittest.TestCase):
             result=probe(None,None,{},size=8,write_budget=0,time_limit=5,solver_backend='cp-sat',
                          additive_only=True,scanline_math_candidate=candidate,relax_scanline_pool=True,
                          schedule_hint=hint,fixed_geometry=True,preserve_hint_math_classes=True,preserve_hint_words=True,
-                         cp_search_strategy='sat')
+                         cp_search_strategy='sat-repair')
         self.assertTrue(result['compiled_pixel_identity_verified'])
         self.assertGreater(result['complete_outside_control_math_cover']['retained_seed_operands'],0)
-        self.assertEqual(result['solver']['boolean_stats']['search_strategy'],'sat')
+        self.assertEqual(result['solver']['boolean_stats']['search_strategy'],'sat-repair')
         self.assertTrue(all(np.all(im[im>=0]==17)for im in demand(result)[2]))
 
     def test_literal_ordinary_actors_share_one_fixed_bank(self):
