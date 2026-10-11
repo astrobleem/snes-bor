@@ -41,3 +41,11 @@ authored frame adds 3990 necessary cuts. Its fixed witness still replays at
 source exact, with six changed operand/gate choices and one unused write.
 Seven focused tests pass, including twenty mandatory colors in one fixed bank:
 zero updates is infeasible, while a writable schedule preserves every pixel.
+
+An optional exact operand reuse search considers other words in the bank's
+candidate vocabulary that produce precisely the required RGB555 result under
+the same source-bound math mode. It finds six such pixels in this authored
+frame. Complete replay remains exact at 472 clocks; the native gate remains
+UNKNOWN. Saturation reuse and a bounded repair interval have focused tests.
+Repairs retain surrounding palette states and charge the boundary update.
+Mandatory distinct words also receive explicit slot matching constraints.

@@ -10,6 +10,24 @@ from test_raster_slot_layout import SlotLayoutTests
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class WindowSlotTests(unittest.TestCase):
+    def test_saturated_exact_operands_can_reuse_resident_words(self):
+        source,bg,_=self.source();mask=np.zeros((8,8),dtype=np.uint8);mask[0,:2]=[1,2]
+        flat=mask.flatten();source['piece_pixel_masks'][0]['pixels_hex']=(flat[::2]|flat[1::2]<<4).tobytes().hex()
+        empty={b:[None]*15 for b in range(8)};state=copy.deepcopy(empty);state[4][:2]=[30,31]
+        source['trace']=[dict(scanline=y,resident_before=copy.deepcopy(empty if y==0 else state),updates=[dict(bank=4,slot=s+1,old=None,color=c)for s,c in enumerate([30,31])]if y==0 else[])for y in range(16)]
+        bg[:]=0;bg[0,:2]=[1,2];expected=bg.copy();expected[0,:2]=31
+        source['source_rgb555_sha256']=hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest()
+        result=optimize(source,bg,expected,time_limit=5,maximum_writes=0,reuse_exact_operands=True)
+        verify_packets(result)
+        self.assertGreater(result['physical_slot_layout']['pixels_with_multiple_exact_operand_choices'],0)
+        self.assertTrue(result['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
+        self.assertEqual(result['physical_slot_layout']['peak_actual_palette_writes'],0)
+        repaired=optimize(result,bg,expected,time_limit=5,maximum_writes=0,reuse_exact_operands=True,repair_interval=(0,0))
+        verify_packets(repaired)
+        self.assertEqual([r['resident_before']for r in repaired['trace'][2:]],[r['resident_before']for r in result['trace'][2:]])
+        self.assertTrue(repaired['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
+        with self.assertRaisesRegex(ValueError,'REPAIR_INTERVAL'):optimize(result,bg,expected,repair_interval=(4,3))
+
     def test_mandatory_bank_lifetimes_require_writes_beyond_fifteen_colors(self):
         source=SlotLayoutTests().schedule();source['color_math']='additive';source['pieces']=[dict(source['pieces'][0],width=32,height=32)]
         mask=np.zeros((32,32),dtype=np.uint8);mask[:20,0]=1;flat=mask.flatten()
