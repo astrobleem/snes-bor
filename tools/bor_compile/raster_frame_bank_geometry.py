@@ -26,11 +26,12 @@ def subdivided_candidates(rectangles,pixel_options,small_size=8):
     return list(candidates.values())
 
 
-def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False):
+def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None):
     from ortools.sat.python import cp_model
     if type(height)is not int or not 1<=height<=256 or time_limit<=0 or not rectangles or not pixel_options:
         raise ValueError('FRAME_BANK_GEOMETRY_DOMAIN')
     if type(bank_symmetry)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_SYMMETRY_DOMAIN')
+    if type(feasibility_only)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_FEASIBILITY_DOMAIN')
     sizes=set()
     for p in rectangles:
         if any(type(p.get(k))is not int for k in ('x','y','width','height'))or p['width']!=p['height']or p['width']not in(8,16,32)or not -256<=p['x']<256 or not -256<=p['y']<256:
@@ -81,7 +82,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
             mask=model.new_bool_var(f'piece{i}_{b}');masks[i,b]=mask
             for j in eligible:
                 y,x=atoms[j][1][0];v=model.new_bool_var(f'atom{i}_{b}_{j}');model.add(v<=mask)
-                model.add(v<=sum(palette[y,b,c]for c in pixel_options[y,x][b]))
+                model.add_bool_or([v.Not()]+[palette[y,b,c]for c in pixel_options[y,x][b]])
                 owners[j].append(v);assignments.append((i,b,j,v))
     for values in owners.values():
         if not values:raise ValueError('FRAME_BANK_GEOMETRY_UNCOVERED_PIXEL')
@@ -95,7 +96,29 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         live=[(i,b,v)for(i,b),v in masks.items()if rectangles[i]['y']<=y<rectangles[i]['y']+rectangles[i]['height']]
         model.add(sum(v for i,b,v in live)<=32)
         model.add(sum(v*(rectangles[i]['width']//8)for i,b,v in live)<=34)
-    model.minimize(sum(masks.values()))
+    if not feasibility_only:model.minimize(sum(masks.values()))
+    hinted=set()
+    if geometry_hint is not None:
+        if not isinstance(geometry_hint,dict)or not isinstance(geometry_hint.get('pieces'),list)or not isinstance(geometry_hint.get('pixels'),list):
+            raise ValueError('FRAME_BANK_GEOMETRY_HINT_DOMAIN')
+        def add_hint(v):
+            if v.index not in hinted:model.add_hint(v,1);hinted.add(v.index)
+        matched={}
+        for j,p in enumerate(geometry_hint['pieces']):
+            keys=('x','y','width','height');bank=p.get('bank')
+            match=next((i for i,q in enumerate(rectangles)if all(p.get(k)==q[k]for k in keys)and(i,bank)in masks),None)
+            if match is None:raise ValueError('FRAME_BANK_GEOMETRY_HINT_RECTANGLE')
+            matched[j]=(match,bank);add_hint(masks[match,bank])
+        hinted_points={}
+        for p in geometry_hint['pixels']:
+            point=(p.get('y'),p.get('x'));bank=p.get('bank');color=p.get('color');piece=p.get('piece')
+            if point not in pixel_options or bank not in pixel_options[point]or color not in pixel_options[point][bank]or piece not in matched or matched[piece][1]!=bank or point in hinted_points:
+                raise ValueError('FRAME_BANK_GEOMETRY_HINT_PIXEL')
+            i,_=matched[piece]
+            if i not in coverage[point]:raise ValueError('FRAME_BANK_GEOMETRY_HINT_OWNER')
+            hinted_points[point]=(i,bank);add_hint(palette[point[0],bank,color])
+        for i,b,j,v in assignments:
+            if all(hinted_points.get(point)==(i,b)for point in atoms[j][1]):add_hint(v)
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     status=solver.solve(model)
     report=dict(schema='BYOR_FIXED_FRAME_BANK_GEOMETRY_V1',status='BOUNDED_FRAME_BANK_GEOMETRY_NO_WITNESS',
@@ -104,6 +127,8 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         source_pixel_count=len(pixel_options),bank_count=8,opaque_slots_per_bank=15,fixed_bank_for_entire_oam_rectangle=True,
         equivalent_pixel_decision_atoms=len(atoms),equivalent_pixel_decisions_coalesced=len(pixel_options)-len(atoms),
         safe_class_bank_label_symmetry=bank_symmetry,bank_order_timing_not_modeled=True,
+        solver_objective='FEASIBILITY_ONLY'if feasibility_only else'MINIMUM_OAM_ENTRIES',
+        soft_geometry_hint_variables=len(hinted),
         full_rectangle_padding_counted=True,palette_liveness_and_transfer_cost_relaxed=True,native_presentation_proven=False,
         universal_raster_rejected=False,no_color_reduction=True)
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return report
@@ -126,3 +151,61 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
     report.update(status='FIXED_FRAME_BANK_GEOMETRY_AND_WORD_OPTIONS_PROVEN',pieces=pieces,pixels=pixels,geometry=geometry,
         declared_word_options_and_fixed_bank_geometry_replayed=True)
     return report
+
+
+def main():
+    import argparse,hashlib,json
+    from pathlib import Path
+    from compiler import Source
+    from source_scene_obj_raster import prepare
+    from source_scene_bg import compose_rgb8
+    from source_bg_feasibility import rgb555
+    from raster_slot_greedy import demand
+    from raster_scanline_bank_geometry import exact_row_word_options
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--schedule',type=Path,required=True)
+    p.add_argument('--geometry',type=Path,required=True,help='JSON containing source_rectangle_cover.')
+    p.add_argument('--exact-source',type=Path,required=True);p.add_argument('--stage',required=True)
+    p.add_argument('--output',type=Path,required=True);p.add_argument('--time-limit',type=float,default=30)
+    p.add_argument('--scanline-start',type=int,default=0);p.add_argument('--scanline-end',type=int,default=224)
+    p.add_argument('--subdivide',action='store_true');p.add_argument('--bank-symmetry',action='store_true')
+    p.add_argument('--feasibility-only',action='store_true')
+    p.add_argument('--geometry-hint',type=Path,help='Soft source-exact geometry witness from a subset of the requested interval.')
+    a=p.parse_args()
+    if not 0<=a.scanline_start<a.scanline_end<=224:p.error('scanline interval must be within [0,224)')
+    frame=json.loads(a.schedule.read_text(encoding='utf-8'))
+    geometry=json.loads(a.geometry.read_text(encoding='utf-8'));rectangles=geometry['source_rectangle_cover']['rectangles']
+    if geometry.get('source_rgb555_sha256')!=frame['source_rgb555_sha256']:
+        raise ValueError('FRAME_BANK_GEOMETRY_COVER_SOURCE_IDENTITY')
+    source=Source(a.exact_source);scene=frame['metadata']['scene']
+    _,metadata,expected=prepare(source,a.stage,scene);expected=rgb555(expected)
+    if metadata!=frame['metadata']or hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest()!=frame['source_rgb555_sha256']:
+        raise ValueError('FRAME_BANK_GEOMETRY_SOURCE_ARCHIVE_IDENTITY')
+    background=rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0])
+    replay=frame
+    if frame.get('status')=='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW':
+        if not frame.get('compiled_pixel_identity_verified')or frame.get('hardware_geometry_admitted'):
+            raise ValueError('FRAME_BANK_GEOMETRY_OVERFLOW_IDENTITY')
+        replay=dict(frame,status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN')
+    required,_,_=demand(replay)
+    options={};proofs={}
+    for y in range(a.scanline_start,a.scanline_end):
+        if not any(required[y]):continue
+        row,proof=exact_row_word_options(frame,y,background[y],expected[y]);proofs[str(y)]=proof
+        options.update({(y,x):banks for x,banks in row.items()})
+    if a.subdivide:rectangles=subdivided_candidates(rectangles,options)
+    print(json.dumps(dict(candidate_rectangles=len(rectangles),source_pixels=len(options))),flush=True)
+    hint=json.loads(a.geometry_hint.read_text(encoding='utf-8'))if a.geometry_hint else None
+    if hint is not None and hint.get('source_rgb555_sha256')!=frame['source_rgb555_sha256']:
+        raise ValueError('FRAME_BANK_GEOMETRY_HINT_SOURCE_IDENTITY')
+    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint)
+    report.update(source_rgb555_sha256=frame['source_rgb555_sha256'],source_input_sha256=hashlib.sha256(a.schedule.read_bytes()).hexdigest(),
+        source_pak_sha256=hashlib.sha256(a.exact_source.read_bytes()).hexdigest(),source_row_context_proofs=proofs,
+        source_rectangle_cover=geometry['source_rectangle_cover'],scanline_interval=[a.scanline_start,a.scanline_end],
+        outside_interval_demand_relaxed=(a.scanline_start,a.scanline_end)!=(0,224),
+        source_alpha_policy='EXACT_SOURCE_OUTPUT_OPERANDS',alpha_compatibility_policy_selected=False)
+    a.output.write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+    print(json.dumps({k:v for k,v in report.items()if k not in('pixels','pieces','source_rectangle_cover','source_row_context_proofs')}))
+
+
+if __name__=='__main__':main()

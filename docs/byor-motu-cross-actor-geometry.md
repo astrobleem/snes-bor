@@ -41,8 +41,32 @@ seconds (327,161 variables, 611,764 constraints). Equivalent pixel decisions
 now coalesce only when row word domains and geometry owners match. Optional
 class bank-label symmetry first verifies all eligible domains are identical;
 bank-order transfer costs are explicitly outside this geometry-only model.
-Forty-three focused tests pass. A reduced trial continues; no complete-frame
-hardware timing admission or universal raster rejection is asserted.
+The coalesced model removes 10,474 repeated pixel decisions, leaving 191,993
+variables and 330,960 constraints. It returns UNKNOWN after 150.862 seconds.
+A feasibility-only trial of the same model also returns UNKNOWN after 151.040
+seconds. Both retain all bank and hardware geometry constraints; removing the
+OAM minimization objective does not produce a witness or infeasibility proof.
+
+The generic source-bound frame CLI can restrict demand to a declared scanline
+interval while counting each selected rectangle's full padded hardware cost.
+It verifies archive, viewport and row context identity before reopening exact
+operands. Interval witnesses cannot admit a complete frame. Rows 144–159 still
+return UNKNOWN after 60.086 seconds, with 72 candidate rectangles, 3,865 pixels
+and 35,893 variables. Forty-four focused tests pass. No complete-frame hardware
+timing admission or universal raster rejection is asserted.
+
+The three critical rows 152–154 now admit shared fixed-bank OAM rectangles:
+22 objects, 22 sprites and 34 tile slivers, after 8.831 seconds. All 751 encoded
+pixels and the 768 source output pixels are checked independently. The selected
+banks remain fixed through each complete rectangle, whose padding is included
+in the hardware counts. Demand outside this three-line interval is relaxed;
+palette liveness, slot assignment and transfers are unproved. A generic soft
+geometry hint can reuse this subset witness without fixing decisions in the
+wider search. Invalid hinted word domains are rejected. Forty-five focused
+tests pass; no full-frame or native admission follows.
+The wider rows 144–159 trial receives 691 soft witness hints but remains
+UNKNOWN after 60.105 seconds. Hints are domain checked and do not fix bank,
+word or ownership decisions. This result is not an infeasibility certificate.
 
 The full conditional Skeletor rise tick-341 context reproduces the retained
 36-sliver separate-actor lower bound and source viewport hash

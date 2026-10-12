@@ -59,5 +59,25 @@ class FrameBankGeometryTests(unittest.TestCase):
         result=search(rectangles,points,height=8,time_limit=3)
         self.assertEqual(result['equivalent_pixel_decision_atoms'],2)
 
+    def test_feasibility_only_retains_all_bank_and_geometry_constraints(self):
+        rectangles=[dict(x=0,y=0,width=32,height=32)]
+        points={(0,x):{0:[x]}for x in range(16)}
+        rejected=search(rectangles,points,height=32,time_limit=3,feasibility_only=True)
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+        points[0,15]={1:[15]}
+        result=search(rectangles,points,height=32,time_limit=3,feasibility_only=True)
+        self.assertEqual(result['solver_objective'],'FEASIBILITY_ONLY')
+        self.assertEqual(result['geometry']['oam_entries'],2)
+
+    def test_subset_geometry_hint_is_soft_and_replayed(self):
+        rectangles=[dict(x=0,y=0,width=8,height=8)]
+        hint=search(rectangles,{(0,0):{0:[0]}},height=8,time_limit=3)
+        result=search(rectangles,{(0,0):{0:[0]},(1,0):{4:[33]}},height=8,time_limit=3,geometry_hint=hint)
+        self.assertEqual(result['geometry']['oam_entries'],2)
+        self.assertGreater(result['soft_geometry_hint_variables'],0)
+        hint['pixels'][0]['color']=1
+        with self.assertRaisesRegex(ValueError,'HINT_PIXEL'):
+            search(rectangles,{(0,0):{0:[0]}},height=8,time_limit=3,geometry_hint=hint)
+
 
 if __name__=='__main__':unittest.main()
