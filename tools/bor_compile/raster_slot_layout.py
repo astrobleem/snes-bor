@@ -10,6 +10,15 @@ import numpy as np
 from raster_obj_compact import unpack
 
 
+def piece_identity(piece):
+    """Empty derived demand rows carry no pixel or geometry identity."""
+    result=dict(piece)
+    if 'rows'in result:
+        result['rows']={int(y):colors for y,colors in result['rows'].items()if colors}
+        if not result['rows']:result.pop('rows')
+    return result
+
+
 def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False,persistent_color_slots=False,paired_bank_ranges=False,collapse_idle_prefix=False,lifetime_repair_interval=None,search_strategy='portfolio',hint_time_radius=None,necessary_bank_window=None,feasibility_only=False):
     from ortools.sat.python import cp_model
     if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
@@ -80,7 +89,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         if set(hint_banks)!=set(range(8))or sorted(hint_banks.values())!=list(range(8)):raise ValueError('SLOT_LAYOUT_HINT_BANK_PERMUTATION')
         if schedule.get('color_math','additive')=='additive'and any(b//4!=v//4 for b,v in hint_banks.items()):raise ValueError('SLOT_LAYOUT_HINT_COLOR_MATH_CLASS')
         expected_pieces=[dict(p,bank=hint_banks[p['bank']])for p in schedule['pieces']]
-        if layout_hint.get('pieces')!=expected_pieces or layout_hint.get('source_rgb555_sha256')!=schedule.get('source_rgb555_sha256')or not layout_hint.get('physical_slot_layout',{}).get('pixel_color_identity_verified'):raise ValueError('SLOT_LAYOUT_HINT_IDENTITY')
+        if [piece_identity(p)for p in layout_hint.get('pieces',[])]!=[piece_identity(p)for p in expected_pieces] or layout_hint.get('source_rgb555_sha256')!=schedule.get('source_rgb555_sha256')or not layout_hint.get('physical_slot_layout',{}).get('pixel_color_identity_verified'):raise ValueError('SLOT_LAYOUT_HINT_IDENTITY')
         pixels={}
         for p,old,new in zip(schedule['pieces'],schedule['piece_pixel_masks'],layout_hint['piece_pixel_masks']):
             a,b=unpack(old),unpack(new)

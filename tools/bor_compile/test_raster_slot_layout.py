@@ -6,6 +6,19 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_hint_empty_rows_preserve_identity_but_real_row_changes_reject(self):
+        from raster_slot_greedy import demand
+        from raster_slot_refine import verify_packets
+        source=self.schedule()
+        hint=optimize(source,window=356,time_limit=3,flexible_prefetch=True)
+        hint['pieces'][0].setdefault('rows',{})['999']=[]
+        result=optimize(source,window=356,time_limit=3,flexible_prefetch=True,layout_hint=hint)
+        verify_packets(result)
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        hint['pieces'][0]['rows']['999']=[1]
+        with self.assertRaisesRegex(ValueError,'HINT_IDENTITY'):
+            optimize(source,window=356,time_limit=3,flexible_prefetch=True,layout_hint=hint)
+
     def test_reordered_banks_preserve_piece_domains_before_transfer_admission(self):
         from raster_slot_greedy import demand
         source=self.schedule();source['pieces'][1]['bank']=3

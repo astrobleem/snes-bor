@@ -162,3 +162,11 @@ inputs do not retain the original ideal bound: one has 352/368-clock rows.
 This explains why it cannot serve as a feasible hint inside a 345-clock
 residency search. The complete witness and bounded search reports are retained
 without claiming improved physical admission.
+
+At those fixed write times, the complete physical rectangle-lifetime model
+is INFEASIBLE at 345 clocks in 33.196 seconds. Allowing one-line retiming
+around the verified physical hint returns UNKNOWN at 50 seconds. Both results
+are restricted to the stated lifetimes and bank assignment. Hint comparison
+now normalizes empty derived demand rows while retaining real row colors,
+piece geometry, frame hash and independent pixel-mask checks; four focused
+hint/timing/source-control tests pass.
