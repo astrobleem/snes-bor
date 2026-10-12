@@ -54,6 +54,17 @@ The repeated native capture with these fields also passes six complete fields.
 Initial 256-byte OBJ palette loading belongs to VBlank and is reported
 separately from per-line transfers.
 
+Control identity alone is insufficient for alpha timing. A conservative
+source-pixel deadline check finds six `$212B` writes 4–10 clocks after the
+first math-bank pixel on source row 129 in the prior transport capture.
+The PPU line is source viewport row plus one. The optional private executor
+now writes byte controls before preparing next-line DMA counts. A repeated
+six-field capture has zero late writes under that check, zero unsafe CGRAM
+commits, zero pixel mismatches and 1,410 context checks without faults.
+Both deadline reports and the native trace are retained in the same receipt.
+The check does not prove that each pixel depends on that register, or admit
+authored alpha rendering; it establishes a conservative timing requirement.
+
 The default full-context executor remains byte-identical to parent commit
 `27b8575` under the same compiler inputs. Both ROM hashes are
 `29aa7d9863ab4042de71cea0acdb8568a61f58bb6a6c5044ce7cda5879d5e9e6`;

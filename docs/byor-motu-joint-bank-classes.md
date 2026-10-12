@@ -107,3 +107,15 @@ at those fixed write times. Constrained sixteen/nineteen-write cache searches
 return UNKNOWN. A compiled physical witness and lifetime recoloring remain
 above the transfer window. These measured results preserve geometry limits
 and exact source alpha, and do not reject other encoding/residency choices.
+
+An explicit isolated-context experiment also allows pieces to change math
+class by recompiling their palette operands. Original encoding bank domains
+remain attached to the input pieces. The exact source-bound window/mode
+replay verifies the output over all 57,344 pixels, including pieces that cross
+the opaque/math bank boundary. Geometry remains 82/25/34. The interval bound
+falls to 14.857143; the validated fractional cache lower bound is 15.933333,
+with primal residual 1.42e-14 and dual residual 1.11e-16. A sixteen-write
+integer cache is OPTIMAL in 6.969 seconds, with 444 total writes and eleven-line
+prefetch. Its current optimistic peak is 376 clocks. This experiment claims
+no concurrent-actor reservation or native alpha admission. Source colors and
+rendered alpha remain exact; no compatibility approximation is selected.

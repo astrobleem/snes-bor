@@ -46,7 +46,8 @@ def verify_precomposited_pixels(schedule,background,expected):
                 source_rgb555_sha256=hashlib.sha256(replay.tobytes()).hexdigest())
 
 
-def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=False,foreground_stress=False,production_nmi_services=False,nmi_queue_bytes=512,foreground_wai=False,prepare_next_line=False,control_traffic=None,delta_control_traffic=False,controls_before_palette=False,authored_context=None,inline_row_returns=False):
+def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=False,foreground_stress=False,production_nmi_services=False,nmi_queue_bytes=512,foreground_wai=False,prepare_next_line=False,control_traffic=None,delta_control_traffic=False,controls_before_palette=False,authored_context=None,inline_row_returns=False,controls_before_counts=False):
+    if controls_before_counts and(not prepare_next_line or control_traffic is None or controls_before_palette):raise ValueError('NATIVE_CONTROL_COUNT_ORDER_DOMAIN')
     if inline_row_returns and not foreground_wai:raise ValueError('NATIVE_INLINE_RETURN_REQUIRES_WAI_ABI')
     if production_nmi_services and(not sa1_mapping or not 0<=nmi_queue_bytes<=4096 or nmi_queue_bytes%2):raise ValueError('NATIVE_PRODUCTION_NMI_SERVICE_DOMAIN')
     if foreground_wai and foreground_stress:raise ValueError('NATIVE_WAI_AND_FOREGROUND_STRESS_CONFLICT')
@@ -245,12 +246,13 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
             for ch,count in rows[y+1]['counts'].items():
                 if not count:continue
                 count_groups.setdefault(count,[]).append(ch)
+            if controls_before_counts:emit_controls(y,leave_a8=True,part='bytes',a8_already=True)
             for count,channels in count_groups.items():
                 asm.append(f' lda #${count:02X}')
                 for ch in channels:
                     target=f'${0x05+16*ch:02X}'if foreground_wai else f'${0x4305+16*ch:04X}'
                     asm.append(f' sta {target}')
-            if not controls_before_palette:emit_controls(y,leave_a8=True,part='bytes',a8_already=True)
+            if not controls_before_palette and not controls_before_counts:emit_controls(y,leave_a8=True,part='bytes',a8_already=True)
             asm.extend([' rep #$20','.a16'])
         elif not controls_before_palette:emit_controls(y,part='bytes')
         asm.extend([f' lda #IsolatedRasterRow{y+1}',' sta $1E00'])
@@ -292,6 +294,7 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
         control_traffic_math_layer_selection_disabled=control_traffic is not None and not authored_main)
     if authored_context is not None:resources['source_alpha_policy']='EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555'
     resources['inline_row_returns']=inline_row_returns
+    resources['controls_before_counts']=controls_before_counts
     resources['peak_dirty_cgram_bytes']=max(r['cgram_data_bytes']for r in schedule['trace'][1:])
     resources['peak_actual_cgram_dma_bytes']=max(sum(2*p['word_count']for p in r['packets'])for r in schedule['prepared_dma_packets'])
     resources['peak_total_raster_dma_bus_bytes']=max(sum(r['counts'].values())for r in rows)
@@ -370,6 +373,7 @@ def main():
     p.add_argument('--delta-control-traffic',action='store_true',help='Write only changed control fields; paired window bounds remain atomic word writes.')
     p.add_argument('--inline-row-returns',action='store_true',help='Inline the private WAI ABI row return; verify every RTI context independently.')
     p.add_argument('--controls-before-palette',action='store_true',help='Measure source-bound control register writes before palette DMA; previous-line pixel deadlines require a separate check.')
+    p.add_argument('--controls-before-counts',action='store_true',help='Apply control bytes before preparing next-line DMA counts; requires control traffic and next-line preparation.')
     p.add_argument('--control-traffic',type=Path,help='Execute source-bound alpha/window register traffic with layer math selection disabled; measures transport only, not authored alpha rendering.')
     p.add_argument('--prepare-next-line',action='store_true',help='Prepare the following row DMA counts after the current transfer, shortening the next IRQ critical path.')
     p.add_argument('--nmi-queue-bytes',type=int,default=512)
@@ -382,7 +386,7 @@ def main():
         source=Source(a.source);_,metadata,composed=prepare(source,a.stage,scene)
         background=rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0])
         authored_context=dict(metadata=metadata,expected=rgb555(composed),background=background)
-    raw,expected,initial,oam,sy,resources=compile_rom(a.rom.read_bytes(),a.source,scene,schedule,folder,a.timer,a.sa1_mapping,a.foreground_stress,a.production_nmi_services,a.nmi_queue_bytes,a.foreground_wai,a.prepare_next_line,json.loads(a.control_traffic.read_text())if a.control_traffic else None,a.delta_control_traffic,a.controls_before_palette,authored_context,a.inline_row_returns)
+    raw,expected,initial,oam,sy,resources=compile_rom(a.rom.read_bytes(),a.source,scene,schedule,folder,a.timer,a.sa1_mapping,a.foreground_stress,a.production_nmi_services,a.nmi_queue_bytes,a.foreground_wai,a.prepare_next_line,json.loads(a.control_traffic.read_text())if a.control_traffic else None,a.delta_control_traffic,a.controls_before_palette,authored_context,a.inline_row_returns,a.controls_before_counts)
     production_sy=symbols(Path('src/main.sym'))if a.production_nmi_services else {}
     rom=folder/'proof.sfc';rom.write_bytes(raw);lua=folder/'observer.lua';lua.write_text(observer(sy,a.sa1_mapping,production_sy.get('DmaQueue',0),a.nmi_queue_bytes,a.control_traffic is not None,True,a.foreground_wai,resources['production_queue_vram_byte_address'],a.inline_row_returns))
     if authored_context is not None:
