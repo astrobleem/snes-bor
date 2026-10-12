@@ -7,6 +7,17 @@ from test_raster_slot_greedy import source_schedule
 
 
 class ResidencyTests(unittest.TestCase):
+    def test_recompiled_cache_invalidates_previous_transfer_proof_and_hash(self):
+        from raster_bank_order import optimize as order_banks
+        source=order_banks(source_schedule())
+        result=optimize(source,2,0,None,5,solver_backend='highs')
+        for key in('physical_slot_layout','optimistic_bank_order','compiled_transfer_descriptor_sha256'):
+            self.assertNotIn(key,result)
+            self.assertEqual(result['input_'+key],source[key])
+        self.assertNotIn('prepared_dma_packets',result)
+        self.assertFalse(result['native_presentation_proven'])
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+
     def test_overlapping_bridge_relaxation_is_necessary_only(self):
         rng=np.random.default_rng(772)
         for counts in [[0]*8,[1]*8,*[list(map(int,rng.integers(0,16,8)))for _ in range(500)]]:

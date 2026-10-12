@@ -517,7 +517,9 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     report['total_noninitial_scheduled_writes']=sum(r['colors_written']for r in trace[1:])
     report['peak_noninitial_active_banks']=max(len(r['affected_banks'])for r in trace[1:])
     result=copy.deepcopy(source)
-    for key in('physical_slot_layout','prepared_dma_packets'):result.pop(key,None)
+    result.pop('prepared_dma_packets',None)
+    for key in('physical_slot_layout','physical_slot_refinement','optimistic_bank_order','compiled_transfer_descriptor_sha256'):
+        if key in result:result['input_'+key]=result.pop(key)
     result.update(trace=trace,piece_pixel_masks=images,bank_residency=report,write_budget=write_budget,lookahead_lines=lookahead,
         prepared_dma_window_master_clocks=window if range_backend!='bridge-relaxation'else None,
         prepared_dma_partition_bound_enforced=window is not None and range_backend!='bridge-relaxation',prepared_dma_window_is_optimistic_necessary_only=True,

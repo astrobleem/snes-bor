@@ -744,3 +744,24 @@ reservation. It uses 693 noninitial writes, 22 peak writes and 31-line prefetch.
 The necessary-model lower bound is 338 clocks. Neither cost admits native
 timing; physical slots remain unproved and 408 still exceeds the 356-clock
 maximum. This cache supplies the complete partition search's next soft start.
+
+The complete partition search retains 408 clocks after 180.196 seconds, with
+687 noninitial writes, 22 peak writes and 31-line prefetch. Its reported family
+lower bound is 341 clocks. All 576 eligible bank orders retain the 408-clock
+peak; unchanged physical slots cost 1,032 clocks and are not a native candidate.
+
+Cache recompilation now moves previous physical layout, refinement, bank-order
+proof and transfer-descriptor hash into explicitly labeled input history and
+removes the old packets. They cannot describe the newly compiled trace. A
+regression starts with actual independently checked bank-order packets and
+confirms these invalidations while retaining every indexed source word. All
+31 focused residency/geometry tests pass. Static production presentation is
+unchanged.
+
+Reopening integer cache timing under the best eligible bank order improves the
+complete ideal peak to 400 clocks after 120.167 seconds. The source-exact cache
+has 682 noninitial writes, 21 peak writes and 34-line prefetch, with at most six
+active banks per noninitial line. Every piece still selects one fixed bank and
+the complete player geometry reservation remains valid. The 400-clock cost
+still exceeds the measured transfer window; no physical slot or native timing
+admission is asserted.
