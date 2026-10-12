@@ -119,3 +119,16 @@ integer cache is OPTIMAL in 6.969 seconds, with 444 total writes and eleven-line
 prefetch. Its current optimistic peak is 376 clocks. This experiment claims
 no concurrent-actor reservation or native alpha admission. Source colors and
 rendered alpha remain exact; no compatibility approximation is selected.
+
+The 180-second constrained re-encoding cache and 180-second flexible
+rectangle-lifetime search return UNKNOWN. A seven-iteration cache-cut search
+retains its initial bank assignment as the best fractional DMA bound at
+274.474279 clocks; this is not an improvement over that assignment. A distinct
+evaluated assignment with a 288.713445-clock fractional bound is also replayed
+and tested, but its integer window-constrained cache returns UNKNOWN.
+Complete RGB555 inverse operand covers inspect all 32,768 operands per math
+bank; the fixed-mode physical search returns UNKNOWN at 120 seconds.
+Allowing exact math modes and windows to change by scanline also returns
+UNKNOWN at 120 seconds. These results do not establish infeasibility or
+select the BG fallback. Full source output and bounded search evidence remain
+in the authored receipt and archive.

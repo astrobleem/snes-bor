@@ -370,3 +370,10 @@ then compiles and replays the resulting physical packets. Four focused tests
 pass, including rejection of a corrupted old-slot identity. This avoids an
 unnecessary intermediate physical-layout solve while retaining the same
 source-pixel and CGRAM proof requirements.
+
+A readable [224-row scanline report](receipts/byor-motu-kempe-scanlines.csv)
+is bound to schedule hash
+`cf2440f471902d2c2d0afea0ea30760e319e77b3e7172412b2b46c5b6211846a`.
+It separates per-bank required identities from union colors, dirty bytes
+from actual DMA bytes, and records ranges, prefetch and evictions. Row zero
+is VBlank palette initialization; its writes are not HBlank traffic.
