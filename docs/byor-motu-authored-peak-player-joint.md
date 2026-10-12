@@ -47,8 +47,20 @@ rejects actor changes even when the final colors match. The actor-preserving
 joint trial remains UNKNOWN after 122.313 seconds, with 603,703 variables and
 1,089,101 constraints. No source identity shortcut or native admission is used.
 
+Ignoring cache and transfer constraints produces an actor-preserving bank/mode/
+window geometry witness after 30.461 seconds: 80 objects, 17 sprites and 34
+slivers. The generic compiler replays every source output pixel, retains actor
+identity and emits palette schedule hash
+a0985f5f682b77c690302482cb866cbd5216393c3b3a5ff255747bdd6eef1b96.
+Greedy residency reaches 53 writes; its independently validated fractional
+fixed-bank/fixed-word cache lower bound is 45.625 with zero primal violation
+and dual residual. This particular encoding therefore needs at least 46 writes,
+or 720 clocks between high-byte commits before range overhead. It fails the
+measured window. Other exact encodings and bank assignments remain open; the
+geometry witness is not full concurrent native admission.
+
 The bounded receipt reopens the actual source archive, rebuilds the demand,
 replays every source row-context hash and independently checks geometry cover
-ownership. Ninety-five focused tests pass. Production static presentation and
+ownership. Ninety-seven focused tests pass. Production static presentation and
 bank-zero code remain unchanged; all 17 protected tracked fingerprints match.
 No PCM copies. [Joint source receipt](receipts/byor-motu-authored-peak-player-joint.json).
