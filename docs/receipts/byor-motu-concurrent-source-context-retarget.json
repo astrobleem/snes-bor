@@ -397,12 +397,14 @@
     "byor-motu-concurrent-retarget-repair-physical345.json": "56d9e8ae8678d242715ea43bbade7a65bd4a2f5481e7d6397e3620a12d8a5ffa",
     "byor-motu-concurrent-retarget-repair-physical-diagnostic.json": "8dd441505ca0b47de9755ff0ce1f98caa3948887179a0ef37768542635445b9e",
     "byor-motu-concurrent-retarget-repair-movable-physical345.json": "2bc099fe12699392e814a20ef0160a501c7f8161260cc5b96588c65580f448db",
-    "byor-motu-concurrent-retarget-repair-local-refined.json": "52db26a1e5f93298479931d7f549e004d6dabc229831d46e24d40818320225ba"
+    "byor-motu-concurrent-retarget-repair-local-refined.json": "52db26a1e5f93298479931d7f549e004d6dabc229831d46e24d40818320225ba",
+    "byor-motu-concurrent-retarget-repair-local-refined2.json": "2ac341d7e3c72cf15d1e74006c3b83d85370a2eb38c2cb1a84ea071ac26d2380",
+    "byor-motu-concurrent-retarget-repair-relabel.json": "f81fb8ef5f1ac3ffc116e7acf96ae31aaad1ecac02ff3c78cc828a21e58e9871"
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-concurrent-source-context-retarget.json.gz",
-    "bytes": 151417,
-    "sha256": "1f20cf5af153901049e8044b9a41cc373151b6aeb95df6380c4c01d55a7c84f6"
+    "bytes": 206910,
+    "sha256": "252b0105cbf501e05f2da2ad3f4f29f50cfef60a72af686b94c528b9b6c0bcc5"
   },
   "movable_time_physical_search": {
     "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
@@ -557,5 +559,194 @@
     "visible_obj_pixels": 5936,
     "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
   },
-  "local_refinement_peak_span": 504
+  "local_refinement_peak_span": 504,
+  "second_local_refinement": {
+    "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+    "target_window_master_clocks": 345,
+    "target_window_met_by_all_packets": false,
+    "complete_source_frame_pixel_identity_proven": true,
+    "universal_raster_rejected": false,
+    "native_timing_admitted": false,
+    "no_color_reduction": true,
+    "trials": [
+      {
+        "iteration": 0,
+        "interval": [
+          129,
+          139
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.073465200000001,
+        "model_variables": 9102,
+        "restricted_model_peak_span_lower_bound": 269,
+        "before": [
+          504,
+          10848
+        ],
+        "candidate": [
+          504,
+          10744
+        ],
+        "accepted": true
+      },
+      {
+        "iteration": 1,
+        "interval": [
+          127,
+          141
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.089127000000001,
+        "model_variables": 11856,
+        "restricted_model_peak_span_lower_bound": 245,
+        "before": [
+          504,
+          10744
+        ],
+        "candidate": [
+          504,
+          10696
+        ],
+        "accepted": true
+      },
+      {
+        "iteration": 2,
+        "interval": [
+          125,
+          143
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.133218500000002,
+        "model_variables": 14587,
+        "restricted_model_peak_span_lower_bound": 253,
+        "before": [
+          504,
+          10696
+        ],
+        "candidate": [
+          504,
+          10664
+        ],
+        "accepted": true
+      },
+      {
+        "iteration": 3,
+        "interval": [
+          128,
+          138
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.089513700000001,
+        "model_variables": 9100,
+        "restricted_model_peak_span_lower_bound": 255,
+        "before": [
+          504,
+          10664
+        ],
+        "candidate": [
+          504,
+          10592
+        ],
+        "accepted": true
+      },
+      {
+        "iteration": 4,
+        "interval": [
+          126,
+          140
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.1036113,
+        "model_variables": 11844,
+        "restricted_model_peak_span_lower_bound": 248,
+        "before": [
+          504,
+          10592
+        ],
+        "candidate": [
+          504,
+          10528
+        ],
+        "accepted": true
+      },
+      {
+        "iteration": 5,
+        "interval": [
+          133,
+          143
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.101743,
+        "model_variables": 9092,
+        "restricted_model_peak_span_lower_bound": 276,
+        "before": [
+          504,
+          10528
+        ],
+        "candidate": [
+          488,
+          10584
+        ],
+        "accepted": true
+      }
+    ],
+    "maximum_physical_writes_per_transfer_row": 21,
+    "full_frame_write_budget_verified": true,
+    "necessary_bank_window_master_clocks": 345,
+    "full_frame_necessary_bank_window_verified": true
+  },
+  "bank_reflection_search": {
+    "schema": "BYOR_PHYSICAL_BANK_REFLECTION_SEARCH_V1",
+    "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+    "seconds": 10.233999999705702,
+    "eligible_permutations_tested": 5040,
+    "slot_reflections_per_permutation": 256,
+    "eligible_permutation_family_exhaustive": true,
+    "fixed_piece_bank_permutation": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "reversed_original_banks": [],
+    "peak_prepared_commit_span": 488,
+    "aggregate_commit_span": 10584,
+    "geometry_unchanged": true,
+    "math_eligibility_preserved": true,
+    "peak_changed_physical_words": 18,
+    "necessary_span_from_changed_word_count": 288,
+    "pixel_color_identity_verified": true,
+    "all_packet_cgram_identities_verified": true,
+    "native_timing_admitted": false,
+    "universal_raster_rejected": false,
+    "no_color_reduction": true
+  },
+  "further_repair_source_replay": {
+    "byor-motu-concurrent-retarget-repair-local-refined2.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-retarget-repair-relabel.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    }
+  }
 }

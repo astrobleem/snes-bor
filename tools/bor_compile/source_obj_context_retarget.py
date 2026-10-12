@@ -21,7 +21,7 @@ def retarget(source,stage,scene,seed,actor_map,actor_domains,time_limit=30,looka
     if (not isinstance(actor_map,dict)or not actor_map or
         any(type(i)is not int or type(j)is not int or not 0<=i<len(old_layers)or not 0<=j<len(actors)for i,j in actor_map.items())or
         len(set(actor_map.values()))!=len(actor_map)):raise ValueError('OBJ_RETARGET_ACTOR_MAP')
-    if len(actor_domains)!=len(actors)or any(not d or len(set(d))!=len(d)or any(type(b)is not int or not 0<=b<8 for b in d)for d in actor_domains):raise ValueError('OBJ_RETARGET_ACTOR_DOMAINS')
+    if not isinstance(actor_domains,(list,tuple))or len(actor_domains)!=len(actors)or any(not isinstance(d,(list,tuple))or not d or len(set(d))!=len(d)or any(type(b)is not int or not 0<=b<8 for b in d)for d in actor_domains):raise ValueError('OBJ_RETARGET_ACTOR_DOMAINS')
     if time_limit<=0 or type(lookahead)is not int or lookahead<0:raise ValueError('OBJ_RETARGET_SEARCH_DOMAIN')
     for i,j in actor_map.items():
         old,new=old_layers[i],actors[j]['metadata']
