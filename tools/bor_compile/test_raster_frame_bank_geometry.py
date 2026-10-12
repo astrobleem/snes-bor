@@ -3,6 +3,17 @@ from raster_frame_bank_geometry import search,subdivided_candidates
 
 
 class FrameBankGeometryTests(unittest.TestCase):
+    def test_frame_word_objective_preserves_cross_row_identity(self):
+        rects=[dict(x=0,y=0,width=8,height=8,allowed_banks=[4])]
+        points={(0,0):{4:[0,2]},(1,0):{4:[1,2]}}
+        result=search(rects,points,height=8,time_limit=3,minimize_frame_palette_words=True)
+        self.assertEqual(result['selected_frame_bank_word_identity_count'],1)
+        self.assertEqual(result['selected_row_palette_word_count'],2)
+        self.assertEqual({q['color']for q in result['pixels']},{2})
+        self.assertTrue(result['palette_liveness_and_transfer_cost_relaxed'])
+        with self.assertRaisesRegex(ValueError,'FRAME_WORD_OBJECTIVE_DOMAIN'):
+            search(rects,points,height=8,minimize_frame_palette_words=True,minimize_row_palette_words=True)
+
     def test_row_word_objective_prefers_shared_exact_operands(self):
         rects=[dict(x=0,y=0,width=8,height=8,allowed_banks=[4])]
         points={(0,0):{4:[0,2]},(0,1):{4:[1,2]}}

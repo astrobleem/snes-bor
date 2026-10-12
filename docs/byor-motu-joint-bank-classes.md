@@ -47,6 +47,36 @@ different source requirements to select their shared exact operand instead
 of two separate words. Thirty-seven affected geometry, compiler and operand
 tests pass after this addition; static production presentation is unchanged.
 
+The row-word objective searches 72 source-only parent/child rectangles and
+all 2,751 opaque effect pixels. It returns FEASIBLE after 90.340 seconds,
+with 1,635 selected row words and 64 effect objects. The combined geometry
+reservation peaks at 97 objects, 21 sprites and 34 slivers. Compilation
+independently replays all 57,344 viewport pixels, with schedule hash
+0a936501c84e432c79a6664413e38d1f7ab11e47b6022f90a45830e0317997f2.
+Greedy liveness needs 46 writes. An independently checked encoding-class
+relaxation proves at least 29.125 peak writes, with zero primal and dual
+residuals: at least 30 integer writes, or a 464-clock high-byte commit span
+before setup. This rejects that selected encoding even after relaxing bank
+assignment and geometry; it does not reject alternate exact operands.
+
+The next optional objective minimizes distinct bank word identities over
+the whole frame, then row words and OAM. Its lexicographic weights follow
+the hardware capacity bounds. A regression requires the same exact operand
+to serve two rows with different alternative words. Thirty-eight affected
+tests pass. Cross-row liveness and native timing remain separate gates.
+
+The cold frame-word search returns FEASIBLE after 90.436 seconds, with 856
+bank word identities, 1,721 row words and 90 effect objects. It is not an
+optimality proof. Compilation independently replays all 57,344 pixels;
+schedule hash
+7c53e91a86baef7c2c5d5c7018b88baecdd4bc5d3bcab2c4b46971412d7b951c.
+Combined geometry peaks at 123 objects, 22 sprites and 34 slivers. Greedy
+residency needs 50 writes. The checked class-pooled lower bound is 33 writes,
+with zero primal violation and dual residual: at least 512 clocks between
+high-byte commits before setup. This rejects that selected encoding, while
+the cold search and its large optimization gap do not reject the source
+family. It does not improve the 400-clock full-frame frontier.
+
 The fixed-control expanded-geometry neighborhood search validates all 265,137
 start variables and returns FEASIBLE after 120.548 seconds, still at 400 clocks
 with 87 effect objects, 120 combined objects, 26 sprites and 34 slivers.

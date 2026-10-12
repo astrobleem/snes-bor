@@ -27,7 +27,7 @@ def subdivided_candidates(rectangles,pixel_options,small_size=8):
     return list(candidates.values())
 
 
-def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None,geometry_reservation=None,solver_backend='cp-sat',minimize_cache_span=False,search_strategy='portfolio',repair_interval=None,mode_word_options=None,literal_window_outputs=None,pixel_actors=None,minimize_row_palette_words=False):
+def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None,geometry_reservation=None,solver_backend='cp-sat',minimize_cache_span=False,search_strategy='portfolio',repair_interval=None,mode_word_options=None,literal_window_outputs=None,pixel_actors=None,minimize_row_palette_words=False,minimize_frame_palette_words=False):
     from ortools.sat.python import cp_model
     if type(height)is not int or not 1<=height<=256 or time_limit<=0 or not rectangles or not pixel_options:
         raise ValueError('FRAME_BANK_GEOMETRY_DOMAIN')
@@ -35,6 +35,8 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
     if type(feasibility_only)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_FEASIBILITY_DOMAIN')
     if type(minimize_row_palette_words)is not bool or(minimize_row_palette_words and(cache_window is not None or feasibility_only)):
         raise ValueError('FRAME_BANK_GEOMETRY_ROW_WORD_OBJECTIVE_DOMAIN')
+    if type(minimize_frame_palette_words)is not bool or(minimize_frame_palette_words and(cache_window is not None or feasibility_only or minimize_row_palette_words)):
+        raise ValueError('FRAME_BANK_GEOMETRY_FRAME_WORD_OBJECTIVE_DOMAIN')
     if solver_backend not in('cp-sat','highspy'):raise ValueError('FRAME_BANK_GEOMETRY_SOLVER_BACKEND')
     if search_strategy not in('portfolio','lns')or(search_strategy=='lns'and solver_backend!='cp-sat'):raise ValueError('FRAME_BANK_GEOMETRY_SEARCH_STRATEGY')
     if repair_interval is not None and(not minimize_cache_span or geometry_hint is None or not isinstance(repair_interval,(list,tuple))or len(repair_interval)!=2 or any(type(y)is not int for y in repair_interval)or not 0<=repair_interval[0]<=repair_interval[1]<height):
@@ -276,7 +278,18 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         if not live:continue
         model.add(sum(v for i,b,v in live)<=32-reservation['sprites_per_line'][y])
         model.add(sum(v*tile_slivers(rectangles[i])for i,b,v in live)<=34-reservation['tile_slivers_per_line'][y])
-    if minimize_cache_span:model.minimize(cache_peak)
+    frame_words={}
+    if minimize_frame_palette_words:
+        by_word={}
+        for(y,b,c),v in palette.items():by_word.setdefault((b,c),[]).append(v)
+        for(b,c),vs in by_word.items():
+            used=model.new_bool_var(f'frameWord{b}_{c}');frame_words[b,c]=used
+            for v in vs:model.add(v<=used)
+            model.add(used<=sum(vs))
+        # Exact lexicographic weights: a single frame identity dominates
+        # all possible row word and OAM costs under the hardware limits.
+        model.minimize((129*height*120+129)*sum(frame_words.values())+129*sum(palette.values())+sum(masks.values()))
+    elif minimize_cache_span:model.minimize(cache_peak)
     elif minimize_row_palette_words:model.minimize(129*sum(palette.values())+sum(masks.values()))
     elif not feasibility_only:model.minimize(sum(masks.values()))
     hinted=set()
@@ -403,7 +416,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         equivalent_pixel_decision_atoms=len(atoms),equivalent_pixel_decisions_coalesced=len(pixel_options)-len(atoms),
         independent_required_word_coverage_clauses=len(pool_clauses),
         safe_class_bank_label_symmetry=bank_symmetry,bank_order_timing_not_modeled=cache_window is None,
-        solver_objective='MINIMUM_IDEAL_CACHE_PEAK_SPAN'if minimize_cache_span else'MINIMUM_ROW_PALETTE_WORDS_THEN_OAM'if minimize_row_palette_words else'FEASIBILITY_ONLY'if feasibility_only else'MINIMUM_OAM_ENTRIES',
+        solver_objective='MINIMUM_FRAME_BANK_WORD_IDENTITIES_THEN_ROW_WORDS_THEN_OAM'if minimize_frame_palette_words else'MINIMUM_IDEAL_CACHE_PEAK_SPAN'if minimize_cache_span else'MINIMUM_ROW_PALETTE_WORDS_THEN_OAM'if minimize_row_palette_words else'FEASIBILITY_ONLY'if feasibility_only else'MINIMUM_OAM_ENTRIES',
         solver_search_strategy=search_strategy,
         repair_interval=list(repair_interval)if repair_interval is not None else None,
         outside_repair_cache_and_pixel_owners_fixed=repair_interval is not None,repair_fixed_variables=repair_fixed_variables,
@@ -433,7 +446,8 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return report
     pieces=[];selected={}
     selected_modes={str(y):next(mode for mode in sorted(modes)if solver.value(mode_choices[y,mode]))for y,modes in row_modes.items()}
-    if minimize_row_palette_words:report['selected_row_palette_word_count']=sum(solver.value(v)for v in palette.values())
+    if minimize_row_palette_words or minimize_frame_palette_words:report['selected_row_palette_word_count']=sum(solver.value(v)for v in palette.values())
+    if minimize_frame_palette_words:report['selected_frame_bank_word_identity_count']=sum(solver.value(v)for v in frame_words.values())
     for (i,b),v in masks.items():
         if solver.value(v):selected[i,b]=len(pieces);pieces.append(dict(rectangles[i],bank=b))
     pixels=[];row_colors={};seen=set()
@@ -508,6 +522,7 @@ def main():
     p.add_argument('--subdivide',action='store_true');p.add_argument('--bank-symmetry',action='store_true')
     p.add_argument('--feasibility-only',action='store_true')
     p.add_argument('--minimize-row-palette-words',action='store_true',help='Without cache timing, minimize row word demand before OAM count; liveness remains unproved.')
+    p.add_argument('--minimize-frame-palette-words',action='store_true',help='Without cache timing, minimize distinct bank words across the frame, then row words and OAM; liveness remains unproved.')
     p.add_argument('--movable-math-modes',action='store_true',help='Joint shared row modes with complete exact frame operand domains; source output/windows remain fixed.')
     p.add_argument('--movable-color-windows',action='store_true',help='Joint exact literal/math gates representable by two hardware windows; requires --movable-math-modes.')
     p.add_argument('--geometry-hint',type=Path,help='Soft source-exact geometry witness from a subset of the requested interval.')
@@ -578,7 +593,7 @@ def main():
     if hint is not None and hint.get('source_rgb555_sha256')!=frame['source_rgb555_sha256']:
         raise ValueError('FRAME_BANK_GEOMETRY_HINT_SOURCE_IDENTITY')
     reservation=json.loads(a.geometry_reservation.read_text(encoding='utf-8'))if a.geometry_reservation else None
-    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window,geometry_reservation=reservation,solver_backend=a.solver_backend,minimize_cache_span=a.minimize_cache_span,search_strategy=a.search_strategy,repair_interval=a.repair_interval,mode_word_options=mode_options,literal_window_outputs=literal_outputs,pixel_actors=pixel_actors,minimize_row_palette_words=a.minimize_row_palette_words)
+    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window,geometry_reservation=reservation,solver_backend=a.solver_backend,minimize_cache_span=a.minimize_cache_span,search_strategy=a.search_strategy,repair_interval=a.repair_interval,mode_word_options=mode_options,literal_window_outputs=literal_outputs,pixel_actors=pixel_actors,minimize_row_palette_words=a.minimize_row_palette_words,minimize_frame_palette_words=a.minimize_frame_palette_words)
     report.update(source_rgb555_sha256=frame['source_rgb555_sha256'],source_input_sha256=hashlib.sha256(input_bytes).hexdigest(),source_input_path=str(a.schedule),
         source_pak_sha256=hashlib.sha256(a.exact_source.read_bytes()).hexdigest(),source_row_context_proofs=proofs,
         source_rectangle_cover=geometry['source_rectangle_cover'],scanline_interval=[a.scanline_start,a.scanline_end],
