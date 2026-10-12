@@ -155,6 +155,24 @@ def optimize(source,time_limit=45,write_budget=21,window=337,lookahead=55,search
                         alias=model.new_bool_var(f'intervalAlias{len(aliases)}');model.add_max_equality(alias,options);aliases[signature]=alias
                     present.append(aliases[signature])
                 model.add(prefixes[end,b]-prefixes[begin,b]>=sum(present)-15);interval_cuts+=1
+    # The eligibility classes cannot share slots. Count each source word once
+    # per class, independently of which eligible bank receives its masks.
+    # These are necessary cuts only; the separate bank residency constraints
+    # above still establish every bank's fifteen-slot capacity.
+    class_interval_cuts=0
+    for group in groups:
+        group=set(group);words_by_row={}
+        for (y,c),indices in row_owners.items():
+            if any(set(domains[i])<=group for i in indices):words_by_row.setdefault(y,set()).add(c)
+        for begin in range(first,last):
+            words=set()
+            for end in range(begin,min(last,begin+32)+1):
+                words.update(words_by_row.get(end,()))
+                if end==begin:continue
+                lower=len(words)-15*len(group)
+                if lower>0:
+                    model.add(sum(prefixes[end,b]-prefixes[begin,b]for b in group)>=lower)
+                    class_interval_cuts+=1
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False;solver.parameters.stop_after_first_solution=True
     if search_strategy in('sat','sat-repair'):
@@ -176,6 +194,7 @@ def optimize(source,time_limit=45,write_budget=21,window=337,lookahead=55,search
         bounded_solver_log=list(log),solver_log_lines=log_lines,
         validated_assignment_hint_used=assignment_hint is not None,validated_bank_choice_hints=len(validated_hints),bank_choice_hints_are_soft=True,
         compulsory_bank_interval_cuts=interval_cuts,interval_word_alias_variables=len(aliases),redundant_interval_cut_span=cut_span,
+        compulsory_eligibility_class_interval_cuts=class_interval_cuts,eligibility_class_cuts_are_necessary_only=True,
         piece_geometry_and_encoding_class_fixed=not allow_word_masks,source_rectangles_and_encoding_classes_fixed=True,
         source_pixel_exact_word_masks_allowed=allow_word_masks,maximum_masks_per_piece=maximum_masks_per_piece if allow_word_masks else 1,
         word_bank_selection_scope='piece row'if row_word_masks else'piece word'if allow_word_masks else'whole piece',fixed_bank_per_compiled_oam_entry=True,

@@ -4,6 +4,30 @@ from raster_slot_greedy import demand
 
 
 class PieceBankCacheTests(unittest.TestCase):
+    def test_class_interval_pressure_counts_unique_source_words(self):
+        import copy
+        state={b:[None]*15 for b in range(8)};trace=[]
+        for y in range(8):
+            before=copy.deepcopy(state);updates=[]
+            for slot in range(8):
+                word=8*y+slot
+                updates.append(dict(bank=0,slot=slot+1,old=state[0][slot],color=word))
+                state[0][slot]=word
+            trace.append(dict(scanline=y,resident_before=before,updates=updates))
+        source=dict(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN',compiled_pixel_identity_verified=True,
+            pieces=[dict(actor=0,x=0,y=0,local_x=0,local_y=0,width=8,height=8,bank=0)],
+            piece_pixel_masks=[dict(width=8,height=8,pixels_hex='21436587'*8)],trace=trace)
+        blocked=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=8,
+            allow_word_masks=True,row_word_masks=True,maximum_masks_per_piece=4)
+        self.assertEqual(blocked['solver_status'],'INFEASIBLE')
+        self.assertGreater(blocked['compulsory_eligibility_class_interval_cuts'],0)
+        self.assertTrue(blocked['eligibility_class_cuts_are_necessary_only'])
+        admitted=optimize(source,time_limit=5,write_budget=8,window=1000,lookahead=8,
+            allow_word_masks=True,row_word_masks=True,maximum_masks_per_piece=4)
+        def pixels(frame):return {(p['y']+y,p['x']+x):int(c)for p,image in zip(frame['pieces'],demand(frame)[2])for y,row in enumerate(image)for x,c in enumerate(row)if c>=0}
+        self.assertEqual(pixels(source),pixels(admitted))
+        self.assertFalse(admitted['piece_bank_cache']['native_timing_admitted'])
+
     def test_concurrent_reservation_counts_padding_without_palette_admission(self):
         source=self.fixture();height=len(source['trace'])
         reservation=dict(oam_entries=126,sprites_per_line=[30]*height,tile_slivers_per_line=[30]*height)

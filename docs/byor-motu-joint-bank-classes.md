@@ -1,5 +1,42 @@
 # Shared geometry for exact math bank classes
 
+The 57-cell family now also permits word masks to select different banks on
+different source rows, with at most four masks per cell. Each emitted OAM mask
+retains one fixed bank for its full padded geometry. The complete cache search
+remains UNKNOWN after 120.535 seconds (141,544 variables, 318,889 constraints,
+14 branches); this is neither a timing witness nor a raster rejection.
+
+An interval-guided global-word balancing trial reduces its necessary interval
+objective from 33 to 24.5 while using 95 effect objects. Independent padded
+geometry replay gives 128 combined objects, 25 sprites and 29 tile slivers.
+Its fixed-bank LP lower bound is 27.428571 writes, independently checked with
+primal/dual residuals below 2e-14. Thus this selected assignment needs at least
+28 writes, or 448 master clocks for data alone. Only this assignment is
+rejected; player palette and layer demand remains excluded from the reservation.
+
+The joint piece/cache solver adds source-word interval constraints separately
+for each color-math eligibility class. These necessary cuts count aliases once
+and do not replace per-bank fifteen-slot residency constraints. A focused
+64-word regression rejects zero writes and independently replays every source
+pixel in a write-enabled construction. Native timing is not admitted.
+The eight existing focused cases and the new case pass in separate runs.
+A combined nine-case run passes its first eight cases, then aborts in the
+split-assignment hint test with OR-Tools 9.15's native
+`heuristics.fixed_search != nullptr` assertion. It is not a passing combined
+suite. An isolated pinned upstream build is being prepared to test the
+[maintainer-reported fix](https://github.com/google/or-tools/issues/5025).
+
+The 57-cell source family permits exact word masks within each cell, bounded
+to two banked masks and all concurrent geometry limits. That full bank/cache
+search remains UNKNOWN after 120.487 seconds at the 357-exclusive gate.
+A smaller restricted global-word bank assignment is OPTIMAL for its OAM
+objective after 25.541 seconds: 85 effect objects, 17 sprites and 17 slivers,
+with combined 118 objects, 21 sprites and 25 slivers. Every source word and
+palette class replays. Its selected banks nevertheless have a checked
+33-write cache lower bound with zero primal and dual residuals, requiring
+at least 512 clocks before setup. This rejects the selected assignment's
+timing, not alternate assignments or source-word choices.
+
 An explicit restricted family now permits one bank per candidate rectangle,
 one required shared math mode and enabled source math gates. These constraints
 are reported as family restrictions and never become a universal raster
