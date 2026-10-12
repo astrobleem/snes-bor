@@ -148,7 +148,9 @@ prepared-DMA precomposited family independently of piece bank assignment
 and lookahead. It does not reject mixed color math, other transfer mechanisms,
 or lossless raster presentation universally. The generic interval tool keeps
 its prior pool relaxation by default and makes the stronger bank-gap bound
-explicit. Seven focused interval/partition tests pass. No color reduction
+explicit. Eight focused interval/partition tests pass. The stronger bound
+requires the SNES eight-clock DMA byte domain and at most 120 opaque slots.
+No color reduction
 or alpha adaptation is selected.
 
 The bank-residency solver now offers a feasibility-only objective and reports
@@ -181,3 +183,11 @@ retains its initial assignment as best at 287.824510 fractional DMA clocks.
 Its alternate assignment needs 360.062024 fractional clocks; another has no
 fractional cache solution. These results do not establish a universal lower
 bound. Complete source replays and restricted search evidence are retained.
+
+Minimizing ideal bank-transfer span with the original residency hint produces
+a different complete cache witness: 401 writes, 19 peak writes, six peak
+write-active banks and a 336-clock ideal span. Its fixed-family objective
+lower bound is 305 clocks at the 50-second limit. Lifetime recoloring preserves
+every viewport pixel but requires 504 physical clocks. Joint bank permutation
+and physical placement at the original fixed times returns UNKNOWN at
+345 clocks. These witnesses remain unadmitted; no fallback is selected.
