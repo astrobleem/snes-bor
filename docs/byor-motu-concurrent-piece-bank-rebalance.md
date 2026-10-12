@@ -360,3 +360,10 @@ followed by RGB555 conversion. Window traffic measures transport with math
 layer selection disabled. It does not admit authored-background alpha,
 live actor palette leases, production foreground execution or MOTU gameplay.
 No alpha adaptation, color reduction or BG fallback has been selected.
+
+The lifetime compiler also accepts a validated logical slot trace without
+prior DMA descriptors. It checks trace continuity and old-slot identity,
+then compiles and replays the resulting physical packets. Four focused tests
+pass, including rejection of a corrupted old-slot identity. This avoids an
+unnecessary intermediate physical-layout solve while retaining the same
+source-pixel and CGRAM proof requirements.

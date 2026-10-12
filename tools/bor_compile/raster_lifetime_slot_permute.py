@@ -16,7 +16,12 @@ from raster_physical_relabel import point_partition
 def optimize(source,steps=100000,time_limit=30,seed=635,target_window=345,kempe_probability=0):
     if steps<0 or time_limit<=0 or target_window<1:raise ValueError('LIFETIME_RECOLOR_DOMAIN')
     if isinstance(kempe_probability,bool)or not isinstance(kempe_probability,(int,float))or not math.isfinite(kempe_probability)or not 0<=kempe_probability<=1:raise ValueError('LIFETIME_KEMPE_DOMAIN')
-    required,_,pixels=demand(source);verify_packets(source);height=len(source['trace'])
+    required,_,pixels=demand(source)
+    # A validated logical trace already has exact slot identities. Existing
+    # transfer descriptors are checked when supplied; new descriptors are
+    # compiled and replayed below for either input path.
+    if 'prepared_dma_packets'in source:verify_packets(source)
+    height=len(source['trace'])
     active=np.full((height,8,15),-1,dtype=np.int32);state=np.full((8,15),-1,dtype=np.int32);lifes=[]
     for row in source['trace']:
         y=row['scanline']

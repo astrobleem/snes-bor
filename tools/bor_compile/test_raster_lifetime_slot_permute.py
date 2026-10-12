@@ -8,6 +8,15 @@ from raster_obj_compact import unpack
 
 
 class LifetimeSlotPermutationTests(unittest.TestCase):
+    def test_validated_logical_trace_compiles_without_prior_transfer_solver(self):
+        source=fixtures.PhysicalEventScheduleTests().schedule()
+        source.pop('prepared_dma_packets')
+        result=optimize(source,steps=0,time_limit=5)
+        verify_packets(result)
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        broken=copy.deepcopy(source);broken['trace'][1]['updates'][0]['old']=999
+        with self.assertRaisesRegex(ValueError,'GREEDY_SOURCE_UPDATE_IDENTITY'):optimize(broken,steps=0)
+
     def test_connected_component_exchange_preserves_overlapping_lifetimes(self):
         source=fixtures.PhysicalEventScheduleTests().schedule()
         source['trace'][0]['updates'].append(dict(bank=0,slot=2,old=None,color=1024))
