@@ -6,6 +6,19 @@ import test_raster_window_slot_schedule as fixtures
 
 
 class WindowResidencyTests(unittest.TestCase):
+    def test_feasibility_search_emits_replayed_cost_without_optimality_claim(self):
+        from raster_bank_residency import favorable_span
+        source,bg,expected=fixtures.WindowSlotTests().source()
+        for backend in ('cp-sat','highs'):
+            result=optimize(source,bg,expected,time_limit=5,maximum_writes=0,solver_backend=backend,feasibility_only=True)
+            report=result['bank_residency']
+            self.assertEqual(report['search_objective'],'FEASIBILITY_ONLY')
+            self.assertEqual(report['restricted_family_ideal_prepared_span_lower_bound'],0)
+            self.assertEqual(report['ideal_peak_prepared_commit_span'],max(favorable_span(r['updates'])for r in result['trace'][1:]))
+            self.assertTrue(report['complete_source_frame_pixel_identity_proven'])
+            self.assertFalse(report['physical_slot_window_admitted'])
+            demand(result);verify_packets(result)
+
     def test_shared_mode_search_preserves_exact_pixels_with_fixed_banks(self):
         import copy,hashlib,itertools
         import numpy as np

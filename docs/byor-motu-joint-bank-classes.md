@@ -150,3 +150,15 @@ or lossless raster presentation universally. The generic interval tool keeps
 its prior pool relaxation by default and makes the stronger bank-gap bound
 explicit. Seven focused interval/partition tests pass. No color reduction
 or alpha adaptation is selected.
+
+The bank-residency solver now offers a feasibility-only objective and reports
+the emitted witness's independently recomputed ideal DMA cost. Both search
+objectives retain physical-slot and native-admission nonclaims. Six focused
+residency tests pass, including feasibility-only CP-SAT and HiGHS replay.
+The original six-bank logical input produces a complete source-exact witness
+in 4.568 seconds with 19 peak writes, ten-line prefetch and a 336-clock ideal
+bound. Its emitted physical placement requires 968 clocks. Later recolored
+inputs do not retain the original ideal bound: one has 352/368-clock rows.
+This explains why it cannot serve as a feasible hint inside a 345-clock
+residency search. The complete witness and bounded search reports are retained
+without claiming improved physical admission.

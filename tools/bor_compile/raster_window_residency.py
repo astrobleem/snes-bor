@@ -16,10 +16,11 @@ from raster_slot_greedy import demand
 from raster_slot_refine import verify_packets
 
 
-def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,lookahead=16,solver_backend='cp-sat',movable_math_modes=False):
+def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,lookahead=16,solver_backend='cp-sat',movable_math_modes=False,feasibility_only=False):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0 or not 0<=maximum_writes<=120 or type(lookahead)is not int or lookahead<0:raise ValueError('WINDOW_RESIDENCY_DOMAIN')
     if solver_backend not in('cp-sat','highs'):raise ValueError('WINDOW_RESIDENCY_BACKEND')
+    if type(feasibility_only)is not bool:raise ValueError('WINDOW_RESIDENCY_FEASIBILITY_POLICY')
     points,rows,tables,hint=derive(source,background,expected);first,last=min(rows),max(rows);height=len(source['trace'])
     if type(movable_math_modes)is not bool:raise ValueError('WINDOW_RESIDENCY_MODE_POLICY')
     potential={};inverse={}
@@ -102,7 +103,8 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
             for right in range(left,last+1):
                 union.update(mandatory.get((right,b),set()))
                 if len(union)>15:model.add(prefix[right]-prefix[left]>=len(union)-15);cuts+=1
-    factor=4096*len(costs)+1;model.minimize(peak*factor+sum(costs))
+    factor=4096*len(costs)+1
+    if not feasibility_only:model.minimize(peak*factor+sum(costs))
     if solver_backend=='highs':
         from raster_bank_residency import solve_linear
         value,details=solve_linear(model,time_limit);bound=details.get('solver_objective_lower_bound',0)
@@ -112,6 +114,8 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         details=dict(solver_backend='cp-sat',solver_status=solver.status_name(status),solver_seconds=solver.wall_time,solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints))
     report=dict(schema='BYOR_WINDOW_BANK_RESIDENCY_V1',status='BOUNDED_WINDOW_BANK_RESIDENCY_NO_CANDIDATE',**details,requested_ideal_window=window,bounded_noninitial_lookahead_lines=lookahead,initial_palette_may_preload_entire_frame=True,ideal_endpoint_slot_packing_relaxed=True,fixed_piece_banks_unchanged=True,piece_banks_fixed_across_all_scanlines=True,restricted_family_ideal_prepared_span_lower_bound=max(0,int(bound//factor)-40),native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     report['mandatory_identity_bank_interval_cuts']=cuts
+    report['search_objective']='FEASIBILITY_ONLY'if feasibility_only else'PEAK_THEN_TOTAL_IDEAL_DMA_COST'
+    if feasibility_only:report['restricted_family_ideal_prepared_span_lower_bound']=0
     report.update(shared_scanline_math_mode_search=movable_math_modes,math_operand_family='CANONICAL_EXACT_INVERSE_AND_INPUT_WORD'if movable_math_modes else'INPUT_MODE_WITH_CANONICAL_EXACT_INVERSE')
     if value is None:return report
     selected_modes=copy.deepcopy(source['selected_modes'])
@@ -168,7 +172,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         if name in result:result['input_'+name]=result.pop(name)
     if any(favorable_span(r['updates'])>=window for r in trace[1:])or any(len(r['updates'])>maximum_writes for r in trace[1:]):raise AssertionError('WINDOW_RESIDENCY_INDEPENDENT_BANK_BOUND')
     peak_writes=max(len(r['updates'])for r in trace[1:])
-    report.update(status='SOURCE_EXACT_WINDOW_BANK_RESIDENCY_PROVEN',complete_source_frame_pixel_identity_proven=True,ideal_peak_prepared_commit_span=max(0,value(peak)-40),peak_emitted_prepared_commit_span=max(r['prepared_commit_span']for r in packets),peak_actual_palette_writes=peak_writes,all_packet_cgram_identities_verified=True,physical_slot_window_admitted=False,maximum_noninitial_prefetch_latency_lines=latency,noninitial_dead_palette_writes=dead_writes,peak_packet_data_bytes=max(sum(2*p['word_count']for p in r['packets'])for r in packets))
+    report.update(status='SOURCE_EXACT_WINDOW_BANK_RESIDENCY_PROVEN',complete_source_frame_pixel_identity_proven=True,ideal_peak_prepared_commit_span=max(favorable_span(r['updates'])for r in trace[1:]),peak_emitted_prepared_commit_span=max(r['prepared_commit_span']for r in packets),peak_actual_palette_writes=peak_writes,all_packet_cgram_identities_verified=True,physical_slot_window_admitted=False,maximum_noninitial_prefetch_latency_lines=latency,noninitial_dead_palette_writes=dead_writes,peak_packet_data_bytes=max(sum(2*p['word_count']for p in r['packets'])for r in packets))
     result.update(trace=trace,piece_pixel_masks=masks,prepared_dma_packets=packets,compiled_color_window_descriptors=windows,selected_modes=selected_modes,bank_residency=report,native_presentation_proven=False)
     result.update(peak_scheduled_writes=peak_writes,peak_cgram_data_bytes=2*peak_writes,average_writes=float(np.mean([len(r['updates'])for r in trace[1:]])),worst_scanline=max(trace[1:],key=lambda r:len(r['updates']))['scanline'],prepared_dma_partition_bound_enforced=False,prepared_dma_window_is_optimistic_necessary_only=True,maximum_noninitial_prefetch_latency_lines=latency,schedule_latency_requirement=dict(maximum_noninitial_prefetch_lines=latency,initial_palette_may_preload_entire_frame=True))
     verify_packets(result);demand(result)
@@ -180,14 +184,14 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in('source','stage','scene','schedule','output'):p.add_argument('--'+name,required=True)
-    p.add_argument('--window',type=int,default=337);p.add_argument('--time-limit',type=float,default=45);p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat');p.add_argument('--movable-math-modes',action='store_true');p.add_argument('--lookahead',type=int,default=16);a=p.parse_args()
+    p.add_argument('--window',type=int,default=337);p.add_argument('--time-limit',type=float,default=45);p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat');p.add_argument('--movable-math-modes',action='store_true');p.add_argument('--lookahead',type=int,default=16);p.add_argument('--feasibility-only',action='store_true');a=p.parse_args()
     from compiler import Source
     from source_scene_obj_raster import prepare
     from source_scene_bg import compose_rgb8
     from source_bg_feasibility import rgb555
     source=Source(a.source);scene=json.loads(Path(a.scene).read_text());schedule=json.loads(Path(a.schedule).read_text());_,metadata,expected=prepare(source,a.stage,scene)
     if metadata!=schedule['metadata']:raise ValueError('WINDOW_RESIDENCY_AUTHORED_METADATA')
-    result=optimize(schedule,rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0]),rgb555(expected),a.window,a.time_limit,lookahead=a.lookahead,solver_backend=a.solver_backend,movable_math_modes=a.movable_math_modes)
+    result=optimize(schedule,rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0]),rgb555(expected),a.window,a.time_limit,lookahead=a.lookahead,solver_backend=a.solver_backend,movable_math_modes=a.movable_math_modes,feasibility_only=a.feasibility_only)
     Path(a.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('bank_residency',result)))
 
 
