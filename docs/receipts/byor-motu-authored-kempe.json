@@ -14778,12 +14778,724 @@
         "whole_frame_demand_proven": false
       },
       "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-sixbank-window-full-fixedmodes21": {
+      "input_sha256": "abb6c766c284d387f7cbf6c662ec07fc84ec51cf03937a9f483fbe32ca3ed12a",
+      "search": {
+        "schema": "BYOR_STATIC_ORDINARY_OBJ_EFFECT_MATH_BOUND_V1",
+        "scene": {
+          "viewport": [
+            256,
+            224
+          ],
+          "piece_size": [
+            16,
+            32
+          ],
+          "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+          "actors": [
+            {
+              "model": "HBreath",
+              "animation": "idle",
+              "frame": 11,
+              "position": [
+                98,
+                220,
+                93
+              ],
+              "order": 2
+            }
+          ]
+        },
+        "source_metadata": {
+          "stage": "DATA/LEVELS/GUILE2.TXT",
+          "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+          "scene": {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              }
+            ]
+          },
+          "layers": [
+            {
+              "kind": "background",
+              "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+              "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+              "source_dimensions": [
+                800,
+                400
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 57344,
+              "source_flip": false
+            },
+            {
+              "kind": "panel",
+              "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+              "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+              "source_dimensions": [
+                2544,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 44246,
+              "source_flip": false
+            },
+            {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+              "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 2751,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 2751,
+              "final_visible_pixels": 2751
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 2749,
+              "source_flip": false
+            }
+          ],
+          "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+          "alpha_source_dimensions": [
+            [
+              110,
+              90
+            ]
+          ],
+          "camera": [
+            0.0,
+            0.0
+          ],
+          "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+          "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+          "all_actor_models_preserved": true
+        },
+        "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+        "ordinary_actors": [],
+        "reserved_visible_source_words": [],
+        "reserved_word_count": 0,
+        "ordinary_union_word_count": 0,
+        "ordinary_residency_policy": "static",
+        "ordinary_peak_required_words": 0,
+        "minimum_static_banks": 0,
+        "static_words_fixed_in_lower_class": true,
+        "source_context_reachability_certified": false,
+        "palette_bank_assignment_proven": false,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "zero_main_clipping_not_modeled": true,
+        "scanline_interval": null,
+        "outside_interval_demand_relaxed": false,
+        "allowed_math_modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "operand_cover": {
+          "modes": [
+            "add",
+            "half-add",
+            "subtract",
+            "half-subtract"
+          ],
+          "rgb555_operands_examined": 32768,
+          "distinct_requirements": 2684,
+          "valid_operands": 2541,
+          "maximal_cover_operands": 989,
+          "dominance_mapping_sha256": "91054766b07fa02650198ae2400d28a6a02da41756a325c1c14c7a8aa4f686bc",
+          "retained_seed_operands": 0,
+          "total_option_operands": 989,
+          "modes_relaxed_per_pixel": false,
+          "mode_tagged_coverage": true,
+          "global_mode_schedule_proven": false,
+          "color_math_window_bypass_relaxed_per_pixel": false,
+          "fixed_color_math_window_context": false,
+          "all_valid_operand_coverages_retained": true,
+          "no_color_reduction": true
+        },
+        "cache_bound": {
+          "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+          "solver_status": 1,
+          "message": "UNKNOWN",
+          "variables": 84442,
+          "constraints": 54065,
+          "mode_variables": 55,
+          "integer_modes": true,
+          "write_budget": 21,
+          "palette_residency_integrality_relaxed": false,
+          "geometry_and_bank_assignment_relaxed": true,
+          "optimal_initial_residency_allowed": true,
+          "fixed_initial_palette_state": null,
+          "unbounded_preloading_allowed": true,
+          "schedule_proven": false,
+          "no_color_reduction": true,
+          "forced_opaque_modes_pruned": [],
+          "reserved_normal_colors": [],
+          "static_normal_residency_fixed_for_complete_interval": false,
+          "scanline_write_limits": {},
+          "required_normal_rows": {},
+          "solver_seconds": 52.044678499922156,
+          "solver_method": "cp-sat",
+          "integer_palette": true,
+          "hardware_window_masks_modeled": true,
+          "integer_windows": true,
+          "window_transition_superset_only": true,
+          "window_register_schedule_proven": false,
+          "positive_union_with_disabled_edges_only": false,
+          "subset_mode_cover_cuts": false,
+          "window_eligibility_variables": 2668,
+          "maximum_window_transitions": 4,
+          "boolean_stats": {
+            "nonboolean_integer_variables": 1,
+            "hint_variables": 0,
+            "hint_is_soft": true,
+            "log_lines": 229,
+            "sat_inprocessing": false,
+            "branches": 1421,
+            "conflicts": 0,
+            "wall_seconds": 50.147201900000006,
+            "probing_level": 0,
+            "workers": 4,
+            "search_strategy": "portfolio",
+            "search_objective": "FEASIBILITY_ONLY",
+            "optimal": false
+          }
+        },
+        "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+        "class_cache_capacities": [
+          30,
+          60
+        ],
+        "presentation_family": "ISOLATED_EFFECT_SIX_BANK_CAPACITY_FIXED_SOURCE_BOUND_MODES_TWO_WINDOWS",
+        "whole_frame_demand_proven": false
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-sixbank-pressure-geometry": {
+      "input_sha256": "989a3adabab7e282711e57dee4db9854ca9f5d118a323b5e0a26cf37728fe0f2",
+      "search": {
+        "schema": "BYOR_SOURCE_POOL_FIXED_BANK_CONSTRUCTION_V1",
+        "status": "BOUNDED_POOL_CONSTRUCTION_NO_BANK_ASSIGNMENT",
+        "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+        "metadata": {
+          "stage": "DATA/LEVELS/GUILE2.TXT",
+          "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+          "scene": {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              }
+            ]
+          },
+          "layers": [
+            {
+              "kind": "background",
+              "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+              "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+              "source_dimensions": [
+                800,
+                400
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 57344,
+              "source_flip": false
+            },
+            {
+              "kind": "panel",
+              "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+              "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+              "source_dimensions": [
+                2544,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 44246,
+              "source_flip": false
+            },
+            {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+              "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 2751,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 2751,
+              "final_visible_pixels": 2751
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 2749,
+              "source_flip": false
+            }
+          ],
+          "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+          "alpha_source_dimensions": [
+            [
+              110,
+              90
+            ]
+          ],
+          "camera": [
+            0.0,
+            0.0
+          ],
+          "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+          "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+          "all_actor_models_preserved": true
+        },
+        "no_color_reduction": true,
+        "universal_raster_rejected": false,
+        "native_presentation_proven": false,
+        "operand_selection_policy": "GREEDY_EXACT_ROW_SET_COVER_PREFER_RESIDENT",
+        "outside_control_rows_math_policy": "FULL_ADD_NO_WINDOW_MINIMAL_OPERAND_OR_LITERAL",
+        "peak_selected_colors_by_class": [
+          33,
+          38
+        ],
+        "global_color_bank_identity_restricted": true,
+        "bank_search": [
+          {
+            "joint_math_classes": true,
+            "schema": "BYOR_JOINT_GLOBAL_WORD_BANK_CLASSES_V1",
+            "status": "BOUNDED_JOINT_GLOBAL_BANK_CLASSES_NO_CANDIDATE",
+            "solver_status": "INFEASIBLE",
+            "solver_seconds": 0.0448483,
+            "solver_variables": 1893,
+            "solver_constraints": 7134,
+            "solver_branches": 0,
+            "solver_conflicts": 0,
+            "maximum_tile_slivers": 34,
+            "residency_window_lines": null,
+            "maximum_oam_entries": null,
+            "prepared_dma_window": null,
+            "aggregate_bank_transfer_interval_cuts": 0,
+            "palette_residency_and_physical_slots_relaxed": false,
+            "global_word_bank_identity_restricted": true,
+            "word_epoch_lines": null,
+            "oam_and_sprite_admission_deferred": true,
+            "soft_word_bank_hint_colors": 0,
+            "search_strategy": "portfolio",
+            "persistent_word_indices": false,
+            "persistent_slot_symmetry_anchor_words": 0,
+            "persistent_slot_symmetry_excludes_transfer_constraints": true,
+            "physical_transfer_admitted": false,
+            "native_timing_admitted": false,
+            "universal_raster_rejected": false,
+            "no_color_reduction": true
+          }
+        ],
+        "exact_underlay_bypass": true,
+        "underlay_bypassed_pixels": 83,
+        "eligible_banks_by_math_class": {
+          "0": [
+            2,
+            3
+          ],
+          "1": [
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-sixbank-pressure-math-geometry": {
+      "input_sha256": "c66f9083d057c11d6193ea3e1c151557f93f85d3c40519002c3d9521ba684a22",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "66aa4dc04b545395a319f7152aeec8d989e991cbe7c7286c24661c5b790c4a69",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 30,
+        "peak_tile_slivers": 30
+      }
+    },
+    "byor-motu-authored-hbreath-peak-sixbank-pressure-math-compact16": {
+      "input_sha256": "6321041fd605ffa9f6ebbceb05a0c9c43fc0fc95f15a1ba233fd1ad5cf401b31",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "0546ed03b4c3ba456e567f68eb501825ecbd46143f0de51ababa5922d9d68aad",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 56,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 34
+      }
+    },
+    "byor-motu-authored-hbreath-peak-sixbank-pressure-math-cache-lp": {
+      "input_sha256": "f99a3e98239d92f7ce2e8073e0120223ef07965cf0b9933dce1b6f509ceb8870",
+      "search": {
+        "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 25728,
+        "constraints": 12886,
+        "lookahead_lines": 55,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 27.4,
+        "validated_dual_lower_bound": 27.400000000000006,
+        "maximum_primal_violation": 1.4210854715202004e-14,
+        "maximum_dual_residual": 0.0
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-sixbank-pressure-math-rebalanced": {
+      "input_sha256": "ef974c5c7c0c0719ef7c96ce513c37fa1f335d51d988b1434d27c19d97e3a48e",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "76bb8fcabed6dc737e6af619d4f510718d480eb40c5015c75de5f6b8680c04bd",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 56,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 34
+      },
+      "bank_rebalance": {
+        "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+        "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+        "seconds": 40.17199999978766,
+        "explicit_initial_assignment": null,
+        "maximum_interval_lines": 32,
+        "initial_objective": [
+          25.0,
+          192026,
+          469
+        ],
+        "final_objective": [
+          21.0,
+          187270,
+          482
+        ],
+        "moves": [
+          {
+            "piece": 2,
+            "old_bank": 3,
+            "new_bank": 2
+          },
+          {
+            "piece": 18,
+            "old_bank": 4,
+            "new_bank": 5
+          },
+          {
+            "piece": 23,
+            "old_bank": 6,
+            "new_bank": 5
+          },
+          {
+            "piece": 38,
+            "old_bank": 6,
+            "new_bank": 5
+          },
+          {
+            "piece": 52,
+            "old_bank": 7,
+            "new_bank": 5
+          }
+        ],
+        "anneal_steps_requested": 50000,
+        "anneal_proposals_sampled": 26686,
+        "anneal_moves_accepted": 9384,
+        "anneal_seed": 649,
+        "final_bank_distinct_colors": [
+          0,
+          0,
+          71,
+          115,
+          104,
+          46,
+          51,
+          95
+        ],
+        "final_bank_peak_row_colors": [
+          0,
+          0,
+          11,
+          15,
+          15,
+          10,
+          15,
+          15
+        ],
+        "fixed_bank_per_piece": true,
+        "color_math_classes_preserved": true,
+        "exact_math_class_reencoding_enabled": false,
+        "pixel_color_identity_verified": true,
+        "geometry_unchanged": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    "byor-motu-authored-hbreath-peak-sixbank-pressure-math-rebalanced-lp": {
+      "input_sha256": "2eb2499fece756cec92598b78a9fe164e99588cdb8d7bab27b8dd88a30b17bb1",
+      "search": {
+        "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 26337,
+        "constraints": 13230,
+        "lookahead_lines": 55,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 23.714285714285715,
+        "validated_dual_lower_bound": 23.714285714285708,
+        "maximum_primal_violation": 7.105427357601002e-15,
+        "maximum_dual_residual": 2.220446049250313e-16
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-sixbank-pressure-math-cache-decomposition": {
+      "input_sha256": "7837a776b55e93b0747d5106f7677b445ab41044e58e785c33ba78c5cd93c01f",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "23a90fb1f627c70cea85efcd74b8c794a6d3ee8277f2569ed10655d2133f067d",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 56,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 34
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 47.90599999995902,
+        "maximum_changed_pieces_per_master": 5,
+        "objective_kind": "writes",
+        "row_word_masks": false,
+        "write_budget": null,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 16,
+        "interval_cut_count": 192,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "31ecf57d57f2b143dd69a5390b2218098103cd46f3fba26d606f12355f8acfa0",
+        "restored_certified_cuts": 0,
+        "cache_lp_variables": 84385,
+        "cache_lp_constraints": 46894,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_cache_bound": 23.714285714285715,
+        "iterations_count": 12
+      }
+    },
+    "byor-motu-authored-hbreath-peak-sixbank-pressure-math-class-cache-lp": {
+      "input_sha256": "9d1331347ced0ac886fc3941980e3efdbbeef6008ac8817e4cd9b0a17ec4278b",
+      "search": {
+        "schema": "BYOR_FIXED_OPERAND_CLASS_POOL_RELAXATION_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 25728,
+        "constraints": 12772,
+        "lookahead_lines": 55,
+        "geometry_and_pixel_choices_fixed": false,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 20.2,
+        "validated_dual_lower_bound": 20.200000000000003,
+        "maximum_primal_violation": 1.7763568394002505e-14,
+        "maximum_dual_residual": 0.0,
+        "fixed_bank_assignment_relaxed": true,
+        "operand_choices_fixed": true,
+        "class_capacities": [
+          30,
+          60
+        ],
+        "scope": "Selected exact operands pooled within OBJ math eligibility classes; not a hardware palette model"
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-sixbank-pressure-math-smallpiece-decomposition": {
+      "input_sha256": "7f15e691a8d7583cd06e7816704ae6e3a01a4f765d408220c0f3ee087c8e2b3e",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "93f8047c30758058db862fb3c571631539c57a60b3a864340ba21d9c6a5b0101",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 30,
+        "peak_tile_slivers": 30
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 50.48400000017136,
+        "maximum_changed_pieces_per_master": 12,
+        "objective_kind": "writes",
+        "row_word_masks": false,
+        "write_budget": null,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 16,
+        "interval_cut_count": 192,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "da937480a07794606b130479d45d045ec8dac3516f4d62b1c93b7dc86f5cc5b7",
+        "restored_certified_cuts": 0,
+        "cache_lp_variables": 84385,
+        "cache_lp_constraints": 46894,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_cache_bound": 24.733333333333334,
+        "iterations_count": 15
+      }
     }
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-authored-kempe.json.gz",
-    "bytes": 1026795,
-    "sha256": "009fe6214699dd557592d1c5d4548a136e987f1034e879205bb2209a57ce4a99"
+    "bytes": 1241538,
+    "sha256": "02992f693cc46f245bb989697128b4f59f4fbd13ab4fccb83c3d9b274a2603eb"
   },
   "source_alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555",
   "universal_raster_rejected": false,

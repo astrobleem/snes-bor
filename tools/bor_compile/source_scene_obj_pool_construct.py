@@ -13,7 +13,7 @@ from source_bg_feasibility import rgb555
 from source_scene_obj_joint import scanline_controls
 from source_scene_obj_math import residual
 from raster_obj_math_cover import apply_math
-from raster_math_windows import evaluate
+from raster_math_windows import evaluate,compile_sparse_mask
 from raster_palette import pieces_for_grid,split_color_masks,schedule
 
 
@@ -34,15 +34,17 @@ def select_words(requirements,preferences=None):
     return owners,selected
 
 
-def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False,persistent_word_indices=False,banks_by_kind=None):
+def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False,persistent_word_indices=False,banks_by_kind=None,prefer_math_outside_controls=False):
     class_banks={k:tuple(range(4*k,4*k+4))for k in range(2)}if banks_by_kind is None else banks_by_kind
     if not isinstance(class_banks,dict)or set(class_banks)!={0,1}or any(not isinstance(bs,(tuple,list))or not bs or len(set(bs))!=len(bs)or any(type(b)is not int or not 4*k<=b<4*k+4 for b in bs)for k,bs in class_banks.items()):raise ValueError('POOL_CONSTRUCT_BANK_CLASS_DOMAIN')
     if frame_word_cover and prefer_resident_words:raise ValueError('POOL_CONSTRUCT_FRAME_AND_RESIDENT_POLICY_CONFLICT')
     if persistent_word_indices and not joint_bank_geometry:raise ValueError('POOL_CONSTRUCT_FIXED_INDICES_REQUIRE_JOINT')
+    if type(prefer_math_outside_controls)is not bool or prefer_math_outside_controls and frame_word_cover:raise ValueError('POOL_CONSTRUCT_OUTSIDE_MATH_POLICY')
     actors,metadata,expected=prepare(source,stage,scene)
     background=rgb555(compose_rgb8(source,stage,dict(scene,actors=[]))[0])
     digest=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()
     modes,windows,states=scanline_controls(candidate,metadata,digest,len(background))
+    windows={y:windows.get(y,compile_sparse_mask({0:1}))for y in range(len(background))}
     def enabled(y,x):return y not in windows or evaluate(windows[y],x)
     def render(c,y,x):return apply_math(c,int(background[y,x]),modes.get(y,'add'))if enabled(y,x)else c
     coordinates=[[]for _ in background];requirements=[[]for _ in background];bypassed=0
@@ -68,6 +70,9 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
     for y,line in enumerate(requirements):
         previous=states.get(y-1,{})
         preferences={(k,c):1 for k,colors in previous.items()for c in colors}if prefer_resident_words else None
+        if prefer_math_outside_controls and y not in states:
+            preferences=dict(preferences or {})
+            preferences.update({word:2 for options in line for word in options if word[0]==1})
         if frame_word_cover:
             owners=global_owners[y];words=sorted(set(owners.values()))
         else:owners,words=select_words(line,preferences)if line else({},[])
@@ -81,6 +86,7 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
         peak_selected_colors_by_class=[max(row[k]for row in counts)for k in range(2)],
         global_color_bank_identity_restricted=True,bank_search=[],exact_underlay_bypass=True,underlay_bypassed_pixels=bypassed)
     report['eligible_banks_by_math_class']={k:list(bs)for k,bs in class_banks.items()}
+    report['prefer_exact_math_outside_control_rows']=prefer_math_outside_controls
     pieces=[];assignment=[];joint_cells=[]
     for k in range(2):
         cells=[]
@@ -151,7 +157,8 @@ def main():
     p.add_argument('--persistent-word-indices',action='store_true',help='Restricted joint family assigning each exact word a fixed physical palette index; requires joint bank geometry.')
     p.add_argument('--opaque-banks',type=int,nargs='+',default=list(range(4)))
     p.add_argument('--math-banks',type=int,nargs='+',default=list(range(4,8)))
-    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry,persistent_word_indices=a.persistent_word_indices,banks_by_kind={0:a.opaque_banks,1:a.math_banks})
+    p.add_argument('--prefer-math-outside-controls',action='store_true')
+    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry,persistent_word_indices=a.persistent_word_indices,banks_by_kind={0:a.opaque_banks,1:a.math_banks},prefer_math_outside_controls=a.prefer_math_outside_controls)
     Path(a.output).write_text(json.dumps(r,indent=2)+'\n')
     summary={k:r[k]for k in ('status','peak_selected_colors_by_class','geometry','hardware_geometry_admitted','peak_scheduled_writes')if k in r}
     summary['bank_search']=[{k:v for k,v in search.items()if k not in('assignment','word_slot_indices')}for search in r['bank_search']]

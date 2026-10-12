@@ -237,3 +237,30 @@ including joint geometry and persistent-index modes. Wrong classes, duplicate
 and empty bank sets fail explicitly. Four focused construction tests pass.
 This expresses resource domains without claiming that banks left outside an
 effect domain admit another actor automatically.
+
+The pressure-interval controls now also seed a complete source-exact six-bank
+construction. A generic optional preference selects valid ADD operands outside
+the controlled interval before literal colors; full-frame window descriptors
+record the existing full-ADD default explicitly. Five construction tests pass.
+The 119 eight-by-eight pieces use 30 sprites and 30 tile slivers at peak. Exact
+compaction gives 56 OAM entries, 20 sprites and 34 tile slivers. These are effect
+geometry measurements only: leaving banks 0 and 1 unused does not admit concurrent
+actors, and the compact construction leaves no tile headroom on its peak line.
+
+The initial assignment has a validated fractional cache bound of 27.4 writes.
+A bounded bank rebalance reduces it to 23.714286, still forcing at least 24
+integral writes and a minimum prepared transfer span of 384 master clocks,
+above the measured 356-clock window. Twelve cache-cut iterations do not improve
+that assignment. Separately pooling its fixed exact operands within the two
+math eligibility classes, with capacities 30 and 60, gives a validated bound
+of 20.2 writes. That optimistic relaxation permits bank reassignment and forces
+at least 21 writes; it is not an SNES palette schedule or hardware admission.
+These results reject the measured fixed assignment, not lossless raster
+presentation. All 57,344 viewport pixels replay exactly; no color reduction or
+alpha approximation is applied, and no authored peak native proof is claimed.
+
+A fifteen-iteration cache-cut search on the uncompacted 119-piece encoding
+finds no qualifying improvement: its best fractional bound is 24.733333
+within 50.484 seconds. This is another bounded fixed-encoding search, not a
+universal feasibility verdict. Eighty-three focused constructor, mode/liveness
+and Boolean backend tests pass, including their imported coverage.

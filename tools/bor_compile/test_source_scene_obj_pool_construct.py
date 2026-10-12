@@ -8,6 +8,20 @@ from raster_palette import split_color_masks
 
 
 class PoolConstructionTests(unittest.TestCase):
+    def test_outside_math_preference_preserves_exact_pixels_and_bank_domains(self):
+        background=np.zeros((224,256,3),dtype=np.uint8);background[:16,:8,0]=32
+        expected=background.copy();expected[:16,:8,0]=48
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,selected_modes={str(y):'add'for y in range(8)},compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(8)},selected_palette_residency={str(y):{'0':[6],'1':[2]}for y in range(8)})
+        for prefer in (False,True):
+            with patch('source_scene_obj_pool_construct.prepare',return_value=([dict(pixels=np.full((16,8),6,dtype=np.int32),left=0,top=0)],{},expected)),patch('source_scene_obj_pool_construct.compose_rgb8',return_value=(background,{})):
+                result=construct(None,None,{},candidate,time_limit=5,banks_by_kind={0:(3,),1:(7,)},prefer_math_outside_controls=prefer)
+            self.assertTrue(result['compiled_pixel_identity_verified'])
+            self.assertEqual([p['bank']for p in result['pieces']],[3,7]if prefer else[3,3])
+            self.assertEqual(result['prefer_exact_math_outside_control_rows'],prefer)
+            self.assertFalse(result['native_presentation_proven'])
+        with self.assertRaisesRegex(ValueError,'OUTSIDE_MATH_POLICY'):
+            construct(None,None,{},candidate,frame_word_cover=True,prefer_math_outside_controls=True)
+
     def test_exact_operand_cover_and_fixed_bank_pixel_replay(self):
         background=np.zeros((224,256,3),dtype=np.uint8);background[:8,:8,0]=32
         expected=background.copy();expected[:8,:8,0]=16
