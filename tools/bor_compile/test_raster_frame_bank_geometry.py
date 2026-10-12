@@ -3,6 +3,41 @@ from raster_frame_bank_geometry import search,subdivided_candidates
 
 
 class FrameBankGeometryTests(unittest.TestCase):
+    def test_row_word_objective_prefers_shared_exact_operands(self):
+        rects=[dict(x=0,y=0,width=8,height=8,allowed_banks=[4])]
+        points={(0,0):{4:[0,2]},(0,1):{4:[1,2]}}
+        result=search(rects,points,height=8,time_limit=3,minimize_row_palette_words=True)
+        self.assertEqual(result['solver_objective'],'MINIMUM_ROW_PALETTE_WORDS_THEN_OAM')
+        self.assertEqual(result['selected_row_palette_word_count'],1)
+        self.assertEqual({q['color']for q in result['pixels']},{2})
+        self.assertTrue(result['palette_liveness_and_transfer_cost_relaxed'])
+        self.assertFalse(result['native_presentation_proven'])
+        with self.assertRaisesRegex(ValueError,'ROW_WORD_OBJECTIVE_DOMAIN'):
+            search(rects,points,height=8,cache_window=353,minimize_row_palette_words=True)
+
+    def test_singleton_interval_cuts_count_words_not_repeated_pixels(self):
+        rects=[dict(x=0,y=0,width=32,height=32,allowed_banks=[0])]
+        points={(y,x):{0:[y*15+x%15]}for y in range(3)for x in range(30)}
+        result=search(rects,points,height=32,time_limit=3,cache_window=225)
+        self.assertGreater(result['distinct_singleton_source_word_interval_cuts'],0)
+        self.assertEqual(result['peak_joint_cache_writes'],15)
+        self.assertEqual(result['peak_joint_cache_ideal_span'],224)
+        result['cache_resident_colors']={r['scanline']:r['resident_colors']for r in result['joint_cache_trace']}
+        hinted=search(rects,points,height=32,time_limit=3,cache_window=225,geometry_hint=result)
+        self.assertTrue(hinted['complete_source_witness_hint_model_verified'])
+        self.assertEqual(search(rects,points,height=32,time_limit=3,cache_window=209)['solver_status'],'INFEASIBLE')
+
+    def test_class_interval_cuts_preserve_bank_choice_and_aliases(self):
+        rects=[dict(x=0,y=0,width=32,height=32,allowed_banks=list(range(4)))]
+        points={(y,x):{b:[y*15+x%15]for b in range(4)}for y in range(5)for x in range(30)}
+        result=search(rects,points,height=32,time_limit=3,cache_window=241,feasibility_only=True)
+        self.assertGreater(result['pooled_class_singleton_word_interval_cuts'],0)
+        self.assertIn(result['solver_status'],('OPTIMAL','FEASIBLE'))
+        self.assertTrue(result['independent_integer_cache_and_ideal_partition_replayed'])
+        rejected=search(rects,points,height=32,time_limit=3,cache_window=1)
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+        self.assertFalse(rejected['universal_raster_rejected'])
+
     def test_source_actor_pixels_cannot_move_to_another_actor_piece(self):
         rects=[dict(actor=i,x=0,y=0,width=8,height=8)for i in(0,1)]
         words={(0,0):{0:[0]},(0,1):{0:[1]}}

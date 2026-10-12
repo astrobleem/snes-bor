@@ -1,5 +1,52 @@
 # Shared geometry for exact math bank classes
 
+The joint geometry/cache solver now exposes necessary interval loads directly
+from singleton source-word ownership. Each distinct word has one representative
+point; repeated pixels and copies in different banks do not become additional
+color identities. A bank starts with at most fifteen identities, and each
+subsequent new identity needs a load. Additional class cuts grant sixty or 120
+pooled slots only as a necessary relaxation; the actual model retains every
+separate fifteen-slot bank and fixed OAM bank assignment. No physical timing
+admission follows from these cuts. The regression checks repeated pixels,
+bank choice, complete warm starts and unavoidable interval loads. All 107
+focused tests pass. Input and witness hashes now describe the bytes read at
+the start of each geometry/compilation operation.
+
+The bank-cut fixed-control search validates its complete 269,089-variable
+start and returns FEASIBLE after 124.221 seconds. Its 1,024 new cuts retain
+400 clocks, 22 writes and 86 effect objects; combined player geometry peaks
+at 119 objects, 26 sprites and 34 slivers. Compilation independently replays
+all 57,344 viewport pixels, with schedule hash
+9f40f9f468afb4efc26367f988801b9cbfae8e37a25bd6c721346823b4f5932c.
+
+Reopening shared row modes and two color windows with the new class cuts
+validates all 511,657 start variables and returns FEASIBLE after 122.229
+seconds. The 639 interval cuts include 107 pooled-class cuts. It again
+retains 400 clocks and 22 writes, with 88 effect objects and a combined
+121-object, 27-sprite, 34-sliver peak. Compilation replays all 57,344 source
+output pixels; schedule hash
+212f2c2160ce18d7cd8c0b5dda4e3148124b6770035e07e7e0b5db77d8094c11.
+Neither result improves the 400-clock frontier or fits the measured
+356-clock maximum. The player reservation includes geometry only, excluding
+its palette and layer demand. Source alpha remains exact for the explicit
+context; no adaptation or color reduction is selected.
+
+Independent native HiGHS repair of rows 126–147 retains the complete source
+start after 91.031 seconds, with zero integer constraint violation. The
+269,089-variable model adds 1,219 singleton interval cuts, including 195
+class cuts, and fixes 135,532 exterior decisions. The backend reaches its
+time limit with the existing 400-clock witness and no explored branch;
+this is neither optimality nor infeasibility evidence. Independent cache,
+source ownership and ideal transfer-partition replay still pass.
+
+An optional geometry-stage objective now minimizes the sum of row palette
+words before OAM count. It chooses only declared source-exact operands and
+retains fixed bank geometry and hardware capacity. It does not establish
+cross-row liveness, transfer cost or native timing. A regression requires two
+different source requirements to select their shared exact operand instead
+of two separate words. Thirty-seven affected geometry, compiler and operand
+tests pass after this addition; static production presentation is unchanged.
+
 The fixed-control expanded-geometry neighborhood search validates all 265,137
 start variables and returns FEASIBLE after 120.548 seconds, still at 400 clocks
 with 87 effect objects, 120 combined objects, 26 sprites and 34 slivers.
