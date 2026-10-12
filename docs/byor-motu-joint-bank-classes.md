@@ -264,3 +264,17 @@ finds no qualifying improvement: its best fractional bound is 24.733333
 within 50.484 seconds. This is another bounded fixed-encoding search, not a
 universal feasibility verdict. Eighty-three focused constructor, mode/liveness
 and Boolean backend tests pass, including their imported coverage.
+
+A warm start from the source-verified 21-write pressure-interval pool returns
+UNKNOWN at 18 writes. A separate movable-mode/window residency run on the
+56-piece six-bank construction also returns UNKNOWN at the conservative
+345-clock threshold. Neither result rejects raster. Holding the pressure
+controls fixed and permitting exact operand choices across the full frame
+gives a validated class-pool lower bound of 20.2 writes; an 18-write integral
+run proves that restricted control/operand family infeasible. Bank assignment
+and physical transfer remain relaxed in this bound.
+
+The full-frame fixed-mode relaxation with movable window eligibility yields
+a validated fractional write bound of 20.000000. This allows all exact operands
+under each selected mode and relaxes bank assignment, integer residency and
+physical slots. It does not constitute an emitted window or hardware schedule.
