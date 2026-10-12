@@ -27,6 +27,23 @@ the complete OAM piece lifetime nor palette liveness or transfer feasibility.
 Thirty-seven focused row, geometry and residency tests pass. These results
 confirm that the word-specific failure cannot reject raster generally.
 
+A compact full-frame word-option model now shares palette membership clauses
+instead of expanding a pixel decision for every candidate operand. Every OAM
+mask keeps one bank through its full legal rectangle. Separate per-row bank
+capacities and complete padded OAM/sprite/sliver limits are enforced; palette
+liveness and transfers remain relaxed. The selected source-derived 33-rectangle
+cover is INFEASIBLE after 84.467 seconds with 177,069 variables and 317,788
+constraints. This rejects that geometry family, not other legal subdivision.
+
+Generic 8-pixel subdivision adds 445 parent/child candidates while preserving
+all 22,179 encoded source pixels. Its first trial remains UNKNOWN after 150.404
+seconds (327,161 variables, 611,764 constraints). Equivalent pixel decisions
+now coalesce only when row word domains and geometry owners match. Optional
+class bank-label symmetry first verifies all eligible domains are identical;
+bank-order transfer costs are explicitly outside this geometry-only model.
+Forty-three focused tests pass. A reduced trial continues; no complete-frame
+hardware timing admission or universal raster rejection is asserted.
+
 The full conditional Skeletor rise tick-341 context reproduces the retained
 36-sliver separate-actor lower bound and source viewport hash
 44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de.

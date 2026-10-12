@@ -5239,12 +5239,67 @@
         "input_sha256": "fe828791766a027db2520475da9694f435d7dbcea9ec3bd6f24bc304b91de535",
         "retainer_complete_source_row_replay": 256
       }
+    },
+    "byor-motu-full-rise-allactor-add-compact-frame-bank-geometry": {
+      "input_sha256": "12e049689e8fe40a31b673764ee74212240ddab05e692eb4801643a307b1800c",
+      "search": {
+        "schema": "BYOR_FIXED_FRAME_BANK_GEOMETRY_V1",
+        "status": "BOUNDED_FRAME_BANK_GEOMETRY_NO_WITNESS",
+        "solver_status": "INFEASIBLE",
+        "solver_seconds": 84.46738260000001,
+        "solver_objective_lower_bound": 0.0,
+        "model_variables": 177069,
+        "model_constraints": 317788,
+        "candidate_rectangles": 33,
+        "source_pixel_count": 22179,
+        "bank_count": 8,
+        "opaque_slots_per_bank": 15,
+        "fixed_bank_for_entire_oam_rectangle": true,
+        "full_rectangle_padding_counted": true,
+        "palette_liveness_and_transfer_cost_relaxed": true,
+        "native_presentation_proven": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+        "source_input_sha256": "fe828791766a027db2520475da9694f435d7dbcea9ec3bd6f24bc304b91de535",
+        "source_alpha_policy": "BOR4086_SCREEN_RGB8_THEN_RGB555",
+        "alpha_compatibility_policy_selected": false,
+        "source_pose_reachability_proven": false
+      }
+    },
+    "byor-motu-full-rise-allactor-add-compact-subdivided-frame-bank-geometry": {
+      "input_sha256": "31e7946e81d3c6895deb2e90432b92e2063d507424895768ce6d6219043b389a",
+      "search": {
+        "schema": "BYOR_FIXED_FRAME_BANK_GEOMETRY_V1",
+        "status": "BOUNDED_FRAME_BANK_GEOMETRY_NO_WITNESS",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 150.4035196,
+        "solver_objective_lower_bound": 21.0,
+        "model_variables": 327161,
+        "model_constraints": 611764,
+        "candidate_rectangles": 445,
+        "source_pixel_count": 22179,
+        "bank_count": 8,
+        "opaque_slots_per_bank": 15,
+        "fixed_bank_for_entire_oam_rectangle": true,
+        "full_rectangle_padding_counted": true,
+        "palette_liveness_and_transfer_cost_relaxed": true,
+        "native_presentation_proven": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+        "source_input_sha256": "fe828791766a027db2520475da9694f435d7dbcea9ec3bd6f24bc304b91de535",
+        "generic_subdivision_candidates": 445,
+        "source_alpha_policy": "BOR4086_SCREEN_RGB8_THEN_RGB555",
+        "alpha_compatibility_policy_selected": false,
+        "source_pose_reachability_proven": false
+      }
     }
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-cross-actor-geometry.json.gz",
-    "bytes": 517857,
-    "sha256": "723ce1bb931e051fb7f1edc116ff0c8c00c654280dd9d7812b69bb2df0e2c346"
+    "bytes": 564474,
+    "sha256": "c619385ff76500db8137f9f9aebf6b8b9ecf1dfe4fccb4c0985d379d8d140714"
   },
   "alpha_compatibility_policy_selected": false,
   "universal_raster_rejected": false,
