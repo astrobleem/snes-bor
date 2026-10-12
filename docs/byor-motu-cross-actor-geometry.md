@@ -33,7 +33,7 @@ viewport replay. No BG fallback, gameplay or Demo certification is claimed.
 
 Allowing every final visible actor pixel to use any exact main-screen math
 operand, rather than reserving ordinary actors as literal colors, gives a
-validated fractional class-pool lower bound of 13.836735 over rows 125�145.
+validated fractional class-pool lower bound of 13.836735 over rows 125–145.
 The two-window four-transition relaxation uses capacities 60/60; actual banks,
 integer residency, geometry and transfer packing remain relaxed. Its 18-write
 integral extension returns UNKNOWN in 92.926 seconds. The synthetic composite
@@ -47,3 +47,12 @@ preloading across the whole frame and removes the 55-line lookahead restriction
 as an explanation of that family's transfer failure. The complete-frame
 all-pixel shader relaxation reaches its 121.634-second limit without a
 validated bound; its UNKNOWN result is retained, not called infeasible.
+
+A soft fractional residency hint subsequently produces an integral 18-write
+class-pool candidate in 115.309 seconds for rows 125–145. Independent replay
+verifies all 4,862 non-bypassed visible source pixels in that interval. The
+candidate retains exact RGB555 output and compiles its window descriptors;
+fixed banks, geometry and physical transfers remain unproved. Extending it
+with the current default full-ADD operand selection reaches 64 upper-class
+colors on an outer row, above the 60-slot class capacity. This rejects only
+that extension policy; a complete-frame operand/mode search is in progress.

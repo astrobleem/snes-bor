@@ -279,7 +279,7 @@ a validated fractional write bound of 20.000000. This allows all exact operands
 under each selected mode and relaxes bank assignment, integer residency and
 physical slots. It does not constitute an emitted window or hardware schedule.
 
-A seven-bank domain (opaque 0–2, math 4–7) leaves bank 3 outside the effect
+A seven-bank domain (opaque 0â€“2, math 4â€“7) leaves bank 3 outside the effect
 domain. The pressure-control construction preserves the full viewport with
 119 OAM entries and peaks of 29 sprites and 29 tile slivers. Its initial fixed
 assignment has a validated 30-write fractional bound; bounded rebalancing
@@ -295,7 +295,7 @@ not fixed OAM banks, physical slots, transfer timing or concurrent admission.
 The generic piece constructor is being evaluated against its resident colors.
 
 Mapping the full-frame 18-write pool to global fixed-word banks initially
-requires 136 eight-by-eight pieces, exceeding OAM. Generic legal 16×16
+requires 136 eight-by-eight pieces, exceeding OAM. Generic legal 16Ã—16
 compaction preserves exact source pixels and yields 127 OAM entries, 27
 sprites and 29 tile slivers. Minimizing OAM instead gives 58 entries, 20
 sprites and 34 tile slivers. These two constructions are effect-only; the
@@ -307,7 +307,7 @@ The generic compactor now accepts explicit concurrent OAM/sprite/tile geometry
 reservations, including the complete rows added by transparent padding. Seven
 focused tests pass. Applying the measured He_Man freespecial4 frame-6
 reservation (33 OAM entries, per-line sprite and tile arrays) proves the
-136-piece pool-derived encoding's available 16×16 merge family infeasible.
+136-piece pool-derived encoding's available 16Ã—16 merge family infeasible.
 This preserves the evidence and rejects only that fixed encoding/merge family;
 palette/layer admission and more general geometry remain separate. No
 concurrent proof or universal raster rejection is asserted.
@@ -320,7 +320,7 @@ validated fixed-bank lower bound of 22.133333 writes, forcing 23 and exceeding
 search on the original seven-bank small pieces returns UNKNOWN before a new
 assignment; its initial 30-write bound is retained as restricted evidence.
 
-The generic constructor now optionally assigns one fixed bank per local 8×8
+The generic constructor now optionally assigns one fixed bank per local 8Ã—8
 class piece, allowing an identical RGB555 word to occupy different banks in
 different pieces. It does not change an OAM bank between rows. Applying this
 family to the source-verified full-frame pool reduces geometry from 136 to
