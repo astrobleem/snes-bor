@@ -5149,12 +5149,663 @@
         "no_color_reduction": true
       },
       "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-critical-subdivision-input": {
+      "input_sha256": "cbfc347a61b97cfe5ba598c9b9a479175ac0cc6682a67cf26c65e487f2380062",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "89f58d2e0d27bb8bb53645b58ea4ac6ab5857914f8adb044775ef0526a2940e6",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 128,
+        "peak_sprites_per_line": 32,
+        "peak_tile_slivers_per_line": 33
+      },
+      "piece_bank_balance": {
+        "initial_objective": [
+          0,
+          16.5,
+          6.655993862096337
+        ],
+        "final_objective": [
+          0,
+          15.142857142857142,
+          7.337229896314934
+        ],
+        "seed": 642,
+        "steps_requested": 50000,
+        "proposals_sampled": 36163,
+        "moves_accepted": 10831,
+        "swap_probability": 0.5,
+        "swap_proposals_sampled": 20667,
+        "swap_moves_accepted": 4165,
+        "sample_equal_best": true,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 35.23400000017136,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "bank_rebalance": {
+        "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+        "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+        "seconds": 1.2659999998286366,
+        "explicit_initial_assignment": null,
+        "maximum_interval_lines": 16,
+        "initial_objective": [
+          15.142857142857142,
+          38080,
+          486
+        ],
+        "final_objective": [
+          15.0,
+          37079,
+          479
+        ],
+        "moves": [
+          {
+            "piece": 60,
+            "old_bank": 7,
+            "new_bank": 5,
+            "objective": [
+              15.0,
+              37999,
+              487
+            ]
+          },
+          {
+            "piece": 51,
+            "old_bank": 1,
+            "new_bank": 0,
+            "objective": [
+              15.0,
+              37802,
+              491
+            ]
+          },
+          {
+            "piece": 59,
+            "old_bank": 4,
+            "new_bank": 5,
+            "objective": [
+              15.0,
+              37630,
+              488
+            ]
+          },
+          {
+            "piece": 19,
+            "old_bank": 4,
+            "new_bank": 5,
+            "objective": [
+              15.0,
+              37307,
+              486
+            ]
+          },
+          {
+            "piece": 13,
+            "old_bank": 2,
+            "new_bank": 0,
+            "objective": [
+              15.0,
+              37190,
+              486
+            ]
+          },
+          {
+            "piece": 64,
+            "old_bank": 7,
+            "new_bank": 5,
+            "objective": [
+              15.0,
+              37079,
+              479
+            ]
+          }
+        ],
+        "anneal_steps_requested": 0,
+        "anneal_proposals_sampled": 0,
+        "anneal_moves_accepted": 0,
+        "anneal_seed": 221,
+        "final_bank_distinct_colors": [
+          49,
+          100,
+          75,
+          61,
+          58,
+          56,
+          41,
+          39
+        ],
+        "final_bank_peak_row_colors": [
+          5,
+          12,
+          9,
+          12,
+          12,
+          11,
+          13,
+          6
+        ],
+        "fixed_bank_per_piece": true,
+        "color_math_classes_preserved": true,
+        "exact_math_class_reencoding_enabled": false,
+        "pixel_color_identity_verified": true,
+        "geometry_unchanged": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "bounded_subdivision_search": {
+        "schema": "BYOR_BOUNDED_LEGAL_SUBDIVISION_SEARCH_V1",
+        "seconds": 40.6410000002943,
+        "time_limit_seconds": 40.0,
+        "iterations_requested": 2,
+        "initial_interval_objective": [
+          15.142857142857142,
+          38080,
+          486
+        ],
+        "final_interval_objective": [
+          15.0,
+          37079,
+          479
+        ],
+        "selections": [
+          {
+            "iteration": 0,
+            "input_piece": 60,
+            "objective": [
+              15.0,
+              37079,
+              479
+            ],
+            "geometry": {
+              "oam_entries": 82,
+              "peak_sprites_per_line": 25,
+              "peak_tile_slivers_per_line": 34
+            }
+          }
+        ],
+        "source_pixels_exact": true,
+        "color_math_operands_unchanged": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "trials_count": 29
+      }
+    },
+    "byor-motu-authored-hbreath-peak-critical-subdivision-reencoded": {
+      "input_sha256": "1af8f4cabf016444ef6a031a473fcfef1a72602abb058fb0abac8ff0c6c954c7",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "1ea0288fb99b50b0daebd9f9e958a8a8fa2cf095c0af846f1af8eeed71725926",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 128,
+        "peak_sprites_per_line": 32,
+        "peak_tile_slivers_per_line": 33
+      },
+      "piece_bank_balance": {
+        "initial_objective": [
+          0,
+          16.5,
+          6.655993862096337
+        ],
+        "final_objective": [
+          0,
+          15.142857142857142,
+          7.337229896314934
+        ],
+        "seed": 642,
+        "steps_requested": 50000,
+        "proposals_sampled": 36163,
+        "moves_accepted": 10831,
+        "swap_probability": 0.5,
+        "swap_proposals_sampled": 20667,
+        "swap_moves_accepted": 4165,
+        "sample_equal_best": true,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 35.23400000017136,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "bank_rebalance": {
+        "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
+        "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
+        "seconds": 27.608999999705702,
+        "explicit_initial_assignment": null,
+        "maximum_interval_lines": 16,
+        "initial_objective": [
+          15.0,
+          37079,
+          479
+        ],
+        "final_objective": [
+          14.857142857142858,
+          44239,
+          573
+        ],
+        "moves": [
+          {
+            "piece": 4,
+            "old_bank": 0,
+            "new_bank": 7
+          },
+          {
+            "piece": 6,
+            "old_bank": 0,
+            "new_bank": 1
+          },
+          {
+            "piece": 13,
+            "old_bank": 0,
+            "new_bank": 7
+          },
+          {
+            "piece": 14,
+            "old_bank": 0,
+            "new_bank": 6
+          },
+          {
+            "piece": 15,
+            "old_bank": 2,
+            "new_bank": 7
+          },
+          {
+            "piece": 16,
+            "old_bank": 2,
+            "new_bank": 7
+          },
+          {
+            "piece": 17,
+            "old_bank": 3,
+            "new_bank": 4
+          },
+          {
+            "piece": 18,
+            "old_bank": 3,
+            "new_bank": 5
+          },
+          {
+            "piece": 19,
+            "old_bank": 5,
+            "new_bank": 4
+          },
+          {
+            "piece": 24,
+            "old_bank": 6,
+            "new_bank": 7
+          },
+          {
+            "piece": 29,
+            "old_bank": 7,
+            "new_bank": 0
+          },
+          {
+            "piece": 37,
+            "old_bank": 6,
+            "new_bank": 5
+          },
+          {
+            "piece": 38,
+            "old_bank": 5,
+            "new_bank": 2
+          },
+          {
+            "piece": 39,
+            "old_bank": 6,
+            "new_bank": 2
+          },
+          {
+            "piece": 40,
+            "old_bank": 1,
+            "new_bank": 3
+          },
+          {
+            "piece": 46,
+            "old_bank": 1,
+            "new_bank": 0
+          },
+          {
+            "piece": 48,
+            "old_bank": 1,
+            "new_bank": 4
+          },
+          {
+            "piece": 52,
+            "old_bank": 1,
+            "new_bank": 2
+          },
+          {
+            "piece": 53,
+            "old_bank": 1,
+            "new_bank": 4
+          },
+          {
+            "piece": 54,
+            "old_bank": 1,
+            "new_bank": 2
+          },
+          {
+            "piece": 61,
+            "old_bank": 2,
+            "new_bank": 7
+          },
+          {
+            "piece": 62,
+            "old_bank": 2,
+            "new_bank": 3
+          },
+          {
+            "piece": 63,
+            "old_bank": 1,
+            "new_bank": 0
+          },
+          {
+            "piece": 64,
+            "old_bank": 2,
+            "new_bank": 7
+          },
+          {
+            "piece": 66,
+            "old_bank": 0,
+            "new_bank": 7
+          },
+          {
+            "piece": 67,
+            "old_bank": 0,
+            "new_bank": 7
+          },
+          {
+            "piece": 68,
+            "old_bank": 0,
+            "new_bank": 7
+          },
+          {
+            "piece": 69,
+            "old_bank": 0,
+            "new_bank": 1
+          },
+          {
+            "piece": 80,
+            "old_bank": 3,
+            "new_bank": 0
+          },
+          {
+            "piece": 81,
+            "old_bank": 0,
+            "new_bank": 4
+          },
+          {
+            "piece": 88,
+            "old_bank": 7,
+            "new_bank": 6
+          },
+          {
+            "piece": 91,
+            "old_bank": 5,
+            "new_bank": 2
+          },
+          {
+            "piece": 92,
+            "old_bank": 5,
+            "new_bank": 2
+          },
+          {
+            "piece": 93,
+            "old_bank": 5,
+            "new_bank": 2
+          },
+          {
+            "piece": 94,
+            "old_bank": 5,
+            "new_bank": 0
+          },
+          {
+            "piece": 105,
+            "old_bank": 4,
+            "new_bank": 2
+          },
+          {
+            "piece": 111,
+            "old_bank": 6,
+            "new_bank": 7
+          },
+          {
+            "piece": 113,
+            "old_bank": 6,
+            "new_bank": 5
+          },
+          {
+            "piece": 114,
+            "old_bank": 6,
+            "new_bank": 4
+          },
+          {
+            "piece": 119,
+            "old_bank": 6,
+            "new_bank": 3
+          },
+          {
+            "piece": 123,
+            "old_bank": 7,
+            "new_bank": 5
+          },
+          {
+            "piece": 125,
+            "old_bank": 6,
+            "new_bank": 5
+          },
+          {
+            "piece": 126,
+            "old_bank": 6,
+            "new_bank": 5
+          }
+        ],
+        "anneal_steps_requested": 20000,
+        "anneal_proposals_sampled": 20000,
+        "anneal_moves_accepted": 7001,
+        "anneal_seed": 647,
+        "final_bank_distinct_colors": [
+          77,
+          86,
+          92,
+          77,
+          79,
+          57,
+          38,
+          67
+        ],
+        "final_bank_peak_row_colors": [
+          10,
+          12,
+          10,
+          13,
+          12,
+          11,
+          13,
+          10
+        ],
+        "fixed_bank_per_piece": true,
+        "color_math_classes_preserved": false,
+        "exact_math_class_reencoding_enabled": true,
+        "pixel_color_identity_verified": true,
+        "geometry_unchanged": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "complete_source_frame_pixel_identity_proven": true
+      },
+      "bounded_subdivision_search": {
+        "schema": "BYOR_BOUNDED_LEGAL_SUBDIVISION_SEARCH_V1",
+        "seconds": 40.6410000002943,
+        "time_limit_seconds": 40.0,
+        "iterations_requested": 2,
+        "initial_interval_objective": [
+          15.142857142857142,
+          38080,
+          486
+        ],
+        "final_interval_objective": [
+          15.0,
+          37079,
+          479
+        ],
+        "selections": [
+          {
+            "iteration": 0,
+            "input_piece": 60,
+            "objective": [
+              15.0,
+              37079,
+              479
+            ],
+            "geometry": {
+              "oam_entries": 82,
+              "peak_sprites_per_line": 25,
+              "peak_tile_slivers_per_line": 34
+            }
+          }
+        ],
+        "source_pixels_exact": true,
+        "color_math_operands_unchanged": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "trials_count": 29
+      }
+    },
+    "byor-motu-authored-hbreath-peak-critical-subdivision-lp": {
+      "input_sha256": "11e5443088afb0573f3a575fd45503e4a516c26cee84ff2a9e5d347bdf4c0a3a",
+      "search": {
+        "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 32828,
+        "constraints": 16563,
+        "lookahead_lines": 55,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 16.666666666666668,
+        "validated_dual_lower_bound": 16.666666666666664,
+        "maximum_primal_violation": 3.197442310920451e-14,
+        "maximum_dual_residual": 1.1102230246251565e-16
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-rowword-window-decomposition": {
+      "input_sha256": "523140706b76936a17511fd0a5ae227d68918a0e59b6834b2ea78342d8dbfde6",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "3eb207363f2f4647d853df95b2dc6309080266a514109268e2240ad045ea13b1",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 8.07799999974668,
+        "maximum_changed_pieces_per_master": null,
+        "objective_kind": "dma-window",
+        "row_word_masks": true,
+        "write_budget": 21,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 16,
+        "interval_cut_count": 192,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "0f62f7b57408be300e9f99b70bdd39a6ee3d6f83e2656fefae77ab27fc60e4a4",
+        "restored_certified_cuts": 0,
+        "cache_lp_variables": 96987,
+        "cache_lp_constraints": 102080,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_dma_span_bound": 287.824510282269,
+        "iterations_count": 1
+      }
+    },
+    "byor-motu-authored-hbreath-peak-rowword-window-decomposition-longmaster": {
+      "input_sha256": "a9bc92bbf3948f2ff65da6714253f5fe9b3da3eaff37d7085ea1cca4da8cdc01",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "3eb207363f2f4647d853df95b2dc6309080266a514109268e2240ad045ea13b1",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 12.75,
+        "maximum_changed_pieces_per_master": null,
+        "objective_kind": "dma-window",
+        "row_word_masks": true,
+        "write_budget": 21,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 0,
+        "interval_cut_count": 0,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "0f62f7b57408be300e9f99b70bdd39a6ee3d6f83e2656fefae77ab27fc60e4a4",
+        "restored_certified_cuts": 0,
+        "cache_lp_variables": 96987,
+        "cache_lp_constraints": 102080,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_dma_span_bound": 287.824510282269,
+        "iterations_count": 3
+      }
     }
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-authored-kempe.json.gz",
-    "bytes": 805211,
-    "sha256": "e81fa76e3092651ac31ee362656dbfd70658f913d5a7f87af40cbdd7f050f394"
+    "bytes": 964334,
+    "sha256": "d794c9dcd1b00603472b9dac2a46f1fc82eb012f06d826446143610c85326c44"
   },
   "source_alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555",
   "universal_raster_rejected": false,

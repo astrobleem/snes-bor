@@ -4,6 +4,10 @@ from raster_palette_interval import interval_bound, transfer_interval
 
 
 class IntervalBoundTests(unittest.TestCase):
+ def test_obj_bound_requires_snes_dma_domain(self):
+  for options in ({'obj_bank_gaps':1},{'obj_bank_gaps':True,'slots':121},{'obj_bank_gaps':True,'clocks_per_byte':4}):
+   with self.assertRaisesRegex(ValueError,'OBJ_DMA_DOMAIN'):interval_bound([set(),set()],**options)
+
  def test_transparent_bank_holes_reject_23_commits(self):
   rows=[set(range(120))]+[set(range(120+22*i,120+22*(i+1)))for i in range(6)]+[set(range(252,275))]
   relaxed=interval_bound(rows)

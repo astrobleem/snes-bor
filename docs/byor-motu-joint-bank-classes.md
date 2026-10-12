@@ -170,3 +170,14 @@ are restricted to the stated lifetimes and bank assignment. Hint comparison
 now normalizes empty derived demand rows while retaining real row colors,
 piece geometry, frame hash and independent pixel-mask checks; four focused
 hint/timing/source-control tests pass.
+
+A separate source-exact subdivision experiment splits eighteen pressure-row
+parents into legal 8×8 pieces. Geometry reaches 128 OAM entries, 32 sprites
+and 33 tile slivers; it is effect-only and makes no concurrent-actor admission
+claim. Exact math-class re-encoding has a validated fractional write bound of
+16.666667 with primal residual 3.20e-14 and dual residual 1.11e-16, so the added
+geometry does not improve the measured bound. Row/word fixed-bank mask search
+retains its initial assignment as best at 287.824510 fractional DMA clocks.
+Its alternate assignment needs 360.062024 fractional clocks; another has no
+fractional cache solution. These results do not establish a universal lower
+bound. Complete source replays and restricted search evidence are retained.
