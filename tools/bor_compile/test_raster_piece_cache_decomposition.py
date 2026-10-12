@@ -2,11 +2,17 @@ import copy,unittest
 import numpy as np
 import test_raster_word_bank_balance as fixtures
 from raster_slot_greedy import demand
-from raster_piece_cache_decomposition import search
+from raster_piece_cache_decomposition import search,nonpositive_solver_dual
 from raster_bank_residency import relaxed_bound
 
 
 class DecompositionTests(unittest.TestCase):
+    def test_fresh_dual_sign_noise_is_clipped_without_accepting_invalid_certificates(self):
+        np.testing.assert_array_equal(nonpositive_solver_dual([-1.,0.,1e-14]),[-1.,0.,0.])
+        for bad in ([1e-6],[float('nan')],[[0.]]):
+            with self.assertRaisesRegex(ValueError,'FRESH_DUAL_SIGN'):
+                nonpositive_solver_dual(bad)
+
     def test_seed_outside_allowed_banks_is_rejected(self):
         source=fixtures.WordBankBalanceTests().fixture()[0]
         source['pieces'][0]['allowed_banks']=[b for b in range(8)if b!=source['pieces'][0]['bank']]

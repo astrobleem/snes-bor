@@ -14,11 +14,21 @@ from raster_slot_greedy import demand,bank_groups
 from raster_global_bank_classes import rebuild_schedule
 
 
+def nonpositive_solver_dual(values):
+    """Clip solver sign noise before strict certificate replay; reject real errors."""
+    values=np.asarray(values,dtype=float)
+    if values.ndim!=1 or not np.all(np.isfinite(values)) or np.any(values>1e-9):
+        raise ValueError('PIECE_CACHE_FRESH_DUAL_SIGN')
+    return np.minimum(values,0)
+
+
 def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21,row_word_masks=False,resume_report=None,interval_cut_span=0,geometry_reservation=None):
     from ortools.sat.python import cp_model
     if iterations<1 or time_limit<=0 or master_seconds<=0 or (maximum_changes is not None and maximum_changes<1): raise ValueError('PIECE_CACHE_DECOMPOSITION_DOMAIN')
     if objective_kind not in('writes','dma-window')or type(write_budget)is not int or not 0<=write_budget<=120:raise ValueError('PIECE_CACHE_DECOMPOSITION_OBJECTIVE_DOMAIN')
     if type(interval_cut_span)is not int or not 0<=interval_cut_span<=256:raise ValueError('PIECE_CACHE_INTERVAL_CUT_DOMAIN')
+    if any(p['bank']not in p.get('allowed_banks',range(8))for p in source['pieces']):
+        raise ValueError('PIECE_CACHE_DECOMPOSITION_SEED_BANK_ELIGIBILITY')
     _,_,images=demand(source); pieces=copy.deepcopy(source['pieces']);groups=bank_groups(source)
     height=len(source['trace'])
     reservation=dict(oam_entries=0,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
@@ -218,8 +228,11 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         reports.append(report)
         report['reserved_geometry_admitted']=geometry_fits(assignment)
         if report['reserved_geometry_admitted']and solved.fun<best:best=float(solved.fun);best_assignment=assignment.copy()
-        install_cut(dict(inequality_dual=[[i,float(v)]for i,v in enumerate(solved.ineqlin.marginals)if v],
-                         upper_dual=[[i,float(v)]for i,v in enumerate(solved.upper.marginals)if v]))
+        inequality_dual=nonpositive_solver_dual(solved.ineqlin.marginals)
+        upper_dual=nonpositive_solver_dual(solved.upper.marginals)
+        report['fresh_dual_positive_roundoff_values_clipped']=int(np.count_nonzero(solved.ineqlin.marginals>0)+np.count_nonzero(solved.upper.marginals>0))
+        install_cut(dict(inequality_dual=[[i,float(v)]for i,v in enumerate(inequality_dual)if v],
+                         upper_dual=[[i,float(v)]for i,v in enumerate(upper_dual)if v]))
         # Exclude an evaluated assignment so a rounded tie cannot stall search.
         model.add(sum(selection[i][b]for i,b in enumerate(assignment))<=len(assignment)-1)
         if assignment not in evaluated:evaluated.append(assignment.copy())
