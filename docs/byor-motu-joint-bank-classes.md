@@ -1,5 +1,34 @@
 # Shared geometry for exact math bank classes
 
+The generic cache-segment constructor separates necessary class residency from
+actual bank/mask assignment. A word may move to another bank after eviction
+and reload; every compiled OAM mask still retains one fixed bank. The second
+step enforces fifteen opaque slots per bank, actual padded geometry, concurrent
+geometry reservations and complete ideal DMA partition constraints. Physical
+slots and native timing remain separate admission gates.
+
+The smaller necessary-transfer formulation has 28,518 variables and 43,745
+constraints. Native HiGHS proves an optimal class cache in 26.203 seconds:
+431 noninitial writes, 22 peak writes, 551 residency lifetimes including
+120 initial preloads, and zero integer-constraint violation. Its actual
+bank/mask assignment is INFEASIBLE after 3.712 seconds at the 357-exclusive
+transfer gate. This rejects only that selected cache and fixed encoding.
+It excludes concurrent actor palettes and layers and cannot admit gameplay.
+
+An earlier complete per-line transfer relaxation remains UNKNOWN after
+60.158 seconds cold, 60.112 seconds with a replayed soft cache hint, and
+68.781 seconds with independent native HiGHS. The necessary transfer bound
+is independently checked against complete partition costs for 6,561 bank-count
+patterns. Twenty-one focused cache/class/bank tests pass, including source
+pixels, opaque black, fixed cache replay and real geometry rejection.
+Fixing the validated 431-write cache and relaxing the deadline to 10,000 clocks
+leaves geometry assignment UNKNOWN after 60.065 seconds. Canonicalizing truly
+interchangeable banks and omitting provably redundant transfer constraints
+reduces that diagnostic to 2,433 variables and 4,673 constraints; it remains
+UNKNOWN after 60.047 seconds, 1,296,901 branches and 870,738 conflicts.
+Neither diagnostic establishes an unavoidable geometry limit. The retained
+source replay now covers 340 experiments in a 26,818,605-byte archive.
+
 The 57-cell family now also permits word masks to select different banks on
 different source rows, with at most four masks per cell. Each emitted OAM mask
 retains one fixed bank for its full padded geometry. The complete cache search
