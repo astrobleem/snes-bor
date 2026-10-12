@@ -97,3 +97,14 @@ The generic source-bound replay reproduces the small-piece bank rejection;
 there is no synthetic source-alpha flag or live compositor admission. Sixteen
 focused tests pass, including explicit overlap, unclipped visible-pixel and
 noninteger/out-of-range RGB555 rejection.
+
+A complete-frame all-actor pool restricted to constant ADD and a fully enabled
+math window admits 18 peak writes in 106.041 seconds. All 22,179 non-bypassed
+pixels are independently checked against the exact source SCREEN output;
+source alpha metadata is preserved and no adaptation is selected. The first
+local fixed-bank construction reaches 536 OAM entries and 55 sprites/slivers;
+its 8/32 compaction is INFEASIBLE. Shared frame-wide word coverage reduces the
+count to 528 entries but retains the 55-sliver peak. These reject the selected
+constructions only. A joint operand/bank search on an exact 33-object geometry
+cover with legal subdivision continues. Source reachability, live compositing
+and native concurrent presentation remain unproved.

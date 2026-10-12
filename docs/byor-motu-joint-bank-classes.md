@@ -549,3 +549,9 @@ hints and the integer cache residency, then returns UNKNOWN at 180.485 seconds.
 It reopens every row/color bank choice under the real 128/32/34 geometry limits;
 no palette transfer or source-geometry constraints are removed. The result does
 not reject raster or prove any gameplay palette reservation.
+
+The adjacent-only range family is INFEASIBLE at 353 clocks in 65.128 seconds.
+This does not resolve the general flow search: a nonadjacent range can bridge
+an intervening complete bank and remains allowed by that model. The hinted
+joint SAT trial independently returns UNKNOWN at 120.331 seconds; 101,110
+branches and 18,369 conflicts do not constitute an infeasibility certificate.
