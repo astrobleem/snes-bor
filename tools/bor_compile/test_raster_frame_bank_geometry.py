@@ -3,6 +3,18 @@ from raster_frame_bank_geometry import search,subdivided_candidates
 
 
 class FrameBankGeometryTests(unittest.TestCase):
+    def test_wrapped_transparent_padding_respects_concurrent_line_capacity(self):
+        from raster_obj_geometry import active_on_line
+        p=dict(x=0,y=250,width=8,height=8)
+        self.assertTrue(active_on_line(p,0));self.assertTrue(active_on_line(p,1))
+        self.assertFalse(active_on_line(p,2))
+        reservation=dict(oam_entries=0,sprites_per_line=[0]*256,tile_slivers_per_line=[0]*256)
+        reservation['sprites_per_line'][0]=32
+        result=search([p],{(250,0):{0:[0]}},height=256,time_limit=3,geometry_reservation=reservation)
+        self.assertEqual(result['solver_status'],'INFEASIBLE')
+        reservation['sprites_per_line'][0]=31
+        self.assertTrue(search([p],{(250,0):{0:[0]}},height=256,time_limit=3,geometry_reservation=reservation)['oam_y_wrap_counted'])
+
     def test_fixed_piece_bank_lifetime_rejects_per_row_bank_switch(self):
         rectangles=[dict(x=0,y=0,width=8,height=8)]
         result=search(rectangles,{(0,0):{0:[0]},(1,0):{4:[33]}},height=8,time_limit=3)

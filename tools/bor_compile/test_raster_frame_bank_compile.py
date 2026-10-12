@@ -22,6 +22,14 @@ def source_fixture():
 
 
 class FrameBankCompileTests(unittest.TestCase):
+    def test_unused_wrapped_piece_padding_cannot_hide_reserved_sprite_overflow(self):
+        source,witness,bg,expected=source_fixture()
+        witness['pieces'].append(dict(x=0,y=250,width=8,height=8,bank=0))
+        witness['geometry_reservation']=dict(oam_entries=0,sprites_per_line=[0]*224,tile_slivers_per_line=[0]*224)
+        witness['geometry_reservation']['sprites_per_line'][0]=32
+        with self.assertRaisesRegex(ValueError,'RESERVED_HARDWARE_OVERFLOW'):
+            compile_witness(source,witness,bg,expected)
+
     def test_partial_source_exact_compile_preserves_opaque_zero_and_scope(self):
         source,witness,bg,expected=source_fixture()
         result=compile_witness(source,witness,bg,expected)

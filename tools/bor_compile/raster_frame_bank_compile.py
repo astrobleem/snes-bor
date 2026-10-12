@@ -9,6 +9,7 @@ from raster_palette import schedule
 from raster_slot_greedy import demand
 from raster_obj_math_cover import apply_math
 from raster_math_windows import evaluate
+from raster_obj_geometry import active_on_line
 
 
 def compile_witness(source,witness,background,expected,lookahead=16):
@@ -51,16 +52,16 @@ def compile_witness(source,witness,background,expected,lookahead=16):
     expected_points={(int(p['y']+y),int(p['x']+x))for p,image in zip(source['pieces'],input_colors)for y,x in zip(*np.where(image>=0))if first<=p['y']+y<last}
     if seen!=expected_points:raise ValueError('FRAME_COMPILE_OPAQUE_OWNERSHIP')
     if not np.array_equal(actual[first:last],gold[first:last]):raise ValueError('FRAME_COMPILE_SOURCE_OUTPUT_REPLAY')
-    geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(224)),
-        peak_tile_slivers=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(224)))
+    geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(active_on_line(p,y)for p in pieces)for y in range(224)),
+        peak_tile_slivers=max(sum(p['width']//8 for p in pieces if active_on_line(p,y))for y in range(224)))
     if geometry['peak_sprites']>32 or geometry['peak_tile_slivers']>34:raise ValueError('FRAME_COMPILE_HARDWARE_OVERFLOW')
     reservation=witness.get('geometry_reservation');combined=geometry.copy()
     if reservation is not None:
         if not isinstance(reservation,dict)or type(reservation.get('oam_entries'))is not int or not 0<=reservation['oam_entries']<=128 or any(not isinstance(reservation.get(k),list)or len(reservation[k])!=224 or any(type(v)is not int or not 0<=v<=limit for v in reservation[k])for k,limit in [('sprites_per_line',32),('tile_slivers_per_line',34)]):
             raise ValueError('FRAME_COMPILE_RESERVATION_DOMAIN')
         combined=dict(oam_entries=len(pieces)+reservation['oam_entries'],
-            peak_sprites=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)+reservation['sprites_per_line'][y]for y in range(224)),
-            peak_tile_slivers=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])+reservation['tile_slivers_per_line'][y]for y in range(224)))
+            peak_sprites=max(sum(active_on_line(p,y)for p in pieces)+reservation['sprites_per_line'][y]for y in range(224)),
+            peak_tile_slivers=max(sum(p['width']//8 for p in pieces if active_on_line(p,y))+reservation['tile_slivers_per_line'][y]for y in range(224)))
         if combined['oam_entries']>128 or combined['peak_sprites']>32 or combined['peak_tile_slivers']>34:raise ValueError('FRAME_COMPILE_RESERVED_HARDWARE_OVERFLOW')
     for p in pieces:p['rows']={y:sorted(cs)for y,cs in p['rows'].items()}
     if 'joint_cache_trace'in witness:
@@ -102,7 +103,7 @@ def compile_witness(source,witness,background,expected,lookahead=16):
     complete=(first,last)==(0,224)
     result={k:copy.deepcopy(source[k])for k in ('metadata','source_rgb555_sha256','selected_modes','compiled_color_window_descriptors','color_math','scanline_math_controls_source_bound','source_alpha_policy','alpha_compatibility_policy_selected')if k in source}
     result.update(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN'if complete else'RESTRICTED_SCANLINE_DEMAND_ONLY',
-        pieces=pieces,piece_pixel_masks=masks,trace=trace,geometry=geometry,hardware_geometry_admitted=True,
+        pieces=pieces,piece_pixel_masks=masks,trace=trace,geometry=geometry,hardware_geometry_admitted=True,oam_y_wrap_counted=True,
         compiled_pixel_identity_verified=complete,restricted_pixel_identity_verified=not complete,
         complete_source_frame_pixel_identity_proven=complete,outside_interval_pixels_relaxed=not complete,
         restricted_scanline_demand_interval=[first,last-1],source_output_pixels_replayed=(last-first)*256,

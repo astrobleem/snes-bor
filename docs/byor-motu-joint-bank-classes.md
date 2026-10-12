@@ -1,5 +1,30 @@
 # Shared geometry for exact math bank classes
 
+OBJ resource accounting now follows eight-bit OAM Y wrap in noninterlaced
+sprite evaluation. Transparent rows wrapped from the bottom count against the
+top-of-frame sprite/sliver budget, including concurrent reservations. New
+regressions reject both solver and compiler admission when that padding
+overflows a reserved row. The retained full-frame and three-line frontier
+geometries remain unchanged after wrapped-row replay. See the
+[bounded geometry receipt](receipts/byor-motu-wrapped-obj-geometry.json).
+
+The fixed-geometry shared-mode/window trial with 22 permitted writes remains
+UNKNOWN after 120.323 seconds at the 353-clock ideal gate. Its operand family
+contains canonical exact inverses and valid input words only; this is not a
+complete raster rejection. The generic mode/window scheduler now optionally
+examines all 32,768 operands against every frame mode and both enabled and
+bypassed window contexts together. Input upper-bank identities remain seeds,
+and dominance must preserve one replacement across all contexts. Shared row
+modes, fixed piece banks, bank-specific cache capacity and exact source output
+remain enforced. Twenty-five focused scheduler/geometry/compiler tests pass.
+The complete-operand 353-clock trial returns UNKNOWN after 120.313 seconds
+with 129,210 variables and 210,832 constraints. Its complete cover compares
+3,056 tagged mode/window contexts, finds 2,161 valid operand words and retains
+847 globally distinct coverage identities, including 160 input seed words.
+No new full-frame witness, physical transfer admission or infeasibility
+certificate is produced. The existing 400-clock frontier remains above the
+measured transfer window.
+
 The compact joint geometry/word/cache model now includes validated concurrent
 geometry reservations. It counts full padding, OAM entries, sprites and slivers
 through every selected piece's lifetime, and its compiler preserves and replays

@@ -6,6 +6,18 @@ import test_raster_window_slot_schedule as fixtures
 
 
 class WindowResidencyTests(unittest.TestCase):
+    def test_complete_global_operands_preserve_source_and_fixed_banks(self):
+        source,bg,expected=fixtures.WindowSlotTests().source()
+        for movable in(False,True):
+            result=optimize(source,bg,expected,time_limit=5,maximum_writes=0,movable_math_modes=movable,complete_operands=True)
+            report=result['bank_residency']
+            self.assertEqual(report['operand_cover']['rgb555_operands_examined'],32768)
+            self.assertTrue(report['cross_scanline_operand_identity_reuse_preserved'])
+            self.assertTrue(report['operand_cover']['fixed_color_math_window_context'])
+            self.assertTrue(report['complete_source_frame_pixel_identity_proven'])
+            self.assertEqual([p['bank']for p in result['pieces']],[p['bank']for p in source['pieces']])
+            demand(result);verify_packets(result)
+
     def test_feasibility_search_emits_replayed_cost_without_optimality_claim(self):
         from raster_bank_residency import favorable_span
         source,bg,expected=fixtures.WindowSlotTests().source()

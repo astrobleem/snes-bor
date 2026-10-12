@@ -16,13 +16,21 @@ from raster_slot_greedy import demand
 from raster_slot_refine import verify_packets
 
 
-def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,lookahead=16,solver_backend='cp-sat',movable_math_modes=False,feasibility_only=False):
+def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,lookahead=16,solver_backend='cp-sat',movable_math_modes=False,feasibility_only=False,complete_operands=False):
     from ortools.sat.python import cp_model
-    if window<1 or time_limit<=0 or not 0<=maximum_writes<=120 or type(lookahead)is not int or lookahead<0:raise ValueError('WINDOW_RESIDENCY_DOMAIN')
+    if window<1 or time_limit<=0 or type(maximum_writes)is not int or not 0<=maximum_writes<=120 or type(lookahead)is not int or lookahead<0:raise ValueError('WINDOW_RESIDENCY_DOMAIN')
     if solver_backend not in('cp-sat','highs'):raise ValueError('WINDOW_RESIDENCY_BACKEND')
     if type(feasibility_only)is not bool:raise ValueError('WINDOW_RESIDENCY_FEASIBILITY_POLICY')
     points,rows,tables,hint=derive(source,background,expected);first,last=min(rows),max(rows);height=len(source['trace'])
     if type(movable_math_modes)is not bool:raise ValueError('WINDOW_RESIDENCY_MODE_POLICY')
+    if type(complete_operands)is not bool:raise ValueError('WINDOW_RESIDENCY_OPERAND_POLICY')
+    complete_options=None;operand_proof=None
+    if complete_operands:
+        from raster_obj_math_cover import complete_math_cover
+        contexts={(p['output'],int(background[p['y'],p['x']]),gate)for p in points if p['bank']>=4 for gate in(False,True)}
+        complete_options,operand_proof=complete_math_cover(contexts,
+            modes=MODES if movable_math_modes else tuple(dict.fromkeys(source['selected_modes'][str(p['y'])]for p in points)),
+            tag_modes=True,fixed_window_context=True,retained_operands={p['old_word']for p in points if p['bank']>=4})
     potential={};inverse={}
     modes=MODES if movable_math_modes else ()
     for p in points:
@@ -38,6 +46,8 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
                 if operand is not None and apply_math(operand,int(background[p['y'],p['x']]),mode)!=p['output']:raise AssertionError('WINDOW_RESIDENCY_MODE_INVERSE')
                 p['operands'][mode]=operand
         p['mode_operands']={mode:tuple(sorted({c for c in(operand,p['old_word']if movable_math_modes and apply_math(p['old_word'],int(background[p['y'],p['x']]),mode)==p['output']else None)if c is not None}))for mode,operand in p['operands'].items()}
+        if complete_options is not None and p['bank']>=4:
+            p['mode_operands']={mode:tuple(complete_options[mode,p['output'],int(background[p['y'],p['x']]),True])for mode in p['operands']}
         for c in ([p['output']]if p['bank']<4 else[p['output'],*(c for choices in p['mode_operands'].values()for c in choices)]):
             if c is not None:potential.setdefault((p['bank'],c),set()).add(p['y'])
     tables=[sorted(c for bank,c in potential if bank==b)for b in range(8)]
@@ -80,8 +90,8 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
                         choice=mode_choices[y,mode];choices=p['mode_operands'][mode]
                         if not choices:model.add(choice+gate<=1)
                         else:model.add(sum(resident[y,b,word]for word in choices)>=choice+gate-1)
-                elif operand is None:model.add(gate==0)
-                else:model.add(resident[y,b,operand]>=gate)
+                elif not p['mode_operands'][source['selected_modes'][str(y)]]:model.add(gate==0)
+                else:model.add(sum(resident[y,b,c]for c in p['mode_operands'][source['selected_modes'][str(y)]])>=gate)
         if y>first:
             counts=[];active=[]
             for b in range(8):
@@ -115,8 +125,12 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
     report=dict(schema='BYOR_WINDOW_BANK_RESIDENCY_V1',status='BOUNDED_WINDOW_BANK_RESIDENCY_NO_CANDIDATE',**details,requested_ideal_window=window,bounded_noninitial_lookahead_lines=lookahead,initial_palette_may_preload_entire_frame=True,ideal_endpoint_slot_packing_relaxed=True,fixed_piece_banks_unchanged=True,piece_banks_fixed_across_all_scanlines=True,restricted_family_ideal_prepared_span_lower_bound=max(0,int(bound//factor)-40),native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     report['mandatory_identity_bank_interval_cuts']=cuts
     report['search_objective']='FEASIBILITY_ONLY'if feasibility_only else'PEAK_THEN_TOTAL_IDEAL_DMA_COST'
+    report['maximum_writes_per_line']=maximum_writes
     if feasibility_only:report['restricted_family_ideal_prepared_span_lower_bound']=0
     report.update(shared_scanline_math_mode_search=movable_math_modes,math_operand_family='CANONICAL_EXACT_INVERSE_AND_INPUT_WORD'if movable_math_modes else'INPUT_MODE_WITH_CANONICAL_EXACT_INVERSE')
+    if complete_operands:
+        report.update(math_operand_family='COMPLETE_FRAME_GLOBAL_MODE_AND_WINDOW_CONTEXT_COVER',operand_cover=operand_proof,
+            cross_scanline_operand_identity_reuse_preserved=True,input_upper_bank_operand_identities_retained=True)
     if value is None:return report
     selected_modes=copy.deepcopy(source['selected_modes'])
     if movable_math_modes:
@@ -184,15 +198,17 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in('source','stage','scene','schedule','output'):p.add_argument('--'+name,required=True)
-    p.add_argument('--window',type=int,default=337);p.add_argument('--time-limit',type=float,default=45);p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat');p.add_argument('--movable-math-modes',action='store_true');p.add_argument('--lookahead',type=int,default=16);p.add_argument('--feasibility-only',action='store_true');a=p.parse_args()
+    p.add_argument('--window',type=int,default=337);p.add_argument('--time-limit',type=float,default=45);p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat');p.add_argument('--movable-math-modes',action='store_true');p.add_argument('--lookahead',type=int,default=16);p.add_argument('--feasibility-only',action='store_true');p.add_argument('--maximum-writes',type=int,default=21);p.add_argument('--complete-operands',action='store_true');a=p.parse_args()
     from compiler import Source
     from source_scene_obj_raster import prepare
     from source_scene_bg import compose_rgb8
     from source_bg_feasibility import rgb555
-    source=Source(a.source);scene=json.loads(Path(a.scene).read_text());schedule=json.loads(Path(a.schedule).read_text());_,metadata,expected=prepare(source,a.stage,scene)
+    source=Source(a.source);scene=json.loads(Path(a.scene).read_text(encoding='utf-8'));schedule=json.loads(Path(a.schedule).read_text(encoding='utf-8'));_,metadata,expected=prepare(source,a.stage,scene)
     if metadata!=schedule['metadata']:raise ValueError('WINDOW_RESIDENCY_AUTHORED_METADATA')
-    result=optimize(schedule,rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0]),rgb555(expected),a.window,a.time_limit,lookahead=a.lookahead,solver_backend=a.solver_backend,movable_math_modes=a.movable_math_modes,feasibility_only=a.feasibility_only)
-    Path(a.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('bank_residency',result)))
+    result=optimize(schedule,rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0]),rgb555(expected),a.window,a.time_limit,maximum_writes=a.maximum_writes,lookahead=a.lookahead,solver_backend=a.solver_backend,movable_math_modes=a.movable_math_modes,feasibility_only=a.feasibility_only,complete_operands=a.complete_operands)
+    result.update(source_pak_sha256=hashlib.sha256(Path(a.source).read_bytes()).hexdigest(),
+        source_input_sha256=hashlib.sha256(Path(a.schedule).read_bytes()).hexdigest(),source_input_path=a.schedule)
+    Path(a.output).write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8');print(json.dumps(result.get('bank_residency',result)))
 
 
 if __name__=='__main__':main()

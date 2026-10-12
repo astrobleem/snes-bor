@@ -1,0 +1,51 @@
+{
+  "schema": "BYOR_OBJ_WRAPPED_Y_GEOMETRY_REPLAY_V1",
+  "status": "PASS",
+  "authority": "Core/SNES/SnesPpuTypes.h:SpriteInfo::IsVisible and SnesPpu.cpp:EvaluateNextLineSprites",
+  "mesen_revision": "18c05d3f076728d05310c6e591b7d0a08d604d42",
+  "experiments": [
+    {
+      "input": "out/byor-motu-authored-hbreath-peak-player-cover-global-joint-compiled400.json",
+      "input_sha256": "7fd1d9aa36ff73085197efc261876af2af9f024ea4f724bfc72ebf153c166bdc",
+      "geometry": {
+        "oam_entries": 86,
+        "peak_sprites": 22,
+        "peak_tile_slivers": 27
+      },
+      "wrapped_line_geometry_unchanged": true
+    },
+    {
+      "input": "out/byor-motu-authored-hbreath-peak-player-cover-global-joint-repair134-145.json",
+      "input_sha256": "4be86ca7d75e519c9e2cec16d56b5541df260f9601842138770b56422f4d4146",
+      "geometry": {
+        "oam_entries": 85,
+        "peak_sprites": 22,
+        "peak_tile_slivers": 27
+      },
+      "wrapped_line_geometry_unchanged": true
+    },
+    {
+      "input": "out/byor-motu-full-rise-allactor-add-band152-155-joint-compiled.json",
+      "input_sha256": "38d3449a30e81fc24b53cdf3093748ec46aee85957d4b6d8a1d49a9d640a4a2a",
+      "geometry": {
+        "oam_entries": 25,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "wrapped_line_geometry_unchanged": true
+    },
+    {
+      "input": "out/byor-motu-full-rise-allactor-add-band152-155-joint-physical345.json",
+      "input_sha256": "0391ab7e767f089a42dc470254ba5c5d4122088db56ad72d315f79c3e2508c63",
+      "geometry": {
+        "oam_entries": 25,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "wrapped_line_geometry_unchanged": true
+    }
+  ],
+  "protected_tracked_files_verified": 17,
+  "native_admission": false,
+  "no_color_reduction": true
+}

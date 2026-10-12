@@ -4,6 +4,7 @@ Palette capacities are separate for each bank on every row. A selected OAM
 mask keeps one bank throughout its complete legal rectangle. Palette liveness,
 physical slots and transfers are deferred; a witness is not native admission.
 """
+from raster_obj_geometry import active_on_line
 
 
 def subdivided_candidates(rectangles,pixel_options,small_size=8):
@@ -146,7 +147,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         for group in(range(4),range(4,8)):
             for a,b in zip(group,list(group)[1:]):model.add(counts[a]>=counts[b])
     for y in range(height):
-        live=[(i,b,v)for(i,b),v in masks.items()if rectangles[i]['y']<=y<rectangles[i]['y']+rectangles[i]['height']]
+        live=[(i,b,v)for(i,b),v in masks.items()if active_on_line(rectangles[i],y)]
         if not live:continue
         model.add(sum(v for i,b,v in live)<=32-reservation['sprites_per_line'][y])
         model.add(sum(v*(rectangles[i]['width']//8)for i,b,v in live)<=34-reservation['tile_slivers_per_line'][y])
@@ -268,7 +269,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         ideal_cache_partition_window_master_clocks=cache_window,
         joint_cache_residency_enforced=cache_window is not None,
         initial_cache_row_relaxed_to_free_vblank=initial_cache_row if cache_window is not None else None,
-        full_rectangle_padding_counted=True,palette_liveness_and_transfer_cost_relaxed=cache_window is None,
+        full_rectangle_padding_counted=True,oam_y_wrap_counted=True,palette_liveness_and_transfer_cost_relaxed=cache_window is None,
         physical_slots_and_transfer_cost_relaxed=True,native_presentation_proven=False,
         geometry_reservation=reservation if geometry_reservation is not None else None,
         reservation_palette_and_layer_demand_included=False,
@@ -289,12 +290,12 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
             if(y,x)in seen or(i,b)not in selected:raise AssertionError('FRAME_BANK_GEOMETRY_OWNER_REPLAY')
             seen.add((y,x));pixels.append(dict(piece=selected[i,b],y=y,x=x,bank=b,color=c));row_colors.setdefault((y,b),set()).add(c)
     if seen!=set(pixel_options)or any(len(cs)>15 for cs in row_colors.values()):raise AssertionError('FRAME_BANK_GEOMETRY_CAPACITY_REPLAY')
-    geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height)),
-        peak_tile_slivers=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(height)))
+    geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(active_on_line(p,y)for p in pieces)for y in range(height)),
+        peak_tile_slivers=max(sum(p['width']//8 for p in pieces if active_on_line(p,y))for y in range(height)))
     if geometry['oam_entries']>128 or geometry['peak_sprites']>32 or geometry['peak_tile_slivers']>34:raise AssertionError('FRAME_BANK_GEOMETRY_HARDWARE_REPLAY')
     combined=dict(oam_entries=len(pieces)+reservation['oam_entries'],
-        peak_sprites=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)+reservation['sprites_per_line'][y]for y in range(height)),
-        peak_tile_slivers=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])+reservation['tile_slivers_per_line'][y]for y in range(height)))
+        peak_sprites=max(sum(active_on_line(p,y)for p in pieces)+reservation['sprites_per_line'][y]for y in range(height)),
+        peak_tile_slivers=max(sum(p['width']//8 for p in pieces if active_on_line(p,y))+reservation['tile_slivers_per_line'][y]for y in range(height)))
     if combined['oam_entries']>128 or combined['peak_sprites']>32 or combined['peak_tile_slivers']>34:raise AssertionError('FRAME_BANK_GEOMETRY_RESERVED_HARDWARE_REPLAY')
     if cache_window is not None:
         from raster_bank_residency import favorable_span

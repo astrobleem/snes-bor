@@ -107720,6 +107720,88 @@
       },
       "native_admitted": false
     },
+    "byor-motu-authored-hbreath-peak-player-cover-global-joint-mode-window353": {
+      "input_sha256": "e8455dde0c2fff8d90cc985ec119d42b56c8304ed4a59737507bc14348b206ab",
+      "search": {
+        "schema": "BYOR_WINDOW_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_WINDOW_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_backend": "cp-sat",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 120.32277710000001,
+        "solver_branches": 1513773,
+        "solver_conflicts": 81753,
+        "solver_model_variables": 107692,
+        "solver_model_constraints": 178984,
+        "requested_ideal_window": 353,
+        "bounded_noninitial_lookahead_lines": 224,
+        "initial_palette_may_preload_entire_frame": true,
+        "ideal_endpoint_slot_packing_relaxed": true,
+        "fixed_piece_banks_unchanged": true,
+        "piece_banks_fixed_across_all_scanlines": true,
+        "restricted_family_ideal_prepared_span_lower_bound": 0,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "mandatory_identity_bank_interval_cuts": 4483,
+        "search_objective": "FEASIBILITY_ONLY",
+        "shared_scanline_math_mode_search": true,
+        "math_operand_family": "CANONICAL_EXACT_INVERSE_AND_INPUT_WORD"
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-player-cover-global-joint-complete-mode-window353": {
+      "input_sha256": "77bd8d6a4d7be9f196a53ad40afebd5a541439e6e736380733ba58f4f8ee7829",
+      "search": {
+        "schema": "BYOR_WINDOW_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_WINDOW_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_backend": "cp-sat",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 120.31250080000001,
+        "solver_branches": 1825,
+        "solver_conflicts": 0,
+        "solver_model_variables": 129210,
+        "solver_model_constraints": 210832,
+        "requested_ideal_window": 353,
+        "bounded_noninitial_lookahead_lines": 224,
+        "initial_palette_may_preload_entire_frame": true,
+        "ideal_endpoint_slot_packing_relaxed": true,
+        "fixed_piece_banks_unchanged": true,
+        "piece_banks_fixed_across_all_scanlines": true,
+        "restricted_family_ideal_prepared_span_lower_bound": 0,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "mandatory_identity_bank_interval_cuts": 4483,
+        "search_objective": "FEASIBILITY_ONLY",
+        "shared_scanline_math_mode_search": true,
+        "math_operand_family": "COMPLETE_FRAME_GLOBAL_MODE_AND_WINDOW_CONTEXT_COVER",
+        "operand_cover": {
+          "modes": [
+            "add",
+            "half-add",
+            "subtract",
+            "half-subtract"
+          ],
+          "rgb555_operands_examined": 32768,
+          "distinct_requirements": 3056,
+          "valid_operands": 2161,
+          "maximal_cover_operands": 847,
+          "dominance_mapping_sha256": "77971fa7a74dc1007e93ebeacf09f96baa406a67340967157f06509e7fab021d",
+          "retained_seed_operands": 160,
+          "total_option_operands": 847,
+          "modes_relaxed_per_pixel": false,
+          "mode_tagged_coverage": true,
+          "global_mode_schedule_proven": false,
+          "color_math_window_bypass_relaxed_per_pixel": false,
+          "fixed_color_math_window_context": true,
+          "all_valid_operand_coverages_retained": true,
+          "no_color_reduction": true
+        },
+        "cross_scanline_operand_identity_reuse_preserved": true,
+        "input_upper_bank_operand_identities_retained": true
+      },
+      "native_admitted": false
+    },
     "byor-motu-authored-hbreath-peak-player-cover-global-joint-chr": {
       "chr_oam": {
         "schema": "BYOR_RASTER_OBJ_CHR_V1",
@@ -107746,8 +107828,8 @@
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-authored-kempe.json.gz",
-    "bytes": 25320024,
-    "sha256": "671f158c45fd313d42965ed8e92a4f03eaf1c371cab906a4e8dc6b067c12f06c"
+    "bytes": 25320658,
+    "sha256": "b3f97d21c2f4bbca29e35f9d2b7ab075cb133c2b546a8328fd88e84d645bf20d"
   },
   "source_alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555",
   "universal_raster_rejected": false,
