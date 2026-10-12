@@ -1,5 +1,25 @@
 # Shared geometry for exact math bank classes
 
+With original row controls held fixed, the augmented 96-rectangle family
+remains UNKNOWN after 120.563 seconds at the 353-clock gate (265,136 variables,
+429,178 constraints). The pure sixteen-parent/subdivision family likewise
+remains UNKNOWN after 120.524 seconds (234,696 variables, 368,589 constraints).
+The former's 400-clock source start fails the tighter window check and is used
+only as partial soft hints. Neither timeout is an infeasibility certificate.
+
+A source-rebuilt literal output input includes all 2,751 opaque effect pixels,
+including its exact RGB555 no-op pixels, and replays the complete viewport.
+Its 546 distinct foreground output colors peak at 64 on a line; temporary
+geometry is 124 objects, 27 sprites and 27 slivers, without concurrent actors.
+This is not native timing admission. A bank-relaxed necessary interval bound
+still rejects all literal-output prepared-range schedules for this context:
+rows 128–135 require at least 155 writes across seven windows after granting
+120 optimally chosen resident words. Some window therefore needs 23 writes.
+Even ideal placement includes a transparent bank gap and needs at least 368
+clocks, above the measured 356-clock window. This bound includes prepared DMA
+range/gap costs but excludes alternative exact source math decompositions and
+other transfer mechanisms; raster generally remains open.
+
 Source-only geometry adds thirteen legal HBreath rectangles absent from the
 previous palette-derived family, increasing it to 96 candidates. Joint
 window/mode/cache repair validates all 511,657 start values and returns
