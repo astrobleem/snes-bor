@@ -570,3 +570,27 @@ twenty-two words in two adjacent banks can have a 352-clock ideal packet span.
 That count is excluded by the conservative 345-clock gate, but must not be
 excluded merely by the earlier 21-write search ceiling when testing the larger
 measured window. Phase-safe native timing is still a separate gate.
+
+The 22-write complete-flow and adjacent-only 353-clock trials remain UNKNOWN
+at 120.263 and 90.257 seconds. Joint SAT hint repair remains UNKNOWN after
+150.246 seconds; it supplies neither an assignment nor a rejection. Peak-span
+objective hints now derive from the actually selected residency hint instead
+of the unrelated input greedy trace, so an integer incumbent can guide span
+optimization at a deliberately looser window. All twenty residency tests pass.
+
+An incumbent-based CP-SAT span minimization at a deliberately loose 465-clock
+window finds an exact 22-write cache with a 440-clock optimistic peak. It uses
+569 noninitial writes and at most eight lines of prefetch. The family lower
+bound is 345 clocks, rounded to at least 352 by integral packet costs; neither
+the upper nor lower bound is native admission. All 576 eligible bank orders
+retain the 440-clock peak. Emitting unchanged physical slots costs 1,256 clocks,
+so that diagnostic packet witness cannot run safely. Cache lifetimes and slot
+packing remain separate constraints; another incumbent optimization continues.
+
+The next incumbent optimization reduces the ideal peak to 424 clocks after
+180.216 seconds: 22 peak writes, 587 noninitial writes and 24-line prefetch.
+A separate LNS trial retains 424 clocks after 180.155 seconds, with 615 writes
+and 25-line prefetch. A fractional-cache/integer-range HiGHS trial returns
+UNKNOWN after 91.047 seconds. None fits the measured transfer window. The next
+source-bound search keeps every physical piece bank and pixel ownership fixed
+while reopening exact operands; geometry and source alpha remain unchanged.

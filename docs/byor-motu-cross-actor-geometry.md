@@ -114,3 +114,9 @@ with 439,564 variables and 876,889 constraints. It permits legal subdivision
 and reopens exact operands within the whole-frame pool operand corpus; 592,195
 branches and 215,409 conflicts provide no infeasibility certificate. The exact
 33-object source rectangle cover is a geometry witness only.
+
+Opening the complete exact operand domain and applying safe palette-label
+symmetry in the transfer-relaxed geometry search still returns UNKNOWN at
+180.926 seconds (643,660 variables, 1,282,277 constraints). The label symmetry
+is restricted to this timing-free search; it does not assume adjacent banks
+are interchangeable in a CGRAM transfer schedule.

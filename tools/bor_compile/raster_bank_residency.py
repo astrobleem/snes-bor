@@ -377,7 +377,8 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         else:constrain_ranges(line,active_flags,allocate,constraint,window,maximum_ranges=4,peak_cost_index=peak_cost_index)
     if minimize_span:
         model.minimize(peak_span_cost)
-        model.add_hint(peak_span_cost,max(favorable_span(row['updates'])for row in source['trace'][1:])+40)
+        hint_peak=max(favorable_span([dict(bank=b)for b in range(8)for c in hints[y][b]-hints[y-1][b]])for y in range(1,height))
+        model.add_hint(peak_span_cost,hint_peak+40)
     elif minimize_writes:model.minimize(sum(writes.values()))
     if solver_backend=='highs':value,statistics=solve_linear(model,time_limit,
         {v.index for v in [*resident.values(),*writes.values()]}if relax_cache else None)
