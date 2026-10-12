@@ -11,13 +11,14 @@ from raster_slot_greedy import demand,partition
 from raster_physical_ranges import constrain,constrain_fixed_addresses
 
 
-def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals',persistent_word_indices=False,necessary_bank_window=None,probing_level=2):
+def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals',persistent_word_indices=False,necessary_bank_window=None,probing_level=2,collapse_bank_idle_rows=False):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0:raise ValueError('ROW_SLOT_PERMUTATION_DOMAIN')
     if necessary_bank_window is not None and(type(necessary_bank_window)is not int or necessary_bank_window<1):raise ValueError('ROW_SLOT_NECESSARY_BANK_WINDOW')
-    if search_strategy not in('portfolio','lns'):raise ValueError('ROW_SLOT_SEARCH_STRATEGY')
+    if search_strategy not in('portfolio','lns','sat','sat-repair'):raise ValueError('ROW_SLOT_SEARCH_STRATEGY')
     if type(probing_level)is not int or probing_level not in(0,1,2):raise ValueError('ROW_SLOT_PROBING_LEVEL')
     if range_encoding not in('intervals','coverage'):raise ValueError('ROW_SLOT_RANGE_ENCODING')
+    if type(collapse_bank_idle_rows)is not bool or(collapse_bank_idle_rows and(not free_residency or repair_interval is not None)):raise ValueError('ROW_SLOT_BANK_IDLE_DOMAIN')
     if persistent_word_indices and(not free_residency or repair_interval is not None):raise ValueError('ROW_SLOT_PERSISTENT_INDEX_DOMAIN')
     if maximum_writes is not None and(type(maximum_writes)is not int or not 0<=maximum_writes<=120):raise ValueError('ROW_SLOT_WRITE_BUDGET_DOMAIN')
     restricted=source.get('status')=='RESTRICTED_SCANLINE_DEMAND_ONLY'
@@ -25,6 +26,9 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
     visible=[y for y,row in enumerate(required)if any(row)]
     if not visible:raise ValueError('ROW_SLOT_VISIBLE_SOURCE_REQUIRED')
     first,last=min(visible),max(visible)
+    bank_visible={b:[y for y,row in enumerate(required)if row[b]]for b in range(8)}
+    bank_bounds={b:(min(lines),max(lines))if lines else None for b,lines in bank_visible.items()}
+    collapsed_bank_rows=0
     original=[];state={b:[None]*15 for b in range(8)}
     for row in source['trace']:
         for e in row['updates']:state[e['bank']][e['slot']-1]=e['color']
@@ -70,6 +74,17 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
                 # A completely demanded bank has no spare resident identity.
                 domain=sorted(word_codes[b][c]for c in required[y][b])
             for s in range(15):
+                if collapse_bank_idle_rows:
+                    bounds=bank_bounds[b]
+                    anchor=None if bounds is None else bounds[1]if y>bounds[1]else first if first<y<=bounds[0]else y
+                    if anchor is None or anchor!=y:
+                        values[y,b,s]=model.new_constant(word_codes[b][0])if anchor is None else values[anchor,b,s]
+                        value_hints[y,b,s]=word_codes[b][0]if anchor is None else value_hints[anchor,b,s]
+                        if s==0:collapsed_bank_rows+=1
+                        if y>first:
+                            flags.setdefault((y,b),[]).append((b*15+s,0))
+                            change_hints[y,b*15+s,b]=(16*b+s+1,0)
+                        continue
                 if repair_interval is not None and not repair_interval[0]<=y<=repair_interval[1]:
                     values[y,b,s]=model.new_constant(hint_colors[s])
                     value_hints[y,b,s]=hint_colors[s]
@@ -173,11 +188,18 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     solver.parameters.cp_model_probing_level=probing_level
     if search_strategy=='lns':solver.parameters.use_lns_only=True
+    if search_strategy in('sat','sat-repair'):
+        solver.parameters.subsolvers.append('no_lp');solver.parameters.num_full_subsolvers=1
+        solver.parameters.linearization_level=0;solver.parameters.use_sat_inprocessing=False
+    if search_strategy=='sat-repair':
+        solver.parameters.repair_hint=True;solver.parameters.hint_conflict_limit=50000
     status=solver.solve(model)
     report=dict(schema='BYOR_ROW_SLOT_PERMUTATION_V1',status='BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE',
         solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
         solver_search_strategy=search_strategy,
         solver_probing_level=probing_level,
+        bank_idle_rows_collapsed=collapsed_bank_rows,collapse_bank_idle_rows=collapse_bank_idle_rows,
+        bank_visible_intervals=bank_bounds if collapse_bank_idle_rows else None,
         physical_range_encoding=range_encoding,
         persistent_word_index_family_only=persistent_word_indices,
         solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),
@@ -273,9 +295,10 @@ def main():
     p.add_argument('--scanline-interval',type=int,nargs=2,metavar=('FIRST','LAST'),help='Explicit restricted-pixel proof with free interval initialization; never complete frame admission.')
     p.add_argument('--repair-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
     p.add_argument('--free-residency',action='store_true',help='Allow any required bank word to occupy a slot, with every physical change charged; prefetch is bounded by the full visible source interval.')
-    p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
+    p.add_argument('--search-strategy',choices=('portfolio','lns','sat','sat-repair'),default='portfolio')
     p.add_argument('--range-encoding',choices=('intervals','coverage'),default='intervals')
     p.add_argument('--probing-level',type=int,choices=(0,1,2),default=2)
+    p.add_argument('--collapse-bank-idle-rows',action='store_true',help='With complete-frame free residency, preload each bank first visible state and freeze it after its last visible row; source demand and all writes remain checked.')
     p.add_argument('--persistent-word-indices',action='store_true',help='Optional restricted family assigning each bank word one index for the entire frame.')
     p.add_argument('--necessary-bank-window',type=int,help='Also bound the ideal bank partition of every actual changed word; physical slot packing remains separately measured.')
     p.add_argument('--window',type=int,default=332);p.add_argument('--time-limit',type=float,default=60)
@@ -283,7 +306,7 @@ def main():
     if a.scanline_interval:
         from raster_bank_residency import restrict_interval
         source=restrict_interval(source,*a.scanline_interval)
-    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval,a.maximum_writes,a.search_strategy,a.range_encoding,a.persistent_word_indices,a.necessary_bank_window,a.probing_level);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.get('physical_slot_layout',r).items()if k!='word_indices'}))
+    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval,a.maximum_writes,a.search_strategy,a.range_encoding,a.persistent_word_indices,a.necessary_bank_window,a.probing_level,a.collapse_bank_idle_rows);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.get('physical_slot_layout',r).items()if k!='word_indices'}))
 
 
 if __name__=='__main__':main()

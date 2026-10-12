@@ -41,10 +41,16 @@ def constrain_fixed_addresses(model,write_flags,height,maximum_ranges,window,pac
     """
     ranges={};peak=model.new_int_var(0,4096,'fixedAddressPeak')
     for y in range(1,height):
-        events={16*b+(i-15*b)+1:flag for(line,b),values in write_flags.items()if line==y for i,flag in values}
+        events={16*b+(i-15*b)+1:flag for(line,b),values in write_flags.items()if line==y for i,flag in values
+                if not(isinstance(flag,(int,bool))and flag==0)}
         if not events:continue
         hints=(packet_hints or {}).get(y,[]);covers=[];starts=[]
+        first_address,last_address=min(events),max(events)
         for address in range(128):
+            # Coverage outside every possible dirty address is dominated:
+            # trimming its end reduces words without adding a range.
+            if not first_address<=address<=last_address:
+                covers.append(0);starts.append(0);ranges[y,address]=(0,0,0,0);continue
             cover=model.new_bool_var(f'covered{y}_{address}');start=model.new_bool_var(f'runStart{y}_{address}')
             if address in events:model.add(cover>=events[address])
             if address==0:model.add(start==cover)
@@ -54,7 +60,7 @@ def constrain_fixed_addresses(model,write_flags,height,maximum_ranges,window,pac
             ranges[y,address]=(start,0,0,cover)
             if packet_hints is not None:
                 covered=any(lo<=address<=hi for lo,hi in hints)
-                previous_covered=address>0 and any(lo<=address-1<=hi for lo,hi in hints)
+                previous_covered=address>first_address and any(lo<=address-1<=hi for lo,hi in hints)
                 # Packet tables may split adjacent words across DMA channels.
                 # Coverage has one start for their union, not one per packet.
                 model.add_hint(cover,int(covered))

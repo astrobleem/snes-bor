@@ -1,0 +1,322 @@
+{
+  "schema": "BYOR_PALETTE_BANK_IDLE_REDUCTION_RECEIPT_V1",
+  "status": "BOUNDED_COMPLETE_FRAME_SEARCH_NO_CANDIDATE",
+  "unreduced": {
+    "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+    "status": "BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE",
+    "solver_status": "UNKNOWN",
+    "solver_seconds": 120.4705347,
+    "solver_search_strategy": "portfolio",
+    "solver_probing_level": 0,
+    "physical_range_encoding": "coverage",
+    "persistent_word_index_family_only": false,
+    "solver_model_variables": 73643,
+    "solver_model_constraints": 136233,
+    "solver_branches": 1469,
+    "solver_conflicts": 0,
+    "solver_objective_lower_bound": 272.0,
+    "maximum_physical_writes_per_transfer_row": 21,
+    "necessary_bank_window_master_clocks": 345,
+    "full_frame_write_budget_enforced": true,
+    "objective_peak_scale": 1,
+    "peak_commit_span_lower_bound_for_this_restricted_model": 232,
+    "outside_interval_pixels_relaxed": false,
+    "complete_source_frame_pixel_identity_proven": false,
+    "window_master_clocks": 345,
+    "requested_repair_window_master_clocks": null,
+    "physical_repair_interval": null,
+    "physical_repair_transfer_interval": null,
+    "full_frame_transfer_window_enforced": true,
+    "physical_layout_hint_used": true,
+    "fixed_resident_sets": false,
+    "live_slot_moves_allowed": true,
+    "free_residency": true,
+    "physical_change_and_range_membership_hints_coherent": true,
+    "distinct_required_word_slot_matching_enforced": true,
+    "full_bank_demand_value_matching_enforced": true,
+    "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+    "bank_interval_liveness_cuts": 24784,
+    "palette_word_domain_dense_identity_codes": true,
+    "lookahead_lines": 111,
+    "noninitial_dead_word_writes_charged": true,
+    "visible_interval": [
+      112,
+      223
+    ],
+    "initial_palette_may_preload_entire_frame": true,
+    "universal_raster_rejected": false,
+    "native_timing_admitted": false,
+    "no_color_reduction": true
+  },
+  "bank_idle_reduced": {
+    "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+    "status": "BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE",
+    "solver_status": "UNKNOWN",
+    "solver_seconds": 120.3645108,
+    "solver_search_strategy": "portfolio",
+    "solver_probing_level": 0,
+    "bank_idle_rows_collapsed": 563,
+    "collapse_bank_idle_rows": true,
+    "bank_visible_intervals": {
+      "0": [
+        115,
+        147
+      ],
+      "1": [
+        124,
+        147
+      ],
+      "2": [
+        124,
+        153
+      ],
+      "3": [
+        112,
+        223
+      ],
+      "4": [
+        125,
+        151
+      ],
+      "5": [
+        122,
+        159
+      ],
+      "6": [
+        127,
+        139
+      ],
+      "7": [
+        112,
+        167
+      ]
+    },
+    "physical_range_encoding": "coverage",
+    "persistent_word_index_family_only": false,
+    "solver_model_variables": 56753,
+    "solver_model_constraints": 119343,
+    "solver_branches": 1025961,
+    "solver_conflicts": 8418,
+    "solver_objective_lower_bound": 272.0,
+    "maximum_physical_writes_per_transfer_row": 21,
+    "necessary_bank_window_master_clocks": 345,
+    "full_frame_write_budget_enforced": true,
+    "objective_peak_scale": 1,
+    "peak_commit_span_lower_bound_for_this_restricted_model": 232,
+    "outside_interval_pixels_relaxed": false,
+    "complete_source_frame_pixel_identity_proven": false,
+    "window_master_clocks": 345,
+    "requested_repair_window_master_clocks": null,
+    "physical_repair_interval": null,
+    "physical_repair_transfer_interval": null,
+    "full_frame_transfer_window_enforced": true,
+    "physical_layout_hint_used": true,
+    "fixed_resident_sets": false,
+    "live_slot_moves_allowed": true,
+    "free_residency": true,
+    "physical_change_and_range_membership_hints_coherent": true,
+    "distinct_required_word_slot_matching_enforced": true,
+    "full_bank_demand_value_matching_enforced": true,
+    "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+    "bank_interval_liveness_cuts": 24784,
+    "palette_word_domain_dense_identity_codes": true,
+    "lookahead_lines": 111,
+    "noninitial_dead_word_writes_charged": true,
+    "visible_interval": [
+      112,
+      223
+    ],
+    "initial_palette_may_preload_entire_frame": true,
+    "universal_raster_rejected": false,
+    "native_timing_admitted": false,
+    "no_color_reduction": true
+  },
+  "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+  "input_schedule_sha256": "bd0c656313afd26e40a58b4749f805439a88210a423ff95ca5656e2c99d5f2fd",
+  "input_physical_hint_sha256": "632b7ba53fea650a965619fde7780bea253ffe7f95983e35e91b5bef4c01ee14",
+  "physical_layout_tests": {
+    "passed": 19,
+    "seconds": 11.541
+  },
+  "row_slot_tests": {
+    "passed": 15,
+    "seconds": 9.658
+  },
+  "no_color_reduction": true,
+  "alpha_adaptation_applied": false,
+  "universal_raster_rejected": false,
+  "native_timing_admitted": false,
+  "motu_gameplay_proven": false,
+  "artifact_hashes": {
+    "byor-motu-concurrent-retarget-repair-full-free-physical345.json": "9828c177263de3df4df0ef3823ab13647e8eb250dc18a02f956513df92055688",
+    "byor-motu-concurrent-retarget-repair-bank-idle-free-physical345.json": "76e927dfd12df27d051d4b76f92388253f717ea21160be92b85c928f8ab0175a",
+    "byor-motu-concurrent-retarget-repair-pruned-bank-idle-free-physical345.json": "8bbbb2e0f882dd9bb4e7dc468120eaad1d84bc741f14ebbba2317fd97a6cdc01",
+    "byor-motu-concurrent-retarget-repair-bank-idle-sat-repair-physical345.json": "f65f8d215b50188833dd95c7a85479851e07ac303aed2cdc201800b8b008eac3"
+  },
+  "pruned_bank_idle_reduced": {
+    "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+    "status": "BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE",
+    "solver_status": "UNKNOWN",
+    "solver_seconds": 120.24329660000001,
+    "solver_search_strategy": "portfolio",
+    "solver_probing_level": 0,
+    "bank_idle_rows_collapsed": 563,
+    "collapse_bank_idle_rows": true,
+    "bank_visible_intervals": {
+      "0": [
+        115,
+        147
+      ],
+      "1": [
+        124,
+        147
+      ],
+      "2": [
+        124,
+        153
+      ],
+      "3": [
+        112,
+        223
+      ],
+      "4": [
+        125,
+        151
+      ],
+      "5": [
+        122,
+        159
+      ],
+      "6": [
+        127,
+        139
+      ],
+      "7": [
+        112,
+        167
+      ]
+    },
+    "physical_range_encoding": "coverage",
+    "persistent_word_index_family_only": false,
+    "solver_model_variables": 41408,
+    "solver_model_constraints": 88384,
+    "solver_branches": 2302,
+    "solver_conflicts": 0,
+    "solver_objective_lower_bound": 272.0,
+    "maximum_physical_writes_per_transfer_row": 21,
+    "necessary_bank_window_master_clocks": 345,
+    "full_frame_write_budget_enforced": true,
+    "objective_peak_scale": 1,
+    "peak_commit_span_lower_bound_for_this_restricted_model": 232,
+    "outside_interval_pixels_relaxed": false,
+    "complete_source_frame_pixel_identity_proven": false,
+    "window_master_clocks": 345,
+    "requested_repair_window_master_clocks": null,
+    "physical_repair_interval": null,
+    "physical_repair_transfer_interval": null,
+    "full_frame_transfer_window_enforced": true,
+    "physical_layout_hint_used": true,
+    "fixed_resident_sets": false,
+    "live_slot_moves_allowed": true,
+    "free_residency": true,
+    "physical_change_and_range_membership_hints_coherent": true,
+    "distinct_required_word_slot_matching_enforced": true,
+    "full_bank_demand_value_matching_enforced": true,
+    "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+    "bank_interval_liveness_cuts": 24784,
+    "palette_word_domain_dense_identity_codes": true,
+    "lookahead_lines": 111,
+    "noninitial_dead_word_writes_charged": true,
+    "visible_interval": [
+      112,
+      223
+    ],
+    "initial_palette_may_preload_entire_frame": true,
+    "universal_raster_rejected": false,
+    "native_timing_admitted": false,
+    "no_color_reduction": true
+  },
+  "sat_hint_repair_search": {
+    "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+    "status": "BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE",
+    "solver_status": "UNKNOWN",
+    "solver_seconds": 90.18705630000001,
+    "solver_search_strategy": "sat-repair",
+    "solver_probing_level": 0,
+    "bank_idle_rows_collapsed": 563,
+    "collapse_bank_idle_rows": true,
+    "bank_visible_intervals": {
+      "0": [
+        115,
+        147
+      ],
+      "1": [
+        124,
+        147
+      ],
+      "2": [
+        124,
+        153
+      ],
+      "3": [
+        112,
+        223
+      ],
+      "4": [
+        125,
+        151
+      ],
+      "5": [
+        122,
+        159
+      ],
+      "6": [
+        127,
+        139
+      ],
+      "7": [
+        112,
+        167
+      ]
+    },
+    "physical_range_encoding": "coverage",
+    "persistent_word_index_family_only": false,
+    "solver_model_variables": 41408,
+    "solver_model_constraints": 88384,
+    "solver_branches": 3689199,
+    "solver_conflicts": 403071,
+    "solver_objective_lower_bound": 0.0,
+    "maximum_physical_writes_per_transfer_row": 21,
+    "necessary_bank_window_master_clocks": 345,
+    "full_frame_write_budget_enforced": true,
+    "objective_peak_scale": 1,
+    "peak_commit_span_lower_bound_for_this_restricted_model": 0,
+    "outside_interval_pixels_relaxed": false,
+    "complete_source_frame_pixel_identity_proven": false,
+    "window_master_clocks": 345,
+    "requested_repair_window_master_clocks": null,
+    "physical_repair_interval": null,
+    "physical_repair_transfer_interval": null,
+    "full_frame_transfer_window_enforced": true,
+    "physical_layout_hint_used": true,
+    "fixed_resident_sets": false,
+    "live_slot_moves_allowed": true,
+    "free_residency": true,
+    "physical_change_and_range_membership_hints_coherent": true,
+    "distinct_required_word_slot_matching_enforced": true,
+    "full_bank_demand_value_matching_enforced": true,
+    "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+    "bank_interval_liveness_cuts": 24784,
+    "palette_word_domain_dense_identity_codes": true,
+    "lookahead_lines": 111,
+    "noninitial_dead_word_writes_charged": true,
+    "visible_interval": [
+      112,
+      223
+    ],
+    "initial_palette_may_preload_entire_frame": true,
+    "universal_raster_rejected": false,
+    "native_timing_admitted": false,
+    "no_color_reduction": true
+  }
+}

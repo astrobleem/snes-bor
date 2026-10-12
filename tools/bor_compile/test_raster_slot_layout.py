@@ -6,6 +6,27 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_fixed_address_coverage_pruning_matches_all_contiguous_partitions(self):
+        from itertools import combinations
+        from ortools.sat.python import cp_model
+        from raster_physical_ranges import constrain_fixed_addresses
+        for points in ([17,19],[65,127],[15,17,31,33,63]):
+            for limit in(1,2,4):
+                costs=[]
+                for count in range(1,min(limit,len(points))+1):
+                    for cuts in combinations(range(1,len(points)),count-1):
+                        edges=(0,*cuts,len(points))
+                        costs.append(sum(24+16*(points[edges[j+1]-1]-points[edges[j]]+1)for j in range(count)))
+                model=cp_model.CpModel();flags={}
+                for address in points:
+                    bank,slot=divmod(address,16);flags.setdefault((1,bank),[]).append((15*bank+slot-1,1))
+                flags.setdefault((1,0),[]).append((0,0))
+                ranges,peak=constrain_fixed_addresses(model,flags,2,limit,4096,packet_hints={1:[(0,127)]})
+                model.minimize(peak);solver=cp_model.CpSolver()
+                self.assertEqual(solver.solve(model),cp_model.OPTIMAL)
+                self.assertEqual(solver.value(peak),min(costs))
+                self.assertTrue(all(ranges[1,address]==(0,0,0,0)for address in range(128)if address<min(points)or address>max(points)))
+
     def test_feasibility_only_keeps_transfer_and_pixel_checks(self):
         from raster_slot_greedy import demand
         from raster_slot_refine import verify_packets

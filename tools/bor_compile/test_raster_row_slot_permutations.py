@@ -7,6 +7,21 @@ import test_raster_slot_layout as fixtures
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class RowSlotPermutationTests(unittest.TestCase):
+    def test_bank_idle_collapse_preloads_future_first_use_without_losing_pixels(self):
+        from raster_slot_refine import verify_packets
+        source=fixtures.SlotLayoutTests().schedule()
+        source['trace'][2]['updates'][1]['color']=1024
+        for row in source['trace'][3:]:row['resident_before'][1][2]=1024
+        for strategy in('portfolio','sat','sat-repair'):
+            result=optimize(source,33,5,free_residency=True,range_encoding='coverage',collapse_bank_idle_rows=True,search_strategy=strategy)
+            verify_packets(result)
+            self.assertEqual(result['physical_slot_layout']['bank_visible_intervals'][1],(2,2))
+            self.assertGreater(result['physical_slot_layout']['bank_idle_rows_collapsed'],0)
+            self.assertTrue(all(e['bank']!=1 for row in result['trace'][1:]for e in row['updates']))
+            self.assertTrue(all(np.array_equal(a,b)for a,b in zip(demand(source)[2],demand(result)[2])))
+        with self.assertRaisesRegex(ValueError,'BANK_IDLE_DOMAIN'):optimize(source,collapse_bank_idle_rows=True)
+        with self.assertRaisesRegex(ValueError,'BANK_IDLE_DOMAIN'):optimize(source,free_residency=True,collapse_bank_idle_rows=1)
+
     def test_full_middle_bank_can_bridge_three_banks_at_native_boundary(self):
         import copy
         from raster_slot_refine import verify_packets
