@@ -164,6 +164,34 @@ class ResidencyTests(unittest.TestCase):
                     self.assertTrue(all(np.array_equal(x,y)for x,y in zip(expected,actual)))
                 self.assertEqual(results[1]['bank_residency']['maximum_integer_constraint_violation'],0)
 
+    def test_native_highs_consumes_soft_start_without_relaxing_pixels_or_budget(self):
+        import importlib.util
+        if importlib.util.find_spec('highspy')is None:self.skipTest('optional native HiGHS interface not installed')
+        source=source_schedule()
+        hint=optimize(source,2,0,356,5,'flow',minimize_span=True)
+        result=optimize(source,2,0,356,5,'flow',solver_backend='highspy',residency_hint=hint,minimize_span=True)
+        report=result['bank_residency']
+        self.assertEqual(report['solver_status'],'OPTIMAL')
+        self.assertTrue(report['supplied_residency_hint_used_by_solver'])
+        self.assertGreater(report['native_mip_start_variable_count'],0)
+        self.assertTrue(report['native_mip_start_is_soft'])
+        self.assertEqual(report['maximum_integer_constraint_violation'],0)
+        self.assertEqual(report['peak_optimistic_prepared_span'],hint['bank_residency']['peak_optimistic_prepared_span'])
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        blocked=optimize(source,1,0,356,5,'flow',solver_backend='highspy',residency_hint=hint)
+        self.assertEqual(blocked['solver_status'],'INFEASIBLE')
+        self.assertFalse(blocked['native_timing_admitted'])
+
+    def test_nonfinite_milp_incumbent_cannot_become_a_palette_witness(self):
+        from unittest.mock import patch
+        from types import SimpleNamespace
+        from ortools.sat.python import cp_model
+        from raster_bank_residency import solve_linear
+        model=cp_model.CpModel();v=model.new_bool_var('invalid');model.add(v==0)
+        invalid=SimpleNamespace(x=np.array([np.nan]),status=0,message='invalid incumbent',mip_dual_bound=None)
+        with patch('scipy.optimize.milp',return_value=invalid):
+            with self.assertRaisesRegex(AssertionError,'NONFINITE_SOLUTION'):solve_linear(model,1)
+
     def test_milp_rejects_non_linear_backend(self):
         with self.assertRaisesRegex(ValueError,'BANK_RESIDENCY_SOLVER_BACKEND'):optimize(source_schedule(),solver_backend='highs')
 

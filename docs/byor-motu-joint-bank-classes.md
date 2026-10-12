@@ -594,3 +594,32 @@ and 25-line prefetch. A fractional-cache/integer-range HiGHS trial returns
 UNKNOWN after 91.047 seconds. None fits the measured transfer window. The next
 source-bound search keeps every physical piece bank and pixel ownership fixed
 while reopening exact operands; geometry and source alpha remain unchanged.
+
+Reopening all exact operands while retaining every physical pixel owner/bank
+returns UNKNOWN at 120.116 seconds (42,245 variables, 108,902 constraints).
+SAT repair also remains UNKNOWN at 180.169 seconds. Source controls and alpha
+stay exact; neither result rejects other geometry, encodings or schedules.
+
+The optional native HiGHS 1.15.1 interface now supplies the validated soft MIP
+start through its setSolution API, unlike SciPy's adapter. It uses the same
+explicit linear constraints, integer domains and independent incumbent replay.
+Tests compare exact pixels and the optimal span across backends and confirm
+that a warm start cannot make an impossible write budget pass. All 22 residency
+tests pass. This is an offline dependency; the ordinary compiler/runtime path
+and bank zero remain unchanged. Interface authority is the
+[official HiGHS Python documentation](https://ergo-code.github.io/HiGHS/dev/interfaces/python/example-py/)
+and the installed version's typed API.
+
+The native HiGHS trial consumes all 39,124 hinted variables and retains the
+424-clock integer witness after 121.375 seconds. It replays with zero constraint
+violation but supplies no improved hardware candidate or lower-bound verdict.
+Nonfinite incumbents now fail explicitly instead of entering witness replay.
+
+Exact bank-mask retiling on an 8/16 grid reduces the isolated witness to 71 OAM
+entries, 20 sprites and 32 slivers, preserving every pixel's bank and slot.
+Three other sampled grid phases are INFEASIBLE in that aligned family. The
+71-entry cover plus the complete measured player reservation uses 104 OAM
+entries but reaches 40 slivers. A separate horizontal 8-pixel coverage bound
+is only 31 combined slivers, so this does not reject non-grid packing. The
+reservation includes the entire player geometry without shared occlusion;
+concurrent palette, alpha and layer admission remain separate.

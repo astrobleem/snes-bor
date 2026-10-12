@@ -224,7 +224,7 @@ def constrain_adjacent(model,counts,active,window,tag,write_budget,maximum_range
     return 16*total+24*sum(active)-8*pair_count
 
 
-def solve_linear(model,time_limit,continuous_variables=None):
+def solve_linear(model,time_limit,continuous_variables=None,native_highs=False):
     """Independent MILP backend for the same explicit integer linear model."""
     from scipy.optimize import milp,Bounds,LinearConstraint
     from scipy.sparse import coo_matrix
@@ -244,13 +244,44 @@ def solve_linear(model,time_limit,continuous_variables=None):
     continuous=set(continuous_variables or ());integrality=np.ones(n)
     if any(type(i)is not int or not 0<=i<n for i in continuous):raise ValueError('BANK_RESIDENCY_CONTINUOUS_DOMAIN')
     for i in continuous:integrality[i]=0
-    started=time.monotonic();r=milp(objective,integrality=integrality,bounds=bounds,constraints=LinearConstraint(matrix,lower,upper),options={'time_limit':time_limit,'mip_rel_gap':0})
-    report=dict(solver_backend='highs',solver_status=('OPTIMAL'if r.status==0 else'INFEASIBLE'if r.status==2 else'FEASIBLE'if r.x is not None else'UNKNOWN'),
-        solver_seconds=time.monotonic()-started,solver_model_variables=n,solver_model_constraints=len(lower),solver_branches=getattr(r,'mip_node_count',None),solver_conflicts=None,
-        solver_message=r.message)
+    started=time.monotonic()
+    if native_highs:
+        try:import highspy
+        except ImportError as error:raise ValueError('BANK_RESIDENCY_HIGHSPY_NOT_INSTALLED')from error
+        from types import SimpleNamespace
+        engine=highspy.Highs()
+        def checked(status,operation):
+            if status==highspy.HighsStatus.kError:raise ValueError('BANK_RESIDENCY_HIGHSPY_'+operation)
+        for name,value in [('output_flag',False),('time_limit',float(time_limit)),('mip_rel_gap',0.),('threads',4)]:
+            checked(engine.setOptionValue(name,value),'OPTION')
+        lp=highspy.HighsLp();lp.num_col_=n;lp.num_row_=len(lower)
+        lp.col_cost_=objective;lp.col_lower_=bounds.lb;lp.col_upper_=bounds.ub
+        lp.row_lower_=lower;lp.row_upper_=upper
+        lp.integrality_=[highspy.HighsVarType.kInteger if integer else highspy.HighsVarType.kContinuous for integer in integrality]
+        lp.a_matrix_.format_=highspy.MatrixFormat.kColwise
+        lp.a_matrix_.start_=matrix.indptr.astype(np.int32);lp.a_matrix_.index_=matrix.indices.astype(np.int32);lp.a_matrix_.value_=matrix.data
+        checked(engine.passModel(lp),'MODEL')
+        supplied={}
+        for i,value in zip(proto.solution_hint.vars,proto.solution_hint.values):
+            if not 0<=i<n or not bounds.lb[i]<=value<=bounds.ub[i] or i in supplied and supplied[i]!=value:
+                raise ValueError('BANK_RESIDENCY_HIGHSPY_HINT_DOMAIN')
+            supplied[i]=value
+        if supplied:checked(engine.setSolution(len(supplied),np.array(list(supplied),dtype=np.int32),np.array(list(supplied.values()),dtype=float)),'HINT')
+        checked(engine.run(),'RUN');info=engine.getInfo();solution=engine.getSolution();status=engine.getModelStatus()
+        feasible=info.primal_solution_status==highspy.SolutionStatus.kSolutionStatusFeasible and solution.value_valid
+        r=SimpleNamespace(x=np.array(solution.col_value)if feasible else None,mip_dual_bound=info.mip_dual_bound)
+        report=dict(solver_backend='highspy',solver_version=engine.version(),solver_status='OPTIMAL'if status==highspy.HighsModelStatus.kOptimal else'INFEASIBLE'if status==highspy.HighsModelStatus.kInfeasible else'FEASIBLE'if feasible else'UNKNOWN',
+            solver_seconds=time.monotonic()-started,solver_model_variables=n,solver_model_constraints=len(lower),solver_branches=info.mip_node_count,solver_conflicts=None,
+            solver_message=engine.modelStatusToString(status),native_mip_start_variable_count=len(supplied),native_mip_start_is_soft=True)
+    else:
+        r=milp(objective,integrality=integrality,bounds=bounds,constraints=LinearConstraint(matrix,lower,upper),options={'time_limit':time_limit,'mip_rel_gap':0})
+        report=dict(solver_backend='highs',solver_status=('OPTIMAL'if r.status==0 else'INFEASIBLE'if r.status==2 else'FEASIBLE'if r.x is not None else'UNKNOWN'),
+            solver_seconds=time.monotonic()-started,solver_model_variables=n,solver_model_constraints=len(lower),solver_branches=getattr(r,'mip_node_count',None),solver_conflicts=None,
+            solver_message=r.message)
     dual=getattr(r,'mip_dual_bound',None)
     if dual is not None and np.isfinite(dual):report['solver_objective_lower_bound']=float(dual)
     if r.x is None:return None,report
+    if not np.all(np.isfinite(r.x)):raise AssertionError('BANK_RESIDENCY_MILP_NONFINITE_SOLUTION')
     values=np.where(integrality,np.rint(r.x),r.x);lhs=matrix@values
     violation=max(float(np.max(np.maximum(np.array(lower)-lhs,0))),float(np.max(np.maximum(lhs-np.array(upper),0))),
         float(np.max(np.maximum(bounds.lb-values,0))),float(np.max(np.maximum(values-bounds.ub,0))),float(np.max(np.abs(values-r.x))))
@@ -264,8 +295,8 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     from ortools.sat.python import cp_model
     if write_budget<0 or lookahead<0 or(window is not None and window<1):raise ValueError('BANK_RESIDENCY_DOMAIN')
     if range_backend not in('dp','ranges','adjacent','flow'):raise ValueError('BANK_RESIDENCY_RANGE_BACKEND')
-    if solver_backend not in('cp-sat','highs')or(solver_backend=='highs'and window is not None and range_backend not in('ranges','flow')):raise ValueError('BANK_RESIDENCY_SOLVER_BACKEND')
-    if relax_cache and solver_backend!='highs':raise ValueError('BANK_RESIDENCY_RELAXED_CACHE_BACKEND')
+    if solver_backend not in('cp-sat','highs','highspy')or(solver_backend in('highs','highspy')and window is not None and range_backend not in('ranges','flow')):raise ValueError('BANK_RESIDENCY_SOLVER_BACKEND')
+    if relax_cache and solver_backend not in('highs','highspy'):raise ValueError('BANK_RESIDENCY_RELAXED_CACHE_BACKEND')
     if search_strategy not in('portfolio','lns')or(search_strategy=='lns'and solver_backend!='cp-sat'):raise ValueError('BANK_RESIDENCY_SEARCH_STRATEGY')
     if minimize_span and(window is None or minimize_writes):raise ValueError('BANK_RESIDENCY_SPAN_OBJECTIVE_DOMAIN')
     if maximum_active_banks is not None and(type(maximum_active_banks)is not int or not 1<=maximum_active_banks<=8):raise ValueError('BANK_RESIDENCY_ACTIVE_BANK_DOMAIN')
@@ -371,7 +402,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
                 model.add_hint(count,sum(c in hints[y][b]and c not in hints[y-1][b]for c in uses[b]))
             if range_backend=='dp':cost=constrain_dp(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}')
             elif range_backend=='adjacent':cost=constrain_adjacent(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',write_budget)
-            else:cost=constrain_flow(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',linear=solver_backend=='highs',
+            else:cost=constrain_flow(model,counts,[variables[active_flags[b]]for b in range(8)],window,f'line{y}',linear=solver_backend in('highs','highspy'),
                 hint_counts=[sum(c in hints[y][b]and c not in hints[y-1][b]for c in uses[b])for b in range(8)])
             if minimize_span:model.add(peak_span_cost>=cost)
         else:constrain_ranges(line,active_flags,allocate,constraint,window,maximum_ranges=4,peak_cost_index=peak_cost_index)
@@ -380,8 +411,8 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         hint_peak=max(favorable_span([dict(bank=b)for b in range(8)for c in hints[y][b]-hints[y-1][b]])for y in range(1,height))
         model.add_hint(peak_span_cost,hint_peak+40)
     elif minimize_writes:model.minimize(sum(writes.values()))
-    if solver_backend=='highs':value,statistics=solve_linear(model,time_limit,
-        {v.index for v in [*resident.values(),*writes.values()]}if relax_cache else None)
+    if solver_backend in('highs','highspy'):value,statistics=solve_linear(model,time_limit,
+        {v.index for v in [*resident.values(),*writes.values()]}if relax_cache else None,native_highs=solver_backend=='highspy')
     else:
         solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
         if search_strategy=='lns':solver.parameters.use_lns_only=True
@@ -401,8 +432,8 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     report['complete_source_frame_pixel_identity_proven']=False
     report['compulsory_bank_interval_cuts']=interval_cuts
     report['soft_residency_hint_interval']=hint_interval
-    report['solver_consumes_soft_hints']=solver_backend=='cp-sat'
-    report['supplied_residency_hint_used_by_solver']=hint_interval is not None and solver_backend=='cp-sat'
+    report['solver_consumes_soft_hints']=solver_backend in('cp-sat','highspy')
+    report['supplied_residency_hint_used_by_solver']=hint_interval is not None and solver_backend in('cp-sat','highspy')
     report['collapse_bank_idle_prefix']=collapse_bank_idle_prefix
     report['bank_first_visible_rows']=bank_first if collapse_bank_idle_prefix else None
     report['bank_idle_prefix_resident_variables_collapsed']=collapsed_prefix_variables
@@ -414,7 +445,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     report['per_bank_write_caps_enforced']=bank_write_caps is not None
     if bank_write_caps is not None:report['per_bank_write_caps_sha256']=hashlib.sha256(json.dumps(bank_write_caps,sort_keys=True).encode()).hexdigest()
     if minimize_span:
-        bound=statistics.get('solver_objective_lower_bound',0)if solver_backend=='highs'else solver.best_objective_bound
+        bound=statistics.get('solver_objective_lower_bound',0)if solver_backend in('highs','highspy')else solver.best_objective_bound
         report['peak_optimistic_span_lower_bound_for_this_fixed_bank_family']=max(0,int(bound)-40)
     if value is None:return report
     if relax_cache:
@@ -488,7 +519,7 @@ def main():
     p.add_argument('--no-prepared-range-bound',action='store_true')
     p.add_argument('--range-backend',choices=('dp','ranges','adjacent','flow'),default='dp')
     p.add_argument('--repair-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
-    p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat')
+    p.add_argument('--solver-backend',choices=('cp-sat','highs','highspy'),default='cp-sat')
     p.add_argument('--scanline-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
     p.add_argument('--residency-hint',type=Path)
     p.add_argument('--minimize-writes',action='store_true')
