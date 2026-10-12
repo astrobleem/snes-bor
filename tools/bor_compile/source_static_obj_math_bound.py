@@ -15,7 +15,8 @@ from raster_obj_math_cover import MODES,complete_math_cover,apply_math
 from raster_math_mode_liveness import lower_bound
 
 
-def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_interval=None,solver_method='highs-ipm',scanline_write_limits=None,ordinary_residency='static',integer_pool_budget=None,initial_state=None,allowed_modes=MODES):
+def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_interval=None,solver_method='highs-ipm',scanline_write_limits=None,ordinary_residency='static',integer_pool_budget=None,initial_state=None,allowed_modes=MODES,all_visible_actor_pixels_reencodable=False):
+    if type(all_visible_actor_pixels_reencodable)is not bool:raise ValueError('STATIC_OBJ_BOUND_REENCODING_POLICY')
     if scanline_interval is not None and (len(scanline_interval)!=2 or not 0<=scanline_interval[0]<=scanline_interval[1]<224):raise ValueError('STATIC_OBJ_BOUND_SCANLINE_DOMAIN')
     if ordinary_residency not in ('static','scanline'):raise ValueError('STATIC_OBJ_BOUND_RESIDENCY_POLICY')
     if not allowed_modes or any(mode not in MODES for mode in allowed_modes):raise ValueError('STATIC_OBJ_BOUND_MATH_MODE_DOMAIN')
@@ -25,7 +26,7 @@ def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_inte
     models=discover(source,docs)['models'];reserve=set();records=[];pixels=[];ordinary_rows={}
     for actor in actors:
         layer=actor['metadata']
-        if not layer['alpha']:
+        if not layer['alpha'] and not all_visible_actor_pixels_reencodable:
             model=next(m for m in models if 'actor:'+m['name']==layer['kind'])
             pal,_=select_model_palette(model_palettes(source,model),layer['requested_map'])
             indices,rgb,_=decode(source,layer['path'],pal['rgb8']);raw=rgb555(rgb)
@@ -60,6 +61,10 @@ def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_inte
         for mode in allowed_modes:rows[y][mode].add((out,choices[mode]))
         if window_pixels is not None:window_pixels[y].append(dict(x=x,output=out,modes=choices))
     report['operand_cover']=cover
+    report['all_visible_actor_pixels_reencodable']=all_visible_actor_pixels_reencodable
+    report['cross_actor_compiled_mask_ownership_required']=all_visible_actor_pixels_reencodable
+    report['source_alpha_policy']='BOR4086_SCREEN_RGB8_THEN_RGB555'
+    report['alpha_compatibility_policy_selected']=False
     integer_options={}if integer_pool_budget is None else dict(integer_modes=True,integer_windows=hardware_windows,integer_palette=True,integer_backend='cp-sat',write_budget=integer_pool_budget)
     report['cache_bound']=lower_bound(rows,time_limit=time_limit,window_pixels=window_pixels,reserved_normal_colors=reserve if ordinary_residency=='static'else(),solver_method=solver_method,scanline_write_limits=scanline_write_limits,required_normal_rows=ordinary_rows if ordinary_residency=='scanline'else None,initial_state=initial_state,**integer_options)
     report['status']=report['cache_bound']['status']
@@ -113,11 +118,12 @@ def main():
     parser.add_argument('--scanline-write-limits',type=Path)
     parser.add_argument('--ordinary-residency',choices=('static','scanline'),default='static')
     parser.add_argument('--integer-pool-budget',type=int,help='Search an independently replayed integer two-class cache; bank geometry and physical timing remain relaxed.')
+    parser.add_argument('--reencode-all-visible-actors',action='store_true',help='Relax literal ordinary actor ownership and cover every final source actor pixel with exact shader operands. No live compositor admission.')
     parser.add_argument('--math-mode',action='append',choices=MODES,help='Restrict the globally selected scanline math modes; repeat to allow multiple modes.')
     parser.add_argument('--initial-palette-state',type=Path,help='Pin both class caches at the first controlled row, for continuation without a palette reset.')
     args=parser.parse_args();limits={int(y):n for y,n in json.loads(args.scanline_write_limits.read_text()).items()}if args.scanline_write_limits else None
     initial=json.loads(args.initial_palette_state.read_text())if args.initial_palette_state else None
-    result=measure(Source(args.source),args.stage,json.loads(args.scene.read_text()),args.time_limit,not args.no_windows,args.scanline_interval,args.lp_method,limits,args.ordinary_residency,args.integer_pool_budget,initial,args.math_mode or MODES)
+    result=measure(Source(args.source),args.stage,json.loads(args.scene.read_text()),args.time_limit,not args.no_windows,args.scanline_interval,args.lp_method,limits,args.ordinary_residency,args.integer_pool_budget,initial,args.math_mode or MODES,args.reencode_all_visible_actors)
     args.output.write_text(json.dumps(result,indent=2)+'\n')
     bound=result.get('cache_bound',{})
     print(json.dumps(dict(status=result['status'],reserved_word_count=result['reserved_word_count'],cache_bound={k:bound[k]for k in ('status','message','validated_dual_lower_bound','peak_replayed_pool_writes','solver_seconds','variables','constraints')if k in bound})))

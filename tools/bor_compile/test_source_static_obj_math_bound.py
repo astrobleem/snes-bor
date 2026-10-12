@@ -7,7 +7,7 @@ from raster_obj_math_cover import MODES
 
 
 class StaticObjBoundTests(unittest.TestCase):
-    def run_fixture(self,effect=False,ordinary_residency='static',scanline_interval=(125,139),integer_bound=None,ordinary_top=0,hardware_windows=True,background_red=0,allowed_modes=MODES):
+    def run_fixture(self,effect=False,ordinary_residency='static',scanline_interval=(125,139),integer_bound=None,ordinary_top=0,hardware_windows=True,background_red=0,allowed_modes=MODES,all_visible_actor_pixels_reencodable=False):
         layer=dict(kind='actor:Ordinary',alpha=0,path='ordinary.png',requested_map=0,source_flip=True)
         actors=[dict(metadata=layer,pixels=np.array([[-1,1]]),left=0,top=ordinary_top)]
         if effect:actors.append(dict(metadata=dict(alpha=1),pixels=np.array([[15]]),left=0,top=128))
@@ -19,10 +19,20 @@ class StaticObjBoundTests(unittest.TestCase):
              patch('source_static_obj_math_bound.model_palettes',return_value={}), \
              patch('source_static_obj_math_bound.select_model_palette',return_value=({'rgb8':[]},0)), \
              patch('source_static_obj_math_bound.decode',return_value=(np.array([[1,2]]),np.array([[[8,0,0],[16,0,0]]]),'hash')), \
-             patch('source_static_obj_math_bound.complete_math_cover',return_value=({(mode,15,background_red//8):[15-background_red//8]for mode in MODES},{})), \
+             patch('source_static_obj_math_bound.complete_math_cover',return_value=({(mode,out,background_red//8):[out-background_red//8]for mode in MODES for out in (1,15)},{})), \
              patch('source_static_obj_math_bound.lower_bound',return_value=integer_bound or {'status':'TEST_BOUND'}) as bound:
-            result=measure(SimpleNamespace(index={}), 'stage', {},scanline_interval=scanline_interval,ordinary_residency=ordinary_residency,integer_pool_budget=21 if integer_bound else None,hardware_windows=hardware_windows,allowed_modes=allowed_modes)
+            result=measure(SimpleNamespace(index={}), 'stage', {},scanline_interval=scanline_interval,ordinary_residency=ordinary_residency,integer_pool_budget=21 if integer_bound else None,hardware_windows=hardware_windows,allowed_modes=allowed_modes,all_visible_actor_pixels_reencodable=all_visible_actor_pixels_reencodable)
         return result,bound
+
+    def test_all_actor_reencoding_covers_ordinary_pixels_without_literal_reservation(self):
+        result,bound=self.run_fixture(effect=True,ordinary_top=128,all_visible_actor_pixels_reencodable=True)
+        self.assertEqual(result['reserved_visible_source_words'],[])
+        self.assertEqual({p['output']for p in bound.call_args.kwargs['window_pixels'][128]},{1,15})
+        self.assertTrue(result['cross_actor_compiled_mask_ownership_required'])
+        self.assertFalse(result['alpha_compatibility_policy_selected'])
+        self.assertFalse(result['palette_bank_assignment_proven'])
+        with self.assertRaisesRegex(ValueError,'REENCODING_POLICY'):
+            measure(None,None,{},all_visible_actor_pixels_reencodable=1)
 
     def test_static_words_use_flipped_visible_source_pixels(self):
         result,bound=self.run_fixture()
