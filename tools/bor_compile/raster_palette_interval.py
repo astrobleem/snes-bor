@@ -4,6 +4,7 @@ Banks/geometry are relaxed into a pool only for this impossibility lower bound.
 It cannot establish feasibility. One preloaded low byte per HBlank is allowed.
 """
 import math
+from raster_dma_partition import minimum_commit_span
 
 def transfer_interval(commits,hblanks,window_master_clocks=356,clocks_per_byte=8):
  """Optimistic commit-point capacity, granting one low preload per HBlank.
@@ -23,13 +24,23 @@ def transfer_interval(commits,hblanks,window_master_clocks=356,clocks_per_byte=8
   minimum_peak_color_commits=peak,minimum_peak_commit_span_master_clocks=max(0,2*(peak-1)*clocks_per_byte),
   maximum_color_commits_per_hblank=capacity,commit_deficit=commits-capacity*hblanks)
 
-def interval_bound(line_colors,slots=120,window_master_clocks=356,clocks_per_byte=8):
+def interval_bound(line_colors,slots=120,window_master_clocks=356,clocks_per_byte=8,obj_bank_gaps=False):
+ """Necessary pool bound, optionally including prepared OBJ DMA bank holes.
+
+ The optional bound still relaxes fixed piece banks and slot residency. It
+ applies only to the prepared-range DMA family, not arbitrary CPU/HDMA code.
+ """
  if slots<=0 or window_master_clocks<=0 or clocks_per_byte<=0:raise ValueError('PALETTE_INTERVAL_BUDGET')
+ capacity=max(n for n in range(121)if minimum_commit_span(n)*clocks_per_byte/8<window_master_clocks)if obj_bank_gaps else None
  worst=None;peak=0;best_deficit=-math.inf
  for start in range(len(line_colors)):
   union=set(line_colors[start])
   for end in range(start+1,len(line_colors)):
    union.update(line_colors[end]);required=max(0,len(union)-slots);hblanks=end-start;budget=transfer_interval(required,hblanks,window_master_clocks,clocks_per_byte);deficit=budget['commit_deficit'];average_ceiling=budget['minimum_peak_color_commits']
+   if obj_bank_gaps:
+    budget['minimum_peak_commit_span_master_clocks']=minimum_commit_span(average_ceiling)*clocks_per_byte/8 if average_ceiling<=120 else math.inf
+    budget['maximum_color_commits_per_hblank']=capacity
+    deficit=budget['commit_deficit']=required-capacity*hblanks
    if deficit>best_deficit or deficit==best_deficit and average_ceiling>peak:
     peak=average_ceiling;best_deficit=deficit;worst=dict(first_line=start,last_line=end,distinct_colors=len(union),resident_capacity=slots,**budget)
- return dict(status='CGRAM_DATA_WINDOW_INFEASIBLE'if best_deficit>0 else'LOWER_BOUND_DOES_NOT_REJECT',worst_interval=worst,available_master_clocks_per_line=window_master_clocks,minimum_master_clocks_per_byte=clocks_per_byte,preloaded_low_byte_latch_allowed=True,low_preload_per_hblank_allowed=True,window_budget_is_first_to_last_commit_span=True,addresses_setup_and_contention_excluded=True,bank_assignment_relaxed_for_lower_bound=True,feasibility_proven=False)
+ return dict(status='CGRAM_DATA_WINDOW_INFEASIBLE'if best_deficit>0 else'LOWER_BOUND_DOES_NOT_REJECT',worst_interval=worst,available_master_clocks_per_line=window_master_clocks,minimum_master_clocks_per_byte=clocks_per_byte,preloaded_low_byte_latch_allowed=True,low_preload_per_hblank_allowed=True,window_budget_is_first_to_last_commit_span=True,addresses_setup_and_contention_excluded=not obj_bank_gaps,bank_assignment_relaxed_for_lower_bound=True,transparent_obj_bank_gaps_included=obj_bank_gaps,transfer_mechanism_scope='PREPARED_RANGE_DMA'if obj_bank_gaps else'COLOR_POOL_DATA_ONLY',feasibility_proven=False)

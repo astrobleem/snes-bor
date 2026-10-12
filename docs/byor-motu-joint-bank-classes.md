@@ -132,3 +132,21 @@ Allowing exact math modes and windows to change by scanline also returns
 UNKNOWN at 120 seconds. These results do not establish infeasibility or
 select the BG fallback. Full source output and bounded search evidence remain
 in the authored receipt and archive.
+
+Joint fixed-piece bank/class/slot scheduling also returns UNKNOWN at its
+120-second limit. This is retained without an infeasibility claim.
+
+The separate plain precomposited OBJ family has a stronger measured limit.
+Exact RGB8 SCREEN over the authored background produces 541 distinct RGB555
+effect outputs and 64 peak scanline colors after omitting 83 pixels whose
+output equals the underlay. Rows 128–135 require 275 distinct colors. Even
+granting 120 resident opaque slots, 155 colors must enter over seven HBlanks,
+forcing at least 23 commits in one HBlank. Prepared DMA ranges must cross
+transparent bank slots or pay another range setup; the best possible span
+is 368 master clocks, above the full 356-clock window. This rejects that
+prepared-DMA precomposited family independently of piece bank assignment
+and lookahead. It does not reject mixed color math, other transfer mechanisms,
+or lossless raster presentation universally. The generic interval tool keeps
+its prior pool relaxation by default and makes the stronger bank-gap bound
+explicit. Seven focused interval/partition tests pass. No color reduction
+or alpha adaptation is selected.
