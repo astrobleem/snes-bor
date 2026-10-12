@@ -399,12 +399,13 @@
     "byor-motu-concurrent-retarget-repair-movable-physical345.json": "2bc099fe12699392e814a20ef0160a501c7f8161260cc5b96588c65580f448db",
     "byor-motu-concurrent-retarget-repair-local-refined.json": "52db26a1e5f93298479931d7f549e004d6dabc229831d46e24d40818320225ba",
     "byor-motu-concurrent-retarget-repair-local-refined2.json": "2ac341d7e3c72cf15d1e74006c3b83d85370a2eb38c2cb1a84ea071ac26d2380",
-    "byor-motu-concurrent-retarget-repair-relabel.json": "f81fb8ef5f1ac3ffc116e7acf96ae31aaad1ecac02ff3c78cc828a21e58e9871"
+    "byor-motu-concurrent-retarget-repair-relabel.json": "f81fb8ef5f1ac3ffc116e7acf96ae31aaad1ecac02ff3c78cc828a21e58e9871",
+    "byor-motu-concurrent-retarget-repair-local-refined3.json": "632b7ba53fea650a965619fde7780bea253ffe7f95983e35e91b5bef4c01ee14"
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-concurrent-source-context-retarget.json.gz",
-    "bytes": 206910,
-    "sha256": "252b0105cbf501e05f2da2ad3f4f29f50cfef60a72af686b94c528b9b6c0bcc5"
+    "bytes": 234749,
+    "sha256": "bd30cb435a6a686a1bf196923c2003c2efa7f9cf6339bf30f7f69dc109aa2cf2"
   },
   "movable_time_physical_search": {
     "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
@@ -748,5 +749,157 @@
       "visible_obj_pixels": 5936,
       "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
     }
+  },
+  "third_local_refinement": {
+    "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+    "target_window_master_clocks": 345,
+    "target_window_met_by_all_packets": false,
+    "complete_source_frame_pixel_identity_proven": true,
+    "universal_raster_rejected": false,
+    "native_timing_admitted": false,
+    "no_color_reduction": true,
+    "trials": [
+      {
+        "iteration": 0,
+        "interval": [
+          127,
+          139
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.0670257,
+        "model_variables": 10473,
+        "restricted_model_peak_span_lower_bound": 252,
+        "before": [
+          488,
+          10584
+        ],
+        "candidate": [
+          488,
+          10568
+        ],
+        "accepted": true
+      },
+      {
+        "iteration": 1,
+        "interval": [
+          125,
+          141
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.164521700000002,
+        "model_variables": 13213,
+        "restricted_model_peak_span_lower_bound": 253,
+        "before": [
+          488,
+          10568
+        ],
+        "candidate": [
+          488,
+          10568
+        ],
+        "accepted": false
+      },
+      {
+        "iteration": 2,
+        "interval": [
+          123,
+          143
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.1127946,
+        "model_variables": 15921,
+        "restricted_model_peak_span_lower_bound": 249,
+        "before": [
+          488,
+          10568
+        ],
+        "candidate": [
+          488,
+          10568
+        ],
+        "accepted": false
+      },
+      {
+        "iteration": 3,
+        "interval": [
+          121,
+          145
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.132615500000002,
+        "model_variables": 18626,
+        "restricted_model_peak_span_lower_bound": 252,
+        "before": [
+          488,
+          10568
+        ],
+        "candidate": [
+          488,
+          10568
+        ],
+        "accepted": false
+      },
+      {
+        "iteration": 4,
+        "interval": [
+          119,
+          147
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.152878000000001,
+        "model_variables": 21302,
+        "restricted_model_peak_span_lower_bound": 241,
+        "before": [
+          488,
+          10568
+        ],
+        "candidate": [
+          488,
+          10568
+        ],
+        "accepted": false
+      },
+      {
+        "iteration": 5,
+        "interval": [
+          117,
+          149
+        ],
+        "solver_status": "FEASIBLE",
+        "solver_search_strategy": "portfolio",
+        "physical_range_encoding": "coverage",
+        "solver_seconds": 15.127238,
+        "model_variables": 23965,
+        "restricted_model_peak_span_lower_bound": 241,
+        "before": [
+          488,
+          10568
+        ],
+        "candidate": [
+          488,
+          10568
+        ],
+        "accepted": false
+      }
+    ],
+    "maximum_physical_writes_per_transfer_row": 21,
+    "full_frame_write_budget_verified": true,
+    "necessary_bank_window_master_clocks": 345,
+    "full_frame_necessary_bank_window_verified": true
+  },
+  "third_local_refinement_source_replay": {
+    "viewport_pixels": 57344,
+    "visible_obj_pixels": 5936,
+    "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
   }
 }

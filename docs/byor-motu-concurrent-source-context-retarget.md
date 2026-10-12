@@ -44,6 +44,10 @@ of 5,040 eligible bank permutations and 256 slot reflections per permutation
 keeps that peak and chooses the existing labels and slot direction. Both
 complete witnesses independently replay all source pixels. This exhausts
 only the relabel/reflection family for that supplied cache and slot layout.
+A third six-repair pass retains the 488-clock peak and reduces total span
+to 10,568 clocks. Its complete viewport replay passes. Wider complete-frame
+free-residency scheduling remains a separate search; no local timeout or
+plateau rejects it.
 Native concurrent presentation, authored-stage peak alpha, live composition
 and leases, compiler selection and the full MOTU Demo remain open.
 
