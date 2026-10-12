@@ -4,7 +4,7 @@ Palette capacities are separate for each bank on every row. A selected OAM
 mask keeps one bank throughout its complete legal rectangle. Palette liveness,
 physical slots and transfers are deferred; a witness is not native admission.
 """
-from raster_obj_geometry import active_on_line
+from raster_obj_geometry import active_on_line,tile_slivers
 
 
 def subdivided_candidates(rectangles,pixel_options,small_size=8):
@@ -27,7 +27,7 @@ def subdivided_candidates(rectangles,pixel_options,small_size=8):
     return list(candidates.values())
 
 
-def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None,geometry_reservation=None,solver_backend='cp-sat',minimize_cache_span=False,search_strategy='portfolio',repair_interval=None):
+def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None,geometry_reservation=None,solver_backend='cp-sat',minimize_cache_span=False,search_strategy='portfolio',repair_interval=None,mode_word_options=None):
     from ortools.sat.python import cp_model
     if type(height)is not int or not 1<=height<=256 or time_limit<=0 or not rectangles or not pixel_options:
         raise ValueError('FRAME_BANK_GEOMETRY_DOMAIN')
@@ -57,6 +57,21 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
             raise ValueError('FRAME_BANK_GEOMETRY_PIXEL')
         if any(type(b)is not int or not 0<=b<8 or not isinstance(cs,(list,set,tuple))or not cs or any(type(c)is not int or not 0<=c<32768 for c in cs)for b,cs in banks.items()):
             raise ValueError('FRAME_BANK_GEOMETRY_WORD_DOMAIN')
+    row_modes={}
+    if mode_word_options is not None:
+        from raster_obj_math_cover import MODES
+        if bank_symmetry or not isinstance(mode_word_options,dict)or set(mode_word_options)!=set(pixel_options):raise ValueError('FRAME_BANK_GEOMETRY_MODE_OPTIONS')
+        for point,modes in mode_word_options.items():
+            if not isinstance(modes,dict)or not modes or any(m not in MODES for m in modes):raise ValueError('FRAME_BANK_GEOMETRY_MODE_OPTIONS')
+            if point[0]in row_modes and set(modes)!=row_modes[point[0]]:raise ValueError('FRAME_BANK_GEOMETRY_SHARED_MODE_DOMAIN')
+            row_modes[point[0]]=set(modes)
+            union={}
+            for banks in modes.values():
+                if not isinstance(banks,dict):raise ValueError('FRAME_BANK_GEOMETRY_MODE_OPTIONS')
+                for b,cs in banks.items():
+                    if type(b)is not int or b not in pixel_options[point]or not isinstance(cs,(list,set,tuple))or any(type(c)is not int or c not in pixel_options[point][b]for c in cs):raise ValueError('FRAME_BANK_GEOMETRY_MODE_WORD')
+                    union.setdefault(b,set()).update(cs)
+            if {b:cs for b,cs in union.items()if cs}!={b:set(cs)for b,cs in pixel_options[point].items()}:raise ValueError('FRAME_BANK_GEOMETRY_MODE_UNION')
     if bank_symmetry:
         for group in(range(4),range(4,8)):
             for banks in pixel_options.values():
@@ -76,11 +91,22 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         # any one selected owner/word serving one point can serve every point.
         # This cannot increase palette demand, OAM or padded hardware row costs.
         key=(y,tuple(coverage[y,x]),tuple((b,tuple(sorted(set(cs))))for b,cs in sorted(banks.items())))
+        if mode_word_options is not None:key+=tuple((mode,tuple((b,tuple(sorted(set(cs))))for b,cs in sorted(values.items())))for mode,values in sorted(mode_word_options[y,x].items())),
         atoms.setdefault(key,[]).append((y,x))
     atoms=list(atoms.items());candidate_atoms={i:[]for i in range(len(rectangles))}
+    mode_sensitive={}
     for j,(key,points)in enumerate(atoms):
         for i in key[1]:candidate_atoms[i].append(j)
+        if mode_word_options is not None:
+            point=points[0]
+            mode_sensitive[j]={b for b,cs in pixel_options[point].items()if any(set(banks.get(b,[]))!=set(cs)for banks in mode_word_options[point].values())}
     model=cp_model.CpModel();palette={};masks={};owners={j:[]for j in range(len(atoms))};assignments=[];rows={}
+    mode_choices={}
+    for y,modes in row_modes.items():
+        choices=[]
+        for mode in sorted(modes):
+            v=model.new_bool_var(f'rowMode{y}_{mode}');mode_choices[y,mode]=v;choices.append(v)
+        model.add(sum(choices)==1)
     for (y,x),banks in pixel_options.items():
         for b,colors in banks.items():
             for c in colors:
@@ -125,6 +151,9 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
                 y,x=atoms[j][1][0];v=model.new_bool_var(f'atom{i}_{b}_{j}');model.add(v<=mask)
                 if solver_backend=='highspy':model.add(v<=sum(palette[y,b,c]for c in pixel_options[y,x][b]))
                 else:model.add_bool_or([v.Not()]+[palette[y,b,c]for c in pixel_options[y,x][b]])
+                if mode_word_options is not None and b in mode_sensitive[j]:
+                    for mode,banks in mode_word_options[y,x].items():
+                        model.add(sum(palette[y,b,c]for c in banks.get(b,[]))>=v+mode_choices[y,mode]-1)
                 owners[j].append(v);assignments.append((i,b,j,v))
     for values in owners.values():
         if not values:raise ValueError('FRAME_BANK_GEOMETRY_UNCOVERED_PIXEL')
@@ -150,7 +179,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         live=[(i,b,v)for(i,b),v in masks.items()if active_on_line(rectangles[i],y)]
         if not live:continue
         model.add(sum(v for i,b,v in live)<=32-reservation['sprites_per_line'][y])
-        model.add(sum(v*(rectangles[i]['width']//8)for i,b,v in live)<=34-reservation['tile_slivers_per_line'][y])
+        model.add(sum(v*tile_slivers(rectangles[i])for i,b,v in live)<=34-reservation['tile_slivers_per_line'][y])
     if minimize_cache_span:model.minimize(cache_peak)
     elif not feasibility_only:model.minimize(sum(masks.values()))
     hinted=set()
@@ -166,6 +195,10 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
             if match is None:raise ValueError('FRAME_BANK_GEOMETRY_HINT_RECTANGLE')
             matched[j]=(match,bank);add_hint(masks[match,bank])
         hinted_points={}
+        for(y,mode),v in mode_choices.items():
+            selected=geometry_hint.get('selected_modes',{}).get(str(y))
+            if selected is not None and selected not in row_modes[y]:raise ValueError('FRAME_BANK_GEOMETRY_HINT_MODE')
+            if selected==mode:add_hint(v)
         for p in geometry_hint['pixels']:
             point=(p.get('y'),p.get('x'));bank=p.get('bank');color=p.get('color');piece=p.get('piece')
             if point not in pixel_options or bank not in pixel_options[point]or color not in pixel_options[point][bank]or piece not in matched or matched[piece][1]!=bank or point in hinted_points:
@@ -194,6 +227,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
             from raster_bank_residency import flow_partition_hint
             values={i:list(v.domain)[0]for i,v in enumerate(model.proto.variables)}
             for(y,b,c),v in palette.items():values[v.index]=int(c in cache_hint.get(y,{}).get(b,set()))
+            for(y,mode),v in mode_choices.items():values[v.index]=int(mode==geometry_hint.get('selected_modes',{}).get(str(y)))
             for(y,b,c),v in cache_load_vars.items():values[v.index]=int(values[palette[y,b,c].index]and not values[palette[y-1,b,c].index])
             for(i,b),v in masks.items():values[v.index]=int((i,b)in set(matched.values()))
             choices={j:hinted_points[points[0]]for j,(key,points)in enumerate(atoms)}
@@ -232,6 +266,8 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         first,last=repair_interval;fixed={}
         for(y,b,c),v in list(palette.items())+list(cache_load_vars.items()):
             if not first<=y<=last:fixed[v.index]=v
+        for(y,mode),v in mode_choices.items():
+            if not first<=y<=last:fixed[v.index]=v
         for i,b,j,v in assignments:
             if not first<=atoms[j][1][0][0]<=last:fixed[v.index]=v
         for(i,b),v in masks.items():
@@ -269,33 +305,38 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         ideal_cache_partition_window_master_clocks=cache_window,
         joint_cache_residency_enforced=cache_window is not None,
         initial_cache_row_relaxed_to_free_vblank=initial_cache_row if cache_window is not None else None,
-        full_rectangle_padding_counted=True,oam_y_wrap_counted=True,palette_liveness_and_transfer_cost_relaxed=cache_window is None,
+        full_rectangle_padding_counted=True,oam_y_wrap_counted=True,fully_offscreen_tile_slivers_skipped=True,palette_liveness_and_transfer_cost_relaxed=cache_window is None,
         physical_slots_and_transfer_cost_relaxed=True,native_presentation_proven=False,
         geometry_reservation=reservation if geometry_reservation is not None else None,
         reservation_palette_and_layer_demand_included=False,
         universal_raster_rejected=False,no_color_reduction=True)
+    report['shared_scanline_math_modes_searched']=mode_word_options is not None
+    report['outside_repair_math_modes_fixed']=repair_interval is not None and mode_word_options is not None
     report.update(backend_report);report['solver_backend']=solver_backend
     report['independent_linear_integer_model_verified']=solver_backend=='highspy'and status in(cp_model.FEASIBLE,cp_model.OPTIMAL)
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return report
     pieces=[];selected={}
+    selected_modes={str(y):next(mode for mode in sorted(modes)if solver.value(mode_choices[y,mode]))for y,modes in row_modes.items()}
     for (i,b),v in masks.items():
         if solver.value(v):selected[i,b]=len(pieces);pieces.append(dict(rectangles[i],bank=b))
     pixels=[];row_colors={};seen=set()
     for i,b,j,v in assignments:
         if not solver.value(v):continue
-        y,x=atoms[j][1][0];colors=[c for c in pixel_options[y,x][b]if solver.value(palette[y,b,c])]
+        y,x=atoms[j][1][0];eligible=mode_word_options[y,x][selected_modes[str(y)]].get(b,[])if mode_word_options is not None else pixel_options[y,x][b]
+        colors=[c for c in eligible if solver.value(palette[y,b,c])]
         if not colors:raise AssertionError('FRAME_BANK_GEOMETRY_WORD_REPLAY')
         c=min(colors)
         for y,x in atoms[j][1]:
             if(y,x)in seen or(i,b)not in selected:raise AssertionError('FRAME_BANK_GEOMETRY_OWNER_REPLAY')
             seen.add((y,x));pixels.append(dict(piece=selected[i,b],y=y,x=x,bank=b,color=c));row_colors.setdefault((y,b),set()).add(c)
     if seen!=set(pixel_options)or any(len(cs)>15 for cs in row_colors.values()):raise AssertionError('FRAME_BANK_GEOMETRY_CAPACITY_REPLAY')
+    if mode_word_options is not None:report.update(selected_modes=selected_modes,shared_row_mode_word_compatibility_replayed=True)
     geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(active_on_line(p,y)for p in pieces)for y in range(height)),
-        peak_tile_slivers=max(sum(p['width']//8 for p in pieces if active_on_line(p,y))for y in range(height)))
+        peak_tile_slivers=max(sum(tile_slivers(p)for p in pieces if active_on_line(p,y))for y in range(height)))
     if geometry['oam_entries']>128 or geometry['peak_sprites']>32 or geometry['peak_tile_slivers']>34:raise AssertionError('FRAME_BANK_GEOMETRY_HARDWARE_REPLAY')
     combined=dict(oam_entries=len(pieces)+reservation['oam_entries'],
         peak_sprites=max(sum(active_on_line(p,y)for p in pieces)+reservation['sprites_per_line'][y]for y in range(height)),
-        peak_tile_slivers=max(sum(p['width']//8 for p in pieces if active_on_line(p,y))+reservation['tile_slivers_per_line'][y]for y in range(height)))
+        peak_tile_slivers=max(sum(tile_slivers(p)for p in pieces if active_on_line(p,y))+reservation['tile_slivers_per_line'][y]for y in range(height)))
     if combined['oam_entries']>128 or combined['peak_sprites']>32 or combined['peak_tile_slivers']>34:raise AssertionError('FRAME_BANK_GEOMETRY_RESERVED_HARDWARE_REPLAY')
     if cache_window is not None:
         from raster_bank_residency import favorable_span
@@ -328,7 +369,7 @@ def main():
     from source_scene_bg import compose_rgb8
     from source_bg_feasibility import rgb555
     from raster_slot_greedy import demand
-    from raster_scanline_bank_geometry import exact_row_word_options,exact_frame_word_options
+    from raster_scanline_bank_geometry import exact_row_word_options,exact_frame_word_options,exact_frame_mode_word_options
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--schedule',type=Path,required=True)
     p.add_argument('--geometry',type=Path,required=True,help='JSON containing source_rectangle_cover.')
@@ -337,6 +378,7 @@ def main():
     p.add_argument('--scanline-start',type=int,default=0);p.add_argument('--scanline-end',type=int,default=224)
     p.add_argument('--subdivide',action='store_true');p.add_argument('--bank-symmetry',action='store_true')
     p.add_argument('--feasibility-only',action='store_true')
+    p.add_argument('--movable-math-modes',action='store_true',help='Joint shared row modes with complete exact frame operand domains; source output/windows remain fixed.')
     p.add_argument('--geometry-hint',type=Path,help='Soft source-exact geometry witness from a subset of the requested interval.')
     p.add_argument('--cache-window',type=int,help='Joint integer color residency with ideal bank partitions; physical slots remain relaxed.')
     p.add_argument('--geometry-reservation',type=Path,help='Full padded concurrent geometry only; its palette/layer demand is not included.')
@@ -362,8 +404,10 @@ def main():
             raise ValueError('FRAME_BANK_GEOMETRY_OVERFLOW_IDENTITY')
         replay=dict(frame,status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN')
     required,_,input_images=demand(replay)
-    options={};proofs={};frame_cover=None
-    if a.cache_window is not None:
+    options={};proofs={};frame_cover=None;mode_options=None
+    if a.movable_math_modes:
+        options,mode_options,proofs,frame_cover=exact_frame_mode_word_options(frame,background,expected,a.scanline_start,a.scanline_end)
+    elif a.cache_window is not None:
         options,proofs,frame_cover=exact_frame_word_options(frame,background,expected,a.scanline_start,a.scanline_end)
     else:
         for y in range(a.scanline_start,a.scanline_end):
@@ -375,7 +419,7 @@ def main():
     hint=json.loads(a.geometry_hint.read_text(encoding='utf-8'))if a.geometry_hint else None
     if a.hint_input_schedule:
         if hint is not None:p.error('--hint-input-schedule and --geometry-hint are mutually exclusive')
-        hint=dict(pieces=frame['pieces'],pixels=[],source_rgb555_sha256=frame['source_rgb555_sha256'],cache_resident_colors={})
+        hint=dict(pieces=frame['pieces'],pixels=[],source_rgb555_sha256=frame['source_rgb555_sha256'],cache_resident_colors={},selected_modes=frame['selected_modes'])
         for i,(piece,image)in enumerate(zip(frame['pieces'],input_images)):
             for ly,lx in np.argwhere(image>=0):
                 y,x=piece['y']+int(ly),piece['x']+int(lx);b=piece['bank'];c=int(image[ly,lx])
@@ -387,7 +431,7 @@ def main():
     if hint is not None and hint.get('source_rgb555_sha256')!=frame['source_rgb555_sha256']:
         raise ValueError('FRAME_BANK_GEOMETRY_HINT_SOURCE_IDENTITY')
     reservation=json.loads(a.geometry_reservation.read_text(encoding='utf-8'))if a.geometry_reservation else None
-    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window,geometry_reservation=reservation,solver_backend=a.solver_backend,minimize_cache_span=a.minimize_cache_span,search_strategy=a.search_strategy,repair_interval=a.repair_interval)
+    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window,geometry_reservation=reservation,solver_backend=a.solver_backend,minimize_cache_span=a.minimize_cache_span,search_strategy=a.search_strategy,repair_interval=a.repair_interval,mode_word_options=mode_options)
     report.update(source_rgb555_sha256=frame['source_rgb555_sha256'],source_input_sha256=hashlib.sha256(a.schedule.read_bytes()).hexdigest(),source_input_path=str(a.schedule),
         source_pak_sha256=hashlib.sha256(a.exact_source.read_bytes()).hexdigest(),source_row_context_proofs=proofs,
         source_rectangle_cover=geometry['source_rectangle_cover'],scanline_interval=[a.scanline_start,a.scanline_end],

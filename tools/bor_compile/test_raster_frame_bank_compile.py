@@ -22,6 +22,19 @@ def source_fixture():
 
 
 class FrameBankCompileTests(unittest.TestCase):
+    def test_shared_mode_change_requires_exact_source_output(self):
+        source,witness,bg,expected=source_fixture()
+        witness.update(selected_modes={'5':'half-add'},shared_row_mode_word_compatibility_replayed=True)
+        witness['pixels'][1]['color']=67
+        result=compile_witness(source,witness,bg,expected)
+        self.assertEqual(result['selected_modes']['5'],'half-add')
+        self.assertEqual(result['source_exact_shared_row_math_mode_changes'],1)
+        original=compile_witness(source,source_fixture()[1],bg,expected)
+        self.assertNotEqual(result['compiled_presentation_sha256'],original['compiled_presentation_sha256'])
+        self.assertFalse(result['native_presentation_proven'])
+        witness['selected_modes']['5']='subtract'
+        with self.assertRaisesRegex(ValueError,'SOURCE_OUTPUT_REPLAY'):compile_witness(source,witness,bg,expected)
+
     def test_unused_wrapped_piece_padding_cannot_hide_reserved_sprite_overflow(self):
         source,witness,bg,expected=source_fixture()
         witness['pieces'].append(dict(x=0,y=250,width=8,height=8,bank=0))

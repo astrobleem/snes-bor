@@ -1,7 +1,7 @@
 {
   "schema": "BYOR_OBJ_WRAPPED_Y_GEOMETRY_REPLAY_V1",
   "status": "PASS",
-  "authority": "Core/SNES/SnesPpuTypes.h:SpriteInfo::IsVisible and SnesPpu.cpp:EvaluateNextLineSprites",
+  "authority": "Core/SNES/SnesPpuTypes.h:SpriteInfo::IsVisible and SnesPpu.cpp:EvaluateNextLineSprites; FetchSpritePosition and FetchSpriteAttributes",
   "mesen_revision": "18c05d3f076728d05310c6e591b7d0a08d604d42",
   "experiments": [
     {
@@ -12,7 +12,8 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 27
       },
-      "wrapped_line_geometry_unchanged": true
+      "wrapped_line_geometry_unchanged": true,
+      "clipped_tile_sliver_geometry_unchanged": true
     },
     {
       "input": "out/byor-motu-authored-hbreath-peak-player-cover-global-joint-repair134-145.json",
@@ -22,7 +23,8 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 27
       },
-      "wrapped_line_geometry_unchanged": true
+      "wrapped_line_geometry_unchanged": true,
+      "clipped_tile_sliver_geometry_unchanged": true
     },
     {
       "input": "out/byor-motu-full-rise-allactor-add-band152-155-joint-compiled.json",
@@ -32,7 +34,8 @@
         "peak_sprites": 25,
         "peak_tile_slivers": 34
       },
-      "wrapped_line_geometry_unchanged": true
+      "wrapped_line_geometry_unchanged": true,
+      "clipped_tile_sliver_geometry_unchanged": true
     },
     {
       "input": "out/byor-motu-full-rise-allactor-add-band152-155-joint-physical345.json",
@@ -42,10 +45,12 @@
         "peak_sprites": 25,
         "peak_tile_slivers": 34
       },
-      "wrapped_line_geometry_unchanged": true
+      "wrapped_line_geometry_unchanged": true,
+      "clipped_tile_sliver_geometry_unchanged": true
     }
   ],
   "protected_tracked_files_verified": 17,
   "native_admission": false,
-  "no_color_reduction": true
+  "no_color_reduction": true,
+  "fully_offscreen_tile_slivers_skipped": true
 }

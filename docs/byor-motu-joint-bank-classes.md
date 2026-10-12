@@ -1,5 +1,42 @@
 # Shared geometry for exact math bank classes
 
+The full joint geometry/bank/cache model now accepts source-replayed, complete
+operand domains tagged by a shared scanline math mode. Every selected pixel
+owner must use a word compatible with that row's single mode. Equivalent pixel
+decisions coalesce only when their mode-specific domains also match. Complete
+starts validate the mode choices, and interval repair fixes exterior modes.
+The compiler replays any changed mode against the original exact source output;
+its presentation hash covers the palette schedule, modes, windows and source
+output identity. These are alternative exact operands, not an alpha adaptation.
+
+The first full peak trial validates all 391,305 start variables and returns
+FEASIBLE after 121.365 seconds, with 799,115 constraints. The complete cover
+compares 2,684 tagged contexts, examines all 32,768 operands, finds 2,541 valid
+words and retains 989 coverage identities including 160 input seeds. Its
+88-object effect geometry yields 121 total objects, 26 sprites and 34 slivers
+with the player geometry reservation. The ideal peak remains 400 clocks with
+21 writes; every selected math mode remains full addition. Compilation replays
+all 57,344 source output pixels and 2,668 indexed effect pixels. Its palette
+schedule hash is 54a6b76428a21262050d8c39629e6fa8ea10ee3879b849e11efea39bd235992b.
+No physical transfer or native admission is inferred. Ninety focused tests pass.
+Mode-invariant owner domains now omit redundant conditional mode constraints;
+their ordinary word-coverage clause already enforces the same requirement.
+Legal subdivision expands the cover to 159 candidates. Joint mode/bank/cache
+repair across rows 126–147 independently validates all 416,161 start variables,
+fixes 216,396 exterior decisions and returns FEASIBLE after 90.467 seconds.
+The resulting 86 effect objects yield 119 objects, 26 sprites and 34 slivers
+with the player reservation, but retain 400 clocks locally and globally and
+21 peak writes. Its raw objective bound of 80 applies to this repair family,
+not a universal transfer limit. No selected mode changes and no native timing
+admission are produced.
+
+Horizontal resource accounting also follows sprite-fetch authority: completely
+clipped eight-pixel slivers are skipped, partial slivers still count, and the
+special X=-256 position still consumes its full width despite drawing nothing.
+The solver and compiler share this rule. New clipping regressions and wrapped
+row tests pass; four retained frontier geometries remain unchanged under both
+checks. Thirty affected geometry/compiler/operand tests pass after this change.
+
 OBJ resource accounting now follows eight-bit OAM Y wrap in noninterlaced
 sprite evaluation. Transparent rows wrapped from the bottom count against the
 top-of-frame sprite/sliver budget, including concurrent reservations. New

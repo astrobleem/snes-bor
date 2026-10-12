@@ -1,10 +1,26 @@
 import unittest
 import numpy as np
-from raster_scanline_bank_geometry import bound,exact_row_word_options,exact_frame_word_options
+from raster_scanline_bank_geometry import bound,exact_row_word_options,exact_frame_word_options,exact_frame_mode_word_options
 from test_raster_mask_rectangle_cover import fixture
 
 
 class RowBankGeometryTests(unittest.TestCase):
+    def test_complete_mode_domains_replay_every_returned_operand(self):
+        from raster_math_windows import compile_sparse_mask
+        from raster_obj_math_cover import apply_math
+        source=fixture();source.update(color_math='additive',scanline_math_controls_source_bound=True,
+            selected_modes={'5':'add','10':'add'},compiled_color_window_descriptors={str(y):compile_sparse_mask({x:1 for x in range(256)})for y in(5,10)})
+        bg=np.zeros((224,256),dtype=np.uint16);bg[5,32]=1;gold=bg.copy();gold[5,32]=34;gold[10,37]=33
+        options,tagged,proofs,cover=exact_frame_mode_word_options(source,bg,gold,0,16)
+        for(y,x),modes in tagged.items():
+            for mode,banks in modes.items():
+                for b,cs in banks.items():
+                    for c in cs:self.assertEqual(apply_math(c,int(bg[y,x]),mode)if b>=4 else c,int(gold[y,x]))
+            self.assertEqual(options[y,x],{b:sorted({c for banks in modes.values()for c in banks.get(b,[])})for b in options[y,x]})
+        self.assertTrue(cover['cross_scanline_word_identity_reuse_preserved'])
+        self.assertTrue(cover['shared_row_modes_require_joint_solver_constraints'])
+        self.assertFalse(cover['source_alpha_adaptation_selected'])
+
     def test_exact_black_and_bank_domains_remain_separate(self):
         source=fixture();result=bound(source,5,time_limit=3)
         self.assertEqual(result['status'],'ROW_BANK_GEOMETRY_RELAXED_WITNESS')

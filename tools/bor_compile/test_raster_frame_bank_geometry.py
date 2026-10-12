@@ -3,6 +3,45 @@ from raster_frame_bank_geometry import search,subdivided_candidates
 
 
 class FrameBankGeometryTests(unittest.TestCase):
+    def test_horizontal_clipping_skips_only_fully_hidden_tile_slivers(self):
+        from raster_obj_geometry import tile_slivers
+        for x,wanted in[(-256,2),(-8,1),(-7,2),(247,2),(248,1),(255,1)]:
+            self.assertEqual(tile_slivers(dict(x=x,width=16)),wanted)
+        rects=[dict(x=-8,y=0,width=16,height=16,allowed_banks=[0])]
+        reserved=dict(oam_entries=0,sprites_per_line=[0]*16,tile_slivers_per_line=[33]*16)
+        r=search(rects,{(0,0):{0:[0]}},height=16,time_limit=3,geometry_reservation=reserved)
+        self.assertEqual(r['combined_reserved_geometry']['peak_tile_slivers'],34)
+        self.assertTrue(r['fully_offscreen_tile_slivers_skipped'])
+
+    def test_shared_row_mode_cannot_be_relaxed_per_pixel(self):
+        rects=[dict(x=0,y=0,width=32,height=32,allowed_banks=[4])]
+        tagged={(0,x):{'add':{4:[x]},'half-add':{4:[(x+8)%16]}}for x in range(16)}
+        words={p:{4:sorted({c for b in modes.values()for c in b[4]})}for p,modes in tagged.items()}
+        result=search(rects,words,height=32,time_limit=3,mode_word_options=tagged)
+        self.assertEqual(result['solver_status'],'INFEASIBLE')
+        self.assertTrue(result['shared_scanline_math_modes_searched'])
+        self.assertFalse(result['universal_raster_rejected'])
+
+    def test_joint_shared_modes_allow_exact_cross_row_cache_reuse(self):
+        rects=[dict(x=0,y=0,width=32,height=32,allowed_banks=[4])]
+        tagged={(y,x):{'add':{4:[y*8+x]},'half-add':{4:[(1-y)*8+x]}}for y in range(2)for x in range(8)}
+        words={p:{4:sorted({c for b in modes.values()for c in b[4]})}for p,modes in tagged.items()}
+        for backend in('cp-sat','highspy'):
+            result=search(rects,words,height=32,time_limit=3,cache_window=1,mode_word_options=tagged,solver_backend=backend)
+            self.assertNotEqual(result['selected_modes']['0'],result['selected_modes']['1'])
+            self.assertEqual(result['peak_joint_cache_writes'],0)
+            self.assertTrue(result['shared_row_mode_word_compatibility_replayed'])
+            for q in result['pixels']:self.assertIn(q['color'],tagged[q['y'],q['x']][result['selected_modes'][str(q['y'])]][q['bank']])
+            result['cache_resident_colors']={r['scanline']:r['resident_colors']for r in result['joint_cache_trace']}
+            repaired=search(rects,words,height=32,time_limit=3,cache_window=1,mode_word_options=tagged,geometry_hint=result,minimize_cache_span=True,repair_interval=[1,1],solver_backend=backend)
+            self.assertTrue(repaired['complete_source_witness_hint_model_verified'])
+            self.assertTrue(repaired['outside_repair_math_modes_fixed'])
+            self.assertEqual(repaired['selected_modes']['0'],result['selected_modes']['0'])
+        # Equal unions do not make different mode-specific coverage equivalent.
+        tagged={(0,0):{'add':{4:[0]},'half-add':{4:[1]}},(0,1):{'add':{4:[1]},'half-add':{4:[0]}}}
+        words={p:{4:[0,1]}for p in tagged}
+        self.assertEqual(search(rects,words,height=32,time_limit=3,mode_word_options=tagged)['equivalent_pixel_decision_atoms'],2)
+
     def test_wrapped_transparent_padding_respects_concurrent_line_capacity(self):
         from raster_obj_geometry import active_on_line
         p=dict(x=0,y=250,width=8,height=8)

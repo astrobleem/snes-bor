@@ -89,6 +89,42 @@ def exact_frame_word_options(schedule,background,expected,first=0,last=224):
         physical_transfer_and_native_timing_admitted=False,no_color_reduction=True)
 
 
+def exact_frame_mode_word_options(schedule,background,expected,first=0,last=224):
+    """Exact full-frame operand domains tagged by one shared mode per row.
+
+    The original schedule is replayed first. Alternative operands must produce
+    the same source output under its fixed windows; source alpha is unchanged.
+    All frame contexts participate in dominance so cache identity survives.
+    """
+    from raster_obj_math_cover import complete_math_cover,MODES
+    _,proofs,_=exact_frame_word_options(schedule,background,expected,first,last)
+    replay=schedule
+    if schedule.get('status')=='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW':replay=dict(schedule,status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN')
+    _,_,images=demand(replay)
+    from raster_math_windows import evaluate
+    points={};retained=set()
+    for p,image in zip(schedule['pieces'],images):
+        for ly,lx in np.argwhere(image>=0):
+            y,x=p['y']+int(ly),p['x']+int(lx)
+            if not first<=y<last:continue
+            points[y,x]=(int(expected[y,x]),int(background[y,x]),evaluate(schedule['compiled_color_window_descriptors'][str(y)],x))
+            if p['bank']>=4:retained.add(int(image[ly,lx]))
+    operands,cover=complete_math_cover(points.values(),modes=MODES,tag_modes=True,fixed_window_context=True,retained_operands=retained)
+    options={};tagged={}
+    for point,key in points.items():
+        tagged[point]={}
+        for mode in MODES:
+            banks={b:[key[0]]for b in range(4)}
+            if operands[(mode,*key)]:banks.update({b:operands[(mode,*key)]for b in range(4,8)})
+            tagged[point][mode]=banks
+        options[point]={b:sorted({c for banks in tagged[point].values()for c in banks.get(b,[])})for b in range(8)}
+        options[point]={b:cs for b,cs in options[point].items()if cs}
+    return options,tagged,proofs,dict(operand_cover=cover,dominance_context_scope='ALL_REQUESTED_FRAME_MODE_CONTEXTS',
+        cross_scanline_word_identity_reuse_preserved=True,input_upper_bank_operand_identities_retained=True,
+        shared_row_modes_require_joint_solver_constraints=True,actual_source_output_and_windows_preserved=True,
+        source_alpha_adaptation_selected=False,physical_transfer_and_native_timing_admitted=False,no_color_reduction=True)
+
+
 def bound(schedule,scanline,time_limit=30,tile_limit=34,pixel_word_options=None):
     from ortools.sat.python import cp_model
     if type(scanline)is not int or not 0<=scanline<len(schedule['trace']) or time_limit<=0 or type(tile_limit)is not int or not 0<=tile_limit<=128:

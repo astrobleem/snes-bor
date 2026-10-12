@@ -8,8 +8,9 @@ import numpy as np
 from raster_palette import schedule
 from raster_slot_greedy import demand
 from raster_obj_math_cover import apply_math
+from raster_obj_math_cover import MODES
 from raster_math_windows import evaluate
-from raster_obj_geometry import active_on_line
+from raster_obj_geometry import active_on_line,tile_slivers
 
 
 def compile_witness(source,witness,background,expected,lookahead=16):
@@ -31,6 +32,10 @@ def compile_witness(source,witness,background,expected,lookahead=16):
     first,last=witness.get('scanline_interval',[0,224])
     if type(first)is not int or type(last)is not int or not 0<=first<last<=224:
         raise ValueError('FRAME_COMPILE_INTERVAL')
+    selected_modes=copy.deepcopy(source['selected_modes'])
+    if 'selected_modes'in witness:
+        if not witness.get('shared_row_mode_word_compatibility_replayed')or not isinstance(witness['selected_modes'],dict)or any(not isinstance(y,str)or not y.isdigit()or str(int(y))!=y or not first<=int(y)<last or mode not in MODES for y,mode in witness['selected_modes'].items()):raise ValueError('FRAME_COMPILE_WITNESS_MODES')
+        selected_modes.update(witness['selected_modes'])
     pieces=copy.deepcopy(witness['pieces']);seen=set();actual=bg.copy();colors=[]
     if not pieces or len(pieces)>128:raise ValueError('FRAME_COMPILE_OAM')
     sizes=set()
@@ -48,12 +53,12 @@ def compile_witness(source,witness,background,expected,lookahead=16):
         if p['bank']!=b or not p['y']<=y<p['y']+p['height']or not p['x']<=x<p['x']+p['width']:
             raise ValueError('FRAME_COMPILE_FIXED_OWNER')
         seen.add((y,x));colors[i][y-p['y'],x-p['x']]=c;p['rows'].setdefault(y,set()).add(c)
-        actual[y,x]=apply_math(c,int(bg[y,x]),source['selected_modes'][str(y)])if b>=4 and evaluate(source['compiled_color_window_descriptors'][str(y)],x)else c
+        actual[y,x]=apply_math(c,int(bg[y,x]),selected_modes[str(y)])if b>=4 and evaluate(source['compiled_color_window_descriptors'][str(y)],x)else c
     expected_points={(int(p['y']+y),int(p['x']+x))for p,image in zip(source['pieces'],input_colors)for y,x in zip(*np.where(image>=0))if first<=p['y']+y<last}
     if seen!=expected_points:raise ValueError('FRAME_COMPILE_OPAQUE_OWNERSHIP')
     if not np.array_equal(actual[first:last],gold[first:last]):raise ValueError('FRAME_COMPILE_SOURCE_OUTPUT_REPLAY')
     geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(active_on_line(p,y)for p in pieces)for y in range(224)),
-        peak_tile_slivers=max(sum(p['width']//8 for p in pieces if active_on_line(p,y))for y in range(224)))
+        peak_tile_slivers=max(sum(tile_slivers(p)for p in pieces if active_on_line(p,y))for y in range(224)))
     if geometry['peak_sprites']>32 or geometry['peak_tile_slivers']>34:raise ValueError('FRAME_COMPILE_HARDWARE_OVERFLOW')
     reservation=witness.get('geometry_reservation');combined=geometry.copy()
     if reservation is not None:
@@ -61,7 +66,7 @@ def compile_witness(source,witness,background,expected,lookahead=16):
             raise ValueError('FRAME_COMPILE_RESERVATION_DOMAIN')
         combined=dict(oam_entries=len(pieces)+reservation['oam_entries'],
             peak_sprites=max(sum(active_on_line(p,y)for p in pieces)+reservation['sprites_per_line'][y]for y in range(224)),
-            peak_tile_slivers=max(sum(p['width']//8 for p in pieces if active_on_line(p,y))+reservation['tile_slivers_per_line'][y]for y in range(224)))
+            peak_tile_slivers=max(sum(tile_slivers(p)for p in pieces if active_on_line(p,y))+reservation['tile_slivers_per_line'][y]for y in range(224)))
         if combined['oam_entries']>128 or combined['peak_sprites']>32 or combined['peak_tile_slivers']>34:raise ValueError('FRAME_COMPILE_RESERVED_HARDWARE_OVERFLOW')
     for p in pieces:p['rows']={y:sorted(cs)for y,cs in p['rows'].items()}
     if 'joint_cache_trace'in witness:
@@ -102,8 +107,10 @@ def compile_witness(source,witness,background,expected,lookahead=16):
         flat=indexed.flatten();masks.append(dict(width=p['width'],height=p['height'],pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
     complete=(first,last)==(0,224)
     result={k:copy.deepcopy(source[k])for k in ('metadata','source_rgb555_sha256','selected_modes','compiled_color_window_descriptors','color_math','scanline_math_controls_source_bound','source_alpha_policy','alpha_compatibility_policy_selected')if k in source}
+    result['selected_modes']=selected_modes
+    result['source_exact_shared_row_math_mode_changes']=sum(mode!=source['selected_modes'].get(y)for y,mode in selected_modes.items())
     result.update(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN'if complete else'RESTRICTED_SCANLINE_DEMAND_ONLY',
-        pieces=pieces,piece_pixel_masks=masks,trace=trace,geometry=geometry,hardware_geometry_admitted=True,oam_y_wrap_counted=True,
+        pieces=pieces,piece_pixel_masks=masks,trace=trace,geometry=geometry,hardware_geometry_admitted=True,oam_y_wrap_counted=True,fully_offscreen_tile_slivers_skipped=True,
         compiled_pixel_identity_verified=complete,restricted_pixel_identity_verified=not complete,
         complete_source_frame_pixel_identity_proven=complete,outside_interval_pixels_relaxed=not complete,
         restricted_scanline_demand_interval=[first,last-1],source_output_pixels_replayed=(last-first)*256,
@@ -117,6 +124,8 @@ def compile_witness(source,witness,background,expected,lookahead=16):
     if any(not np.array_equal(a,b)for a,b in zip(colors,replayed)):raise AssertionError('FRAME_COMPILE_INDEXED_PALETTE_REPLAY')
     result['compiled_indices_sha256']=hashlib.sha256(json.dumps(masks,sort_keys=True).encode()).hexdigest()
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=pieces,masks=masks,trace=trace),sort_keys=True).encode()).hexdigest()
+    result['compiled_presentation_sha256']=hashlib.sha256(json.dumps(dict(schedule_sha256=result['compiled_schedule_sha256'],selected_modes=selected_modes,
+        compiled_color_window_descriptors=result['compiled_color_window_descriptors'],source_rgb555_sha256=result['source_rgb555_sha256']),sort_keys=True).encode()).hexdigest()
     return result
 
 
