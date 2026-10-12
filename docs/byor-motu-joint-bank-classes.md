@@ -735,3 +735,12 @@ complete partition solver rejects that gate. All thirty focused tests pass.
 Cold integer relaxed-cost trials remain UNKNOWN after 121.140 and 121.187
 seconds at loose and tight windows respectively; neither supplies a hardware
 bound or schedule. A validated integer cache now supplies the warm CP-SAT start.
+
+The warm necessary-cost search finds a source-exact integer cache after
+120.160 seconds. Its relaxed peak is 392 clocks, but independent complete
+partition replay requires 408 clocks. That improves the previous complete
+integer frontier of 424 clocks while retaining the legal full-player geometry
+reservation. It uses 693 noninitial writes, 22 peak writes and 31-line prefetch.
+The necessary-model lower bound is 338 clocks. Neither cost admits native
+timing; physical slots remain unproved and 408 still exceeds the 356-clock
+maximum. This cache supplies the complete partition search's next soft start.
