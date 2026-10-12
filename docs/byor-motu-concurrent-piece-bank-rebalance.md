@@ -327,3 +327,36 @@ rectangle cases pass, and the physical-layout regression suite passes all
 21 tests in 11.712 seconds. The 45.072-second strict rectangle search returns
 UNKNOWN. Exhaustive bank/reflection search retains the new cache's 424-clock
 physical peak. No timeout or restricted family excludes raster universally.
+
+Lifetime slot recoloring now reduces the controlled player-plus-effect
+schedule to 344 clocks. Connected two-slot lifetime components are exchanged
+without changing piece banks, source geometry or source RGB555 words. The
+selected schedule uses 73 OAM entries, 18 sprites and 34 OBJ tile slivers on
+its busiest line. It requires sixteen peak dirty color writes (32 bytes),
+with eleven lines of noninitial prefetch. All 57,344 viewport pixels and
+physical CGRAM packets replay exactly. Three focused tests cover reloads,
+opaque RGB555 zero, fixed banks and a genuine three-lifetime component swap.
+
+The controlled native baseline passes four complete observed fields with
+zero pixel mismatches, CGRAM identity faults, IRQ context faults or OBJ
+overflow. It executes the production NMI service code and a 2,814-byte
+private VRAM queue transfer, while raster DMA uses channels 1 through 7.
+Code resides in private ROM banks 103/104; bank-zero growth is zero.
+
+Additional source-bound window-register traffic initially fails despite a
+short zero-pixel-mismatch capture. The longer observer detects an unsafe
+CGRAM commit, so that experiment remains FAIL. The private WAI fixture now
+inlines row returns and avoids redundant accumulator/decimal normalization
+under its explicit A16 ABI. Every row RTI has independent context and CGRAM
+callbacks. A subsequent margin witness passes six complete fields at timer
+170: 344-clock peak, first high commits at clocks 1100–1104, zero unsafe
+commits, zero pixel mismatches and 1,410 context checks with zero faults.
+The bounded positive and negative traces are retained in
+[the native receipt](receipts/byor-motu-kempe-native.json) and its compressed
+evidence archive. Default fixture behavior is unchanged.
+
+This is controlled-black RGB8 SCREEN precomposition over the source player,
+followed by RGB555 conversion. Window traffic measures transport with math
+layer selection disabled. It does not admit authored-background alpha,
+live actor palette leases, production foreground execution or MOTU gameplay.
+No alpha adaptation, color reduction or BG fallback has been selected.

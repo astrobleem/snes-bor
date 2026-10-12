@@ -1,0 +1,4408 @@
+{
+  "schema": "BYOR_KEMPE_CONTROLLED_NATIVE_EVIDENCE_V1",
+  "experiments": {
+    "byor-motu-concurrent-kempe344-native": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "PASS",
+        "control_traffic_fields": [],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": null,
+        "nmi_context_checks": 4,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37946,
+        "production_nmi_fields": 3,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a000000a0a6aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": true,
+        "physical_cgram_checks": 136,
+        "physical_cgram_byte_identity_faults": 0,
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "complete_packet_fields": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 0,
+        "peak_observed_commit_span": 344,
+        "first_high_hclock_range": [
+          1100,
+          1104
+        ],
+        "irq_context_checks": 940,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 1026,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+        "source_frame_sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_actor_frames": [
+          {
+            "model": "He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3"
+          },
+          {
+            "model": "HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7"
+          }
+        ],
+        "input_schedule_file_sha256": "5e91ffc4426f8b17ade55e5198e350a9ea6bd83a044c771f52aa9be25a3855eb",
+        "compiled_transfer_descriptor_sha256": "4139c3775a9b2237afb8648414a725d585ac540d49f8a780de99450bb13b767f",
+        "compiled_schedule_sha256": "824754af3bece6e2fe1684ac249de6e77d89927919374e56ea8fd5c68e8cc137",
+        "rom_sha256": "4e7be28e20b9079aff00a7ef13b67f5b51d6655396ff7b843a1e0da009951157",
+        "expected_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 162,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 0,
+            "obj_size_pair": [
+              8,
+              16
+            ],
+            "oam_entries": 73,
+            "obj_chr_bytes": 8832,
+            "occupied_tile_cells": 271,
+            "unique_tiles": 202,
+            "reserved_tile_cells": [],
+            "chr_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+            "oam_sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 45470,
+            "2": 45778,
+            "3": 45809,
+            "4": 46005,
+            "5": 46035,
+            "6": 46251,
+            "7": 46280
+          },
+          "stream_bytes": {
+            "1": 308,
+            "2": 31,
+            "3": 196,
+            "4": 30,
+            "5": 216,
+            "6": 29,
+            "7": 276
+          },
+          "asset_bytes": 13788,
+          "source_metadata": {
+            "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+            "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Explicit concurrent source poses over controlled black; gameplay reachability unproven.",
+              "actors": [
+                {
+                  "model": "He_ManB",
+                  "animation": "freespecial4",
+                  "frame": 6,
+                  "position": [
+                    80,
+                    220,
+                    0
+                  ],
+                  "order": 0
+                },
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 11,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 0,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:He_ManB",
+                "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+                "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+                "source_dimensions": [
+                  200,
+                  200
+                ],
+                "position": [
+                  -16,
+                  44
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 3327,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+                "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 190,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": false,
+          "control_traffic_math_layer_selection_disabled": false,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY",
+          "production_queue_vram_byte_address": 0,
+          "production_queue_private_vram_lease": null,
+          "hoisted_constant_controls": {},
+          "authored_main_screen_obj_math": false,
+          "control_traffic_row_count": 0
+        },
+        "ppu": {
+          "frameCount": 15,
+          "scanline": 225,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 0,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 37379,
+          "k": 167,
+          "a": 4660,
+          "x": 22136,
+          "y": 39612,
+          "sp": 8185,
+          "d": 17152,
+          "dbr": 0,
+          "ps": 5,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 777746
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false
+      },
+      "artifacts": {
+        "report.json": {
+          "bytes": 14460,
+          "sha256": "6461005105011afd801b1bb49b67038c3f9586ecff383d00216bf3b737e85470"
+        },
+        "cgram-observer.json": {
+          "bytes": 25497,
+          "sha256": "2e5958f5e7edc43d6ee50516c9968cddc1da03fc4dea517cd8c3e61110f9f548"
+        },
+        "oam.bin": {
+          "bytes": 544,
+          "sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514"
+        },
+        "obj.chr": {
+          "bytes": 8832,
+          "sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04"
+        },
+        "expected.rgb555": {
+          "bytes": 114688,
+          "sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+        },
+        "cgram.bin": {
+          "bytes": 512,
+          "sha256": "9ab30c32a4946d904ef602d006912bb2635fceb901164d82c7c177dd6b36851a"
+        },
+        "screenshot.png": {
+          "bytes": 5100,
+          "sha256": "649ecaeecd7113592e3c610b49779f441914d4b87d22bf44805b154f7b27d55a"
+        },
+        "mesen.log": {
+          "bytes": 38482,
+          "sha256": "7ae40233bae74b3510fadf3dedb311aa6c2946fcd883d1fb6d46254cf615bf0c"
+        },
+        "fixture.pasm": {
+          "bytes": 34903,
+          "sha256": "445dcae06090694e0c25e33be8afe30a692e440fb0a6432a24c7beb84970ae2e"
+        },
+        "fixture.sym": {
+          "bytes": 7109,
+          "sha256": "52fe6eed45ae50f68f2a235d0e7acef7f2f71d44aba43cee8bee7a1971601e0c"
+        },
+        "observer.lua": {
+          "bytes": 4734,
+          "sha256": "1940769a11faab3c055e6538cb88ac5a9274fe4419e60f18562d1d7ce4d4d5eb"
+        }
+      }
+    },
+    "byor-motu-concurrent-kempe344-controls-native": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "FAIL",
+        "control_traffic_fields": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": "19590b82eb7a24589b4bbfc5747b0e11316f992dca9d86abdc6493999bdf29e9",
+        "nmi_context_checks": 4,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37946,
+        "production_nmi_fields": 3,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a000040a0a6aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": false,
+        "physical_cgram_checks": 136,
+        "physical_cgram_byte_identity_faults": 4219,
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 51812,
+        "complete_packet_fields": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 501,
+        "peak_observed_commit_span": 344,
+        "first_high_hclock_range": [
+          1092,
+          1260
+        ],
+        "irq_context_checks": 940,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 1258,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+        "source_frame_sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_actor_frames": [
+          {
+            "model": "He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3"
+          },
+          {
+            "model": "HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7"
+          }
+        ],
+        "input_schedule_file_sha256": "5e91ffc4426f8b17ade55e5198e350a9ea6bd83a044c771f52aa9be25a3855eb",
+        "compiled_transfer_descriptor_sha256": "4139c3775a9b2237afb8648414a725d585ac540d49f8a780de99450bb13b767f",
+        "compiled_schedule_sha256": "824754af3bece6e2fe1684ac249de6e77d89927919374e56ea8fd5c68e8cc137",
+        "rom_sha256": "4cba96f73484503f7824e104fcefea2a91f35a5c433117f57345f2b1a4c73b4c",
+        "expected_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 162,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 0,
+            "obj_size_pair": [
+              8,
+              16
+            ],
+            "oam_entries": 73,
+            "obj_chr_bytes": 8832,
+            "occupied_tile_cells": 271,
+            "unique_tiles": 202,
+            "reserved_tile_cells": [],
+            "chr_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+            "oam_sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 45470,
+            "2": 45778,
+            "3": 45809,
+            "4": 46005,
+            "5": 46035,
+            "6": 46251,
+            "7": 46280
+          },
+          "stream_bytes": {
+            "1": 308,
+            "2": 31,
+            "3": 196,
+            "4": 30,
+            "5": 216,
+            "6": 29,
+            "7": 276
+          },
+          "asset_bytes": 13788,
+          "source_metadata": {
+            "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+            "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Explicit concurrent source poses over controlled black; gameplay reachability unproven.",
+              "actors": [
+                {
+                  "model": "He_ManB",
+                  "animation": "freespecial4",
+                  "frame": 6,
+                  "position": [
+                    80,
+                    220,
+                    0
+                  ],
+                  "order": 0
+                },
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 11,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 0,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:He_ManB",
+                "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+                "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+                "source_dimensions": [
+                  200,
+                  200
+                ],
+                "position": [
+                  -16,
+                  44
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 3327,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+                "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 190,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": false,
+          "control_traffic_math_layer_selection_disabled": true,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY",
+          "production_queue_vram_byte_address": 0,
+          "production_queue_private_vram_lease": null,
+          "hoisted_constant_controls": {},
+          "authored_main_screen_obj_math": false,
+          "control_traffic_row_count": 55
+        },
+        "ppu": {
+          "frameCount": 15,
+          "scanline": 245,
+          "forcedBlank": true,
+          "brightness": 0,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 0,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 50258,
+          "k": 0,
+          "a": 2688,
+          "x": 0,
+          "y": 39612,
+          "sp": 8161,
+          "d": 0,
+          "dbr": 0,
+          "ps": 132,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 778393
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false
+      },
+      "artifacts": {
+        "report.json": {
+          "bytes": 221446,
+          "sha256": "51364007ef9973e9c52cab7ab96cec695343700aa1fbeb2b65c68fde295038bd"
+        },
+        "cgram-observer.json": {
+          "bytes": 64569,
+          "sha256": "9d508b349f617060347d74094cd72a8403c5aedf1f9f056076662eed011973a3"
+        },
+        "oam.bin": {
+          "bytes": 544,
+          "sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514"
+        },
+        "obj.chr": {
+          "bytes": 8832,
+          "sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04"
+        },
+        "expected.rgb555": {
+          "bytes": 114688,
+          "sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+        },
+        "cgram.bin": {
+          "bytes": 512,
+          "sha256": "a62e58fd7ff50a5b8a2134dd97af5c2d17fb94ee9740a03d84b39cefa1a7c49f"
+        },
+        "screenshot.png": {
+          "bytes": 6162,
+          "sha256": "3aaa393301f03f5e3c03bca7f976a5459defa6aede261fc2a2044ecf317eb8c2"
+        },
+        "mesen.log": {
+          "bytes": 179008,
+          "sha256": "4a4c435a7b9d4fad1ac287749ecfad2ccd7fa09a0aecc74278e8895e3c4ca3c3"
+        },
+        "fixture.pasm": {
+          "bytes": 40666,
+          "sha256": "b2a153305cc922891193cef55e38dadb62e2b9fe13928d082e7c4d21f22af201"
+        },
+        "fixture.sym": {
+          "bytes": 7109,
+          "sha256": "feda1a65941a0ff8e217660d1451b88780d12608f30f06a6cbe32c105c9500c9"
+        },
+        "observer.lua": {
+          "bytes": 9202,
+          "sha256": "0a79d871ea3332d9248b32c1105bc6ff7fcc66972a8997ee74eb128f8554583c"
+        }
+      }
+    },
+    "byor-motu-concurrent-kempe344-delta-controls-native": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "FAIL",
+        "control_traffic_fields": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": "19590b82eb7a24589b4bbfc5747b0e11316f992dca9d86abdc6493999bdf29e9",
+        "nmi_context_checks": 4,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37946,
+        "production_nmi_fields": 3,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a000000a0a6aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": false,
+        "physical_cgram_checks": 136,
+        "physical_cgram_byte_identity_faults": 306,
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 51411,
+        "complete_packet_fields": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 6,
+        "peak_observed_commit_span": 344,
+        "first_high_hclock_range": [
+          1092,
+          1116
+        ],
+        "irq_context_checks": 940,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 1234,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+        "source_frame_sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_actor_frames": [
+          {
+            "model": "He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3"
+          },
+          {
+            "model": "HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7"
+          }
+        ],
+        "input_schedule_file_sha256": "5e91ffc4426f8b17ade55e5198e350a9ea6bd83a044c771f52aa9be25a3855eb",
+        "compiled_transfer_descriptor_sha256": "4139c3775a9b2237afb8648414a725d585ac540d49f8a780de99450bb13b767f",
+        "compiled_schedule_sha256": "824754af3bece6e2fe1684ac249de6e77d89927919374e56ea8fd5c68e8cc137",
+        "rom_sha256": "2012d39d868bb44cdccde7f16367d47e0a5160050b94c4df573c2be23616b144",
+        "expected_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 162,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 0,
+            "obj_size_pair": [
+              8,
+              16
+            ],
+            "oam_entries": 73,
+            "obj_chr_bytes": 8832,
+            "occupied_tile_cells": 271,
+            "unique_tiles": 202,
+            "reserved_tile_cells": [],
+            "chr_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+            "oam_sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 45470,
+            "2": 45778,
+            "3": 45809,
+            "4": 46005,
+            "5": 46035,
+            "6": 46251,
+            "7": 46280
+          },
+          "stream_bytes": {
+            "1": 308,
+            "2": 31,
+            "3": 196,
+            "4": 30,
+            "5": 216,
+            "6": 29,
+            "7": 276
+          },
+          "asset_bytes": 13788,
+          "source_metadata": {
+            "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+            "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Explicit concurrent source poses over controlled black; gameplay reachability unproven.",
+              "actors": [
+                {
+                  "model": "He_ManB",
+                  "animation": "freespecial4",
+                  "frame": 6,
+                  "position": [
+                    80,
+                    220,
+                    0
+                  ],
+                  "order": 0
+                },
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 11,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 0,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:He_ManB",
+                "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+                "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+                "source_dimensions": [
+                  200,
+                  200
+                ],
+                "position": [
+                  -16,
+                  44
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 3327,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+                "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 190,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": true,
+          "control_traffic_math_layer_selection_disabled": true,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY",
+          "production_queue_vram_byte_address": 0,
+          "production_queue_private_vram_lease": null,
+          "hoisted_constant_controls": {},
+          "authored_main_screen_obj_math": false,
+          "control_traffic_row_count": 47
+        },
+        "ppu": {
+          "frameCount": 15,
+          "scanline": 247,
+          "forcedBlank": true,
+          "brightness": 0,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 0,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 34903,
+          "k": 18,
+          "a": 0,
+          "x": 32,
+          "y": 2560,
+          "sp": 8157,
+          "d": 0,
+          "dbr": 0,
+          "ps": 6,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 778747
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false
+      },
+      "artifacts": {
+        "report.json": {
+          "bytes": 219929,
+          "sha256": "7e453f00fdd5e2c109406adb5be65e6182182cf4a41309448594ac654b649c90"
+        },
+        "cgram-observer.json": {
+          "bytes": 48800,
+          "sha256": "f6227089583becea26905e1ff986a649030a625b6f8cf615dde5d75b89fa33b8"
+        },
+        "oam.bin": {
+          "bytes": 544,
+          "sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514"
+        },
+        "obj.chr": {
+          "bytes": 8832,
+          "sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04"
+        },
+        "expected.rgb555": {
+          "bytes": 114688,
+          "sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+        },
+        "cgram.bin": {
+          "bytes": 512,
+          "sha256": "9758de5064fe100bc5e6eb3a05101261816c8c82aece77458b014ce7e8141cc2"
+        },
+        "screenshot.png": {
+          "bytes": 5708,
+          "sha256": "baecf05a038ffe9757c685f4c3ad5ed2140774f9e6fd3f50d23e95a682fd3b4d"
+        },
+        "mesen.log": {
+          "bytes": 162623,
+          "sha256": "9be0bb9450b8a044779752b62577170968cef2191b1feb0096663fbbfce438f4"
+        },
+        "fixture.pasm": {
+          "bytes": 38533,
+          "sha256": "de7c58dd8d9bcf192ac428982f6dbd896c9e79e175194b655c625dd6ffc7f7dc"
+        },
+        "fixture.sym": {
+          "bytes": 7109,
+          "sha256": "94780d6305c660ec8f35817e6056e375cd2d80585e03f5288ebcfa5bcd609c1e"
+        },
+        "observer.lua": {
+          "bytes": 9202,
+          "sha256": "92e438cc245e5ba9afc3d398efe8a4630c10e31a88691c1fade983996ae75865"
+        }
+      }
+    },
+    "byor-motu-concurrent-kempe344-inline-delta-controls-native": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "FAIL",
+        "control_traffic_fields": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": "19590b82eb7a24589b4bbfc5747b0e11316f992dca9d86abdc6493999bdf29e9",
+        "nmi_context_checks": 4,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37946,
+        "production_nmi_fields": 3,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a000000a0a6aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": false,
+        "physical_cgram_checks": 136,
+        "physical_cgram_byte_identity_faults": 58,
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "complete_packet_fields": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 1,
+        "peak_observed_commit_span": 344,
+        "first_high_hclock_range": [
+          1100,
+          1108
+        ],
+        "irq_context_checks": 940,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 1210,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+        "source_frame_sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_actor_frames": [
+          {
+            "model": "He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3"
+          },
+          {
+            "model": "HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7"
+          }
+        ],
+        "input_schedule_file_sha256": "5e91ffc4426f8b17ade55e5198e350a9ea6bd83a044c771f52aa9be25a3855eb",
+        "compiled_transfer_descriptor_sha256": "4139c3775a9b2237afb8648414a725d585ac540d49f8a780de99450bb13b767f",
+        "compiled_schedule_sha256": "824754af3bece6e2fe1684ac249de6e77d89927919374e56ea8fd5c68e8cc137",
+        "rom_sha256": "e2f3a3fe19a699a79dfe96cb00c193eb4763e2703b49ccb07f9828d8968ecc5a",
+        "expected_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 162,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 0,
+            "obj_size_pair": [
+              8,
+              16
+            ],
+            "oam_entries": 73,
+            "obj_chr_bytes": 8832,
+            "occupied_tile_cells": 271,
+            "unique_tiles": 202,
+            "reserved_tile_cells": [],
+            "chr_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+            "oam_sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 45470,
+            "2": 45778,
+            "3": 45809,
+            "4": 46005,
+            "5": 46035,
+            "6": 46251,
+            "7": 46280
+          },
+          "stream_bytes": {
+            "1": 308,
+            "2": 31,
+            "3": 196,
+            "4": 30,
+            "5": 216,
+            "6": 29,
+            "7": 276
+          },
+          "asset_bytes": 13788,
+          "source_metadata": {
+            "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+            "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Explicit concurrent source poses over controlled black; gameplay reachability unproven.",
+              "actors": [
+                {
+                  "model": "He_ManB",
+                  "animation": "freespecial4",
+                  "frame": 6,
+                  "position": [
+                    80,
+                    220,
+                    0
+                  ],
+                  "order": 0
+                },
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 11,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 0,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:He_ManB",
+                "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+                "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+                "source_dimensions": [
+                  200,
+                  200
+                ],
+                "position": [
+                  -16,
+                  44
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 3327,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+                "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 190,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": true,
+          "control_traffic_math_layer_selection_disabled": true,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY",
+          "production_queue_vram_byte_address": 0,
+          "production_queue_private_vram_lease": null,
+          "hoisted_constant_controls": {},
+          "authored_main_screen_obj_math": false,
+          "inline_row_returns": true,
+          "control_traffic_row_count": 47
+        },
+        "ppu": {
+          "frameCount": 15,
+          "scanline": 225,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 0,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 37406,
+          "k": 167,
+          "a": 0,
+          "x": 22136,
+          "y": 39612,
+          "sp": 8180,
+          "d": 0,
+          "dbr": 0,
+          "ps": 7,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 777793
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false
+      },
+      "artifacts": {
+        "report.json": {
+          "bytes": 220339,
+          "sha256": "c21595a8ee42dd9b3985c6e1e9901f530e55b5079196b92703faee8aef219ce8"
+        },
+        "cgram-observer.json": {
+          "bytes": 48800,
+          "sha256": "661f82fa713fcb75d2f16724840a74004726f1f9a302fce0598805d1c3f0523b"
+        },
+        "oam.bin": {
+          "bytes": 544,
+          "sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514"
+        },
+        "obj.chr": {
+          "bytes": 8832,
+          "sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04"
+        },
+        "expected.rgb555": {
+          "bytes": 114688,
+          "sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+        },
+        "cgram.bin": {
+          "bytes": 512,
+          "sha256": "9ab30c32a4946d904ef602d006912bb2635fceb901164d82c7c177dd6b36851a"
+        },
+        "screenshot.png": {
+          "bytes": 5100,
+          "sha256": "649ecaeecd7113592e3c610b49779f441914d4b87d22bf44805b154f7b27d55a"
+        },
+        "mesen.log": {
+          "bytes": 186080,
+          "sha256": "24d73046ceecf2ae1833edbc271e3cac9639b7247df41c2fe58f43f8fbc0e243"
+        },
+        "fixture.pasm": {
+          "bytes": 41559,
+          "sha256": "93878edeb5a6c90c03832e4b485a0dfb529d819181ba0876e33daeb406131f5e"
+        },
+        "fixture.sym": {
+          "bytes": 15063,
+          "sha256": "444a61775255fc45fb85a3edb1b4b81d3de57e168f9fde9235f916cddd84458c"
+        },
+        "observer.lua": {
+          "bytes": 227154,
+          "sha256": "a50dcb783754a844f1539953c0fe96cd140762e0cf85eee3027264b08af5699c"
+        }
+      }
+    },
+    "byor-motu-concurrent-kempe344-inline-delta-controls-t161-native": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "FAIL",
+        "control_traffic_fields": [
+          12,
+          13,
+          14
+        ],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": "19590b82eb7a24589b4bbfc5747b0e11316f992dca9d86abdc6493999bdf29e9",
+        "nmi_context_checks": 3,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37946,
+        "production_nmi_fields": 3,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a000000a0a6aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": false,
+        "physical_cgram_checks": 102,
+        "physical_cgram_byte_identity_faults": 372,
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 20809,
+        "complete_packet_fields": [
+          12,
+          13,
+          14
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 18,
+        "peak_observed_commit_span": 344,
+        "first_high_hclock_range": [
+          1092,
+          1104
+        ],
+        "irq_context_checks": 705,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 1210,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+        "source_frame_sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_actor_frames": [
+          {
+            "model": "He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3"
+          },
+          {
+            "model": "HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7"
+          }
+        ],
+        "input_schedule_file_sha256": "5e91ffc4426f8b17ade55e5198e350a9ea6bd83a044c771f52aa9be25a3855eb",
+        "compiled_transfer_descriptor_sha256": "4139c3775a9b2237afb8648414a725d585ac540d49f8a780de99450bb13b767f",
+        "compiled_schedule_sha256": "824754af3bece6e2fe1684ac249de6e77d89927919374e56ea8fd5c68e8cc137",
+        "rom_sha256": "27e8ac256c2af5cf0a5e2a70c3a0625989eb5dc934e603be417a280b7a08bc89",
+        "expected_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 161,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 0,
+            "obj_size_pair": [
+              8,
+              16
+            ],
+            "oam_entries": 73,
+            "obj_chr_bytes": 8832,
+            "occupied_tile_cells": 271,
+            "unique_tiles": 202,
+            "reserved_tile_cells": [],
+            "chr_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+            "oam_sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 45470,
+            "2": 45778,
+            "3": 45809,
+            "4": 46005,
+            "5": 46035,
+            "6": 46251,
+            "7": 46280
+          },
+          "stream_bytes": {
+            "1": 308,
+            "2": 31,
+            "3": 196,
+            "4": 30,
+            "5": 216,
+            "6": 29,
+            "7": 276
+          },
+          "asset_bytes": 13788,
+          "source_metadata": {
+            "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+            "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Explicit concurrent source poses over controlled black; gameplay reachability unproven.",
+              "actors": [
+                {
+                  "model": "He_ManB",
+                  "animation": "freespecial4",
+                  "frame": 6,
+                  "position": [
+                    80,
+                    220,
+                    0
+                  ],
+                  "order": 0
+                },
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 11,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 0,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:He_ManB",
+                "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+                "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+                "source_dimensions": [
+                  200,
+                  200
+                ],
+                "position": [
+                  -16,
+                  44
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 3327,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+                "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 190,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": true,
+          "control_traffic_math_layer_selection_disabled": true,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY",
+          "production_queue_vram_byte_address": 0,
+          "production_queue_private_vram_lease": null,
+          "hoisted_constant_controls": {},
+          "authored_main_screen_obj_math": false,
+          "inline_row_returns": true,
+          "control_traffic_row_count": 47
+        },
+        "ppu": {
+          "frameCount": 14,
+          "scanline": 159,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 0,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 35982,
+          "k": 168,
+          "a": 65410,
+          "x": 22136,
+          "y": 39612,
+          "sp": 8185,
+          "d": 17152,
+          "dbr": 0,
+          "ps": 133,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 763854
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false
+      },
+      "artifacts": {
+        "report.json": {
+          "bytes": 172364,
+          "sha256": "b8a7a4f015a07cbd231db5d8008f3f35312d92178ca5d92afabe7e55d4194623"
+        },
+        "cgram-observer.json": {
+          "bytes": 36644,
+          "sha256": "934e8216129ceb2872068fcf35bc8677430a320466c07064bbb7b35e29cba59b"
+        },
+        "oam.bin": {
+          "bytes": 544,
+          "sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514"
+        },
+        "obj.chr": {
+          "bytes": 8832,
+          "sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04"
+        },
+        "expected.rgb555": {
+          "bytes": 114688,
+          "sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+        },
+        "cgram.bin": {
+          "bytes": 512,
+          "sha256": "c67140b0d762407d71d4acd8307c0a391a4109c97bbbc09445ead4e3d1e3913e"
+        },
+        "screenshot.png": {
+          "bytes": 5649,
+          "sha256": "94caffd6333c4832731f44c89b2e3d7f3c0540e4691a9d80194fe19da5ad7844"
+        },
+        "mesen.log": {
+          "bytes": 150905,
+          "sha256": "2ea0b3da5ce88b3adde8c58dfd187f7508deb4ce32d5d27c05baf0bb7cdaf3e8"
+        },
+        "fixture.pasm": {
+          "bytes": 41559,
+          "sha256": "eb49428a7e0af0ad838b1f4cc547b687ed92f4b373cc58c14e4492da8f0d0995"
+        },
+        "fixture.sym": {
+          "bytes": 15063,
+          "sha256": "444a61775255fc45fb85a3edb1b4b81d3de57e168f9fde9235f916cddd84458c"
+        },
+        "observer.lua": {
+          "bytes": 227154,
+          "sha256": "a50dcb783754a844f1539953c0fe96cd140762e0cf85eee3027264b08af5699c"
+        }
+      }
+    },
+    "byor-motu-concurrent-kempe344-inline-delta-controls-t166-native": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "FAIL",
+        "control_traffic_fields": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": "19590b82eb7a24589b4bbfc5747b0e11316f992dca9d86abdc6493999bdf29e9",
+        "nmi_context_checks": 4,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37946,
+        "production_nmi_fields": 3,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a000040a0a6aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": false,
+        "physical_cgram_checks": 136,
+        "physical_cgram_byte_identity_faults": 316,
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 51408,
+        "complete_packet_fields": [
+          12,
+          13,
+          14,
+          15
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 18,
+        "peak_observed_commit_span": 344,
+        "first_high_hclock_range": [
+          1100,
+          1108
+        ],
+        "irq_context_checks": 940,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 1192,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+        "source_frame_sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_actor_frames": [
+          {
+            "model": "He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3"
+          },
+          {
+            "model": "HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7"
+          }
+        ],
+        "input_schedule_file_sha256": "5e91ffc4426f8b17ade55e5198e350a9ea6bd83a044c771f52aa9be25a3855eb",
+        "compiled_transfer_descriptor_sha256": "4139c3775a9b2237afb8648414a725d585ac540d49f8a780de99450bb13b767f",
+        "compiled_schedule_sha256": "824754af3bece6e2fe1684ac249de6e77d89927919374e56ea8fd5c68e8cc137",
+        "rom_sha256": "9ce406504ad701d5028a414a076af10a93aed27385f78ec721e8f847a30dd301",
+        "expected_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 166,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 0,
+            "obj_size_pair": [
+              8,
+              16
+            ],
+            "oam_entries": 73,
+            "obj_chr_bytes": 8832,
+            "occupied_tile_cells": 271,
+            "unique_tiles": 202,
+            "reserved_tile_cells": [],
+            "chr_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+            "oam_sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 45470,
+            "2": 45778,
+            "3": 45809,
+            "4": 46005,
+            "5": 46035,
+            "6": 46251,
+            "7": 46280
+          },
+          "stream_bytes": {
+            "1": 308,
+            "2": 31,
+            "3": 196,
+            "4": 30,
+            "5": 216,
+            "6": 29,
+            "7": 276
+          },
+          "asset_bytes": 13788,
+          "source_metadata": {
+            "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+            "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Explicit concurrent source poses over controlled black; gameplay reachability unproven.",
+              "actors": [
+                {
+                  "model": "He_ManB",
+                  "animation": "freespecial4",
+                  "frame": 6,
+                  "position": [
+                    80,
+                    220,
+                    0
+                  ],
+                  "order": 0
+                },
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 11,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 0,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:He_ManB",
+                "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+                "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+                "source_dimensions": [
+                  200,
+                  200
+                ],
+                "position": [
+                  -16,
+                  44
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 3327,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+                "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 190,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": true,
+          "control_traffic_math_layer_selection_disabled": true,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY",
+          "production_queue_vram_byte_address": 0,
+          "production_queue_private_vram_lease": null,
+          "hoisted_constant_controls": {},
+          "authored_main_screen_obj_math": false,
+          "inline_row_returns": true,
+          "control_traffic_row_count": 47
+        },
+        "ppu": {
+          "frameCount": 15,
+          "scanline": 245,
+          "forcedBlank": true,
+          "brightness": 0,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 0,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 50098,
+          "k": 0,
+          "a": 2688,
+          "x": 0,
+          "y": 39612,
+          "sp": 8163,
+          "d": 0,
+          "dbr": 0,
+          "ps": 132,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 778406
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false
+      },
+      "artifacts": {
+        "report.json": {
+          "bytes": 220652,
+          "sha256": "7c94f473d804508657ae02439a1f11bd93b15987b49fcb4d3baeec11b62c1d1a"
+        },
+        "cgram-observer.json": {
+          "bytes": 48800,
+          "sha256": "4515b1f72f4ddcc89ba9d12b06aa18aa40fc8ddf5794d95b0c24dde292a049b4"
+        },
+        "oam.bin": {
+          "bytes": 544,
+          "sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514"
+        },
+        "obj.chr": {
+          "bytes": 8832,
+          "sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04"
+        },
+        "expected.rgb555": {
+          "bytes": 114688,
+          "sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+        },
+        "cgram.bin": {
+          "bytes": 512,
+          "sha256": "7a19db0c0ce6e5131cda0b1ef3d5400d4f8c08d72be41f2393b245b6aec12868"
+        },
+        "screenshot.png": {
+          "bytes": 5698,
+          "sha256": "e19b730793a6df764fe5ed6f706664bcf6524eb175946e2d29635ed8bd5c378e"
+        },
+        "mesen.log": {
+          "bytes": 186217,
+          "sha256": "9b30e010486843348d3d6cf7476295104e5d27d56cfdf4d8f0b969521626697b"
+        },
+        "fixture.pasm": {
+          "bytes": 41548,
+          "sha256": "7961923bfd7c68405216be70950f43a3af3ad6a03fd0cb778f048d270d34be48"
+        },
+        "fixture.sym": {
+          "bytes": 15063,
+          "sha256": "a2611a8585b431adab37a7d2b9a6a872e5ce3790d9490548f2d3e2dc2b2d4d34"
+        },
+        "observer.lua": {
+          "bytes": 227154,
+          "sha256": "eea164793a4aa2b07254b58b711bbd020ff52f41a9ed57d556d6250d18054686"
+        }
+      }
+    },
+    "byor-motu-concurrent-kempe344-inline-delta-controls-t165-native": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "PASS",
+        "control_traffic_fields": [
+          12,
+          13
+        ],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": "19590b82eb7a24589b4bbfc5747b0e11316f992dca9d86abdc6493999bdf29e9",
+        "nmi_context_checks": 2,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37946,
+        "production_nmi_fields": 2,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a000000a0a6aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": true,
+        "physical_cgram_checks": 68,
+        "physical_cgram_byte_identity_faults": 0,
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "complete_packet_fields": [
+          12,
+          13
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 0,
+        "peak_observed_commit_span": 344,
+        "first_high_hclock_range": [
+          1100,
+          1104
+        ],
+        "irq_context_checks": 470,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 1192,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+        "source_frame_sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_actor_frames": [
+          {
+            "model": "He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3"
+          },
+          {
+            "model": "HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7"
+          }
+        ],
+        "input_schedule_file_sha256": "5e91ffc4426f8b17ade55e5198e350a9ea6bd83a044c771f52aa9be25a3855eb",
+        "compiled_transfer_descriptor_sha256": "4139c3775a9b2237afb8648414a725d585ac540d49f8a780de99450bb13b767f",
+        "compiled_schedule_sha256": "824754af3bece6e2fe1684ac249de6e77d89927919374e56ea8fd5c68e8cc137",
+        "rom_sha256": "82d34b38dd647eca3c16ab57e679913921130621e7b8f5adc4485a46b0c80c14",
+        "expected_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 165,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 0,
+            "obj_size_pair": [
+              8,
+              16
+            ],
+            "oam_entries": 73,
+            "obj_chr_bytes": 8832,
+            "occupied_tile_cells": 271,
+            "unique_tiles": 202,
+            "reserved_tile_cells": [],
+            "chr_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+            "oam_sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 45470,
+            "2": 45778,
+            "3": 45809,
+            "4": 46005,
+            "5": 46035,
+            "6": 46251,
+            "7": 46280
+          },
+          "stream_bytes": {
+            "1": 308,
+            "2": 31,
+            "3": 196,
+            "4": 30,
+            "5": 216,
+            "6": 29,
+            "7": 276
+          },
+          "asset_bytes": 13788,
+          "source_metadata": {
+            "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+            "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Explicit concurrent source poses over controlled black; gameplay reachability unproven.",
+              "actors": [
+                {
+                  "model": "He_ManB",
+                  "animation": "freespecial4",
+                  "frame": 6,
+                  "position": [
+                    80,
+                    220,
+                    0
+                  ],
+                  "order": 0
+                },
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 11,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 0,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:He_ManB",
+                "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+                "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+                "source_dimensions": [
+                  200,
+                  200
+                ],
+                "position": [
+                  -16,
+                  44
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 3327,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+                "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 190,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": true,
+          "control_traffic_math_layer_selection_disabled": true,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY",
+          "production_queue_vram_byte_address": 0,
+          "production_queue_private_vram_lease": null,
+          "hoisted_constant_controls": {},
+          "authored_main_screen_obj_math": false,
+          "inline_row_returns": true,
+          "control_traffic_row_count": 47
+        },
+        "ppu": {
+          "frameCount": 13,
+          "scanline": 153,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 0,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 35759,
+          "k": 168,
+          "a": 35977,
+          "x": 22136,
+          "y": 39612,
+          "sp": 8185,
+          "d": 17152,
+          "dbr": 0,
+          "ps": 133,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 712924
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false
+      },
+      "artifacts": {
+        "report.json": {
+          "bytes": 124523,
+          "sha256": "3f01736783879615041a25549a246ec476447bc3fa1b4db94bfe2043cee9c86f"
+        },
+        "cgram-observer.json": {
+          "bytes": 24461,
+          "sha256": "5b88959a0a8bd189d5c35da6d0d51ab8a474c318b2b2b8515ab481d631270cfc"
+        },
+        "oam.bin": {
+          "bytes": 544,
+          "sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514"
+        },
+        "obj.chr": {
+          "bytes": 8832,
+          "sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04"
+        },
+        "expected.rgb555": {
+          "bytes": 114688,
+          "sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+        },
+        "cgram.bin": {
+          "bytes": 512,
+          "sha256": "f1ee859013e96ce82ef775c970bf646f843f438bfab8f950a39a787513a19936"
+        },
+        "screenshot.png": {
+          "bytes": 5100,
+          "sha256": "649ecaeecd7113592e3c610b49779f441914d4b87d22bf44805b154f7b27d55a"
+        },
+        "mesen.log": {
+          "bytes": 115778,
+          "sha256": "5c369c49ecbd82c71b2f9ea2c1298ab49bd901846c1abfc89944dc5beb8c671f"
+        },
+        "fixture.pasm": {
+          "bytes": 41548,
+          "sha256": "41a4c4e7aea6d8ed20ed49a2cedc888a13e366627c21cea03930ece12ac30f55"
+        },
+        "fixture.sym": {
+          "bytes": 15063,
+          "sha256": "a2611a8585b431adab37a7d2b9a6a872e5ce3790d9490548f2d3e2dc2b2d4d34"
+        },
+        "observer.lua": {
+          "bytes": 227154,
+          "sha256": "eea164793a4aa2b07254b58b711bbd020ff52f41a9ed57d556d6250d18054686"
+        }
+      }
+    },
+    "byor-motu-concurrent-kempe344-inline-delta-controls-t165-eight-native": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "FAIL",
+        "control_traffic_fields": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": "19590b82eb7a24589b4bbfc5747b0e11316f992dca9d86abdc6493999bdf29e9",
+        "nmi_context_checks": 6,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37946,
+        "production_nmi_fields": 5,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a000040a0a6aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": false,
+        "physical_cgram_checks": 204,
+        "physical_cgram_byte_identity_faults": 192,
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 51408,
+        "complete_packet_fields": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 1,
+        "peak_observed_commit_span": 344,
+        "first_high_hclock_range": [
+          1092,
+          1104
+        ],
+        "irq_context_checks": 1410,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 1198,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ],
+          [
+            16,
+            0
+          ],
+          [
+            17,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+        "source_frame_sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_actor_frames": [
+          {
+            "model": "He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3"
+          },
+          {
+            "model": "HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7"
+          }
+        ],
+        "input_schedule_file_sha256": "5e91ffc4426f8b17ade55e5198e350a9ea6bd83a044c771f52aa9be25a3855eb",
+        "compiled_transfer_descriptor_sha256": "4139c3775a9b2237afb8648414a725d585ac540d49f8a780de99450bb13b767f",
+        "compiled_schedule_sha256": "824754af3bece6e2fe1684ac249de6e77d89927919374e56ea8fd5c68e8cc137",
+        "rom_sha256": "82d34b38dd647eca3c16ab57e679913921130621e7b8f5adc4485a46b0c80c14",
+        "expected_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 165,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 0,
+            "obj_size_pair": [
+              8,
+              16
+            ],
+            "oam_entries": 73,
+            "obj_chr_bytes": 8832,
+            "occupied_tile_cells": 271,
+            "unique_tiles": 202,
+            "reserved_tile_cells": [],
+            "chr_sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04",
+            "oam_sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 45470,
+            "2": 45778,
+            "3": 45809,
+            "4": 46005,
+            "5": 46035,
+            "6": 46251,
+            "7": 46280
+          },
+          "stream_bytes": {
+            "1": 308,
+            "2": 31,
+            "3": 196,
+            "4": 30,
+            "5": 216,
+            "6": 29,
+            "7": 276
+          },
+          "asset_bytes": 13788,
+          "source_metadata": {
+            "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+            "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Explicit concurrent source poses over controlled black; gameplay reachability unproven.",
+              "actors": [
+                {
+                  "model": "He_ManB",
+                  "animation": "freespecial4",
+                  "frame": 6,
+                  "position": [
+                    80,
+                    220,
+                    0
+                  ],
+                  "order": 0
+                },
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 11,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 0,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:He_ManB",
+                "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+                "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+                "source_dimensions": [
+                  200,
+                  200
+                ],
+                "position": [
+                  -16,
+                  44
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 3327,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+                "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 190,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": true,
+          "control_traffic_math_layer_selection_disabled": true,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY",
+          "production_queue_vram_byte_address": 0,
+          "production_queue_private_vram_lease": null,
+          "hoisted_constant_controls": {},
+          "authored_main_screen_obj_math": false,
+          "inline_row_returns": true,
+          "control_traffic_row_count": 47
+        },
+        "ppu": {
+          "frameCount": 17,
+          "scanline": 228,
+          "forcedBlank": true,
+          "brightness": 0,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 0,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 50176,
+          "k": 0,
+          "a": 0,
+          "x": 48,
+          "y": 39612,
+          "sp": 8163,
+          "d": 0,
+          "dbr": 0,
+          "ps": 6,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 877704
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false
+      },
+      "artifacts": {
+        "report.json": {
+          "bytes": 318007,
+          "sha256": "b78b8886771fef27dfde53fe0821e625fd7a76a8ab40e4472502cb5bf7e2c10b"
+        },
+        "cgram-observer.json": {
+          "bytes": 73145,
+          "sha256": "0ad3a377679b92b2d0dc8060fe94838bdd8b7e479693ec2d097f0bca562e9a02"
+        },
+        "oam.bin": {
+          "bytes": 544,
+          "sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514"
+        },
+        "obj.chr": {
+          "bytes": 8832,
+          "sha256": "43accc19ec3a6605bdd98a1a1303c9945cbc1b49ca649439428997e37915bb04"
+        },
+        "expected.rgb555": {
+          "bytes": 114688,
+          "sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+        },
+        "cgram.bin": {
+          "bytes": 512,
+          "sha256": "2e9e46cdf72301c08c1c895f3fad8ab0b95c8d3cced77ad49c462c5258e6e08a"
+        },
+        "screenshot.png": {
+          "bytes": 5678,
+          "sha256": "72fedb093ae9a006af0e3db2acbc3d345cccf2aa0183b642ba49062f43b883ad"
+        },
+        "mesen.log": {
+          "bytes": 258822,
+          "sha256": "4cfd8c67b56e637ed4b17b00b7f1ed7c10204d2103faeed4f7c35af787aab5b7"
+        },
+        "fixture.pasm": {
+          "bytes": 41548,
+          "sha256": "41a4c4e7aea6d8ed20ed49a2cedc888a13e366627c21cea03930ece12ac30f55"
+        },
+        "fixture.sym": {
+          "bytes": 15063,
+          "sha256": "a2611a8585b431adab37a7d2b9a6a872e5ce3790d9490548f2d3e2dc2b2d4d34"
+        },
+        "observer.lua": {
+          "bytes": 227154,
+          "sha256": "eea164793a4aa2b07254b58b711bbd020ff52f41a9ed57d556d6250d18054686"
+        }
+      }
+    },
+    "byor-motu-concurrent-kempe-margin-inline-t165-eight-native": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "FAIL",
+        "control_traffic_fields": [
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": "19590b82eb7a24589b4bbfc5747b0e11316f992dca9d86abdc6493999bdf29e9",
+        "nmi_context_checks": 5,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37946,
+        "production_nmi_fields": 5,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a000000a0a6aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": false,
+        "physical_cgram_checks": 170,
+        "physical_cgram_byte_identity_faults": 124,
+        "pixel_identity_verified": false,
+        "pixel_mismatches": 19203,
+        "complete_packet_fields": [
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 1,
+        "peak_observed_commit_span": 344,
+        "first_high_hclock_range": [
+          1092,
+          1104
+        ],
+        "irq_context_checks": 1175,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 1198,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ],
+          [
+            16,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "7e66671c6f5fff970817ff7a52068ec49c101d025ca914ee4eab8849a597e23e",
+        "source_frame_sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_actor_frames": [
+          {
+            "model": "He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3"
+          },
+          {
+            "model": "HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7"
+          }
+        ],
+        "input_schedule_file_sha256": "b3e33f190c3534660f3cc845d3fd0a99b43c86a51365a52668da186173191f41",
+        "compiled_transfer_descriptor_sha256": "d8725d7683fb4ae9bc01e050c2ca8ad6ad96c5312b2411c12a42ecbbb488465b",
+        "compiled_schedule_sha256": "cf2440f471902d2c2d0afea0ea30760e319e77b3e7172412b2b46c5b6211846a",
+        "rom_sha256": "e7375dbf810b6074e9ff4472d78ffb51082e63a76d40179e48f6bd066e90ac88",
+        "expected_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 165,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 0,
+            "obj_size_pair": [
+              8,
+              16
+            ],
+            "oam_entries": 73,
+            "obj_chr_bytes": 8832,
+            "occupied_tile_cells": 271,
+            "unique_tiles": 202,
+            "reserved_tile_cells": [],
+            "chr_sha256": "7e66671c6f5fff970817ff7a52068ec49c101d025ca914ee4eab8849a597e23e",
+            "oam_sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 45470,
+            "2": 45734,
+            "3": 45766,
+            "4": 45990,
+            "5": 46021,
+            "6": 46277,
+            "7": 46306
+          },
+          "stream_bytes": {
+            "1": 264,
+            "2": 32,
+            "3": 224,
+            "4": 31,
+            "5": 256,
+            "6": 29,
+            "7": 226
+          },
+          "asset_bytes": 13764,
+          "source_metadata": {
+            "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+            "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Explicit concurrent source poses over controlled black; gameplay reachability unproven.",
+              "actors": [
+                {
+                  "model": "He_ManB",
+                  "animation": "freespecial4",
+                  "frame": 6,
+                  "position": [
+                    80,
+                    220,
+                    0
+                  ],
+                  "order": 0
+                },
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 11,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 0,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:He_ManB",
+                "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+                "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+                "source_dimensions": [
+                  200,
+                  200
+                ],
+                "position": [
+                  -16,
+                  44
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 3327,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+                "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 190,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": true,
+          "control_traffic_math_layer_selection_disabled": true,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY",
+          "production_queue_vram_byte_address": 0,
+          "production_queue_private_vram_lease": null,
+          "hoisted_constant_controls": {},
+          "authored_main_screen_obj_math": false,
+          "inline_row_returns": true,
+          "control_traffic_row_count": 47
+        },
+        "ppu": {
+          "frameCount": 16,
+          "scanline": 168,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 0,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 36867,
+          "k": 167,
+          "a": 4660,
+          "x": 22136,
+          "y": 39612,
+          "sp": 8185,
+          "d": 17152,
+          "dbr": 0,
+          "ps": 5,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 865247
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false
+      },
+      "artifacts": {
+        "report.json": {
+          "bytes": 269966,
+          "sha256": "c458e86574cd354f2db0d5f5dde4a36346b43b489f2d98163248c595a84b25ed"
+        },
+        "cgram-observer.json": {
+          "bytes": 60338,
+          "sha256": "3c436d048cbf22e93328b7b9c001fce4a584007b5112af254c8a61fcac261b66"
+        },
+        "oam.bin": {
+          "bytes": 544,
+          "sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514"
+        },
+        "obj.chr": {
+          "bytes": 8832,
+          "sha256": "7e66671c6f5fff970817ff7a52068ec49c101d025ca914ee4eab8849a597e23e"
+        },
+        "expected.rgb555": {
+          "bytes": 114688,
+          "sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+        },
+        "cgram.bin": {
+          "bytes": 512,
+          "sha256": "ee6425a396693f8fc133da04b9f09758268a92c3dfefbd00a063ae8050a4f68f"
+        },
+        "screenshot.png": {
+          "bytes": 5466,
+          "sha256": "4f5d659792f3a77eb512207f0d46c604525eb219c9a9c6f6304033d62a6fd6c1"
+        },
+        "mesen.log": {
+          "bytes": 222975,
+          "sha256": "6ab759ae1e59432a61ef8a4ac000cdee00c730f7da3909ce409c7d49b83c8ead"
+        },
+        "fixture.pasm": {
+          "bytes": 41511,
+          "sha256": "6cb1c551358f1663bd6a4bd30d7b4d55e6b92153dc533296527b511aafdfabdf"
+        },
+        "fixture.sym": {
+          "bytes": 15063,
+          "sha256": "13fe43c3626e292198b39fd9cbf1c3c677004d792e26175094d712c643572e9f"
+        },
+        "observer.lua": {
+          "bytes": 227154,
+          "sha256": "de49bec4e71fb97998aa01c489ab47dc9b16d73fd617a44504245f706ccbb6d7"
+        }
+      }
+    },
+    "byor-motu-concurrent-kempe-margin-inline-t170-eight-native": {
+      "report": {
+        "schema": "BYOR_CONTROLLED_SOURCE_RASTER_OBJ_NATIVE_V1",
+        "status": "PASS",
+        "control_traffic_fields": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "control_traffic_identity_verified": true,
+        "control_traffic_source_file_sha256": "19590b82eb7a24589b4bbfc5747b0e11316f992dca9d86abdc6493999bdf29e9",
+        "nmi_context_checks": 6,
+        "nmi_context_faults": 0,
+        "peak_nmi_entry_to_rti_master_clocks": 37946,
+        "production_nmi_fields": 5,
+        "nmi_completed_within_vblank": true,
+        "production_queue_vram_identity_verified": true,
+        "production_queue_state_hex": "fe0a000040a0a6aa",
+        "production_queue_payload_identity_verified": true,
+        "physical_cgram_identity_verified": true,
+        "physical_cgram_checks": 204,
+        "physical_cgram_byte_identity_faults": 0,
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "complete_packet_fields": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "packet_identity_faults": 0,
+        "unsafe_high_commits": 0,
+        "peak_observed_commit_span": 344,
+        "first_high_hclock_range": [
+          1100,
+          1104
+        ],
+        "irq_context_checks": 1410,
+        "irq_context_faults": 0,
+        "peak_irq_entry_to_rti_master_clocks": 1180,
+        "oam_ram_identity_verified": true,
+        "oam_observer_identity_verified": true,
+        "obj_overflow_flags": [
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ],
+          [
+            16,
+            0
+          ],
+          [
+            17,
+            0
+          ]
+        ],
+        "obj_chr_vram_identity_verified": true,
+        "obj_chr_vram_sha256": "7e66671c6f5fff970817ff7a52068ec49c101d025ca914ee4eab8849a597e23e",
+        "source_frame_sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_actor_frames": [
+          {
+            "model": "He_ManB",
+            "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+            "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3"
+          },
+          {
+            "model": "HBreath",
+            "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+            "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7"
+          }
+        ],
+        "input_schedule_file_sha256": "b3e33f190c3534660f3cc845d3fd0a99b43c86a51365a52668da186173191f41",
+        "compiled_transfer_descriptor_sha256": "d8725d7683fb4ae9bc01e050c2ca8ad6ad96c5312b2411c12a42ecbbb488465b",
+        "compiled_schedule_sha256": "cf2440f471902d2c2d0afea0ea30760e319e77b3e7172412b2b46c5b6211846a",
+        "rom_sha256": "16182c27ae7d6bbfb457ca2fafe077b975c8247f7857068d8bb1e8e277330f81",
+        "expected_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+        "foreground_wait_for_irq": true,
+        "foreground_stress": false,
+        "dma_counts_prepared_previous_line": true,
+        "timer": 170,
+        "resources": {
+          "chr_report": {
+            "schema": "BYOR_RASTER_OBJ_CHR_V1",
+            "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+            "obj_size_mode": 0,
+            "obj_size_pair": [
+              8,
+              16
+            ],
+            "oam_entries": 73,
+            "obj_chr_bytes": 8832,
+            "occupied_tile_cells": 271,
+            "unique_tiles": 202,
+            "reserved_tile_cells": [],
+            "chr_sha256": "7e66671c6f5fff970817ff7a52068ec49c101d025ca914ee4eab8849a597e23e",
+            "oam_sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514",
+            "emitted_oam_chr_pixel_indices_verified": true,
+            "native_render_proven": false,
+            "no_color_reduction": true
+          },
+          "stream_offsets": {
+            "1": 45470,
+            "2": 45734,
+            "3": 45766,
+            "4": 45990,
+            "5": 46021,
+            "6": 46277,
+            "7": 46306
+          },
+          "stream_bytes": {
+            "1": 264,
+            "2": 32,
+            "3": 224,
+            "4": 31,
+            "5": 256,
+            "6": 29,
+            "7": 226
+          },
+          "asset_bytes": 13764,
+          "source_metadata": {
+            "stage": "BYOR_PROOF/ISOLATED_STAGE.TXT",
+            "stage_sha256": "d5d05a91248ebbb262e7b6133f24fd12b4186bfcc072fe724544bf3b0a5ae953",
+            "scene": {
+              "viewport": [
+                256,
+                224
+              ],
+              "piece_size": [
+                16,
+                32
+              ],
+              "provenance": "Explicit concurrent source poses over controlled black; gameplay reachability unproven.",
+              "actors": [
+                {
+                  "model": "He_ManB",
+                  "animation": "freespecial4",
+                  "frame": 6,
+                  "position": [
+                    80,
+                    220,
+                    0
+                  ],
+                  "order": 0
+                },
+                {
+                  "model": "HBreath",
+                  "animation": "idle",
+                  "frame": 11,
+                  "position": [
+                    98,
+                    220,
+                    93
+                  ],
+                  "order": 2
+                }
+              ]
+            },
+            "layers": [
+              {
+                "kind": "background",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 57344,
+                "source_flip": false
+              },
+              {
+                "kind": "panel",
+                "path": "BYOR_PROOF/CONSTANT_UNDERLAY.PNG",
+                "sha256": "215f7d29950f1a98a9cb1351721b425dc30c8beff8154ad25a14d0fae2f969c8",
+                "source_dimensions": [
+                  256,
+                  224
+                ],
+                "position": [
+                  0,
+                  0
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 0,
+                "source_flip": false
+              },
+              {
+                "kind": "actor:He_ManB",
+                "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+                "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+                "source_dimensions": [
+                  200,
+                  200
+                ],
+                "position": [
+                  -16,
+                  44
+                ],
+                "alpha": 0,
+                "visible_source_pixels": 3327,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+                "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814"
+              },
+              {
+                "kind": "actor:HBreath",
+                "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+                "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+                "source_dimensions": [
+                  110,
+                  90
+                ],
+                "position": [
+                  84,
+                  92
+                ],
+                "alpha": 1,
+                "visible_source_pixels": 2751,
+                "source_flip": false,
+                "requested_map": 0,
+                "selected_map": 0,
+                "source_model_type": "none",
+                "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+                "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55"
+              }
+            ],
+            "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+            "alpha_source_dimensions": [
+              [
+                110,
+                90
+              ]
+            ],
+            "camera": [
+              0.0,
+              0.0
+            ],
+            "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+            "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+            "all_actor_models_preserved": true
+          },
+          "empty_scanline_dma_setup_skipped": 190,
+          "private_fixture_only": true,
+          "controls_before_palette": false,
+          "delta_control_traffic": true,
+          "control_traffic_math_layer_selection_disabled": true,
+          "foreground_context": "WAI_EACH_RASTER_IRQ",
+          "dma_counts_prepared_previous_line": true,
+          "prepared_count_high_bytes_zero": true,
+          "idle_irq_bank_zero_abi": true,
+          "idle_irq_x_untouched": true,
+          "idle_irq_direct_page": 17152,
+          "actual_source_vm_execution_proven": false,
+          "production_nmi_service_code_executed": true,
+          "production_nmi_queue_bytes": 2814,
+          "production_queue_registration_executed": false,
+          "production_queue_byte_cap": 2816,
+          "within_production_queue_byte_cap": true,
+          "service_path_stress_only": false,
+          "initial_palette_vblank_bytes": 256,
+          "raster_cgram_owned_word_range": [
+            128,
+            255
+          ],
+          "production_cold_boot_proven": false,
+          "code_rom_banks": [
+            103,
+            104
+          ],
+          "asset_rom_bank": 106,
+          "sa1_mmc_registers_changed": false,
+          "standalone_lorom": false,
+          "production_sa1_mapping_proven": true,
+          "production_sa1_worker_execution_proven": false,
+          "bank_zero_growth_bytes": 0,
+          "irq_dma_channels": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "hdma_channels": [],
+          "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_ON_CONTROLLED_CONSTANT_UNDERLAY",
+          "production_queue_vram_byte_address": 0,
+          "production_queue_private_vram_lease": null,
+          "hoisted_constant_controls": {},
+          "authored_main_screen_obj_math": false,
+          "inline_row_returns": true,
+          "control_traffic_row_count": 47
+        },
+        "ppu": {
+          "frameCount": 17,
+          "scanline": 228,
+          "forcedBlank": true,
+          "brightness": 0,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 0,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 50191,
+          "k": 0,
+          "a": 56,
+          "x": 56,
+          "y": 39612,
+          "sp": 8163,
+          "d": 0,
+          "dbr": 0,
+          "ps": 4,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 877920
+        },
+        "no_color_reduction": true,
+        "production_runtime_admitted": false,
+        "authored_stage_and_concurrent_actors_proven": false,
+        "motu_gameplay_proven": false
+      },
+      "artifacts": {
+        "report.json": {
+          "bytes": 318090,
+          "sha256": "42b2998b000eebe1b01a0d182f4f8eeea6fbe5db07247bed7cea1a565f6a7907"
+        },
+        "cgram-observer.json": {
+          "bytes": 72381,
+          "sha256": "7af9a78fc7a1480cdc6588d3bfafc181286ff64c5c4b5bfb57fcae3d9422b53b"
+        },
+        "oam.bin": {
+          "bytes": 544,
+          "sha256": "25f9b5720d860207a859552c6d135038ee3edda06a4f7bcde6974401ade73514"
+        },
+        "obj.chr": {
+          "bytes": 8832,
+          "sha256": "7e66671c6f5fff970817ff7a52068ec49c101d025ca914ee4eab8849a597e23e"
+        },
+        "expected.rgb555": {
+          "bytes": 114688,
+          "sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+        },
+        "cgram.bin": {
+          "bytes": 512,
+          "sha256": "865734ecb321c9403d05567ee154f8b6e16d94f853c49e50d12ba0f63a3eaab9"
+        },
+        "screenshot.png": {
+          "bytes": 5100,
+          "sha256": "649ecaeecd7113592e3c610b49779f441914d4b87d22bf44805b154f7b27d55a"
+        },
+        "mesen.log": {
+          "bytes": 258105,
+          "sha256": "a7d0ad2f65584edb4c0ce6b41ef2a4e4dd2cc18acba3525c0385411813cdcc3e"
+        },
+        "fixture.pasm": {
+          "bytes": 41500,
+          "sha256": "15a5a2410911c932b408d430dff7bee5932117845846295cb82cb40e08d8c529"
+        },
+        "fixture.sym": {
+          "bytes": 15063,
+          "sha256": "772f204a87050fadb9ceed992d167124f9d25bcf65081eefd0a2e20a765f1fa1"
+        },
+        "observer.lua": {
+          "bytes": 227154,
+          "sha256": "ba7c5f59bc59ec4478a1494edb753cd0278084a6d593a94cd6bfe03fc4b95e5e"
+        }
+      }
+    }
+  },
+  "compressed_evidence": {
+    "path": "docs\\receipts\\byor-motu-kempe-native.json.gz",
+    "bytes": 1194658,
+    "sha256": "bb8fb92ed2e38149b9b9f43abbbec1cea22eaa98db12d99f20c81c8b541d449d"
+  },
+  "protected_tracked_files_verified": 17,
+  "production_runtime_admitted": false,
+  "authored_background_alpha_admitted": false,
+  "no_color_reduction": true
+}

@@ -46,7 +46,8 @@ def verify_precomposited_pixels(schedule,background,expected):
                 source_rgb555_sha256=hashlib.sha256(replay.tobytes()).hexdigest())
 
 
-def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=False,foreground_stress=False,production_nmi_services=False,nmi_queue_bytes=512,foreground_wai=False,prepare_next_line=False,control_traffic=None,delta_control_traffic=False,controls_before_palette=False,authored_context=None):
+def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=False,foreground_stress=False,production_nmi_services=False,nmi_queue_bytes=512,foreground_wai=False,prepare_next_line=False,control_traffic=None,delta_control_traffic=False,controls_before_palette=False,authored_context=None,inline_row_returns=False):
+    if inline_row_returns and not foreground_wai:raise ValueError('NATIVE_INLINE_RETURN_REQUIRES_WAI_ABI')
     if production_nmi_services and(not sa1_mapping or not 0<=nmi_queue_bytes<=4096 or nmi_queue_bytes%2):raise ValueError('NATIVE_PRODUCTION_NMI_SERVICE_DOMAIN')
     if foreground_wai and foreground_stress:raise ValueError('NATIVE_WAI_AND_FOREGROUND_STRESS_CONFLICT')
     if delta_control_traffic and control_traffic is None:raise ValueError('NATIVE_DELTA_CONTROL_TRAFFIC_REQUIRED')
@@ -189,10 +190,12 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
     if foreground_wai:asm.append(' wai')
     if foreground_stress:asm.extend([' lda.l $7E1D00',' sta.l $7E1D02',' eor #$FFFF',' pha',' pla',' sep #$20','.a8',' lda.l $7E1D04',' rep #$20','.a16'])
     asm.append(' bra IsolatedRasterHold')
-    asm.extend(['.org $9000','IsolatedRasterIrq:','.a16','.i16',' rep #$38',' pha'])
+    # The private WAI owner keeps A16, and this IRQ executes no decimal
+    # arithmetic. Its inline variant can retain D until the saved P is restored.
+    asm.extend(['.org $9000','IsolatedRasterIrq:','.a16','.i16',*([]if inline_row_returns else[' rep #$38']),' pha'])
     if not foreground_wai:asm.extend([' phx',' phb',' sep #$20','.a8',' lda #$00',' pha',' plb'])
     else:asm.extend([' sep #$20','.a8'])
-    asm.extend([' lda $4211',' lda $4212',' and #$80',' bne IsolatedRasterReturn8',' rep #$20','.a16',' jml [$1E00]',
+    asm.extend([' lda $4211',' lda $4212',*([' bmi IsolatedRasterReturn8']if inline_row_returns else[' and #$80',' bne IsolatedRasterReturn8']),' rep #$20','.a16',' jml [$1E00]',
         'IsolatedRasterReturn8:','.a8','.i16',' rep #$20','IsolatedRasterReturn:','.a16','.i16'])
     if not foreground_wai:asm.extend([' plb',' plx'])
     asm.extend([' pla','IsolatedRasterIrqRti:',' rti'])
@@ -250,7 +253,8 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
             if not controls_before_palette:emit_controls(y,leave_a8=True,part='bytes',a8_already=True)
             asm.extend([' rep #$20','.a16'])
         elif not controls_before_palette:emit_controls(y,part='bytes')
-        asm.extend([f' lda #IsolatedRasterRow{y+1}',' sta $1E00',' jml IsolatedRasterReturn'])
+        asm.extend([f' lda #IsolatedRasterRow{y+1}',' sta $1E00'])
+        asm.extend([' pla',f'IsolatedRasterRow{y}IrqRti:',' rti']if inline_row_returns else[' jml IsolatedRasterReturn'])
     asm.extend(['IsolatedRasterRow224:','.a16','.i16',' jml IsolatedRasterReturn'])
     path=folder/'fixture.pasm';path.write_text('\n'.join(asm)+'\n')
     run=subprocess.run(['C:/Users/chad/.dotnet/dotnet.exe','E:/gh/poppy-astrobleem/src/Poppy.CLI/bin/Release/net10.0/poppy.dll',str(path),'--output',str(folder/'fixture.bin'),'--symbols',str(folder/'fixture.sym')],capture_output=True,text=True)
@@ -263,7 +267,7 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
         section=binary[original_bank*32768:(original_bank+1)*32768].ljust(32768,b'\0')
         if sa1_mapping and original_bank==40:
             target=sy['IsolatedRasterReturn'];old=bytes([0x5c,target&255,target>>8&255,target>>16&255]);new=old[:3]+bytes([code_bank])
-            if section.count(old)!=225:raise ValueError('NATIVE_RETURN_ALIAS_RELOCATION_COUNT')
+            if section.count(old)!=(1 if inline_row_returns else 225):raise ValueError('NATIVE_RETURN_ALIAS_RELOCATION_COUNT')
             section=section.replace(old,new)
         raw[target_bank*32768:(target_bank+1)*32768]=section
     raw[asset_rom*32768:asset_rom*32768+len(assets)]=assets
@@ -287,10 +291,11 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
     resources.update(authored_main_screen_obj_math=authored_main,
         control_traffic_math_layer_selection_disabled=control_traffic is not None and not authored_main)
     if authored_context is not None:resources['source_alpha_policy']='EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555'
+    resources['inline_row_returns']=inline_row_returns
     return bytes(raw),expected,bytes(initial),oam,sy,resources
 
 
-def observer(sy,sa1_mapping=False,queue_address=0,queue_bytes=0,control_traffic=False,physical_cgram=False,foreground_wai=False,queue_vram_byte_address=0):
+def observer(sy,sa1_mapping=False,queue_address=0,queue_bytes=0,control_traffic=False,physical_cgram=False,foreground_wai=False,queue_vram_byte_address=0,inline_row_returns=False):
     def prg(name):v=sy[name];return((v>>16&127)+(64 if sa1_mapping else 0))*32768+(v&65535)-32768
     register_observer=''
     if control_traffic:
@@ -336,6 +341,17 @@ emu.addEventCallback(function()if active then local s=emu.getState();emu.log('IS
         lua+=f"emu.addMemoryCallback(function()if active then phaseStart=phase()end end,emu.callbackType.exec,{prg('IsolatedRasterIrq')},{prg('IsolatedRasterIrq')},emu.cpuType.snes,emu.memType.snesPrgRom)\n"
         lua+=f"emu.addMemoryCallback(function()if active and phaseStart then local finish=phase();emu.log('ISOIRQPHASE|'..table.concat(phaseStart,',')..','..table.concat(finish,',')..','..controlRow);phaseStart=nil end end,emu.callbackType.exec,{prg('IsolatedRasterIrqRti')},{prg('IsolatedRasterIrqRti')},emu.cpuType.snes,emu.memType.snesPrgRom)\n"
         if foreground_wai:lua+=f"emu.addMemoryCallback(function()if active then emu.log('ISOFGWAIT|'..table.concat(phase(),',')..','..controlRow)end end,emu.callbackType.exec,{prg('IsolatedRasterHold')},{prg('IsolatedRasterHold')},emu.cpuType.snes,emu.memType.snesPrgRom)\n"
+    if inline_row_returns:
+        begin=lua.index('emu.addMemoryCallback(function()\n local now=snapshot();')
+        common=prg('IsolatedRasterIrqRti')
+        ending=f'end,emu.callbackType.exec,{common},{common},emu.cpuType.snes,emu.memType.snesPrgRom)'
+        end=lua.index(ending,begin)+len(ending)
+        callback=lua[begin:end]
+        for y in range(224):
+            target=prg(f'IsolatedRasterRow{y}IrqRti')
+            lua+='\n'+callback.replace(f',{common},{common},',f',{target},{target},')+'\n'
+            if control_traffic:
+                lua+=f"emu.addMemoryCallback(function()if active and phaseStart then local finish=phase();emu.log('ISOIRQPHASE|'..table.concat(phaseStart,',')..','..table.concat(finish,',')..','..controlRow);phaseStart=nil end end,emu.callbackType.exec,{target},{target},emu.cpuType.snes,emu.memType.snesPrgRom)\n"
     return lua
 
 
@@ -348,10 +364,12 @@ def main():
     p.add_argument('--foreground-wai',action='store_true',help='Measure an explicitly idle 65816 foreground awaiting each raster IRQ; excludes foreground stress.')
     p.add_argument('--production-nmi-services',action='store_true')
     p.add_argument('--delta-control-traffic',action='store_true',help='Write only changed control fields; paired window bounds remain atomic word writes.')
+    p.add_argument('--inline-row-returns',action='store_true',help='Inline the private WAI ABI row return; verify every RTI context independently.')
     p.add_argument('--controls-before-palette',action='store_true',help='Measure source-bound control register writes before palette DMA; previous-line pixel deadlines require a separate check.')
     p.add_argument('--control-traffic',type=Path,help='Execute source-bound alpha/window register traffic with layer math selection disabled; measures transport only, not authored alpha rendering.')
     p.add_argument('--prepare-next-line',action='store_true',help='Prepare the following row DMA counts after the current transfer, shortening the next IRQ critical path.')
     p.add_argument('--nmi-queue-bytes',type=int,default=512)
+    p.add_argument('--proof-fields',type=int,default=4,choices=range(4,17),help='Bounded number of ready fields before observer capture.')
     p.add_argument('--timer',type=int,default=44);a=p.parse_args();folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True)
     schedule=json.loads(a.schedule.read_text());scene=json.loads(a.scene.read_text());authored_context=None
     if a.stage:
@@ -360,9 +378,9 @@ def main():
         source=Source(a.source);_,metadata,composed=prepare(source,a.stage,scene)
         background=rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0])
         authored_context=dict(metadata=metadata,expected=rgb555(composed),background=background)
-    raw,expected,initial,oam,sy,resources=compile_rom(a.rom.read_bytes(),a.source,scene,schedule,folder,a.timer,a.sa1_mapping,a.foreground_stress,a.production_nmi_services,a.nmi_queue_bytes,a.foreground_wai,a.prepare_next_line,json.loads(a.control_traffic.read_text())if a.control_traffic else None,a.delta_control_traffic,a.controls_before_palette,authored_context)
+    raw,expected,initial,oam,sy,resources=compile_rom(a.rom.read_bytes(),a.source,scene,schedule,folder,a.timer,a.sa1_mapping,a.foreground_stress,a.production_nmi_services,a.nmi_queue_bytes,a.foreground_wai,a.prepare_next_line,json.loads(a.control_traffic.read_text())if a.control_traffic else None,a.delta_control_traffic,a.controls_before_palette,authored_context,a.inline_row_returns)
     production_sy=symbols(Path('src/main.sym'))if a.production_nmi_services else {}
-    rom=folder/'proof.sfc';rom.write_bytes(raw);lua=folder/'observer.lua';lua.write_text(observer(sy,a.sa1_mapping,production_sy.get('DmaQueue',0),a.nmi_queue_bytes,a.control_traffic is not None,True,a.foreground_wai,resources['production_queue_vram_byte_address']))
+    rom=folder/'proof.sfc';rom.write_bytes(raw);lua=folder/'observer.lua';lua.write_text(observer(sy,a.sa1_mapping,production_sy.get('DmaQueue',0),a.nmi_queue_bytes,a.control_traffic is not None,True,a.foreground_wai,resources['production_queue_vram_byte_address'],a.inline_row_returns))
     if authored_context is not None:
         with lua.open('a')as f:f.write("\nlocal routing={};emu.addMemoryCallback(function(a,v)if a==0x2105 or a==0x2107 or a==0x210b or a==0x212c or a==0x212d or a==0x2130 or a==0x2131 or a==0x2132 then routing[a]=v end end,emu.callbackType.write,0x2105,0x2132,emu.cpuType.snes,emu.memType.snesMemory)\nemu.addEventCallback(function()if active then for a,v in pairs(routing)do emu.log('ISOROUTE|'..a..','..v)end end end,emu.eventType.endFrame)\n")
     class Observed(McpSession):
@@ -372,10 +390,10 @@ def main():
             with patch.object(module,'subprocess',SimpleNamespace(Popen=launch,DEVNULL=subprocess.DEVNULL,PIPE=subprocess.PIPE)):return super().__enter__()
     with Observed(rom=rom,mesen=MESEN_EXE,port=_free_tcp_port(),stderr_log=folder/'mesen.log')as m:
         advancement=[];ready_fields=0
-        for _ in range(24):
+        for _ in range(24+a.proof_fields):
             step=m.run_frames(1);advancement.append(step)
             if m.read_memory('SnesMemory',0x7e1e04,2)==bytes.fromhex('01 b4'):ready_fields+=step['framesAdvanced']
-            if ready_fields>=4:break
+            if ready_fields>=a.proof_fields:break
         shot=m.tool('take_screenshot',{'format':'path','path':str(folder/'screenshot.png')});cg=m.read_memory('SnesCgRam',0,512);observed_oam=m.read_memory('SnesSpriteRam',0,544);ppu=m.get_ppu_state();cpu=m.get_cpu_state()
         observed_chr=m.read_memory('SnesVideoRam',0xc000,resources['chr_report']['obj_chr_bytes'])
         chr_identity=hashlib.sha256(observed_chr).hexdigest()==resources['chr_report']['chr_sha256']

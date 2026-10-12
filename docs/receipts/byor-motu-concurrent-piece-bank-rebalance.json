@@ -510,6 +510,26 @@
       "viewport_pixels": 57344,
       "visible_obj_pixels": 5936,
       "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-piece-balanced-cache16-life-permuted.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-piece-balanced-cache16-life-permuted2.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-piece-balanced-cache16-life-kempe.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-piece-balanced-cache16-life-kempe-margin.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
     }
   },
   "focused_tests": {
@@ -609,12 +629,17 @@
     "byor-motu-concurrent-piece-balanced-cache16-live-shifted.json": "80e2ace3abb16fc87c4726e6b146ec845afb749fabf932e56f191b14437f7c86",
     "byor-motu-concurrent-piece-balanced-cache16-rectangle345.json": "53cc2ab3352698ed464a75ec3b581b415c67330e9af567dcca4f4ecd809b873d",
     "byor-motu-concurrent-piece-balanced-cache16-interval-reindexed.json": "86b460a2a0f839855e465c0bc64727cd57a0ad86206143fd387ccc74ee058625",
-    "byor-motu-concurrent-piece-balanced-cache16-relabel.json": "232e4fef00bd51c46311da57d37b14eda8bb398a4efb47caf36e24609472d5ad"
+    "byor-motu-concurrent-piece-balanced-cache16-relabel.json": "232e4fef00bd51c46311da57d37b14eda8bb398a4efb47caf36e24609472d5ad",
+    "byor-motu-concurrent-piece-balanced-cache16-events345.json": "11cf0a2cd19e2167db9874ae7245c15713e63c19369f9eee950e2da5009ba4b7",
+    "byor-motu-concurrent-piece-balanced-cache16-life-permuted.json": "904c5044e233b2ccc7ade45f0f64becf0ebb09c9ef0f4b19a75c64375196c4b2",
+    "byor-motu-concurrent-piece-balanced-cache16-life-permuted2.json": "9efa8ab20bc9f663a10265c0e169e8d908ebd41d99542f5d1dfdca73def7d655",
+    "byor-motu-concurrent-piece-balanced-cache16-life-kempe.json": "5e91ffc4426f8b17ade55e5198e350a9ea6bd83a044c771f52aa9be25a3855eb",
+    "byor-motu-concurrent-piece-balanced-cache16-life-kempe-margin.json": "b3e33f190c3534660f3cc845d3fd0a99b43c86a51365a52668da186173191f41"
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-concurrent-piece-bank-rebalance.json.gz",
-    "bytes": 1463206,
-    "sha256": "657a1a639257ec62623439002626a242de6b7fbd5f16a93020d2ce94f23f7d28"
+    "bytes": 1573313,
+    "sha256": "02f7792d7207f906011d0e5e9b3615176a6805f916647a5c9bedf0e5ac5f42d6"
   },
   "local_refinement": {
     "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
@@ -719,7 +744,7 @@
     "necessary_bank_window_master_clocks": 345,
     "full_frame_necessary_bank_window_verified": true
   },
-  "refined_peak_span": 360,
+  "refined_peak_span": 344,
   "followup_search": {
     "byor-motu-concurrent-retarget-repair-piece-balanced-refined2.json": {
       "input_file_sha256": "1a07d8a294b3fca8250e32049cfeea727c3fb67e9e0b58229688427dd6bde2f8",
@@ -8513,6 +8538,301 @@
         "visible_obj_pixels": 5936,
         "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
       }
+    },
+    "byor-motu-concurrent-piece-balanced-cache16-events345.json": {
+      "input_file_sha256": "11cf0a2cd19e2167db9874ae7245c15713e63c19369f9eee950e2da5009ba4b7",
+      "physical_slot_layout": {
+        "schema": "BYOR_FIXED_INDEX_EVENT_TIME_SCHEDULE_V1",
+        "solver_status": "INFEASIBLE",
+        "solver_seconds": 3.0,
+        "event_count": 384,
+        "model_variables": 17034,
+        "model_constraints": 27092,
+        "window_master_clocks": 345,
+        "lookahead_lines": 55,
+        "restricted_model_peak_span_lower_bound": 0,
+        "fixed_initial_palette": true,
+        "fixed_per_slot_event_sequence": true,
+        "event_removal_and_slot_relocation_not_modeled": true,
+        "fixed_pixel_indices": true,
+        "fixed_piece_bank_assignment": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "event_schedule": null,
+      "mixed_dma_transport": null,
+      "critical_subdivision": null,
+      "source_replay": null
+    },
+    "byor-motu-concurrent-piece-balanced-cache16-life-permuted.json": {
+      "input_file_sha256": "904c5044e233b2ccc7ade45f0f64becf0ebb09c9ef0f4b19a75c64375196c4b2",
+      "physical_slot_layout": {
+        "schema": "BYOR_LIFETIME_SLOT_RECOLOR_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "initial_upper_score": [
+          424,
+          848,
+          10408
+        ],
+        "best_upper_score": [
+          408,
+          528,
+          9848
+        ],
+        "actual_score": [
+          408,
+          512,
+          9832
+        ],
+        "peak_prepared_commit_span": 408,
+        "target_window_met_by_all_packets": false,
+        "seconds": 11.25,
+        "lifetime_count": 501,
+        "proposals": 115666,
+        "accepted": 89239,
+        "paired_exchanges": 76293,
+        "seed": 635,
+        "overlap_constraints_verified": true,
+        "write_times_fixed": true,
+        "fixed_piece_bank_assignment": true,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "event_schedule": {
+        "schema": "BYOR_FIXED_INDEX_EVENT_TIME_SCHEDULE_V1",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 13.391000000294298,
+        "event_count": 421,
+        "model_variables": 24559,
+        "model_constraints": 39669,
+        "window_master_clocks": 377,
+        "lookahead_lines": 55,
+        "restricted_model_peak_span_lower_bound": 360.0,
+        "fixed_pixel_indices": true,
+        "fixed_piece_bank_assignment": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "peak_prepared_commit_span": 360,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true
+      },
+      "mixed_dma_transport": null,
+      "critical_subdivision": null,
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-piece-balanced-cache16-life-permuted2.json": {
+      "input_file_sha256": "9efa8ab20bc9f663a10265c0e169e8d908ebd41d99542f5d1dfdca73def7d655",
+      "physical_slot_layout": {
+        "schema": "BYOR_LIFETIME_SLOT_RECOLOR_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "initial_upper_score": [
+          408,
+          512,
+          9832
+        ],
+        "best_upper_score": [
+          408,
+          512,
+          9832
+        ],
+        "actual_score": [
+          408,
+          512,
+          9832
+        ],
+        "peak_prepared_commit_span": 408,
+        "target_window_met_by_all_packets": false,
+        "seconds": 16.29700000025332,
+        "lifetime_count": 500,
+        "proposals": 174213,
+        "accepted": 134010,
+        "paired_exchanges": 114438,
+        "seed": 636,
+        "overlap_constraints_verified": true,
+        "write_times_fixed": true,
+        "fixed_piece_bank_assignment": true,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "maximum_noninitial_prefetch_latency_lines": 11
+      },
+      "refinement": null,
+      "event_schedule": {
+        "schema": "BYOR_FIXED_INDEX_EVENT_TIME_SCHEDULE_V1",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 13.391000000294298,
+        "event_count": 421,
+        "model_variables": 24559,
+        "model_constraints": 39669,
+        "window_master_clocks": 377,
+        "lookahead_lines": 55,
+        "restricted_model_peak_span_lower_bound": 360.0,
+        "fixed_pixel_indices": true,
+        "fixed_piece_bank_assignment": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "peak_prepared_commit_span": 360,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true
+      },
+      "mixed_dma_transport": null,
+      "critical_subdivision": null,
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-piece-balanced-cache16-life-kempe.json": {
+      "input_file_sha256": "5e91ffc4426f8b17ade55e5198e350a9ea6bd83a044c771f52aa9be25a3855eb",
+      "physical_slot_layout": {
+        "schema": "BYOR_LIFETIME_SLOT_RECOLOR_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "initial_upper_score": [
+          408,
+          512,
+          9832
+        ],
+        "best_upper_score": [
+          344,
+          0,
+          9584
+        ],
+        "actual_score": [
+          344,
+          0,
+          9584
+        ],
+        "peak_prepared_commit_span": 344,
+        "target_window_met_by_all_packets": true,
+        "seconds": 16.953999999910593,
+        "lifetime_count": 500,
+        "proposals": 153061,
+        "accepted": 70691,
+        "paired_exchanges": 20503,
+        "seed": 637,
+        "overlap_constraints_verified": true,
+        "write_times_fixed": true,
+        "fixed_piece_bank_assignment": true,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "maximum_noninitial_prefetch_latency_lines": 11,
+        "kempe_probability": 0.5,
+        "kempe_chain_exchanges": 46012
+      },
+      "refinement": null,
+      "event_schedule": {
+        "schema": "BYOR_FIXED_INDEX_EVENT_TIME_SCHEDULE_V1",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 13.391000000294298,
+        "event_count": 421,
+        "model_variables": 24559,
+        "model_constraints": 39669,
+        "window_master_clocks": 377,
+        "lookahead_lines": 55,
+        "restricted_model_peak_span_lower_bound": 360.0,
+        "fixed_pixel_indices": true,
+        "fixed_piece_bank_assignment": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "peak_prepared_commit_span": 360,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true
+      },
+      "mixed_dma_transport": null,
+      "critical_subdivision": null,
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-piece-balanced-cache16-life-kempe-margin.json": {
+      "input_file_sha256": "b3e33f190c3534660f3cc845d3fd0a99b43c86a51365a52668da186173191f41",
+      "physical_slot_layout": {
+        "schema": "BYOR_LIFETIME_SLOT_RECOLOR_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "initial_upper_score": [
+          344,
+          144,
+          9584
+        ],
+        "best_upper_score": [
+          344,
+          48,
+          9424
+        ],
+        "actual_score": [
+          344,
+          48,
+          9424
+        ],
+        "peak_prepared_commit_span": 344,
+        "target_window_met_by_all_packets": false,
+        "seconds": 50.07799999974668,
+        "lifetime_count": 500,
+        "proposals": 423755,
+        "accepted": 196353,
+        "paired_exchanges": 57460,
+        "seed": 638,
+        "overlap_constraints_verified": true,
+        "write_times_fixed": true,
+        "fixed_piece_bank_assignment": true,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "maximum_noninitial_prefetch_latency_lines": 11,
+        "kempe_probability": 0.5,
+        "kempe_chain_exchanges": 127364,
+        "maximum_accepted_kempe_component_size": 15
+      },
+      "refinement": null,
+      "event_schedule": {
+        "schema": "BYOR_FIXED_INDEX_EVENT_TIME_SCHEDULE_V1",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 13.391000000294298,
+        "event_count": 421,
+        "model_variables": 24559,
+        "model_constraints": 39669,
+        "window_master_clocks": 377,
+        "lookahead_lines": 55,
+        "restricted_model_peak_span_lower_bound": 360.0,
+        "fixed_pixel_indices": true,
+        "fixed_piece_bank_assignment": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "peak_prepared_commit_span": 360,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true
+      },
+      "mixed_dma_transport": null,
+      "critical_subdivision": null,
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
     }
   },
   "static_bank_solver_focused_tests": {
@@ -8623,5 +8943,15 @@
   "physical_layout_regression_tests": {
     "passed": 21,
     "seconds": 11.712
+  },
+  "lifetime_recolor_focused_tests": {
+    "passed": 2,
+    "seconds": 0.055,
+    "reloads_opaque_zero_fixed_banks_and_source_words_verified": true
+  },
+  "lifetime_component_exchange_tests": {
+    "passed": 3,
+    "seconds": 0.198,
+    "connected_component_overlap_source_pixels_and_cgram_verified": true
   }
 }
