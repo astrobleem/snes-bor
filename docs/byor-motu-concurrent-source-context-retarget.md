@@ -32,7 +32,13 @@ Fixed-time physical slot placement returns UNKNOWN after 90.110 seconds at
 344 clocks. This neither admits the transfer nor rejects raster presentation.
 A broader diagnostic finds a fully replayed physical witness with a 616-clock
 peak and a restricted-family lower bound of 312 clocks; it exceeds the native
-window and is not admitted. Movable timing is tested separately.
+window and is not admitted. Movable three-line timing neighborhoods return
+UNKNOWN after 90.087 seconds. Four local cache-and-slot repairs reduce the
+physical peak from 616 to 504 clocks and total span from 11,632 to 10,848
+clocks. Every accepted state retains all source pixels, the 21-write cap,
+fixed OAM banks and the necessary 344-clock ideal bank-partition bound.
+Independent source replay checks the accepted 504-clock witness. It remains
+above the native window; no admission or universal rejection follows.
 Native concurrent presentation, authored-stage peak alpha, live composition
 and leases, compiler selection and the full MOTU Demo remain open.
 
