@@ -36,3 +36,47 @@ replay also verifies the accepted physical witness. It remains above the
 native window. Native concurrent admission, authored-stage peak alpha, live
 composition and leases, compiler integration and the full MOTU Demo remain
 open. NO color reduction or alpha adaptation applied.
+
+Six further local repairs retain the 424-clock peak and reduce aggregate
+commit cost from 10,064 to 9,904 clocks. Independent source replay again
+matches all 57,344 pixels and the same viewport hash. A complete free-residency
+search with 541 idle bank rows collapsed returns UNKNOWN after 60.225 seconds;
+a forced 408-clock local repair returns UNKNOWN after 45.109 seconds. Neither
+result rejects raster presentation.
+
+Restricting this geometry to four or five effect banks plus player bank 3,
+while preserving the necessary 21-write interval bound, produces INFEASIBLE
+results in 11.302 and 12.318 seconds. These results apply only to those fixed
+geometry/domain/bandwidth families. They do not reject seven effect banks,
+other player allocations, generic subdivision, or raster presentation.
+
+The generic physical solver can optionally preload banks whose complete-frame
+color union fits fifteen slots, retaining a fixed slot layout and eliminating
+their later writes. Sixteen focused tests verify packet and pixel identity,
+including opaque RGB555 zero and a mixed static/dynamic bank case. This
+concurrent assignment has bank word unions of 51, 26, 52, 31, 26, 25, 74 and
+52, so no bank qualifies. In particular, the player bank itself requires
+raster updates. The same-size complete search with this option returns
+UNKNOWN after 60.132 seconds; it does not establish a new admission bound.
+
+A broader bank relabel experiment makes all eight banks eligible for both
+actors in this controlled precomposited context. It tests 22,479 permutations
+and 256 slot reflections each in 45.047 seconds, without improving the
+424-clock peak. The time limit leaves that family nonexhaustive.
+
+The generic `raster_physical_slot_permute.py` instead searches arbitrary fixed
+permutations of the fifteen opaque slots in each bank. A fixed permutation
+preserves every source word, its cache lifetime, write time, OAM bank and
+geometry; pixel indices and packet data are remapped offline. The first
+100,000 proposals reduce the physical peak to 408 clocks in 6.515 seconds;
+300,000 further proposals reduce it to 392 clocks in 19.031 seconds. Both
+complete physical witnesses replay all source pixels and CGRAM packets.
+The peak write count remains 17. These witnesses remain above the measured
+344-clock native window. Two focused permutation tests plus nineteen existing
+packet/layout regression tests pass, including input immutability and aliased
+prefetch-event lists. No native or gameplay admission is claimed.
+
+Six local cache repairs of the 392-clock witness retain that peak and reduce
+aggregate transfer cost from 9,936 to 9,792 clocks. Five complete candidates
+are accepted; independent source replay again matches the complete viewport.
+The full-frame 21-write cap and necessary bank-window check remain valid.

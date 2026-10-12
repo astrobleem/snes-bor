@@ -275,6 +275,31 @@
       "viewport_pixels": 57344,
       "visible_obj_pixels": 5936,
       "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-retarget-repair-piece-balanced-refined2.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-piece-balanced-open-bank-relabel.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-piece-balanced-fixed-slot-permuted.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-piece-balanced-fixed-slot-permuted2.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-piece-balanced-permuted-cache-refined.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
     }
   },
   "focused_tests": {
@@ -294,12 +319,22 @@
     "byor-motu-concurrent-retarget-repair-piece-balanced-minimum-span.json": "ee9d334420006b2eb6e16c147bde9f03e99051f358ffcc904ff597ddff390b6e",
     "byor-motu-concurrent-retarget-repair-piece-balanced-physical345.json": "2864a449727e8cb6f02742b6df83f611d40b8f87180ec489d4c140e3b862b766",
     "byor-motu-concurrent-retarget-repair-piece-balanced-diagnostic.json": "340c04ef1b9a3a08f0d3005d6b0d81f7fe962d598cd38be7f929b70661906269",
-    "byor-motu-concurrent-retarget-repair-piece-balanced-refined.json": "fe7678676b9719308fe02a87773ab5ee102f54eef2a5a70d0d7ff9bfe9bfc838"
+    "byor-motu-concurrent-retarget-repair-piece-balanced-refined.json": "fe7678676b9719308fe02a87773ab5ee102f54eef2a5a70d0d7ff9bfe9bfc838",
+    "byor-motu-concurrent-retarget-repair-piece-balanced-refined2.json": "1a07d8a294b3fca8250e32049cfeea727c3fb67e9e0b58229688427dd6bde2f8",
+    "byor-motu-concurrent-piece-balanced-bank-idle-free-physical345.json": "19c2126e9285c889aa4fcb3eff847ab16aee48547c5412a336e1b998bcb0885d",
+    "byor-motu-concurrent-piece-balanced-forced-local409.json": "3211a9c6415b24386ffcdfc29568c60f42f6a74d3bd908453a08f1b8ad777159",
+    "byor-motu-concurrent-four-effect-bank-search.json": "516dc27545c8123c8b9fd61f93ec4229698a2ee1f0af2ff9740af6974143ddc3",
+    "byor-motu-concurrent-five-effect-bank-search.json": "585c1720a17dd0edd4fa1fa1f43b59c9f4071471f2b90d1e1eb68338c233f5b2",
+    "byor-motu-concurrent-piece-balanced-static-bank-free-physical345.json": "c6b6ffe87126e4316b2f9a301f57f3ab2fec984566dc8672452a2dcd368d37ba",
+    "byor-motu-concurrent-piece-balanced-open-bank-relabel.json": "c3304b57aea6ae2d6de6f09a5c0299813e912ab62269da0f117a35864d77d203",
+    "byor-motu-concurrent-piece-balanced-fixed-slot-permuted.json": "e0cab14fcc64f207d84ec5ca419e9c9a4a438b0cf5bf203aadbb373e87f25392",
+    "byor-motu-concurrent-piece-balanced-fixed-slot-permuted2.json": "dcaaf3728f9c1770ab652606267f0b06ed25877aaa92c659f08fbceec0ed7296",
+    "byor-motu-concurrent-piece-balanced-permuted-cache-refined.json": "c389744359efc9ee81d0491f9638320eb79f91d04632625b9b8f92c928b72769"
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-concurrent-piece-bank-rebalance.json.gz",
-    "bytes": 129945,
-    "sha256": "155e9ec1d510dead295963004f6e3237d2ecc1512d720311787c508fefab8cf1"
+    "bytes": 272657,
+    "sha256": "bff06f0b2187630b89c548d7844a788a779df9d83878e0791a8816a16c757ab4"
   },
   "local_refinement": {
     "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
@@ -404,5 +439,1458 @@
     "necessary_bank_window_master_clocks": 345,
     "full_frame_necessary_bank_window_verified": true
   },
-  "refined_peak_span": 424
+  "refined_peak_span": 392,
+  "followup_search": {
+    "byor-motu-concurrent-retarget-repair-piece-balanced-refined2.json": {
+      "input_file_sha256": "1a07d8a294b3fca8250e32049cfeea727c3fb67e9e0b58229688427dd6bde2f8",
+      "physical_slot_layout": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 15.116331400000002,
+        "solver_search_strategy": "portfolio",
+        "solver_probing_level": 2,
+        "bank_idle_rows_collapsed": 0,
+        "collapse_bank_idle_rows": false,
+        "bank_visible_intervals": null,
+        "physical_range_encoding": "coverage",
+        "persistent_word_index_family_only": false,
+        "solver_model_variables": 19912,
+        "solver_model_constraints": 54740,
+        "solver_branches": 151557,
+        "solver_conflicts": 0,
+        "solver_objective_lower_bound": 31660094.0,
+        "maximum_physical_writes_per_transfer_row": 21,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_write_budget_enforced": false,
+        "objective_peak_scale": 114689,
+        "peak_commit_span_lower_bound_for_this_restricted_model": 236,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "window_master_clocks": 425,
+        "requested_repair_window_master_clocks": 425,
+        "physical_repair_interval": [
+          120,
+          146
+        ],
+        "physical_repair_transfer_interval": [
+          120,
+          147
+        ],
+        "full_frame_transfer_window_enforced": false,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "physical_change_and_range_membership_hints_coherent": true,
+        "distinct_required_word_slot_matching_enforced": true,
+        "full_bank_demand_value_matching_enforced": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": true,
+        "bank_interval_liveness_cuts": 25037,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 111,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          223
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "packet_ranges_independently_minimized": true,
+        "peak_prepared_commit_span": 424,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        }
+      },
+      "refinement": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 345,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              128,
+              138
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.067819700000001,
+            "model_variables": 9069,
+            "restricted_model_peak_span_lower_bound": 258,
+            "before": [
+              424,
+              10064
+            ],
+            "candidate": [
+              424,
+              10096
+            ],
+            "accepted": false
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              140,
+              150
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.0800429,
+            "model_variables": 9042,
+            "restricted_model_peak_span_lower_bound": 189,
+            "before": [
+              424,
+              10064
+            ],
+            "candidate": [
+              424,
+              9984
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 2,
+            "interval": [
+              126,
+              140
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.0880352,
+            "model_variables": 11806,
+            "restricted_model_peak_span_lower_bound": 248,
+            "before": [
+              424,
+              9984
+            ],
+            "candidate": [
+              424,
+              9968
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 3,
+            "interval": [
+              124,
+              142
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.107915100000001,
+            "model_variables": 14530,
+            "restricted_model_peak_span_lower_bound": 241,
+            "before": [
+              424,
+              9968
+            ],
+            "candidate": [
+              424,
+              9952
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 4,
+            "interval": [
+              122,
+              144
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.114785300000001,
+            "model_variables": 17234,
+            "restricted_model_peak_span_lower_bound": 243,
+            "before": [
+              424,
+              9952
+            ],
+            "candidate": [
+              424,
+              9952
+            ],
+            "accepted": false
+          },
+          {
+            "iteration": 5,
+            "interval": [
+              120,
+              146
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.116331400000002,
+            "model_variables": 19912,
+            "restricted_model_peak_span_lower_bound": 236,
+            "before": [
+              424,
+              9952
+            ],
+            "candidate": [
+              424,
+              9904
+            ],
+            "accepted": true
+          }
+        ],
+        "maximum_physical_writes_per_transfer_row": 21,
+        "full_frame_write_budget_verified": true,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_necessary_bank_window_verified": true
+      },
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-piece-balanced-bank-idle-free-physical345.json": {
+      "input_file_sha256": "19c2126e9285c889aa4fcb3eff847ab16aee48547c5412a336e1b998bcb0885d",
+      "physical_slot_layout": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 60.224612400000005,
+        "solver_search_strategy": "portfolio",
+        "solver_probing_level": 0,
+        "bank_idle_rows_collapsed": 541,
+        "collapse_bank_idle_rows": true,
+        "bank_visible_intervals": {
+          "0": [
+            126,
+            153
+          ],
+          "1": [
+            128,
+            147
+          ],
+          "2": [
+            124,
+            153
+          ],
+          "3": [
+            112,
+            223
+          ],
+          "4": [
+            125,
+            151
+          ],
+          "5": [
+            122,
+            159
+          ],
+          "6": [
+            123,
+            167
+          ],
+          "7": [
+            112,
+            166
+          ]
+        },
+        "physical_range_encoding": "coverage",
+        "persistent_word_index_family_only": false,
+        "solver_model_variables": 41484,
+        "solver_model_constraints": 88737,
+        "solver_branches": 1275201,
+        "solver_conflicts": 1653,
+        "solver_objective_lower_bound": 272.0,
+        "maximum_physical_writes_per_transfer_row": 21,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_write_budget_enforced": true,
+        "objective_peak_scale": 1,
+        "peak_commit_span_lower_bound_for_this_restricted_model": 232,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": false,
+        "window_master_clocks": 345,
+        "requested_repair_window_master_clocks": null,
+        "physical_repair_interval": null,
+        "physical_repair_transfer_interval": null,
+        "full_frame_transfer_window_enforced": true,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "physical_change_and_range_membership_hints_coherent": true,
+        "distinct_required_word_slot_matching_enforced": true,
+        "full_bank_demand_value_matching_enforced": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+        "bank_interval_liveness_cuts": 25037,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 111,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          223
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "source_replay": null
+    },
+    "byor-motu-concurrent-piece-balanced-forced-local409.json": {
+      "input_file_sha256": "3211a9c6415b24386ffcdfc29568c60f42f6a74d3bd908453a08f1b8ad777159",
+      "physical_slot_layout": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 45.1086814,
+        "solver_search_strategy": "sat-repair",
+        "solver_probing_level": 0,
+        "bank_idle_rows_collapsed": 0,
+        "collapse_bank_idle_rows": false,
+        "bank_visible_intervals": null,
+        "physical_range_encoding": "coverage",
+        "persistent_word_index_family_only": false,
+        "solver_model_variables": 14552,
+        "solver_model_constraints": 46609,
+        "solver_branches": 813214,
+        "solver_conflicts": 339205,
+        "solver_objective_lower_bound": 0.0,
+        "maximum_physical_writes_per_transfer_row": 21,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_write_budget_enforced": false,
+        "objective_peak_scale": 81921,
+        "peak_commit_span_lower_bound_for_this_restricted_model": 0,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": false,
+        "window_master_clocks": 409,
+        "requested_repair_window_master_clocks": 409,
+        "physical_repair_interval": [
+          125,
+          143
+        ],
+        "physical_repair_transfer_interval": [
+          125,
+          144
+        ],
+        "full_frame_transfer_window_enforced": false,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "physical_change_and_range_membership_hints_coherent": true,
+        "distinct_required_word_slot_matching_enforced": true,
+        "full_bank_demand_value_matching_enforced": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": true,
+        "bank_interval_liveness_cuts": 25037,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 111,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          223
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "source_replay": null
+    },
+    "byor-motu-concurrent-four-effect-bank-search.json": {
+      "input_file_sha256": "516dc27545c8123c8b9fd61f93ec4229698a2ee1f0af2ff9740af6974143ddc3",
+      "physical_slot_layout": {
+        "status": "FIXED_GRID_INFEASIBLE",
+        "solver_status": 2,
+        "message": "INFEASIBLE",
+        "solver_backend": "cp-sat",
+        "interval_write_budget": 21,
+        "interval_lines": 8,
+        "interval_cuts": 371,
+        "solver_model_variables": 294207,
+        "solver_model_constraints": 690534,
+        "universal_raster_rejected": false,
+        "logical_bank_label_symmetry_broken": true,
+        "bounded_integer_solver_stats": {
+          "nonboolean_integer_variables": 2968,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 274,
+          "sat_inprocessing": false,
+          "branches": 0,
+          "conflicts": 0,
+          "wall_seconds": 11.3024999,
+          "probing_level": 0,
+          "workers": 4,
+          "search_strategy": "portfolio",
+          "optimal": false
+        }
+      },
+      "refinement": null,
+      "source_replay": null
+    },
+    "byor-motu-concurrent-five-effect-bank-search.json": {
+      "input_file_sha256": "585c1720a17dd0edd4fa1fa1f43b59c9f4071471f2b90d1e1eb68338c233f5b2",
+      "physical_slot_layout": {
+        "status": "FIXED_GRID_INFEASIBLE",
+        "solver_status": 2,
+        "message": "INFEASIBLE",
+        "solver_backend": "cp-sat",
+        "interval_write_budget": 21,
+        "interval_lines": 8,
+        "interval_cuts": 371,
+        "solver_model_variables": 294207,
+        "solver_model_constraints": 690494,
+        "universal_raster_rejected": false,
+        "logical_bank_label_symmetry_broken": true,
+        "bounded_integer_solver_stats": {
+          "nonboolean_integer_variables": 2968,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 271,
+          "sat_inprocessing": false,
+          "branches": 17462,
+          "conflicts": 418,
+          "wall_seconds": 12.318136,
+          "probing_level": 0,
+          "workers": 4,
+          "search_strategy": "portfolio",
+          "optimal": false
+        }
+      },
+      "refinement": null,
+      "source_replay": null
+    },
+    "byor-motu-concurrent-piece-balanced-static-bank-free-physical345.json": {
+      "input_file_sha256": "c6b6ffe87126e4316b2f9a301f57f3ab2fec984566dc8672452a2dcd368d37ba",
+      "physical_slot_layout": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 60.131528900000006,
+        "solver_search_strategy": "portfolio",
+        "solver_probing_level": 0,
+        "bank_idle_rows_collapsed": 541,
+        "collapse_bank_idle_rows": true,
+        "collapse_static_banks": true,
+        "static_banks_preloaded": [],
+        "static_bank_noninitial_changes_eliminated": false,
+        "bank_visible_intervals": {
+          "0": [
+            126,
+            153
+          ],
+          "1": [
+            128,
+            147
+          ],
+          "2": [
+            124,
+            153
+          ],
+          "3": [
+            112,
+            223
+          ],
+          "4": [
+            125,
+            151
+          ],
+          "5": [
+            122,
+            159
+          ],
+          "6": [
+            123,
+            167
+          ],
+          "7": [
+            112,
+            166
+          ]
+        },
+        "physical_range_encoding": "coverage",
+        "persistent_word_index_family_only": false,
+        "solver_model_variables": 41484,
+        "solver_model_constraints": 88737,
+        "solver_branches": 1625383,
+        "solver_conflicts": 32784,
+        "solver_objective_lower_bound": 272.0,
+        "maximum_physical_writes_per_transfer_row": 21,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_write_budget_enforced": true,
+        "objective_peak_scale": 1,
+        "peak_commit_span_lower_bound_for_this_restricted_model": 232,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": false,
+        "window_master_clocks": 345,
+        "requested_repair_window_master_clocks": null,
+        "physical_repair_interval": null,
+        "physical_repair_transfer_interval": null,
+        "full_frame_transfer_window_enforced": true,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "physical_change_and_range_membership_hints_coherent": true,
+        "distinct_required_word_slot_matching_enforced": true,
+        "full_bank_demand_value_matching_enforced": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": false,
+        "bank_interval_liveness_cuts": 25037,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 111,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          223
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "source_replay": null
+    },
+    "byor-motu-concurrent-piece-balanced-open-bank-relabel.json": {
+      "input_file_sha256": "c3304b57aea6ae2d6de6f09a5c0299813e912ab62269da0f117a35864d77d203",
+      "physical_slot_layout": {
+        "schema": "BYOR_PHYSICAL_BANK_REFLECTION_SEARCH_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "seconds": 45.04700000025332,
+        "eligible_permutations_tested": 22479,
+        "slot_reflections_per_permutation": 256,
+        "eligible_permutation_family_exhaustive": false,
+        "fixed_piece_bank_permutation": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "reversed_original_banks": [],
+        "peak_prepared_commit_span": 424,
+        "aggregate_commit_span": 9904,
+        "geometry_unchanged": true,
+        "math_eligibility_preserved": true,
+        "peak_changed_physical_words": 17,
+        "necessary_span_from_changed_word_count": 272,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 345,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              128,
+              138
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.067819700000001,
+            "model_variables": 9069,
+            "restricted_model_peak_span_lower_bound": 258,
+            "before": [
+              424,
+              10064
+            ],
+            "candidate": [
+              424,
+              10096
+            ],
+            "accepted": false
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              140,
+              150
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.0800429,
+            "model_variables": 9042,
+            "restricted_model_peak_span_lower_bound": 189,
+            "before": [
+              424,
+              10064
+            ],
+            "candidate": [
+              424,
+              9984
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 2,
+            "interval": [
+              126,
+              140
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.0880352,
+            "model_variables": 11806,
+            "restricted_model_peak_span_lower_bound": 248,
+            "before": [
+              424,
+              9984
+            ],
+            "candidate": [
+              424,
+              9968
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 3,
+            "interval": [
+              124,
+              142
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.107915100000001,
+            "model_variables": 14530,
+            "restricted_model_peak_span_lower_bound": 241,
+            "before": [
+              424,
+              9968
+            ],
+            "candidate": [
+              424,
+              9952
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 4,
+            "interval": [
+              122,
+              144
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.114785300000001,
+            "model_variables": 17234,
+            "restricted_model_peak_span_lower_bound": 243,
+            "before": [
+              424,
+              9952
+            ],
+            "candidate": [
+              424,
+              9952
+            ],
+            "accepted": false
+          },
+          {
+            "iteration": 5,
+            "interval": [
+              120,
+              146
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.116331400000002,
+            "model_variables": 19912,
+            "restricted_model_peak_span_lower_bound": 236,
+            "before": [
+              424,
+              9952
+            ],
+            "candidate": [
+              424,
+              9904
+            ],
+            "accepted": true
+          }
+        ],
+        "maximum_physical_writes_per_transfer_row": 21,
+        "full_frame_write_budget_verified": true,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_necessary_bank_window_verified": true
+      },
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-piece-balanced-fixed-slot-permuted.json": {
+      "input_file_sha256": "e0cab14fcc64f207d84ec5ca419e9c9a4a438b0cf5bf203aadbb373e87f25392",
+      "physical_slot_layout": {
+        "schema": "BYOR_FIXED_PHYSICAL_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "initial_score": [
+          424,
+          640,
+          9904
+        ],
+        "final_score": [
+          408,
+          432,
+          10280
+        ],
+        "seed": 618,
+        "steps_requested": 100000,
+        "proposals_sampled": 100000,
+        "moves_accepted": 24597,
+        "seconds": 6.515000000130385,
+        "opaque_slot_permutations": [
+          [
+            4,
+            1,
+            3,
+            2,
+            5,
+            6,
+            7,
+            8,
+            9,
+            11,
+            10,
+            13,
+            12,
+            15,
+            14
+          ],
+          [
+            1,
+            2,
+            5,
+            4,
+            3,
+            12,
+            11,
+            14,
+            8,
+            9,
+            13,
+            15,
+            10,
+            7,
+            6
+          ],
+          [
+            5,
+            9,
+            15,
+            14,
+            8,
+            6,
+            7,
+            10,
+            11,
+            12,
+            13,
+            4,
+            1,
+            3,
+            2
+          ],
+          [
+            11,
+            2,
+            1,
+            3,
+            6,
+            4,
+            8,
+            7,
+            10,
+            9,
+            5,
+            15,
+            13,
+            12,
+            14
+          ],
+          [
+            3,
+            1,
+            2,
+            6,
+            5,
+            13,
+            12,
+            11,
+            14,
+            4,
+            8,
+            10,
+            9,
+            7,
+            15
+          ],
+          [
+            1,
+            6,
+            11,
+            10,
+            5,
+            2,
+            3,
+            4,
+            9,
+            8,
+            7,
+            15,
+            13,
+            12,
+            14
+          ],
+          [
+            15,
+            13,
+            14,
+            12,
+            7,
+            8,
+            10,
+            11,
+            9,
+            5,
+            6,
+            4,
+            1,
+            2,
+            3
+          ],
+          [
+            6,
+            10,
+            5,
+            7,
+            8,
+            9,
+            4,
+            3,
+            2,
+            11,
+            1,
+            12,
+            13,
+            14,
+            15
+          ]
+        ],
+        "fixed_piece_bank_assignment": true,
+        "cache_lifetimes_and_write_times_unchanged": true,
+        "peak_prepared_commit_span": 408,
+        "target_window_master_clocks": 345,
+        "target_window_met_by_all_packets": false,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 345,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              128,
+              138
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.067819700000001,
+            "model_variables": 9069,
+            "restricted_model_peak_span_lower_bound": 258,
+            "before": [
+              424,
+              10064
+            ],
+            "candidate": [
+              424,
+              10096
+            ],
+            "accepted": false
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              140,
+              150
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.0800429,
+            "model_variables": 9042,
+            "restricted_model_peak_span_lower_bound": 189,
+            "before": [
+              424,
+              10064
+            ],
+            "candidate": [
+              424,
+              9984
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 2,
+            "interval": [
+              126,
+              140
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.0880352,
+            "model_variables": 11806,
+            "restricted_model_peak_span_lower_bound": 248,
+            "before": [
+              424,
+              9984
+            ],
+            "candidate": [
+              424,
+              9968
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 3,
+            "interval": [
+              124,
+              142
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.107915100000001,
+            "model_variables": 14530,
+            "restricted_model_peak_span_lower_bound": 241,
+            "before": [
+              424,
+              9968
+            ],
+            "candidate": [
+              424,
+              9952
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 4,
+            "interval": [
+              122,
+              144
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.114785300000001,
+            "model_variables": 17234,
+            "restricted_model_peak_span_lower_bound": 243,
+            "before": [
+              424,
+              9952
+            ],
+            "candidate": [
+              424,
+              9952
+            ],
+            "accepted": false
+          },
+          {
+            "iteration": 5,
+            "interval": [
+              120,
+              146
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 15.116331400000002,
+            "model_variables": 19912,
+            "restricted_model_peak_span_lower_bound": 236,
+            "before": [
+              424,
+              9952
+            ],
+            "candidate": [
+              424,
+              9904
+            ],
+            "accepted": true
+          }
+        ],
+        "maximum_physical_writes_per_transfer_row": 21,
+        "full_frame_write_budget_verified": true,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_necessary_bank_window_verified": true
+      },
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-piece-balanced-fixed-slot-permuted2.json": {
+      "input_file_sha256": "dcaaf3728f9c1770ab652606267f0b06ed25877aaa92c659f08fbceec0ed7296",
+      "physical_slot_layout": {
+        "schema": "BYOR_FIXED_PHYSICAL_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "initial_score": [
+          408,
+          432,
+          10280
+        ],
+        "final_score": [
+          392,
+          280,
+          9936
+        ],
+        "seed": 619,
+        "steps_requested": 300000,
+        "proposals_sampled": 300000,
+        "moves_accepted": 72004,
+        "seconds": 19.030999999959022,
+        "opaque_slot_permutations": [
+          [
+            2,
+            3,
+            4,
+            1,
+            7,
+            8,
+            5,
+            6,
+            9,
+            10,
+            11,
+            12,
+            13,
+            15,
+            14
+          ],
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            14,
+            15,
+            9,
+            11,
+            12,
+            7,
+            6,
+            8,
+            10,
+            13
+          ],
+          [
+            13,
+            3,
+            2,
+            12,
+            14,
+            11,
+            4,
+            5,
+            6,
+            8,
+            7,
+            9,
+            10,
+            1,
+            15
+          ],
+          [
+            8,
+            6,
+            7,
+            10,
+            4,
+            9,
+            15,
+            3,
+            2,
+            5,
+            1,
+            13,
+            12,
+            14,
+            11
+          ],
+          [
+            1,
+            3,
+            2,
+            6,
+            5,
+            4,
+            13,
+            7,
+            14,
+            12,
+            10,
+            11,
+            9,
+            8,
+            15
+          ],
+          [
+            1,
+            10,
+            9,
+            7,
+            8,
+            6,
+            5,
+            4,
+            3,
+            2,
+            13,
+            12,
+            11,
+            14,
+            15
+          ],
+          [
+            15,
+            13,
+            14,
+            12,
+            10,
+            11,
+            4,
+            8,
+            9,
+            6,
+            7,
+            5,
+            3,
+            2,
+            1
+          ],
+          [
+            7,
+            3,
+            5,
+            6,
+            4,
+            1,
+            11,
+            12,
+            13,
+            2,
+            8,
+            9,
+            10,
+            14,
+            15
+          ]
+        ],
+        "fixed_piece_bank_assignment": true,
+        "cache_lifetimes_and_write_times_unchanged": true,
+        "peak_prepared_commit_span": 392,
+        "target_window_master_clocks": 345,
+        "target_window_met_by_all_packets": false,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-piece-balanced-permuted-cache-refined.json": {
+      "input_file_sha256": "c389744359efc9ee81d0491f9638320eb79f91d04632625b9b8f92c928b72769",
+      "physical_slot_layout": {
+        "schema": "BYOR_ROW_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 10.0875055,
+        "solver_search_strategy": "portfolio",
+        "solver_probing_level": 2,
+        "bank_idle_rows_collapsed": 0,
+        "collapse_bank_idle_rows": false,
+        "collapse_static_banks": false,
+        "static_banks_preloaded": [],
+        "static_bank_noninitial_changes_eliminated": false,
+        "bank_visible_intervals": null,
+        "physical_range_encoding": "coverage",
+        "persistent_word_index_family_only": false,
+        "solver_model_variables": 10438,
+        "solver_model_constraints": 40407,
+        "solver_branches": 679341,
+        "solver_conflicts": 97431,
+        "solver_objective_lower_bound": 16723386.0,
+        "maximum_physical_writes_per_transfer_row": 21,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_write_budget_enforced": false,
+        "objective_peak_scale": 57345,
+        "peak_commit_span_lower_bound_for_this_restricted_model": 251,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "window_master_clocks": 393,
+        "requested_repair_window_master_clocks": 393,
+        "physical_repair_interval": [
+          127,
+          139
+        ],
+        "physical_repair_transfer_interval": [
+          127,
+          140
+        ],
+        "full_frame_transfer_window_enforced": false,
+        "physical_layout_hint_used": true,
+        "fixed_resident_sets": false,
+        "live_slot_moves_allowed": true,
+        "free_residency": true,
+        "physical_change_and_range_membership_hints_coherent": true,
+        "distinct_required_word_slot_matching_enforced": true,
+        "full_bank_demand_value_matching_enforced": true,
+        "repair_color_domain_pruned_to_demands_and_boundary_residents": true,
+        "bank_interval_liveness_cuts": 25037,
+        "palette_word_domain_dense_identity_codes": true,
+        "lookahead_lines": 111,
+        "noninitial_dead_word_writes_charged": true,
+        "visible_interval": [
+          112,
+          223
+        ],
+        "initial_palette_may_preload_entire_frame": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "packet_ranges_independently_minimized": true,
+        "peak_prepared_commit_span": 392,
+        "peak_ranges": 4,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "fixed_piece_bank_permutation": {
+          "0": 0,
+          "1": 1,
+          "2": 2,
+          "3": 3,
+          "4": 4,
+          "5": 5,
+          "6": 6,
+          "7": 7
+        }
+      },
+      "refinement": {
+        "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
+        "target_window_master_clocks": 345,
+        "target_window_met_by_all_packets": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true,
+        "trials": [
+          {
+            "iteration": 0,
+            "interval": [
+              128,
+              136
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 10.078452200000001,
+            "model_variables": 7684,
+            "restricted_model_peak_span_lower_bound": 247,
+            "before": [
+              392,
+              9936
+            ],
+            "candidate": [
+              392,
+              9896
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 1,
+            "interval": [
+              129,
+              137
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 10.0714869,
+            "model_variables": 7690,
+            "restricted_model_peak_span_lower_bound": 259,
+            "before": [
+              392,
+              9896
+            ],
+            "candidate": [
+              392,
+              9872
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 2,
+            "interval": [
+              126,
+              134
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 10.0592748,
+            "model_variables": 7655,
+            "restricted_model_peak_span_lower_bound": 245,
+            "before": [
+              392,
+              9872
+            ],
+            "candidate": [
+              392,
+              9840
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 3,
+            "interval": [
+              124,
+              136
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 10.0735351,
+            "model_variables": 10385,
+            "restricted_model_peak_span_lower_bound": 242,
+            "before": [
+              392,
+              9840
+            ],
+            "candidate": [
+              392,
+              9808
+            ],
+            "accepted": true
+          },
+          {
+            "iteration": 4,
+            "interval": [
+              126,
+              138
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 10.074568900000001,
+            "model_variables": 10428,
+            "restricted_model_peak_span_lower_bound": 247,
+            "before": [
+              392,
+              9808
+            ],
+            "candidate": [
+              392,
+              9808
+            ],
+            "accepted": false
+          },
+          {
+            "iteration": 5,
+            "interval": [
+              127,
+              139
+            ],
+            "solver_status": "FEASIBLE",
+            "solver_search_strategy": "portfolio",
+            "physical_range_encoding": "coverage",
+            "solver_seconds": 10.0875055,
+            "model_variables": 10438,
+            "restricted_model_peak_span_lower_bound": 251,
+            "before": [
+              392,
+              9808
+            ],
+            "candidate": [
+              392,
+              9792
+            ],
+            "accepted": true
+          }
+        ],
+        "maximum_physical_writes_per_transfer_row": 21,
+        "full_frame_write_budget_verified": true,
+        "necessary_bank_window_master_clocks": 345,
+        "full_frame_necessary_bank_window_verified": true
+      },
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    }
+  },
+  "static_bank_solver_focused_tests": {
+    "passed": 16,
+    "seconds": 11.681
+  },
+  "fixed_slot_permutation_tests": {
+    "passed": 2,
+    "broader_packet_layout_regression_tests": 19,
+    "combined_seconds": 12.093
+  }
 }

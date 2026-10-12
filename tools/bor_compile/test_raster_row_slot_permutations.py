@@ -7,6 +7,17 @@ import test_raster_slot_layout as fixtures
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class RowSlotPermutationTests(unittest.TestCase):
+    def test_static_bank_preloads_all_required_words_and_keeps_exact_pixels(self):
+        from raster_slot_refine import verify_packets
+        source=fixtures.SlotLayoutTests().schedule()
+        result=optimize(source,1,5,free_residency=True,range_encoding='coverage',collapse_static_banks=True,collapse_bank_idle_rows=True)
+        verify_packets(result)
+        self.assertEqual(result['physical_slot_layout']['static_banks_preloaded'],list(range(8)))
+        self.assertEqual(result['peak_scheduled_writes'],0)
+        self.assertTrue(all(np.array_equal(a,b)for a,b in zip(demand(source)[2],demand(result)[2])))
+        with self.assertRaisesRegex(ValueError,'STATIC_BANK_DOMAIN'):optimize(source,collapse_static_banks=True)
+        with self.assertRaisesRegex(ValueError,'STATIC_BANK_DOMAIN'):optimize(source,free_residency=True,collapse_static_banks=1)
+
     def test_bank_idle_collapse_preloads_future_first_use_without_losing_pixels(self):
         from raster_slot_refine import verify_packets
         source=fixtures.SlotLayoutTests().schedule()
@@ -78,6 +89,11 @@ class RowSlotPermutationTests(unittest.TestCase):
         self.assertTrue(result['physical_slot_layout']['distinct_required_word_slot_matching_enforced'])
         for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
         self.assertEqual(demand(result)[2][0][0,0],0)
+        collapsed=optimize(source,225,5,free_residency=True,maximum_writes=15,range_encoding='coverage',collapse_static_banks=True)
+        verify_packets(collapsed)
+        self.assertNotIn(0,collapsed['physical_slot_layout']['static_banks_preloaded'])
+        self.assertEqual(collapsed['peak_scheduled_writes'],15)
+        for a,b in zip(demand(source)[2],demand(collapsed)[2]):np.testing.assert_array_equal(a,b)
         rejected=optimize(source,224,5,free_residency=True,maximum_writes=15,range_encoding='coverage')
         self.assertEqual(rejected['solver_status'],'INFEASIBLE')
 
