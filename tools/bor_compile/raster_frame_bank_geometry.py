@@ -27,12 +27,17 @@ def subdivided_candidates(rectangles,pixel_options,small_size=8):
     return list(candidates.values())
 
 
-def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None,geometry_reservation=None,solver_backend='cp-sat',minimize_cache_span=False,search_strategy='portfolio',repair_interval=None,mode_word_options=None,literal_window_outputs=None,pixel_actors=None,minimize_row_palette_words=False,minimize_frame_palette_words=False):
+def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None,geometry_reservation=None,solver_backend='cp-sat',minimize_cache_span=False,search_strategy='portfolio',repair_interval=None,mode_word_options=None,literal_window_outputs=None,pixel_actors=None,minimize_row_palette_words=False,minimize_frame_palette_words=False,single_bank_per_rectangle=False,required_math_mode=None,all_source_math_gates=False):
     from ortools.sat.python import cp_model
     if type(height)is not int or not 1<=height<=256 or time_limit<=0 or not rectangles or not pixel_options:
         raise ValueError('FRAME_BANK_GEOMETRY_DOMAIN')
     if type(bank_symmetry)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_SYMMETRY_DOMAIN')
     if type(feasibility_only)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_FEASIBILITY_DOMAIN')
+    if type(single_bank_per_rectangle)is not bool or type(all_source_math_gates)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_BANK_GATE_RESTRICTION')
+    if required_math_mode is not None:
+        from raster_obj_math_cover import MODES
+        if required_math_mode not in MODES or mode_word_options is None:raise ValueError('FRAME_BANK_GEOMETRY_REQUIRED_MODE')
+    if all_source_math_gates and literal_window_outputs is None:raise ValueError('FRAME_BANK_GEOMETRY_REQUIRED_GATES')
     if type(minimize_row_palette_words)is not bool or(minimize_row_palette_words and(cache_window is not None or feasibility_only)):
         raise ValueError('FRAME_BANK_GEOMETRY_ROW_WORD_OBJECTIVE_DOMAIN')
     if type(minimize_frame_palette_words)is not bool or(minimize_frame_palette_words and(cache_window is not None or feasibility_only or minimize_row_palette_words)):
@@ -120,6 +125,9 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         for mode in sorted(modes):
             v=model.new_bool_var(f'rowMode{y}_{mode}');mode_choices[y,mode]=v;choices.append(v)
         model.add(sum(choices)==1)
+        if required_math_mode is not None:
+            if required_math_mode not in modes:raise ValueError('FRAME_BANK_GEOMETRY_REQUIRED_MODE_UNAVAILABLE')
+            model.add(mode_choices[y,required_math_mode]==1)
     gates={};start_relations=[];inverted_rows={}
     if literal_window_outputs is not None:
         for y in sorted(row_modes):
@@ -127,6 +135,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
             positive=[];negative=[];previous=model.new_constant(0);previous_negative=model.new_constant(0)
             for x in xs:
                 gate=model.new_bool_var(f'windowGate{y}_{x}');gates[y,x]=gate
+                if all_source_math_gates:model.add(gate==1)
                 for current,old,collection in((gate,previous,positive),(gate.Not(),previous_negative,negative)):
                     start=model.new_bool_var(f'windowStart{y}_{x}_{len(collection)}_{len(positive)}')
                     model.add(start<=current);model.add(start<=1-old);model.add(start>=current-old);collection.append(start);start_relations.append((start,current,old))
@@ -190,6 +199,8 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         if not values:raise ValueError('FRAME_BANK_GEOMETRY_UNCOVERED_PIXEL')
         if solver_backend=='highspy':model.add(sum(values)==1)
         else:model.add_exactly_one(values)
+    if single_bank_per_rectangle:
+        for i in range(len(rectangles)):model.add(sum(v for(ii,b),v in masks.items()if ii==i)<=1)
     # Distinct compulsory singleton words selected anywhere in an interval
     # need either an initially resident slot or a subsequent load. Choose one
     # representative atom per word, rather than counting repeated pixels or
@@ -434,6 +445,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         universal_raster_rejected=False,no_color_reduction=True)
     report['shared_scanline_math_modes_searched']=mode_word_options is not None
     report['source_pixel_actor_assignment_enforced']=pixel_actors is not None
+    report.update(single_bank_per_candidate_rectangle=single_bank_per_rectangle,required_shared_math_mode=required_math_mode,all_source_math_gates_required=all_source_math_gates)
     report['independent_mode_window_coverage_clauses']=mode_pool_clauses
     report['compatible_selected_mask_residency_links']=residency_mask_links
     report['distinct_singleton_source_word_interval_cuts']=singleton_interval_cuts
@@ -523,6 +535,9 @@ def main():
     p.add_argument('--feasibility-only',action='store_true')
     p.add_argument('--minimize-row-palette-words',action='store_true',help='Without cache timing, minimize row word demand before OAM count; liveness remains unproved.')
     p.add_argument('--minimize-frame-palette-words',action='store_true',help='Without cache timing, minimize distinct bank words across the frame, then row words and OAM; liveness remains unproved.')
+    p.add_argument('--single-bank-per-rectangle',action='store_true',help='Restricted family: prohibit overlapping palette masks within one candidate rectangle.')
+    p.add_argument('--required-math-mode',choices=('add','half-add','subtract','half-subtract'))
+    p.add_argument('--all-source-math-gates',action='store_true')
     p.add_argument('--movable-math-modes',action='store_true',help='Joint shared row modes with complete exact frame operand domains; source output/windows remain fixed.')
     p.add_argument('--movable-color-windows',action='store_true',help='Joint exact literal/math gates representable by two hardware windows; requires --movable-math-modes.')
     p.add_argument('--geometry-hint',type=Path,help='Soft source-exact geometry witness from a subset of the requested interval.')
@@ -593,7 +608,7 @@ def main():
     if hint is not None and hint.get('source_rgb555_sha256')!=frame['source_rgb555_sha256']:
         raise ValueError('FRAME_BANK_GEOMETRY_HINT_SOURCE_IDENTITY')
     reservation=json.loads(a.geometry_reservation.read_text(encoding='utf-8'))if a.geometry_reservation else None
-    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window,geometry_reservation=reservation,solver_backend=a.solver_backend,minimize_cache_span=a.minimize_cache_span,search_strategy=a.search_strategy,repair_interval=a.repair_interval,mode_word_options=mode_options,literal_window_outputs=literal_outputs,pixel_actors=pixel_actors,minimize_row_palette_words=a.minimize_row_palette_words,minimize_frame_palette_words=a.minimize_frame_palette_words)
+    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window,geometry_reservation=reservation,solver_backend=a.solver_backend,minimize_cache_span=a.minimize_cache_span,search_strategy=a.search_strategy,repair_interval=a.repair_interval,mode_word_options=mode_options,literal_window_outputs=literal_outputs,pixel_actors=pixel_actors,minimize_row_palette_words=a.minimize_row_palette_words,minimize_frame_palette_words=a.minimize_frame_palette_words,single_bank_per_rectangle=a.single_bank_per_rectangle,required_math_mode=a.required_math_mode,all_source_math_gates=a.all_source_math_gates)
     report.update(source_rgb555_sha256=frame['source_rgb555_sha256'],source_input_sha256=hashlib.sha256(input_bytes).hexdigest(),source_input_path=str(a.schedule),
         source_pak_sha256=hashlib.sha256(a.exact_source.read_bytes()).hexdigest(),source_row_context_proofs=proofs,
         source_rectangle_cover=geometry['source_rectangle_cover'],scanline_interval=[a.scanline_start,a.scanline_end],

@@ -22,6 +22,15 @@ def source_fixture():
 
 
 class FrameBankCompileTests(unittest.TestCase):
+    def test_new_geometry_rebinds_global_obj_size_pair(self):
+        source,witness,bg,expected=source_fixture()
+        source.update(mixed_small_size=8,mixed_large_size=16,obsel_mode=0)
+        for piece in witness['pieces']:piece.update(width=32,height=32)
+        result=compile_witness(source,witness,bg,expected)
+        self.assertEqual((result['mixed_small_size'],result['mixed_large_size'],result['obsel_mode']),(8,32,1))
+        witness['geometry_reservation']=dict(oam_entries=1,sprites_per_line=[0]*224,tile_slivers_per_line=[0]*224)
+        with self.assertRaisesRegex(ValueError,'RESERVED_OBSEL_PAIR'):compile_witness(source,witness,bg,expected)
+
     def test_compilation_rejects_actor_identity_changes_even_when_pixels_match(self):
         source,witness,bg,expected=source_fixture()
         witness['pieces'][0]['actor']=1

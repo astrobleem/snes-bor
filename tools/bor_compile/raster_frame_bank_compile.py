@@ -51,6 +51,7 @@ def compile_witness(source,witness,background,expected,lookahead=16):
         sizes.add(p['width']);p['rows']={};colors.append(np.full((p['height'],p['width']),-1,dtype=np.int32))
         if p['bank']not in p.get('allowed_banks',range(8)):raise ValueError('FRAME_COMPILE_BANK_ELIGIBILITY')
     if sizes not in({8},{16},{32},{8,16},{8,32},{16,32}):raise ValueError('FRAME_COMPILE_OBSEL_PAIR')
+    small,big,obsel=(16,32,3)if sizes=={16,32}else(8,32,1)if 32 in sizes else(8,16,0)
     for q in witness['pixels']:
         y,x,b,c,i=(q[k]for k in ('y','x','bank','color','piece'))
         if any(type(v)is not int for v in (y,x,b,c,i))or not first<=y<last or not 0<=x<256 or not 0<=c<32768 or not 0<=i<len(pieces)or(y,x)in seen:
@@ -78,6 +79,8 @@ def compile_witness(source,witness,background,expected,lookahead=16):
     if reservation is not None:
         if not isinstance(reservation,dict)or type(reservation.get('oam_entries'))is not int or not 0<=reservation['oam_entries']<=128 or any(not isinstance(reservation.get(k),list)or len(reservation[k])!=224 or any(type(v)is not int or not 0<=v<=limit for v in reservation[k])for k,limit in [('sprites_per_line',32),('tile_slivers_per_line',34)]):
             raise ValueError('FRAME_COMPILE_RESERVATION_DOMAIN')
+        reserved_pair=source.get('geometry_reservation_obj_size_pair',[source.get('mixed_small_size',8),source.get('mixed_large_size',16)])
+        if reservation['oam_entries']and reserved_pair!=[small,big]:raise ValueError('FRAME_COMPILE_RESERVED_OBSEL_PAIR')
         combined=dict(oam_entries=len(pieces)+reservation['oam_entries'],
             peak_sprites=max(sum(active_on_line(p,y)for p in pieces)+reservation['sprites_per_line'][y]for y in range(224)),
             peak_tile_slivers=max(sum(tile_slivers(p)for p in pieces if active_on_line(p,y))+reservation['tile_slivers_per_line'][y]for y in range(224)))
@@ -126,6 +129,7 @@ def compile_witness(source,witness,background,expected,lookahead=16):
     result['source_exact_shared_row_math_mode_changes']=sum(mode!=source['selected_modes'].get(y)for y,mode in selected_modes.items())
     result.update(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN'if complete else'RESTRICTED_SCANLINE_DEMAND_ONLY',
         pieces=pieces,piece_pixel_masks=masks,trace=trace,geometry=geometry,hardware_geometry_admitted=True,oam_y_wrap_counted=True,fully_offscreen_tile_slivers_skipped=True,
+        mixed_small_size=small,mixed_large_size=big,obsel_mode=obsel,
         compiled_pixel_identity_verified=complete,restricted_pixel_identity_verified=not complete,
         complete_source_frame_pixel_identity_proven=complete,outside_interval_pixels_relaxed=not complete,
         source_pixel_actor_identity_replayed=True,

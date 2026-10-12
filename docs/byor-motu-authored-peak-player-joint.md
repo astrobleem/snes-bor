@@ -1,5 +1,19 @@
 # Authored peak effect and player: joint source demand
 
+An alternative source-only geometry family contains eighteen 32-pixel parents
+with legal 8-pixel children, using one global 8/32 OBJ size pair for both actors.
+The exact shared-mode/window frame-word search returns FEASIBLE after 90.591
+seconds: 113 objects, 19 sprites and 34 tile slivers. This includes the player's
+palette and layer demand. Compilation independently replays all 57,344 source
+viewport pixels and binds OBJ size mode 1 to the new geometry; schedule hash
+4e5dcfbde4c9bcd2487bfa66ef84e79d681ff20308b7fbdfe0e81ab3b6e56c6c.
+Greedy liveness needs 52 writes. The checked class-pooled lower bound is 42
+writes with zero primal and dual residuals, requiring at least 656 clocks
+between high-byte commits before setup. This rejects this selected encoding
+even after relaxing bank assignment and geometry. It does not reject alternate
+exact encodings or the 8/32 geometry family. No native timing or reachability
+admission is inferred.
+
 The nominal source pose pairs He_ManB freespecial4 frame 6 at (80,220,0) with
 HBreath idle frame 11 at (98,220,93). The
 [source parent timeline](byor-motu-authored-breath-parent-pose-timing.md) derives

@@ -3,6 +3,24 @@ from raster_frame_bank_geometry import search,subdivided_candidates
 
 
 class FrameBankGeometryTests(unittest.TestCase):
+    def test_single_bank_rectangle_restriction_does_not_silently_split(self):
+        rects=[dict(x=0,y=0,width=32,height=32)]
+        points={(0,x):{0:[x]}for x in range(15)};points[0,15]={1:[15]}
+        self.assertEqual(search(rects,points,time_limit=3)['geometry']['oam_entries'],2)
+        restricted=search(rects,points,time_limit=3,single_bank_per_rectangle=True)
+        self.assertEqual(restricted['solver_status'],'INFEASIBLE')
+        self.assertTrue(restricted['single_bank_per_candidate_rectangle'])
+        self.assertFalse(restricted['universal_raster_rejected'])
+
+    def test_required_row_mode_and_gates_are_explicit_restrictions(self):
+        rects=[dict(x=0,y=0,width=8,height=8,allowed_banks=[4])]
+        tagged={(0,0):{'add':{4:[2]},'half-add':{4:[3]}}}
+        result=search(rects,{(0,0):{4:[2,3,4]}},height=8,time_limit=3,mode_word_options=tagged,
+            literal_window_outputs={(0,0):4},required_math_mode='add',all_source_math_gates=True)
+        self.assertEqual(result['pixels'][0]['color'],2)
+        self.assertEqual(result['selected_modes']['0'],'add')
+        self.assertTrue(result['all_source_math_gates_required'])
+
     def test_frame_word_objective_preserves_cross_row_identity(self):
         rects=[dict(x=0,y=0,width=8,height=8,allowed_banks=[4])]
         points={(0,0):{4:[0,2]},(1,0):{4:[1,2]}}

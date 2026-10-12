@@ -1,5 +1,51 @@
 # Shared geometry for exact math bank classes
 
+An explicit restricted family now permits one bank per candidate rectangle,
+one required shared math mode and enabled source math gates. These constraints
+are reported as family restrictions and never become a universal raster
+rejection. Forty-one affected geometry/compiler/operand tests pass.
+
+Using fifty-seven source-derived 8-pixel cells, exact addition and enabled
+math gates finds a valid geometry/word witness after 91.345 seconds. The
+effect uses 57 objects, 10 sprites and 10 slivers; combined player geometry
+is 90 objects, 14 sprites and 19 slivers. All 2,751 opaque source pixels
+and 57,344 viewport outputs replay. Schedule hash:
+f1cd9caf860b351d2748166aa98a3191d68319f0831458fbf6060830b92fecec.
+Greedy residency requires 46 writes. The checked class-pooled bound is 21,
+but the fixed-bank bound is 38.5, requiring at least 39 integer writes for
+that assignment. Both retain initial free residency and full-frame lookahead.
+Bank reassignment and legal source-pixel masks remain open; the player's
+palette and layer demand are excluded from this geometry reservation.
+
+The isolated 8/32 cold geometry family also returns an exact 66-object witness
+after 90.233 seconds, with 16 sprites and 34 slivers. Compilation replays
+all 57,344 pixels; schedule hash
+0cebac223b9bf3da71df0a17fdb399c3b5b0cca2e735af932460025e48d590f5.
+Its selected encoding has a checked class-pooled bound of 26.285714 writes,
+requiring at least 27 integer writes and a 416-clock high-byte commit span
+before setup. This rejects the encoding, not the legal geometry family.
+
+The compact interval master now accepts a complete input aggregate hint only
+after independent replay of every model variable and constraint. Its warm
+90.039-second search returns an integer 384-clock aggregate assignment,
+with separate bank capacity and interval inequalities replayed. Full cache
+continuity remains relaxed. Actual integer liveness rejects that assignment
+at the 357-exclusive gate after 30.051 seconds, with a 22-write cap and
+four ideal prepared ranges. This rejects that fixed assignment under the
+modeled mechanism, not all raster encodings.
+
+Cold native HiGHS interval searches remain UNKNOWN: 100.203 seconds with
+integer load counts and 116.282 seconds with explicitly fractional aggregate
+loads. Both retain integer piece banks and range selectors; neither emits a
+schedule. Thirty-two master/residency tests pass. The model continues to
+label all interval-only witnesses as necessary relaxations.
+
+Frame compilation now derives the global legal OBJ size pair from the compiled
+pieces instead of inheriting stale source geometry metadata. An incompatible
+concurrent reservation fails explicitly. Fifteen compiler/CHR checks pass,
+including an 8/16 source compiled into legal 8/32 geometry. No production
+runtime change or timing admission follows.
+
 The joint geometry/cache solver now exposes necessary interval loads directly
 from singleton source-word ownership. Each distinct word has one representative
 point; repeated pixels and copies in different banks do not become additional
@@ -178,6 +224,45 @@ source word identities remain fixed. The checked fractional fixed-bank
 cache bound is 20.75 writes, with primal residual below 3e-14 and zero dual
 residual. This is a search starting point, not a timing schedule or proof
 that a 21/22-write native transfer will fit.
+
+The rebalanced assignment's 22-write integer cache returns FEASIBLE after
+92.203 seconds using native HiGHS, with zero integer constraint violation.
+It uses 759 noninitial writes and nineteen-line prefetch. Complete ideal
+partition replay still requires 472 clocks, above the measured window.
+This does not improve the 400-clock full-frame frontier; transfer-span
+minimization continues separately from the write-count objective.
+
+Transfer-span minimization retains a 456-clock cache after 120.131 seconds,
+with 746 noninitial writes and 28-line prefetch. Its explicit at-most-22-write
+fixed-bank family lower bound is 366 clocks. Separate dual-guided bank
+refinement checks twenty-four proposals and accepts one, reducing the checked
+fractional write bound from 20.75 to 20.666667 in 24.172 seconds. An interval-
+only transfer relaxation returns a 320-clock lower bound and a 488-clock
+aggregate witness after thirty seconds; its color residency is relaxed, so
+it cannot admit a schedule. Neither result improves the 400-clock frontier.
+
+Full integer liveness for the dual-refined fixed assignment is INFEASIBLE
+after 27.571 seconds at the 357-exclusive gate, with a 22-write cap,
+224-line lookahead and four ideal prepared ranges. This is a measured
+rejection of that source encoding and bank assignment under this mechanism,
+not a rejection of other banks, words, geometry or raster generally.
+
+An experimental smaller bank-assignment master now retains separate fifteen-
+slot banks, whole-piece bank lifetime, exact source words and actual concurrent
+geometry. Alias indicators count shared words once. Selected source intervals
+bound aggregate required loads and their ideal transfer partitions. Each
+interval receives independently free initial palette contents, so cache
+continuity is explicitly relaxed. An assignment can only seed the full
+liveness solver; it cannot establish a schedule or native timing. Four focused
+tests cover alias replay, impossible zero-load lifetimes, preserved inputs and
+reserved geometry limits.
+
+The smaller interval master searches 7,610 variables and 29,515 constraints,
+including 3,664 shared alias indicators and 73 source intervals. It remains
+UNKNOWN after 60.050 seconds at the full 356-clock gate. It supplies neither
+a bank assignment nor an infeasibility certificate. Eighteen affected tests
+pass on the verbose diagnostic run. A preceding combined attempt aborted
+inside the same intermittent OR-Tools assertion; no backend fix is claimed.
 
 The fixed-control expanded-geometry neighborhood search validates all 265,137
 start variables and returns FEASIBLE after 120.548 seconds, still at 400 clocks
