@@ -410,3 +410,23 @@ original math classes and eligible bank domains also returns UNKNOWN after
 keeps one fixed bank per rectangle/class, and enforces the favorable 345-clock
 prepared partition bound with 21 writes and 55-line prefetch. Its 103,209
 variables and 258,576 constraints produce no witness or infeasibility proof.
+
+Eight-bank tests are explicitly HBreath-only, not a gameplay palette reservation.
+The pool-derived local encoding has 100 objects and 19 sprites/slivers; exact
+16×16 compaction yields 68 objects, 20 sprites and 29 slivers. Rebalancing lowers
+its interval objective to 21, but its validated full cache bound is 22.6 writes,
+which rejects this fixed encoding against the measured transfer window. A
+viewport-aligned alternative retains 107 objects/19 sprites/slivers and has
+validated bound 21.444444 after rebalancing.
+
+Using capacities 60/60 with the selected pressure controls produces a complete
+16-write integer pool in 9.459 seconds. Independent source replay covers all
+2,668 non-bypassed pixels. A local encoding retains 103 objects/19 sprites/slivers;
+its rebalanced full cache bound is 22.000000. A viewport-aligned encoding retains
+111/19/19 and has bound 21.562500. Twelve alias-aware decomposition iterations
+retain the 22-write bound, without claiming assignment optimality. A global
+word-bank encoding compacts from 138 objects to 55/18/32 but has cache bound 31.
+Restricting each two-row bank union to fifteen words creates 162 objects and
+36 sprites/slivers, exceeding hardware geometry. These measured failures apply
+to the respective encodings, not the generic raster strategy. Native execution,
+concurrent actor admission and a live compositor remain unproved.
