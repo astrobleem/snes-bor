@@ -449,3 +449,8 @@ Its 24,461 variables and 50,517 constraints preserve all source alpha/output
 requirements. A separately replayed fractional relaxation has primal violation
 9.42e-14 and supplies 8,289 soft integer hints; no variables are pinned. The
 hinted integer search continues without treating the relaxation as a witness.
+
+The soft-hinted chunk trial returns UNKNOWN at 120.081 seconds, after
+2,152,805 branches and 1,417,448 conflicts. It preserves the fractional hint
+validation as solver evidence, not a bank assignment, palette schedule or
+hardware rejection.

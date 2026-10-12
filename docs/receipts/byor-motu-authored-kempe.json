@@ -68367,12 +68367,1771 @@
         ]
       },
       "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-eightbank-pool16-chunk8-copies2-lphint": {
+      "input_sha256": "1d0734d69c15b7f65de55990d20b5df0b0ed8803e6a2428500b01fd0dbb033f2",
+      "search": {
+        "schema": "BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1",
+        "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+        "metadata": {
+          "stage": "DATA/LEVELS/GUILE2.TXT",
+          "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+          "scene": {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              }
+            ]
+          },
+          "layers": [
+            {
+              "kind": "background",
+              "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+              "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+              "source_dimensions": [
+                800,
+                400
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 57344,
+              "source_flip": false
+            },
+            {
+              "kind": "panel",
+              "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+              "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+              "source_dimensions": [
+                2544,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 44246,
+              "source_flip": false
+            },
+            {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+              "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 2751,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 2751,
+              "final_visible_pixels": 2751
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 2749,
+              "source_flip": false
+            }
+          ],
+          "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+          "alpha_source_dimensions": [
+            [
+              110,
+              90
+            ]
+          ],
+          "camera": [
+            0.0,
+            0.0
+          ],
+          "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+          "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+          "all_actor_models_preserved": true
+        },
+        "geometry_size": "mixed",
+        "mixed_small_size": 8,
+        "mixed_large_size": 16,
+        "write_budget": 21,
+        "lookahead_lines": 224,
+        "noninitial_prefetch_lookahead_enforced": true,
+        "initial_palette_may_preload_entire_frame": false,
+        "initial_palette_restricted_to_first_pool_row": true,
+        "pool_interval_initial_preload": false,
+        "pool_interval_gap_bridge_lines": 0,
+        "collapse_inactive_prefix": true,
+        "solver": {
+          "status": 1,
+          "message": "UNKNOWN",
+          "variables": 24461,
+          "constraints": 50517,
+          "mip_nodes": null,
+          "mip_gap": null,
+          "backend": "cp-sat",
+          "boolean_stats": {
+            "nonboolean_integer_variables": 0,
+            "hint_variables": 8289,
+            "hint_is_soft": true,
+            "log_lines": 244,
+            "sat_inprocessing": false,
+            "branches": 2152805,
+            "conflicts": 1417448,
+            "wall_seconds": 120.0811527,
+            "probing_level": 0,
+            "workers": 4,
+            "search_strategy": "sat-repair",
+            "search_objective": "FEASIBILITY_ONLY",
+            "optimal": false
+          }
+        },
+        "exact_residency_write_indicators": true,
+        "geometry_cover_cuts": 135,
+        "row_capacity_only": false,
+        "literal_alpha_zero_actor_bank": null,
+        "palette_transfer_budget_relaxed": false,
+        "fixed_geometry_and_pixel_bank_ownership": false,
+        "fixed_rectangles_and_pixel_rectangle_ownership": false,
+        "preserve_hint_math_classes": false,
+        "preserve_hint_words": false,
+        "fixed_rectangle_bank_assignment_may_change": false,
+        "additional_bank_masks_per_hint_rectangle": 0,
+        "pixel_repair_interval": null,
+        "fixed_single_bank_word_ownership_factored": false,
+        "additive_only": false,
+        "opaque_obj_banks_reserved": 0,
+        "color_math": "additive",
+        "opaque_choice_coalescing": true,
+        "opaque_choice_entries": 8184,
+        "math_choice_coalescing": true,
+        "math_choice_entries": 9992,
+        "distinct_math_choice_variables": 9744,
+        "distinct_opaque_choice_variables": 7656,
+        "no_color_reduction": true,
+        "universal_raster_rejected": false,
+        "native_presentation_proven": false,
+        "pooled_residency_pinned": false,
+        "scanline_pool_intervals_single_bank_restricted": false,
+        "pool_interval_bank_copies": 2,
+        "pool_interval_max_lines": 8,
+        "scanline_pool_interval_variables": 3396,
+        "full_pool_intervals_retained": false,
+        "pool_residency_intervals": 0,
+        "feasibility_only": true,
+        "bank_symmetry": false,
+        "bank_symmetry_policy": null,
+        "early_write_budget": null,
+        "late_start": 75,
+        "saturated_reuse": false,
+        "align_visible_bounds": false,
+        "maximum_frame_colors_per_bank": null,
+        "additive_alternative_count": 1249,
+        "complete_additive_cover": null,
+        "saturated_extrema": false,
+        "additive_operand_corpus_colors": 396,
+        "grid_padding_x": 0,
+        "grid_padding_y": 0,
+        "horizontal_clip_limit_counted": false,
+        "maximum_banks_per_piece_class": 0,
+        "mandatory_geometry_lower_bound": {
+          "oam_entries": 0,
+          "peak_sprites": 0,
+          "peak_tile_slivers": 0
+        },
+        "independent_actor_row_tile_lower_bounds": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          2,
+          1,
+          3,
+          4,
+          5,
+          6,
+          6,
+          6,
+          7,
+          7,
+          7,
+          8,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          7,
+          7,
+          7,
+          7,
+          7,
+          6,
+          6,
+          6,
+          5,
+          5,
+          4,
+          4,
+          3,
+          3,
+          2,
+          2,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "independent_actor_peak_tile_lower_bound": 9,
+        "row_tile_lower_bound_relaxes_piece_alignment_and_palette_masks": true,
+        "prepared_dma_partition_bound_enforced": false,
+        "prepared_dma_window_master_clocks": null,
+        "prepared_dma_window_is_optimistic_necessary_only": false,
+        "schedule_hint_used": false,
+        "input_geometry_is_search_hint": false,
+        "schedule_residency_hint_used": false,
+        "initial_preload_prefix_capacity_modeled": true,
+        "initial_preload_prefix_colors": 0,
+        "exact_underlay_bypass": true,
+        "underlay_bypassed_pixels": 83,
+        "source_actor_canvases": [
+          [
+            110,
+            90
+          ]
+        ],
+        "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+        "scope": "Explicit pose. Exact opaque/additive pixel alternatives and fixed OAM color masks on one legal grid. No native layer routing, source reachability or hardware bandwidth admission.",
+        "scanline_math_controls_source_bound": true,
+        "scanline_math_candidate_sha256": "6cc3b695847703837721443d24573813c4ba61494877e736c9045f5a43dc882f",
+        "scanline_math_control_rows": [
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127,
+          128,
+          129,
+          130,
+          131,
+          132,
+          133,
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141,
+          142,
+          143,
+          144,
+          145,
+          146,
+          147,
+          148,
+          149,
+          150,
+          151,
+          152,
+          153,
+          154,
+          155,
+          156,
+          157,
+          158,
+          159,
+          160,
+          161,
+          162,
+          163,
+          164,
+          165,
+          166
+        ],
+        "outside_control_rows_math_policy": "FULL_ADD_NO_WINDOW",
+        "scanline_pool_candidate_pixel_coverage_replayed": true,
+        "scanline_pool_operand_choices_restricted": true,
+        "scanline_pool_residency_pinned": false,
+        "selected_modes": {
+          "0": "add",
+          "1": "add",
+          "2": "add",
+          "3": "add",
+          "4": "add",
+          "5": "add",
+          "6": "add",
+          "7": "add",
+          "8": "add",
+          "9": "add",
+          "10": "add",
+          "11": "add",
+          "12": "add",
+          "13": "add",
+          "14": "add",
+          "15": "add",
+          "16": "add",
+          "17": "add",
+          "18": "add",
+          "19": "add",
+          "20": "add",
+          "21": "add",
+          "22": "add",
+          "23": "add",
+          "24": "add",
+          "25": "add",
+          "26": "add",
+          "27": "add",
+          "28": "add",
+          "29": "add",
+          "30": "add",
+          "31": "add",
+          "32": "add",
+          "33": "add",
+          "34": "add",
+          "35": "add",
+          "36": "add",
+          "37": "add",
+          "38": "add",
+          "39": "add",
+          "40": "add",
+          "41": "add",
+          "42": "add",
+          "43": "add",
+          "44": "add",
+          "45": "add",
+          "46": "add",
+          "47": "add",
+          "48": "add",
+          "49": "add",
+          "50": "add",
+          "51": "add",
+          "52": "add",
+          "53": "add",
+          "54": "add",
+          "55": "add",
+          "56": "add",
+          "57": "add",
+          "58": "add",
+          "59": "add",
+          "60": "add",
+          "61": "add",
+          "62": "add",
+          "63": "add",
+          "64": "add",
+          "65": "add",
+          "66": "add",
+          "67": "add",
+          "68": "add",
+          "69": "add",
+          "70": "add",
+          "71": "add",
+          "72": "add",
+          "73": "add",
+          "74": "add",
+          "75": "add",
+          "76": "add",
+          "77": "add",
+          "78": "add",
+          "79": "add",
+          "80": "add",
+          "81": "add",
+          "82": "add",
+          "83": "add",
+          "84": "add",
+          "85": "add",
+          "86": "add",
+          "87": "add",
+          "88": "add",
+          "89": "add",
+          "90": "add",
+          "91": "add",
+          "92": "add",
+          "93": "add",
+          "94": "add",
+          "95": "add",
+          "96": "add",
+          "97": "add",
+          "98": "add",
+          "99": "add",
+          "100": "add",
+          "101": "add",
+          "102": "add",
+          "103": "add",
+          "104": "add",
+          "105": "add",
+          "106": "add",
+          "107": "add",
+          "108": "add",
+          "109": "add",
+          "110": "add",
+          "111": "add",
+          "112": "add",
+          "113": "add",
+          "114": "add",
+          "115": "add",
+          "116": "add",
+          "117": "add",
+          "118": "add",
+          "119": "add",
+          "120": "add",
+          "121": "add",
+          "122": "add",
+          "123": "add",
+          "124": "add",
+          "125": "add",
+          "126": "add",
+          "127": "add",
+          "128": "add",
+          "129": "add",
+          "130": "add",
+          "131": "add",
+          "132": "add",
+          "133": "add",
+          "134": "add",
+          "135": "add",
+          "136": "add",
+          "137": "add",
+          "138": "add",
+          "139": "add",
+          "140": "add",
+          "141": "add",
+          "142": "add",
+          "143": "add",
+          "144": "add",
+          "145": "add",
+          "146": "add",
+          "147": "add",
+          "148": "add",
+          "149": "add",
+          "150": "add",
+          "151": "add",
+          "152": "add",
+          "153": "add",
+          "154": "add",
+          "155": "add",
+          "156": "add",
+          "157": "add",
+          "158": "add",
+          "159": "add",
+          "160": "add",
+          "161": "add",
+          "162": "add",
+          "163": "add",
+          "164": "add",
+          "165": "add",
+          "166": "add",
+          "167": "add",
+          "168": "add",
+          "169": "add",
+          "170": "add",
+          "171": "add",
+          "172": "add",
+          "173": "add",
+          "174": "add",
+          "175": "add",
+          "176": "add",
+          "177": "add",
+          "178": "add",
+          "179": "add",
+          "180": "add",
+          "181": "add",
+          "182": "add",
+          "183": "add",
+          "184": "add",
+          "185": "add",
+          "186": "add",
+          "187": "add",
+          "188": "add",
+          "189": "add",
+          "190": "add",
+          "191": "add",
+          "192": "add",
+          "193": "add",
+          "194": "add",
+          "195": "add",
+          "196": "add",
+          "197": "add",
+          "198": "add",
+          "199": "add",
+          "200": "add",
+          "201": "add",
+          "202": "add",
+          "203": "add",
+          "204": "add",
+          "205": "add",
+          "206": "add",
+          "207": "add",
+          "208": "add",
+          "209": "add",
+          "210": "add",
+          "211": "add",
+          "212": "add",
+          "213": "add",
+          "214": "add",
+          "215": "add",
+          "216": "add",
+          "217": "add",
+          "218": "add",
+          "219": "add",
+          "220": "add",
+          "221": "add",
+          "222": "add",
+          "223": "add"
+        },
+        "compiled_color_window_descriptors": {
+          "112": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "113": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "114": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "115": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "116": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "117": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "118": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "119": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "120": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "121": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "122": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "123": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "124": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "125": {
+            "bounds": [
+              [
+                0,
+                116
+              ],
+              [
+                118,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "126": {
+            "bounds": [
+              [
+                0,
+                140
+              ],
+              [
+                143,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "127": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "128": {
+            "bounds": [
+              [
+                0,
+                140
+              ],
+              [
+                144,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "129": {
+            "bounds": [
+              [
+                103,
+                110
+              ],
+              [
+                149,
+                149
+              ]
+            ],
+            "wobjsel_color_bits": 240,
+            "wobjlog_color_bits": 4,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "130": {
+            "bounds": [
+              [
+                0,
+                116
+              ],
+              [
+                118,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "131": {
+            "bounds": [
+              [
+                0,
+                107
+              ],
+              [
+                114,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "132": {
+            "bounds": [
+              [
+                0,
+                145
+              ],
+              [
+                147,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "133": {
+            "bounds": [
+              [
+                0,
+                104
+              ],
+              [
+                128,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "134": {
+            "bounds": [
+              [
+                0,
+                106
+              ],
+              [
+                130,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "135": {
+            "bounds": [
+              [
+                119,
+                128
+              ],
+              [
+                130,
+                132
+              ]
+            ],
+            "wobjsel_color_bits": 240,
+            "wobjlog_color_bits": 4,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "136": {
+            "bounds": [
+              [
+                0,
+                119
+              ],
+              [
+                132,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "137": {
+            "bounds": [
+              [
+                102,
+                105
+              ],
+              [
+                112,
+                137
+              ]
+            ],
+            "wobjsel_color_bits": 240,
+            "wobjlog_color_bits": 4,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "138": {
+            "bounds": [
+              [
+                105,
+                125
+              ],
+              [
+                130,
+                136
+              ]
+            ],
+            "wobjsel_color_bits": 240,
+            "wobjlog_color_bits": 4,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "139": {
+            "bounds": [
+              [
+                0,
+                107
+              ],
+              [
+                143,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "140": {
+            "bounds": [
+              [
+                109,
+                143
+              ],
+              [
+                155,
+                155
+              ]
+            ],
+            "wobjsel_color_bits": 240,
+            "wobjlog_color_bits": 4,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "141": {
+            "bounds": [
+              [
+                106,
+                108
+              ],
+              [
+                110,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "142": {
+            "bounds": [
+              [
+                107,
+                111
+              ],
+              [
+                117,
+                136
+              ]
+            ],
+            "wobjsel_color_bits": 240,
+            "wobjlog_color_bits": 4,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "143": {
+            "bounds": [
+              [
+                119,
+                132
+              ],
+              [
+                138,
+                155
+              ]
+            ],
+            "wobjsel_color_bits": 240,
+            "wobjlog_color_bits": 4,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "144": {
+            "bounds": [
+              [
+                0,
+                115
+              ],
+              [
+                152,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "145": {
+            "bounds": [
+              [
+                113,
+                117
+              ],
+              [
+                167,
+                255
+              ]
+            ],
+            "wobjsel_color_bits": 160,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "146": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "147": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "148": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "149": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "150": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "151": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "152": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "153": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "154": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "155": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "156": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "157": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "158": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "159": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "160": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "161": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "162": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "163": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "164": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "165": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "166": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          }
+        },
+        "complete_outside_control_math_cover": null,
+        "window_register_schedule_proven": false,
+        "bounded_solver_log": [
+          "  'fs_random_no_lp':  21'820  3'281'146  4'755'472       889            3'285  3'230'116  1'257'837'280    166'148'155",
+          "            'no_lp':  21'820  1'417'448  2'152'805       758            3'312  1'407'647    841'604'352    159'337'534",
+          "SAT formula           Fixed  Equiv   Total  VarLeft  BinaryClauses  PermanentClauses  TemporaryClauses",
+          "        'fs_random':      0      0  21'820   21'820         73'606             8'586            15'439",
+          "  'fs_random_no_lp':      0      0  21'820   21'820         73'710             8'575            11'978",
+          "            'no_lp':      0      0  21'820   21'820         73'540             9'111            14'458",
+          "SAT stats             ClassicMinim  LitRemoved  LitRemovedBinary   LitLearned  LitForgotten  Subsumed",
+          "        'fs_random':       895'262   3'037'161           678'647  182'770'851   169'572'489   529'757",
+          "  'fs_random_no_lp':       739'730   4'250'707           707'236  114'275'302   104'621'747   363'580",
+          "            'no_lp':       901'804  13'781'211           669'322   88'967'684    77'139'068   214'338",
+          "Vivification          Clauses  Decisions  LitTrue  Subsumed  LitRemoved  DecisionReused  Conflicts",
+          "        'fs_random':    2'531     51'077        0       839      17'204           1'363         16",
+          "  'fs_random_no_lp':    2'938     81'290        0       796      21'685           3'162         16",
+          "            'no_lp':    2'923     95'012        0       965      34'119           2'633         43",
+          "Clause deletion       at_true  l_and_not(l)  to_binary  sub_conflict  sub_extra  sub_decisions  sub_eager  sub_vivify  sub_probing  sub_inpro  blocked  eliminated  forgotten    promoted  conflicts",
+          "        'fs_random':        0             0          0       483'094     74'641              9     46'663         839            0          0        0           0  4'744'927  10'679'807  5'366'632",
+          "  'fs_random_no_lp':        0             0          0       327'368     55'640              9     36'212         796            0          0        0           0  2'847'909   6'994'497  3'281'146",
+          "            'no_lp':        0             0          0       193'406      9'743          4'229     20'932         965            0          0        0           0  1'172'007   3'729'213  1'417'448",
+          "LNS stats       Improv/Calls  Closed  Difficulty  TimeLimit",
+          "  'rins/rens':           0/0      0%    5.00e-01       0.10",
+          "LS stats                                    Batches  Restarts/Perturbs   LinMoves   GenMoves  CompoundMoves  Bactracks  WeightUpdates  ScoreComputed",
+          "                             'fj_restart':       46                 21  2'441'465          0              0          0         49'266      1'275'935",
+          "                    'fj_restart_compound':       65                 23          0  1'200'801        190'453    505'067            271     23'561'003",
+          "                'fj_restart_compound_obj':       98                 17          0  2'004'003        212'574    895'687            556     33'365'599",
+          "            'fj_restart_compound_perturb':       86                 31          0  1'618'784        238'342    690'148            259     32'543'425",
+          "        'fj_restart_compound_perturb_obj':       95                 23          0  2'081'103        193'570    943'710            544     32'650'770",
+          "                       'fj_restart_decay':       48                 24  2'315'677          0              0          0          6'772      1'474'201",
+          "              'fj_restart_decay_compound':       65                 28          0  1'270'436        219'709    525'241            134     23'759'951",
+          "          'fj_restart_decay_compound_obj':       51                 24          0    935'409        181'838    376'710            118     18'701'226",
+          "      'fj_restart_decay_compound_perturb':       72                 24          0  1'563'897        242'612    660'536            138     26'533'124",
+          "  'fj_restart_decay_compound_perturb_obj':       52                 17          0  1'087'967        170'602    458'633            103     18'586'328",
+          "                   'fj_restart_decay_obj':      135                 20  6'560'898          0              0          0         18'776      4'451'506",
+          "               'fj_restart_decay_perturb':      109                 16  5'281'258          0              0          0         15'146      3'603'062",
+          "           'fj_restart_decay_perturb_obj':       52                 22  2'519'138          0              0          0          7'316      1'603'054",
+          "                         'fj_restart_obj':      117                 24  6'506'395          0              0          0        157'525      2'801'185",
+          "                     'fj_restart_perturb':       43                 22  2'301'605          0              0          0         42'543      1'237'474",
+          "                 'fj_restart_perturb_obj':       80                 24  4'421'282          0              0          0         86'676      1'987'065",
+          "Solution repositories    Added  Queried  Synchro",
+          "    'alternative_path':      0        0        0",
+          "      'best_solutions':      0        0        0",
+          "   'fj solution hints':    352        0      352",
+          "        'lp solutions':      0        0        0",
+          "                'pump':      0        0",
+          "Clauses shared        #Exported  #Imported  #BinaryRead  #BinaryTotal",
+          "        'fs_random':        640      1'204          247           292",
+          "  'fs_random_no_lp':        807      1'033          291           292",
+          "            'no_lp':        519        941          205           292",
+          "LRAT_status: NA",
+          "CpSolverResponse summary:",
+          "status: UNKNOWN",
+          "objective: NA",
+          "best_bound: NA",
+          "integers: 4537",
+          "booleans: 21820",
+          "conflicts: 1417448",
+          "branches: 2152805",
+          "propagations: 841604352",
+          "integer_propagations: 159337534",
+          "restarts: 758",
+          "lp_iterations: 0",
+          "walltime: 120.081",
+          "usertime: 120.081",
+          "deterministic_time: 702.948",
+          "gap_integral: 0"
+        ],
+        "lp_geometry_hint": {
+          "status": 0,
+          "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+          "maximum_primal_violation": 9.414691248821327e-14,
+          "hint_variables": 8289,
+          "hint_is_soft": true,
+          "pinned_variables": 0
+        }
+      },
+      "native_admitted": false
     }
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-authored-kempe.json.gz",
-    "bytes": 2438888,
-    "sha256": "e2ebb0d0024073ddc8df909ed7913eb1543bc2476e87f35ad18a7879305316cc"
+    "bytes": 2440270,
+    "sha256": "0620445a3e7270fed7c6cc0f3cbb2b31fd4407cf538c57d46771bfa932bf859c"
   },
   "source_alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555",
   "universal_raster_rejected": false,
