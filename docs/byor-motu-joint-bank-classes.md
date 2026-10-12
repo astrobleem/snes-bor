@@ -688,3 +688,24 @@ is OPTIMAL after 18.375 seconds: 564 noninitial writes, 22 peak writes and at
 most three lines of prefetch. Its optimistic peak transfer span is 472 clocks,
 so minimizing write count alone does not meet the hardware window. Physical
 slot packing and native admission are not asserted.
+
+The improved assignment's 353-clock feasibility trial remains UNKNOWN after
+90.168 seconds. Warm integer span minimization reduces its peak from 472 to
+440 clocks after 180.165 seconds, using 597 noninitial writes, 22 peak writes
+and at most 16 lines of prefetch. All 576 eligible bank orders retain the
+440-clock optimistic peak. Their unchanged-slot diagnostic packet schedule
+costs 1,304 clocks and is not a native candidate. This assignment has not
+improved on the earlier 424-clock integer frontier.
+
+Resuming the valid player-reserved bank frontier with eight checked dual cuts
+evaluates nineteen more assignments in 310.703 seconds. The best fractional
+transfer bound improves slightly to 332.930779 clocks, while retaining 87
+HBreath OAM entries, 22 sprites and 28 slivers under the complete reservation.
+Integer residency and exact operand reopening continue on this new assignment;
+the relaxation alone cannot admit a hardware schedule.
+
+The extended assignment's write-minimizing integer cache is OPTIMAL after
+17.937 seconds, with 563 noninitial writes, 22 peak writes and three-line
+prefetch. Its optimistic peak is again 472 clocks. A validated soft-start span
+minimization uses the optional native HiGHS backend; no timing admission follows
+from the write-minimizing cache.
