@@ -493,3 +493,37 @@ assignment still fails the conservative 345-clock gate; source pixel identity
 replays across the whole viewport, while integer transfers and native admission
 remain unproved. A resumed bank search retains independently checked dual cuts
 and continues from this assignment.
+
+The resumed fixed-piece DMA search retains the 354.586291-clock fractional
+bound. Integral optimistic packet costs are multiples of eight clocks, so that
+specific assignment needs at least 360 clocks and exceeds even the measured
+356-clock maximum window. This rejects that assignment, not raster generally.
+
+Allowing source-exact row/color masks lowers the validated fractional DMA bound
+to 337.554147 clocks. The resulting fixed-bank geometry uses 128 OAM entries,
+32 sprites and 32 tile slivers at peak. It fits the isolated effect but leaves
+no sprite headroom on its peak line; concurrent gameplay is not admitted.
+The independently validated fixed-cache lower bound is 19.733333 writes.
+An OPTIMAL integer cache at a 21-write ceiling preserves every viewport pixel,
+uses 566 noninitial writes and needs at most four lines of prefetch. Its ideal
+transfer span is 456 clocks, so it is not a native candidate. The complete
+345-clock integer flow and joint row-mask searches both return UNKNOWN.
+Physical slots, actual transfer timing and concurrent actors remain open.
+
+The earlier HiGHS trial accepted the residency hint argument, but its SciPy
+MILP adapter does not pass a warm start to HiGHS. That trial is retained as an
+unhinted bounded search; it supplies no evidence about warm-start effectiveness.
+A CP-SAT search now receives the independently verified integer cache as an
+actual soft hint. No source alpha adaptation or color reduction is selected.
+
+The actual CP-SAT hinted flow search proves INFEASIBLE at 345 clocks in
+31.074 seconds for this fixed row-mask assignment and 21-write ceiling. This is
+a family-scoped rejection, not a universal raster verdict. The independently
+constrained physical-slot search returns UNKNOWN at 121.173 seconds. Backend
+reports now distinguish an accepted hint argument from a hint consumed by the
+solver; all 20 focused residency tests pass, including both backend reports.
+
+The 353-clock CP-SAT flow search returns UNKNOWN after 120.173 seconds.
+Its family lower bound is 346 clocks (at least 352 after integral packet-cost
+rounding), rather than a witness. Six further bank-refinement evaluations retain
+the 337.554147 fractional incumbent; none supplies a physical/native schedule.

@@ -400,6 +400,8 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     report['complete_source_frame_pixel_identity_proven']=False
     report['compulsory_bank_interval_cuts']=interval_cuts
     report['soft_residency_hint_interval']=hint_interval
+    report['solver_consumes_soft_hints']=solver_backend=='cp-sat'
+    report['supplied_residency_hint_used_by_solver']=hint_interval is not None and solver_backend=='cp-sat'
     report['collapse_bank_idle_prefix']=collapse_bank_idle_prefix
     report['bank_first_visible_rows']=bank_first if collapse_bank_idle_prefix else None
     report['bank_idle_prefix_resident_variables_collapsed']=collapsed_prefix_variables
