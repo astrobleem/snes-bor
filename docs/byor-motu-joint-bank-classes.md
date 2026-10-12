@@ -638,3 +638,16 @@ slivers after 60.255 seconds. It preserves the 424-clock palette cache, which
 still exceeds the measured window. Two player-reserved searches remain UNKNOWN
 at 45.196 and 60.452 seconds. These are bounded candidate-family results, not
 universal geometry or raster rejections; palette/layer concurrency is unadmitted.
+
+The player-reserved repair trial remains UNKNOWN after 90.256 seconds. Valid
+per-bank horizontal interval cuts now strengthen the sampled geometry model:
+each bank's opaque pixels require at least their exact eight-pixel interval
+coverage, and full rectangle padding still counts. The combined lower bound
+is 31 slivers. A 90.321-second trial with these cuts remains UNKNOWN, with no
+incumbent; it does not reject arbitrary legal packing. All four focused tests
+pass, including a reservation whose measured lower bound exceeds 34 slivers.
+
+Reopening whole-piece bank choices on the 70-entry non-grid witness evaluates
+twelve assignments in 89.547 seconds. The best fractional transfer lower bound
+remains 337.554147 clocks. This relaxation is not an integer transfer schedule,
+and the complete 424-clock witness remains above the measured hardware window.

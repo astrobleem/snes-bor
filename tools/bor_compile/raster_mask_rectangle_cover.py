@@ -41,8 +41,16 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
             original[identity]=(p['bank'],slot)
             planes.setdefault(key,{})[y,x]=slot
             eligibility[identity]=set(p.get('allowed_banks',range(8)))
-    model=cp_model.CpModel();variables=[];candidates=[];owners={};by_line={}
+    model=cp_model.CpModel();variables=[];candidates=[];owners={};by_line={};plane_rows={};tile_lower=[0]*height
     for (actor,bank),points in sorted(planes.items()):
+        horizontal={}
+        for y,x in points:horizontal.setdefault(y,[]).append(x)
+        lower={}
+        for y,xs in horizontal.items():
+            end=-1000;count=0
+            for x in sorted(xs):
+                if x>end:count+=1;end=x+7
+            lower[y]=count;tile_lower[y]+=count
         candidates_xy=set(input_rectangles.get((actor,bank),()))
         for y,x in points:
             for size in(8,large_size):
@@ -59,10 +67,21 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
             model.add_hint(v,int((size,x,y)in input_rectangles.get((actor,bank),())))
             candidates.append((actor,bank,size,x,y,covered))
             for point in covered:owners.setdefault((actor,bank,*point),[]).append(v)
-            for yy in range(max(0,y),min(height,y+size)):by_line.setdefault(yy,[]).append((v,size//8))
+            for yy in range(max(0,y),min(height,y+size)):
+                by_line.setdefault(yy,[]).append((v,size//8))
+                plane_rows.setdefault((actor,bank,yy),[]).append((v,size//8))
+        # Exact minimum horizontal coverage by eight-pixel intervals. These
+        # cuts also hold for unaligned rectangles and strengthen the LP without
+        # requiring the solver to derive interval coverage from individual pixels.
+        for y,count in lower.items():
+            entries=plane_rows[actor,bank,y]
+            model.add(sum(v*w for v,w in entries)>=count)
+            model.add(sum(v for v,w in entries)>=(count+large_size//8-1)//(large_size//8))
     for options in owners.values():model.add(sum(options)==1)
     model.add(sum(variables)<=128-reserve['oam_entries'])
     peak=model.new_int_var(0,34,'combinedPeakTiles')
+    combined_lower=max(a+b for a,b in zip(tile_lower,reserve['tile_slivers_per_line']))
+    model.add(peak>=combined_lower)
     for y,entries in by_line.items():
         model.add(sum(v for v,w in entries)<=32-reserve['sprites_per_line'][y])
         tiles=sum(v*w for v,w in entries)+reserve['tile_slivers_per_line'][y]
@@ -74,6 +93,7 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
     report=dict(schema='BYOR_FIXED_BANK_PIXEL_RECTANGLE_COVER_V1',status='BOUNDED_FIXED_BANK_PIXEL_RECTANGLE_COVER_NO_CANDIDATE',
         solver_status=solver.status_name(status),solver_seconds=solver.wall_time,candidate_rectangles=len(candidates),
         solver_objective_lower_bound=solver.best_objective_bound,soft_input_rectangle_hint=True,repair_hint=repair_hint,
+        source_bank_mask_horizontal_tile_lower_bound=tile_lower,combined_horizontal_tile_lower_bound=combined_lower,
         candidate_family='OPAQUE_PIXEL_CORNER_OR_MIDPOINT_PLUS_INPUT_RECTANGLES',obj_size_pair=[8,large_size],geometry_reservation=reserve,
         fixed_bank_and_slot_per_source_pixel=True,palette_writes_unchanged=True,universal_raster_rejected=False,
         concurrent_palette_or_layer_admitted=False,native_timing_admitted=False,no_color_reduction=True)

@@ -36,11 +36,13 @@ class MaskCoverTests(unittest.TestCase):
         self.assertFalse(result['native_presentation_proven'])
         self.assertFalse(result['geometry_pixel_rectangle_cover']['concurrent_palette_or_layer_admitted'])
         self.assertTrue(result['geometry_pixel_rectangle_cover']['repair_hint'])
+        self.assertEqual(result['geometry_pixel_rectangle_cover']['combined_horizontal_tile_lower_bound'],2)
 
     def test_full_reserved_tile_rows_reject_without_rejecting_general_raster(self):
         reserve=dict(oam_entries=0,sprites_per_line=[0]*16,tile_slivers_per_line=[34]*16)
         result=cover(fixture(),time_limit=3,geometry_reservation=reserve)
         self.assertEqual(result['solver_status'],'INFEASIBLE')
+        self.assertEqual(result['combined_horizontal_tile_lower_bound'],36)
         self.assertFalse(result['universal_raster_rejected'])
         reserve['oam_entries']=True
         with self.assertRaisesRegex(ValueError,'RESERVATION'):cover(fixture(),geometry_reservation=reserve)
