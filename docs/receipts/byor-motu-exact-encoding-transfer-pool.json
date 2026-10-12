@@ -1,0 +1,18 @@
+{
+  "schema": "BYOR_SOURCE_EXACT_TWO_CLASS_TRANSFER_POOL_REPLAY_V1",
+  "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+  "input_sha256": "e933554ece9e8f0665ded844d26ab495cace44c0c3897b074366e7deae41ada2",
+  "full_viewport_pixels_replayed": 57344,
+  "encoded_pixels_replayed": 2668,
+  "peak_pool_writes": 20,
+  "minimum_transfer_window": 357,
+  "fixed_bank_assignment_proven": false,
+  "physical_slots_proven": false,
+  "native_timing_admitted": false,
+  "no_color_reduction": true,
+  "compressed_evidence": {
+    "path": "docs\\receipts\\byor-motu-exact-encoding-transfer-pool.json.gz",
+    "bytes": 16588,
+    "sha256": "b90b48b1066b13561f9a8774a2672a176676f43973f62acac83d397f9af4eea3"
+  }
+}

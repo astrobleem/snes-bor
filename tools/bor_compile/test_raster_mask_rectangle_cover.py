@@ -26,6 +26,18 @@ def indexed_pixels(frame):
 
 
 class MaskCoverTests(unittest.TestCase):
+    def test_overflow_constructor_can_be_repacked_without_admitting_input(self):
+        source=fixture()
+        source.update(status='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW',
+            hardware_geometry_admitted=False,native_presentation_proven=False)
+        result=cover(source,time_limit=3)
+        self.assertEqual(indexed_pixels(source),indexed_pixels(result))
+        self.assertTrue(result['hardware_geometry_admitted'])
+        self.assertFalse(result['native_presentation_proven'])
+        self.assertFalse(source['hardware_geometry_admitted'])
+        source['compiled_pixel_identity_verified']=False
+        with self.assertRaisesRegex(ValueError,'VALIDATED_SOURCE'):cover(source)
+
     def test_clipped_input_geometry_hint_uses_real_tile_slivers(self):
         source=fixture();source['pieces'][0].update(x=248,local_x=248,y=0,local_y=0,width=16,height=16)
         image=np.zeros((16,16),dtype=np.uint8);image[0,7]=1;flat=image.flatten()
@@ -102,7 +114,7 @@ class MaskCoverTests(unittest.TestCase):
                 image=np.zeros((8,8),dtype=np.uint8);image[0,offset::2]=1;flat=image.flatten()
                 source['pieces'].append(dict(actor=0,bank=bank,x=x,y=4,local_x=x,local_y=4,width=8,height=8))
                 source['piece_pixel_masks'].append(dict(width=8,height=8,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
-        source.update(status='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW',hardware_geometry_admitted=False)
+        source.update(status='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW',hardware_geometry_admitted=False,native_presentation_proven=False)
         before=copy.deepcopy(source);bound=fixed_bank_horizontal_bound(source)
         self.assertEqual(bound['peak_tile_sliver_lower_bound'],64)
         self.assertEqual(bound['status'],'FIXED_PIXEL_BANK_GEOMETRY_INFEASIBLE')

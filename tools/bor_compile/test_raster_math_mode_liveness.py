@@ -3,6 +3,21 @@ from raster_math_mode_liveness import lower_bound,verify_integer_pool
 
 
 class ModeLivenessTests(unittest.TestCase):
+    def test_class_load_transfer_bound_rejects_twenty_two_writes_in_three_banks(self):
+        first={(c,())for c in range(60)}|{(1000+c,(c,))for c in range(60)}
+        second={(c,())for c in range(43)}|{(c,())for c in range(60,77)}|{(2000+c,(60+c,))for c in range(5)}
+        rows=[{'add':first},{'add':second}]
+        options=dict(integer_modes=True,integer_palette=True,integer_backend='cp-sat',write_budget=22,time_limit=5)
+        blocked=lower_bound(rows,minimum_transfer_window=357,**options)
+        self.assertEqual(blocked['status'],'RELAXED_MODE_LIVENESS_INFEASIBLE')
+        admitted=lower_bound(rows,minimum_transfer_window=369,**options)
+        self.assertEqual(admitted['peak_replayed_pool_writes'],22)
+        self.assertTrue(admitted['integer_pool_pixel_coverage_verified'])
+        self.assertFalse(admitted['minimum_transfer_bound_is_complete_partition_proof'])
+        admitted['necessary_minimum_transfer_window']=357
+        with self.assertRaisesRegex(AssertionError,'MINIMUM_TRANSFER_REPLAY'):verify_integer_pool(admitted,rows)
+        with self.assertRaisesRegex(ValueError,'DISJOINT_FOUR_BANK_CLASSES'):lower_bound(rows,capacities=(120,60),minimum_transfer_window=357)
+
     def test_controls_only_window_hint_cannot_pin_wrong_pixel_gates(self):
         rows=[{'a':{(0,(7,))}},{'a':{(1,(7,))}}]
         pixels=[[{'x':4,'output':out,'modes':{'a':(7,)}}]for out in(0,1)]

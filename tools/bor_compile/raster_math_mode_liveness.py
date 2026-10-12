@@ -26,7 +26,12 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
         if not set(report.get('reserved_normal_colors',())).issubset(state[0]):raise AssertionError('MODE_INTEGER_POOL_STATIC_RESERVATION_REPLAY')
         if not {int(yy):set(cs)for yy,cs in report.get('required_normal_rows',{}).items()}.get(y,set()).issubset(state[0]):raise AssertionError('MODE_INTEGER_POOL_NORMAL_ROW_REPLAY')
         if y>first:
-            line_writes=sum(len(state[k]-states[y-1][k])for k in range(2));peak=max(peak,line_writes)
+            class_writes=[len(state[k]-states[y-1][k])for k in range(2)]
+            line_writes=sum(class_writes);peak=max(peak,line_writes)
+            transfer_window=report.get('necessary_minimum_transfer_window')
+            if transfer_window is not None:
+                banks=sum((n+14)//15 for n in class_writes)
+                if max(0,16*(line_writes+banks-2))>=transfer_window:raise AssertionError('MODE_INTEGER_POOL_MINIMUM_TRANSFER_REPLAY')
             limit={int(yy):n for yy,n in report.get('scanline_write_limits',{}).items()}.get(y)
             if limit is not None and line_writes>limit:raise AssertionError('MODE_INTEGER_POOL_SCANLINE_WRITE_LIMIT_REPLAY')
         if y not in active:continue
@@ -46,7 +51,7 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     return report
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None,controls_hint=None):
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None,controls_hint=None,minimum_transfer_window=None):
     reserved_normal_colors=tuple(sorted(set(reserved_normal_colors)))
     if any(type(c)is not int or not 0<=c<32768 for c in reserved_normal_colors):raise ValueError('MODE_LIVENESS_STATIC_RESERVATION_DOMAIN')
     scanline_write_limits=dict(scanline_write_limits or {})
@@ -60,6 +65,7 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
         for y,cs in required_normal_rows.items():
             for m in rows[y]or names:rows[y].setdefault(m,set()).update((c,())for c in cs)
     if len(capacities)!=2 or any(not isinstance(c,int)or c<0 for c in capacities)or not sum(capacities):raise ValueError('MODE_LIVENESS_CAPACITY')
+    if minimum_transfer_window is not None and(type(minimum_transfer_window)is not int or minimum_transfer_window<1 or any(c>60 for c in capacities)):raise ValueError('MODE_LIVENESS_TRANSFER_WINDOW_REQUIRES_DISJOINT_FOUR_BANK_CLASSES')
     if initial_state is not None:
         initial_state={int(k):set(cs)for k,cs in initial_state.items()}
         if set(initial_state)!={0,1}or any(len(cs)>capacities[k]or any(type(c)is not int or not 0<=c<32768 for c in cs)for k,cs in initial_state.items()):raise ValueError('MODE_LIVENESS_INITIAL_STATE_DOMAIN')
@@ -117,6 +123,10 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
             if positive_windows_only:coordinates=sorted(set(coordinates)|{0,255})
             for x in coordinates:enabled[y,x]=count;count+=1
             for left,right in zip(coordinates,coordinates[1:]):transitions[y,left,right]=count;count+=1
+    minimum_banks={}
+    if minimum_transfer_window is not None:
+        for y in range(first+1,max(active)+1):
+            for kind in (0,1):minimum_banks[y,kind]=count;count+=1
     peak=count;rr=[];cc=[];vv=[];limits=[]
     def constraint(items,upper):
         index=len(limits)
@@ -180,9 +190,16 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     for y,variables in write_lines.items():
         constraint([(v,1)for v in variables]+[(peak,-1)],0)
         if y in scanline_write_limits:constraint([(v,1)for v in variables],scanline_write_limits[y])
+        if minimum_transfer_window is not None:
+            for kind in (0,1):
+                constraint([(v,1)for(k,c,yy),v in writes.items()if k==kind and yy==y]+[(minimum_banks[y,kind],-15)],0)
+            # Grant adjacent banks, ideal endpoint slots and one setup. The
+            # actual partition cannot beat 16*(loads + minimum banks - 2).
+            constraint([(v,16)for v in variables]+[(minimum_banks[y,k],16)for k in (0,1)],minimum_transfer_window+31)
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(limits),peak+1)).tocsc()
     objective=np.zeros(peak+1);objective[peak]=1
     lower=np.zeros(peak+1);upper=np.ones(peak+1);upper[peak]=np.inf if write_budget is None else write_budget
+    for variable in minimum_banks.values():upper[variable]=4
     for c in reserved_normal_colors:
         for y in range(first,max(active)+1):lower[resident[0,c,y]]=1
     for y,cs in required_normal_rows.items():
@@ -258,6 +275,9 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
         palette_residency_integrality_relaxed=not integer_palette,geometry_and_bank_assignment_relaxed=True,
                 optimal_initial_residency_allowed=initial_state is None,fixed_initial_palette_state=None if initial_state is None else{k:sorted(cs)for k,cs in initial_state.items()},unbounded_preloading_allowed=True,schedule_proven=False,no_color_reduction=True)
     report['forced_opaque_modes_pruned']=pruned
+    report['necessary_minimum_transfer_window']=minimum_transfer_window
+    report['minimum_transfer_bound_is_complete_partition_proof']=False
+    report['minimum_transfer_bank_classes_disjoint']=minimum_transfer_window is not None
     report['reserved_normal_colors']=list(reserved_normal_colors)
     report['static_normal_residency_fixed_for_complete_interval']=bool(reserved_normal_colors)
     report['scanline_write_limits']=scanline_write_limits

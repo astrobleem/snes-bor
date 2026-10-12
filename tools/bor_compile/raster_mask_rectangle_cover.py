@@ -16,15 +16,10 @@ def fixed_bank_horizontal_bound(schedule):
     """Necessary geometry bound, including exact constructors that overflow OAM.
 
     Replaying an overflow constructor validates only its indexed pixel demand;
-    the copied status used for that replay does not admit its hardware geometry.
+    it does not admit its hardware geometry.
     Bank changes or cross-actor fusion are outside this bound's fixed scope.
     """
-    replay=schedule
-    if schedule.get('status')=='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW':
-        if not schedule.get('compiled_pixel_identity_verified') or schedule.get('hardware_geometry_admitted'):
-            raise ValueError('MASK_BOUND_OVERFLOW_IDENTITY')
-        replay=dict(schedule,status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN')
-    _,_,images=demand(replay);height=len(schedule['trace']);rows={};lower=[0]*height;visible=set()
+    _,_,images=demand(schedule,allow_geometry_hint=True);height=len(schedule['trace']);rows={};lower=[0]*height;visible=set()
     for p,image in zip(schedule['pieces'],images):
         for ly,lx in zip(*np.where(image>=0)):
             y,x=int(p['y']+ly),int(p['x']+lx)
@@ -48,7 +43,7 @@ def fixed_bank_horizontal_bound(schedule):
 
 def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_hint=False,solver_backend='cp-sat'):
     from ortools.sat.python import cp_model
-    demand(schedule)
+    demand(schedule,allow_geometry_hint=True)
     if large_size not in(16,32)or time_limit<=0:raise ValueError('MASK_COVER_DOMAIN')
     if type(repair_hint)is not bool:raise ValueError('MASK_COVER_REPAIR_HINT_DOMAIN')
     if solver_backend not in('cp-sat','highspy'):raise ValueError('MASK_COVER_SOLVER_BACKEND')
@@ -198,6 +193,7 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
     if schedule.get('compiled_indices_sha256')not in(None,index_hash):raise AssertionError('MASK_COVER_INPUT_INDEX_IDENTITY')
     result=copy.deepcopy(schedule)
     result.update(pieces=pieces,piece_pixel_masks=masks,geometry=dict(oam_entries=len(pieces),peak_sprites=max(sprites),peak_tile_slivers=max(tiles)),
+        status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN',hardware_geometry_admitted=True,
         geometry_pixel_rectangle_cover=report,mixed_small_size=8,mixed_large_size=large_size,obsel_mode=0 if large_size==16 else 1,
         compiled_indices_sha256=index_hash,native_presentation_proven=False,
         geometry_reservation=copy.deepcopy(reserve),combined_reserved_geometry=combined,reservation_palette_and_layer_demand_included=False)
