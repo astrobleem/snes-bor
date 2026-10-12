@@ -54,6 +54,7 @@ class FrameBankGeometryTests(unittest.TestCase):
         rectangles=[dict(x=0,y=0,width=8,height=8)]
         result=search(rectangles,points,height=8,time_limit=3)
         self.assertEqual(result['equivalent_pixel_decision_atoms'],1)
+        self.assertEqual(result['independent_required_word_coverage_clauses'],1)
         self.assertEqual(len(result['pixels']),2)
         rectangles.append(dict(x=1,y=0,width=8,height=8))
         result=search(rectangles,points,height=8,time_limit=3)
@@ -96,6 +97,24 @@ class FrameBankGeometryTests(unittest.TestCase):
         self.assertEqual(result['peak_joint_cache_writes'],30)
         self.assertEqual(result['peak_joint_cache_ideal_span'],480)
         self.assertFalse(result['native_presentation_proven'])
+        optimized=search(rectangles,points,height=32,time_limit=3,cache_window=505,minimize_cache_span=True)
+        self.assertEqual(optimized['solver_status'],'OPTIMAL')
+        self.assertEqual(optimized['peak_joint_cache_ideal_span'],480)
+        self.assertEqual(optimized['solver_objective_lower_bound'],520)
+        optimized['cache_resident_colors']={r['scanline']:r['resident_colors']for r in optimized['joint_cache_trace']}
+        hinted=search(rectangles,points,height=32,time_limit=3,cache_window=505,minimize_cache_span=True,geometry_hint=optimized)
+        self.assertTrue(hinted['complete_source_witness_hint_model_verified'])
+        self.assertEqual(hinted['soft_geometry_hint_variables'],hinted['model_variables'])
+        self.assertEqual(hinted['peak_joint_cache_ideal_span'],480)
+        repaired=search(rectangles,points,height=32,time_limit=3,cache_window=505,minimize_cache_span=True,geometry_hint=optimized,repair_interval=[1,1])
+        self.assertTrue(repaired['outside_repair_cache_and_pixel_owners_fixed'])
+        self.assertGreater(repaired['repair_fixed_variables'],0)
+        self.assertEqual(repaired['repair_interval_peak_joint_cache_ideal_span'],480)
+        self.assertEqual(repaired['joint_cache_trace'][0]['resident_colors'],optimized['joint_cache_trace'][0]['resident_colors'])
+        too_tight=search(rectangles,points,height=32,time_limit=3,cache_window=353,geometry_hint=optimized)
+        self.assertFalse(too_tight['complete_source_witness_hint_model_verified'])
+        self.assertGreater(too_tight['complete_source_witness_hint_violation_count'],0)
+        self.assertEqual(too_tight['solver_status'],'INFEASIBLE')
         with self.assertRaisesRegex(ValueError,'CACHE_WINDOW_DOMAIN'):
             search(rectangles,points,bank_symmetry=True,cache_window=505)
 

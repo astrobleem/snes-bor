@@ -40,6 +40,47 @@ identities, including 160 input seed words. This correction preserves liveness
 possibilities but does not produce a new full-frame schedule or hardware
 infeasibility certificate.
 
+Direct required-word coverage adds 1,763 clauses independent of rectangle
+ownership. A 353-clock full-frame search still returns UNKNOWN after 180.831
+seconds. Minimizing ideal cache span under a 401-clock ceiling also returns
+UNKNOWN after 180.698 seconds with partial hints; neither rejects raster.
+
+A complete starting assignment now canonicalizes equivalent pixel owners,
+fills all palette/cache/load/transfer decisions and independently checks every
+variable domain and model constraint before submitting it as a soft hint.
+The peak-frame start checks all 249,841 variables with zero violations and
+recovers a valid full-frame witness after 60.593 seconds: 86 effect objects,
+22 sprites, 27 slivers and a 400-clock ideal span. Including the measured player
+geometry yields 119 objects, 26 sprites and 34 slivers. Player palette and layer
+demand remain excluded from this geometry reservation.
+
+The generic witness compiler independently replays all 57,344 source output
+pixels and all 2,668 non-bypassed effect pixels. It folds the invisible prefix
+into VBlank initialization, retains 21 peak writes and measures 32 lines of
+noninitial prefetch latency. Compiled schedule hash:
+daa8d362ebddf61c9ac4bfc8576b1cec33ef481596aea545d656d345b44b1bae.
+Emitted Mode-0 8/16 CHR/OAM decoding also replays every indexed pixel: 5,152 CHR
+bytes, 161 occupied cells, 137 unique tiles and 86 OAM entries. CHR hash:
+36c72040dc3285c85e0815d1bf2195047e85972f5da601bf5bb24e189770838d;
+OAM hash: f10228193e490b62c99781b79c3e422c7f8d5ce115807db58c56d87383fc8ea6.
+These are offline constructive proofs, not safe native transfer admission.
+
+Fixed-word integer cache refinement returns FEASIBLE after 120.194 seconds,
+retaining 400 clocks and 21 peak writes with 653 noninitial writes. Its fixed
+family ideal-span lower bound is 337 clocks. Full joint neighborhood search
+returns FEASIBLE after 180.710 seconds at 400 clocks, with a different legal
+90-object geometry. Neither improves the hardware-bandwidth frontier.
+
+The generic repair mode requires an independently verified complete starting
+assignment. It fixes cache state, loads and pixel owners outside a declared
+interval and fixes banks on rectangles that do not intersect that interval.
+All source pixels and full padded geometry remain constrained. Rows 134–145
+freeze 193,844 variables and return FEASIBLE after 60.151 seconds, still at
+400 clocks both locally and globally. The effect geometry decreases to 85
+objects, or 118 including the player reservation; its 26-sprite/34-sliver
+combined peak remains legal. The objective bound is scoped to this restricted
+repair family, not a universal hardware limit. Seventy-seven focused tests pass.
+
 The generic global-word bank constructor can now solve both eligible math
 classes together under a shared scanline tile ceiling. Each word and eligibility
 domain retains one fixed bank for the frame; every OAM mask keeps that bank.

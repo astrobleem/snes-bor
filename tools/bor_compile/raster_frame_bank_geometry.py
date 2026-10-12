@@ -26,13 +26,18 @@ def subdivided_candidates(rectangles,pixel_options,small_size=8):
     return list(candidates.values())
 
 
-def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None,geometry_reservation=None,solver_backend='cp-sat'):
+def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None,geometry_reservation=None,solver_backend='cp-sat',minimize_cache_span=False,search_strategy='portfolio',repair_interval=None):
     from ortools.sat.python import cp_model
     if type(height)is not int or not 1<=height<=256 or time_limit<=0 or not rectangles or not pixel_options:
         raise ValueError('FRAME_BANK_GEOMETRY_DOMAIN')
     if type(bank_symmetry)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_SYMMETRY_DOMAIN')
     if type(feasibility_only)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_FEASIBILITY_DOMAIN')
     if solver_backend not in('cp-sat','highspy'):raise ValueError('FRAME_BANK_GEOMETRY_SOLVER_BACKEND')
+    if search_strategy not in('portfolio','lns')or(search_strategy=='lns'and solver_backend!='cp-sat'):raise ValueError('FRAME_BANK_GEOMETRY_SEARCH_STRATEGY')
+    if repair_interval is not None and(not minimize_cache_span or geometry_hint is None or not isinstance(repair_interval,(list,tuple))or len(repair_interval)!=2 or any(type(y)is not int for y in repair_interval)or not 0<=repair_interval[0]<=repair_interval[1]<height):
+        raise ValueError('FRAME_BANK_GEOMETRY_REPAIR_INTERVAL')
+    if type(minimize_cache_span)is not bool or(minimize_cache_span and(cache_window is None or feasibility_only)):
+        raise ValueError('FRAME_BANK_GEOMETRY_CACHE_OBJECTIVE_DOMAIN')
     if cache_window is not None and(type(cache_window)is not int or cache_window<1 or bank_symmetry):
         raise ValueError('FRAME_BANK_GEOMETRY_CACHE_WINDOW_DOMAIN')
     reservation=dict(oam_entries=0,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
@@ -80,7 +85,8 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
             for c in colors:
                 if (y,b,c)not in palette:
                     v=model.new_bool_var(f'color{y}_{b}_{c}');palette[y,b,c]=v;rows.setdefault((y,b),[]).append(v)
-    cache_loads={};initial_cache_row=min(y for y,x in pixel_options)
+    cache_loads={};cache_load_vars={};cache_counts={};cache_active={};initial_cache_row=min(y for y,x in pixel_options)
+    cache_peak=model.new_int_var(0,cache_window+39,'jointCachePeakCost')if minimize_cache_span else None
     if cache_window is not None:
         from raster_bank_residency import constrain_flow
         last_possible={}
@@ -95,6 +101,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
                     load=model.new_bool_var(f'load{y}_{b}_{c}')
                     model.add(load<=v);model.add(load+previous<=1);model.add(load>=v-previous)
                     cache_loads.setdefault((y,b),[]).append(load)
+                    cache_load_vars[y,b,c]=load
                 previous=v
         for y in range(initial_cache_row+1,max(y for y,x in pixel_options)+1):
             counts=[];active=[]
@@ -102,7 +109,9 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
                 count=model.new_int_var(0,15,f'loadCount{y}_{b}');model.add(count==sum(cache_loads.get((y,b),[])))
                 flag=model.new_bool_var(f'loadActive{y}_{b}');model.add(count>=flag);model.add(count<=15*flag)
                 counts.append(count);active.append(flag)
-            constrain_flow(model,counts,active,cache_window,f'frameCache{y}',4,linear=solver_backend=='highspy')
+                cache_counts[y,b]=count;cache_active[y,b]=flag
+            cost=constrain_flow(model,counts,active,cache_window,f'frameCache{y}',4,linear=solver_backend=='highspy')
+            if minimize_cache_span and(repair_interval is None or repair_interval[0]<=y<=repair_interval[1]):model.add(cache_peak>=cost)
     for values in rows.values():model.add(sum(values)<=15)
     for i,p in enumerate(rectangles):
         allowed=p.get('allowed_banks',list(range(8)))
@@ -120,6 +129,17 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         if not values:raise ValueError('FRAME_BANK_GEOMETRY_UNCOVERED_PIXEL')
         if solver_backend=='highspy':model.add(sum(values)==1)
         else:model.add_exactly_one(values)
+    # Required word coverage does not depend on which compatible rectangle
+    # owns a pixel. Expose this implication directly rather than relying on
+    # a long owner/mask chain, and avoid duplicate clauses for the same domain.
+    pool_clauses=set()
+    for(key,points)in atoms:
+        y,x=points[0]
+        words=tuple(sorted({(b,c)for b,cs in pixel_options[y,x].items()for c in cs if any((i,b)in masks for i in coverage[y,x])}))
+        if(y,words)in pool_clauses:continue
+        pool_clauses.add((y,words));values=[palette[y,b,c]for b,c in words]
+        if solver_backend=='highspy':model.add(sum(values)>=1)
+        else:model.add_bool_or(values)
     model.add(sum(masks.values())<=128-reservation['oam_entries'])
     if bank_symmetry:
         counts={b:sum(v for(i,bb),v in masks.items()if bb==b)for b in range(8)}
@@ -130,7 +150,8 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         if not live:continue
         model.add(sum(v for i,b,v in live)<=32-reservation['sprites_per_line'][y])
         model.add(sum(v*(rectangles[i]['width']//8)for i,b,v in live)<=34-reservation['tile_slivers_per_line'][y])
-    if not feasibility_only:model.minimize(sum(masks.values()))
+    if minimize_cache_span:model.minimize(cache_peak)
+    elif not feasibility_only:model.minimize(sum(masks.values()))
     hinted=set()
     if geometry_hint is not None:
         if not isinstance(geometry_hint,dict)or not isinstance(geometry_hint.get('pieces'),list)or not isinstance(geometry_hint.get('pixels'),list):
@@ -163,6 +184,60 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
                         raise ValueError('FRAME_BANK_GEOMETRY_HINT_CACHE_DOMAIN')
                     for c in cs:
                         if(y,b,c)in palette:add_hint(palette[y,b,c])
+    complete_hint_verified=False;complete_hint_violations=[]
+    if cache_window is not None and geometry_hint is not None and set(hinted_points)==set(pixel_options):
+        import re
+        cache_hint={int(y):{int(b):set(cs)for b,cs in banks.items()}for y,banks in geometry_hint.get('cache_resident_colors',{}).items()}
+        last_cache_row=max(y for y,x in pixel_options)
+        if all(y in cache_hint and set(cache_hint[y])==set(range(8))for y in range(initial_cache_row,last_cache_row+1)):
+            from raster_bank_residency import flow_partition_hint
+            values={i:list(v.domain)[0]for i,v in enumerate(model.proto.variables)}
+            for(y,b,c),v in palette.items():values[v.index]=int(c in cache_hint.get(y,{}).get(b,set()))
+            for(y,b,c),v in cache_load_vars.items():values[v.index]=int(values[palette[y,b,c].index]and not values[palette[y-1,b,c].index])
+            for(i,b),v in masks.items():values[v.index]=int((i,b)in set(matched.values()))
+            choices={j:hinted_points[points[0]]for j,(key,points)in enumerate(atoms)}
+            for i,b,j,v in assignments:values[v.index]=int(choices[j]==(i,b))
+            line_counts={y:[sum(values[v.index]for v in cache_loads.get((y,b),[]))for b in range(8)]for y in range(initial_cache_row+1,last_cache_row+1)}
+            groups={};costs={}
+            for y,counts in line_counts.items():
+                costs[y],groups[y]=flow_partition_hint(counts)
+                for b,n in enumerate(counts):values[cache_counts[y,b].index]=n;values[cache_active[y,b].index]=int(n>0)
+            for i,v in enumerate(model.proto.variables):
+                match=re.fullmatch(r'frameCache(\d+)(interval|cost)(\d+)_(\d+)',v.name)
+                if match:
+                    y,kind,a,b=int(match[1]),match[2],int(match[3]),int(match[4]);selected=(a,b)in groups[y]
+                    values[i]=int(selected)if kind=='interval'else(24+16*(line_counts[y][a]if a==b else line_counts[y][a]+line_counts[y][b]+16*(b-a-1)+1)if selected else 0)
+            if cache_peak is not None:values[cache_peak.index]=max((cost for y,cost in costs.items()if repair_interval is None or repair_interval[0]<=y<=repair_interval[1]),default=0)
+            literal=lambda n:bool(values[n]if n>=0 else 1-values[-n-1])
+            for i,v in enumerate(model.proto.variables):
+                d=list(v.domain)
+                if not any(d[j]<=values[i]<=d[j+1]for j in range(0,len(d),2)):complete_hint_violations.append('variable:'+v.name)
+            for i,c in enumerate(model.proto.constraints):
+                if not all(literal(n)for n in c.enforcement_literal):continue
+                if c.has_linear():
+                    value=sum(values[n]*coefficient for n,coefficient in zip(c.linear.vars,c.linear.coeffs));d=list(c.linear.domain)
+                    valid=any(d[j]<=value<=d[j+1]for j in range(0,len(d),2))
+                elif c.has_bool_or():valid=any(literal(n)for n in c.bool_or.literals)
+                elif c.has_exactly_one():valid=sum(literal(n)for n in c.exactly_one.literals)==1
+                else:raise ValueError('FRAME_BANK_GEOMETRY_COMPLETE_HINT_CONSTRAINT_KIND')
+                if not valid:complete_hint_violations.append('constraint:'+str(i))
+            complete_hint_verified=not complete_hint_violations
+            if complete_hint_verified:
+                model.clear_hints();hinted=set(values)
+                for i,value in values.items():model.add_hint(model.get_int_var_from_proto_index(i),value)
+    repair_fixed_variables=0
+    if repair_interval is not None:
+        if not complete_hint_verified:raise ValueError('FRAME_BANK_GEOMETRY_REPAIR_REQUIRES_VERIFIED_COMPLETE_HINT')
+        first,last=repair_interval;fixed={}
+        for(y,b,c),v in list(palette.items())+list(cache_load_vars.items()):
+            if not first<=y<=last:fixed[v.index]=v
+        for i,b,j,v in assignments:
+            if not first<=atoms[j][1][0][0]<=last:fixed[v.index]=v
+        for(i,b),v in masks.items():
+            p=rectangles[i]
+            if p['y']>last or p['y']+p['height']<=first:fixed[v.index]=v
+        for i,v in fixed.items():model.add(v==values[i])
+        repair_fixed_variables=len(fixed)
     backend_report={}
     if solver_backend=='highspy':
         from raster_bank_residency import solve_linear
@@ -173,15 +248,23 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
             best_objective_bound=backend_report.get('solver_objective_lower_bound'),status_name=lambda s:backend_report['solver_status'])
     else:
         solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
+        if search_strategy=='lns':solver.parameters.use_lns_only=True
         status=solver.solve(model)
     report=dict(schema='BYOR_FIXED_FRAME_BANK_GEOMETRY_V1',status='BOUNDED_FRAME_BANK_GEOMETRY_NO_WITNESS',
         solver_status=solver.status_name(status),solver_seconds=solver.wall_time,solver_objective_lower_bound=solver.best_objective_bound,
         model_variables=len(model.proto.variables),model_constraints=len(model.proto.constraints),candidate_rectangles=len(rectangles),
         source_pixel_count=len(pixel_options),bank_count=8,opaque_slots_per_bank=15,fixed_bank_for_entire_oam_rectangle=True,
         equivalent_pixel_decision_atoms=len(atoms),equivalent_pixel_decisions_coalesced=len(pixel_options)-len(atoms),
+        independent_required_word_coverage_clauses=len(pool_clauses),
         safe_class_bank_label_symmetry=bank_symmetry,bank_order_timing_not_modeled=cache_window is None,
-        solver_objective='FEASIBILITY_ONLY'if feasibility_only else'MINIMUM_OAM_ENTRIES',
+        solver_objective='MINIMUM_IDEAL_CACHE_PEAK_SPAN'if minimize_cache_span else'FEASIBILITY_ONLY'if feasibility_only else'MINIMUM_OAM_ENTRIES',
+        solver_search_strategy=search_strategy,
+        repair_interval=list(repair_interval)if repair_interval is not None else None,
+        outside_repair_cache_and_pixel_owners_fixed=repair_interval is not None,repair_fixed_variables=repair_fixed_variables,
         soft_geometry_hint_variables=len(hinted),
+        complete_source_witness_hint_model_verified=complete_hint_verified,
+        complete_source_witness_hint_violation_count=len(complete_hint_violations),
+        complete_source_witness_hint_first_violations=complete_hint_violations[:8],
         ideal_cache_partition_window_master_clocks=cache_window,
         joint_cache_residency_enforced=cache_window is not None,
         initial_cache_row_relaxed_to_free_vblank=initial_cache_row if cache_window is not None else None,
@@ -229,6 +312,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         report.update(joint_cache_trace=cache,independent_integer_cache_and_ideal_partition_replayed=True,
             peak_joint_cache_writes=max((r['colors_written']for r in cache[1:]),default=0),
             peak_joint_cache_ideal_span=max(r['ideal_prepared_commit_span']for r in cache))
+        if repair_interval is not None:report['repair_interval_peak_joint_cache_ideal_span']=max((r['ideal_prepared_commit_span']for r in cache if repair_interval[0]<=r['scanline']<=repair_interval[1]),default=0)
     report.update(status='FIXED_FRAME_BANK_GEOMETRY_AND_WORD_OPTIONS_PROVEN',pieces=pieces,pixels=pixels,geometry=geometry,combined_reserved_geometry=combined,
         declared_word_options_and_fixed_bank_geometry_replayed=True)
     return report
@@ -257,6 +341,9 @@ def main():
     p.add_argument('--geometry-reservation',type=Path,help='Full padded concurrent geometry only; its palette/layer demand is not included.')
     p.add_argument('--hint-input-schedule',action='store_true',help='Soft hints from the independently source-replayed input; dominated row operands are omitted.')
     p.add_argument('--solver-backend',choices=('cp-sat','highspy'),default='cp-sat')
+    p.add_argument('--minimize-cache-span',action='store_true',help='Optimize ideal cache span while retaining all geometry and bank constraints.')
+    p.add_argument('--search-strategy',choices=('portfolio','lns'),default='portfolio')
+    p.add_argument('--repair-interval',nargs=2,type=int,help='Inclusive cache/pixel ownership neighborhood; requires a verified complete input hint.')
     a=p.parse_args()
     if not 0<=a.scanline_start<a.scanline_end<=224:p.error('scanline interval must be within [0,224)')
     frame=json.loads(a.schedule.read_text(encoding='utf-8'))
@@ -299,8 +386,8 @@ def main():
     if hint is not None and hint.get('source_rgb555_sha256')!=frame['source_rgb555_sha256']:
         raise ValueError('FRAME_BANK_GEOMETRY_HINT_SOURCE_IDENTITY')
     reservation=json.loads(a.geometry_reservation.read_text(encoding='utf-8'))if a.geometry_reservation else None
-    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window,geometry_reservation=reservation,solver_backend=a.solver_backend)
-    report.update(source_rgb555_sha256=frame['source_rgb555_sha256'],source_input_sha256=hashlib.sha256(a.schedule.read_bytes()).hexdigest(),
+    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window,geometry_reservation=reservation,solver_backend=a.solver_backend,minimize_cache_span=a.minimize_cache_span,search_strategy=a.search_strategy,repair_interval=a.repair_interval)
+    report.update(source_rgb555_sha256=frame['source_rgb555_sha256'],source_input_sha256=hashlib.sha256(a.schedule.read_bytes()).hexdigest(),source_input_path=str(a.schedule),
         source_pak_sha256=hashlib.sha256(a.exact_source.read_bytes()).hexdigest(),source_row_context_proofs=proofs,
         source_rectangle_cover=geometry['source_rectangle_cover'],scanline_interval=[a.scanline_start,a.scanline_end],
         outside_interval_demand_relaxed=(a.scanline_start,a.scanline_end)!=(0,224),

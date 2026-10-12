@@ -45,6 +45,10 @@ class FrameBankCompileTests(unittest.TestCase):
         self.assertTrue(result['supplied_joint_cache_residency_compiled'])
         self.assertEqual(result['trace'][0]['colors_written'],2)
         self.assertEqual(result['peak_scheduled_writes'],0)
+        witness['scanline_interval']=[0,224]
+        full=compile_witness(source,witness,bg,expected)
+        self.assertTrue(full['compiled_pixel_identity_verified'])
+        self.assertEqual(full['trace'][0]['colors_written'],2)
         resident[0]=[]
         with self.assertRaisesRegex(ValueError,'CACHE_PIXEL_IDENTITY'):compile_witness(source,witness,bg,expected)
 

@@ -65,7 +65,10 @@ def compile_witness(source,witness,background,expected,lookahead=16):
     for p in pieces:p['rows']={y:sorted(cs)for y,cs in p['rows'].items()}
     if 'joint_cache_trace'in witness:
         cache=witness['joint_cache_trace'];wanted_rows={}
-        if [r['scanline']for r in cache]!=list(range(first,last)):raise ValueError('FRAME_COMPILE_CACHE_INTERVAL')
+        if not cache:raise ValueError('FRAME_COMPILE_CACHE_INTERVAL')
+        cache_first,cache_last=cache[0]['scanline'],cache[-1]['scanline']
+        if type(cache_first)is not int or type(cache_last)is not int or not first<=cache_first<=cache_last<last or [r['scanline']for r in cache]!=list(range(cache_first,cache_last+1))or any(not cache_first<=q['y']<=cache_last for q in witness['pixels']):
+            raise ValueError('FRAME_COMPILE_CACHE_INTERVAL')
         for row in cache:
             wanted={int(b):set(cs)for b,cs in row['resident_colors'].items()}
             if set(wanted)!=set(range(8))or any(len(cs)>15 or any(type(c)is not int or not 0<=c<32768 for c in cs)for cs in wanted.values()):
@@ -73,7 +76,7 @@ def compile_witness(source,witness,background,expected,lookahead=16):
             wanted_rows[row['scanline']]=wanted
         trace=[];states=[];slots={b:[None]*15 for b in range(8)}
         for y in range(224):
-            wanted=wanted_rows[min(max(y,first),last-1)];before=copy.deepcopy(slots);events=[]
+            wanted=wanted_rows[min(max(y,cache_first),cache_last)];before=copy.deepcopy(slots);events=[]
             for b in range(8):
                 for c in sorted(wanted[b]-set(slots[b])):
                     slot=next(s for s,old in enumerate(slots[b])if old not in wanted[b])
@@ -97,7 +100,7 @@ def compile_witness(source,witness,background,expected,lookahead=16):
         for ly,lx in zip(*np.where(image>=0)):indexed[ly,lx]=states[p['y']+int(ly)][p['bank']].index(int(image[ly,lx]))+1
         flat=indexed.flatten();masks.append(dict(width=p['width'],height=p['height'],pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
     complete=(first,last)==(0,224)
-    result={k:copy.deepcopy(source[k])for k in ('metadata','source_rgb555_sha256','selected_modes','compiled_color_window_descriptors','color_math','scanline_math_controls_source_bound')if k in source}
+    result={k:copy.deepcopy(source[k])for k in ('metadata','source_rgb555_sha256','selected_modes','compiled_color_window_descriptors','color_math','scanline_math_controls_source_bound','source_alpha_policy','alpha_compatibility_policy_selected')if k in source}
     result.update(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN'if complete else'RESTRICTED_SCANLINE_DEMAND_ONLY',
         pieces=pieces,piece_pixel_masks=masks,trace=trace,geometry=geometry,hardware_geometry_admitted=True,
         compiled_pixel_identity_verified=complete,restricted_pixel_identity_verified=not complete,
