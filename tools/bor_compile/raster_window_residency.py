@@ -16,12 +16,14 @@ from raster_slot_greedy import demand
 from raster_slot_refine import verify_packets
 
 
-def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,lookahead=16,solver_backend='cp-sat',movable_math_modes=False,feasibility_only=False,complete_operands=False):
+def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=21,lookahead=16,solver_backend='cp-sat',movable_math_modes=False,feasibility_only=False,complete_operands=False,repair_interval=None):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0 or type(maximum_writes)is not int or not 0<=maximum_writes<=120 or type(lookahead)is not int or lookahead<0:raise ValueError('WINDOW_RESIDENCY_DOMAIN')
     if solver_backend not in('cp-sat','highs'):raise ValueError('WINDOW_RESIDENCY_BACKEND')
     if type(feasibility_only)is not bool:raise ValueError('WINDOW_RESIDENCY_FEASIBILITY_POLICY')
     points,rows,tables,hint=derive(source,background,expected);first,last=min(rows),max(rows);height=len(source['trace'])
+    if repair_interval is not None and(feasibility_only or not isinstance(repair_interval,(list,tuple))or len(repair_interval)!=2 or any(type(y)is not int for y in repair_interval)or not first<=repair_interval[0]<=repair_interval[1]<=last):
+        raise ValueError('WINDOW_RESIDENCY_REPAIR_INTERVAL')
     if type(movable_math_modes)is not bool:raise ValueError('WINDOW_RESIDENCY_MODE_POLICY')
     if type(complete_operands)is not bool:raise ValueError('WINDOW_RESIDENCY_OPERAND_POLICY')
     complete_options=None;operand_proof=None
@@ -51,7 +53,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         for c in ([p['output']]if p['bank']<4 else[p['output'],*(c for choices in p['mode_operands'].values()for c in choices)]):
             if c is not None:potential.setdefault((p['bank'],c),set()).add(p['y'])
     tables=[sorted(c for bank,c in potential if bank==b)for b in range(8)]
-    model=cp_model.CpModel();resident={};writes={};gates={};mode_choices={};peak=model.new_int_var(0,4096,'idealPeak');costs=[];bank_counts={}
+    model=cp_model.CpModel();resident={};writes={};gates={};mode_choices={};peak=model.new_int_var(0,4096,'idealPeak');costs=[];bank_counts={};start_relations=[];inverted_rows={};prefix_variables={}
     for y in range(first,last+1):
         if movable_math_modes:
             for mode in modes:
@@ -76,10 +78,12 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
             gate=model.new_bool_var(f'gate{y}_{x}');gates[y,x]=gate;model.add_hint(gate,int(evaluate(source['compiled_color_window_descriptors'][str(y)],x)))
             for value,old,collection in((gate,previous,starts),(gate.Not(),previous_negative,negative_starts)):
                 start=model.new_bool_var(f'start{y}_{x}_{len(collection)}_{len(starts)}');model.add(start<=value);model.add(start<=1-old);model.add(start>=value-old);collection.append(start)
+                start_relations.append((start,value,old))
             previous=gate;previous_negative=gate.Not()
         if xs:
             inverted=model.new_bool_var(f'inverted{y}');model.add(sum(starts)<=2+len(xs)*inverted);model.add(sum(negative_starts)<=2+len(xs)*(1-inverted))
             model.add_hint(inverted,int(bool(source['compiled_color_window_descriptors'][str(y)]['wobjsel_color_bits']&0x50)))
+            inverted_rows[y]=(inverted,starts,negative_starts)
         for p in rows.get(y,[]):
             b=p['bank'];out=p['output'];operand=p['operand']
             if b<4:model.add(resident[y,b,out]==1)
@@ -99,7 +103,9 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
                 bank_counts[y,b]=n
                 a=model.new_bool_var(f'active{y}_{b}');model.add(n>=a);model.add(n<=15*a);active.append(a)
             model.add(sum(counts)<=maximum_writes)
-            cost=constrain_flow(model,counts,active,window,f'row{y}',linear=True);model.add(peak>=cost);costs.append(cost)
+            cost=constrain_flow(model,counts,active,window,f'row{y}',linear=True)
+            if repair_interval is None or repair_interval[0]<=y<=repair_interval[1]:model.add(peak>=cost)
+            costs.append(cost)
     mandatory={}
     for p in points:
         if p['bank']<4 or all(c==p['output']for choices in p['mode_operands'].values()for c in choices):mandatory.setdefault((p['y'],p['bank']),set()).add(p['output'])
@@ -108,6 +114,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         prefix={first:model.new_constant(0)}
         for y in range(first+1,last+1):
             prefix[y]=model.new_int_var(0,15*(y-first),f'prefix{y}_{b}');model.add(prefix[y]==prefix[y-1]+bank_counts[y,b])
+            prefix_variables[y,b]=prefix[y]
         for left in range(first,last):
             union=set()
             for right in range(left,last+1):
@@ -115,6 +122,55 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
                 if len(union)>15:model.add(prefix[right]-prefix[left]>=len(union)-15);cuts+=1
     factor=4096*len(costs)+1
     if not feasibility_only:model.minimize(peak*factor+sum(costs))
+    # A source schedule supplies a concrete feasible start whenever its cache
+    # fits this model's window/corpus. Check every variable and constraint before
+    # replacing partial hints; a too-tight start never becomes hard evidence.
+    import re
+    from raster_bank_residency import flow_partition_hint
+    values={i:list(v.domain)[0]for i,v in enumerate(model.proto.variables)}
+    for(y,b,c),v in resident.items():
+        domain=list(v.proto.domain)
+        if domain[0]!=domain[-1]:values[v.index]=int(c in hint[y][b])
+    for(y,b,c),v in writes.items():
+        domain=list(v.proto.domain)
+        if domain[0]!=domain[-1]:values[v.index]=int(values[resident[y,b,c].index]and not values[resident[y-1,b,c].index])
+    for(y,x),v in gates.items():values[v.index]=int(evaluate(source['compiled_color_window_descriptors'][str(y)],x))
+    for(y,mode),v in mode_choices.items():values[v.index]=int(mode==source['selected_modes'][str(y)])
+    literal=lambda v:values[v.index]if v.index>=0 else 1-values[-v.index-1]
+    for v,current,previous in start_relations:values[v.index]=int(literal(current)and not literal(previous))
+    for y,(v,positive,negative)in inverted_rows.items():values[v.index]=int(sum(values[q.index]for q in positive)>2)
+    counts_by_line={y:[sum(values[writes[y,b,c].index]for c in tables[b])for b in range(8)]for y in range(first+1,last+1)}
+    groups={};line_costs={}
+    for y,counts in counts_by_line.items():
+        line_costs[y],groups[y]=flow_partition_hint(counts)
+        for b,n in enumerate(counts):values[bank_counts[y,b].index]=n
+    for(y,b),v in prefix_variables.items():values[v.index]=sum(counts_by_line[t][b]for t in range(first+1,y+1))
+    for i,v in enumerate(model.proto.variables):
+        match=re.fullmatch(r'active(\d+)_(\d+)',v.name)
+        if match:values[i]=int(counts_by_line[int(match[1])][int(match[2])]>0)
+        match=re.fullmatch(r'row(\d+)(interval|cost)(\d+)_(\d+)',v.name)
+        if match:
+            y,kind,a,b=int(match[1]),match[2],int(match[3]),int(match[4]);selected=(a,b)in groups[y]
+            values[i]=int(selected)if kind=='interval'else(24+16*(counts_by_line[y][a]if a==b else counts_by_line[y][a]+counts_by_line[y][b]+16*(b-a-1)+1)if selected else 0)
+    values[peak.index]=max((cost for y,cost in line_costs.items()if repair_interval is None or repair_interval[0]<=y<=repair_interval[1]),default=0)
+    violations=[]
+    for i,v in enumerate(model.proto.variables):
+        d=list(v.domain)
+        if not any(d[j]<=values[i]<=d[j+1]for j in range(0,len(d),2)):violations.append('variable:'+v.name)
+    for i,c in enumerate(model.proto.constraints):
+        if not all(values[n]if n>=0 else 1-values[-n-1]for n in c.enforcement_literal):continue
+        if not c.has_linear():raise ValueError('WINDOW_RESIDENCY_COMPLETE_HINT_CONSTRAINT_KIND')
+        total=sum(values[n]*k for n,k in zip(c.linear.vars,c.linear.coeffs));d=list(c.linear.domain)
+        if not any(d[j]<=total<=d[j+1]for j in range(0,len(d),2)):violations.append('constraint:'+str(i))
+    if not violations:
+        model.clear_hints()
+        for i,v in values.items():model.add_hint(model.get_int_var_from_proto_index(i),v)
+    repair_fixed={}
+    if repair_interval is not None:
+        if violations:raise ValueError('WINDOW_RESIDENCY_REPAIR_REQUIRES_VERIFIED_COMPLETE_HINT')
+        for key,v in list(resident.items())+list(writes.items())+list(gates.items())+list(mode_choices.items()):
+            if not repair_interval[0]<=key[0]<=repair_interval[1]:repair_fixed[v.index]=v
+        for i,v in repair_fixed.items():model.add(v==values[i])
     if solver_backend=='highs':
         from raster_bank_residency import solve_linear
         value,details=solve_linear(model,time_limit);bound=details.get('solver_objective_lower_bound',0)
@@ -124,6 +180,11 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         details=dict(solver_backend='cp-sat',solver_status=solver.status_name(status),solver_seconds=solver.wall_time,solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints))
     report=dict(schema='BYOR_WINDOW_BANK_RESIDENCY_V1',status='BOUNDED_WINDOW_BANK_RESIDENCY_NO_CANDIDATE',**details,requested_ideal_window=window,bounded_noninitial_lookahead_lines=lookahead,initial_palette_may_preload_entire_frame=True,ideal_endpoint_slot_packing_relaxed=True,fixed_piece_banks_unchanged=True,piece_banks_fixed_across_all_scanlines=True,restricted_family_ideal_prepared_span_lower_bound=max(0,int(bound//factor)-40),native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     report['mandatory_identity_bank_interval_cuts']=cuts
+    report.update(complete_source_hint_model_verified=not violations,complete_source_hint_variables=len(values),
+        complete_source_hint_violation_count=len(violations),complete_source_hint_first_violations=violations[:8])
+    report.update(repair_interval=repair_interval,repair_fixed_variables=len(repair_fixed),
+        outside_repair_cache_modes_and_pixel_gates_fixed=repair_interval is not None,
+        objective_bound_scope='REPAIR_INTERVAL_WITH_FIXED_EXTERIOR'if repair_interval is not None else'FULL_FIXED_GEOMETRY_FRAME')
     report['search_objective']='FEASIBILITY_ONLY'if feasibility_only else'PEAK_THEN_TOTAL_IDEAL_DMA_COST'
     report['maximum_writes_per_line']=maximum_writes
     if feasibility_only:report['restricted_family_ideal_prepared_span_lower_bound']=0
@@ -186,6 +247,7 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
         if name in result:result['input_'+name]=result.pop(name)
     if any(favorable_span(r['updates'])>=window for r in trace[1:])or any(len(r['updates'])>maximum_writes for r in trace[1:]):raise AssertionError('WINDOW_RESIDENCY_INDEPENDENT_BANK_BOUND')
     peak_writes=max(len(r['updates'])for r in trace[1:])
+    if repair_interval is not None:report['repair_interval_ideal_peak_prepared_commit_span']=max(favorable_span(r['updates'])for r in trace[1:]if repair_interval[0]<=r['scanline']<=repair_interval[1])
     report.update(status='SOURCE_EXACT_WINDOW_BANK_RESIDENCY_PROVEN',complete_source_frame_pixel_identity_proven=True,ideal_peak_prepared_commit_span=max(favorable_span(r['updates'])for r in trace[1:]),peak_emitted_prepared_commit_span=max(r['prepared_commit_span']for r in packets),peak_actual_palette_writes=peak_writes,all_packet_cgram_identities_verified=True,physical_slot_window_admitted=False,maximum_noninitial_prefetch_latency_lines=latency,noninitial_dead_palette_writes=dead_writes,peak_packet_data_bytes=max(sum(2*p['word_count']for p in r['packets'])for r in packets))
     result.update(trace=trace,piece_pixel_masks=masks,prepared_dma_packets=packets,compiled_color_window_descriptors=windows,selected_modes=selected_modes,bank_residency=report,native_presentation_proven=False)
     result.update(peak_scheduled_writes=peak_writes,peak_cgram_data_bytes=2*peak_writes,average_writes=float(np.mean([len(r['updates'])for r in trace[1:]])),worst_scanline=max(trace[1:],key=lambda r:len(r['updates']))['scanline'],prepared_dma_partition_bound_enforced=False,prepared_dma_window_is_optimistic_necessary_only=True,maximum_noninitial_prefetch_latency_lines=latency,schedule_latency_requirement=dict(maximum_noninitial_prefetch_lines=latency,initial_palette_may_preload_entire_frame=True))
@@ -198,14 +260,14 @@ def optimize(source,background,expected,window=337,time_limit=45,maximum_writes=
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in('source','stage','scene','schedule','output'):p.add_argument('--'+name,required=True)
-    p.add_argument('--window',type=int,default=337);p.add_argument('--time-limit',type=float,default=45);p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat');p.add_argument('--movable-math-modes',action='store_true');p.add_argument('--lookahead',type=int,default=16);p.add_argument('--feasibility-only',action='store_true');p.add_argument('--maximum-writes',type=int,default=21);p.add_argument('--complete-operands',action='store_true');a=p.parse_args()
+    p.add_argument('--window',type=int,default=337);p.add_argument('--time-limit',type=float,default=45);p.add_argument('--solver-backend',choices=('cp-sat','highs'),default='cp-sat');p.add_argument('--movable-math-modes',action='store_true');p.add_argument('--lookahead',type=int,default=16);p.add_argument('--feasibility-only',action='store_true');p.add_argument('--maximum-writes',type=int,default=21);p.add_argument('--complete-operands',action='store_true');p.add_argument('--repair-interval',type=int,nargs=2);a=p.parse_args()
     from compiler import Source
     from source_scene_obj_raster import prepare
     from source_scene_bg import compose_rgb8
     from source_bg_feasibility import rgb555
     source=Source(a.source);scene=json.loads(Path(a.scene).read_text(encoding='utf-8'));schedule=json.loads(Path(a.schedule).read_text(encoding='utf-8'));_,metadata,expected=prepare(source,a.stage,scene)
     if metadata!=schedule['metadata']:raise ValueError('WINDOW_RESIDENCY_AUTHORED_METADATA')
-    result=optimize(schedule,rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0]),rgb555(expected),a.window,a.time_limit,maximum_writes=a.maximum_writes,lookahead=a.lookahead,solver_backend=a.solver_backend,movable_math_modes=a.movable_math_modes,feasibility_only=a.feasibility_only,complete_operands=a.complete_operands)
+    result=optimize(schedule,rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0]),rgb555(expected),a.window,a.time_limit,maximum_writes=a.maximum_writes,lookahead=a.lookahead,solver_backend=a.solver_backend,movable_math_modes=a.movable_math_modes,feasibility_only=a.feasibility_only,complete_operands=a.complete_operands,repair_interval=a.repair_interval)
     result.update(source_pak_sha256=hashlib.sha256(Path(a.source).read_bytes()).hexdigest(),
         source_input_sha256=hashlib.sha256(Path(a.schedule).read_bytes()).hexdigest(),source_input_path=a.schedule)
     Path(a.output).write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8');print(json.dumps(result.get('bank_residency',result)))

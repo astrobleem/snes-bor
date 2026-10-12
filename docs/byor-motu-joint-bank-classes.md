@@ -25,6 +25,30 @@ No new full-frame witness, physical transfer admission or infeasibility
 certificate is produced. The existing 400-clock frontier remains above the
 measured transfer window.
 
+The mode/window solver now independently validates complete source starts,
+including residency, loads, gate transitions, shared modes, bank partitions
+and every model variable/constraint. Invalid starts remain partial soft hints;
+interval repair requires a valid complete start. One diagnostic run exposed
+negative indexing on the OR-Tools repeated-domain container returning the
+wrong endpoint; its rejected start and UNKNOWN result are retained separately.
+Converting domains to ordinary lists fixes that construction, and a regression
+requires a fully checked start while rejecting an over-budget repair start.
+
+The corrected full-frame refinement validates all 129,210 start variables with
+zero violations and returns FEASIBLE after 90.304 seconds. Exact full-frame
+output is preserved, but the ideal peak remains 400 clocks with 22 peak writes
+and no math-mode changes. Its greedy physical layout costs up to 968 clocks;
+neither this layout nor the ideal result admits native timing.
+The first repair fixes 96,826 variables outside rows 134–145 and retains
+400 clocks after 60.057 seconds. Its global peak cannot improve while other
+400-clock rows remain fixed. The next repair covers all input 400-clock rows,
+126–147, and minimizes peak cost within that interval while enforcing the
+complete frame's transfer ceiling. It fixes 68,041 variables and returns
+FEASIBLE after 90.104 seconds, still at 400 clocks locally and globally with
+no math-mode changes. Its 205-clock objective bound applies only to that fixed
+exterior repair family. Full source output and packet contents are independently
+replayed; no universal hardware rejection is claimed.
+
 The compact joint geometry/word/cache model now includes validated concurrent
 geometry reservations. It counts full padding, OAM entries, sprites and slivers
 through every selected piece's lifetime, and its compiler preserves and replays

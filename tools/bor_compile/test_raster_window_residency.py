@@ -17,6 +17,15 @@ class WindowResidencyTests(unittest.TestCase):
             self.assertTrue(report['complete_source_frame_pixel_identity_proven'])
             self.assertEqual([p['bank']for p in result['pieces']],[p['bank']for p in source['pieces']])
             demand(result);verify_packets(result)
+        started=optimize(source,bg,expected,time_limit=5,maximum_writes=120,window=4097,complete_operands=True,movable_math_modes=True)
+        self.assertTrue(started['bank_residency']['complete_source_hint_model_verified'])
+        self.assertEqual(started['bank_residency']['complete_source_hint_violation_count'],0)
+        repaired=optimize(source,bg,expected,time_limit=5,maximum_writes=120,window=4097,complete_operands=True,movable_math_modes=True,repair_interval=[1,1])
+        self.assertTrue(repaired['bank_residency']['outside_repair_cache_modes_and_pixel_gates_fixed'])
+        self.assertGreater(repaired['bank_residency']['repair_fixed_variables'],0)
+        demand(repaired);verify_packets(repaired)
+        with self.assertRaisesRegex(ValueError,'REPAIR_REQUIRES'):
+            optimize(source,bg,expected,time_limit=1,maximum_writes=0,complete_operands=True,movable_math_modes=True,repair_interval=[1,1])
 
     def test_feasibility_search_emits_replayed_cost_without_optimality_claim(self):
         from raster_bank_residency import favorable_span
@@ -79,6 +88,7 @@ class WindowResidencyTests(unittest.TestCase):
         for backend in('cp-sat','highs'):
             failed=optimize(source,bg,expected,time_limit=10,maximum_writes=6,solver_backend=backend)
             self.assertEqual(failed['solver_status'],'INFEASIBLE')
+            self.assertFalse(failed['complete_source_hint_model_verified'])
             result=optimize(source,bg,expected,time_limit=10,maximum_writes=7,solver_backend=backend)
             self.assertEqual(result['bank_residency']['peak_actual_palette_writes'],7)
             self.assertEqual(set(demand(result)[2][0].flatten()),set(range(64)))
