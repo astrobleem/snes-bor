@@ -6,6 +6,21 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_reordered_banks_preserve_piece_domains_before_transfer_admission(self):
+        from raster_slot_greedy import demand
+        source=self.schedule();source['pieces'][1]['bank']=3
+        for row in source['trace']:
+            row['resident_before'][3],row['resident_before'][1]=row['resident_before'][1],row['resident_before'][3]
+            for e in row['updates']:
+                if e['bank']==1:e['bank']=3
+        for p in source['pieces']:p['allowed_banks']=[p['bank']]
+        blocked=optimize(source,33,5,reorder_banks=True,split_bank_ranges=True,flexible_prefetch=True,retain_write_times=True)
+        self.assertEqual(blocked['solver_status'],'INFEASIBLE')
+        result=optimize(source,41,5,reorder_banks=True,split_bank_ranges=True,flexible_prefetch=True,retain_write_times=True)
+        self.assertTrue(result['physical_slot_layout']['piece_bank_domains_verified'])
+        self.assertTrue(all(p['bank']in p['allowed_banks']for p in result['pieces']))
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+
     def test_fixed_address_coverage_pruning_matches_all_contiguous_partitions(self):
         from itertools import combinations
         from ortools.sat.python import cp_model

@@ -123,3 +123,68 @@ Primal violation is below 1.1e-14 and dual residual below 3e-16. The complete
 344-clock ideal-flow search returns UNKNOWN after 60.092 seconds, with a
 259-clock restricted-model lower bound. It does not reject the allocation or
 provide a physical schedule.
+
+The shared-bank mean-balanced assignment has a complete write-minimizing cache:
+HiGHS proves 496 total noninitial writes optimal in 27.969 seconds under the
+21-write cap. Maximum noninitial prefetch is two lines; the ideal transfer peak
+is 424 clocks. Strict 344-clock ideal-flow searches using that soft hint return
+UNKNOWN from CP-SAT (60.101 seconds) and HiGHS (60.797 seconds). These are not
+infeasibility verdicts. Independent source replay verifies the integer cache.
+
+The retained 392-clock physical witness compiles to legal Mode0 8/16 OBJ CHR
+and OAM: 73 entries, 271 occupied tile cells, 202 unique tiles and 8,832 CHR
+bytes. Decoding emitted OAM and bitplanes reproduces every compiled pixel
+index and fixed bank. This constructive allocation stays below the 512-cell
+OBJ limit, but does not prove live upload bandwidth, concurrent enemy leases,
+native palette timing or gameplay.
+
+Starting from the valid cache in a wider diagnostic window produces another
+complete shared-bank cache in 60.106 seconds: 336-clock ideal peak, eighteen
+peak writes, 519 total writes and 36-line maximum noninitial prefetch.
+Independent source replay matches the complete viewport. The fixed-time
+physical placement search at 344 clocks returns UNKNOWN after 60.065 seconds
+(638 lifetime segments, 3,822 variables, 8,739 constraints). Thus this cache
+also remains physically unadmitted.
+
+A wider fixed-time physical diagnostic produces an 800-clock complete witness
+in 30.066 seconds, with a restricted-family lower bound of 328 clocks. Exact
+partitioning of its unchanged dirty words removes unnecessary padding to give
+a 760-clock starting layout. A 300,000-proposal fixed-slot permutation search
+then reduces the peak to 536 clocks in 21.406 seconds. Independent full source
+and CGRAM replays verify both physical witnesses. They remain above the native
+window and do not supersede the earlier 392-clock best physical result.
+
+Six local repairs retain the shared-bank witness's 536-clock peak and reduce
+aggregate transfer cost from 14,224 to 13,952 clocks. All accepted candidates
+retain the full-frame write cap, necessary bank window and source identity.
+
+The generic residency model can now optionally alias each bank's invisible
+prefix to its freely chosen initial VBlank residency. Its first visible demand
+is still enforced; subsequent loads retain the same write and lookahead rules.
+This moves no required source pixel and relaxes no bank capacity. Twenty
+focused residency tests pass, including both solver backends and opaque zero.
+The option is disabled by default and is incompatible with fixed-outside local
+residency repairs.
+
+On the shared-bank scene this exact reduction removes 1,878 residency variables
+and finds a complete 320-clock ideal cache in 60.079 seconds: eighteen peak
+writes, 528 total writes, 49-line maximum noninitial prefetch and six peak
+active banks. The restricted-model lower bound is 260 clocks. Independent
+full source replay verifies the complete viewport. Physical placement and
+native timing remain open; this result is not a raster presentation PASS.
+
+Strict fixed-time physical placement of the prefix cache returns UNKNOWN in
+60.135 seconds. Adding fixed bank permutations also returns UNKNOWN in
+60.085 seconds. Neither result rejects the cache or raster presentation.
+The reordering model now intersects every destination with the declared
+domains of all pieces using that bank, and independently checks those domains
+in the emitted result. A regression fixture rejects a cheaper 32-clock layout
+that requires moving a reserved bank; the legal 40-clock layout retains source
+pixels. Twenty physical-layout tests pass, followed by the focused receipt
+assertion. The residency default also retains its original compiled hash
+`d72cc368bf864f90b87ec5ac74068ce19a2c83d575468f2f3bc20e867f822d3b`.
+
+A wider physical diagnostic of the prefix cache yields a complete 624-clock
+layout in 45.075 seconds, with a 320-clock restricted-family lower bound.
+Source and CGRAM identity, piece domains and fixed bank selection are checked.
+It remains a diagnostic rather than native admission.

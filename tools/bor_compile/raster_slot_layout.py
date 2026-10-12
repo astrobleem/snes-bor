@@ -120,8 +120,12 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
     if reorder_banks:
         additive=schedule.get('color_math','additive')=='additive'
         for bank in range(8):
-            allowed=range((bank//4)*4,(bank//4)*4+4)if additive else range(8)
-            destinations[bank]=model.new_int_var_from_domain(cp_model.Domain.from_values(list(allowed)),'bank'+str(bank))
+            allowed=set(range((bank//4)*4,(bank//4)*4+4)if additive else range(8))
+            for piece in schedule['pieces']:
+                if piece['bank']==bank:allowed.intersection_update(piece.get('allowed_banks',range(8)))
+            if not allowed:raise ValueError('SLOT_LAYOUT_BANK_DESTINATION_DOMAIN')
+            allowed=sorted(allowed)
+            destinations[bank]=model.new_int_var_from_domain(cp_model.Domain.from_values(allowed),'bank'+str(bank))
             model.add_hint(destinations[bank],hint_banks[bank])
             for b in (()if split_bank_ranges else allowed):
                 q=model.new_bool_var(f'bank{bank}_{b}');model.add(destinations[bank]==b).only_enforce_if(q);model.add(destinations[bank]!=b).only_enforce_if(q.Not());bank_choices[bank,b]=q
@@ -350,13 +354,15 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                      peak_cgram_data_bytes=max(row['cgram_data_bytes']for row in trace[1:]),
                      worst_scanline=1+int(np.argmax([row['colors_written']for row in trace[1:]])),
                      average_writes=float(np.mean([row['colors_written']for row in trace[1:]])))
-    for piece in rewritten['pieces']:piece['bank']=bank_map[piece['bank']]
+    for piece in rewritten['pieces']:
+        piece['bank']=bank_map[piece['bank']]
+        if piece['bank']not in piece.get('allowed_banks',range(8)):raise AssertionError('SLOT_LAYOUT_PIECE_BANK_ELIGIBILITY_REPLAY')
     payload=dict(pieces=rewritten['pieces'],pixel_masks=images,trace=trace)
     if rewritten.get('scanline_math_controls_source_bound'):
         payload.update(selected_modes=rewritten['selected_modes'],compiled_color_window_descriptors=rewritten['compiled_color_window_descriptors'])
     rewritten['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
     result.update(status='PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN',peak_prepared_commit_span=max(p['prepared_commit_span']for p in packets),
-                  peak_ranges=max(len(p['packets'])for p in packets),pixel_color_identity_verified=True,all_packet_cgram_identities_verified=True)
+                  peak_ranges=max(len(p['packets'])for p in packets),pixel_color_identity_verified=True,all_packet_cgram_identities_verified=True,piece_bank_domains_verified=True)
     return rewritten
 
 

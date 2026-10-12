@@ -7,6 +7,18 @@ from test_raster_slot_greedy import source_schedule
 
 
 class ResidencyTests(unittest.TestCase):
+    def test_invisible_bank_prefix_preloads_first_demand_without_source_loss(self):
+        import test_raster_slot_layout as fixtures
+        source=fixtures.SlotLayoutTests().schedule()
+        for backend in('cp-sat','highs'):
+            result=optimize(source,write_budget=2,lookahead=0,window=None,time_limit=5,solver_backend=backend,collapse_bank_idle_prefix=True)
+            self.assertEqual(result['bank_residency']['bank_first_visible_rows'][1],2)
+            self.assertGreater(result['bank_residency']['bank_idle_prefix_resident_variables_collapsed'],0)
+            self.assertTrue(all(e['bank']!=1 for row in result['trace'][1:3]for e in row['updates']))
+            for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        with self.assertRaisesRegex(ValueError,'IDLE_PREFIX_DOMAIN'):optimize(source,collapse_bank_idle_prefix=1)
+        with self.assertRaisesRegex(ValueError,'IDLE_PREFIX_DOMAIN'):optimize(source,collapse_bank_idle_prefix=True,repair_interval=(1,2))
+
     def test_bank_budget_candidate_requires_integer_cache_and_cap_replay(self):
         caps={y:[int(y in(7,12)and b in(0,1))for b in range(8)]for y in range(1,16)}
         source=source_schedule()
