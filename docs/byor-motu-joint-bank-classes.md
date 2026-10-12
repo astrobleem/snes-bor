@@ -466,3 +466,20 @@ validated fractional bound of 21.000000. Whole viewport pixel replay remains
 exact. Integer residency, physical slots and DMA/native admission remain open.
 The constant-control chunked joint search independently returns UNKNOWN at
 120.082 seconds, without a hardware rejection.
+
+The constant-control cache admits an OPTIMAL integer 21-write schedule in
+15.844 seconds: 582 noninitial writes, five-line maximum prefetch latency,
+complete source pixel/color identity replay and zero integer constraint
+violation. Its ideal prepared span is 456 clocks, so it is not a hardware
+candidate. A complete prepared-flow search at 345 clocks returns UNKNOWN at
+121.062 seconds. The separate fractional DMA-guided cache bound for the initial
+assignment is 385.363564 clocks even after granting all adjacent bridge savings;
+this rejects that fixed bank assignment at the measured transfer window.
+
+The DMA-guided tool encountered tiny positive numerical solver multipliers at
+strict dual-certificate replay. Fresh solver values up to 1e-9 are now clipped
+inward to zero before certificate installation; actual positive multipliers
+fail explicitly. Strict resumed-certificate sign and stationarity checks remain
+unchanged. Ten focused tests pass, including invalid-certificate rejection and
+seed-bank diagnostic ordering. This changes only offline tooling, with no
+production assembly or bank-zero growth.
