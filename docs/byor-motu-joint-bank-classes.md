@@ -28,6 +28,57 @@ reduces that diagnostic to 2,433 variables and 4,673 constraints; it remains
 UNKNOWN after 60.047 seconds, 1,296,901 branches and 870,738 conflicts.
 Neither diagnostic establishes an unavoidable geometry limit. The retained
 source replay now covers 340 experiments in a 26,818,605-byte archive.
+The resident-line objective proves a selected cache with 2,443 resident-lines
+and 716 writes after 26.188 seconds in native HiGHS (integer residual below
+7e-15). Bank assignment rejects that selected cache after 13.737 seconds.
+Choosing fewer cache loads or shorter lifetimes does not establish a bank
+schedule. The generic objective retains source words, classes and all gates.
+
+The 57-cell search also reopens exact operand and class choices rather than
+holding the compiled words fixed. With shared ADD and all effect math gates
+enabled, it retains 2,751 source pixels, 459,564 variables and 787,647
+constraints. It remains UNKNOWN after 93.659 seconds. Neither the partial
+input hint nor this bounded outcome admits timing or rejects raster.
+Independent retained-cache replay now checks required words, class capacity,
+prefetch lookahead and load counts against each source-input hash; lifetime
+arrays remain complete in the compressed archive and are summarized by counts
+and hashes in the readable receipt.
+The guarded hint-repair trial completes without the native assertion but
+remains UNKNOWN after 91.033 seconds. Opening exact color-window bypass choices
+in the 57-cell source family also remains UNKNOWN after 91.668 seconds
+(459,564 variables and 784,896 constraints). Both retain full source demand.
+
+The compact constructor can now split cache proposals at source geometry
+boundaries or additional scanline boundaries. It may drop unused fragments,
+reload colors or migrate them between banks. Separate source pieces may select
+distinct resident bank copies of the same word. Every copy consumes a real
+bank slot; new copies and migrations count as writes. Each emitted OAM mask
+retains one fixed bank for its full padded geometry. Bank-specific future-use
+constraints prevent dead preloads, and complete independent cache/pixel/transfer
+replay remains mandatory. The first class cache is only a proposal when unused
+fragments can be dropped; its load count does not describe the final trace.
+
+The selected 431-write cache with geometry-boundary migration is INFEASIBLE
+after 5.011 seconds (9,607 variables and 24,446 constraints). Per-scanline
+fragment freedom remains UNKNOWN after 90.107 seconds (36,863 variables and
+95,993 constraints); it still restricts each class word to one resident bank.
+These are selected-proposal/fixed-encoding results, never universal rejection.
+Twenty-five focused tests pass, including whole-object fixed banks with row
+liveness changes and separately required bank copies preserving opaque black.
+Allowing real bank copies gives a 44,683-variable/102,914-constraint model;
+CP-SAT remains UNKNOWN after 90.161 seconds. Its independent integer HiGHS
+formulation remains UNKNOWN after 90.563 seconds with 110,177 constraints.
+The shorter proposal gives 27,910 variables and 67,194 constraints and remains
+UNKNOWN after 90.112 seconds. Source-replayed soft owner-bank hints do not admit
+a result either: the shorter CP-SAT trial remains UNKNOWN after 90.147 seconds
+with 132,844 branches, while HiGHS times out after 90.563 seconds with 7,820
+soft start values. No result proves a universal resource limit.
+
+The independent bank backend checks all integer residuals before emitting a
+schedule. Source owner hints replay every input pixel and bank eligibility
+before use and do not fix choices. Bank-label symmetry is disabled when any
+owner has a restricted bank domain. Twenty-seven focused cache/class/bank
+tests pass on the guarded backend. Production static presentation is unchanged.
 
 The 57-cell family now also permits word masks to select different banks on
 different source rows, with at most four masks per cell. Each emitted OAM mask

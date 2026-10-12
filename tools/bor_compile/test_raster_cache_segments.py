@@ -85,5 +85,70 @@ class CacheSegmentTests(unittest.TestCase):
         self.assertEqual(proof['class_cache_backend'],'highspy')
         self.assertLessEqual(proof['class_cache_backend_report']['maximum_integer_constraint_violation'],1e-6)
 
+    def test_shorter_cache_lifetimes_keep_exact_source_pixels(self):
+        source=self.fixture()
+        result=construct(source,time_limit=5,write_budget=0,window=1000,maximum_oam=4,cache_objective='resident-lines')
+        proof=result['cache_segment_construction']
+        self.assertEqual(proof['class_cache_objective'],'resident-lines')
+        self.assertEqual(proof['class_cache_total_resident_lines'],sum(s['last']-s['first']+1 for s in proof['class_cache_lifetimes']))
+        self.assertEqual(pixels(source),pixels(result))
+
+    def test_geometry_edges_reopen_bank_liveness_without_changing_oam_banks(self):
+        source=self.fixture()
+        for x,y,index in ((32,7,2),(40,12,1)):
+            source['pieces'].append(dict(actor=0,x=x,y=y,local_x=x,local_y=y,width=8,height=8,bank=0))
+            source['piece_pixel_masks'].append(dict(width=8,height=8,pixels_hex=f'{index:02x}'+'00'*31))
+        blocked=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=4)
+        self.assertEqual(blocked['bank_status'],'INFEASIBLE')
+        result=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=4,geometry_edge_migration=True)
+        self.assertEqual(pixels(source),pixels(result))
+        self.assertEqual(result['combined_reserved_geometry']['oam_entries'],4)
+        self.assertGreater(result['cache_segment_construction']['unused_bank_fragments_dropped'],0)
+        self.assertLessEqual(result['peak_scheduled_writes'],2)
+        self.assertTrue(result['cache_segment_construction']['independent_cache_and_partition_replay'])
+
+    def test_per_line_liveness_keeps_one_bank_per_whole_source_piece(self):
+        source=self.fixture()
+        result=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=2,geometry_edge_migration=True,migration_stride=1)
+        self.assertEqual(pixels(source),pixels(result))
+        self.assertEqual(result['combined_reserved_geometry']['oam_entries'],2)
+        self.assertTrue(result['cache_segment_construction']['bank_stage_may_drop_unused_fragments'])
+        self.assertLessEqual(result['peak_scheduled_writes'],2)
+        with self.assertRaisesRegex(ValueError,'MIGRATION_STRIDE'):construct(source,migration_stride=1)
+
+    def test_shared_colors_can_have_copies_in_distinct_required_banks(self):
+        source=self.fixture()
+        for i,p in enumerate(source['pieces']):p['allowed_banks']=[i]
+        blocked=construct(source,time_limit=5,write_budget=2,window=10000,geometry_edge_migration=True,migration_stride=1)
+        self.assertEqual(blocked['status'],'SELECTED_CACHE_BANK_DOMAIN_EMPTY')
+        result=construct(source,time_limit=5,write_budget=2,window=10000,maximum_oam=2,geometry_edge_migration=True,migration_stride=1,allow_bank_copies=True)
+        self.assertEqual(pixels(source),pixels(result))
+        self.assertEqual([p['bank']for p in result['pieces']],[0,1])
+        proof=result['cache_segment_construction']
+        self.assertGreater(proof['duplicate_bank_fragment_copies'],0)
+        self.assertFalse(proof['interchangeable_segment_bank_first_use_order'])
+        self.assertTrue(proof['independent_cache_and_partition_replay'])
+        self.assertLessEqual(result['peak_scheduled_writes'],2)
+
+    def test_independent_bank_backend_checks_integer_bank_copies(self):
+        source=self.fixture()
+        for i,p in enumerate(source['pieces']):p['allowed_banks']=[i]
+        result=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=2,geometry_edge_migration=True,migration_stride=1,allow_bank_copies=True,bank_backend='highspy')
+        self.assertEqual(pixels(source),pixels(result))
+        proof=result['cache_segment_construction']
+        self.assertEqual(proof['bank_backend'],'highspy')
+        self.assertLessEqual(proof['bank_backend_report']['maximum_integer_constraint_violation'],1e-6)
+
+    def test_source_assignment_hints_are_replayed_and_remain_soft(self):
+        import copy
+        source=self.fixture()
+        initial=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=2,geometry_edge_migration=True,migration_stride=1,allow_bank_copies=True)
+        result=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=2,geometry_edge_migration=True,migration_stride=1,allow_bank_copies=True,assignment_hint=initial)
+        self.assertEqual(pixels(source),pixels(result))
+        self.assertGreater(result['cache_segment_construction']['validated_owner_bank_hint_count'],0)
+        self.assertTrue(result['cache_segment_construction']['owner_bank_hints_are_soft'])
+        bad=copy.deepcopy(initial);bad['source_rgb555_sha256']='different'
+        with self.assertRaisesRegex(ValueError,'HINT_SOURCE_IDENTITY'):construct(source,assignment_hint=bad)
+
 
 if __name__=='__main__':unittest.main()
