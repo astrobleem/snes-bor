@@ -454,3 +454,15 @@ The soft-hinted chunk trial returns UNKNOWN at 120.081 seconds, after
 2,152,805 branches and 1,417,448 conflicts. It preserves the fractional hint
 validation as solver evidence, not a bank assignment, palette schedule or
 hardware rejection.
+
+Restricting the exact decomposition to one ADD mode and a fully enabled color
+window produces a complete 16-write class-pool witness in 11.338 seconds. This
+still targets BOR4086 RGB8 SCREEN output exactly, using computed operands or
+literal output words; it does not select the measured SCREEN-to-ADD adaptation.
+The local and full-frame word covers each fit 99 pieces and 19 sprites/slivers.
+Rebalanced fixed-bank bounds are 22.454545 and 21.666667, respectively. A
+29-iteration cache-guided single-piece bank search reduces the latter to a
+validated fractional bound of 21.000000. Whole viewport pixel replay remains
+exact. Integer residency, physical slots and DMA/native admission remain open.
+The constant-control chunked joint search independently returns UNKNOWN at
+120.082 seconds, without a hardware rejection.
