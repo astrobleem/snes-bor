@@ -292,6 +292,10 @@ def compile_rom(base,source_path,scene,schedule,folder,timer=44,sa1_mapping=Fals
         control_traffic_math_layer_selection_disabled=control_traffic is not None and not authored_main)
     if authored_context is not None:resources['source_alpha_policy']='EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555'
     resources['inline_row_returns']=inline_row_returns
+    resources['peak_dirty_cgram_bytes']=max(r['cgram_data_bytes']for r in schedule['trace'][1:])
+    resources['peak_actual_cgram_dma_bytes']=max(sum(2*p['word_count']for p in r['packets'])for r in schedule['prepared_dma_packets'])
+    resources['peak_total_raster_dma_bus_bytes']=max(sum(r['counts'].values())for r in rows)
+    resources['peak_raster_dma_channels']=max(r['mask'].bit_count()for r in rows)
     return bytes(raw),expected,bytes(initial),oam,sy,resources
 
 

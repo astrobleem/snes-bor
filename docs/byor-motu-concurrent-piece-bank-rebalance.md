@@ -351,6 +351,9 @@ under its explicit A16 ABI. Every row RTI has independent context and CGRAM
 callbacks. A subsequent margin witness passes six complete fields at timer
 170: 344-clock peak, first high commits at clocks 1100–1104, zero unsafe
 commits, zero pixel mismatches and 1,410 context checks with zero faults.
+Its sixteen changed colors require 32 dirty bytes, while physical packets
+transfer up to 38 CGRAM bytes including retained slots. The 38-byte line
+spans 336 clocks; the worst 344-clock lines transfer 36 bytes in four ranges.
 The bounded positive and negative traces are retained in
 [the native receipt](receipts/byor-motu-kempe-native.json) and its compressed
 evidence archive. Default fixture behavior is unchanged.

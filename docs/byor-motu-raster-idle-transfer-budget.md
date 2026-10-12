@@ -47,6 +47,13 @@ descriptor. Layer math is disabled in this transport test, so authored alpha
 rendering remains unadmitted. Positive and negative evidence is retained in
 [the lifetime native receipt](receipts/byor-motu-kempe-native.json).
 
+The descriptor byte budget is explicit: 32 peak dirty CGRAM bytes, 38 peak
+actual CGRAM DMA bytes including retained slots, and 40 peak raster DMA bus
+bytes including address writes. At most seven DMA channels participate.
+The repeated native capture with these fields also passes six complete fields.
+Initial 256-byte OBJ palette loading belongs to VBlank and is reported
+separately from per-line transfers.
+
 The default full-context executor remains byte-identical to parent commit
 `27b8575` under the same compiler inputs. Both ROM hashes are
 `29aa7d9863ab4042de71cea0acdb8568a61f58bb6a6c5044ce7cda5879d5e9e6`;

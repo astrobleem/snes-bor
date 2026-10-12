@@ -97,3 +97,13 @@ and do not fix the supplied cache lifetimes. Their results still do not
 reject the raster approach universally. All complete witnesses independently
 replay exact source alpha over the entire viewport; bounded negative search
 reports are retained separately from those witnesses in the same receipt.
+
+Legal source-pixel subdivision improves the layout to 82 OAM entries,
+25 peak sprites and 34 tile slivers, with a 15-write interval-pressure bound.
+Its sixteen-write integer cache is OPTIMAL in 6.094 seconds: 421 total writes,
+eight-line maximum prefetch and zero integer constraint violations. All
+576 eligible bank permutations still require at least 376 optimistic clocks
+at those fixed write times. Constrained sixteen/nineteen-write cache searches
+return UNKNOWN. A compiled physical witness and lifetime recoloring remain
+above the transfer window. These measured results preserve geometry limits
+and exact source alpha, and do not reject other encoding/residency choices.
