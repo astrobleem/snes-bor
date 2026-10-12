@@ -175,6 +175,7 @@ class FrameBankGeometryTests(unittest.TestCase):
         result=search(rectangles,points,height=32,time_limit=3,cache_window=505)
         self.assertTrue(result['independent_integer_cache_and_ideal_partition_replayed'])
         self.assertEqual(result['peak_joint_cache_writes'],30)
+        self.assertGreater(result['compatible_selected_mask_residency_links'],0)
         self.assertEqual(result['peak_joint_cache_ideal_span'],480)
         self.assertFalse(result['native_presentation_proven'])
         optimized=search(rectangles,points,height=32,time_limit=3,cache_window=505,minimize_cache_span=True)

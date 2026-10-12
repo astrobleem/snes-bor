@@ -186,6 +186,20 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         if not values:raise ValueError('FRAME_BANK_GEOMETRY_UNCOVERED_PIXEL')
         if solver_backend=='highspy':model.add(sum(values)==1)
         else:model.add_exactly_one(values)
+    # A bank cannot benefit from caching a word unless a selected compatible
+    # rectangle can display that word somewhere in the frame. Removing words
+    # unused by every selected mask preserves capacity and cannot add writes.
+    residency_mask_links=0
+    if cache_window is not None:
+        possible={};residencies={}
+        for(y,x),banks in pixel_options.items():
+            for b,cs in banks.items():
+                compatible={(i,b)for i in coverage[y,x]if(i,b)in masks}
+                for c in cs:possible.setdefault((b,c),set()).update(compatible)
+        for(y,b,c),v in palette.items():residencies.setdefault((b,c),[]).append(v)
+        for key,values in residencies.items():
+            model.add(sum(values)<=len(values)*sum(masks[i,b]for i,b in possible.get(key,set())))
+            residency_mask_links+=1
     # Required word coverage does not depend on which compatible rectangle
     # owns a pixel. Expose this implication directly rather than relying on
     # a long owner/mask chain, and avoid duplicate clauses for the same domain.
@@ -272,7 +286,8 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         if all(y in cache_hint and set(cache_hint[y])==set(range(8))for y in range(initial_cache_row,last_cache_row+1)):
             from raster_bank_residency import flow_partition_hint
             values={i:list(v.domain)[0]for i,v in enumerate(model.proto.variables)}
-            for(y,b,c),v in palette.items():values[v.index]=int(c in cache_hint.get(y,{}).get(b,set()))
+            selected_hint_masks=set(matched.values())
+            for(y,b,c),v in palette.items():values[v.index]=int(c in cache_hint.get(y,{}).get(b,set())and bool(possible.get((b,c),set())&selected_hint_masks))
             for(y,mode),v in mode_choices.items():values[v.index]=int(mode==geometry_hint.get('selected_modes',{}).get(str(y)))
             for(y,x),v in gates.items():
                 descriptor=geometry_hint.get('compiled_color_window_descriptors',{}).get(str(y))
@@ -367,6 +382,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
     report['shared_scanline_math_modes_searched']=mode_word_options is not None
     report['source_pixel_actor_assignment_enforced']=pixel_actors is not None
     report['independent_mode_window_coverage_clauses']=mode_pool_clauses
+    report['compatible_selected_mask_residency_links']=residency_mask_links
     report['outside_repair_math_modes_fixed']=repair_interval is not None and mode_word_options is not None
     report.update(source_exact_color_windows_searched=literal_window_outputs is not None,
         outside_repair_pixel_window_gates_fixed=repair_interval is not None and literal_window_outputs is not None)

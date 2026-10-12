@@ -11,6 +11,7 @@ from raster_slot_greedy import demand,bank_groups
 from raster_global_bank_classes import rebuild_schedule
 from raster_bank_residency import constrain_flow
 from raster_word_cache_repair import compile_cache_rows
+from raster_obj_geometry import active_on_line,tile_slivers
 
 
 def validated_assignment_hints(source,hint,images,domains,allow_word_masks,row_word_masks):
@@ -41,13 +42,17 @@ def validated_assignment_hints(source,hint,images,domains,allow_word_masks,row_w
     return {key:next(iter(banks)) for key,banks in choices.items() if len(banks)==1}
 
 
-def optimize(source,time_limit=45,write_budget=21,window=337,lookahead=55,search_strategy='portfolio',allow_word_masks=False,maximum_masks_per_piece=2,maximum_oam=128,maximum_sprites=32,maximum_tiles=34,row_word_masks=False,assignment_hint=None):
+def optimize(source,time_limit=45,write_budget=21,window=337,lookahead=55,search_strategy='portfolio',allow_word_masks=False,maximum_masks_per_piece=2,maximum_oam=128,maximum_sprites=32,maximum_tiles=34,row_word_masks=False,assignment_hint=None,geometry_reservation=None):
     from ortools.sat.python import cp_model
     if time_limit<=0 or not 0<=write_budget<=120 or window<1 or lookahead<0:raise ValueError('PIECE_BANK_CACHE_DOMAIN')
     if search_strategy not in('portfolio','sat','sat-repair','lns'):raise ValueError('PIECE_BANK_CACHE_SEARCH_STRATEGY')
     if row_word_masks and not allow_word_masks:raise ValueError('PIECE_BANK_CACHE_ROW_MASKS_REQUIRE_WORD_MASKS')
     if not 1<=maximum_masks_per_piece<=8 or not 1<=maximum_oam<=128 or not 1<=maximum_sprites<=32 or not 1<=maximum_tiles<=34:raise ValueError('PIECE_BANK_CACHE_GEOMETRY_DOMAIN')
     required,_,images=demand(source);pieces=copy.deepcopy(source['pieces']);groups=bank_groups(source);owners={};row_owners={};domains={}
+    height=len(required);reservation=geometry_reservation if geometry_reservation is not None else source.get('geometry_reservation')
+    if reservation is None:reservation=dict(oam_entries=0,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
+    if not isinstance(reservation,dict)or set(reservation)!={'oam_entries','sprites_per_line','tile_slivers_per_line'}or type(reservation['oam_entries'])is not int or not 0<=reservation['oam_entries']<=128 or any(not isinstance(reservation[k],list)or len(reservation[k])!=height or any(type(v)is not int or not 0<=v<=limit for v in reservation[k])for k,limit in [('sprites_per_line',32),('tile_slivers_per_line',34)]):raise ValueError('PIECE_BANK_CACHE_GEOMETRY_RESERVATION')
+    reservation=copy.deepcopy(reservation)
     for i,(p,image)in enumerate(zip(pieces,images)):
         p['rows']={p['y']+y:sorted(set(map(int,row[row>=0])))for y,row in enumerate(image)if np.any(row>=0)}
         domains[i]=tuple(b for b in next(g for g in groups if p['bank']in g)if b in p.get('allowed_banks',range(8)))
@@ -76,16 +81,17 @@ def optimize(source,time_limit=45,write_budget=21,window=337,lookahead=55,search
             else:masks[i,b]=selection[i][b]
         if allow_word_masks:model.add(sum(masks[i,b]for b in domains[i])<=maximum_masks_per_piece)
     def selected(i,c,y,b):return selection[(i,c,y)if row_word_masks else(i,c)if allow_word_masks else i][b]
-    model.add(sum(masks.values())<=maximum_oam)
+    model.add(sum(masks.values())<=maximum_oam-reservation['oam_entries'])
     interchangeable=window>16*128+24*3-16 and all(domains[i]==tuple(next(g for g in groups if p['bank']in g))for i,p in enumerate(pieces))
     if interchangeable:
         for group in groups:
             for before,bank in zip(group,group[1:]):
                 for i in range(len(pieces)):
                     if(i,bank)in masks:model.add(masks[i,bank]<=sum(masks[j,before]for j in range(i+1)if(j,before)in masks))
-    for y in range(first,last+1):
-        live=[(i,v)for(i,b),v in masks.items()if pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height']]
-        model.add(sum(v for i,v in live)<=maximum_sprites);model.add(sum(v*(pieces[i]['width']//8)for i,v in live)<=maximum_tiles)
+    for y in range(height):
+        live=[(i,v)for(i,b),v in masks.items()if active_on_line(pieces[i],y)]
+        model.add(sum(v for i,v in live)<=maximum_sprites-reservation['sprites_per_line'][y])
+        model.add(sum(v*tile_slivers(pieces[i])for i,v in live)<=maximum_tiles-reservation['tile_slivers_per_line'][y])
     hints=[];state={b:[None]*15 for b in range(8)}
     for row in (assignment_hint or source)['trace']:
         for e in row['updates']:state[e['bank']][e['slot']-1]=e['color']
@@ -175,6 +181,8 @@ def optimize(source,time_limit=45,write_budget=21,window=337,lookahead=55,search
         word_bank_selection_scope='piece row'if row_word_masks else'piece word'if allow_word_masks else'whole piece',fixed_bank_per_compiled_oam_entry=True,
         interchangeable_bank_first_piece_order=interchangeable,
         maximum_oam=maximum_oam,maximum_sprites=maximum_sprites,maximum_tiles=maximum_tiles,
+        geometry_reservation=reservation,reservation_palette_and_layer_demand_included=False,
+        full_padded_oam_lifetimes_counted=True,oam_y_wrap_counted=True,fully_offscreen_tile_slivers_skipped=True,
         word_bank_copies_allowed=True,per_bank_word_aliases_counted_once=True,physical_endpoint_slots_relaxed=True,
         physical_transfer_admitted=False,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return report
@@ -185,11 +193,18 @@ def optimize(source,time_limit=45,write_budget=21,window=337,lookahead=55,search
             if any(rs.values()):expanded.append(dict(p,source_piece=i,rows=rs));assignment.append(b)
     search=dict(status='JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN',pieces=expanded,assignment=assignment,pixel_word_identities_replayed=True)
     frame=rebuild_schedule(source,search,lookahead)
+    combined=dict(oam_entries=len(frame['pieces'])+reservation['oam_entries'],
+        peak_sprites=max(sum(active_on_line(p,y)for p in frame['pieces'])+reservation['sprites_per_line'][y]for y in range(height)),
+        peak_tile_slivers=max(sum(tile_slivers(p)for p in frame['pieces']if active_on_line(p,y))+reservation['tile_slivers_per_line'][y]for y in range(height)))
+    if combined['oam_entries']>maximum_oam or combined['peak_sprites']>maximum_sprites or combined['peak_tile_slivers']>maximum_tiles:raise AssertionError('PIECE_BANK_CACHE_RESERVED_GEOMETRY_REPLAY')
+    report['combined_reserved_geometry']=combined
     rows={y:{b:set()for b in range(8)}for y in range(first,last+1)}
     for(c,b,y),v in resident.items():
         if solver.value(v):rows[y][b].add(c)
     report.update(status='FIXED_PIECE_BANK_CACHE_AND_OPERAND_IDENTITIES_PROVEN',compiled_oam_entries=len(expanded),changed_piece_banks=sum(pieces[p['source_piece']]['bank']!=b for p,b in zip(expanded,assignment)))
-    return compile_cache_rows(frame,rows,lookahead,write_budget,window,report,'piece_bank_cache')
+    result=compile_cache_rows(frame,rows,lookahead,write_budget,window,report,'piece_bank_cache')
+    result.update(geometry_reservation=reservation,combined_reserved_geometry=combined,reservation_palette_and_layer_demand_included=False)
+    return result
 
 
 def main():
@@ -204,8 +219,10 @@ def main():
     parser.add_argument('--assignment-hint',type=Path)
     parser.add_argument('--row-word-masks',action='store_true',help='Allow equal words on different rows to use separate source-pixel masks; each compiled OAM entry still has one fixed bank.')
     parser.add_argument('--maximum-oam',type=int,default=128);parser.add_argument('--maximum-sprites',type=int,default=32);parser.add_argument('--maximum-tiles',type=int,default=34)
-    args=parser.parse_args();result=optimize(json.loads(args.schedule.read_text()),args.time_limit,args.write_budget,args.window,args.lookahead,args.search_strategy,args.allow_word_masks,args.maximum_masks_per_piece,args.maximum_oam,args.maximum_sprites,args.maximum_tiles,args.row_word_masks,json.loads(args.assignment_hint.read_text())if args.assignment_hint else None)
-    args.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('piece_bank_cache',result)))
+    parser.add_argument('--geometry-reservation',type=Path,help='Override the source input reservation; geometry only, not actor palettes or layers.')
+    args=parser.parse_args();result=optimize(json.loads(args.schedule.read_text(encoding='utf-8')),args.time_limit,args.write_budget,args.window,args.lookahead,args.search_strategy,args.allow_word_masks,args.maximum_masks_per_piece,args.maximum_oam,args.maximum_sprites,args.maximum_tiles,args.row_word_masks,json.loads(args.assignment_hint.read_text(encoding='utf-8'))if args.assignment_hint else None,json.loads(args.geometry_reservation.read_text(encoding='utf-8'))if args.geometry_reservation else None)
+    args.output.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8');report=result.get('piece_bank_cache',result)
+    print(json.dumps({k:v for k,v in report.items()if k not in('geometry_reservation','bounded_solver_log')}))
 
 
 if __name__=='__main__':main()

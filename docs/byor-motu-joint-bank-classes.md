@@ -1,5 +1,31 @@
 # Shared geometry for exact math bank classes
 
+The fixed-control expanded-geometry neighborhood search validates all 265,137
+start variables and returns FEASIBLE after 120.548 seconds, still at 400 clocks
+with 87 effect objects, 120 combined objects, 26 sprites and 34 slivers.
+The joint solver now links each bank's cache residency to selected source-
+compatible masks: a word unused by every selected compatible piece can be
+removed without increasing capacity or writes. Complete starts discard only
+such unused words before independent constraint replay. The strengthened
+model adds 3,748 links, validates its full start and retains 400 clocks after
+121.037 seconds, with 91 effect objects and a legal combined 124-object,
+26-sprite, 34-sliver peak. No native timing admission is inferred.
+
+The older exact-word rebanking solver now honors the source's concurrent
+geometry reservation across every padded OBJ lifetime, including wrapped Y
+and clipped slivers. Returned geometry is independently replayed; the report
+still excludes other actors' palette and layer demand. The 353-clock rebanking
+trial returns UNKNOWN after 120.625 seconds (99,734 variables, 253,547
+constraints), with no witness or infeasibility certificate.
+
+One combined test attempt aborted inside OR-Tools 9.15.6755 with
+`heuristics.fixed_search != nullptr`. A verbose diagnostic rerun completed all
+105 focused tests. The same native assertion is documented in the
+[upstream issue](https://github.com/google/or-tools/issues/5025), where the
+maintainer reports a fix on main. The local trigger is not proven, and no
+backend fix is claimed. The aborted attempt supplies no hardware evidence;
+all retained positive witnesses continue to require independent replay.
+
 With original row controls held fixed, the augmented 96-rectangle family
 remains UNKNOWN after 120.563 seconds at the 353-clock gate (265,136 variables,
 429,178 constraints). The pure sixteen-parent/subdivision family likewise

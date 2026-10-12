@@ -4,6 +4,18 @@ from raster_slot_greedy import demand
 
 
 class PieceBankCacheTests(unittest.TestCase):
+    def test_concurrent_reservation_counts_padding_without_palette_admission(self):
+        source=self.fixture();height=len(source['trace'])
+        reservation=dict(oam_entries=126,sprites_per_line=[30]*height,tile_slivers_per_line=[30]*height)
+        source['geometry_reservation']=reservation
+        r=optimize(source,time_limit=5,write_budget=2,window=1000,lookahead=0)
+        self.assertEqual(r['combined_reserved_geometry'],dict(oam_entries=128,peak_sprites=32,peak_tile_slivers=34))
+        self.assertFalse(r['reservation_palette_and_layer_demand_included'])
+        reservation['tile_slivers_per_line'][0]=31
+        self.assertEqual(optimize(source,time_limit=5,write_budget=2,window=1000,lookahead=0)['solver_status'],'INFEASIBLE')
+        reservation['oam_entries']=True
+        with self.assertRaisesRegex(ValueError,'GEOMETRY_RESERVATION'):optimize(source,time_limit=5)
+
     def test_row_masks_keep_fixed_oam_banks_and_exact_source_pixels(self):
         source=self.fixture()
         result=optimize(source,time_limit=5,write_budget=0,window=9999,lookahead=0,allow_word_masks=True,row_word_masks=True,maximum_oam=4)
