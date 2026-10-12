@@ -155,7 +155,8 @@ def main():
     p.add_argument('--solver-backend',choices=('cp-sat','highspy'),default='cp-sat')
     a=p.parse_args();r=cover(json.loads(a.schedule.read_text(encoding='utf-8')),a.time_limit,a.large_size,json.loads(a.geometry_reservation.read_text(encoding='utf-8'))if a.geometry_reservation else None,a.repair_hint,a.solver_backend)
     a.output.write_text(json.dumps(r,indent=2)+'\n',encoding='utf-8')
-    print(json.dumps({k:v for k,v in r.get('geometry_pixel_rectangle_cover',r).items()if k!='geometry_reservation'}))
+    print(json.dumps({k:v for k,v in r.get('geometry_pixel_rectangle_cover',r).items()
+        if k not in('geometry_reservation','source_bank_mask_horizontal_tile_lower_bound')}))
 
 
 if __name__=='__main__':main()

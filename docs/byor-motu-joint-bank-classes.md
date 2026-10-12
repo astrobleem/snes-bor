@@ -668,3 +668,23 @@ authored viewport is replayed separately by the retainer. All 27 geometry and
 residency tests pass. This proves this geometry reservation only: player
 palette/layer concurrency, authored reachability and native transfer admission
 remain unproven, and the unchanged 424-clock cache still exceeds the window.
+
+With that legal full-player reservation retained, eight row-word bank proposals
+in 120.484 seconds improve the fractional transfer bound to 333.920081 clocks.
+The best assignment still uses 87 HBreath OAM entries, 22 sprites and 28 slivers;
+all proposals accepted into the frontier satisfy the complete reservation.
+This is a new fixed assignment, not an integer or physical slot witness.
+
+The broader exact operand/bank search on the 70-entry isolated cover remains
+UNKNOWN after 128.781 seconds: 466,690 variables, 1,164,781 constraints and no
+branches before the bounded stop. It retains the source-derived alpha controls
+and permits all exact operands, but gives neither a witness nor a raster
+rejection. No source pixels or colors have been reduced.
+
+A further source-exact geometry refinement retains the full player reservation
+and reduces combined OAM to 119 entries, with 26 sprites and 34 slivers, after
+121.313 seconds. The improved bank assignment's write-minimizing integer cache
+is OPTIMAL after 18.375 seconds: 564 noninitial writes, 22 peak writes and at
+most three lines of prefetch. Its optimistic peak transfer span is 472 clocks,
+so minimizing write count alone does not meet the hardware window. Physical
+slot packing and native admission are not asserted.
