@@ -56,3 +56,25 @@ fixed banks, geometry and physical transfers remain unproved. Extending it
 with the current default full-ADD operand selection reaches 64 upper-class
 colors on an outer row, above the 60-slot class capacity. This rejects only
 that extension policy; a complete-frame operand/mode search is in progress.
+
+The complete-frame extension then produces an integral 18-write class-pool
+candidate in 141.153 seconds. Outside the pressure interval it may select any
+exact math mode with an enabled color window; pressure controls remain fixed.
+An independent source replay verifies every one of the 22,179 non-bypassed
+visible actor pixels. Source identity remains 44ad1ccb…e0de. Actual individual
+banks and transfer descriptors remain relaxed.
+
+A greedy exact row cover of this resident pool uses peaks of 52 literal and
+25 math colors. Assigning one fixed bank to each resulting 8×8 class piece is
+proven infeasible in the lower class. Allowing per-row word bank ownership with
+fixed-bank split masks replays the whole viewport but needs 687 entries and
+68 sprites/tile slivers per line. These failures reject these selected small
+piece constructions only. A joint legal 8/32 bank/operand/geometry search
+continues; no native or production admission is claimed.
+
+The generic offline bound tool now exposes `--reencode-all-visible-actors`.
+It covers exact final source outputs for ordinary actors as well as effects
+without rewriting alpha metadata or reserving ordinary colors as literal
+words. Cross-actor compiled mask ownership is an explicit requirement; no
+live compositor capability is admitted. Eight focused tests pass, including
+unchanged ordinary reservation behavior and exact all-actor shader demand.

@@ -252,12 +252,141 @@
         "source_alpha_policy": "BOR4086_SCREEN_RGB8_THEN_RGB555",
         "alpha_compatibility_policy_selected": false
       }
+    },
+    "byor-motu-full-rise-shader18-full-pool": {
+      "input_sha256": "72c96d0548296bd3ab2ff74f0d848a020f0ee60d261ebb82bea4566c867fbfd0",
+      "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+      "search": {
+        "status": "RELAXED_MODE_LIVENESS_CANDIDATE",
+        "message": "OPTIMAL",
+        "solver_seconds": 141.1528185000643,
+        "variables": 281849,
+        "constraints": 158515,
+        "peak_replayed_pool_writes": 18,
+        "maximum_primal_violation": 0.0,
+        "integer_pool_pixel_coverage_verified": true,
+        "integer_pool_residency_capacity_verified": true,
+        "geometry_and_bank_assignment_relaxed": true,
+        "schedule_proven": false,
+        "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+        "independent_source_pressure_pixel_replay": {
+          "checked_pixels": 22179,
+          "exact": true,
+          "metadata_verified": true
+        }
+      },
+      "physical_transfer_and_native_timing_admitted": false,
+      "independent_source_pressure_pixel_replay": {
+        "checked_pixels": 22179,
+        "exact": true,
+        "metadata_verified": true
+      }
+    },
+    "byor-motu-full-rise-shader18-full-local-geometry": {
+      "input_sha256": "140a136508ef22f1560839ee3a26127c74caf6454a53bd728bfc59be0ed9e63a",
+      "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+      "search": {
+        "status": "BOUNDED_POOL_CONSTRUCTION_NO_BANK_ASSIGNMENT",
+        "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+        "source_alpha_policy": "BOR4086_SCREEN_RGB8_THEN_RGB555",
+        "alpha_compatibility_policy_selected": false
+      },
+      "physical_transfer_and_native_timing_admitted": false,
+      "peak_selected_colors_by_class": [
+        52,
+        25
+      ],
+      "bank_search": [
+        {
+          "kind": 0,
+          "status": "FIXED_GRID_INFEASIBLE",
+          "solver_status": 2,
+          "message": "INFEASIBLE",
+          "solver_backend": "cp-sat",
+          "interval_write_budget": null,
+          "interval_lines": null,
+          "interval_cuts": 0,
+          "solver_model_variables": 15348,
+          "solver_model_constraints": 40752,
+          "universal_raster_rejected": false,
+          "logical_bank_label_symmetry_broken": true,
+          "bounded_integer_solver_stats": {
+            "nonboolean_integer_variables": 0,
+            "hint_variables": 0,
+            "hint_is_soft": true,
+            "log_lines": 251,
+            "sat_inprocessing": false,
+            "branches": 9659,
+            "conflicts": 6043,
+            "wall_seconds": 8.2246745,
+            "probing_level": 0,
+            "workers": 4,
+            "search_strategy": "portfolio",
+            "search_objective": "WEIGHTED_INTEGER_COST",
+            "optimal": false
+          }
+        }
+      ]
+    },
+    "byor-motu-full-rise-shader18-full-split-geometry": {
+      "input_sha256": "2783b156d54746fbef147f2d4bd38dcba0c431b8fd83c00a666ae6b4c7b63560",
+      "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+      "search": {
+        "status": "POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW",
+        "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+        "source_alpha_policy": "BOR4086_SCREEN_RGB8_THEN_RGB555",
+        "alpha_compatibility_policy_selected": false
+      },
+      "physical_transfer_and_native_timing_admitted": false,
+      "geometry": {
+        "oam_entries": 687,
+        "peak_sprites": 68,
+        "peak_tile_slivers": 68
+      },
+      "hardware_geometry_admitted": false,
+      "peak_selected_colors_by_class": [
+        52,
+        25
+      ],
+      "compiled_pixel_identity_verified": true,
+      "bank_search": [
+        {
+          "kind": 0,
+          "status": "COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN",
+          "solver_status": 0,
+          "message": "OPTIMAL",
+          "objective": 462.0,
+          "lower_bound": null,
+          "global_color_banks": false,
+          "solver_backend": "cp-sat",
+          "maximum_frame_colors_per_bank": null,
+          "residency_window_lines": null,
+          "oam_admission_deferred": true,
+          "geometry_admission_deferred": true,
+          "hardware_oam_limit_verified": false
+        },
+        {
+          "kind": 1,
+          "status": "COLOR_MASK_FIXED_BANK_ASSIGNMENT_PROVEN",
+          "solver_status": 0,
+          "message": "OPTIMAL",
+          "objective": 225.0,
+          "lower_bound": null,
+          "global_color_banks": false,
+          "solver_backend": "cp-sat",
+          "maximum_frame_colors_per_bank": null,
+          "residency_window_lines": null,
+          "oam_admission_deferred": true,
+          "geometry_admission_deferred": true,
+          "hardware_oam_limit_verified": false
+        }
+      ]
     }
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-cross-actor-geometry.json.gz",
-    "bytes": 181110,
-    "sha256": "6e0f5d3ac626f1a2c90c8430ba1936fa5413ab7e452044fcf00e1793a7a4ba86"
+    "bytes": 255094,
+    "sha256": "0d942a60e51b068262e5077b4517a7259a44c7bab66c2a3c1a585f1e2bde286a"
   },
   "alpha_compatibility_policy_selected": false,
   "universal_raster_rejected": false,
