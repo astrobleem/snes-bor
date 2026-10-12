@@ -222,3 +222,18 @@ tests and eight bounded-integer matrix tests pass, including examples where
 the solver must change a hinted mode and wrong window gates to meet the
 required write budget. A source-bound control hint from the verified original
 encoding still returns UNKNOWN at seventeen writes in 51.300 seconds.
+
+With the same six-bank capacities and source control hints, a twenty-one-write
+integer pool is found in 25.560 seconds. Its residency, source-pixel coverage
+and compiled windows replay over rows 125–145. This is a pressure-interval
+witness, not a full-frame, fixed-bank, physical-slot or native schedule.
+The full-frame integer extension and full-frame fractional run both reach
+their bounded limits without a candidate or validated bound.
+
+The generic source-pool constructor now accepts explicit eligible bank sets
+within each OBJ math class. Defaults remain the existing four/four split.
+Exact replay tests also restrict construction to opaque bank 3 and math bank 7,
+including joint geometry and persistent-index modes. Wrong classes, duplicate
+and empty bank sets fail explicitly. Four focused construction tests pass.
+This expresses resource domains without claiming that banks left outside an
+effect domain admit another actor automatically.

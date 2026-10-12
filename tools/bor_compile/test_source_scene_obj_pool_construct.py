@@ -18,16 +18,24 @@ class PoolConstructionTests(unittest.TestCase):
             selected_modes={str(y):'subtract'for y in range(8)},
             compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(8)},
             selected_palette_residency={str(y):{'0':[],'1':[6]}for y in range(8)})
-        for frame_cover,joint,fixed_indices in ((False,False,False),(True,False,False),(False,True,False),(False,True,True)):
+        for frame_cover,joint,fixed_indices,banks in ((False,False,False,None),(True,False,False,None),(False,True,False,None),(False,True,True,None),(False,False,False,{0:(3,),1:(7,)}),(False,True,False,{0:(3,),1:(7,)}),(False,True,True,{0:(3,),1:(7,)})):
             with patch('source_scene_obj_pool_construct.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_scene_obj_pool_construct.compose_rgb8',return_value=(background,{})):
-                result=construct(None,None,{},candidate,time_limit=10,frame_word_cover=frame_cover,joint_bank_geometry=joint,persistent_word_indices=fixed_indices)
+                result=construct(None,None,{},candidate,time_limit=10,frame_word_cover=frame_cover,joint_bank_geometry=joint,persistent_word_indices=fixed_indices,banks_by_kind=banks)
             self.assertTrue(result['compiled_pixel_identity_verified'])
             self.assertTrue(result['hardware_geometry_admitted'])
             self.assertEqual(result['geometry']['oam_entries'],1)
             self.assertGreaterEqual(result['pieces'][0]['bank'],4)
+            if banks is not None:
+                self.assertEqual(result['pieces'][0]['bank'],7)
+                self.assertEqual(result['eligible_banks_by_math_class'],{0:[3],1:[7]})
             self.assertEqual(result['peak_selected_colors_by_class'],[0,1])
             self.assertFalse(result['native_presentation_proven'])
             self.assertEqual(result['operand_selection_policy'],'GREEDY_EXACT_FRAME_SET_COVER'if frame_cover else'GREEDY_EXACT_ROW_SET_COVER')
+
+    def test_bank_domains_reject_wrong_math_class_or_duplicate_banks(self):
+        for banks in ({0:(4,),1:(7,)},{0:(3,),1:(3,)},{0:(3,),1:(7,7)},{0:(),1:(7,)}):
+            with self.assertRaisesRegex(ValueError,'BANK_CLASS_DOMAIN'):
+                construct(None,None,{},None,banks_by_kind=banks)
 
     def test_deferred_geometry_does_not_silently_admit_sprite_overflow(self):
         pieces=[dict(x=0,y=0,width=8,height=8,rows={0:[1]})for _ in range(33)]

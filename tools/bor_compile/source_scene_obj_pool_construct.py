@@ -34,7 +34,9 @@ def select_words(requirements,preferences=None):
     return owners,selected
 
 
-def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False,persistent_word_indices=False):
+def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False,persistent_word_indices=False,banks_by_kind=None):
+    class_banks={k:tuple(range(4*k,4*k+4))for k in range(2)}if banks_by_kind is None else banks_by_kind
+    if not isinstance(class_banks,dict)or set(class_banks)!={0,1}or any(not isinstance(bs,(tuple,list))or not bs or len(set(bs))!=len(bs)or any(type(b)is not int or not 4*k<=b<4*k+4 for b in bs)for k,bs in class_banks.items()):raise ValueError('POOL_CONSTRUCT_BANK_CLASS_DOMAIN')
     if frame_word_cover and prefer_resident_words:raise ValueError('POOL_CONSTRUCT_FRAME_AND_RESIDENT_POLICY_CONFLICT')
     if persistent_word_indices and not joint_bank_geometry:raise ValueError('POOL_CONSTRUCT_FIXED_INDICES_REQUIRE_JOINT')
     actors,metadata,expected=prepare(source,stage,scene)
@@ -78,6 +80,7 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
         outside_control_rows_math_policy='FULL_ADD_NO_WINDOW_MINIMAL_OPERAND_OR_LITERAL',
         peak_selected_colors_by_class=[max(row[k]for row in counts)for k in range(2)],
         global_color_bank_identity_restricted=True,bank_search=[],exact_underlay_bypass=True,underlay_bypassed_pixels=bypassed)
+    report['eligible_banks_by_math_class']={k:list(bs)for k,bs in class_banks.items()}
     pieces=[];assignment=[];joint_cells=[]
     for k in range(2):
         cells=[]
@@ -88,8 +91,8 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
                 cells.append(p)
         if not cells:continue
         if joint_bank_geometry:
-            joint_cells.extend(dict(p,allowed_banks=list(range(k*4,k*4+4)))for p in cells);continue
-        search=split_color_masks(cells,tuple(range(k*4,k*4+4)),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',defer_geometry_admission=True,residency_window_lines=bank_residency_window_lines)
+            joint_cells.extend(dict(p,allowed_banks=list(class_banks[k]))for p in cells);continue
+        search=split_color_masks(cells,tuple(class_banks[k]),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',defer_geometry_admission=True,residency_window_lines=bank_residency_window_lines)
         expanded=search.pop('pieces',None);report['bank_search'].append(dict(kind=k,**search))
         if expanded is None:return report
         pieces.extend(expanded);assignment.extend(search['assignment'])
@@ -146,7 +149,9 @@ def main():
     p.add_argument('--prefer-resident-words',action='store_true')
     p.add_argument('--joint-bank-geometry',action='store_true',help='Solve both eligible math classes together under the shared 34-sliver limit; defer OAM/sprite admission to compaction.')
     p.add_argument('--persistent-word-indices',action='store_true',help='Restricted joint family assigning each exact word a fixed physical palette index; requires joint bank geometry.')
-    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry,persistent_word_indices=a.persistent_word_indices)
+    p.add_argument('--opaque-banks',type=int,nargs='+',default=list(range(4)))
+    p.add_argument('--math-banks',type=int,nargs='+',default=list(range(4,8)))
+    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry,persistent_word_indices=a.persistent_word_indices,banks_by_kind={0:a.opaque_banks,1:a.math_banks})
     Path(a.output).write_text(json.dumps(r,indent=2)+'\n')
     summary={k:r[k]for k in ('status','peak_selected_colors_by_class','geometry','hardware_geometry_admitted','peak_scheduled_writes')if k in r}
     summary['bank_search']=[{k:v for k,v in search.items()if k not in('assignment','word_slot_indices')}for search in r['bank_search']]
