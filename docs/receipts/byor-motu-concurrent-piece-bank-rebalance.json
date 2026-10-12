@@ -300,6 +300,46 @@
       "viewport_pixels": 57344,
       "visible_obj_pixels": 5936,
       "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-piece-balanced-fixed-slot-permuted3.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-critical-subdivision.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-critical-subdivision-5.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-subdivision5-bank-balanced.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-subdivision5-swap-bank-balanced.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-subdivision5-diverse-bank-balanced.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-shared-actor-bank-balanced.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+    },
+    "byor-motu-concurrent-shared-actor-bank-mean-balanced.json": {
+      "viewport_pixels": 57344,
+      "visible_obj_pixels": 5936,
+      "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
     }
   },
   "focused_tests": {
@@ -329,12 +369,25 @@
     "byor-motu-concurrent-piece-balanced-open-bank-relabel.json": "c3304b57aea6ae2d6de6f09a5c0299813e912ab62269da0f117a35864d77d203",
     "byor-motu-concurrent-piece-balanced-fixed-slot-permuted.json": "e0cab14fcc64f207d84ec5ca419e9c9a4a438b0cf5bf203aadbb373e87f25392",
     "byor-motu-concurrent-piece-balanced-fixed-slot-permuted2.json": "dcaaf3728f9c1770ab652606267f0b06ed25877aaa92c659f08fbceec0ed7296",
-    "byor-motu-concurrent-piece-balanced-permuted-cache-refined.json": "c389744359efc9ee81d0491f9638320eb79f91d04632625b9b8f92c928b72769"
+    "byor-motu-concurrent-piece-balanced-permuted-cache-refined.json": "c389744359efc9ee81d0491f9638320eb79f91d04632625b9b8f92c928b72769",
+    "byor-motu-concurrent-piece-balanced-fixed-permutation-physical345.json": "4f57e69952c265d6737fd45cae830e9aad0815c35d0f18c88510bd29967610b7",
+    "byor-motu-concurrent-piece-balanced-fixed-slot-permuted3.json": "3936752fc3dca688587bdf8d8422bd95aee97d08c4337f10c08026ef462e8f27",
+    "byor-motu-concurrent-critical-subdivision.json": "6c6798081e945697fee7b1b140a261e26fb1a1ad5933b0bb4ae9118f80e144c2",
+    "byor-motu-concurrent-critical-subdivision-5.json": "5d9d3b677fc19c08fee6335e3ab303f71ea49ecc24bb01ba4a29d1b753bff657",
+    "byor-motu-concurrent-subdivision5-bank-balanced.json": "bc1d036556fee0aeaf73cd3b7c7923b728588e064f1163175d72f505bbd1face",
+    "byor-motu-concurrent-subdivision5-swap-bank-balanced.json": "20f6847fb27ba15139d43fe976a8fae92fc210d54bfbfa351a3890512d82ec49",
+    "byor-motu-concurrent-subdivision5-diverse-bank-balanced.json": "2f54e49ad10446fc10e643493d3e14234f49266a9d57e83cd0abfb602b5f6627",
+    "byor-motu-concurrent-subdivision5-five-effect-bank-search.json": "388fe6ed0605fc1d549534376d4251d952eba90ff0a2c2d541c5b7371bd14945",
+    "byor-motu-concurrent-shared-actor-bank-balanced.json": "c5a4d86b4337fe9fa3d93524f9c26316ec6ef6cf34cb09803b884f429b1ae05e",
+    "byor-motu-concurrent-shared-actor-bank-lp.json": "674a9aa76b0ec357918c1f86992d6002ddd41e6e5197d48f699d564d491f30ae",
+    "byor-motu-concurrent-shared-actor-bank-mean-balanced.json": "a162d5d02a7f8f42a487c0e89a0069f2ba8d9ace6f5956c26ac5fc710f60a971",
+    "byor-motu-concurrent-shared-actor-bank-mean-lp.json": "e24ed83017713317913d08ea15121a626749ac59a4edb81dd8fe9bfa7ea5b149",
+    "byor-motu-concurrent-shared-actor-bank-mean-minimum-span.json": "ba2840f4b9626dc8ca8baf660a56cdcfdb6b13afb710a4bb9944520d0b580ee5"
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-concurrent-piece-bank-rebalance.json.gz",
-    "bytes": 272657,
-    "sha256": "bff06f0b2187630b89c548d7844a788a779df9d83878e0791a8816a16c757ab4"
+    "bytes": 487733,
+    "sha256": "fb2e01a5424bd13b35b75d656df557f4c8e4aed0d195d7e436bc8078f008973f"
   },
   "local_refinement": {
     "schema": "BYOR_BOUNDED_PHYSICAL_SLOT_REFINEMENT_V1",
@@ -661,6 +714,7 @@
         "necessary_bank_window_master_clocks": 345,
         "full_frame_necessary_bank_window_verified": true
       },
+      "critical_subdivision": null,
       "source_replay": {
         "viewport_pixels": 57344,
         "visible_obj_pixels": 5936,
@@ -753,6 +807,7 @@
         "no_color_reduction": true
       },
       "refinement": null,
+      "critical_subdivision": null,
       "source_replay": null
     },
     "byor-motu-concurrent-piece-balanced-forced-local409.json": {
@@ -814,6 +869,7 @@
         "no_color_reduction": true
       },
       "refinement": null,
+      "critical_subdivision": null,
       "source_replay": null
     },
     "byor-motu-concurrent-four-effect-bank-search.json": {
@@ -846,6 +902,7 @@
         }
       },
       "refinement": null,
+      "critical_subdivision": null,
       "source_replay": null
     },
     "byor-motu-concurrent-five-effect-bank-search.json": {
@@ -878,6 +935,7 @@
         }
       },
       "refinement": null,
+      "critical_subdivision": null,
       "source_replay": null
     },
     "byor-motu-concurrent-piece-balanced-static-bank-free-physical345.json": {
@@ -969,6 +1027,7 @@
         "no_color_reduction": true
       },
       "refinement": null,
+      "critical_subdivision": null,
       "source_replay": null
     },
     "byor-motu-concurrent-piece-balanced-open-bank-relabel.json": {
@@ -1150,6 +1209,7 @@
         "necessary_bank_window_master_clocks": 345,
         "full_frame_necessary_bank_window_verified": true
       },
+      "critical_subdivision": null,
       "source_replay": {
         "viewport_pixels": 57344,
         "visible_obj_pixels": 5936,
@@ -1472,6 +1532,7 @@
         "necessary_bank_window_master_clocks": 345,
         "full_frame_necessary_bank_window_verified": true
       },
+      "critical_subdivision": null,
       "source_replay": {
         "viewport_pixels": 57344,
         "visible_obj_pixels": 5936,
@@ -1648,6 +1709,7 @@
         "no_color_reduction": true
       },
       "refinement": null,
+      "critical_subdivision": null,
       "source_replay": {
         "viewport_pixels": 57344,
         "visible_obj_pixels": 5936,
@@ -1877,11 +1939,1156 @@
         "necessary_bank_window_master_clocks": 345,
         "full_frame_necessary_bank_window_verified": true
       },
+      "critical_subdivision": null,
       "source_replay": {
         "viewport_pixels": 57344,
         "visible_obj_pixels": 5936,
         "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
       }
+    },
+    "byor-motu-concurrent-piece-balanced-fixed-permutation-physical345.json": {
+      "input_file_sha256": "4f57e69952c265d6737fd45cae830e9aad0815c35d0f18c88510bd29967610b7",
+      "physical_slot_layout": {
+        "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
+        "status": "BOUNDED_SLOT_LAYOUT_NO_CANDIDATE",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 60.0539702,
+        "solver_search_strategy": "portfolio",
+        "solver_objective": "FEASIBILITY_ONLY",
+        "solver_objective_lower_bound": null,
+        "restricted_family_peak_span_lower_bound": null,
+        "lower_bound_scope": null,
+        "lifetime_segments": 534,
+        "window_master_clocks": 345,
+        "maximum_ranges": 4,
+        "input_schedule_noninitial_prefetch_latency_lines": 16,
+        "trim_dead_residents": true,
+        "used_lifetime_segments": 508,
+        "flexible_prefetch": true,
+        "lookahead_lines": 111,
+        "hint_time_radius_lines": null,
+        "necessary_bank_window_master_clocks": null,
+        "demand_gap_lines": null,
+        "idle_prefix_collapsed": false,
+        "first_visible_source_line": 112,
+        "layout_hint_used": true,
+        "reorder_banks": false,
+        "fixed_hint_slots": false,
+        "permute_hint_slots": true,
+        "retain_write_times": true,
+        "lifetime_repair_interval": null,
+        "movable_complete_lifetimes": 0,
+        "rectangle_lifetimes": false,
+        "persistent_color_slots": false,
+        "split_bank_ranges": true,
+        "paired_bank_ranges": false,
+        "fixed_slot_write_times_pruned": 0,
+        "solver_model_variables": 4536,
+        "solver_model_constraints": 8843,
+        "solver_branches": 1215867,
+        "solver_conflicts": 822108,
+        "solver_probing_level": 0,
+        "solver_sat_inprocessing": false,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "critical_subdivision": null,
+      "source_replay": null
+    },
+    "byor-motu-concurrent-piece-balanced-fixed-slot-permuted3.json": {
+      "input_file_sha256": "3936752fc3dca688587bdf8d8422bd95aee97d08c4337f10c08026ef462e8f27",
+      "physical_slot_layout": {
+        "schema": "BYOR_FIXED_PHYSICAL_SLOT_PERMUTATION_V1",
+        "status": "PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN",
+        "initial_score": [
+          392,
+          272,
+          9792
+        ],
+        "final_score": [
+          392,
+          192,
+          9872
+        ],
+        "seed": 620,
+        "steps_requested": 500000,
+        "proposals_sampled": 500000,
+        "moves_accepted": 116734,
+        "seconds": 31.969000000040978,
+        "opaque_slot_permutations": [
+          [
+            2,
+            1,
+            3,
+            4,
+            6,
+            5,
+            7,
+            8,
+            9,
+            10,
+            11,
+            14,
+            12,
+            13,
+            15
+          ],
+          [
+            2,
+            1,
+            3,
+            4,
+            5,
+            6,
+            7,
+            11,
+            9,
+            10,
+            13,
+            12,
+            8,
+            14,
+            15
+          ],
+          [
+            1,
+            13,
+            14,
+            3,
+            5,
+            8,
+            7,
+            6,
+            10,
+            11,
+            12,
+            2,
+            4,
+            9,
+            15
+          ],
+          [
+            11,
+            9,
+            8,
+            5,
+            10,
+            1,
+            4,
+            2,
+            3,
+            6,
+            15,
+            14,
+            12,
+            13,
+            7
+          ],
+          [
+            7,
+            1,
+            6,
+            5,
+            4,
+            3,
+            2,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          [
+            1,
+            2,
+            7,
+            10,
+            9,
+            8,
+            6,
+            3,
+            5,
+            4,
+            14,
+            15,
+            12,
+            13,
+            11
+          ],
+          [
+            1,
+            2,
+            3,
+            8,
+            4,
+            6,
+            5,
+            7,
+            9,
+            10,
+            11,
+            12,
+            14,
+            15,
+            13
+          ],
+          [
+            1,
+            2,
+            3,
+            7,
+            6,
+            5,
+            4,
+            11,
+            12,
+            13,
+            8,
+            9,
+            10,
+            14,
+            15
+          ]
+        ],
+        "fixed_piece_bank_assignment": true,
+        "cache_lifetimes_and_write_times_unchanged": true,
+        "peak_prepared_commit_span": 392,
+        "target_window_master_clocks": 345,
+        "target_window_met_by_all_packets": false,
+        "pixel_color_identity_verified": true,
+        "all_packet_cgram_identities_verified": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "critical_subdivision": null,
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-critical-subdivision.json": {
+      "input_file_sha256": "6c6798081e945697fee7b1b140a261e26fb1a1ad5933b0bb4ae9118f80e144c2",
+      "physical_slot_layout": {
+        "initial_objective": [
+          0,
+          15.0,
+          2.0956568663286887
+        ],
+        "final_objective": [
+          0,
+          14.25,
+          2.1579312633024106
+        ],
+        "seed": 618,
+        "steps_requested": 20000,
+        "proposals_sampled": 9443,
+        "moves_accepted": 3384,
+        "seconds": 25.280999999959022,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "critical_subdivision": {
+        "selected_original_pieces": [
+          56,
+          33,
+          61,
+          40,
+          41,
+          36,
+          59,
+          55,
+          54,
+          46,
+          38,
+          34,
+          58,
+          50,
+          45,
+          44,
+          43,
+          60,
+          68,
+          63,
+          42,
+          69,
+          48,
+          35,
+          47
+        ],
+        "trials": [
+          {
+            "piece": 56,
+            "word_union": 54,
+            "geometry": {
+              "oam_entries": 76,
+              "peak_sprites_per_line": 18,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 33,
+            "word_union": 35,
+            "geometry": {
+              "oam_entries": 79,
+              "peak_sprites_per_line": 19,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 61,
+            "word_union": 33,
+            "geometry": {
+              "oam_entries": 82,
+              "peak_sprites_per_line": 19,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 40,
+            "word_union": 26,
+            "geometry": {
+              "oam_entries": 83,
+              "peak_sprites_per_line": 20,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 41,
+            "word_union": 23,
+            "geometry": {
+              "oam_entries": 86,
+              "peak_sprites_per_line": 20,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 36,
+            "word_union": 23,
+            "geometry": {
+              "oam_entries": 87,
+              "peak_sprites_per_line": 20,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 59,
+            "word_union": 22,
+            "geometry": {
+              "oam_entries": 89,
+              "peak_sprites_per_line": 21,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 55,
+            "word_union": 22,
+            "geometry": {
+              "oam_entries": 92,
+              "peak_sprites_per_line": 21,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 54,
+            "word_union": 22,
+            "geometry": {
+              "oam_entries": 95,
+              "peak_sprites_per_line": 22,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 46,
+            "word_union": 21,
+            "geometry": {
+              "oam_entries": 98,
+              "peak_sprites_per_line": 23,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 38,
+            "word_union": 21,
+            "geometry": {
+              "oam_entries": 101,
+              "peak_sprites_per_line": 24,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 34,
+            "word_union": 21,
+            "geometry": {
+              "oam_entries": 104,
+              "peak_sprites_per_line": 24,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 58,
+            "word_union": 20,
+            "geometry": {
+              "oam_entries": 107,
+              "peak_sprites_per_line": 25,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 50,
+            "word_union": 20,
+            "geometry": {
+              "oam_entries": 108,
+              "peak_sprites_per_line": 25,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 45,
+            "word_union": 18,
+            "geometry": {
+              "oam_entries": 111,
+              "peak_sprites_per_line": 25,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 44,
+            "word_union": 17,
+            "geometry": {
+              "oam_entries": 112,
+              "peak_sprites_per_line": 25,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 43,
+            "word_union": 16,
+            "geometry": {
+              "oam_entries": 113,
+              "peak_sprites_per_line": 25,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 60,
+            "word_union": 15,
+            "geometry": {
+              "oam_entries": 116,
+              "peak_sprites_per_line": 25,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 68,
+            "word_union": 14,
+            "geometry": {
+              "oam_entries": 119,
+              "peak_sprites_per_line": 26,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 63,
+            "word_union": 14,
+            "geometry": {
+              "oam_entries": 121,
+              "peak_sprites_per_line": 26,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 42,
+            "word_union": 12,
+            "geometry": {
+              "oam_entries": 122,
+              "peak_sprites_per_line": 27,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 69,
+            "word_union": 10,
+            "geometry": {
+              "oam_entries": 125,
+              "peak_sprites_per_line": 27,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 48,
+            "word_union": 9,
+            "geometry": {
+              "oam_entries": 126,
+              "peak_sprites_per_line": 28,
+              "peak_tile_slivers_per_line": 33
+            },
+            "accepted": true
+          },
+          {
+            "piece": 35,
+            "word_union": 9,
+            "geometry": {
+              "oam_entries": 127,
+              "peak_sprites_per_line": 28,
+              "peak_tile_slivers_per_line": 32
+            },
+            "accepted": true
+          },
+          {
+            "piece": 47,
+            "word_union": 5,
+            "geometry": {
+              "oam_entries": 128,
+              "peak_sprites_per_line": 28,
+              "peak_tile_slivers_per_line": 32
+            },
+            "accepted": true
+          }
+        ],
+        "selection_scope": "Explicit concurrent controlled pose effect geometry intersecting rows125..147; not production actor-name routing.",
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false
+      },
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-critical-subdivision-5.json": {
+      "input_file_sha256": "5d9d3b677fc19c08fee6335e3ab303f71ea49ecc24bb01ba4a29d1b753bff657",
+      "physical_slot_layout": {
+        "initial_objective": [
+          0,
+          15.0,
+          2.0956568663286887
+        ],
+        "final_objective": [
+          0,
+          14.25,
+          2.1579312633024106
+        ],
+        "seed": 618,
+        "steps_requested": 20000,
+        "proposals_sampled": 9443,
+        "moves_accepted": 3384,
+        "seconds": 25.280999999959022,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "critical_subdivision": {
+        "selected_original_pieces": [
+          56,
+          33,
+          61,
+          40,
+          41
+        ],
+        "trials": [
+          {
+            "piece": 56,
+            "word_union": 54,
+            "geometry": {
+              "oam_entries": 76,
+              "peak_sprites_per_line": 18,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 33,
+            "word_union": 35,
+            "geometry": {
+              "oam_entries": 79,
+              "peak_sprites_per_line": 19,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 61,
+            "word_union": 33,
+            "geometry": {
+              "oam_entries": 82,
+              "peak_sprites_per_line": 19,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 40,
+            "word_union": 26,
+            "geometry": {
+              "oam_entries": 83,
+              "peak_sprites_per_line": 20,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 41,
+            "word_union": 23,
+            "geometry": {
+              "oam_entries": 86,
+              "peak_sprites_per_line": 20,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          }
+        ],
+        "selection_scope": "Explicit concurrent controlled pose effect geometry intersecting rows125..147; not production actor-name routing.",
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false
+      },
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-subdivision5-bank-balanced.json": {
+      "input_file_sha256": "bc1d036556fee0aeaf73cd3b7c7923b728588e064f1163175d72f505bbd1face",
+      "physical_slot_layout": {
+        "initial_objective": [
+          0,
+          14.25,
+          2.1579312633024106
+        ],
+        "final_objective": [
+          0,
+          14.25,
+          2.1579312633024106
+        ],
+        "seed": 621,
+        "steps_requested": 20000,
+        "proposals_sampled": 10573,
+        "moves_accepted": 3848,
+        "seconds": 23.280999999959022,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "critical_subdivision": {
+        "selected_original_pieces": [
+          56,
+          33,
+          61,
+          40,
+          41
+        ],
+        "trials": [
+          {
+            "piece": 56,
+            "word_union": 54,
+            "geometry": {
+              "oam_entries": 76,
+              "peak_sprites_per_line": 18,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 33,
+            "word_union": 35,
+            "geometry": {
+              "oam_entries": 79,
+              "peak_sprites_per_line": 19,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 61,
+            "word_union": 33,
+            "geometry": {
+              "oam_entries": 82,
+              "peak_sprites_per_line": 19,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 40,
+            "word_union": 26,
+            "geometry": {
+              "oam_entries": 83,
+              "peak_sprites_per_line": 20,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 41,
+            "word_union": 23,
+            "geometry": {
+              "oam_entries": 86,
+              "peak_sprites_per_line": 20,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          }
+        ],
+        "selection_scope": "Explicit concurrent controlled pose effect geometry intersecting rows125..147; not production actor-name routing.",
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false
+      },
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-subdivision5-swap-bank-balanced.json": {
+      "input_file_sha256": "20f6847fb27ba15139d43fe976a8fae92fc210d54bfbfa351a3890512d82ec49",
+      "physical_slot_layout": {
+        "initial_objective": [
+          0,
+          14.25,
+          2.1579312633024106
+        ],
+        "final_objective": [
+          0,
+          14.25,
+          2.1579312633024106
+        ],
+        "seed": 622,
+        "steps_requested": 20000,
+        "proposals_sampled": 8458,
+        "moves_accepted": 2448,
+        "swap_probability": 0.5,
+        "swap_proposals_sampled": 4547,
+        "swap_moves_accepted": 837,
+        "seconds": 30.266000000294298,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "critical_subdivision": {
+        "selected_original_pieces": [
+          56,
+          33,
+          61,
+          40,
+          41
+        ],
+        "trials": [
+          {
+            "piece": 56,
+            "word_union": 54,
+            "geometry": {
+              "oam_entries": 76,
+              "peak_sprites_per_line": 18,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 33,
+            "word_union": 35,
+            "geometry": {
+              "oam_entries": 79,
+              "peak_sprites_per_line": 19,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 61,
+            "word_union": 33,
+            "geometry": {
+              "oam_entries": 82,
+              "peak_sprites_per_line": 19,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 40,
+            "word_union": 26,
+            "geometry": {
+              "oam_entries": 83,
+              "peak_sprites_per_line": 20,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 41,
+            "word_union": 23,
+            "geometry": {
+              "oam_entries": 86,
+              "peak_sprites_per_line": 20,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          }
+        ],
+        "selection_scope": "Explicit concurrent controlled pose effect geometry intersecting rows125..147; not production actor-name routing.",
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false
+      },
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-subdivision5-diverse-bank-balanced.json": {
+      "input_file_sha256": "2f54e49ad10446fc10e643493d3e14234f49266a9d57e83cd0abfb602b5f6627",
+      "physical_slot_layout": {
+        "initial_objective": [
+          0,
+          14.25,
+          2.1579312633024106
+        ],
+        "final_objective": [
+          0,
+          14.25,
+          2.1579312633024106
+        ],
+        "seed": 623,
+        "steps_requested": 16000,
+        "proposals_sampled": 8450,
+        "moves_accepted": 2181,
+        "swap_probability": 0.5,
+        "swap_proposals_sampled": 4636,
+        "swap_moves_accepted": 747,
+        "sample_equal_best": true,
+        "equivalent_best_samples": 0,
+        "seconds": 30.266000000294298,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "critical_subdivision": {
+        "selected_original_pieces": [
+          56,
+          33,
+          61,
+          40,
+          41
+        ],
+        "trials": [
+          {
+            "piece": 56,
+            "word_union": 54,
+            "geometry": {
+              "oam_entries": 76,
+              "peak_sprites_per_line": 18,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 33,
+            "word_union": 35,
+            "geometry": {
+              "oam_entries": 79,
+              "peak_sprites_per_line": 19,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 61,
+            "word_union": 33,
+            "geometry": {
+              "oam_entries": 82,
+              "peak_sprites_per_line": 19,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 40,
+            "word_union": 26,
+            "geometry": {
+              "oam_entries": 83,
+              "peak_sprites_per_line": 20,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          },
+          {
+            "piece": 41,
+            "word_union": 23,
+            "geometry": {
+              "oam_entries": 86,
+              "peak_sprites_per_line": 20,
+              "peak_tile_slivers_per_line": 34
+            },
+            "accepted": true
+          }
+        ],
+        "selection_scope": "Explicit concurrent controlled pose effect geometry intersecting rows125..147; not production actor-name routing.",
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false
+      },
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-subdivision5-five-effect-bank-search.json": {
+      "input_file_sha256": "388fe6ed0605fc1d549534376d4251d952eba90ff0a2c2d541c5b7371bd14945",
+      "physical_slot_layout": {
+        "status": "FIXED_GRID_INFEASIBLE",
+        "solver_status": 2,
+        "message": "INFEASIBLE",
+        "solver_backend": "cp-sat",
+        "interval_write_budget": 21,
+        "interval_lines": 8,
+        "interval_cuts": 371,
+        "solver_model_variables": 294402,
+        "solver_model_constraints": 691108,
+        "universal_raster_rejected": false,
+        "logical_bank_label_symmetry_broken": true,
+        "bounded_integer_solver_stats": {
+          "nonboolean_integer_variables": 2968,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 311,
+          "sat_inprocessing": false,
+          "branches": 32400,
+          "conflicts": 386,
+          "wall_seconds": 37.461510000000004,
+          "probing_level": 0,
+          "workers": 4,
+          "search_strategy": "portfolio",
+          "optimal": false
+        }
+      },
+      "refinement": null,
+      "critical_subdivision": null,
+      "source_replay": null
+    },
+    "byor-motu-concurrent-shared-actor-bank-balanced.json": {
+      "input_file_sha256": "c5a4d86b4337fe9fa3d93524f9c26316ec6ef6cf34cb09803b884f429b1ae05e",
+      "physical_slot_layout": {
+        "initial_objective": [
+          0,
+          14.25,
+          2.1579312633024106
+        ],
+        "final_objective": [
+          0,
+          13.5,
+          4.007332623340674
+        ],
+        "seed": 624,
+        "steps_requested": 25000,
+        "proposals_sampled": 13055,
+        "moves_accepted": 5287,
+        "swap_probability": 0.5,
+        "swap_proposals_sampled": 6968,
+        "swap_moves_accepted": 2019,
+        "sample_equal_best": true,
+        "equivalent_best_samples": 4687,
+        "interval_peak_only_objective": true,
+        "seconds": 40.39099999982864,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "critical_subdivision": null,
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-shared-actor-bank-lp.json": {
+      "input_file_sha256": "674a9aa76b0ec357918c1f86992d6002ddd41e6e5197d48f699d564d491f30ae",
+      "physical_slot_layout": {
+        "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 41415,
+        "constraints": 21358,
+        "lookahead_lines": 55,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 16.954545454545457,
+        "validated_dual_lower_bound": 16.954545454545457,
+        "maximum_primal_violation": 8.526512829121202e-14,
+        "maximum_dual_residual": 3.3306690738754696e-16
+      },
+      "refinement": null,
+      "critical_subdivision": null,
+      "source_replay": null
+    },
+    "byor-motu-concurrent-shared-actor-bank-mean-balanced.json": {
+      "input_file_sha256": "a162d5d02a7f8f42a487c0e89a0069f2ba8d9ace6f5956c26ac5fc710f60a971",
+      "physical_slot_layout": {
+        "initial_objective": [
+          0,
+          13.5,
+          4.007332623340674
+        ],
+        "final_objective": [
+          0,
+          13.5,
+          3.058660462879655
+        ],
+        "seed": 625,
+        "steps_requested": 20000,
+        "proposals_sampled": 9697,
+        "moves_accepted": 3861,
+        "swap_probability": 0.5,
+        "swap_proposals_sampled": 5185,
+        "swap_moves_accepted": 1449,
+        "sample_equal_best": false,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 30.32800000021234,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "refinement": null,
+      "critical_subdivision": null,
+      "source_replay": {
+        "viewport_pixels": 57344,
+        "visible_obj_pixels": 5936,
+        "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
+      }
+    },
+    "byor-motu-concurrent-shared-actor-bank-mean-lp.json": {
+      "input_file_sha256": "e24ed83017713317913d08ea15121a626749ac59a4edb81dd8fe9bfa7ea5b149",
+      "physical_slot_layout": {
+        "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 34376,
+        "constraints": 17837,
+        "lookahead_lines": 55,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 15.555555555555555,
+        "validated_dual_lower_bound": 15.555555555555555,
+        "maximum_primal_violation": 1.0658141036401503e-14,
+        "maximum_dual_residual": 2.220446049250313e-16
+      },
+      "refinement": null,
+      "critical_subdivision": null,
+      "source_replay": null
+    },
+    "byor-motu-concurrent-shared-actor-bank-mean-minimum-span.json": {
+      "input_file_sha256": "ba2840f4b9626dc8ca8baf660a56cdcfdb6b13afb710a4bb9944520d0b580ee5",
+      "physical_slot_layout": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_backend": "cp-sat",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 60.092119800000006,
+        "solver_model_variables": 40135,
+        "solver_model_constraints": 90527,
+        "solver_branches": 17489,
+        "solver_conflicts": 8,
+        "write_budget": 21,
+        "lookahead_lines": 55,
+        "prepared_window_master_clocks": 345,
+        "range_backend": "flow",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": false,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": false,
+        "compulsory_bank_interval_cuts": 7923,
+        "soft_residency_hint_interval": null,
+        "total_noninitial_writes_objective": false,
+        "peak_optimistic_prepared_span_objective": true,
+        "solver_search_strategy": "portfolio",
+        "palette_residency_integrality_relaxed": false,
+        "maximum_active_banks_per_line": null,
+        "per_bank_write_caps_enforced": false,
+        "peak_optimistic_span_lower_bound_for_this_fixed_bank_family": 259
+      },
+      "refinement": null,
+      "critical_subdivision": null,
+      "source_replay": null
     }
   },
   "static_bank_solver_focused_tests": {
@@ -1892,5 +3099,11 @@
     "passed": 2,
     "broader_packet_layout_regression_tests": 19,
     "combined_seconds": 12.093
+  },
+  "paired_piece_bank_exchange_tests": {
+    "passed": 3,
+    "seconds": 0.909,
+    "default_assignment_and_compiled_schedule_unchanged": true,
+    "default_compiled_schedule_sha256": "bc1a1bb1db93506cfa6019c23393b66bf7e2b3ba63b8bbe89017837f818c25f7"
   }
 }

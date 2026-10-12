@@ -80,3 +80,46 @@ Six local cache repairs of the 392-clock witness retain that peak and reduce
 aggregate transfer cost from 9,936 to 9,792 clocks. Five complete candidates
 are accepted; independent source replay again matches the complete viewport.
 The full-frame 21-write cap and necessary bank-window check remain valid.
+
+An exact 344-clock fixed-slot permutation search on the repaired cache returns
+UNKNOWN after 60.054 seconds (4,536 variables, 8,843 constraints). A third
+500,000-proposal heuristic retains the 392-clock peak, reducing the summed
+excess above the requested 344-clock ceiling from 272 to 192 clocks. This is
+progress within a restricted permutation family, not hardware rejection.
+
+Selective subdivision of the five highest-union effect pieces intersecting
+rows 125--147 produces 86 legal OAM entries, 20 sprites per scanline and 34
+tile slivers. Full source replay remains identical. Subdivision of all 25
+selected parents instead reaches 128 entries, 28 sprites and 32 slivers;
+that exploratory geometry leaves no spare OAM entries for another actor and
+is not a gameplay resource allocation. Bank balancing on the five-parent
+geometry does not improve its interval objective. Restricting it to five
+effect banks plus player bank 3 under the same necessary interval bound is
+INFEASIBLE after 37.462 seconds, still only a geometry/domain family result.
+
+The generic bank balancer now offers optional paired exchanges to cross
+single-move capacity barriers, equivalent-best assignment sampling and a
+peak-only interval objective. These remain source-derived heuristics with
+independent full pixel replay. The default retains its original random draws,
+assignment and compiled schedule hash: `bc1a1bb1db93506cfa6019c23393b66bf7e2b3ba63b8bbe89017837f818c25f7`
+on the focused regression fixture. Three focused tests pass. Paired exchanges
+alone do not improve the five-parent interval objective, and no physical
+admission is asserted for those outputs.
+
+Allowing both actors to share all eight eligible banks in the controlled
+precomposited context, with paired exchanges and a peak-only objective,
+reduces interval peak pressure from 14.25 to 13.5 writes per line. Geometry
+stays at 73/18/34 and all viewport pixels replay identically. Mean interval
+pressure increases from 2.157931 to 4.007333. Its independently validated cache
+LP lower bound is 16.954545 writes per line (integer schedules need at least
+17); maximum primal violation is below 9e-14 and dual residual below 4e-16.
+This is not physical admission and does not allocate exclusive ownership of
+all eight banks to the effect. Both actors' actual row demand is included.
+
+A second shared-bank pass retains the 13.5 interval peak and reduces mean
+pressure to 3.058660. Its validated fractional cache bound falls to
+15.555556 writes per line, so integer schedules need at least sixteen.
+Primal violation is below 1.1e-14 and dual residual below 3e-16. The complete
+344-clock ideal-flow search returns UNKNOWN after 60.092 seconds, with a
+259-clock restricted-model lower bound. It does not reject the allocation or
+provide a physical schedule.
