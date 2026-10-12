@@ -430,3 +430,14 @@ Restricting each two-row bank union to fifteen words creates 162 objects and
 36 sprites/slivers, exceeding hardware geometry. These measured failures apply
 to the respective encodings, not the generic raster strategy. Native execution,
 concurrent actor admission and a live compositor remain unproved.
+
+Mapping the complete 16-write pool's uninterrupted color lifetimes into actual
+banks with mixed 8/16 geometry and a favorable 345-clock transfer partition
+returns UNKNOWN after 120.084 seconds (23,381 variables, 85,109 constraints).
+A transfer-relaxed 16-write trial that extends every selected color's first
+interval to VBlank is INFEASIBLE. This is an explicit restricted preload policy,
+not a general initial-palette theorem. Keeping later interval loads at their
+saved natural times instead returns UNKNOWN at 120.075 seconds. A bounded
+full-frame reoptimization of all four math modes and windows at 16 writes also
+returns UNKNOWN at 164.315 seconds. No native frame is emitted from these trials,
+and none rejects general raster scheduling or selects an alpha adaptation.
