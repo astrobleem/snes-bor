@@ -12,7 +12,7 @@ from raster_physical_relabel import point_partition
 from raster_slot_refine import verify_packets
 
 
-def shift(source,lookahead=55,iterations=200,time_limit=30,target_window=345):
+def shift(source,lookahead=55,iterations=200,time_limit=30,target_window=345,event_lines=None):
     if type(lookahead)is not int or lookahead<0 or type(iterations)is not int or iterations<0 or time_limit<=0 or target_window<1:
         raise ValueError('WRITE_SHIFT_DOMAIN')
     _,_,pixels=demand(source);verify_packets(source)
@@ -28,6 +28,11 @@ def shift(source,lookahead=55,iterations=200,time_limit=30,target_window=345):
             key=e['bank'],e['slot']
             if row['scanline']==0:initial[key]=e['color']
             else:events.append(dict(bank=e['bank'],slot=e['slot'],color=e['color'],line=row['scanline']))
+    if event_lines is not None:
+        if len(event_lines)!=len(events) or any(type(y)is not int or not 0<=y<height for y in event_lines):raise ValueError('WRITE_SHIFT_EVENT_LINE_DOMAIN')
+        for e,y in zip(events,event_lines):
+            e['line']=y
+            if y==0:initial[e['bank'],e['slot']]=e['color']
     rows=[set()for _ in range(height)]
     for i,e in enumerate(events):rows[e['line']].add(i)
     def cost(line):return point_partition([16*events[i]['bank']+events[i]['slot']for i in rows[line]])[0]if line else 0

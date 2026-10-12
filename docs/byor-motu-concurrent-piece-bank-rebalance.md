@@ -210,3 +210,28 @@ This is neither native admission nor universal raster rejection. The proof
 uses the controlled black scene and offline exact BOR SCREEN composition;
 authored-background peak presentation, live composition and gameplay remain
 open. Full schedules and replay results are retained in the receipt archive.
+
+An exact fixed-index event-time scheduler improves the physical peak to 360
+clocks. It models 421 loads with 24,559 variables and 39,669 constraints,
+retains each slot's ordered event sequence and initial palette, and charges
+actual four-range physical coverage. The 377-clock search proves OPTIMAL in
+13.391 seconds with a matching 360-clock lower bound. Independent complete
+source and CGRAM replay verifies the emitted schedule. The same fixed-index
+family is infeasible below 345 clocks in 7.719 seconds; this excludes neither
+other indices, different residency/event sequences, nor raster presentation.
+
+Subsequent source-exact row-boundary reindexing retains the 360-clock peak
+and reduces aggregate transfer cost to 9,328 clocks, leaving four overloaded
+rows. Exact load-time scheduling of that remapped family also rejects the
+345-clock target in 7.047 seconds. Seven focused tests pass, including a
+restricted infeasible family, a valid exact schedule and rejection of a load
+that overwrites a required source pixel. Native timing remains unadmitted.
+
+A bounded annealing phase can now explore non-improving intermediate
+row-boundary permutations while retaining only the best complete source-exact
+state. Sixty thousand proposals and 1,273 accepted transitions retain the
+360-clock peak and reduce aggregate transfer cost by sixteen clocks, to
+9,312. The eight focused tests verify source identity, charged relocations,
+input preservation and best-state retention. This does not admit timing.
+A 45.121-second exact free-residency/slot repair over lines 124..146 returns
+UNKNOWN; its 244-clock restricted lower bound does not reject raster.

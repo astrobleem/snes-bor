@@ -34,5 +34,21 @@ class SuffixReindexTests(unittest.TestCase):
     def test_invalid_search_limits_rejected(self):
         with self.assertRaisesRegex(ValueError,'SUFFIX_REINDEX_DOMAIN'):reindex({},radius=-1)
 
+    def test_annealing_retains_only_best_complete_source_exact_state(self):
+        import test_raster_physical_event_schedule as event_fixtures
+        source=event_fixtures.PhysicalEventScheduleTests().schedule()
+        source['trace'][2]['updates'][1]['color']=1024
+        source['prepared_dma_packets'][2]['packets'][1]['data_hex']='0004'
+        for row in source['trace'][3:]:row['resident_before'][1][2]=1024
+        before=copy.deepcopy(source)
+        result=reindex(source,time_limit=5,iterations=1,radius=4,target_window=1,anneal_steps=200,seed=630)
+        self.assertEqual(source,before);self.assertEqual(source['pieces'],result['pieces'])
+        verify_packets(result)
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        report=result['physical_slot_layout']
+        self.assertGreater(report['anneal_proposals'],0)
+        self.assertLessEqual(tuple(report['final_score']),tuple(report['initial_score']))
+        self.assertFalse(report['native_timing_admitted'])
+
 
 if __name__=='__main__':unittest.main()
