@@ -623,3 +623,18 @@ entries but reaches 40 slivers. A separate horizontal 8-pixel coverage bound
 is only 31 combined slivers, so this does not reject non-grid packing. The
 reservation includes the entire player geometry without shared occlusion;
 concurrent palette, alpha and layer admission remain separate.
+
+A generic sampled non-grid mask cover now preserves each visible source pixel's
+owner, fixed bank and physical slot while considering legal 8/16 or 8/32
+rectangles anchored on pixel corners/midpoints and the input rectangles. Its
+constraints count full transparent padding, OAM, sprites and slivers, with an
+optional complete per-line actor reservation. Four focused tests pass, including
+opaque black, unchanged palette traffic, reservation rejection and ambiguous
+visible ownership rejection. Source metadata/dimensions are retained; changed
+geometry requires fresh native validation.
+
+The isolated sampled 8/16 cover improves to 70 OAM entries, 19 sprites and 30
+slivers after 60.255 seconds. It preserves the 424-clock palette cache, which
+still exceeds the measured window. Two player-reserved searches remain UNKNOWN
+at 45.196 and 60.452 seconds. These are bounded candidate-family results, not
+universal geometry or raster rejections; palette/layer concurrency is unadmitted.
