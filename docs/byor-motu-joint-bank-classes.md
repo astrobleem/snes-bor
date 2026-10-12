@@ -379,3 +379,11 @@ validated fractional bound from 32.666667 to 25.571429 over three iterations
 in 67.094 seconds. Any emitted assignment must still satisfy the complete
 OAM rectangles plus player reservation. Neither this fractional result nor
 its unproved integer extension admits transfer timing or concurrent palettes.
+
+Extending the geometry-reserved row-word search to sixteen iterations, with
+thirty-second masters and restored verified cuts, completes six iterations
+in 203.735 seconds. Its best fixed-assignment fractional bound is 24.583333,
+forcing at least 25 writes for that selected encoding/assignment. Geometry
+remains checked against the measured player arrays, while concurrent palettes
+and source compositing are unproved. Other assignments and operands remain
+open; this result does not reject raster universally.
