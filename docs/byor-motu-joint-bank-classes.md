@@ -72,3 +72,16 @@ slots and flexible eight-line prefetch is infeasible at 332 clocks. A broader
 two-line demand-gap rectangle search returns UNKNOWN. Neither result rejects
 different lifetime groupings or unrestricted slot layouts. Thirty combined
 global-bank, constructor, greedy and slot-layout tests pass.
+
+The generic lifetime component recoloring follow-up preserves all 57,344
+viewport output pixels, including exact source SCREEN over GUILE2. A new
+complete integer cache limits write-active banks to six and has a 336-clock
+optimistic bound, nineteen peak writes and ten-line maximum prefetch.
+It solves in 10.151 seconds. Physical lifetime recoloring produces a valid
+456-clock witness, still above the measured transfer window. Liveness shifts,
+all 576 eligible bank permutations with 256 slot reflections, and three
+twelve-second local slot repairs do not lower that peak. These are restricted
+family results, not rejection of lossless raster presentation. The full
+source replay and bounded schedules are retained in
+[the authored follow-up receipt](receipts/byor-motu-authored-kempe.json)
+and its compressed archive. No color reduction or alpha adaptation occurs.
