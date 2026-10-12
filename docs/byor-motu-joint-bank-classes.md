@@ -387,3 +387,19 @@ forcing at least 25 writes for that selected encoding/assignment. Geometry
 remains checked against the measured player arrays, while concurrent palettes
 and source compositing are unproved. Other assignments and operands remain
 open; this result does not reject raster universally.
+
+An eight-row word-epoch construction removes global frame-long word-bank
+identity, retaining one bank for each emitted OBJ mask. With conservative
+effect limits of 95 OAM entries and 24 tile slivers, and necessary prepared
+transfer interval cuts at 345 clocks, the bounded run returns UNKNOWN in
+50.134 seconds (7,769 variables and 32,383 constraints). These constant
+geometry limits reserve the player's maximum resource demand on every row,
+so they are deliberately more restrictive than its measured row arrays.
+They do not prove a universal concurrent limit or a physical schedule.
+
+The corrected source-bound joint fixed-rectangle/operand search also returns
+UNKNOWN after 600.472 solver seconds, with 249,414 conflicts. A no-hint
+SAT-only feasibility run returns UNKNOWN after 120.255 seconds, with 222,809
+conflicts; it retains the same source, bank-domain, geometry and prepared
+transfer constraints. The eight-row word-epoch SAT run returns UNKNOWN at
+120.059 seconds. None of these time limits establishes a hardware boundary.

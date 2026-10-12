@@ -1,0 +1,112 @@
+{
+  "schema": "BYOR_SOURCE_CROSS_ACTOR_OBJ_GEOMETRY_REPLAY_V1",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "experiments": {
+    "byor-motu-source-geysers-cross-actor-geometry": {
+      "input_sha256": "1bb119e7541bc6c792f21ac507c6e1f68e257765b69bb96c3ebfc91f2351c1be",
+      "source_rgb555_sha256": "75c471de6aea0cdd9da24f4608b99773c709a5eab4350630138e0a84b41ea9ed",
+      "source_colors": 37,
+      "actor_owned_tile_lower_bound": 28,
+      "checks": [
+        {
+          "mode": "mixed",
+          "geometry": {
+            "oam_entries": 47,
+            "peak_sprites": 11,
+            "peak_tile_slivers": 32
+          },
+          "verified_viewport_pixels": 57344,
+          "verified_opaque_pixels": 18881,
+          "peak_greedy_writes": 14,
+          "source_palette_and_rendered_color_identity_verified": true,
+          "physical_transfer_and_native_timing_admitted": false
+        }
+      ],
+      "source_alpha_policy": "SOURCE_ALPHA_ZERO_LITERAL_RGB555",
+      "live_compositor_admitted": false,
+      "source_pose_reachability_proven": false
+    },
+    "byor-motu-source-full-rise-cross-actor-geometry": {
+      "input_sha256": "d3cbe3f211beee8026d9a3722f77ec5475dcca7461a10a043cec1adfd2f98eb0",
+      "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+      "source_colors": 584,
+      "actor_owned_tile_lower_bound": 36,
+      "checks": [
+        {
+          "mode": "mixed",
+          "geometry": {
+            "oam_entries": 92,
+            "peak_sprites": 17,
+            "peak_tile_slivers": 32
+          },
+          "verified_viewport_pixels": 57344,
+          "verified_opaque_pixels": 22247,
+          "peak_greedy_writes": 81,
+          "source_palette_and_rendered_color_identity_verified": true,
+          "physical_transfer_and_native_timing_admitted": false
+        }
+      ],
+      "source_alpha_policy": "BOR4086_SCREEN_RGB8_PRECOMPOSITED_FOR_EXPLICIT_SOURCE_CONTEXT",
+      "live_compositor_admitted": false,
+      "source_pose_reachability_proven": false
+    },
+    "full-rise-precomposite-cache-schedule": {
+      "input_sha256": "d288b8ef1ba0bda38ea8533a620715a9396f006bd745238afbb73abff69c0277",
+      "compiled_schedule_sha256": "0097dcd858daccd647bb1e3d99ad3b1c06ceb1e6c7535672ec5d2ec880f4c338",
+      "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+      "fixed_bank_cache_bound": {
+        "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 163456,
+        "constraints": 82146,
+        "lookahead_lines": 55,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 52.5,
+        "validated_dual_lower_bound": 52.5,
+        "maximum_primal_violation": 0.0,
+        "maximum_dual_residual": 0.0
+      },
+      "pooled_cache_bound": {
+        "schema": "BYOR_PLAIN_PRECOMPOSITE_120_SLOT_POOL_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 77707,
+        "constraints": 38856,
+        "lookahead_lines": 55,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 23.666666666666668,
+        "validated_dual_lower_bound": 23.66666666666667,
+        "maximum_primal_violation": 1.4210854715202004e-14,
+        "maximum_dual_residual": 1.1102230246251565e-16,
+        "fixed_bank_assignment_relaxed": true,
+        "scope": "Plain precomposited RGB555 operands with all OBJ slots pooled; not a hardware palette schedule"
+      },
+      "physical_transfer_and_native_timing_admitted": false
+    }
+  },
+  "compressed_evidence": {
+    "path": "docs\\receipts\\byor-motu-cross-actor-geometry.json.gz",
+    "bytes": 121572,
+    "sha256": "968991f2ee61f6c28121f3ade4c67b28888e6931668b41d11624a1f354be0383"
+  },
+  "alpha_compatibility_policy_selected": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true
+}
