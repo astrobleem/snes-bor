@@ -400,12 +400,15 @@
     "byor-motu-concurrent-retarget-repair-local-refined.json": "52db26a1e5f93298479931d7f549e004d6dabc229831d46e24d40818320225ba",
     "byor-motu-concurrent-retarget-repair-local-refined2.json": "2ac341d7e3c72cf15d1e74006c3b83d85370a2eb38c2cb1a84ea071ac26d2380",
     "byor-motu-concurrent-retarget-repair-relabel.json": "f81fb8ef5f1ac3ffc116e7acf96ae31aaad1ecac02ff3c78cc828a21e58e9871",
-    "byor-motu-concurrent-retarget-repair-local-refined3.json": "632b7ba53fea650a965619fde7780bea253ffe7f95983e35e91b5bef4c01ee14"
+    "byor-motu-concurrent-retarget-repair-local-refined3.json": "632b7ba53fea650a965619fde7780bea253ffe7f95983e35e91b5bef4c01ee14",
+    "byor-motu-concurrent-retarget-repair-greedy345.json": "2bc2f40bd7edafad7bbc4f989721e12f18047e34598e5065be788f03366be6cb",
+    "byor-motu-concurrent-retarget-repair-greedy-permuted345.json": "d723b9af58de45bae3b1608b3d1fff0e9b6a6d8a66ea9ef7277acdf1e26cf22a",
+    "byor-motu-concurrent-retarget-repair-greedy-wide345.json": "e85609dfac9070a3abb65307a72932e99199ebd4a6ceeb1d79bea1df2dd893f8"
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-concurrent-source-context-retarget.json.gz",
-    "bytes": 234749,
-    "sha256": "bd30cb435a6a686a1bf196923c2003c2efa7f9cf6339bf30f7f69dc109aa2cf2"
+    "bytes": 234925,
+    "sha256": "eeb47428d8b91a7ee645e1e12c1c7ff0bc3f13fca082f0bc67e35356558f9b22"
   },
   "movable_time_physical_search": {
     "schema": "BYOR_PHYSICAL_RASTER_SLOT_LAYOUT_V1",
@@ -901,5 +904,64 @@
     "viewport_pixels": 57344,
     "visible_obj_pixels": 5936,
     "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450"
-  }
+  },
+  "constructive_trials": [
+    {
+      "result": {
+        "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+        "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+        "failed_scanline": 127,
+        "initial_residency_policy": "schedule",
+        "seed": 7,
+        "beam": 32,
+        "global_beam": 8,
+        "lookahead_lines": 55,
+        "window_master_clocks": 345,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      },
+      "bank_permutation_enabled": false,
+      "interval_repacking_enabled": true,
+      "input_schedule": "byor-motu-concurrent-retarget-repair-minimum-span.json"
+    },
+    {
+      "result": {
+        "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+        "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+        "failed_scanline": 129,
+        "initial_residency_policy": "schedule",
+        "seed": 1,
+        "beam": 32,
+        "global_beam": 16,
+        "lookahead_lines": 55,
+        "window_master_clocks": 345,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      },
+      "bank_permutation_enabled": true,
+      "interval_repacking_enabled": true,
+      "input_schedule": "byor-motu-concurrent-retarget-repair-minimum-span.json"
+    },
+    {
+      "result": {
+        "schema": "BYOR_GREEDY_PHYSICAL_RASTER_SCHEDULER_V1",
+        "status": "BOUNDED_GREEDY_NO_CANDIDATE",
+        "failed_scanline": 129,
+        "initial_residency_policy": "schedule",
+        "seed": 3,
+        "beam": 48,
+        "global_beam": 32,
+        "lookahead_lines": 55,
+        "window_master_clocks": 345,
+        "universal_raster_rejected": false,
+        "native_timing_admitted": false,
+        "no_color_reduction": true
+      },
+      "bank_permutation_enabled": true,
+      "interval_repacking_enabled": true,
+      "input_schedule": "byor-motu-concurrent-retarget-repair-minimum-span.json"
+    }
+  ]
 }

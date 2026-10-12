@@ -48,6 +48,11 @@ A third six-repair pass retains the 488-clock peak and reduces total span
 to 10,568 clocks. Its complete viewport replay passes. Wider complete-frame
 free-residency scheduling remains a separate search; no local timeout or
 plateau rejects it.
+Constructive eviction/reload searches stop at row 127 with beam 32/global 8,
+and row 129 with eligible bank permutations at beam 32/global 16 and beam
+48/global 32. They use the validated cache's initial colors, interval repacking
+and 55-line lookahead at the 344-clock target. These bounded failures do not
+reject raster or admit a frame. The receipt records their complete parameters.
 Native concurrent presentation, authored-stage peak alpha, live composition
 and leases, compiler selection and the full MOTU Demo remain open.
 
