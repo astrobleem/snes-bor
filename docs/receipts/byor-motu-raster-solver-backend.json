@@ -2,7 +2,7 @@
   "schema": "BYOR_RASTER_SOLVER_HINT_REPAIR_BACKEND_V1",
   "source_commit": "5fa45709e844303a41dc15c7bee0ebf049d4e844",
   "source_patch": "tools\\verify\\patches\\ortools-cache-hint-time-limit.patch",
-  "source_patch_sha256": "c9c7f375fdec8a42b44d38d9ea9aca349c5d3cdd4bf14b4011ea0f6b63d5710c",
+  "source_patch_sha256": "7f0c9ae1b3ef37400d2d4494045891762dbc2124735ee01f6ce978cdda0f2341",
   "wheel": "out\\byor-motu-ortools-main-build\\python\\dist\\ortools-10.0.9999rc1-cp310-cp310-win_amd64.whl",
   "wheel_sha256": "3f287d2e75be27fa90c52e96865cdf92bb7088d91f32ee975c9ec77360cb7e59",
   "installed_core_sha256": "a018c4fcec6b3999856c7e3d06466c20a841a1340fdb9ecb283e9813bb535fc2",
@@ -50,5 +50,6 @@
   "compiler_environment": {
     "CL": "/MP4"
   },
-  "runtime_assembly_changed": false
+  "runtime_assembly_changed": false,
+  "source_patch_requires_unidiff_zero": true
 }

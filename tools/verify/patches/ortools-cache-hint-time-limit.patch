@@ -2,14 +2,8 @@ diff --git a/ortools/sat/cp_model_solver_helpers.cc b/ortools/sat/cp_model_solve
 index c6f4671..335a7b9 100644
 --- a/ortools/sat/cp_model_solver_helpers.cc
 +++ b/ortools/sat/cp_model_solver_helpers.cc
-@@ -2004,6 +2004,10 @@ void MinimizeL1DistanceWithHint(const CpModelProto& model_proto, Model* model) {
-   // Solve optimization problem.
-   LoadCpModel(updated_model_proto, &local_model);
- 
+@@ -2006,0 +2007,4 @@ void MinimizeL1DistanceWithHint(const CpModelProto& model_proto, Model* model) {
 +  // Loading can return early when another worker stops the shared search.
 +  // In that case the search heuristics have not been initialized.
 +  if (local_model.GetOrCreate<TimeLimit>()->LimitReached()) return;
 +
-   if (local_model.GetOrCreate<SatSolver>()->ModelIsUnsat()) {
-     // TODO(user): This should mean the full model is also unsat.
-     // Exploit that ?

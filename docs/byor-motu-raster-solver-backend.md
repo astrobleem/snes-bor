@@ -14,6 +14,8 @@ heuristics are constructed. The repair path then calls
 The retained [patch](../tools/verify/patches/ortools-cache-hint-time-limit.patch)
 checks the local time limit after loading and returns before configuring search
 when it has stopped. It changes neither constraints nor solution admission.
+Apply this zero-context patch with `git apply --unidiff-zero`; reverse-apply
+validation confirms that it matches the guarded source checkout.
 
 The patched isolated build passes 24 focused bank/cache/interval tests and
 20 repetitions of the previously crashing fixture, with zero failures or
