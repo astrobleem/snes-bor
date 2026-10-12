@@ -18,7 +18,7 @@ def unpack(mask):
     return result.reshape(mask['height'],mask['width'])
 
 
-def compact(schedule,time_limit=30,large_size=32,retain_small_geometry=False):
+def compact(schedule,time_limit=30,large_size=32,retain_small_geometry=False,geometry_reservation=None):
     if large_size not in (16,32):raise ValueError('OBJ_COMPACT_SIZE_PAIR')
     if schedule.get('status')not in('JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN','BOUNDED_FIXED_BANK_COMPACTION_NO_LEGAL_GEOMETRY','POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW') or not schedule.get('compiled_pixel_identity_verified'):
         raise ValueError('OBJ_COMPACT_VALIDATED_SCHEDULE_REQUIRED')
@@ -57,7 +57,17 @@ def compact(schedule,time_limit=30,large_size=32,retain_small_geometry=False):
             for row,colors in child['rows'].items():p['rows'].setdefault(int(row),set()).update(colors)
         p['rows']={y:sorted(c)for y,c in p['rows'].items()}
         options.append((indices,p,pixels))
-    initial=costs(original);limits=np.array([128]+[32]*height+[34]*height)
+    reservation=dict(oam_entries=0,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
+    if geometry_reservation is not None:
+        if (not isinstance(geometry_reservation,dict) or set(geometry_reservation)!=set(reservation) or
+            type(geometry_reservation['oam_entries'])is not int or not 0<=geometry_reservation['oam_entries']<=128 or
+            any(not isinstance(geometry_reservation[k],list)or len(geometry_reservation[k])!=height or
+                any(type(v)is not int or not 0<=v<=limit for v in geometry_reservation[k])
+                for k,limit in [('sprites_per_line',32),('tile_slivers_per_line',34)])):
+            raise ValueError('OBJ_COMPACT_GEOMETRY_RESERVATION_DOMAIN')
+        reservation=copy.deepcopy(geometry_reservation)
+    reserved=np.array([reservation['oam_entries']]+reservation['sprites_per_line']+reservation['tile_slivers_per_line'])
+    initial=costs(original);limits=np.array([128]+[32]*height+[34]*height)-reserved
     solver=None;selected=set()
     if options:
         matrix=np.column_stack([costs([p])-costs([original[i]for i in indices])for indices,p,pixels in options])
@@ -80,6 +90,8 @@ def compact(schedule,time_limit=30,large_size=32,retain_small_geometry=False):
                 solver_status=int(solver.status)if solver is not None else None,solver_message=solver.message if solver is not None else'NO_MERGE_CHOICES',
                 pixel_bank_slot_identity_verified=True,native_geometry_admitted=False,universal_raster_rejected=False))
         for field in ('prepared_dma_packets','physical_slot_layout'):result.pop(field,None)
+        if geometry_reservation is not None:
+            result['geometry_compaction'].update(geometry_reservation=reservation,concurrent_palette_and_layer_admitted=False)
         return result
     def encoded(objects,images):
         result={}
@@ -104,6 +116,11 @@ def compact(schedule,time_limit=30,large_size=32,retain_small_geometry=False):
     if result.get('scanline_math_controls_source_bound'):
         payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+    if geometry_reservation is not None:
+        combined=final+reserved
+        result['geometry_compaction'].update(geometry_reservation=reservation,
+            combined_geometry=dict(oam_entries=int(combined[0]),peak_sprites=int(max(combined[1:height+1])),peak_tile_slivers=int(max(combined[height+1:]))),
+            concurrent_palette_and_layer_admitted=False)
     return result
 
 
@@ -112,7 +129,8 @@ def main():
     p.add_argument('--output',type=Path,required=True);p.add_argument('--time-limit',type=int,default=30)
     p.add_argument('--large-size',type=int,choices=(16,32),default=32)
     p.add_argument('--retain-small-geometry',action='store_true')
-    a=p.parse_args();r=compact(json.loads(a.schedule.read_text()),a.time_limit,a.large_size,a.retain_small_geometry)
+    p.add_argument('--geometry-reservation',type=Path)
+    a=p.parse_args();r=compact(json.loads(a.schedule.read_text()),a.time_limit,a.large_size,a.retain_small_geometry,json.loads(a.geometry_reservation.read_text())if a.geometry_reservation else None)
     a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(dict(geometry=r['geometry'],compaction=r['geometry_compaction'])))
 
 

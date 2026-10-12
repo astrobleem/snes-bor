@@ -3,6 +3,19 @@ from raster_obj_compact import compact,unpack
 
 
 class ObjCompactionTests(unittest.TestCase):
+    def test_concurrent_geometry_counts_transparent_merge_rows(self):
+        source=self.schedule([(0,0,0,0),(0,0,8,0)])
+        reservation=dict(oam_entries=10,sprites_per_line=[0]*16+[32]*16+[0]*32,tile_slivers_per_line=[0]*16+[34]*16+[0]*32)
+        result=compact(source,geometry_reservation=reservation)
+        self.assertEqual(result['geometry_compaction']['selected_merges'],0)
+        self.assertEqual(result['geometry_compaction']['combined_geometry'],dict(oam_entries=12,peak_sprites=32,peak_tile_slivers=34))
+        self.assertFalse(result['geometry_compaction']['concurrent_palette_and_layer_admitted'])
+        short=compact(source,large_size=16,geometry_reservation=reservation)
+        self.assertEqual(short['geometry_compaction']['selected_merges'],1)
+        self.assertEqual(short['geometry_compaction']['combined_geometry']['oam_entries'],11)
+        with self.assertRaisesRegex(ValueError,'GEOMETRY_RESERVATION_DOMAIN'):
+            compact(source,geometry_reservation=dict(reservation,oam_entries=True))
+
     def test_merge_retains_intersection_of_child_bank_domains(self):
         source=self.schedule([(0,4,0,0),(0,4,8,0)])
         source['pieces'][0]['allowed_banks']=[3,4]
