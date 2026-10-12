@@ -441,3 +441,11 @@ saved natural times instead returns UNKNOWN at 120.075 seconds. A bounded
 full-frame reoptimization of all four math modes and windows at 16 writes also
 returns UNKNOWN at 164.315 seconds. No native frame is emitted from these trials,
 and none rejects general raster scheduling or selects an alpha adaptation.
+
+Eight-line residency chunks permitting up to two charged bank copies per color
+return UNKNOWN at 120.082 seconds in the transfer-relaxed 21-write trial. The
+specified mixed geometry and source-pixel ownership constraints still apply.
+Its 24,461 variables and 50,517 constraints preserve all source alpha/output
+requirements. A separately replayed fractional relaxation has primal violation
+9.42e-14 and supplies 8,289 soft integer hints; no variables are pinned. The
+hinted integer search continues without treating the relaxation as a witness.
