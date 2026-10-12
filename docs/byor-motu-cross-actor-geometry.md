@@ -78,3 +78,22 @@ without rewriting alpha metadata or reserving ordinary colors as literal
 words. Cross-actor compiled mask ownership is an explicit requirement; no
 live compositor capability is admitted. Eight focused tests pass, including
 unchanged ordinary reservation behavior and exact all-actor shader demand.
+
+Joint 8/32 fixed-bank searches against the complete-frame candidate remain
+bounded UNKNOWN: the selected resident operands use 114,764 variables; reopening
+all exact operands uses 984,928. An exact geometry-only rectangle cover reaches
+33 objects, eight sprites and 32 slivers, but its color/bank assignment is not
+proved. Reopening operands on that cover with legal 8×8 subdivision also returns
+UNKNOWN at 121.467 seconds. Restricting the operand corpus to the verified pool's
+416 upper-class words reduces the graph to 445,844 variables; it returns UNKNOWN
+at 120.503 seconds. A 30-second fractional hint trial produces no primal witness,
+and the following integer trial also returns UNKNOWN. None of these results
+constitutes hardware infeasibility or permits rejecting raster generally.
+
+The generic geometry constructor exposes `--composite-visible-geometry` and
+retains all 12 source actor records, original dimensions and alpha metadata,
+plus owner hash 185cb24a68eb29c49f6c8132be98a5d40aa9aa825fe224302959e5a9ad60fbdb.
+The generic source-bound replay reproduces the small-piece bank rejection;
+there is no synthetic source-alpha flag or live compositor admission. Sixteen
+focused tests pass, including explicit overlap, unclipped visible-pixel and
+noninteger/out-of-range RGB555 rejection.

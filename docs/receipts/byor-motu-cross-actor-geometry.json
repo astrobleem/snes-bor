@@ -381,12 +381,1900 @@
           "hardware_oam_limit_verified": false
         }
       ]
+    },
+    "byor-motu-full-rise-shader18-generic-composite-geometry": {
+      "input_sha256": "fe4f0c51a64bd5003dcc6e1e4e330b416c4f85342ecdcbdd15d10cc4e581a0d0",
+      "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+      "status": "BOUNDED_POOL_CONSTRUCTION_NO_BANK_ASSIGNMENT",
+      "physical_transfer_and_native_timing_admitted": false,
+      "source_visible_composite_geometry": {
+        "source_actors": [
+          {
+            "source_actor_index": 0,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                130,
+                60
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 7625,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 7625,
+              "final_visible_pixels": 2021
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              130,
+              60
+            ],
+            "visible_pixels": 2021
+          },
+          {
+            "source_actor_index": 1,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                130,
+                70
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              130,
+              70
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 2,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                70,
+                70
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              70,
+              70
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 3,
+            "source_metadata": {
+              "kind": "actor:He_ManB",
+              "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+              "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+              "source_dimensions": [
+                200,
+                200
+              ],
+              "position": [
+                -16,
+                44
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 3327,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+              "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814",
+              "pre_occlusion_pixels": 3327,
+              "final_visible_pixels": 1147
+            },
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "source_position": [
+              -16,
+              44
+            ],
+            "visible_pixels": 1147
+          },
+          {
+            "source_actor_index": 4,
+            "source_metadata": {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+              "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 2751,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 2751,
+              "final_visible_pixels": 2583
+            },
+            "source_dimensions": [
+              110,
+              90
+            ],
+            "source_position": [
+              84,
+              92
+            ],
+            "visible_pixels": 2583
+          },
+          {
+            "source_actor_index": 5,
+            "source_metadata": {
+              "kind": "actor:Skeletor",
+              "path": "DATA\\CHARS\\SKELETOR\\MAGIC9.PNG",
+              "sha256": "e1f99bc4cc03293e7b8e49b493c108ff5bee08728bc20c8f06d36e4a0bb0e918",
+              "source_dimensions": [
+                300,
+                240
+              ],
+              "position": [
+                55,
+                5
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 4030,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "enemy",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\ENTRY01.PNG",
+              "palette_asset_sha256": "eb58be5b4342ad09b63eb4fd81395f8cb4b3eba1dc31a7c2d62f3e583abd1c2a",
+              "pre_occlusion_pixels": 4030,
+              "final_visible_pixels": 2936
+            },
+            "source_dimensions": [
+              300,
+              240
+            ],
+            "source_position": [
+              55,
+              5
+            ],
+            "visible_pixels": 2936
+          },
+          {
+            "source_actor_index": 6,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                40,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              40,
+              80
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 7,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                160,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              160,
+              80
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 8,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                -20,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 7648,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 7648,
+              "final_visible_pixels": 7648
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              -20,
+              80
+            ],
+            "visible_pixels": 7648
+          },
+          {
+            "source_actor_index": 9,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                130,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              130,
+              90
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 10,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                70,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              70,
+              90
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 11,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                160,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 5912,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 5912,
+              "final_visible_pixels": 5912
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              160,
+              90
+            ],
+            "visible_pixels": 5912
+          }
+        ],
+        "source_owner_sha256": "185cb24a68eb29c49f6c8132be98a5d40aa9aa825fe224302959e5a9ad60fbdb",
+        "visible_source_pixels_sha256": "b8f672472a462d34127afa6e1fa8b02a5b61cf148ab4c6659feaa22b28e35728",
+        "source_pixel_identity_preserved": true,
+        "requires_cross_actor_compiled_mask_ownership": true,
+        "live_compositor_admitted": false
+      }
+    },
+    "byor-motu-full-rise-shader18-joint-rowcapacity": {
+      "input_sha256": "f1ce1991353111e92652bc58beadbc6536e26ff12306b684abf6315da464c736",
+      "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "physical_transfer_and_native_timing_admitted": false,
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 114764,
+        "constraints": 233163,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 245,
+          "sat_inprocessing": false,
+          "branches": 720838,
+          "conflicts": 482710,
+          "wall_seconds": 120.1453999,
+          "probing_level": 0,
+          "workers": 4,
+          "search_strategy": "sat",
+          "search_objective": "WEIGHTED_INTEGER_COST",
+          "optimal": false
+        }
+      },
+      "row_capacity_only": true,
+      "palette_transfer_budget_relaxed": true
+    },
+    "byor-motu-full-rise-shader18-joint-rowcapacity-flex": {
+      "input_sha256": "433a86bd56b9fba879583acdc58c6821ca1eb1e6bfe05fe4d448d5536d95cfc6",
+      "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "physical_transfer_and_native_timing_admitted": false,
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 984928,
+        "constraints": 1921891,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 210,
+          "sat_inprocessing": false,
+          "branches": 0,
+          "conflicts": 0,
+          "wall_seconds": 120.6307673,
+          "probing_level": 0,
+          "workers": 4,
+          "search_strategy": "portfolio",
+          "search_objective": "WEIGHTED_INTEGER_COST",
+          "optimal": false
+        }
+      },
+      "row_capacity_only": true,
+      "palette_transfer_budget_relaxed": true
+    },
+    "byor-motu-full-rise-shader18-joint-covered-flex": {
+      "input_sha256": "0c47ed19efcb265012439c9b24fb98b9251c79eb05c1ed5eb694e6099a81f26e",
+      "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "physical_transfer_and_native_timing_admitted": false,
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 985024,
+        "constraints": 1921163,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 217,
+          "sat_inprocessing": false,
+          "branches": 521122,
+          "conflicts": 29140,
+          "wall_seconds": 121.4672907,
+          "probing_level": 0,
+          "workers": 4,
+          "search_strategy": "sat",
+          "search_objective": "WEIGHTED_INTEGER_COST",
+          "optimal": false
+        }
+      },
+      "row_capacity_only": true,
+      "palette_transfer_budget_relaxed": true,
+      "source_visible_composite_geometry": {
+        "source_actors": [
+          {
+            "source_actor_index": 0,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                130,
+                60
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 7625,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 7625,
+              "final_visible_pixels": 2021
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              130,
+              60
+            ],
+            "visible_pixels": 2021
+          },
+          {
+            "source_actor_index": 1,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                130,
+                70
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              130,
+              70
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 2,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                70,
+                70
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              70,
+              70
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 3,
+            "source_metadata": {
+              "kind": "actor:He_ManB",
+              "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+              "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+              "source_dimensions": [
+                200,
+                200
+              ],
+              "position": [
+                -16,
+                44
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 3327,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+              "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814",
+              "pre_occlusion_pixels": 3327,
+              "final_visible_pixels": 1147
+            },
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "source_position": [
+              -16,
+              44
+            ],
+            "visible_pixels": 1147
+          },
+          {
+            "source_actor_index": 4,
+            "source_metadata": {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+              "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 2751,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 2751,
+              "final_visible_pixels": 2583
+            },
+            "source_dimensions": [
+              110,
+              90
+            ],
+            "source_position": [
+              84,
+              92
+            ],
+            "visible_pixels": 2583
+          },
+          {
+            "source_actor_index": 5,
+            "source_metadata": {
+              "kind": "actor:Skeletor",
+              "path": "DATA\\CHARS\\SKELETOR\\MAGIC9.PNG",
+              "sha256": "e1f99bc4cc03293e7b8e49b493c108ff5bee08728bc20c8f06d36e4a0bb0e918",
+              "source_dimensions": [
+                300,
+                240
+              ],
+              "position": [
+                55,
+                5
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 4030,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "enemy",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\ENTRY01.PNG",
+              "palette_asset_sha256": "eb58be5b4342ad09b63eb4fd81395f8cb4b3eba1dc31a7c2d62f3e583abd1c2a",
+              "pre_occlusion_pixels": 4030,
+              "final_visible_pixels": 2936
+            },
+            "source_dimensions": [
+              300,
+              240
+            ],
+            "source_position": [
+              55,
+              5
+            ],
+            "visible_pixels": 2936
+          },
+          {
+            "source_actor_index": 6,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                40,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              40,
+              80
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 7,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                160,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              160,
+              80
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 8,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                -20,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 7648,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 7648,
+              "final_visible_pixels": 7648
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              -20,
+              80
+            ],
+            "visible_pixels": 7648
+          },
+          {
+            "source_actor_index": 9,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                130,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              130,
+              90
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 10,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                70,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              70,
+              90
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 11,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                160,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 5912,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 5912,
+              "final_visible_pixels": 5912
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              160,
+              90
+            ],
+            "visible_pixels": 5912
+          }
+        ],
+        "source_owner_sha256": "185cb24a68eb29c49f6c8132be98a5d40aa9aa825fe224302959e5a9ad60fbdb",
+        "visible_source_pixels_sha256": "b8f672472a462d34127afa6e1fa8b02a5b61cf148ab4c6659feaa22b28e35728",
+        "source_pixel_identity_preserved": true,
+        "requires_cross_actor_compiled_mask_ownership": true,
+        "live_compositor_admitted": false
+      }
+    },
+    "byor-motu-full-rise-shader18-joint-covered-domain": {
+      "input_sha256": "8c1f997d38944530b891b966bb26ff4e1527c1757a384986fd41267bda1ef81c",
+      "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "physical_transfer_and_native_timing_admitted": false,
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 445844,
+        "constraints": 875235,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 228,
+          "sat_inprocessing": false,
+          "branches": 633252,
+          "conflicts": 115655,
+          "wall_seconds": 120.50250580000001,
+          "probing_level": 0,
+          "workers": 4,
+          "search_strategy": "sat",
+          "search_objective": "WEIGHTED_INTEGER_COST",
+          "optimal": false
+        }
+      },
+      "row_capacity_only": true,
+      "palette_transfer_budget_relaxed": true,
+      "source_visible_composite_geometry": {
+        "source_actors": [
+          {
+            "source_actor_index": 0,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                130,
+                60
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 7625,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 7625,
+              "final_visible_pixels": 2021
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              130,
+              60
+            ],
+            "visible_pixels": 2021
+          },
+          {
+            "source_actor_index": 1,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                130,
+                70
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              130,
+              70
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 2,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                70,
+                70
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              70,
+              70
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 3,
+            "source_metadata": {
+              "kind": "actor:He_ManB",
+              "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+              "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+              "source_dimensions": [
+                200,
+                200
+              ],
+              "position": [
+                -16,
+                44
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 3327,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+              "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814",
+              "pre_occlusion_pixels": 3327,
+              "final_visible_pixels": 1147
+            },
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "source_position": [
+              -16,
+              44
+            ],
+            "visible_pixels": 1147
+          },
+          {
+            "source_actor_index": 4,
+            "source_metadata": {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+              "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 2751,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 2751,
+              "final_visible_pixels": 2583
+            },
+            "source_dimensions": [
+              110,
+              90
+            ],
+            "source_position": [
+              84,
+              92
+            ],
+            "visible_pixels": 2583
+          },
+          {
+            "source_actor_index": 5,
+            "source_metadata": {
+              "kind": "actor:Skeletor",
+              "path": "DATA\\CHARS\\SKELETOR\\MAGIC9.PNG",
+              "sha256": "e1f99bc4cc03293e7b8e49b493c108ff5bee08728bc20c8f06d36e4a0bb0e918",
+              "source_dimensions": [
+                300,
+                240
+              ],
+              "position": [
+                55,
+                5
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 4030,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "enemy",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\ENTRY01.PNG",
+              "palette_asset_sha256": "eb58be5b4342ad09b63eb4fd81395f8cb4b3eba1dc31a7c2d62f3e583abd1c2a",
+              "pre_occlusion_pixels": 4030,
+              "final_visible_pixels": 2936
+            },
+            "source_dimensions": [
+              300,
+              240
+            ],
+            "source_position": [
+              55,
+              5
+            ],
+            "visible_pixels": 2936
+          },
+          {
+            "source_actor_index": 6,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                40,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              40,
+              80
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 7,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                160,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              160,
+              80
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 8,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                -20,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 7648,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 7648,
+              "final_visible_pixels": 7648
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              -20,
+              80
+            ],
+            "visible_pixels": 7648
+          },
+          {
+            "source_actor_index": 9,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                130,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              130,
+              90
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 10,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                70,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              70,
+              90
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 11,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                160,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 5912,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 5912,
+              "final_visible_pixels": 5912
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              160,
+              90
+            ],
+            "visible_pixels": 5912
+          }
+        ],
+        "source_owner_sha256": "185cb24a68eb29c49f6c8132be98a5d40aa9aa825fe224302959e5a9ad60fbdb",
+        "visible_source_pixels_sha256": "b8f672472a462d34127afa6e1fa8b02a5b61cf148ab4c6659feaa22b28e35728",
+        "source_pixel_identity_preserved": true,
+        "requires_cross_actor_compiled_mask_ownership": true,
+        "live_compositor_admitted": false
+      },
+      "restricted_math_operand_domain_size": 416
+    },
+    "byor-motu-full-rise-shader18-joint-covered-domain-lphint": {
+      "input_sha256": "53f4ea7a363087315f7089e03480a67567ec9bfc3f25149d61a64dfac55d4022",
+      "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+      "status": "BOUNDED_JOINT_SOLVER_NO_CANDIDATE",
+      "physical_transfer_and_native_timing_admitted": false,
+      "solver": {
+        "status": 1,
+        "message": "UNKNOWN",
+        "variables": 442440,
+        "constraints": 868427,
+        "mip_nodes": null,
+        "mip_gap": null,
+        "backend": "cp-sat",
+        "boolean_stats": {
+          "nonboolean_integer_variables": 0,
+          "hint_variables": 0,
+          "hint_is_soft": true,
+          "log_lines": 230,
+          "sat_inprocessing": false,
+          "branches": 639468,
+          "conflicts": 85817,
+          "wall_seconds": 120.48079800000001,
+          "probing_level": 0,
+          "workers": 4,
+          "search_strategy": "sat",
+          "search_objective": "WEIGHTED_INTEGER_COST",
+          "optimal": false
+        }
+      },
+      "row_capacity_only": true,
+      "palette_transfer_budget_relaxed": true,
+      "source_visible_composite_geometry": {
+        "source_actors": [
+          {
+            "source_actor_index": 0,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                130,
+                60
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 7625,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 7625,
+              "final_visible_pixels": 2021
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              130,
+              60
+            ],
+            "visible_pixels": 2021
+          },
+          {
+            "source_actor_index": 1,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                130,
+                70
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              130,
+              70
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 2,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                70,
+                70
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              70,
+              70
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 3,
+            "source_metadata": {
+              "kind": "actor:He_ManB",
+              "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+              "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+              "source_dimensions": [
+                200,
+                200
+              ],
+              "position": [
+                -16,
+                44
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 3327,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+              "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814",
+              "pre_occlusion_pixels": 3327,
+              "final_visible_pixels": 1147
+            },
+            "source_dimensions": [
+              200,
+              200
+            ],
+            "source_position": [
+              -16,
+              44
+            ],
+            "visible_pixels": 1147
+          },
+          {
+            "source_actor_index": 4,
+            "source_metadata": {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+              "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 2751,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 2751,
+              "final_visible_pixels": 2583
+            },
+            "source_dimensions": [
+              110,
+              90
+            ],
+            "source_position": [
+              84,
+              92
+            ],
+            "visible_pixels": 2583
+          },
+          {
+            "source_actor_index": 5,
+            "source_metadata": {
+              "kind": "actor:Skeletor",
+              "path": "DATA\\CHARS\\SKELETOR\\MAGIC9.PNG",
+              "sha256": "e1f99bc4cc03293e7b8e49b493c108ff5bee08728bc20c8f06d36e4a0bb0e918",
+              "source_dimensions": [
+                300,
+                240
+              ],
+              "position": [
+                55,
+                5
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 4030,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "enemy",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\ENTRY01.PNG",
+              "palette_asset_sha256": "eb58be5b4342ad09b63eb4fd81395f8cb4b3eba1dc31a7c2d62f3e583abd1c2a",
+              "pre_occlusion_pixels": 4030,
+              "final_visible_pixels": 2936
+            },
+            "source_dimensions": [
+              300,
+              240
+            ],
+            "source_position": [
+              55,
+              5
+            ],
+            "visible_pixels": 2936
+          },
+          {
+            "source_actor_index": 6,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                40,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              40,
+              80
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 7,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                160,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              160,
+              80
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 8,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                -20,
+                80
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 7648,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 7648,
+              "final_visible_pixels": 7648
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              -20,
+              80
+            ],
+            "visible_pixels": 7648
+          },
+          {
+            "source_actor_index": 9,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                130,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              130,
+              90
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 10,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+              "sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+              "source_dimensions": [
+                4,
+                4
+              ],
+              "position": [
+                70,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 0,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 0,
+              "final_visible_pixels": 0
+            },
+            "source_dimensions": [
+              4,
+              4
+            ],
+            "source_position": [
+              70,
+              90
+            ],
+            "visible_pixels": 0
+          },
+          {
+            "source_actor_index": 11,
+            "source_metadata": {
+              "kind": "actor:SkGeyser",
+              "path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER3.PNG",
+              "sha256": "35cd39904becc8f2a917fed3289d804e842cd43e12fca5b5d31dff9d77ff2cf4",
+              "source_dimensions": [
+                150,
+                150
+              ],
+              "position": [
+                160,
+                90
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 5912,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\SKELETOR\\FX\\GEYSER1.PNG",
+              "palette_asset_sha256": "eeec05ed9637ef77257b3c846144d9c628ffd5fe62773e3919b51ba6145fdd81",
+              "pre_occlusion_pixels": 5912,
+              "final_visible_pixels": 5912
+            },
+            "source_dimensions": [
+              150,
+              150
+            ],
+            "source_position": [
+              160,
+              90
+            ],
+            "visible_pixels": 5912
+          }
+        ],
+        "source_owner_sha256": "185cb24a68eb29c49f6c8132be98a5d40aa9aa825fe224302959e5a9ad60fbdb",
+        "visible_source_pixels_sha256": "b8f672472a462d34127afa6e1fa8b02a5b61cf148ab4c6659feaa22b28e35728",
+        "source_pixel_identity_preserved": true,
+        "requires_cross_actor_compiled_mask_ownership": true,
+        "live_compositor_admitted": false
+      },
+      "lp_geometry_hint": {
+        "status": 1,
+        "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)"
+      },
+      "restricted_math_operand_domain_size": 416
     }
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-cross-actor-geometry.json.gz",
-    "bytes": 255094,
-    "sha256": "0d942a60e51b068262e5077b4517a7259a44c7bab66c2a3c1a585f1e2bde286a"
+    "bytes": 296941,
+    "sha256": "c3672e5cedd7266444c1bd5497f124d7cced294363e44e59b9a52b608a1eebc1"
   },
   "alpha_compatibility_policy_selected": false,
   "universal_raster_rejected": false,

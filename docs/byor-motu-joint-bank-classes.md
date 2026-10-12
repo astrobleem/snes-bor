@@ -403,3 +403,10 @@ SAT-only feasibility run returns UNKNOWN after 120.255 seconds, with 222,809
 conflicts; it retains the same source, bank-domain, geometry and prepared
 transfer constraints. The eight-row word-epoch SAT run returns UNKNOWN at
 120.059 seconds. None of these time limits establishes a hardware boundary.
+
+Reopening exact operand choice while retaining the 74-piece source geometry,
+original math classes and eligible bank domains also returns UNKNOWN after
+120.246 seconds. This trial removes the prior preserved-word restriction,
+keeps one fixed bank per rectangle/class, and enforces the favorable 345-clock
+prepared partition bound with 21 writes and 55-line prefetch. Its 103,209
+variables and 258,576 constraints produce no witness or infeasibility proof.

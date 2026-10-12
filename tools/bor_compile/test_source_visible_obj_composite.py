@@ -4,6 +4,11 @@ from source_visible_obj_composite import merge_visible_actors
 
 
 class VisibleCompositeTests(unittest.TestCase):
+    def test_noninteger_or_out_of_range_colors_fail_before_compilation(self):
+        for pixels,code in ((np.array([[1.5]]),'INTEGER_PIXEL'),(np.array([[32768]]),'RGB555')):
+            with self.assertRaisesRegex(ValueError,code):
+                merge_visible_actors([dict(pixels=pixels,left=0,top=0)],(4,4))
+
     def test_source_dimensions_alpha_and_owner_survive_geometry_fusion(self):
         actors=[dict(pixels=np.array([[1,-1],[2,3]]),left=-1,top=0,metadata=dict(alpha=1))]
         with self.assertRaisesRegex(ValueError,'UNCLIPPED'):merge_visible_actors(actors,(4,4))

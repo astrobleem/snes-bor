@@ -13,6 +13,8 @@ def merge_visible_actors(actors,shape):
     records=[]
     for i,actor in enumerate(actors):
         source=np.asarray(actor['pixels'])
+        if source.ndim!=2 or not np.issubdtype(source.dtype,np.integer):
+            raise ValueError('VISIBLE_COMPOSITE_INTEGER_PIXEL_DOMAIN')
         ys,xs=np.where(source>=0)
         sy,sx=ys+actor['top'],xs+actor['left']
         if np.any(sy<0)or np.any(sy>=height)or np.any(sx<0)or np.any(sx>=width):
