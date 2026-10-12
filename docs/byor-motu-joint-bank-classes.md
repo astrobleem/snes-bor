@@ -555,3 +555,18 @@ This does not resolve the general flow search: a nonadjacent range can bridge
 an intervening complete bank and remains allowed by that model. The hinted
 joint SAT trial independently returns UNKNOWN at 120.331 seconds; 101,110
 branches and 18,369 conflicts do not constitute an infeasibility certificate.
+
+Four alternative evaluated row-mask assignments are reconstructed with strict
+bank-domain checks and complete operand replay. They use 117..128 OAM entries
+and 31..32 sprites/slivers. Two complete fixed-bank 345-clock cache searches
+prove INFEASIBLE in 61.382 and 60.052 seconds. These reject those assignments,
+not other bank choices. The generic joint solver now offers the existing
+SAT hint-repair policy; all seven focused tests pass, including rejection of
+the geometrically impossible hinted fixture.
+
+The two additional fixed assignments remain UNKNOWN after 75-second complete
+353-clock flow searches at 21 writes. A broader trial now permits 22 writes:
+twenty-two words in two adjacent banks can have a 352-clock ideal packet span.
+That count is excluded by the conservative 345-clock gate, but must not be
+excluded merely by the earlier 21-write search ceiling when testing the larger
+measured window. Phase-safe native timing is still a separate gate.

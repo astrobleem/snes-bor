@@ -44,7 +44,7 @@ def validated_assignment_hints(source,hint,images,domains,allow_word_masks,row_w
 def optimize(source,time_limit=45,write_budget=21,window=337,lookahead=55,search_strategy='portfolio',allow_word_masks=False,maximum_masks_per_piece=2,maximum_oam=128,maximum_sprites=32,maximum_tiles=34,row_word_masks=False,assignment_hint=None):
     from ortools.sat.python import cp_model
     if time_limit<=0 or not 0<=write_budget<=120 or window<1 or lookahead<0:raise ValueError('PIECE_BANK_CACHE_DOMAIN')
-    if search_strategy not in('portfolio','sat','lns'):raise ValueError('PIECE_BANK_CACHE_SEARCH_STRATEGY')
+    if search_strategy not in('portfolio','sat','sat-repair','lns'):raise ValueError('PIECE_BANK_CACHE_SEARCH_STRATEGY')
     if row_word_masks and not allow_word_masks:raise ValueError('PIECE_BANK_CACHE_ROW_MASKS_REQUIRE_WORD_MASKS')
     if not 1<=maximum_masks_per_piece<=8 or not 1<=maximum_oam<=128 or not 1<=maximum_sprites<=32 or not 1<=maximum_tiles<=34:raise ValueError('PIECE_BANK_CACHE_GEOMETRY_DOMAIN')
     required,_,images=demand(source);pieces=copy.deepcopy(source['pieces']);groups=bank_groups(source);owners={};row_owners={};domains={}
@@ -151,10 +151,12 @@ def optimize(source,time_limit=45,write_budget=21,window=337,lookahead=55,search
                 model.add(prefixes[end,b]-prefixes[begin,b]>=sum(present)-15);interval_cuts+=1
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False;solver.parameters.stop_after_first_solution=True
-    if search_strategy=='sat':
+    if search_strategy in('sat','sat-repair'):
         solver.parameters.linearization_level=0
         solver.parameters.subsolvers.append('no_lp')
         solver.parameters.num_full_subsolvers=1
+    if search_strategy=='sat-repair':
+        solver.parameters.repair_hint=True;solver.parameters.hint_conflict_limit=50000
     if search_strategy=='lns':solver.parameters.use_lns_only=True
     solver.parameters.log_search_progress=True;solver.parameters.log_to_stdout=False
     log=deque(maxlen=32);log_lines=0
@@ -197,7 +199,7 @@ def main():
     parser.add_argument('--schedule',type=Path,required=True);parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--time-limit',type=float,default=45);parser.add_argument('--write-budget',type=int,default=21)
     parser.add_argument('--window',type=int,default=337);parser.add_argument('--lookahead',type=int,default=55)
-    parser.add_argument('--search-strategy',choices=('portfolio','sat','lns'),default='portfolio')
+    parser.add_argument('--search-strategy',choices=('portfolio','sat','sat-repair','lns'),default='portfolio')
     parser.add_argument('--allow-word-masks',action='store_true');parser.add_argument('--maximum-masks-per-piece',type=int,default=2)
     parser.add_argument('--assignment-hint',type=Path)
     parser.add_argument('--row-word-masks',action='store_true',help='Allow equal words on different rows to use separate source-pixel masks; each compiled OAM entry still has one fixed bank.')

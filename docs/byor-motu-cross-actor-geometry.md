@@ -108,3 +108,9 @@ count to 528 entries but retains the 55-sliver peak. These reject the selected
 constructions only. A joint operand/bank search on an exact 33-object geometry
 cover with legal subdivision continues. Source reachability, live compositing
 and native concurrent presentation remain unproved.
+
+The constant-control joint cover search returns UNKNOWN at 120.529 seconds
+with 439,564 variables and 876,889 constraints. It permits legal subdivision
+and reopens exact operands within the whole-frame pool operand corpus; 592,195
+branches and 215,409 conflicts provide no infeasibility certificate. The exact
+33-object source rectangle cover is a geometry witness only.

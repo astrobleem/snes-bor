@@ -37,12 +37,12 @@ class PieceBankCacheTests(unittest.TestCase):
         hint=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,row_word_masks=True,maximum_oam=4)
         choices=validated_assignment_hints(source,hint,demand(source)[2],{i:tuple(range(4))for i in range(2)},True,True)
         self.assertGreater(len(choices),0)
-        result=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,row_word_masks=True,maximum_oam=4,assignment_hint=hint)
+        result=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,row_word_masks=True,maximum_oam=4,assignment_hint=hint,search_strategy='sat-repair')
         self.assertTrue(result['piece_bank_cache']['validated_assignment_hint_used'])
         self.assertTrue(result['piece_bank_cache']['bank_choice_hints_are_soft'])
         self.assertEqual(result['peak_scheduled_writes'],0)
         # A hint admitting four objects cannot make the two-object model pass.
-        blocked=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,row_word_masks=True,maximum_oam=2,assignment_hint=hint)
+        blocked=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,row_word_masks=True,maximum_oam=2,assignment_hint=hint,search_strategy='sat-repair')
         self.assertEqual(blocked['solver_status'],'INFEASIBLE')
 
     def test_assignment_hints_reject_source_or_bank_identity_changes(self):
