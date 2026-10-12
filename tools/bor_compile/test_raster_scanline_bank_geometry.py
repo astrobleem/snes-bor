@@ -20,6 +20,13 @@ class RowBankGeometryTests(unittest.TestCase):
         self.assertTrue(cover['cross_scanline_word_identity_reuse_preserved'])
         self.assertTrue(cover['shared_row_modes_require_joint_solver_constraints'])
         self.assertFalse(cover['source_alpha_adaptation_selected'])
+        options,tagged,proofs,cover=exact_frame_mode_word_options(source,bg,gold,0,16,movable_windows=True)
+        self.assertFalse(cover['source_windows_fixed'])
+        for point,out in cover['literal_window_outputs'].items():
+            for b in range(4,8):self.assertIn(out,options[point][b])
+            for mode,banks in tagged[point].items():
+                for b,cs in banks.items():
+                    for c in cs:self.assertEqual(apply_math(c,int(bg[point]),mode)if b>=4 else c,out)
 
     def test_exact_black_and_bank_domains_remain_separate(self):
         source=fixture();result=bound(source,5,time_limit=3)

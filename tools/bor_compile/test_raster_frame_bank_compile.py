@@ -22,6 +22,17 @@ def source_fixture():
 
 
 class FrameBankCompileTests(unittest.TestCase):
+    def test_changed_windows_preserve_exact_source_output_or_fail(self):
+        from raster_math_windows import evaluate
+        source,witness,bg,expected=source_fixture()
+        witness.update(compiled_color_window_descriptors={'5':compile_sparse_mask({x:0 for x in range(256)})},hardware_two_color_windows_replayed=True)
+        witness['pixels'][1]['color']=34
+        r=compile_witness(source,witness,bg,expected)
+        self.assertFalse(evaluate(r['compiled_color_window_descriptors']['5'],32))
+        self.assertTrue(r['restricted_pixel_identity_verified'])
+        witness['pixels'][1]['color']=33
+        with self.assertRaisesRegex(ValueError,'SOURCE_OUTPUT_REPLAY'):compile_witness(source,witness,bg,expected)
+
     def test_shared_mode_change_requires_exact_source_output(self):
         source,witness,bg,expected=source_fixture()
         witness.update(selected_modes={'5':'half-add'},shared_row_mode_word_compatibility_replayed=True)

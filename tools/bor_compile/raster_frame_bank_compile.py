@@ -9,7 +9,7 @@ from raster_palette import schedule
 from raster_slot_greedy import demand
 from raster_obj_math_cover import apply_math
 from raster_obj_math_cover import MODES
-from raster_math_windows import evaluate
+from raster_math_windows import evaluate,compile_mask
 from raster_obj_geometry import active_on_line,tile_slivers
 
 
@@ -33,9 +33,15 @@ def compile_witness(source,witness,background,expected,lookahead=16):
     if type(first)is not int or type(last)is not int or not 0<=first<last<=224:
         raise ValueError('FRAME_COMPILE_INTERVAL')
     selected_modes=copy.deepcopy(source['selected_modes'])
+    windows=copy.deepcopy(source['compiled_color_window_descriptors'])
     if 'selected_modes'in witness:
         if not witness.get('shared_row_mode_word_compatibility_replayed')or not isinstance(witness['selected_modes'],dict)or any(not isinstance(y,str)or not y.isdigit()or str(int(y))!=y or not first<=int(y)<last or mode not in MODES for y,mode in witness['selected_modes'].items()):raise ValueError('FRAME_COMPILE_WITNESS_MODES')
         selected_modes.update(witness['selected_modes'])
+    if 'compiled_color_window_descriptors'in witness:
+        if not witness.get('hardware_two_color_windows_replayed')or not isinstance(witness['compiled_color_window_descriptors'],dict):raise ValueError('FRAME_COMPILE_WITNESS_WINDOWS')
+        for y,descriptor in witness['compiled_color_window_descriptors'].items():
+            if not isinstance(y,str)or not y.isdigit()or str(int(y))!=y or not first<=int(y)<last:raise ValueError('FRAME_COMPILE_WITNESS_WINDOWS')
+            windows[y]=compile_mask([evaluate(descriptor,x)for x in range(256)])
     pieces=copy.deepcopy(witness['pieces']);seen=set();actual=bg.copy();colors=[]
     if not pieces or len(pieces)>128:raise ValueError('FRAME_COMPILE_OAM')
     sizes=set()
@@ -53,7 +59,7 @@ def compile_witness(source,witness,background,expected,lookahead=16):
         if p['bank']!=b or not p['y']<=y<p['y']+p['height']or not p['x']<=x<p['x']+p['width']:
             raise ValueError('FRAME_COMPILE_FIXED_OWNER')
         seen.add((y,x));colors[i][y-p['y'],x-p['x']]=c;p['rows'].setdefault(y,set()).add(c)
-        actual[y,x]=apply_math(c,int(bg[y,x]),selected_modes[str(y)])if b>=4 and evaluate(source['compiled_color_window_descriptors'][str(y)],x)else c
+        actual[y,x]=apply_math(c,int(bg[y,x]),selected_modes[str(y)])if b>=4 and evaluate(windows[str(y)],x)else c
     expected_points={(int(p['y']+y),int(p['x']+x))for p,image in zip(source['pieces'],input_colors)for y,x in zip(*np.where(image>=0))if first<=p['y']+y<last}
     if seen!=expected_points:raise ValueError('FRAME_COMPILE_OPAQUE_OWNERSHIP')
     if not np.array_equal(actual[first:last],gold[first:last]):raise ValueError('FRAME_COMPILE_SOURCE_OUTPUT_REPLAY')
@@ -108,6 +114,7 @@ def compile_witness(source,witness,background,expected,lookahead=16):
     complete=(first,last)==(0,224)
     result={k:copy.deepcopy(source[k])for k in ('metadata','source_rgb555_sha256','selected_modes','compiled_color_window_descriptors','color_math','scanline_math_controls_source_bound','source_alpha_policy','alpha_compatibility_policy_selected')if k in source}
     result['selected_modes']=selected_modes
+    result['compiled_color_window_descriptors']=windows
     result['source_exact_shared_row_math_mode_changes']=sum(mode!=source['selected_modes'].get(y)for y,mode in selected_modes.items())
     result.update(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN'if complete else'RESTRICTED_SCANLINE_DEMAND_ONLY',
         pieces=pieces,piece_pixel_masks=masks,trace=trace,geometry=geometry,hardware_geometry_admitted=True,oam_y_wrap_counted=True,fully_offscreen_tile_slivers_skipped=True,

@@ -1,5 +1,34 @@
 # Shared geometry for exact math bank classes
 
+Joint source-exact color-window choices are now included with geometry, fixed
+piece banks, shared row modes and integer cache residency. Upper-bank owners
+may select either their exact operand inside the windows or literal final
+source output outside. Each row must fit two hardware color windows or their
+supported inverted combination. Pixel gates remain separate even when other
+word domains are equivalent. The compiler canonicalizes descriptors and
+independently replays the complete source output before admission as an offline
+witness. Neither alpha adaptation nor native register timing is inferred.
+
+The first peak repair validates all 493,601 start values with zero violations,
+fixes 258,805 exterior decisions and returns FEASIBLE after 90.597 seconds
+(1,177,334 constraints). Its complete operand cover examines all 32,768 words
+against 5,368 tagged mode/window contexts and retains 1,330 distinct coverage
+identities, including 160 input seeds. The result remains 86 effect objects,
+119 combined objects, 26 sprites, 34 slivers, 21 peak writes and 400 ideal
+clocks. Compilation replays all 57,344 source output pixels; palette schedule
+hash: 9e5267d31ef3e6df5df1b50fb226d6972b8204e3616373ae5881d327f44bb361.
+
+Direct compatibility coverage adds 21,344 mode/window clauses independent of
+owner selection. The stronger repair still returns 400 clocks after 90.656
+seconds. A full-frame neighborhood search frees exterior caches and controls,
+validates the complete start and returns FEASIBLE after 122.809 seconds,
+retaining 400 clocks with 89 effect objects, 122 combined objects, 27 sprites
+and 34 slivers. It makes no row-mode changes. These are not native timing
+admissions or universal hardware infeasibility certificates. Ninety-three
+focused tests pass, including rejection of per-pixel gate patterns requiring
+more than two hardware windows and rejection of incorrect source output after
+gate changes.
+
 The full joint geometry/bank/cache model now accepts source-replayed, complete
 operand domains tagged by a shared scanline math mode. Every selected pixel
 owner must use a word compatible with that row's single mode. Equivalent pixel

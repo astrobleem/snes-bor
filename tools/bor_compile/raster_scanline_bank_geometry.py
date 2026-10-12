@@ -89,7 +89,7 @@ def exact_frame_word_options(schedule,background,expected,first=0,last=224):
         physical_transfer_and_native_timing_admitted=False,no_color_reduction=True)
 
 
-def exact_frame_mode_word_options(schedule,background,expected,first=0,last=224):
+def exact_frame_mode_word_options(schedule,background,expected,first=0,last=224,movable_windows=False):
     """Exact full-frame operand domains tagged by one shared mode per row.
 
     The original schedule is replayed first. Alternative operands must produce
@@ -109,19 +109,25 @@ def exact_frame_mode_word_options(schedule,background,expected,first=0,last=224)
             if not first<=y<last:continue
             points[y,x]=(int(expected[y,x]),int(background[y,x]),evaluate(schedule['compiled_color_window_descriptors'][str(y)],x))
             if p['bank']>=4:retained.add(int(image[ly,lx]))
-    operands,cover=complete_math_cover(points.values(),modes=MODES,tag_modes=True,fixed_window_context=True,retained_operands=retained)
+    if type(movable_windows)is not bool:raise ValueError('FRAME_MODE_OPTIONS_WINDOW_POLICY')
+    contexts={(out,bg,gate)for out,bg,old_gate in points.values()for gate in(False,True)}if movable_windows else points.values()
+    operands,cover=complete_math_cover(contexts,modes=MODES,tag_modes=True,fixed_window_context=True,retained_operands=retained)
     options={};tagged={}
     for point,key in points.items():
         tagged[point]={}
         for mode in MODES:
             banks={b:[key[0]]for b in range(4)}
-            if operands[(mode,*key)]:banks.update({b:operands[(mode,*key)]for b in range(4,8)})
+            operand_key=(mode,key[0],key[1],True)if movable_windows else(mode,*key)
+            if operands[operand_key]:banks.update({b:operands[operand_key]for b in range(4,8)})
             tagged[point][mode]=banks
         options[point]={b:sorted({c for banks in tagged[point].values()for c in banks.get(b,[])})for b in range(8)}
         options[point]={b:cs for b,cs in options[point].items()if cs}
+        if movable_windows:
+            for b in range(4,8):options[point][b]=sorted(set(options[point].get(b,[]))|{key[0]})
     return options,tagged,proofs,dict(operand_cover=cover,dominance_context_scope='ALL_REQUESTED_FRAME_MODE_CONTEXTS',
         cross_scanline_word_identity_reuse_preserved=True,input_upper_bank_operand_identities_retained=True,
-        shared_row_modes_require_joint_solver_constraints=True,actual_source_output_and_windows_preserved=True,
+        shared_row_modes_require_joint_solver_constraints=True,actual_source_output_preserved=True,source_windows_fixed=not movable_windows,
+        literal_window_outputs={point:key[0]for point,key in points.items()}if movable_windows else None,
         source_alpha_adaptation_selected=False,physical_transfer_and_native_timing_admitted=False,no_color_reduction=True)
 
 

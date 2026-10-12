@@ -1,0 +1,232 @@
+{
+  "schema": "BYOR_AUTHORED_PEAK_PLAYER_JOINT_REPLAY_V1",
+  "experiments": {
+    "byor-motu-authored-peak-player-literal-demand": {
+      "input_sha256": "2c2499002abd52b42a3c1d8e3bc1b57cf055ba213bd2be142ea86a4f852db421",
+      "summary": {
+        "schema": "BYOR_SOURCE_LITERAL_OBJ_DEMAND_V1",
+        "status": "POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW",
+        "source_rgb555_sha256": "079de2d8ffbbe72c9779904f3a0ef2fe6d0283331dd49838a79ed2cc7e889f45",
+        "compiled_pixel_identity_verified": true,
+        "hardware_geometry_admitted": false,
+        "geometry": {
+          "oam_entries": 264,
+          "peak_sprites": 49,
+          "peak_tile_slivers": 49
+        },
+        "color_math": "additive",
+        "scanline_math_controls_source_bound": true,
+        "source_alpha_policy": "EXACT_SOURCE_CONTEXT_PRECOMPOSITED_RGB555",
+        "alpha_compatibility_policy_selected": false,
+        "all_actor_visible_pixels_included": true,
+        "static_actor_palettes_reserved": false,
+        "source_visible_pixels": 5513,
+        "foreground_full_frame_rgb555_colors": 635,
+        "foreground_peak_scanline_rgb555_colors": 75,
+        "native_presentation_proven": false,
+        "live_compositor_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "compiled_schedule_sha256": "55ce38148a5d9c201539c1ea8100ee148b2995a4a58f943a6fe5302c175a1bba",
+        "source_output_pixels_replayed": 57344,
+        "input_construction_peak_writes": 75,
+        "input_construction_peak_cgram_bytes": 150,
+        "construction_is_not_a_minimum_bandwidth_bound": true,
+        "actor_visible_context_demand": [
+          {
+            "actor": 0,
+            "visible_pixels": 2762,
+            "full_frame_rgb555_colors": 31,
+            "peak_scanline_rgb555_colors": 10
+          },
+          {
+            "actor": 1,
+            "visible_pixels": 2751,
+            "full_frame_rgb555_colors": 606,
+            "peak_scanline_rgb555_colors": 65
+          }
+        ],
+        "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+        "source_scene_sha256": "0ccf4b582c6abff3aae27a32c75a9ddabf2d5141cbcd91331eadc766561044ef"
+      }
+    },
+    "byor-motu-authored-peak-player-geometry-cover": {
+      "input_sha256": "c7cbb1d783f3f144529820a32ccee828698f42bad49d31172f678895c6e7f2a7",
+      "summary": {
+        "schema": "BYOR_SOURCE_ALIGNED_OBJ_RECTANGLE_COVER_V1",
+        "status": "SOURCE_EXACT_OBJ_RECTANGLE_COVER_PROVEN",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 0.0478593,
+        "candidate_rectangles": 319,
+        "obj_size_pair": [
+          8,
+          16
+        ],
+        "objective": "oam",
+        "origin": [
+          0,
+          0
+        ],
+        "bank_assignment_proven": false,
+        "source_operand_encoding_proven": false,
+        "native_presentation_proven": false,
+        "universal_geometry_rejected": false,
+        "no_color_reduction": true,
+        "geometry": {
+          "oam_entries": 39,
+          "peak_sprites": 9,
+          "peak_tile_slivers": 17
+        },
+        "source_visible_pixel_ownership_verified": true,
+        "solver_objective_bound": 39.0,
+        "source_pixels_preserved": true,
+        "source_rgb555_sha256": "079de2d8ffbbe72c9779904f3a0ef2fe6d0283331dd49838a79ed2cc7e889f45"
+      }
+    },
+    "byor-motu-authored-peak-player-joint-input-geometry": {
+      "input_sha256": "6eec3799d8e7ab880ebc4125b63e294986baf71c0386d41bdb6434aee4841324",
+      "summary": {
+        "schema": "BYOR_SOURCE_ALIGNED_OBJ_RECTANGLE_COVER_V1",
+        "status": "SOURCE_EXACT_OBJ_RECTANGLE_COVER_PROVEN",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 0.0478593,
+        "candidate_rectangles": 319,
+        "obj_size_pair": [
+          8,
+          16
+        ],
+        "objective": "oam",
+        "origin": [
+          0,
+          0
+        ],
+        "bank_assignment_proven": false,
+        "source_operand_encoding_proven": false,
+        "native_presentation_proven": false,
+        "universal_geometry_rejected": false,
+        "no_color_reduction": true,
+        "geometry": {
+          "oam_entries": 39,
+          "peak_sprites": 9,
+          "peak_tile_slivers": 17
+        },
+        "source_visible_pixel_ownership_verified": true,
+        "solver_objective_bound": 39.0,
+        "source_pixels_preserved": true,
+        "source_rgb555_sha256": "079de2d8ffbbe72c9779904f3a0ef2fe6d0283331dd49838a79ed2cc7e889f45"
+      }
+    },
+    "byor-motu-authored-peak-player-joint-mode-window-geometry353": {
+      "input_sha256": "fb022c8738a9b053fafc6219ca65fffa839b950270b39ca9f3d384fb75ef4536",
+      "summary": {
+        "schema": "BYOR_FIXED_FRAME_BANK_GEOMETRY_V1",
+        "status": "BOUNDED_FRAME_BANK_GEOMETRY_NO_WITNESS",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 122.52400750000001,
+        "solver_objective_lower_bound": 0.0,
+        "model_variables": 606815,
+        "model_constraints": 1103105,
+        "candidate_rectangles": 39,
+        "source_pixel_count": 5513,
+        "bank_count": 8,
+        "opaque_slots_per_bank": 15,
+        "fixed_bank_for_entire_oam_rectangle": true,
+        "equivalent_pixel_decision_atoms": 5513,
+        "equivalent_pixel_decisions_coalesced": 0,
+        "independent_required_word_coverage_clauses": 2892,
+        "safe_class_bank_label_symmetry": false,
+        "bank_order_timing_not_modeled": false,
+        "solver_objective": "FEASIBILITY_ONLY",
+        "solver_search_strategy": "portfolio",
+        "repair_interval": null,
+        "outside_repair_cache_and_pixel_owners_fixed": false,
+        "repair_fixed_variables": 0,
+        "soft_geometry_hint_variables": 0,
+        "complete_source_witness_hint_model_verified": false,
+        "complete_source_witness_hint_violation_count": 0,
+        "complete_source_witness_hint_first_violations": [],
+        "ideal_cache_partition_window_master_clocks": 353,
+        "joint_cache_residency_enforced": true,
+        "initial_cache_row_relaxed_to_free_vblank": 112,
+        "full_rectangle_padding_counted": true,
+        "oam_y_wrap_counted": true,
+        "fully_offscreen_tile_slivers_skipped": true,
+        "palette_liveness_and_transfer_cost_relaxed": false,
+        "physical_slots_and_transfer_cost_relaxed": true,
+        "native_presentation_proven": false,
+        "geometry_reservation": null,
+        "reservation_palette_and_layer_demand_included": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "shared_scanline_math_modes_searched": true,
+        "independent_mode_window_coverage_clauses": 44104,
+        "outside_repair_math_modes_fixed": false,
+        "source_exact_color_windows_searched": true,
+        "outside_repair_pixel_window_gates_fixed": false,
+        "solver_backend": "cp-sat",
+        "independent_linear_integer_model_verified": false,
+        "source_rgb555_sha256": "079de2d8ffbbe72c9779904f3a0ef2fe6d0283331dd49838a79ed2cc7e889f45",
+        "source_input_sha256": "2c2499002abd52b42a3c1d8e3bc1b57cf055ba213bd2be142ea86a4f852db421",
+        "source_input_path": "out\\byor-motu-authored-peak-player-literal-demand.json",
+        "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+        "scanline_interval": [
+          0,
+          224
+        ],
+        "outside_interval_demand_relaxed": false,
+        "source_alpha_policy": "EXACT_SOURCE_OUTPUT_OPERANDS",
+        "alpha_compatibility_policy_selected": false,
+        "frame_operand_identity_cover": {
+          "operand_cover": {
+            "modes": [
+              "add",
+              "half-add",
+              "subtract",
+              "half-subtract"
+            ],
+            "rgb555_operands_examined": 32768,
+            "distinct_requirements": 7776,
+            "valid_operands": 4493,
+            "maximal_cover_operands": 1642,
+            "dominance_mapping_sha256": "19ee4a09ca2af3922cc332edab1c7fe0c9f7e59e311af09ec918174598cb37b4",
+            "retained_seed_operands": 49,
+            "total_option_operands": 1642,
+            "modes_relaxed_per_pixel": false,
+            "mode_tagged_coverage": true,
+            "global_mode_schedule_proven": false,
+            "color_math_window_bypass_relaxed_per_pixel": false,
+            "fixed_color_math_window_context": true,
+            "all_valid_operand_coverages_retained": true,
+            "no_color_reduction": true
+          },
+          "dominance_context_scope": "ALL_REQUESTED_FRAME_MODE_CONTEXTS",
+          "cross_scanline_word_identity_reuse_preserved": true,
+          "input_upper_bank_operand_identities_retained": true,
+          "shared_row_modes_require_joint_solver_constraints": true,
+          "actual_source_output_preserved": true,
+          "source_windows_fixed": false,
+          "source_alpha_adaptation_selected": false,
+          "physical_transfer_and_native_timing_admitted": false,
+          "no_color_reduction": true
+        }
+      }
+    }
+  },
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "source_rgb555_sha256": "079de2d8ffbbe72c9779904f3a0ef2fe6d0283331dd49838a79ed2cc7e889f45",
+  "source_output_pixels_replayed": 57344,
+  "source_visible_pixels": 5513,
+  "source_scene_sha256": "0ccf4b582c6abff3aae27a32c75a9ddabf2d5141cbcd91331eadc766561044ef",
+  "source_alpha_policy": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+  "source_actor_palette_and_layer_demand_included": true,
+  "geometry_reservation_used": false,
+  "source_reachability_certified": false,
+  "native_presentation_proven": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true,
+  "compressed_evidence": {
+    "path": "docs\\receipts\\byor-motu-authored-peak-player-joint.json.gz",
+    "bytes": 57133,
+    "sha256": "aa694bfc6386ac8d9c4e6a643fb67a78272268de05a4e43cdb70c1bf339464b2"
+  }
+}

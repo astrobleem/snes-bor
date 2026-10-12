@@ -3,6 +3,26 @@ from raster_frame_bank_geometry import search,subdivided_candidates
 
 
 class FrameBankGeometryTests(unittest.TestCase):
+    def test_joint_windows_cannot_relax_arbitrary_pixel_gates(self):
+        rects=[dict(x=x,y=0,width=32,height=32,allowed_banks=[4])for x in(0,96)]
+        from raster_math_windows import evaluate
+        for enabled,wanted in[([0,2],'OPTIMAL'),([0,2,4,6,8,10,12],'INFEASIBLE')]:
+            disabled=list(range(1,max(enabled),2));disabled+=list(range(96,96+14-len(disabled)))
+            tagged={(0,x):{'add':{4:[0]}if x in enabled else{}}for x in enabled+disabled}
+            literals={(0,x):1000+x for x in enabled+disabled}
+            words={point:{4:[0,out]if point[1]in enabled else[out]}for point,out in literals.items()}
+            r=search(rects,words,height=32,time_limit=3,mode_word_options=tagged,literal_window_outputs=literals,cache_window=1,minimize_cache_span=True)
+            self.assertEqual(r['solver_status'],wanted)
+            self.assertFalse(r['universal_raster_rejected'])
+            if wanted=='OPTIMAL':
+                self.assertTrue(r['hardware_two_color_windows_replayed'])
+                descriptor=r['compiled_color_window_descriptors']['0']
+                self.assertTrue(all(evaluate(descriptor,x)==(x in enabled)for x in enabled+disabled))
+                r['cache_resident_colors']={row['scanline']:row['resident_colors']for row in r['joint_cache_trace']}
+                repaired=search(rects,words,height=32,time_limit=3,mode_word_options=tagged,literal_window_outputs=literals,cache_window=1,minimize_cache_span=True,geometry_hint=r,repair_interval=[0,0])
+                self.assertTrue(repaired['complete_source_witness_hint_model_verified'])
+                self.assertTrue(repaired['hardware_two_color_windows_replayed'])
+
     def test_horizontal_clipping_skips_only_fully_hidden_tile_slivers(self):
         from raster_obj_geometry import tile_slivers
         for x,wanted in[(-256,2),(-8,1),(-7,2),(247,2),(248,1),(255,1)]:
