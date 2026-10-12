@@ -188,3 +188,25 @@ A wider physical diagnostic of the prefix cache yields a complete 624-clock
 layout in 45.075 seconds, with a 320-clock restricted-family lower bound.
 Source and CGRAM identity, piece domains and fixed bank selection are checked.
 It remains a diagnostic rather than native admission.
+
+Generic slot-liveness retiming now reduces the best locked-bank physical
+witness from 392 to 376 master clocks. Five invisible-slot loads move to
+other legal lines, including two initially unused slots that can preload in
+VBlank. Source pixel indices and OAM banks stay fixed. Row-boundary opaque
+slot swaps then reduce aggregate packet cost from 9,824 to 9,576 clocks;
+every palette relocation write at a live boundary is charged and source
+pixel indices are remapped offline. The worst transfer remains 376 clocks.
+
+The complete witness has eighteen peak color writes (36 data bytes),
+1.87444 average writes per visible-frame line, and sixteen lines of maximum
+noninitial prefetch. It retains 73 OAM entries, eighteen peak sprites and
+34 tile slivers. Independent replay against source RGB8 composition verifies
+all 57,344 viewport pixels, followed by full CGRAM packet replay. Five focused
+liveness/reindex tests pass. No color reduction is applied.
+
+Lines 130, 131, 133, 135 and 136 still exceed the measured 344-clock native
+window. A further 500,000 fixed-slot proposals preserve the 376-clock peak.
+This is neither native admission nor universal raster rejection. The proof
+uses the controlled black scene and offline exact BOR SCREEN composition;
+authored-background peak presentation, live composition and gameplay remain
+open. Full schedules and replay results are retained in the receipt archive.
