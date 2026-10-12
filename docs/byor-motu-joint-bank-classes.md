@@ -79,6 +79,38 @@ schedule. Source owner hints replay every input pixel and bank eligibility
 before use and do not fix choices. Bank-label symmetry is disabled when any
 owner has a restricted bank domain. Twenty-seven focused cache/class/bank
 tests pass on the guarded backend. Production static presentation is unchanged.
+Relaxing the deadline and write cap proves bank/mask geometry for the shorter
+proposal after 13.150 seconds. It preserves all 2,751 source pixels with
+95 effect objects, 22 sprites and 22 slivers; combined reservation counts are
+128 objects, 26 sprites and 30 slivers. Its compiled schedule hash is
+`c486bd60fffb060de770df433eeaccbda3351de41e5c54036bf0f7d00fcf54f7`.
+Its current cache requires 56 writes and a 1,016-clock ideal span. Independent
+fixed-bank LP replay gives 33.583333 writes (residual below 3e-14), hence at
+least 34 writes/544 data clocks. This rejects that bank assignment, not raster.
+
+The source-exact 400-clock frontier supplies a different class proposal:
+533 lifetimes, 3,441 resident-lines, 470 class loads and a 20-load peak. It
+retains 86 effect objects and the valid 119-object/34-sliver combined geometry.
+The first compact reconstruction remains UNKNOWN after 90.108 seconds
+(36,244 variables, 88,080 constraints). Source-replayed resident-bank hints now
+supplement owner-bank hints; both remain soft and preserve source identity.
+The resident-hinted reconstruction is UNKNOWN after 90.097 seconds. Complete
+hint validation then identifies 65 violations caused by old cached copies in
+banks whose visible masks never use those words. Filtering those dead copies
+from the guide state preserves pixel demand and yields a fully verified
+36,245-variable hint with zero violations. The min-span search is FEASIBLE
+after 90.185 seconds but retains 400 clocks and 21 peak writes. Its compiled
+hash is `21469acef605dcdaaf5a81adc58c3386f4197eedc6f95e11b3d36d8c56f4e080`;
+combined geometry is 123 objects, 26 sprites and 34 slivers.
+
+A verified repair over lines 122–151 fixes 5,548 outside variables and retains
+400 clocks after 90.091 seconds. Expanding bank prefetch candidates eight lines
+earlier and repairing 120–153 gives a fully verified 62,309-variable hint;
+it retains 400 clocks after 90.119 seconds with a family lower bound of 240.
+LNS retains the same peak after 90.054 seconds. These selected proposals and
+fixed encodings neither admit native timing nor reject raster universally.
+Thirty focused tests pass, including complete hint replay, scoped repair,
+prefetch expansion and independently checked source pixels and partitions.
 
 The 57-cell family now also permits word masks to select different banks on
 different source rows, with at most four masks per cell. Each emitted OAM mask

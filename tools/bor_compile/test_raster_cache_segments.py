@@ -146,9 +146,41 @@ class CacheSegmentTests(unittest.TestCase):
         result=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=2,geometry_edge_migration=True,migration_stride=1,allow_bank_copies=True,assignment_hint=initial)
         self.assertEqual(pixels(source),pixels(result))
         self.assertGreater(result['cache_segment_construction']['validated_owner_bank_hint_count'],0)
+        self.assertGreater(result['cache_segment_construction']['validated_resident_bank_hint_count'],0)
         self.assertTrue(result['cache_segment_construction']['owner_bank_hints_are_soft'])
         bad=copy.deepcopy(initial);bad['source_rgb555_sha256']='different'
         with self.assertRaisesRegex(ValueError,'HINT_SOURCE_IDENTITY'):construct(source,assignment_hint=bad)
+
+    def test_warm_span_objective_retains_source_and_replays_partitions(self):
+        source=self.fixture()
+        initial=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=2,geometry_edge_migration=True,migration_stride=1,allow_bank_copies=True)
+        result=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=2,geometry_edge_migration=True,migration_stride=1,allow_bank_copies=True,assignment_hint=initial,minimize_bank_span=True)
+        self.assertEqual(pixels(source),pixels(result))
+        proof=result['cache_segment_construction']
+        self.assertEqual(proof['bank_objective'],'MINIMUM_IDEAL_PEAK_SPAN')
+        self.assertTrue(proof['independent_cache_and_partition_replay'])
+        self.assertFalse(proof['native_timing_admitted'])
+
+    def test_repair_requires_verified_hint_and_preserves_outside_source(self):
+        source=self.fixture()
+        initial=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=2,geometry_edge_migration=True,migration_stride=1,allow_bank_copies=True)
+        result=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=2,geometry_edge_migration=True,migration_stride=1,allow_bank_copies=True,assignment_hint=initial,minimize_bank_span=True,bank_repair_interval=[6,12])
+        proof=result['cache_segment_construction']
+        self.assertEqual(pixels(source),pixels(result))
+        self.assertTrue(proof['complete_bank_hint_model_verified'])
+        self.assertGreater(proof['bank_repair_fixed_variables'],0)
+        self.assertTrue(proof['outside_repair_bank_residency_and_owner_choices_fixed'])
+        with self.assertRaisesRegex(ValueError,'REPAIR_INTERVAL'):construct(source,bank_repair_interval=[6,12])
+
+    def test_candidate_prefetch_expansion_keeps_real_bank_limits(self):
+        source=self.fixture()
+        for i,p in enumerate(source['pieces']):p['allowed_banks']=[i]
+        result=construct(source,time_limit=5,write_budget=2,window=1000,maximum_oam=2,geometry_edge_migration=True,migration_stride=1,allow_bank_copies=True,prefetch_margin=4)
+        self.assertEqual(pixels(source),pixels(result))
+        proof=result['cache_segment_construction']
+        self.assertEqual(proof['bank_interval_prefetch_margin'],4)
+        self.assertTrue(proof['independent_cache_and_partition_replay'])
+        with self.assertRaisesRegex(ValueError,'PREFETCH_MARGIN'):construct(source,prefetch_margin=1)
 
 
 if __name__=='__main__':unittest.main()
