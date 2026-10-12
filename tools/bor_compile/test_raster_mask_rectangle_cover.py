@@ -26,6 +26,36 @@ def indexed_pixels(frame):
 
 
 class MaskCoverTests(unittest.TestCase):
+    def test_clipped_input_geometry_hint_uses_real_tile_slivers(self):
+        source=fixture();source['pieces'][0].update(x=248,local_x=248,y=0,local_y=0,width=16,height=16)
+        image=np.zeros((16,16),dtype=np.uint8);image[0,7]=1;flat=image.flatten()
+        source['piece_pixel_masks'][0]=dict(width=16,height=16,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex())
+        source['geometry_reservation']=dict(oam_entries=0,sprites_per_line=[0]*16,tile_slivers_per_line=[32]*16)
+        result=cover(source,time_limit=3)
+        self.assertEqual(indexed_pixels(source),indexed_pixels(result))
+        report=result['geometry_pixel_rectangle_cover']
+        self.assertTrue(report['complete_input_geometry_hint_model_verified'])
+        self.assertTrue(report['wrapped_oam_padding_and_clipped_slivers_counted'])
+        self.assertLessEqual(result['combined_reserved_geometry']['peak_tile_slivers'],34)
+
+    def test_inherited_actor_reservation_is_enforced_and_refreshed(self):
+        source=fixture()
+        source['geometry_reservation']=dict(oam_entries=126,sprites_per_line=[30]*16,tile_slivers_per_line=[32]*16)
+        source['combined_reserved_geometry']={'stale':True}
+        result=cover(source,time_limit=3)
+        self.assertEqual(result['combined_reserved_geometry'],dict(oam_entries=128,peak_sprites=32,peak_tile_slivers=34))
+        self.assertFalse(result['reservation_palette_and_layer_demand_included'])
+        source['geometry_reservation']['oam_entries']=127
+        self.assertEqual(cover(source,time_limit=3)['solver_status'],'INFEASIBLE')
+
+    def test_overlapping_rectangles_preserve_disjoint_source_masks(self):
+        source=fixture();source['pieces'][1].update(bank=0,x=14,local_x=14,allowed_banks=[0])
+        result=cover(source,time_limit=3,repair_hint=True)
+        self.assertEqual(indexed_pixels(source),indexed_pixels(result))
+        self.assertTrue(result['geometry_pixel_rectangle_cover']['overlapping_rectangles_with_disjoint_source_masks_allowed'])
+        self.assertTrue(result['geometry_pixel_rectangle_cover']['complete_input_geometry_hint_model_verified'])
+        self.assertFalse(result['native_presentation_proven'])
+
     def test_non_grid_cover_preserves_opaque_black_and_all_bank_slot_identities(self):
         source=fixture();result=cover(source,time_limit=3,repair_hint=True)
         self.assertEqual(result['geometry_pixel_rectangle_cover']['status'],'FIXED_BANK_PIXEL_RECTANGLE_COVER_PROVEN')

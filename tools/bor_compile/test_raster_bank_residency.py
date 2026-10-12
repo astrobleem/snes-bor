@@ -249,6 +249,10 @@ class ResidencyTests(unittest.TestCase):
         for result in results:
             report=result['bank_residency']
             self.assertTrue(report['peak_optimistic_prepared_span_objective'])
+            self.assertEqual(report['peak_span_lower_bound_scope']['maximum_writes_per_line'],2)
+            self.assertEqual(report['peak_span_lower_bound_scope']['noninitial_prefetch_lookahead_lines'],0)
+            self.assertEqual(report['peak_span_lower_bound_scope']['ideal_window_constraint'],356)
+            self.assertFalse(report['peak_span_lower_bound_scope']['universal_raster_rejected'])
             self.assertFalse(report['physical_slot_schedule_proven'])
             self.assertFalse(report['native_timing_admitted'])
             for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)

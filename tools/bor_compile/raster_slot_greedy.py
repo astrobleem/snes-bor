@@ -264,6 +264,8 @@ def schedule_slots(schedule,window=356,lookahead=17,maximum_ranges=4,seed=0,beam
     if result.get('scanline_math_controls_source_bound'):
         payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+    from raster_presentation_identity import refresh_presentation_identity
+    refresh_presentation_identity(result)
     return result
 
 

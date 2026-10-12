@@ -101,6 +101,10 @@ def repair(source,initial,alternatives,time_limit=45,write_budget=21,window=345,
 def compile_cache_rows(frame,desired_rows,lookahead,write_budget,window,report,report_key):
     """Materialize a cache witness, replaying pixels, writes and future uses."""
     result=copy.deepcopy(frame);required,uses,images=demand(result);height=len(result['trace'])
+    result.pop('prepared_dma_packets',None)
+    for key in('physical_slot_layout','physical_slot_refinement','optimistic_bank_order','compiled_transfer_descriptor_sha256'):
+        if key in result:result['input_'+key]=result.pop(key)
+    result['native_presentation_proven']=False
     active=[y for y,row in enumerate(required)if any(row)];first,last=min(active),max(active)
     if any(type(y)is not int or not first<=y<=last or set(row)!=set(range(8))or any(len(cs)>15 or any(type(c)is not int or c not in uses[b]for c in cs)for b,cs in row.items())for y,row in desired_rows.items()):raise ValueError('CACHE_WITNESS_ROW_DOMAIN')
     state={b:[None]*15 for b in range(8)};states=[];trace=[]
@@ -140,6 +144,8 @@ def compile_cache_rows(frame,desired_rows,lookahead,write_budget,window,report,r
     payload=dict(pieces=result['pieces'],masks=masks,trace=trace,color_math=result.get('color_math'),source_rgb555_sha256=result.get('source_rgb555_sha256'))
     if result.get('scanline_math_controls_source_bound'):payload.update(selected_modes=result['selected_modes'],windows=result['compiled_color_window_descriptors'])
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+    from raster_presentation_identity import refresh_presentation_identity
+    refresh_presentation_identity(result)
     if any(not np.array_equal(a,b)for a,b in zip(images,demand(result)[2])):raise AssertionError('WORD_CACHE_REPAIR_SOURCE_OPERAND_REPLAY')
     return result
 

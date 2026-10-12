@@ -69,6 +69,8 @@ def normalize(schedule,background,expected,window_union='positive'):
             source_rgb555_sha256=hashlib.sha256(replay.astype('<u2').tobytes()).hexdigest(),native_timing_admitted=False,no_color_reduction=True))
     payload=dict(pieces=result['pieces'],pixel_masks=result['piece_pixel_masks'],trace=result['trace'],selected_modes=modes,compiled_color_window_descriptors=windows)
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+    from raster_presentation_identity import refresh_presentation_identity
+    refresh_presentation_identity(result)
     return result
 
 

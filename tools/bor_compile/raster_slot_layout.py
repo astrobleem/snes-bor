@@ -376,6 +376,8 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
     if rewritten.get('scanline_math_controls_source_bound'):
         payload.update(selected_modes=rewritten['selected_modes'],compiled_color_window_descriptors=rewritten['compiled_color_window_descriptors'])
     rewritten['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+    from raster_presentation_identity import refresh_presentation_identity
+    refresh_presentation_identity(rewritten)
     result.update(status='PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN',peak_prepared_commit_span=max(p['prepared_commit_span']for p in packets),
                   peak_ranges=max(len(p['packets'])for p in packets),pixel_color_identity_verified=True,all_packet_cgram_identities_verified=True,piece_bank_domains_verified=True)
     return rewritten

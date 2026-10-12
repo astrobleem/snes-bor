@@ -71,6 +71,8 @@ def optimize(source,objective_kind='general'):
     result.update(compiled_schedule_sha256=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest(),
         compiled_indices_sha256=hashlib.sha256(indices.tobytes()).hexdigest(),
         compiled_transfer_descriptor_sha256=hashlib.sha256(json.dumps(packets,sort_keys=True).encode()).hexdigest())
+    from raster_presentation_identity import refresh_presentation_identity
+    refresh_presentation_identity(result)
     return result
 
 

@@ -77,6 +77,108 @@ high-byte commits before setup. This rejects that selected encoding, while
 the cold search and its large optimization gap do not reject the source
 family. It does not improve the 400-clock full-frame frontier.
 
+Starting the frame-word objective from the verified 400-clock source witness
+returns FEASIBLE after 90.298 seconds, reducing distinct bank words from 613
+to 536 and row words from 1,715 to 1,522. It uses 94 effect objects; combined
+geometry peaks at 127 objects, 27 sprites and 34 slivers. All 57,344 viewport
+pixels independently replay, with schedule hash
+ff7c011ffd6fbbbe24eba981305859fa4ac1f6fa3b63e97b62f77275b5efa5ca.
+The input's 2,668 encoded pixels omit its 83 exact context no-op pixels;
+the complete viewport output remains unchanged. Greedy liveness needs 27
+writes. The independently checked class-pooled lower bound is 15.142857
+writes, and the fixed-bank bound is 20.785714, with residuals below 1e-12.
+Neither bound rejects this encoding's timing. Integer residency and actual
+transfer partitioning remain unproved; geometry-only improvements are not
+native admission or a full concurrent palette/layer proof.
+
+The new encoding's integer cache solves with a 21-write cap after 97.563
+seconds using native HiGHS. Its 710 noninitial writes need at most eighteen
+lines of prefetch, but complete ideal partition replay costs 456 clocks.
+All 576 eligible bank orders retain that peak; unchanged physical slots
+cost 1,416 clocks. No transfer or native timing admission is asserted.
+
+Cache and word-bank recompilation now invalidate parent transfer packets,
+physical-slot admission, bank-order proof and transfer-descriptor hashes.
+They also rebind the presentation digest to the new schedule and source
+mode/window controls, retaining the parent digest as input history. Bank
+ordering, physical slot compilation and math-control normalization refresh
+the digest too. The cache21 artifact was produced before this correction;
+only its presentation digest was rebound, with an explicit artifact flag.
+Its solver trace, indexed pixels and transfer measurements are unchanged.
+
+Complete ideal transfer-span minimization of that cache retains 456 clocks
+after 120.114 seconds, reducing noninitial writes to 698. Its reported
+fixed-bank, at-most-21-write family lower bound is 376 clocks, above the
+measured 356-clock maximum. This rejects that write-capped family even under
+ideal physical placement. It does not reject schedules permitting 22 writes,
+alternate bank assignments or source-exact words. Eighty-three focused cache, bank, physical-layout and
+identity tests pass after the proof-metadata corrections.
+
+Transfer lower bounds now explicitly retain their write cap, prefetch horizon,
+range mechanism, active-bank restrictions and repair/demand interval. This
+prevents a bound for a restricted scheduling family from becoming a rejection
+of a wider hardware family. Twenty-eight residency and identity tests pass
+with the additional scope checks. The 21-write, 353-clock rebanking trial
+remains UNKNOWN after 120.320 seconds, with 3,500 branches and 180 conflicts;
+it supplies no infeasibility certificate. The wider 22-write family remains
+under investigation.
+
+Permitting 22 writes improves the selected fixed-bank encoding's ideal peak
+to 440 clocks after 120.101 seconds, with 636 noninitial writes and 35-line
+prefetch. Its reported lower bound is 365 clocks, above the measured 356-clock
+maximum. This result rejects the at-most-22-write, four-prepared-range DMA
+family for this bank assignment. It does not reject alternate banks, words
+or transfer mechanisms. Both existing span artifacts now include explicit
+scope metadata copied from their recorded solver inputs; their numerical
+results and compiled schedules are unchanged.
+
+The 22-write, 357-clock rebanking trial remains UNKNOWN after 120.274
+seconds, with 73,546 branches and 16,938 conflicts. The gate grants the full
+measured maximum before physical slots and field-phase timing are proved;
+this timeout does not reject raster.
+
+Fixed-bank rectangle cover now permits overlapping hardware rectangles with
+disjoint compiled source-pixel masks. Its former geometric exact-cover
+restriction excluded valid sparse masks. The tool independently replays
+single source-pixel ownership, fixed bank/slot identity, actual wrapped OBJ
+padding and clipped tile slivers. It verifies the complete input geometry
+hint against its model before adding the missing peak-cost hint. Inherited
+concurrent geometry is enforced, and returned combined counts are refreshed.
+
+With the complete valid hint, a thirty-second search finds 86 effect objects
+instead of 94, with combined 119 objects, 25 sprites and 34 slivers. All
+source bank/slot identities and palette writes remain unchanged. The prior
+thirty-second exact-cover and partial-hint attempts remained UNKNOWN; neither
+was an infeasibility proof. The positive artifact's inherited combined-count
+metadata was independently refreshed after compilation, with an explicit flag.
+
+Generic selective subdivision now honors the inherited concurrent reservation
+and actual OBJ geometry. Its optional bounded heuristic favors parents whose
+word identities spread across nonempty legal 8x8 children, while enforcing an
+added-entry budget and all hardware limits. Seven selected parents consume
+nine extra OAM entries: 95 effect objects, 128 combined objects, 27 sprites
+and 34 slivers. Every original source word, bank and opaque-pixel identity
+replays. Twenty-four affected geometry, subdivision and identity tests pass,
+including clipped tile counts, overlapping sparse masks and reserved limits.
+The resulting 22-write, 357-clock bank/cache search remains UNKNOWN after
+120.689 seconds. It provides no hardware admission or infeasibility proof.
+
+The combined helper run again aborted inside OR-Tools 9.15.6755 with the
+previous `heuristics.fixed_search != nullptr` assertion. A verbose diagnostic
+rerun completed all 150 selected tests in 31.772 seconds. The intermittent
+backend fault remains unresolved; no local fix is claimed. These tool runs
+do not alter the measured hardware window or supply infeasibility evidence.
+All positive artifacts continue to require independent source and schedule
+replay.
+
+Source-derived interval rebalance of the subdivided geometry improves its
+bounded interval demand score from 20.333333 to 19.5 in 30.406 seconds,
+changing fifty piece banks within their original math classes. Geometry and
+source word identities remain fixed. The checked fractional fixed-bank
+cache bound is 20.75 writes, with primal residual below 3e-14 and zero dual
+residual. This is a search starting point, not a timing schedule or proof
+that a 21/22-write native transfer will fit.
+
 The fixed-control expanded-geometry neighborhood search validates all 265,137
 start variables and returns FEASIBLE after 120.548 seconds, still at 400 clocks
 with 87 effect objects, 120 combined objects, 26 sprites and 34 slivers.

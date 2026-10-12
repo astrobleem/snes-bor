@@ -208,7 +208,7 @@ def optimize(source,time_limit=45,write_budget=21,window=337,lookahead=55,search
 
 
 def main():
-    import argparse,json
+    import argparse,hashlib,json
     from pathlib import Path
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--schedule',type=Path,required=True);parser.add_argument('--output',type=Path,required=True)
@@ -220,7 +220,10 @@ def main():
     parser.add_argument('--row-word-masks',action='store_true',help='Allow equal words on different rows to use separate source-pixel masks; each compiled OAM entry still has one fixed bank.')
     parser.add_argument('--maximum-oam',type=int,default=128);parser.add_argument('--maximum-sprites',type=int,default=32);parser.add_argument('--maximum-tiles',type=int,default=34)
     parser.add_argument('--geometry-reservation',type=Path,help='Override the source input reservation; geometry only, not actor palettes or layers.')
-    args=parser.parse_args();result=optimize(json.loads(args.schedule.read_text(encoding='utf-8')),args.time_limit,args.write_budget,args.window,args.lookahead,args.search_strategy,args.allow_word_masks,args.maximum_masks_per_piece,args.maximum_oam,args.maximum_sprites,args.maximum_tiles,args.row_word_masks,json.loads(args.assignment_hint.read_text(encoding='utf-8'))if args.assignment_hint else None,json.loads(args.geometry_reservation.read_text(encoding='utf-8'))if args.geometry_reservation else None)
+    args=parser.parse_args();input_bytes=args.schedule.read_bytes();source=json.loads(input_bytes.decode('utf-8'))
+    result=optimize(source,args.time_limit,args.write_budget,args.window,args.lookahead,args.search_strategy,args.allow_word_masks,args.maximum_masks_per_piece,args.maximum_oam,args.maximum_sprites,args.maximum_tiles,args.row_word_masks,json.loads(args.assignment_hint.read_text(encoding='utf-8'))if args.assignment_hint else None,json.loads(args.geometry_reservation.read_text(encoding='utf-8'))if args.geometry_reservation else None)
+    result.update(source_input_sha256=hashlib.sha256(input_bytes).hexdigest(),source_input_path=str(args.schedule),
+        source_rgb555_sha256=source.get('source_rgb555_sha256'),source_pak_sha256=source.get('source_pak_sha256'))
     args.output.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8');report=result.get('piece_bank_cache',result)
     print(json.dumps({k:v for k,v in report.items()if k not in('geometry_reservation','bounded_solver_log')}))
 

@@ -9,6 +9,7 @@ import numpy as np
 from raster_slot_greedy import demand,bank_groups
 from raster_palette import schedule as logical_schedule
 from raster_obj_compact import unpack
+from raster_obj_geometry import active_on_line,tile_slivers
 
 
 def subdivide(source,indices,preserve_packets=False,report_limits=False):
@@ -33,15 +34,18 @@ def subdivide(source,indices,preserve_packets=False,report_limits=False):
     sizes={p['width']for p in pieces}
     if any(p['width']!=p['height']or p['width']not in(8,16,32)for p in pieces)or sizes=={8,16,32}:
         raise ValueError('BANK_SUBDIVISION_GLOBAL_SIZE_PAIR')
-    height=len(source['trace']);clip=source.get('horizontal_clip_limit_counted',False)
-    def slivers(p):
-        if not clip or p['x']==-256:return p['width']//8
-        return sum(p['x']+8*c+8>0 and p['x']+8*c<256 for c in range(p['width']//8))
-    geometry=dict(oam_entries=len(pieces),peak_sprites_per_line=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height)),peak_tile_slivers_per_line=max(sum(slivers(p)for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(height)))
-    if geometry['oam_entries']>128 or geometry['peak_sprites_per_line']>32 or geometry['peak_tile_slivers_per_line']>34:
-        if report_limits:return dict(status='SELECTIVE_SUBDIVISION_HARDWARE_GEOMETRY_LIMIT',geometry=geometry,selected_parent_pieces=sorted(selected),child_piece_indices=children,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
+    height=len(source['trace']);reservation=source.get('geometry_reservation')
+    if reservation is None:reservation=dict(oam_entries=0,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
+    if not isinstance(reservation,dict)or set(reservation)!={'oam_entries','sprites_per_line','tile_slivers_per_line'}or type(reservation['oam_entries'])is not int or not 0<=reservation['oam_entries']<=128 or any(not isinstance(reservation[k],list)or len(reservation[k])!=height or any(type(v)is not int or not 0<=v<=limit for v in reservation[k])for k,limit in [('sprites_per_line',32),('tile_slivers_per_line',34)]):raise ValueError('BANK_SUBDIVISION_GEOMETRY_RESERVATION')
+    sprites=[sum(active_on_line(p,y)for p in pieces)for y in range(height)]
+    tiles=[sum(tile_slivers(p)for p in pieces if active_on_line(p,y))for y in range(height)]
+    geometry=dict(oam_entries=len(pieces),peak_sprites_per_line=max(sprites),peak_tile_slivers_per_line=max(tiles))
+    combined=dict(oam_entries=len(pieces)+reservation['oam_entries'],peak_sprites=max(a+b for a,b in zip(sprites,reservation['sprites_per_line'])),peak_tile_slivers=max(a+b for a,b in zip(tiles,reservation['tile_slivers_per_line'])))
+    if combined['oam_entries']>128 or combined['peak_sprites']>32 or combined['peak_tile_slivers']>34:
+        if report_limits:return dict(status='SELECTIVE_SUBDIVISION_HARDWARE_GEOMETRY_LIMIT',geometry=geometry,geometry_reservation=copy.deepcopy(reservation),combined_reserved_geometry=combined,selected_parent_pieces=sorted(selected),child_piece_indices=children,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
         raise ValueError('BANK_SUBDIVISION_HARDWARE_GEOMETRY_LIMIT')
     result=copy.deepcopy(source);result.update(pieces=pieces,piece_pixel_masks=masks,geometry=geometry,piece_bank_assignment=[p['bank']for p in pieces])
+    result.update(geometry_reservation=copy.deepcopy(reservation),combined_reserved_geometry=combined,reservation_palette_and_layer_demand_included=False)
     result.update(mixed_small_size=8,mixed_large_size=16 if 16 in sizes else 32)
     result['bank_subdivision']=dict(selected_input_pieces=sorted(selected),child_piece_indices=children,geometry=geometry,pixels_exact=True,input_compiled_schedule_sha256=source.get('compiled_schedule_sha256'))
     for field in (('physical_slot_layout',)if preserve_packets else('prepared_dma_packets','physical_slot_layout')):result.pop(field,None)
@@ -50,6 +54,8 @@ def subdivide(source,indices,preserve_packets=False,report_limits=False):
     if result.get('scanline_math_controls_source_bound'):
         payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+    from raster_presentation_identity import refresh_presentation_identity
+    refresh_presentation_identity(result)
     demand(result)
     return result
 
@@ -194,6 +200,8 @@ def rebalance(source,lookahead=17,maximum_moves=20,maximum_interval=32,anneal_st
         payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
     indices=np.zeros((height,256),dtype=np.uint8)
+    from raster_presentation_identity import refresh_presentation_identity
+    refresh_presentation_identity(result)
     for p,mask in zip(pieces,images):
         image=unpack(mask)
         for ly,lx in zip(*np.where(image!=0)):indices[p['y']+ly,p['x']+lx]=128+16*p['bank']+int(image[ly,lx])

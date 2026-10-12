@@ -10,6 +10,7 @@ import numpy as np
 from raster_slot_greedy import demand
 from raster_dma_partition import constrain_ranges
 from raster_obj_compact import unpack
+from raster_presentation_identity import refresh_presentation_identity
 
 
 def restrict_interval(source,first,last):
@@ -33,7 +34,7 @@ def restrict_interval(source,first,last):
     result['compiled_pixel_identity_verified']=False
     result['restricted_pixel_identity_verified']=True
     result['status']='RESTRICTED_SCANLINE_DEMAND_ONLY'
-    for field in('compiled_indices_sha256','compiled_schedule_sha256','prepared_dma_packets','physical_slot_layout'):result.pop(field,None)
+    for field in('compiled_indices_sha256','compiled_schedule_sha256','compiled_presentation_sha256','prepared_dma_packets','physical_slot_layout'):result.pop(field,None)
     return result
 
 
@@ -464,6 +465,14 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     if minimize_span:
         bound=statistics.get('solver_objective_lower_bound',0)if solver_backend in('highs','highspy')else solver.best_objective_bound
         report['peak_optimistic_span_lower_bound_for_this_fixed_bank_family']=max(0,int(bound)-40)
+        report['peak_span_lower_bound_scope']=dict(fixed_source_words_and_piece_banks=True,
+            maximum_writes_per_line=write_budget,noninitial_prefetch_lookahead_lines=lookahead,
+            range_backend=range_backend,ideal_window_constraint=window,
+            maximum_active_banks_per_line=maximum_active_banks,
+            per_bank_write_caps_enforced=bank_write_caps is not None,
+            fixed_outside_repair_interval=repair_interval,
+            scanline_demand_interval=source.get('restricted_scanline_demand_interval',[0,height-1]),
+            universal_raster_rejected=False)
     if value is None:return report
     if relax_cache:
         # Integer range activation with fractional slots is only a necessary
@@ -532,6 +541,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
     if result.get('scanline_math_controls_source_bound'):
         payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+    refresh_presentation_identity(result)
     _,_,replay=demand(result,allow_restricted=True)
     if any(not np.array_equal(a,b)for a,b in zip(pixels,replay)):raise AssertionError('BANK_RESIDENCY_INDEPENDENT_PIXEL_REPLAY')
     return result

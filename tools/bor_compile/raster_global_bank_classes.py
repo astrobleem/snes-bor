@@ -54,7 +54,7 @@ def rebuild_schedule(source,search,lookahead=16):
             image[ly,lx]=slot;indices[y,x]=128+16*p['bank']+slot
         flat=image.flatten();masks.append(dict(width=p['width'],height=p['height'],pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
     result=copy.deepcopy(source)
-    for field in('bank_rebalance','bank_search','bank_residency','physical_slot_layout','physical_slot_refinement'):
+    for field in('bank_rebalance','bank_search','bank_residency','physical_slot_layout','physical_slot_refinement','optimistic_bank_order','compiled_transfer_descriptor_sha256'):
         if field in result:result['input_'+field]=result.pop(field)
     result.pop('prepared_dma_packets',None)
     result.update(pieces=pieces,piece_pixel_masks=masks,trace=trace,piece_bank_assignment=list(assignment),geometry=geometry,hardware_geometry_admitted=True,native_presentation_proven=False,prepared_dma_partition_bound_enforced=False,prepared_dma_window_master_clocks=None,bank_assignment_authority='global_word_mask_rebuild')
@@ -65,6 +65,8 @@ def rebuild_schedule(source,search,lookahead=16):
     payload=dict(pieces=pieces,masks=masks,trace=trace,color_math=result.get('color_math','additive'),source_rgb555_sha256=result.get('source_rgb555_sha256'))
     if result.get('scanline_math_controls_source_bound'):payload.update(selected_modes=result['selected_modes'],windows=result['compiled_color_window_descriptors'])
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+    from raster_presentation_identity import refresh_presentation_identity
+    refresh_presentation_identity(result)
     _,_,actual=demand(result);verified={}
     for p,image in zip(pieces,actual):
         for ly,lx in zip(*np.where(image>=0)):verified[p['actor'],p['y']+int(ly),p['x']+int(lx)]=int(image[ly,lx])

@@ -35,9 +35,38 @@ def subdivide(source,selected):
     return result
 
 
+def select_for_bank_flexibility(source,maximum_added_entries):
+    """Bounded source-only heuristic; bank/cache feasibility remains separate."""
+    if type(maximum_added_entries)is not int or not 0<=maximum_added_entries<=127:
+        raise ValueError('SUBDIVISION_ADDED_ENTRY_BUDGET')
+    _,_,images=demand(source);candidates=[]
+    for i,(p,image)in enumerate(zip(source['pieces'],images)):
+        if p['width']!=16 or p['height']!=16:continue
+        children=[image[y:y+8,x:x+8]for y in(0,8)for x in(0,8)]
+        words=[set(map(int,c[c>=0]))for c in children]
+        union=set().union(*words);cost=sum(bool(cs)for cs in words)-1
+        gain=len(union)-max(map(len,words),default=0)
+        candidates.append((gain/max(1,cost),len(union),-cost,i))
+    selected=[];result=subdivide(source,[])
+    for score,word_count,negative_cost,i in sorted(candidates,reverse=True):
+        trial=subdivide(source,selected+[i])
+        if trial.get('status')=='SELECTIVE_SUBDIVISION_HARDWARE_GEOMETRY_LIMIT':continue
+        if len(trial['pieces'])-len(source['pieces'])>maximum_added_entries:continue
+        selected.append(i);result=trial
+    result['bounded_subdivision_selection']=dict(
+        policy='FRAME_WORD_SPREAD_ACROSS_NONEMPTY_CHILDREN',candidate_parents=len(candidates),
+        selected_parent_pieces=selected,maximum_added_entries=maximum_added_entries,
+        added_entries=len(result['pieces'])-len(source['pieces']),
+        palette_and_transfer_feasibility_proven=False,universal_raster_rejected=False,no_color_reduction=True)
+    return result
+
+
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--schedule',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--pieces',type=int,nargs='+',required=True)
-    a=p.parse_args();result=subdivide(json.loads(a.schedule.read_text()),a.pieces);a.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result.get('selective_piece_subdivision',result)))
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--schedule',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    selection=p.add_mutually_exclusive_group(required=True);selection.add_argument('--pieces',type=int,nargs='+');selection.add_argument('--maximum-added-entries',type=int)
+    a=p.parse_args();source=json.loads(a.schedule.read_text(encoding='utf-8'))
+    result=subdivide(source,a.pieces)if a.pieces is not None else select_for_bank_flexibility(source,a.maximum_added_entries)
+    a.output.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8');print(json.dumps(result.get('bounded_subdivision_selection',result.get('selective_piece_subdivision',result))))
 
 
 if __name__=='__main__':main()

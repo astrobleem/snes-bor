@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 from raster_obj_compact import unpack
 from raster_slot_greedy import demand
+from raster_obj_geometry import active_on_line,tile_slivers
 
 
 def fixed_bank_horizontal_bound(schedule):
@@ -52,6 +53,7 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
     if type(repair_hint)is not bool:raise ValueError('MASK_COVER_REPAIR_HINT_DOMAIN')
     if solver_backend not in('cp-sat','highspy'):raise ValueError('MASK_COVER_SOLVER_BACKEND')
     height=len(schedule['trace'])
+    if geometry_reservation is None:geometry_reservation=schedule.get('geometry_reservation')
     reserve=dict(oam_entries=0,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
     if geometry_reservation is not None:
         if not isinstance(geometry_reservation,dict)or set(geometry_reservation)!=set(reserve):raise ValueError('MASK_COVER_RESERVATION')
@@ -76,7 +78,7 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
             original[identity]=(p['bank'],slot)
             planes.setdefault(key,{})[y,x]=slot
             eligibility[identity]=set(p.get('allowed_banks',range(8)))
-    model=cp_model.CpModel();variables=[];candidates=[];owners={};by_line={};plane_rows={};tile_lower=[0]*height;raw_candidates=0
+    model=cp_model.CpModel();variables=[];candidates=[];owners={};by_line={};plane_rows={};tile_lower=[0]*height;raw_candidates=0;input_mask_hints={}
     for (actor,bank),points in sorted(planes.items()):
         horizontal={}
         for y,x in points:horizontal.setdefault(y,[]).append(x)
@@ -101,17 +103,20 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
             covered=[(yy,xx)for yy in range(max(0,y),min(height,y+size))for xx in range(max(0,x),min(256,x+size))if(yy,xx)in points]
             if not covered:continue
             raw_candidates+=1
-            identity=(size,max(0,y),min(height,y+size),tuple(covered))
+            hardware=dict(x=x,y=y,width=size,height=size)
+            identity=(size,tuple(yy for yy in range(height)if active_on_line(hardware,yy)),tile_slivers(hardware),tuple(covered))
             if identity not in equivalent or (size,x,y)in input_rectangles.get((actor,bank),()):
                 equivalent[identity]=(size,x,y,covered)
         for size,x,y,covered in equivalent.values():
             index=len(variables);v=model.new_bool_var('mask'+str(index));variables.append(v)
-            model.add_hint(v,int((size,x,y)in input_rectangles.get((actor,bank),())))
+            chosen=int((size,x,y)in input_rectangles.get((actor,bank),()));model.add_hint(v,chosen);input_mask_hints[v.index]=chosen
             candidates.append((actor,bank,size,x,y,covered))
             for point in covered:owners.setdefault((actor,bank,*point),[]).append(v)
-            for yy in range(max(0,y),min(height,y+size)):
-                by_line.setdefault(yy,[]).append((v,size//8))
-                plane_rows.setdefault((actor,bank,yy),[]).append((v,size//8))
+            hardware=dict(x=x,y=y,width=size,height=size);slivers=tile_slivers(hardware)
+            for yy in range(height):
+                if not active_on_line(hardware,yy):continue
+                by_line.setdefault(yy,[]).append((v,slivers))
+                plane_rows.setdefault((actor,bank,yy),[]).append((v,slivers))
         # Exact minimum horizontal coverage by eight-pixel intervals. These
         # cuts also hold for unaligned rectangles and strengthen the LP without
         # requiring the solver to derive interval coverage from individual pixels.
@@ -119,7 +124,9 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
             entries=plane_rows[actor,bank,y]
             model.add(sum(v*w for v,w in entries)>=count)
             model.add(sum(v for v,w in entries)>=(count+large_size//8-1)//(large_size//8))
-    for options in owners.values():model.add(sum(options)==1)
+    # Rectangles may overlap while their compiled source-pixel masks do not.
+    # Geometric exact cover would discard valid sparse input masks.
+    for options in owners.values():model.add(sum(options)>=1)
     model.add(sum(variables)<=128-reserve['oam_entries'])
     peak=model.new_int_var(0,34,'combinedPeakTiles')
     combined_lower=max(a+b for a,b in zip(tile_lower,reserve['tile_slivers_per_line']))
@@ -129,6 +136,21 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
         tiles=sum(v*w for v,w in entries)+reserve['tile_slivers_per_line'][y]
         model.add(tiles<=34);model.add(peak>=tiles)
     model.minimize(129*peak+sum(variables))
+    hint_values={i:list(v.domain)[0]for i,v in enumerate(model.proto.variables)}
+    hint_values.update(input_mask_hints)
+    hint_values[peak.index]=max((reserve['tile_slivers_per_line'][y]+sum(w*hint_values[v.index]for v,w in by_line.get(y,[]))for y in range(height)),default=0)
+    hint_violations=[]
+    for i,v in enumerate(model.proto.variables):
+        domain=list(v.domain)
+        if not any(domain[j]<=hint_values[i]<=domain[j+1]for j in range(0,len(domain),2)):hint_violations.append('variable:'+v.name)
+    for i,c in enumerate(model.proto.constraints):
+        if c.has_linear():
+            value=sum(hint_values[n]*coefficient for n,coefficient in zip(c.linear.vars,c.linear.coeffs));domain=list(c.linear.domain)
+            valid=any(domain[j]<=value<=domain[j+1]for j in range(0,len(domain),2))
+        elif c.has_bool_or():valid=any(hint_values[n]if n>=0 else 1-hint_values[-n-1]for n in c.bool_or.literals)
+        else:raise ValueError('MASK_COVER_HINT_CONSTRAINT_KIND')
+        if not valid:hint_violations.append('constraint:'+str(i))
+    if not hint_violations:model.add_hint(peak,hint_values[peak.index])
     if solver_backend=='highspy':
         from raster_bank_residency import solve_linear
         value,statistics=solve_linear(model,time_limit,native_highs=True)
@@ -147,6 +169,11 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
         candidate_family='OPAQUE_PIXEL_CORNER_OR_MIDPOINT_PLUS_INPUT_RECTANGLES',obj_size_pair=[8,large_size],geometry_reservation=reserve,
         fixed_bank_and_slot_per_source_pixel=True,palette_writes_unchanged=True,universal_raster_rejected=False,
         concurrent_palette_or_layer_admitted=False,native_timing_admitted=False,no_color_reduction=True)
+    report['overlapping_rectangles_with_disjoint_source_masks_allowed']=True
+    report['wrapped_oam_padding_and_clipped_slivers_counted']=True
+    report.update(complete_input_geometry_hint_model_verified=not hint_violations,
+        input_geometry_hint_violation_count=len(hint_violations),
+        input_geometry_hint_first_violations=hint_violations[:8])
     if value is None:return report
     pieces=[];masks=[];replayed={};indices=np.zeros((height,256),dtype=np.uint8)
     for candidate,v in zip(candidates,variables):
@@ -154,7 +181,7 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
         actor,bank,size,x,y,points=candidate;image=np.zeros((size,size),dtype=np.uint8);allowed=set(range(8))
         for yy,xx in points:
             identity=actor,yy,xx;slot=planes[actor,bank][yy,xx]
-            if identity in replayed:raise AssertionError('MASK_COVER_OUTPUT_OVERLAP')
+            if identity in replayed:continue
             replayed[identity]=bank,slot;allowed&=eligibility[identity]
             image[yy-y,xx-x]=slot;indices[yy,xx]=128+16*bank+slot
         if bank not in allowed:raise AssertionError('MASK_COVER_BANK_ELIGIBILITY')
@@ -162,8 +189,8 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
         pieces.append(dict(actor=actor,bank=bank,x=x,y=y,local_x=x-ox,local_y=y-oy,width=size,height=size,allowed_banks=sorted(allowed)))
         flat=image.flatten();masks.append(dict(width=size,height=size,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
     if replayed!=original:raise AssertionError('MASK_COVER_PIXEL_BANK_SLOT_IDENTITY')
-    sprites=[sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height)]
-    tiles=[sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(height)]
+    sprites=[sum(active_on_line(p,y)for p in pieces)for y in range(height)]
+    tiles=[sum(tile_slivers(p)for p in pieces if active_on_line(p,y))for y in range(height)]
     combined=dict(oam_entries=len(pieces)+reserve['oam_entries'],peak_sprites=max(a+b for a,b in zip(sprites,reserve['sprites_per_line'])),peak_tile_slivers=max(a+b for a,b in zip(tiles,reserve['tile_slivers_per_line'])))
     if combined['oam_entries']>128 or combined['peak_sprites']>32 or combined['peak_tile_slivers']>34:raise AssertionError('MASK_COVER_HARDWARE_GEOMETRY')
     report.update(status='FIXED_BANK_PIXEL_RECTANGLE_COVER_PROVEN',source_pixel_bank_slot_identity_verified=True,combined_geometry=combined)
@@ -172,10 +199,13 @@ def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_
     result=copy.deepcopy(schedule)
     result.update(pieces=pieces,piece_pixel_masks=masks,geometry=dict(oam_entries=len(pieces),peak_sprites=max(sprites),peak_tile_slivers=max(tiles)),
         geometry_pixel_rectangle_cover=report,mixed_small_size=8,mixed_large_size=large_size,obsel_mode=0 if large_size==16 else 1,
-        compiled_indices_sha256=index_hash,native_presentation_proven=False)
+        compiled_indices_sha256=index_hash,native_presentation_proven=False,
+        geometry_reservation=copy.deepcopy(reserve),combined_reserved_geometry=combined,reservation_palette_and_layer_demand_included=False)
     payload=dict(pieces=pieces,pixel_masks=masks,trace=result['trace'])
     if result.get('scanline_math_controls_source_bound'):payload.update(selected_modes=result['selected_modes'],compiled_color_window_descriptors=result['compiled_color_window_descriptors'])
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()
+    from raster_presentation_identity import refresh_presentation_identity
+    refresh_presentation_identity(result)
     demand(result)
     return result
 
