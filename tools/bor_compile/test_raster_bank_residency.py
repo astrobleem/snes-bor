@@ -1,12 +1,47 @@
 import unittest
 import numpy as np
-from raster_bank_residency import optimize,favorable_span,relaxed_bound,constrain_dp,constrain_adjacent,restrict_interval,flow_partition_hint
+from raster_bank_residency import optimize,favorable_span,bridge_relaxed_span,relaxed_bound,constrain_dp,constrain_adjacent,restrict_interval,flow_partition_hint
 from raster_cgram_packets import optimistic_dma_span
 from raster_slot_greedy import demand
 from test_raster_slot_greedy import source_schedule
 
 
 class ResidencyTests(unittest.TestCase):
+    def test_overlapping_bridge_relaxation_is_necessary_only(self):
+        rng=np.random.default_rng(772)
+        for counts in [[0]*8,[1]*8,*[list(map(int,rng.integers(0,16,8)))for _ in range(500)]]:
+            updates=[dict(bank=b)for b,n in enumerate(counts)for _ in range(n)]
+            self.assertLessEqual(bridge_relaxed_span(updates),favorable_span(updates))
+        source=source_schedule()
+        for backend in('cp-sat','highs'):
+            result=optimize(source,2,0,100,5,range_backend='bridge-relaxation',solver_backend=backend,minimize_span=True)
+            report=result['bank_residency']
+            self.assertTrue(report['independent_bridge_cost_bound_verified'])
+            self.assertFalse(report['independent_prepared_partition_bound_verified'])
+            self.assertFalse(result['prepared_dma_partition_bound_enforced'])
+            self.assertIsNone(result['prepared_dma_window_master_clocks'])
+            self.assertFalse(report['native_timing_admitted'])
+            for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+
+    def test_bridge_witness_above_actual_partition_window_is_not_admitted(self):
+        import copy
+        source=source_schedule()
+        for row in source['trace']:
+            template=[e for e in row['updates']if e['bank']==0]
+            for b in range(2,8):
+                row['resident_before'][b]=row['resident_before'][0].copy()
+                row['updates'] += [dict(e,bank=b)for e in template]
+        source['pieces'] += [dict(source['pieces'][0],bank=b,x=16*b)for b in range(2,8)]
+        source['piece_pixel_masks'] += [copy.deepcopy(source['piece_pixel_masks'][0])for _ in range(6)]
+        result=optimize(source,8,0,225,5,range_backend='bridge-relaxation',solver_backend='highs',minimize_span=True)
+        report=result['bank_residency']
+        self.assertEqual(report['peak_bridge_relaxed_span'],224)
+        self.assertEqual(report['peak_optimistic_prepared_span'],248)
+        self.assertIsNone(result['prepared_dma_window_master_clocks'])
+        self.assertFalse(result['prepared_dma_partition_bound_enforced'])
+        self.assertFalse(report['independent_prepared_partition_bound_verified'])
+        self.assertEqual(optimize(source,8,0,225,5,range_backend='flow',solver_backend='highs')['solver_status'],'INFEASIBLE')
+
     def test_invisible_bank_prefix_preloads_first_demand_without_source_loss(self):
         import test_raster_slot_layout as fixtures
         source=fixtures.SlotLayoutTests().schedule()

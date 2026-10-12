@@ -102,6 +102,13 @@ def favorable_span(updates,maximum_ranges=4):
     return max(0,min(best[len(banks),n]for n in range(1,min(len(banks),maximum_ranges)+1))-40)
 
 
+def bridge_relaxed_span(updates):
+    """Necessary cost granting all adjacent bridges, including overlapping ones."""
+    counts=[sum(e['bank']==b for e in updates)for b in range(8)]
+    active=[int(n>0)for n in counts]
+    return max(0,16*sum(counts)+24*sum(active)-8*sum(a*b for a,b in zip(active,active[1:]))-40)
+
+
 def constrain_dp(model,counts,active,window,tag,maximum_ranges=4):
     """Favorable bank partition as a computed minimum, without free range bits."""
     infinity=4096;edges={}
@@ -294,8 +301,8 @@ def solve_linear(model,time_limit,continuous_variables=None,native_highs=False):
 def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range_backend='dp',repair_interval=None,solver_backend='cp-sat',residency_hint=None,minimize_writes=False,minimize_span=False,search_strategy='portfolio',relax_cache=False,maximum_active_banks=None,bank_write_caps=None,collapse_bank_idle_prefix=False):
     from ortools.sat.python import cp_model
     if write_budget<0 or lookahead<0 or(window is not None and window<1):raise ValueError('BANK_RESIDENCY_DOMAIN')
-    if range_backend not in('dp','ranges','adjacent','flow'):raise ValueError('BANK_RESIDENCY_RANGE_BACKEND')
-    if solver_backend not in('cp-sat','highs','highspy')or(solver_backend in('highs','highspy')and window is not None and range_backend not in('ranges','flow')):raise ValueError('BANK_RESIDENCY_SOLVER_BACKEND')
+    if range_backend not in('dp','ranges','adjacent','flow','bridge-relaxation'):raise ValueError('BANK_RESIDENCY_RANGE_BACKEND')
+    if solver_backend not in('cp-sat','highs','highspy')or(solver_backend in('highs','highspy')and window is not None and range_backend not in('ranges','flow','bridge-relaxation')):raise ValueError('BANK_RESIDENCY_SOLVER_BACKEND')
     if relax_cache and solver_backend not in('highs','highspy'):raise ValueError('BANK_RESIDENCY_RELAXED_CACHE_BACKEND')
     if search_strategy not in('portfolio','lns')or(search_strategy=='lns'and solver_backend!='cp-sat'):raise ValueError('BANK_RESIDENCY_SEARCH_STRATEGY')
     if minimize_span and(window is None or minimize_writes):raise ValueError('BANK_RESIDENCY_SPAN_OBJECTIVE_DOMAIN')
@@ -395,6 +402,15 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
             model.add_hint(flag,int(any(c in hints[y][b]and c not in hints[y-1][b]for c in uses[b])))
         if maximum_active_banks is not None:model.add(sum(variables[i]for i in active_flags.values())<=maximum_active_banks)
         if window is None:continue
+        if range_backend=='bridge-relaxation':
+            flags=[variables[active_flags[b]]for b in range(8)];bridges=[]
+            for b in range(7):
+                bridge=model.new_bool_var(f'optimisticBridge{b}_{y}');bridges.append(bridge)
+                model.add(bridge<=flags[b]);model.add(bridge<=flags[b+1]);model.add(bridge>=flags[b]+flags[b+1]-1)
+            cost=16*sum(variables[i]for indices in line.values()for i in indices)+24*sum(flags)-8*sum(bridges)
+            model.add(cost<=window+39)
+            if minimize_span:model.add(peak_span_cost>=cost)
+            continue
         if range_backend in('dp','adjacent','flow'):
             counts=[]
             for b in range(8):
@@ -427,6 +443,7 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         universal_raster_rejected=False,no_color_reduction=True)
     report['fixed_outside_repair_interval']=repair_interval
     report['ranges_restricted_to_single_or_adjacent_pair']=range_backend=='adjacent' and window is not None
+    report['overlapping_adjacent_bridge_cost_relaxation']=range_backend=='bridge-relaxation' and window is not None
     report['restricted_scanline_demand_interval']=source.get('restricted_scanline_demand_interval')
     report['outside_interval_pixels_relaxed']=source.get('outside_interval_pixels_relaxed',False)
     report['complete_source_frame_pixel_identity_proven']=False
@@ -475,7 +492,9 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
                     if y:latency=max(latency,lead)
                     events.append(dict(bank=b,slot=s+1,old=state[b][s],color=c,kind='required'if c in required[y][b]else'prefetch'));state[b][s]=c
         if y and len(events)>write_budget:raise AssertionError('BANK_RESIDENCY_EXACT_WRITE_COUNT')
-        if y and window is not None and favorable_span(events)>=window:raise AssertionError('BANK_RESIDENCY_INDEPENDENT_PREPARED_BOUND')
+        if y and window is not None:
+            actual_bound=bridge_relaxed_span(events)if range_backend=='bridge-relaxation'else favorable_span(events)
+            if actual_bound>=window:raise AssertionError('BANK_RESIDENCY_INDEPENDENT_PREPARED_BOUND')
         trace.append(dict(scanline=y,resident_before=before,retained={b:[c for c in before[b]if c is not None and c in state[b]]for b in range(8)},evicted=[e['old']for e in events if e['old']is not None],prefetched=[e for e in events if e['kind']=='prefetch'],updates=events,colors_written=len(events),cgram_data_bytes=2*len(events),affected_banks=sorted({e['bank']for e in events})))
         if y and maximum_active_banks is not None and len(trace[-1]['affected_banks'])>maximum_active_banks:raise AssertionError('BANK_RESIDENCY_ACTIVE_BANK_REPLAY')
         if first<y<=last and bank_write_caps is not None and any(sum(e['bank']==b for e in events)>bank_write_caps[y][b]for b in range(8)):raise AssertionError('BANK_RESIDENCY_WRITE_CAPS_REPLAY')
@@ -490,14 +509,18 @@ def optimize(source,write_budget=18,lookahead=17,window=344,time_limit=180,range
         flat=image.flatten();images.append(dict(width=p['width'],height=p['height'],packed_nibble_order='low then high',pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
     report.update(status='FIXED_BANK_RESIDENCY_AND_PIXEL_IDENTITIES_PROVEN',peak_scheduled_writes=max(r['colors_written']for r in trace[1:]),
         maximum_noninitial_prefetch_latency_lines=latency,pixel_color_identity_verified=True,
-        independent_prepared_partition_bound_verified=window is not None,peak_optimistic_prepared_span=max(favorable_span(r['updates'])for r in trace[1:]))
+        independent_prepared_partition_bound_verified=window is not None and range_backend!='bridge-relaxation',peak_optimistic_prepared_span=max(favorable_span(r['updates'])for r in trace[1:]))
+    if range_backend=='bridge-relaxation':
+        report.update(peak_bridge_relaxed_span=max(bridge_relaxed_span(r['updates'])for r in trace[1:]),
+            independent_bridge_cost_bound_verified=window is not None)
     report['complete_source_frame_pixel_identity_proven']=not report['outside_interval_pixels_relaxed']
     report['total_noninitial_scheduled_writes']=sum(r['colors_written']for r in trace[1:])
     report['peak_noninitial_active_banks']=max(len(r['affected_banks'])for r in trace[1:])
     result=copy.deepcopy(source)
     for key in('physical_slot_layout','prepared_dma_packets'):result.pop(key,None)
     result.update(trace=trace,piece_pixel_masks=images,bank_residency=report,write_budget=write_budget,lookahead_lines=lookahead,
-        prepared_dma_window_master_clocks=window,prepared_dma_partition_bound_enforced=window is not None,prepared_dma_window_is_optimistic_necessary_only=True,
+        prepared_dma_window_master_clocks=window if range_backend!='bridge-relaxation'else None,
+        prepared_dma_partition_bound_enforced=window is not None and range_backend!='bridge-relaxation',prepared_dma_window_is_optimistic_necessary_only=True,
         maximum_noninitial_prefetch_latency_lines=latency,noninitial_prefetch_lookahead_enforced=True,noninitial_prefetch_latency_replayed=True,
         schedule_latency_requirement=dict(maximum_noninitial_prefetch_lines=latency,initial_palette_may_preload_entire_frame=True),
         peak_scheduled_writes=report['peak_scheduled_writes'],peak_cgram_data_bytes=max(r['cgram_data_bytes']for r in trace[1:]),
@@ -517,7 +540,7 @@ def main():
     p.add_argument('--write-budget',type=int,default=18);p.add_argument('--lookahead',type=int,default=17);p.add_argument('--window',type=int,default=344);p.add_argument('--time-limit',type=float,default=180)
     p.add_argument('--relaxed-bound',action='store_true')
     p.add_argument('--no-prepared-range-bound',action='store_true')
-    p.add_argument('--range-backend',choices=('dp','ranges','adjacent','flow'),default='dp')
+    p.add_argument('--range-backend',choices=('dp','ranges','adjacent','flow','bridge-relaxation'),default='dp')
     p.add_argument('--repair-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
     p.add_argument('--solver-backend',choices=('cp-sat','highs','highspy'),default='cp-sat')
     p.add_argument('--scanline-interval',type=int,nargs=2,metavar=('FIRST','LAST'))

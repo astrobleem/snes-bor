@@ -709,3 +709,29 @@ The extended assignment's write-minimizing integer cache is OPTIMAL after
 prefetch. Its optimistic peak is again 472 clocks. A validated soft-start span
 minimization uses the optional native HiGHS backend; no timing admission follows
 from the write-minimizing cache.
+
+Native HiGHS consumes the complete 39,017-variable soft start but retains its
+472-clock cache after 181.344 seconds. Exact operand reopening remains UNKNOWN
+after 120.395 seconds (187,821 variables, 472,843 constraints). The direct
+physical-slot search also remains UNKNOWN after 120.178 seconds; it charges
+live index moves and every changed word, enforces the full-frame transfer
+window and retains fixed source bank eligibility. None rejects raster.
+
+A smaller integer necessary-cost backend now grants every adjacent-bank bridge
+simultaneously, even when bridges overlap. Starting with separate bank ranges,
+each contact can save at most eight clocks; nonadjacent gaps add intervening
+words. Granting all contacts and unlimited separate ranges is therefore an
+optimistic relaxation of the actual four-range partition. The model still
+enforces eight separate fifteen-slot bank caches and fixed pixel bank identity.
+Its complete ideal partition cost is replayed independently after solving.
+The emitted report explicitly disables partition-window admission, even if
+the relaxed cost fits. Twenty-nine focused residency/geometry tests pass,
+including random and empty-bank comparisons against the exact partition.
+
+A deliberate eight-bank regression fits a 224-clock relaxed cost into a
+225-clock gate while requiring 248 clocks in the complete partition model.
+The emitted witness correctly retains no partition-window admission, and the
+complete partition solver rejects that gate. All thirty focused tests pass.
+Cold integer relaxed-cost trials remain UNKNOWN after 121.140 and 121.187
+seconds at loose and tight windows respectively; neither supplies a hardware
+bound or schedule. A validated integer cache now supplies the warm CP-SAT start.
