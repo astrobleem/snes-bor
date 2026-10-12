@@ -7019,12 +7019,787 @@
         "whole_frame_demand_proven": false
       },
       "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-fivebank-window-integer20": {
+      "input_sha256": "0d5bab1a994c76dad855b299ef921c3104e73363bdcb34deb3a7b08c674275a8",
+      "search": {
+        "schema": "BYOR_STATIC_ORDINARY_OBJ_EFFECT_MATH_BOUND_V1",
+        "scene": {
+          "viewport": [
+            256,
+            224
+          ],
+          "piece_size": [
+            16,
+            32
+          ],
+          "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+          "actors": [
+            {
+              "model": "HBreath",
+              "animation": "idle",
+              "frame": 11,
+              "position": [
+                98,
+                220,
+                93
+              ],
+              "order": 2
+            }
+          ]
+        },
+        "source_metadata": {
+          "stage": "DATA/LEVELS/GUILE2.TXT",
+          "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+          "scene": {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              }
+            ]
+          },
+          "layers": [
+            {
+              "kind": "background",
+              "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+              "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+              "source_dimensions": [
+                800,
+                400
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 57344,
+              "source_flip": false
+            },
+            {
+              "kind": "panel",
+              "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+              "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+              "source_dimensions": [
+                2544,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 44246,
+              "source_flip": false
+            },
+            {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+              "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 2751,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 2751,
+              "final_visible_pixels": 2751
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 2749,
+              "source_flip": false
+            }
+          ],
+          "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+          "alpha_source_dimensions": [
+            [
+              110,
+              90
+            ]
+          ],
+          "camera": [
+            0.0,
+            0.0
+          ],
+          "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+          "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+          "all_actor_models_preserved": true
+        },
+        "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+        "ordinary_actors": [],
+        "reserved_visible_source_words": [],
+        "reserved_word_count": 0,
+        "ordinary_union_word_count": 0,
+        "ordinary_residency_policy": "static",
+        "ordinary_peak_required_words": 0,
+        "minimum_static_banks": 0,
+        "static_words_fixed_in_lower_class": true,
+        "source_context_reachability_certified": false,
+        "palette_bank_assignment_proven": false,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "zero_main_clipping_not_modeled": true,
+        "scanline_interval": [
+          125,
+          145
+        ],
+        "outside_interval_demand_relaxed": true,
+        "allowed_math_modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "operand_cover": {
+          "modes": [
+            "add",
+            "half-add",
+            "subtract",
+            "half-subtract"
+          ],
+          "rgb555_operands_examined": 32768,
+          "distinct_requirements": 2220,
+          "valid_operands": 2057,
+          "maximal_cover_operands": 836,
+          "dominance_mapping_sha256": "f882eab5b282e14e29ee1fc377be6aef1e68b2ea70bcf1320c2c6c7440e8097c",
+          "retained_seed_operands": 0,
+          "total_option_operands": 836,
+          "modes_relaxed_per_pixel": false,
+          "mode_tagged_coverage": true,
+          "global_mode_schedule_proven": false,
+          "color_math_window_bypass_relaxed_per_pixel": false,
+          "fixed_color_math_window_context": false,
+          "all_valid_operand_coverages_retained": true,
+          "no_color_reduction": true
+        },
+        "cache_bound": {
+          "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+          "solver_status": 1,
+          "message": "UNKNOWN",
+          "variables": 41813,
+          "constraints": 35199,
+          "mode_variables": 84,
+          "integer_modes": true,
+          "write_budget": 20,
+          "palette_residency_integrality_relaxed": false,
+          "geometry_and_bank_assignment_relaxed": true,
+          "optimal_initial_residency_allowed": true,
+          "fixed_initial_palette_state": null,
+          "unbounded_preloading_allowed": true,
+          "schedule_proven": false,
+          "no_color_reduction": true,
+          "forced_opaque_modes_pruned": [],
+          "reserved_normal_colors": [],
+          "static_normal_residency_fixed_for_complete_interval": false,
+          "scanline_write_limits": {},
+          "required_normal_rows": {},
+          "solver_seconds": 63.63457529991865,
+          "solver_method": "cp-sat",
+          "integer_palette": true,
+          "hardware_window_masks_modeled": true,
+          "integer_windows": true,
+          "window_transition_superset_only": true,
+          "window_register_schedule_proven": false,
+          "positive_union_with_disabled_edges_only": false,
+          "subset_mode_cover_cuts": false,
+          "window_eligibility_variables": 1397,
+          "maximum_window_transitions": 4,
+          "boolean_stats": {
+            "nonboolean_integer_variables": 1,
+            "hint_variables": 35416,
+            "hint_is_soft": true,
+            "log_lines": 197,
+            "sat_inprocessing": false,
+            "branches": 1840,
+            "conflicts": 0,
+            "wall_seconds": 50.090853300000006,
+            "probing_level": 0,
+            "workers": 4,
+            "search_strategy": "portfolio",
+            "optimal": false
+          },
+          "lp_residency_hint": {
+            "status": 0,
+            "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+            "hint_is_soft": true,
+            "pinned_variables": 0,
+            "relaxed_objective": 19.937499999999993,
+            "hint_variables": 35416,
+            "maximum_primal_violation": 2.3092638912203256e-14
+          }
+        },
+        "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+        "class_cache_capacities": [
+          15,
+          60
+        ],
+        "presentation_family": "ISOLATED_EFFECT_FIVE_BANK_CAPACITY_WITH_TWO_WINDOWS",
+        "whole_frame_demand_proven": false
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-fivebank-window-integer21": {
+      "input_sha256": "339e81fd8641a0845b5287f8bc68a832587952e34879ba0bb30a702788cdc4a3",
+      "search": {
+        "schema": "BYOR_STATIC_ORDINARY_OBJ_EFFECT_MATH_BOUND_V1",
+        "scene": {
+          "viewport": [
+            256,
+            224
+          ],
+          "piece_size": [
+            16,
+            32
+          ],
+          "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+          "actors": [
+            {
+              "model": "HBreath",
+              "animation": "idle",
+              "frame": 11,
+              "position": [
+                98,
+                220,
+                93
+              ],
+              "order": 2
+            }
+          ]
+        },
+        "source_metadata": {
+          "stage": "DATA/LEVELS/GUILE2.TXT",
+          "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+          "scene": {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              }
+            ]
+          },
+          "layers": [
+            {
+              "kind": "background",
+              "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+              "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+              "source_dimensions": [
+                800,
+                400
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 57344,
+              "source_flip": false
+            },
+            {
+              "kind": "panel",
+              "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+              "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+              "source_dimensions": [
+                2544,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 44246,
+              "source_flip": false
+            },
+            {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+              "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 2751,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 2751,
+              "final_visible_pixels": 2751
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 2749,
+              "source_flip": false
+            }
+          ],
+          "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+          "alpha_source_dimensions": [
+            [
+              110,
+              90
+            ]
+          ],
+          "camera": [
+            0.0,
+            0.0
+          ],
+          "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+          "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+          "all_actor_models_preserved": true
+        },
+        "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+        "ordinary_actors": [],
+        "reserved_visible_source_words": [],
+        "reserved_word_count": 0,
+        "ordinary_union_word_count": 0,
+        "ordinary_residency_policy": "static",
+        "ordinary_peak_required_words": 0,
+        "minimum_static_banks": 0,
+        "static_words_fixed_in_lower_class": true,
+        "source_context_reachability_certified": false,
+        "palette_bank_assignment_proven": false,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "zero_main_clipping_not_modeled": true,
+        "scanline_interval": [
+          125,
+          145
+        ],
+        "outside_interval_demand_relaxed": true,
+        "allowed_math_modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "operand_cover": {
+          "modes": [
+            "add",
+            "half-add",
+            "subtract",
+            "half-subtract"
+          ],
+          "rgb555_operands_examined": 32768,
+          "distinct_requirements": 2220,
+          "valid_operands": 2057,
+          "maximal_cover_operands": 836,
+          "dominance_mapping_sha256": "f882eab5b282e14e29ee1fc377be6aef1e68b2ea70bcf1320c2c6c7440e8097c",
+          "retained_seed_operands": 0,
+          "total_option_operands": 836,
+          "modes_relaxed_per_pixel": false,
+          "mode_tagged_coverage": true,
+          "global_mode_schedule_proven": false,
+          "color_math_window_bypass_relaxed_per_pixel": false,
+          "fixed_color_math_window_context": false,
+          "all_valid_operand_coverages_retained": true,
+          "no_color_reduction": true
+        },
+        "cache_bound": {
+          "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+          "solver_status": 1,
+          "message": "UNKNOWN",
+          "variables": 41813,
+          "constraints": 35199,
+          "mode_variables": 84,
+          "integer_modes": true,
+          "write_budget": 21,
+          "palette_residency_integrality_relaxed": false,
+          "geometry_and_bank_assignment_relaxed": true,
+          "optimal_initial_residency_allowed": true,
+          "fixed_initial_palette_state": null,
+          "unbounded_preloading_allowed": true,
+          "schedule_proven": false,
+          "no_color_reduction": true,
+          "forced_opaque_modes_pruned": [],
+          "reserved_normal_colors": [],
+          "static_normal_residency_fixed_for_complete_interval": false,
+          "scanline_write_limits": {},
+          "required_normal_rows": {},
+          "solver_seconds": 60.68610709998757,
+          "solver_method": "cp-sat",
+          "integer_palette": true,
+          "hardware_window_masks_modeled": true,
+          "integer_windows": true,
+          "window_transition_superset_only": true,
+          "window_register_schedule_proven": false,
+          "positive_union_with_disabled_edges_only": false,
+          "subset_mode_cover_cuts": false,
+          "window_eligibility_variables": 1397,
+          "maximum_window_transitions": 4,
+          "boolean_stats": {
+            "nonboolean_integer_variables": 1,
+            "hint_variables": 36405,
+            "hint_is_soft": true,
+            "log_lines": 197,
+            "sat_inprocessing": false,
+            "branches": 1930,
+            "conflicts": 0,
+            "wall_seconds": 50.0979825,
+            "probing_level": 0,
+            "workers": 4,
+            "search_strategy": "portfolio",
+            "optimal": false
+          },
+          "lp_residency_hint": {
+            "status": 0,
+            "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+            "hint_is_soft": true,
+            "pinned_variables": 0,
+            "relaxed_objective": 19.9375,
+            "hint_variables": 36405,
+            "maximum_primal_violation": 2.842170943040401e-14
+          }
+        },
+        "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+        "class_cache_capacities": [
+          15,
+          60
+        ],
+        "presentation_family": "ISOLATED_EFFECT_FIVE_BANK_CAPACITY_WITH_TWO_WINDOWS",
+        "whole_frame_demand_proven": false
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-fivebank-window-feasible21": {
+      "input_sha256": "bbd20bc0b1f1afe8365586b23d89b0576e9ea37257d6ca60b910f1c279ef73e6",
+      "search": {
+        "schema": "BYOR_STATIC_ORDINARY_OBJ_EFFECT_MATH_BOUND_V1",
+        "scene": {
+          "viewport": [
+            256,
+            224
+          ],
+          "piece_size": [
+            16,
+            32
+          ],
+          "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+          "actors": [
+            {
+              "model": "HBreath",
+              "animation": "idle",
+              "frame": 11,
+              "position": [
+                98,
+                220,
+                93
+              ],
+              "order": 2
+            }
+          ]
+        },
+        "source_metadata": {
+          "stage": "DATA/LEVELS/GUILE2.TXT",
+          "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+          "scene": {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              }
+            ]
+          },
+          "layers": [
+            {
+              "kind": "background",
+              "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+              "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+              "source_dimensions": [
+                800,
+                400
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 57344,
+              "source_flip": false
+            },
+            {
+              "kind": "panel",
+              "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+              "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+              "source_dimensions": [
+                2544,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 44246,
+              "source_flip": false
+            },
+            {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+              "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 2751,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 2751,
+              "final_visible_pixels": 2751
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 2749,
+              "source_flip": false
+            }
+          ],
+          "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+          "alpha_source_dimensions": [
+            [
+              110,
+              90
+            ]
+          ],
+          "camera": [
+            0.0,
+            0.0
+          ],
+          "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+          "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+          "all_actor_models_preserved": true
+        },
+        "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+        "ordinary_actors": [],
+        "reserved_visible_source_words": [],
+        "reserved_word_count": 0,
+        "ordinary_union_word_count": 0,
+        "ordinary_residency_policy": "static",
+        "ordinary_peak_required_words": 0,
+        "minimum_static_banks": 0,
+        "static_words_fixed_in_lower_class": true,
+        "source_context_reachability_certified": false,
+        "palette_bank_assignment_proven": false,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "zero_main_clipping_not_modeled": true,
+        "scanline_interval": [
+          125,
+          145
+        ],
+        "outside_interval_demand_relaxed": true,
+        "allowed_math_modes": [
+          "add",
+          "half-add",
+          "subtract",
+          "half-subtract"
+        ],
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "operand_cover": {
+          "modes": [
+            "add",
+            "half-add",
+            "subtract",
+            "half-subtract"
+          ],
+          "rgb555_operands_examined": 32768,
+          "distinct_requirements": 2220,
+          "valid_operands": 2057,
+          "maximal_cover_operands": 836,
+          "dominance_mapping_sha256": "f882eab5b282e14e29ee1fc377be6aef1e68b2ea70bcf1320c2c6c7440e8097c",
+          "retained_seed_operands": 0,
+          "total_option_operands": 836,
+          "modes_relaxed_per_pixel": false,
+          "mode_tagged_coverage": true,
+          "global_mode_schedule_proven": false,
+          "color_math_window_bypass_relaxed_per_pixel": false,
+          "fixed_color_math_window_context": false,
+          "all_valid_operand_coverages_retained": true,
+          "no_color_reduction": true
+        },
+        "cache_bound": {
+          "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+          "solver_status": 1,
+          "message": "UNKNOWN",
+          "variables": 41813,
+          "constraints": 35199,
+          "mode_variables": 84,
+          "integer_modes": true,
+          "write_budget": 21,
+          "palette_residency_integrality_relaxed": false,
+          "geometry_and_bank_assignment_relaxed": true,
+          "optimal_initial_residency_allowed": true,
+          "fixed_initial_palette_state": null,
+          "unbounded_preloading_allowed": true,
+          "schedule_proven": false,
+          "no_color_reduction": true,
+          "forced_opaque_modes_pruned": [],
+          "reserved_normal_colors": [],
+          "static_normal_residency_fixed_for_complete_interval": false,
+          "scanline_write_limits": {},
+          "required_normal_rows": {},
+          "solver_seconds": 60.65655959956348,
+          "solver_method": "cp-sat",
+          "integer_palette": true,
+          "hardware_window_masks_modeled": true,
+          "integer_windows": true,
+          "window_transition_superset_only": true,
+          "window_register_schedule_proven": false,
+          "positive_union_with_disabled_edges_only": false,
+          "subset_mode_cover_cuts": false,
+          "window_eligibility_variables": 1397,
+          "maximum_window_transitions": 4,
+          "boolean_stats": {
+            "nonboolean_integer_variables": 1,
+            "hint_variables": 36405,
+            "hint_is_soft": true,
+            "log_lines": 176,
+            "sat_inprocessing": false,
+            "branches": 1642,
+            "conflicts": 0,
+            "wall_seconds": 50.096594200000006,
+            "probing_level": 0,
+            "workers": 4,
+            "search_strategy": "portfolio",
+            "search_objective": "FEASIBILITY_ONLY",
+            "optimal": false
+          },
+          "lp_residency_hint": {
+            "status": 0,
+            "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+            "hint_is_soft": true,
+            "pinned_variables": 0,
+            "relaxed_objective": 19.9375,
+            "hint_variables": 36405,
+            "maximum_primal_violation": 2.842170943040401e-14
+          }
+        },
+        "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+        "class_cache_capacities": [
+          15,
+          60
+        ],
+        "presentation_family": "ISOLATED_EFFECT_FIVE_BANK_CAPACITY_WITH_TWO_WINDOWS",
+        "whole_frame_demand_proven": false
+      },
+      "native_admitted": false
     }
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-authored-kempe.json.gz",
-    "bytes": 1020666,
-    "sha256": "04d36081cedd60bd9b50cb08e1da5e4f0cec540a26b1c838c1c2584d25457dc3"
+    "bytes": 1021125,
+    "sha256": "033be3f6e0520106822f51440b693b12c9b738af802266ce8461b33ee5caf4a8"
   },
   "source_alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555",
   "universal_raster_rejected": false,

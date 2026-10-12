@@ -206,3 +206,10 @@ optimistic; geometry, fixed banks and physical slots remain relaxed. These
 measurements identify capacity tradeoffs without reserving actor resources or
 claiming a complete frame schedule. No compatibility alpha approximation is
 selected.
+
+The five-bank-capacity integer pool remains UNKNOWN at both 20 and 21 writes
+and under a feasibility-only objective. The generic bounded-integer backend
+now accepts that objective explicitly and never marks it cost-optimal.
+Eight matrix-constraint tests and nineteen existing mode/liveness tests pass;
+every consumer still independently replays an emitted incumbent. No five-bank
+schedule or concurrent-actor reservation is admitted by these searches.

@@ -10,6 +10,15 @@ from raster_boolean_solver import solve
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class BooleanMatrixTests(unittest.TestCase):
+    def test_feasibility_objective_preserves_constraints_without_optimality(self):
+        result=solve(coo_matrix([[1,1],[1,-1]]),[1,-np.inf],[1,0],[1,2],time_limit=5,workers=1,feasibility_only=True)
+        self.assertEqual(result.status,0)
+        np.testing.assert_array_equal(result.x,[0,1])
+        self.assertFalse(result.boolean_stats['optimal'])
+        self.assertEqual(result.boolean_stats['search_objective'],'FEASIBILITY_ONLY')
+        with self.assertRaisesRegex(ValueError,'FEASIBILITY_DOMAIN'):
+            solve(coo_matrix([[1]]),[1],[1],[0],feasibility_only=1)
+
     def test_sat_strategy_checks_integer_constraints_and_soft_hint(self):
         result=solve(coo_matrix([[1,0],[1,-3]]),[3,0],[3,0],[0,0],
                      time_limit=5,workers=1,variable_upper=[30,1],

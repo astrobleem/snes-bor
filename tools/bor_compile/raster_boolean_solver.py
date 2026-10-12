@@ -9,9 +9,10 @@ from collections import deque
 import numpy as np
 
 
-def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None, variable_upper=None,search_strategy='portfolio'):
+def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None, variable_upper=None,search_strategy='portfolio',feasibility_only=False):
     from ortools.sat.python import cp_model
     if search_strategy not in ('portfolio','sat','sat-repair'):raise ValueError('BOOLEAN_SEARCH_STRATEGY')
+    if type(feasibility_only)is not bool:raise ValueError('BOOLEAN_FEASIBILITY_DOMAIN')
     model=cp_model.CpModel()
     domains=np.ones(matrix.shape[1]) if variable_upper is None else np.asarray(variable_upper)
     if domains.shape!=(matrix.shape[1],) or any(not np.isfinite(v) or v<0 or float(v)!=int(v) for v in domains):raise ValueError('INTEGER_VARIABLE_UPPER_DOMAIN')
@@ -35,7 +36,7 @@ def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None, 
             if np.isfinite(hi):model.add(expression<=int(hi))
     weights=np.rint(np.asarray(objective)*1000).astype(int)
     if np.any(np.abs(weights/1000-objective)>1e-9):raise ValueError('BOOLEAN_OBJECTIVE_PRECISION')
-    if np.any(weights):model.minimize(cp_model.LinearExpr.weighted_sum(variables,weights.tolist()))
+    if np.any(weights)and not feasibility_only:model.minimize(cp_model.LinearExpr.weighted_sum(variables,weights.tolist()))
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit
     solver.parameters.num_search_workers=workers
     # The full raster graph has many equivalent implications; exhaustive
@@ -59,4 +60,4 @@ def solve(matrix, lower, upper, objective, time_limit=45, workers=4, hint=None, 
     values=np.array([solver.value(v) for v in variables],dtype=float) if feasible else None
     return SimpleNamespace(x=values,status=0 if feasible else 2 if status==cp_model.INFEASIBLE else 1,
                            message=solver.status_name(status),mip_node_count=None,mip_gap=None,
-                           bounded_log=list(log),boolean_stats=dict(nonboolean_integer_variables=int(np.count_nonzero(domains>1)),hint_variables=len(hint or {}),hint_is_soft=True,log_lines=log_lines,sat_inprocessing=False,branches=solver.num_branches,conflicts=solver.num_conflicts,wall_seconds=solver.wall_time,probing_level=0,workers=workers,search_strategy=search_strategy,optimal=status==cp_model.OPTIMAL))
+                           bounded_log=list(log),boolean_stats=dict(nonboolean_integer_variables=int(np.count_nonzero(domains>1)),hint_variables=len(hint or {}),hint_is_soft=True,log_lines=log_lines,sat_inprocessing=False,branches=solver.num_branches,conflicts=solver.num_conflicts,wall_seconds=solver.wall_time,probing_level=0,workers=workers,search_strategy=search_strategy,search_objective='FEASIBILITY_ONLY'if feasibility_only else'WEIGHTED_INTEGER_COST',optimal=not feasibility_only and status==cp_model.OPTIMAL))
