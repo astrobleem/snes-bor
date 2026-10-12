@@ -651,3 +651,20 @@ Reopening whole-piece bank choices on the 70-entry non-grid witness evaluates
 twelve assignments in 89.547 seconds. The best fractional transfer lower bound
 remains 337.554147 clocks. This relaxation is not an integer transfer schedule,
 and the complete 424-clock witness remains above the measured hardware window.
+
+Equivalent-mask reduction removes 2,610 rectangle choices only when their
+opaque pixel sets and full per-line hardware costs are identical. Input
+rectangles receive preference to preserve the soft start. The reduced CP-SAT
+player-reserved trial remains UNKNOWN after 90.343 seconds; an 8/32 trial also
+remains UNKNOWN after 90.409 seconds. Row-word bank reopening evaluates eight
+assignments in 130.250 seconds without improving the fractional timing bound.
+
+The optional native HiGHS backend finds a source-exact player-reserved 8/16
+cover after 91.234 seconds: 87 HBreath rectangles plus 33 reserved player
+rectangles, 120 combined OAM entries, 26 sprites and 34 slivers at peak. Every
+source pixel retains its owner, bank and physical slot; the palette trace is
+unchanged. The integer constraint replay has zero violations and the complete
+authored viewport is replayed separately by the retainer. All 27 geometry and
+residency tests pass. This proves this geometry reservation only: player
+palette/layer concurrency, authored reachability and native transfer admission
+remain unproven, and the unchanged 424-clock cache still exceeds the window.

@@ -37,6 +37,10 @@ class MaskCoverTests(unittest.TestCase):
         self.assertFalse(result['geometry_pixel_rectangle_cover']['concurrent_palette_or_layer_admitted'])
         self.assertTrue(result['geometry_pixel_rectangle_cover']['repair_hint'])
         self.assertEqual(result['geometry_pixel_rectangle_cover']['combined_horizontal_tile_lower_bound'],2)
+        self.assertGreater(result['geometry_pixel_rectangle_cover']['equivalent_candidate_rectangles_removed'],0)
+        self.assertEqual(result['geometry_pixel_rectangle_cover']['raw_candidate_rectangles'],
+            result['geometry_pixel_rectangle_cover']['candidate_rectangles']+
+            result['geometry_pixel_rectangle_cover']['equivalent_candidate_rectangles_removed'])
 
     def test_full_reserved_tile_rows_reject_without_rejecting_general_raster(self):
         reserve=dict(oam_entries=0,sprites_per_line=[0]*16,tile_slivers_per_line=[34]*16)
@@ -50,6 +54,16 @@ class MaskCoverTests(unittest.TestCase):
     def test_mismatched_actor_origin_fails_explicitly(self):
         source=fixture();source['pieces'][1]['local_x']+=1
         with self.assertRaisesRegex(ValueError,'ACTOR_ORIGIN'):cover(source)
+
+    def test_native_highs_matches_exact_geometry_and_rejects_overflow(self):
+        source=fixture();result=cover(source,time_limit=3,solver_backend='highspy')
+        self.assertEqual(indexed_pixels(source),indexed_pixels(result))
+        self.assertEqual(result['geometry'],dict(oam_entries=2,peak_sprites=2,peak_tile_slivers=2))
+        self.assertEqual(result['geometry_pixel_rectangle_cover']['solver_backend'],'highspy')
+        reserve=dict(oam_entries=0,sprites_per_line=[0]*16,tile_slivers_per_line=[34]*16)
+        rejected=cover(source,time_limit=3,geometry_reservation=reserve,solver_backend='highspy')
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+        self.assertFalse(rejected['universal_raster_rejected'])
 
     def test_multiple_visible_actor_owners_at_one_pixel_fail_explicitly(self):
         source=fixture();source['pieces'][1].update(actor=1,x=10,local_x=10)
