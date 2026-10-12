@@ -21,6 +21,7 @@ class LiteralDemandTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'NOT_UNIVERSAL_REJECTION'):build([dict(left=0,top=0,pixels=pixels)],{},bg,gold)
         pixels=np.array([[1]],dtype=np.int32)
         with self.assertRaisesRegex(ValueError,'SOURCE_OUTPUT_REPLAY'):build([dict(left=0,top=0,pixels=pixels)],{},bg,bg)
+        with self.assertRaisesRegex(ValueError,'ACTOR_PIXEL_DOMAIN'):build([dict(left=0,top=0,pixels=np.array([[1.5]]))],{},bg,bg)
 
 
 if __name__=='__main__':unittest.main()

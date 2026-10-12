@@ -3,6 +3,15 @@ from raster_frame_bank_geometry import search,subdivided_candidates
 
 
 class FrameBankGeometryTests(unittest.TestCase):
+    def test_source_actor_pixels_cannot_move_to_another_actor_piece(self):
+        rects=[dict(actor=i,x=0,y=0,width=8,height=8)for i in(0,1)]
+        words={(0,0):{0:[0]},(0,1):{0:[1]}}
+        r=search(rects,words,height=8,time_limit=3,pixel_actors={(0,0):0,(0,1):1})
+        self.assertEqual(r['geometry']['oam_entries'],2)
+        self.assertTrue(r['source_pixel_actor_assignment_enforced'])
+        for q in r['pixels']:self.assertEqual(r['pieces'][q['piece']]['actor'],q['x'])
+        with self.assertRaisesRegex(ValueError,'UNCOVERED_PIXEL'):search(rects[:1],words,height=8,time_limit=3,pixel_actors={(0,0):0,(0,1):1})
+
     def test_joint_windows_cannot_relax_arbitrary_pixel_gates(self):
         rects=[dict(x=x,y=0,width=32,height=32,allowed_banks=[4])for x in(0,96)]
         from raster_math_windows import evaluate

@@ -27,7 +27,7 @@ def subdivided_candidates(rectangles,pixel_options,small_size=8):
     return list(candidates.values())
 
 
-def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None,geometry_reservation=None,solver_backend='cp-sat',minimize_cache_span=False,search_strategy='portfolio',repair_interval=None,mode_word_options=None,literal_window_outputs=None):
+def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None,geometry_reservation=None,solver_backend='cp-sat',minimize_cache_span=False,search_strategy='portfolio',repair_interval=None,mode_word_options=None,literal_window_outputs=None,pixel_actors=None):
     from ortools.sat.python import cp_model
     if type(height)is not int or not 1<=height<=256 or time_limit<=0 or not rectangles or not pixel_options:
         raise ValueError('FRAME_BANK_GEOMETRY_DOMAIN')
@@ -61,6 +61,8 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
     if literal_window_outputs is not None:
         if mode_word_options is None or not isinstance(literal_window_outputs,dict)or set(literal_window_outputs)!=set(pixel_options)or any(type(c)is not int or not 0<=c<32768 for c in literal_window_outputs.values()):raise ValueError('FRAME_BANK_GEOMETRY_WINDOW_OPTIONS')
         if any(c not in pixel_options[point][b]for point,c in literal_window_outputs.items()for b in pixel_options[point]if b>=4):raise ValueError('FRAME_BANK_GEOMETRY_WINDOW_LITERAL')
+    if pixel_actors is not None and(not isinstance(pixel_actors,dict)or set(pixel_actors)!=set(pixel_options)or any(type(i)is not int or i<0 for i in pixel_actors.values())or any(type(p.get('actor',0))is not int or p.get('actor',0)<0 for p in rectangles)):
+        raise ValueError('FRAME_BANK_GEOMETRY_PIXEL_ACTORS')
     if mode_word_options is not None:
         from raster_obj_math_cover import MODES
         if bank_symmetry or not isinstance(mode_word_options,dict)or set(mode_word_options)!=set(pixel_options):raise ValueError('FRAME_BANK_GEOMETRY_MODE_OPTIONS')
@@ -88,7 +90,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
                 if any(v!=included[0]for v in included):raise ValueError('FRAME_BANK_GEOMETRY_UNSAFE_SYMMETRY')
     coverage={point:[]for point in pixel_options}
     for i,p in enumerate(rectangles):
-        points=[point for point in pixel_options if p['y']<=point[0]<p['y']+p['height']and p['x']<=point[1]<p['x']+p['width']]
+        points=[point for point in pixel_options if p['y']<=point[0]<p['y']+p['height']and p['x']<=point[1]<p['x']+p['width']and(pixel_actors is None or pixel_actors[point]==p.get('actor',0))]
         for point in points:coverage[point].append(i)
     atoms={}
     for (y,x),banks in pixel_options.items():
@@ -363,6 +365,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         reservation_palette_and_layer_demand_included=False,
         universal_raster_rejected=False,no_color_reduction=True)
     report['shared_scanline_math_modes_searched']=mode_word_options is not None
+    report['source_pixel_actor_assignment_enforced']=pixel_actors is not None
     report['independent_mode_window_coverage_clauses']=mode_pool_clauses
     report['outside_repair_math_modes_fixed']=repair_interval is not None and mode_word_options is not None
     report.update(source_exact_color_windows_searched=literal_window_outputs is not None,
@@ -385,6 +388,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         c=min(colors)
         for y,x in atoms[j][1]:
             if(y,x)in seen or(i,b)not in selected:raise AssertionError('FRAME_BANK_GEOMETRY_OWNER_REPLAY')
+            if pixel_actors is not None and pixel_actors[y,x]!=rectangles[i].get('actor',0):raise AssertionError('FRAME_BANK_GEOMETRY_ACTOR_IDENTITY_REPLAY')
             seen.add((y,x));pixels.append(dict(piece=selected[i,b],y=y,x=x,bank=b,color=c));row_colors.setdefault((y,b),set()).add(c)
     if seen!=set(pixel_options)or any(len(cs)>15 for cs in row_colors.values()):raise AssertionError('FRAME_BANK_GEOMETRY_CAPACITY_REPLAY')
     if mode_word_options is not None:report.update(selected_modes=selected_modes,shared_row_mode_word_compatibility_replayed=True)
@@ -462,7 +466,7 @@ def main():
     if geometry.get('source_rgb555_sha256')!=frame['source_rgb555_sha256']:
         raise ValueError('FRAME_BANK_GEOMETRY_COVER_SOURCE_IDENTITY')
     source=Source(a.exact_source);scene=frame['metadata']['scene']
-    _,metadata,expected=prepare(source,a.stage,scene);expected=rgb555(expected)
+    source_actors,metadata,expected=prepare(source,a.stage,scene);expected=rgb555(expected)
     if metadata!=frame['metadata']or hashlib.sha256(expected.astype('<u2').tobytes()).hexdigest()!=frame['source_rgb555_sha256']:
         raise ValueError('FRAME_BANK_GEOMETRY_SOURCE_ARCHIVE_IDENTITY')
     background=rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0])
@@ -484,6 +488,19 @@ def main():
             row,proof=exact_row_word_options(frame,y,background[y],expected[y]);proofs[str(y)]=proof
             options.update({(y,x):banks for x,banks in row.items()})
     if a.subdivide:rectangles=subdivided_candidates(rectangles,options)
+    pixel_actors={}
+    if 'source_visible_composite_geometry'in frame:
+        from source_visible_obj_composite import merge_visible_actors
+        source_actors,composite_proof=merge_visible_actors(source_actors,expected.shape)
+        if composite_proof!=frame['source_visible_composite_geometry']:raise ValueError('FRAME_BANK_GEOMETRY_SOURCE_COMPOSITE_IDENTITY')
+    authoritative_actors={(actor['top']+int(y),actor['left']+int(x)):i for i,actor in enumerate(source_actors)for y,x in np.argwhere(actor['pixels']>=0)}
+    for piece,image in zip(frame['pieces'],input_images):
+        for ly,lx in np.argwhere(image>=0):
+            point=piece['y']+int(ly),piece['x']+int(lx)
+            if point not in options:continue
+            if point in pixel_actors:raise ValueError('FRAME_BANK_GEOMETRY_SOURCE_OWNER_OVERLAP')
+            if authoritative_actors.get(point)!=piece.get('actor',0):raise ValueError('FRAME_BANK_GEOMETRY_SOURCE_ACTOR_BINDING')
+            pixel_actors[point]=piece.get('actor',0)
     print(json.dumps(dict(candidate_rectangles=len(rectangles),source_pixels=len(options))),flush=True)
     hint=json.loads(a.geometry_hint.read_text(encoding='utf-8'))if a.geometry_hint else None
     if a.hint_input_schedule:
@@ -500,12 +517,13 @@ def main():
     if hint is not None and hint.get('source_rgb555_sha256')!=frame['source_rgb555_sha256']:
         raise ValueError('FRAME_BANK_GEOMETRY_HINT_SOURCE_IDENTITY')
     reservation=json.loads(a.geometry_reservation.read_text(encoding='utf-8'))if a.geometry_reservation else None
-    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window,geometry_reservation=reservation,solver_backend=a.solver_backend,minimize_cache_span=a.minimize_cache_span,search_strategy=a.search_strategy,repair_interval=a.repair_interval,mode_word_options=mode_options,literal_window_outputs=literal_outputs)
+    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window,geometry_reservation=reservation,solver_backend=a.solver_backend,minimize_cache_span=a.minimize_cache_span,search_strategy=a.search_strategy,repair_interval=a.repair_interval,mode_word_options=mode_options,literal_window_outputs=literal_outputs,pixel_actors=pixel_actors)
     report.update(source_rgb555_sha256=frame['source_rgb555_sha256'],source_input_sha256=hashlib.sha256(a.schedule.read_bytes()).hexdigest(),source_input_path=str(a.schedule),
         source_pak_sha256=hashlib.sha256(a.exact_source.read_bytes()).hexdigest(),source_row_context_proofs=proofs,
         source_rectangle_cover=geometry['source_rectangle_cover'],scanline_interval=[a.scanline_start,a.scanline_end],
         outside_interval_demand_relaxed=(a.scanline_start,a.scanline_end)!=(0,224),
         source_alpha_policy='EXACT_SOURCE_OUTPUT_OPERANDS',alpha_compatibility_policy_selected=False)
+    report['source_archive_actor_identity_verified']=True
     if frame_cover is not None:report['frame_operand_identity_cover']=frame_cover
     a.output.write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     print(json.dumps({k:v for k,v in report.items()if k not in('pixels','pieces','source_rectangle_cover','source_row_context_proofs','joint_cache_trace','geometry_reservation','compiled_color_window_descriptors')}))

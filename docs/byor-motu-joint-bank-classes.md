@@ -1,5 +1,33 @@
 # Shared geometry for exact math bank classes
 
+Source-only geometry adds thirteen legal HBreath rectangles absent from the
+previous palette-derived family, increasing it to 96 candidates. Joint
+window/mode/cache repair validates all 511,657 start values and returns
+FEASIBLE after 90.703 seconds, still at 400 clocks with the existing
+86-object effect geometry. This remains above the measured transfer window.
+
+A separate sixteen-parent source cover with legal subdivision yields 71
+candidates. Its full 353-clock search remains UNKNOWN after 121.492 seconds.
+Removing cache and timing constraints finds an exact bank/window/mode geometry
+witness after 30.193 seconds: 28 effect objects, 10 sprites and 20 slivers,
+or 61 objects, 14 sprites and 28 slivers with the player geometry reservation.
+Several shared row modes differ from full addition, while all source output
+pixels remain exact. Compilation independently replays all 57,344 pixels,
+but greedy residency requires 49 writes on its busiest row. Palette schedule
+hash: ff1cb95db4b13391e872545828a18d36a2a884104b6d716d683450d657421d24.
+Its independently checked fixed-bank/fixed-word fractional cache bound is
+47.5 writes, with zero primal violation and dual residual. Therefore that
+particular encoding requires at least 48 writes somewhere, or at least
+752 clocks between high-byte commits before range overhead. It rejects this
+selected encoding/bank assignment, not the source geometry or raster generally.
+
+Pixel actor identity is now part of the generic source-bound geometry search
+and is independently checked during compilation. The CLI verifies identities
+against the reopened source archive; explicit fused inputs must reproduce their
+source owner-provenance proof. Floating actor color values are rejected rather
+than truncated. Ninety-seven focused tests pass. No native raster timing or
+MOTU Demo certification is inferred from these offline witnesses.
+
 Joint source-exact color-window choices are now included with geometry, fixed
 piece banks, shared row modes and integer cache residency. Upper-bank owners
 may select either their exact operand inside the windows or literal final

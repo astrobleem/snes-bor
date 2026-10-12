@@ -22,6 +22,11 @@ def source_fixture():
 
 
 class FrameBankCompileTests(unittest.TestCase):
+    def test_compilation_rejects_actor_identity_changes_even_when_pixels_match(self):
+        source,witness,bg,expected=source_fixture()
+        witness['pieces'][0]['actor']=1
+        with self.assertRaisesRegex(ValueError,'SOURCE_ACTOR_IDENTITY'):compile_witness(source,witness,bg,expected)
+
     def test_changed_windows_preserve_exact_source_output_or_fail(self):
         from raster_math_windows import evaluate
         source,witness,bg,expected=source_fixture()

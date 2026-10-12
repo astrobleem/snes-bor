@@ -63,6 +63,14 @@ def compile_witness(source,witness,background,expected,lookahead=16):
     expected_points={(int(p['y']+y),int(p['x']+x))for p,image in zip(source['pieces'],input_colors)for y,x in zip(*np.where(image>=0))if first<=p['y']+y<last}
     if seen!=expected_points:raise ValueError('FRAME_COMPILE_OPAQUE_OWNERSHIP')
     if not np.array_equal(actual[first:last],gold[first:last]):raise ValueError('FRAME_COMPILE_SOURCE_OUTPUT_REPLAY')
+    input_actors={}
+    for p,image in zip(source['pieces'],input_colors):
+        for ly,lx in np.argwhere(image>=0):
+            point=p['y']+int(ly),p['x']+int(lx)
+            if not first<=point[0]<last:continue
+            if point in input_actors:raise ValueError('FRAME_COMPILE_SOURCE_ACTOR_OVERLAP')
+            input_actors[point]=p.get('actor',0)
+    if any(pieces[q['piece']].get('actor',0)!=input_actors[q['y'],q['x']]for q in witness['pixels']):raise ValueError('FRAME_COMPILE_SOURCE_ACTOR_IDENTITY')
     geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(active_on_line(p,y)for p in pieces)for y in range(224)),
         peak_tile_slivers=max(sum(tile_slivers(p)for p in pieces if active_on_line(p,y))for y in range(224)))
     if geometry['peak_sprites']>32 or geometry['peak_tile_slivers']>34:raise ValueError('FRAME_COMPILE_HARDWARE_OVERFLOW')
@@ -120,6 +128,7 @@ def compile_witness(source,witness,background,expected,lookahead=16):
         pieces=pieces,piece_pixel_masks=masks,trace=trace,geometry=geometry,hardware_geometry_admitted=True,oam_y_wrap_counted=True,fully_offscreen_tile_slivers_skipped=True,
         compiled_pixel_identity_verified=complete,restricted_pixel_identity_verified=not complete,
         complete_source_frame_pixel_identity_proven=complete,outside_interval_pixels_relaxed=not complete,
+        source_pixel_actor_identity_replayed=True,
         restricted_scanline_demand_interval=[first,last-1],source_output_pixels_replayed=(last-first)*256,
         peak_scheduled_writes=max(r['colors_written']for r in trace[1:]),lookahead_lines=None if 'joint_cache_trace'in witness else lookahead,
         maximum_noninitial_prefetch_latency_lines=latency,initial_palette_may_preload_entire_frame=True,

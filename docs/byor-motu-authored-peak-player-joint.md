@@ -38,6 +38,15 @@ contexts and retains 1,642 coverage identities, including 49 input seeds. This
 is no integer witness and no infeasibility certificate. Physical slots, native
 timing, live composition and full Demo admission remain unproven.
 
+That first search permits cross-actor rectangle ownership where bounds overlap;
+it is a necessary relaxation, not preservation of per-actor mask identity. The
+source-bound CLI now verifies each input pixel's actor against the reopened
+source and limits candidate ownership to the same actor. Explicit fused inputs
+must reproduce their source owner-provenance proof. Compilation independently
+rejects actor changes even when the final colors match. The actor-preserving
+joint trial remains UNKNOWN after 122.313 seconds, with 603,703 variables and
+1,089,101 constraints. No source identity shortcut or native admission is used.
+
 The bounded receipt reopens the actual source archive, rebuilds the demand,
 replays every source row-context hash and independently checks geometry cover
 ownership. Ninety-five focused tests pass. Production static presentation and

@@ -18,6 +18,8 @@ def build(actors,metadata,background,expected):
     if any(a.shape!=(224,256)or a.dtype.kind not in'ui'or np.any(a<0)or np.any(a>32767)for a in(bg,gold)):raise ValueError('LITERAL_DEMAND_RGB555_CONTEXT')
     coordinates={};sets=[set()for _ in range(224)]
     for i,a in enumerate(actors):
+        pixels=np.asarray(a['pixels'])
+        if pixels.ndim!=2 or pixels.dtype.kind not in'iu'or np.any(pixels<-1)or np.any(pixels>32767)or any(type(a[k])is not int for k in('left','top')):raise ValueError('LITERAL_DEMAND_ACTOR_PIXEL_DOMAIN')
         for ly,lx in np.argwhere(a['pixels']>=0):
             y,x=a['top']+int(ly),a['left']+int(lx);c=int(a['pixels'][ly,lx])
             if not 0<=y<224 or not 0<=x<256 or not 0<=c<32768 or(y,x)in coordinates:raise ValueError('LITERAL_DEMAND_PIXEL_OWNER')
