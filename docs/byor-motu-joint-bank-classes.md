@@ -483,3 +483,13 @@ fail explicitly. Strict resumed-certificate sign and stationarity checks remain
 unchanged. Ten focused tests pass, including invalid-certificate rejection and
 seed-bank diagnostic ordering. This changes only offline tooling, with no
 production assembly or bank-zero growth.
+
+Using the verified integer cache as a soft hint still returns UNKNOWN at
+121.141 seconds for the complete 345-clock flow search. Reopening assignment
+selection under an unconstrained 120-word count ceiling improves the optimistic
+fractional DMA span from 385.36 to 354.586291 clocks after 13 evaluations. That
+ceiling is a search relaxation, not a runtime bandwidth allowance. The selected
+assignment still fails the conservative 345-clock gate; source pixel identity
+replays across the whole viewport, while integer transfers and native admission
+remain unproved. A resumed bank search retains independently checked dual cuts
+and continues from this assignment.
