@@ -359,3 +359,23 @@ has bound 23.583333, forcing 24 writes and exceeding the measured window.
 The word-cover DMA-cut search has no candidate because its initial fixed-bank
 LP is infeasible under the 21-write cap; this is a restricted initial
 assignment failure, not a universal raster or bank-assignment verdict.
+
+Two constant class-write partitions on the local fixed-piece encoding are
+rejected: opaque/math caps 12/9 and 15/6 both prove opaque fixed-bank
+assignment infeasible under all eight-row interval cuts. These are necessary
+cache-write constraints for those explicit constant class caps. They do not
+reject variable per-line class budgets, alternate exact operand selection,
+additional legal pixel masks or lossless raster generally.
+
+A physical greedy run on the earlier effect-only encoding, with 55-line
+lookahead, sixteen bank/slot beams and sixteen frame beams, fails at line 128
+under the 345-clock threshold. Heuristic failure is retained without a
+hardware infeasibility claim.
+
+The row-word mask cache-cut family now includes the explicit measured player
+geometry reservation. Its short master returns UNKNOWN. Resuming the
+independently certified cut with twenty-second masters improves the best
+validated fractional bound from 32.666667 to 25.571429 over three iterations
+in 67.094 seconds. Any emitted assignment must still satisfy the complete
+OAM rectangles plus player reservation. Neither this fractional result nor
+its unproved integer extension admits transfer timing or concurrent palettes.
