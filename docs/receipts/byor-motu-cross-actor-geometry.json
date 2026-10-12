@@ -5573,6 +5573,48 @@
         "alpha_compatibility_policy_selected": false
       }
     },
+    "byor-motu-full-rise-allactor-add-band150-157-joint-cache345": {
+      "input_sha256": "7e348a100a96e410206d26d4fa992711194d2990f51e9c110b5079424a7e36bf",
+      "search": {
+        "schema": "BYOR_FIXED_FRAME_BANK_GEOMETRY_V1",
+        "status": "BOUNDED_FRAME_BANK_GEOMETRY_NO_WITNESS",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 90.0916006,
+        "solver_objective_lower_bound": 0.0,
+        "model_variables": 21353,
+        "model_constraints": 38397,
+        "candidate_rectangles": 72,
+        "source_pixel_count": 1743,
+        "bank_count": 8,
+        "opaque_slots_per_bank": 15,
+        "fixed_bank_for_entire_oam_rectangle": true,
+        "equivalent_pixel_decision_atoms": 930,
+        "equivalent_pixel_decisions_coalesced": 813,
+        "safe_class_bank_label_symmetry": false,
+        "bank_order_timing_not_modeled": false,
+        "solver_objective": "FEASIBILITY_ONLY",
+        "soft_geometry_hint_variables": 706,
+        "ideal_cache_partition_window_master_clocks": 345,
+        "joint_cache_residency_enforced": true,
+        "initial_cache_row_relaxed_to_free_vblank": 150,
+        "full_rectangle_padding_counted": true,
+        "palette_liveness_and_transfer_cost_relaxed": false,
+        "physical_slots_and_transfer_cost_relaxed": true,
+        "native_presentation_proven": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+        "source_input_sha256": "fe828791766a027db2520475da9694f435d7dbcea9ec3bd6f24bc304b91de535",
+        "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+        "scanline_interval": [
+          150,
+          157
+        ],
+        "outside_interval_demand_relaxed": true,
+        "source_alpha_policy": "EXACT_SOURCE_OUTPUT_OPERANDS",
+        "alpha_compatibility_policy_selected": false
+      }
+    },
     "byor-motu-full-rise-allactor-add-band152-155-compiled": {
       "input_sha256": "c747ae88972188d87308af193e4e098bd731e469d50248111b358ccf22e59637",
       "search": {
@@ -5726,7 +5768,7 @@
       }
     },
     "byor-motu-full-rise-allactor-add-band152-155-joint-compiled": {
-      "input_sha256": "287df4185126028451da4d33339a190f2be9906f5576b186450ecd127b360b97",
+      "input_sha256": "38d3449a30e81fc24b53cdf3093748ec46aee85957d4b6d8a1d49a9d640a4a2a",
       "search": {
         "status": "RESTRICTED_SCANLINE_DEMAND_ONLY",
         "geometry": {
@@ -5832,8 +5874,8 @@
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-cross-actor-geometry.json.gz",
-    "bytes": 675102,
-    "sha256": "067a305c6a6c71de856cbfb45b6c4da02c1cd901235430d3ba794824ee02f294"
+    "bytes": 675542,
+    "sha256": "99530f1e7ed1dc45d7ffd4e89a4957135c69d85212f4c254fa6aad45796028c9"
   },
   "alpha_compatibility_policy_selected": false,
   "universal_raster_rejected": false,

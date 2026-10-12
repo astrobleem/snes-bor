@@ -78,6 +78,13 @@ class FrameBankGeometryTests(unittest.TestCase):
         hint['pixels'][0]['color']=1
         with self.assertRaisesRegex(ValueError,'HINT_PIXEL'):
             search(rectangles,{(0,0):{0:[0]}},height=8,time_limit=3,geometry_hint=hint)
+        hint['pixels'][0]['color']=0
+        hint['cache_resident_colors']={0:{0:[0]}}
+        result=search(rectangles,{(0,0):{0:[0]},(1,0):{4:[33]}},height=8,time_limit=3,geometry_hint=hint,cache_window=353)
+        self.assertTrue(result['independent_integer_cache_and_ideal_partition_replayed'])
+        hint['cache_resident_colors'][0][8]=[0]
+        with self.assertRaisesRegex(ValueError,'HINT_CACHE_DOMAIN'):
+            search(rectangles,{(0,0):{0:[0]}},height=8,time_limit=3,geometry_hint=hint,cache_window=353)
 
     def test_joint_integer_cache_rejects_unavoidable_loads_above_window(self):
         rectangles=[dict(x=0,y=0,width=32,height=32)]
@@ -91,6 +98,27 @@ class FrameBankGeometryTests(unittest.TestCase):
         self.assertFalse(result['native_presentation_proven'])
         with self.assertRaisesRegex(ValueError,'CACHE_WINDOW_DOMAIN'):
             search(rectangles,points,bank_symmetry=True,cache_window=505)
+
+    def test_concurrent_geometry_reserves_full_padding_but_not_palette_admission(self):
+        rects=[dict(x=0,y=0,width=8,height=8)];points={(0,0):{0:[0]}}
+        reservation=dict(oam_entries=127,sprites_per_line=[31]*8,tile_slivers_per_line=[33]*8)
+        result=search(rects,points,height=8,time_limit=3,geometry_reservation=reservation)
+        self.assertEqual(result['combined_reserved_geometry'],dict(oam_entries=128,peak_sprites=32,peak_tile_slivers=34))
+        self.assertFalse(result['reservation_palette_and_layer_demand_included'])
+        reservation['tile_slivers_per_line'][7]=34
+        self.assertEqual(search(rects,points,height=8,time_limit=3,geometry_reservation=reservation)['solver_status'],'INFEASIBLE')
+        reservation['oam_entries']=True
+        with self.assertRaisesRegex(ValueError,'RESERVATION_DOMAIN'):search(rects,points,height=8,geometry_reservation=reservation)
+
+    def test_native_highs_joint_cache_matches_bank_capacity_and_transfer_gates(self):
+        import importlib.util
+        if not importlib.util.find_spec('highspy'):self.skipTest('optional native HiGHS backend')
+        rectangles=[dict(x=0,y=0,width=32,height=32)]
+        points={(y,x):{x//15:[y*30+x]}for y in range(2)for x in range(30)}
+        self.assertEqual(search(rectangles,points,height=32,time_limit=3,cache_window=353,solver_backend='highspy')['solver_status'],'INFEASIBLE')
+        result=search(rectangles,points,height=40,time_limit=3,cache_window=481,solver_backend='highspy')
+        self.assertEqual(result['peak_joint_cache_ideal_span'],480)
+        self.assertTrue(result['independent_linear_integer_model_verified'])
 
 
 if __name__=='__main__':unittest.main()

@@ -54,6 +54,14 @@ def compile_witness(source,witness,background,expected,lookahead=16):
     geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(224)),
         peak_tile_slivers=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(224)))
     if geometry['peak_sprites']>32 or geometry['peak_tile_slivers']>34:raise ValueError('FRAME_COMPILE_HARDWARE_OVERFLOW')
+    reservation=witness.get('geometry_reservation');combined=geometry.copy()
+    if reservation is not None:
+        if not isinstance(reservation,dict)or type(reservation.get('oam_entries'))is not int or not 0<=reservation['oam_entries']<=128 or any(not isinstance(reservation.get(k),list)or len(reservation[k])!=224 or any(type(v)is not int or not 0<=v<=limit for v in reservation[k])for k,limit in [('sprites_per_line',32),('tile_slivers_per_line',34)]):
+            raise ValueError('FRAME_COMPILE_RESERVATION_DOMAIN')
+        combined=dict(oam_entries=len(pieces)+reservation['oam_entries'],
+            peak_sprites=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)+reservation['sprites_per_line'][y]for y in range(224)),
+            peak_tile_slivers=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])+reservation['tile_slivers_per_line'][y]for y in range(224)))
+        if combined['oam_entries']>128 or combined['peak_sprites']>32 or combined['peak_tile_slivers']>34:raise ValueError('FRAME_COMPILE_RESERVED_HARDWARE_OVERFLOW')
     for p in pieces:p['rows']={y:sorted(cs)for y,cs in p['rows'].items()}
     if 'joint_cache_trace'in witness:
         cache=witness['joint_cache_trace'];wanted_rows={}
@@ -79,6 +87,10 @@ def compile_witness(source,witness,background,expected,lookahead=16):
         if any(q['color']not in states[q['y']][q['bank']]for q in witness['pixels']):raise ValueError('FRAME_COMPILE_CACHE_PIXEL_IDENTITY')
     else:trace,states=schedule(pieces,[p['bank']for p in pieces],224,lookahead)
     for row in trace:row['resident_before']={b:row['resident_before'].get(b,[None]*15)for b in range(8)}
+    uses={}
+    for q in witness['pixels']:uses.setdefault((q['bank'],q['color']),set()).add(q['y'])
+    latency=max((min((y for y in uses.get((e['bank'],e['color']),[])if y>=row['scanline']),default=row['scanline'])-row['scanline']
+        for row in trace[1:]for e in row['updates']),default=0)
     masks=[]
     for p,image in zip(pieces,colors):
         indexed=np.zeros(image.shape,dtype=np.uint8)
@@ -91,11 +103,39 @@ def compile_witness(source,witness,background,expected,lookahead=16):
         compiled_pixel_identity_verified=complete,restricted_pixel_identity_verified=not complete,
         complete_source_frame_pixel_identity_proven=complete,outside_interval_pixels_relaxed=not complete,
         restricted_scanline_demand_interval=[first,last-1],source_output_pixels_replayed=(last-first)*256,
-        peak_scheduled_writes=max(r['colors_written']for r in trace[1:]),lookahead_lines=lookahead,
+        peak_scheduled_writes=max(r['colors_written']for r in trace[1:]),lookahead_lines=None if 'joint_cache_trace'in witness else lookahead,
+        maximum_noninitial_prefetch_latency_lines=latency,initial_palette_may_preload_entire_frame=True,
         supplied_joint_cache_residency_compiled='joint_cache_trace'in witness,
+        source_underlay_rgb555_sha256=hashlib.sha256(bg.astype('<u2').tobytes()).hexdigest(),
+        geometry_reservation=copy.deepcopy(reservation),combined_reserved_geometry=combined,reservation_palette_and_layer_demand_included=False,
         physical_transfer_and_native_timing_admitted=False,native_presentation_proven=False,no_color_reduction=True)
     _,_,replayed=demand(result,allow_restricted=True)
     if any(not np.array_equal(a,b)for a,b in zip(colors,replayed)):raise AssertionError('FRAME_COMPILE_INDEXED_PALETTE_REPLAY')
     result['compiled_indices_sha256']=hashlib.sha256(json.dumps(masks,sort_keys=True).encode()).hexdigest()
     result['compiled_schedule_sha256']=hashlib.sha256(json.dumps(dict(pieces=pieces,masks=masks,trace=trace),sort_keys=True).encode()).hexdigest()
     return result
+
+
+def main():
+    import argparse
+    from pathlib import Path
+    from compiler import Source
+    from source_scene_obj_raster import prepare
+    from source_scene_bg import compose_rgb8
+    from source_bg_feasibility import rgb555
+    p=argparse.ArgumentParser(description=__doc__)
+    for name in ('schedule','witness','source','output'):p.add_argument('--'+name,type=Path,required=True)
+    p.add_argument('--stage',required=True);p.add_argument('--lookahead',type=int,default=16)
+    a=p.parse_args();frame=json.loads(a.schedule.read_text(encoding='utf-8'));witness=json.loads(a.witness.read_text(encoding='utf-8'))
+    if witness.get('source_input_sha256')!=hashlib.sha256(a.schedule.read_bytes()).hexdigest():raise ValueError('FRAME_COMPILE_INPUT_IDENTITY')
+    source=Source(a.source);scene=frame['metadata']['scene'];_,metadata,expected=prepare(source,a.stage,scene)
+    if metadata!=frame['metadata']:raise ValueError('FRAME_COMPILE_SOURCE_METADATA')
+    background=rgb555(compose_rgb8(source,a.stage,dict(scene,actors=[]))[0])
+    result=compile_witness(frame,witness,background,rgb555(expected),a.lookahead)
+    result['source_pak_sha256']=hashlib.sha256(a.source.read_bytes()).hexdigest()
+    result['input_geometry_witness_sha256']=hashlib.sha256(a.witness.read_bytes()).hexdigest()
+    a.output.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+    print(json.dumps({k:result[k]for k in ('status','geometry','source_output_pixels_replayed','peak_scheduled_writes','maximum_noninitial_prefetch_latency_lines','compiled_schedule_sha256')}))
+
+
+if __name__=='__main__':main()

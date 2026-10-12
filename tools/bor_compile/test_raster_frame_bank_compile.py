@@ -48,6 +48,15 @@ class FrameBankCompileTests(unittest.TestCase):
         resident[0]=[]
         with self.assertRaisesRegex(ValueError,'CACHE_PIXEL_IDENTITY'):compile_witness(source,witness,bg,expected)
 
+    def test_concurrent_geometry_reservation_survives_compilation(self):
+        source,witness,bg,expected=source_fixture()
+        witness['geometry_reservation']=dict(oam_entries=126,sprites_per_line=[30]*224,tile_slivers_per_line=[32]*224)
+        result=compile_witness(source,witness,bg,expected)
+        self.assertEqual(result['combined_reserved_geometry'],dict(oam_entries=128,peak_sprites=32,peak_tile_slivers=34))
+        self.assertFalse(result['reservation_palette_and_layer_demand_included'])
+        witness['geometry_reservation']['tile_slivers_per_line'][7]=33
+        with self.assertRaisesRegex(ValueError,'RESERVED_HARDWARE_OVERFLOW'):compile_witness(source,witness,bg,expected)
+
     def test_full_source_identity_and_bad_math_word_fail_explicitly(self):
         source,witness,bg,expected=source_fixture();witness['scanline_interval']=[0,224]
         result=compile_witness(source,witness,bg,expected)

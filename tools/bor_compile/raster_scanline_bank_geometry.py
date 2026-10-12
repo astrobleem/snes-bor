@@ -50,6 +50,45 @@ def exact_row_word_options(schedule,scanline,background_row,expected_row):
     return options,proof
 
 
+def exact_frame_word_options(schedule,background,expected,first=0,last=224):
+    """Preserve cache reuse by pruning against all frame contexts together.
+
+    Any replaced upper-bank word is dominated by one word across every mode,
+    background and window context in the frame, rather than by different words
+    on different rows. Existing upper-bank operands remain available as seeds.
+    """
+    from raster_obj_math_cover import complete_math_cover
+    bg=np.asarray(background);gold=np.asarray(expected)
+    if bg.shape!=(224,256)or gold.shape!=bg.shape or not 0<=first<last<=224:raise ValueError('FRAME_WORD_OPTIONS_CONTEXT')
+    replay=schedule
+    if schedule.get('status')=='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW':
+        if not schedule.get('compiled_pixel_identity_verified')or schedule.get('hardware_geometry_admitted'):raise ValueError('FRAME_WORD_OPTIONS_OVERFLOW_IDENTITY')
+        replay=dict(schedule,status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN')
+    required,_,images=demand(replay);proofs={}
+    for y in range(first,last):
+        if any(required[y]):_,proofs[str(y)]=exact_row_word_options(schedule,y,bg[y],gold[y])
+    from raster_math_windows import evaluate
+    points={};retained=set();modes=[]
+    for p,image in zip(schedule['pieces'],images):
+        for ly,lx in np.argwhere(image>=0):
+            y,x=p['y']+int(ly),p['x']+int(lx)
+            if not first<=y<last:continue
+            mode=schedule['selected_modes'][str(y)];modes.append(mode)
+            points[y,x]=(mode,int(gold[y,x]),int(bg[y,x]),evaluate(schedule['compiled_color_window_descriptors'][str(y)],x))
+            if p['bank']>=4:retained.add(int(image[ly,lx]))
+    operands,cover=complete_math_cover([key[1:]for key in points.values()],modes=tuple(dict.fromkeys(modes)),tag_modes=True,
+        fixed_window_context=True,retained_operands=retained)
+    options={}
+    for point,key in points.items():
+        banks={b:[key[1]]for b in range(4)}
+        if operands[key]:banks.update({b:operands[key]for b in range(4,8)})
+        options[point]=banks
+    return options,proofs,dict(operand_cover=cover,dominance_context_scope='ALL_REQUESTED_FRAME_CONTEXTS',
+        cross_scanline_word_identity_reuse_preserved=True,input_upper_bank_operand_identities_retained=True,
+        extra_mode_contexts_in_domination_comparison_only=True,actual_source_mode_per_row_preserved=True,
+        physical_transfer_and_native_timing_admitted=False,no_color_reduction=True)
+
+
 def bound(schedule,scanline,time_limit=30,tile_limit=34,pixel_word_options=None):
     from ortools.sat.python import cp_model
     if type(scanline)is not int or not 0<=scanline<len(schedule['trace']) or time_limit<=0 or type(tile_limit)is not int or not 0<=tile_limit<=128:

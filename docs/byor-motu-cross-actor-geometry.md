@@ -92,6 +92,9 @@ seconds: four ranges, 344 peak master clocks, fixed banks and complete packet
 CGRAM/opaque pixel replay. It retains the original write times. This removes
 the endpoint-packing relaxation for this interval only; no native test or
 complete-frame admission is claimed.
+The seven-line rows 150–156 joint extension also remains UNKNOWN after 90.092
+seconds (21,353 variables, 38,397 constraints). The three-line physical witness
+is retained as an interval proof; it does not establish the remaining rows.
 
 The full conditional Skeletor rise tick-341 context reproduces the retained
 36-sliver separate-actor lower bound and source viewport hash

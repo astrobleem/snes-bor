@@ -1,5 +1,45 @@
 # Shared geometry for exact math bank classes
 
+The compact joint geometry/word/cache model now includes validated concurrent
+geometry reservations. It counts full padding, OAM entries, sprites and slivers
+through every selected piece's lifetime, and its compiler preserves and replays
+that reservation. Geometry reservation alone does not admit other actors'
+palette or layer demand. The full peak HBreath trial reopens complete exact
+operands on 83 candidate rectangles with the measured 33-object player geometry
+reserved. It remains UNKNOWN after 120.888 seconds at the 353-clock ideal bank
+partition gate (249,841 variables, 397,335 constraints). This is neither a
+hardware rejection nor native admission. The source output hash and alpha
+policy remain unchanged; no color reduction is applied.
+The source-replayed input supplies 6,664 soft bank/ownership/cache hints, but
+the hinted CP-SAT trial also remains UNKNOWN after 120.876 seconds. Dominated
+row operands are omitted from hints rather than reinstated as hard constraints.
+The equivalent all-linear model supports the existing validated native HiGHS
+adapter and replays the same geometry, bank capacity, cache and ideal partition
+conditions on any returned integer witness. Empty hardware rows introduce no
+unsupported Boolean constants into that backend. Seventy-six focused tests
+cover the affected tools; the ordinary production static path is unchanged.
+The native HiGHS trial also returns UNKNOWN, after 120.734 measured seconds
+with 249,840 variables and 398,165 constraints. Its 6,664-variable MIP start is
+soft, and it returns no primal integer witness or infeasibility certificate.
+
+These first compact joint trials use a declared per-row dominating operand
+corpus. That pruning preserves row geometry coverage but may remove identities
+useful for cross-row cache reuse. Their UNKNOWN results do not reject other
+operand identities. Cache searches now compare dominance across every requested
+frame context together and retain all input upper-bank operand identities.
+One replacement word must cover all of an original word's contexts, so the
+same replacement remains available throughout its cache lifetime. Actual row
+modes and window gates remain fixed; extra mode contexts only make the pruning
+more conservative. A regression proves that a word dominated on one saturated
+row remains available when a later row needs that exact identity. Seventy-seven
+focused tests cover the affected tools.
+The corrected frame-global peak trial remains UNKNOWN after 121.025 seconds,
+with 249,840 variables and 397,031 constraints. It examines all 32,768 operands
+against 671 frame contexts and retains 396 valid, globally distinct coverage
+identities, including 160 input seed words. This correction preserves liveness
+possibilities but does not produce a new full-frame schedule or hardware
+infeasibility certificate.
+
 The generic global-word bank constructor can now solve both eligible math
 classes together under a shared scanline tile ceiling. Each word and eligibility
 domain retains one fixed bank for the frame; every OAM mask keeps that bank.

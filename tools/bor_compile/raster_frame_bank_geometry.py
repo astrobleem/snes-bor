@@ -26,14 +26,20 @@ def subdivided_candidates(rectangles,pixel_options,small_size=8):
     return list(candidates.values())
 
 
-def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None):
+def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None,geometry_reservation=None,solver_backend='cp-sat'):
     from ortools.sat.python import cp_model
     if type(height)is not int or not 1<=height<=256 or time_limit<=0 or not rectangles or not pixel_options:
         raise ValueError('FRAME_BANK_GEOMETRY_DOMAIN')
     if type(bank_symmetry)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_SYMMETRY_DOMAIN')
     if type(feasibility_only)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_FEASIBILITY_DOMAIN')
+    if solver_backend not in('cp-sat','highspy'):raise ValueError('FRAME_BANK_GEOMETRY_SOLVER_BACKEND')
     if cache_window is not None and(type(cache_window)is not int or cache_window<1 or bank_symmetry):
         raise ValueError('FRAME_BANK_GEOMETRY_CACHE_WINDOW_DOMAIN')
+    reservation=dict(oam_entries=0,sprites_per_line=[0]*height,tile_slivers_per_line=[0]*height)
+    if geometry_reservation is not None:
+        if not isinstance(geometry_reservation,dict)or set(geometry_reservation)!=set(reservation)or type(geometry_reservation['oam_entries'])is not int or not 0<=geometry_reservation['oam_entries']<=128 or any(not isinstance(geometry_reservation[k],list)or len(geometry_reservation[k])!=height or any(type(v)is not int or not 0<=v<=limit for v in geometry_reservation[k])for k,limit in [('sprites_per_line',32),('tile_slivers_per_line',34)]):
+            raise ValueError('FRAME_BANK_GEOMETRY_RESERVATION_DOMAIN')
+        reservation=geometry_reservation
     sizes=set()
     for p in rectangles:
         if any(type(p.get(k))is not int for k in ('x','y','width','height'))or p['width']!=p['height']or p['width']not in(8,16,32)or not -256<=p['x']<256 or not -256<=p['y']<256:
@@ -96,7 +102,7 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
                 count=model.new_int_var(0,15,f'loadCount{y}_{b}');model.add(count==sum(cache_loads.get((y,b),[])))
                 flag=model.new_bool_var(f'loadActive{y}_{b}');model.add(count>=flag);model.add(count<=15*flag)
                 counts.append(count);active.append(flag)
-            constrain_flow(model,counts,active,cache_window,f'frameCache{y}',4)
+            constrain_flow(model,counts,active,cache_window,f'frameCache{y}',4,linear=solver_backend=='highspy')
     for values in rows.values():model.add(sum(values)<=15)
     for i,p in enumerate(rectangles):
         allowed=p.get('allowed_banks',list(range(8)))
@@ -107,20 +113,23 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
             mask=model.new_bool_var(f'piece{i}_{b}');masks[i,b]=mask
             for j in eligible:
                 y,x=atoms[j][1][0];v=model.new_bool_var(f'atom{i}_{b}_{j}');model.add(v<=mask)
-                model.add_bool_or([v.Not()]+[palette[y,b,c]for c in pixel_options[y,x][b]])
+                if solver_backend=='highspy':model.add(v<=sum(palette[y,b,c]for c in pixel_options[y,x][b]))
+                else:model.add_bool_or([v.Not()]+[palette[y,b,c]for c in pixel_options[y,x][b]])
                 owners[j].append(v);assignments.append((i,b,j,v))
     for values in owners.values():
         if not values:raise ValueError('FRAME_BANK_GEOMETRY_UNCOVERED_PIXEL')
-        model.add_exactly_one(values)
-    model.add(sum(masks.values())<=128)
+        if solver_backend=='highspy':model.add(sum(values)==1)
+        else:model.add_exactly_one(values)
+    model.add(sum(masks.values())<=128-reservation['oam_entries'])
     if bank_symmetry:
         counts={b:sum(v for(i,bb),v in masks.items()if bb==b)for b in range(8)}
         for group in(range(4),range(4,8)):
             for a,b in zip(group,list(group)[1:]):model.add(counts[a]>=counts[b])
     for y in range(height):
         live=[(i,b,v)for(i,b),v in masks.items()if rectangles[i]['y']<=y<rectangles[i]['y']+rectangles[i]['height']]
-        model.add(sum(v for i,b,v in live)<=32)
-        model.add(sum(v*(rectangles[i]['width']//8)for i,b,v in live)<=34)
+        if not live:continue
+        model.add(sum(v for i,b,v in live)<=32-reservation['sprites_per_line'][y])
+        model.add(sum(v*(rectangles[i]['width']//8)for i,b,v in live)<=34-reservation['tile_slivers_per_line'][y])
     if not feasibility_only:model.minimize(sum(masks.values()))
     hinted=set()
     if geometry_hint is not None:
@@ -144,8 +153,27 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
             hinted_points[point]=(i,bank);add_hint(palette[point[0],bank,color])
         for i,b,j,v in assignments:
             if all(hinted_points.get(point)==(i,b)for point in atoms[j][1]):add_hint(v)
-    solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
-    status=solver.solve(model)
+        if cache_window is not None:
+            for y,banks in geometry_hint.get('cache_resident_colors',{}).items():
+                y=int(y)
+                if not 0<=y<height or not isinstance(banks,dict):raise ValueError('FRAME_BANK_GEOMETRY_HINT_CACHE_DOMAIN')
+                for b,cs in banks.items():
+                    b=int(b)
+                    if not 0<=b<8 or not isinstance(cs,list)or len(cs)>15 or any(type(c)is not int or not 0<=c<32768 for c in cs):
+                        raise ValueError('FRAME_BANK_GEOMETRY_HINT_CACHE_DOMAIN')
+                    for c in cs:
+                        if(y,b,c)in palette:add_hint(palette[y,b,c])
+    backend_report={}
+    if solver_backend=='highspy':
+        from raster_bank_residency import solve_linear
+        from types import SimpleNamespace
+        values,backend_report=solve_linear(model,time_limit,native_highs=True)
+        status={'OPTIMAL':cp_model.OPTIMAL,'FEASIBLE':cp_model.FEASIBLE,'INFEASIBLE':cp_model.INFEASIBLE}.get(backend_report['solver_status'],cp_model.UNKNOWN)
+        solver=SimpleNamespace(value=values,wall_time=backend_report['solver_seconds'],
+            best_objective_bound=backend_report.get('solver_objective_lower_bound'),status_name=lambda s:backend_report['solver_status'])
+    else:
+        solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
+        status=solver.solve(model)
     report=dict(schema='BYOR_FIXED_FRAME_BANK_GEOMETRY_V1',status='BOUNDED_FRAME_BANK_GEOMETRY_NO_WITNESS',
         solver_status=solver.status_name(status),solver_seconds=solver.wall_time,solver_objective_lower_bound=solver.best_objective_bound,
         model_variables=len(model.proto.variables),model_constraints=len(model.proto.constraints),candidate_rectangles=len(rectangles),
@@ -159,7 +187,11 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         initial_cache_row_relaxed_to_free_vblank=initial_cache_row if cache_window is not None else None,
         full_rectangle_padding_counted=True,palette_liveness_and_transfer_cost_relaxed=cache_window is None,
         physical_slots_and_transfer_cost_relaxed=True,native_presentation_proven=False,
+        geometry_reservation=reservation if geometry_reservation is not None else None,
+        reservation_palette_and_layer_demand_included=False,
         universal_raster_rejected=False,no_color_reduction=True)
+    report.update(backend_report);report['solver_backend']=solver_backend
+    report['independent_linear_integer_model_verified']=solver_backend=='highspy'and status in(cp_model.FEASIBLE,cp_model.OPTIMAL)
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return report
     pieces=[];selected={}
     for (i,b),v in masks.items():
@@ -177,6 +209,10 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
     geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height)),
         peak_tile_slivers=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(height)))
     if geometry['oam_entries']>128 or geometry['peak_sprites']>32 or geometry['peak_tile_slivers']>34:raise AssertionError('FRAME_BANK_GEOMETRY_HARDWARE_REPLAY')
+    combined=dict(oam_entries=len(pieces)+reservation['oam_entries'],
+        peak_sprites=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)+reservation['sprites_per_line'][y]for y in range(height)),
+        peak_tile_slivers=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])+reservation['tile_slivers_per_line'][y]for y in range(height)))
+    if combined['oam_entries']>128 or combined['peak_sprites']>32 or combined['peak_tile_slivers']>34:raise AssertionError('FRAME_BANK_GEOMETRY_RESERVED_HARDWARE_REPLAY')
     if cache_window is not None:
         from raster_bank_residency import favorable_span
         states={};previous={b:set()for b in range(8)};cache=[]
@@ -193,20 +229,21 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         report.update(joint_cache_trace=cache,independent_integer_cache_and_ideal_partition_replayed=True,
             peak_joint_cache_writes=max((r['colors_written']for r in cache[1:]),default=0),
             peak_joint_cache_ideal_span=max(r['ideal_prepared_commit_span']for r in cache))
-    report.update(status='FIXED_FRAME_BANK_GEOMETRY_AND_WORD_OPTIONS_PROVEN',pieces=pieces,pixels=pixels,geometry=geometry,
+    report.update(status='FIXED_FRAME_BANK_GEOMETRY_AND_WORD_OPTIONS_PROVEN',pieces=pieces,pixels=pixels,geometry=geometry,combined_reserved_geometry=combined,
         declared_word_options_and_fixed_bank_geometry_replayed=True)
     return report
 
 
 def main():
     import argparse,hashlib,json
+    import numpy as np
     from pathlib import Path
     from compiler import Source
     from source_scene_obj_raster import prepare
     from source_scene_bg import compose_rgb8
     from source_bg_feasibility import rgb555
     from raster_slot_greedy import demand
-    from raster_scanline_bank_geometry import exact_row_word_options
+    from raster_scanline_bank_geometry import exact_row_word_options,exact_frame_word_options
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--schedule',type=Path,required=True)
     p.add_argument('--geometry',type=Path,required=True,help='JSON containing source_rectangle_cover.')
@@ -217,6 +254,9 @@ def main():
     p.add_argument('--feasibility-only',action='store_true')
     p.add_argument('--geometry-hint',type=Path,help='Soft source-exact geometry witness from a subset of the requested interval.')
     p.add_argument('--cache-window',type=int,help='Joint integer color residency with ideal bank partitions; physical slots remain relaxed.')
+    p.add_argument('--geometry-reservation',type=Path,help='Full padded concurrent geometry only; its palette/layer demand is not included.')
+    p.add_argument('--hint-input-schedule',action='store_true',help='Soft hints from the independently source-replayed input; dominated row operands are omitted.')
+    p.add_argument('--solver-backend',choices=('cp-sat','highspy'),default='cp-sat')
     a=p.parse_args()
     if not 0<=a.scanline_start<a.scanline_end<=224:p.error('scanline interval must be within [0,224)')
     frame=json.loads(a.schedule.read_text(encoding='utf-8'))
@@ -233,25 +273,41 @@ def main():
         if not frame.get('compiled_pixel_identity_verified')or frame.get('hardware_geometry_admitted'):
             raise ValueError('FRAME_BANK_GEOMETRY_OVERFLOW_IDENTITY')
         replay=dict(frame,status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN')
-    required,_,_=demand(replay)
-    options={};proofs={}
-    for y in range(a.scanline_start,a.scanline_end):
-        if not any(required[y]):continue
-        row,proof=exact_row_word_options(frame,y,background[y],expected[y]);proofs[str(y)]=proof
-        options.update({(y,x):banks for x,banks in row.items()})
+    required,_,input_images=demand(replay)
+    options={};proofs={};frame_cover=None
+    if a.cache_window is not None:
+        options,proofs,frame_cover=exact_frame_word_options(frame,background,expected,a.scanline_start,a.scanline_end)
+    else:
+        for y in range(a.scanline_start,a.scanline_end):
+            if not any(required[y]):continue
+            row,proof=exact_row_word_options(frame,y,background[y],expected[y]);proofs[str(y)]=proof
+            options.update({(y,x):banks for x,banks in row.items()})
     if a.subdivide:rectangles=subdivided_candidates(rectangles,options)
     print(json.dumps(dict(candidate_rectangles=len(rectangles),source_pixels=len(options))),flush=True)
     hint=json.loads(a.geometry_hint.read_text(encoding='utf-8'))if a.geometry_hint else None
+    if a.hint_input_schedule:
+        if hint is not None:p.error('--hint-input-schedule and --geometry-hint are mutually exclusive')
+        hint=dict(pieces=frame['pieces'],pixels=[],source_rgb555_sha256=frame['source_rgb555_sha256'],cache_resident_colors={})
+        for i,(piece,image)in enumerate(zip(frame['pieces'],input_images)):
+            for ly,lx in np.argwhere(image>=0):
+                y,x=piece['y']+int(ly),piece['x']+int(lx);b=piece['bank'];c=int(image[ly,lx])
+                if (y,x)in options and c in options[y,x].get(b,[]):hint['pixels'].append(dict(piece=i,y=y,x=x,bank=b,color=c))
+        state={b:[None]*15 for b in range(8)}
+        for row in frame['trace']:
+            for e in row['updates']:state[e['bank']][e['slot']-1]=e['color']
+            hint['cache_resident_colors'][row['scanline']]={b:[c for c in cs if c is not None]for b,cs in state.items()}
     if hint is not None and hint.get('source_rgb555_sha256')!=frame['source_rgb555_sha256']:
         raise ValueError('FRAME_BANK_GEOMETRY_HINT_SOURCE_IDENTITY')
-    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window)
+    reservation=json.loads(a.geometry_reservation.read_text(encoding='utf-8'))if a.geometry_reservation else None
+    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window,geometry_reservation=reservation,solver_backend=a.solver_backend)
     report.update(source_rgb555_sha256=frame['source_rgb555_sha256'],source_input_sha256=hashlib.sha256(a.schedule.read_bytes()).hexdigest(),
         source_pak_sha256=hashlib.sha256(a.exact_source.read_bytes()).hexdigest(),source_row_context_proofs=proofs,
         source_rectangle_cover=geometry['source_rectangle_cover'],scanline_interval=[a.scanline_start,a.scanline_end],
         outside_interval_demand_relaxed=(a.scanline_start,a.scanline_end)!=(0,224),
         source_alpha_policy='EXACT_SOURCE_OUTPUT_OPERANDS',alpha_compatibility_policy_selected=False)
+    if frame_cover is not None:report['frame_operand_identity_cover']=frame_cover
     a.output.write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
-    print(json.dumps({k:v for k,v in report.items()if k not in('pixels','pieces','source_rectangle_cover','source_row_context_proofs','joint_cache_trace')}))
+    print(json.dumps({k:v for k,v in report.items()if k not in('pixels','pieces','source_rectangle_cover','source_row_context_proofs','joint_cache_trace','geometry_reservation')}))
 
 
 if __name__=='__main__':main()

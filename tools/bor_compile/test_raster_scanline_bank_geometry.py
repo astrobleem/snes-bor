@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from raster_scanline_bank_geometry import bound,exact_row_word_options
+from raster_scanline_bank_geometry import bound,exact_row_word_options,exact_frame_word_options
 from test_raster_mask_rectangle_cover import fixture
 
 
@@ -49,6 +49,23 @@ class RowBankGeometryTests(unittest.TestCase):
             self.assertEqual(actual,expected[p['x']])
         expected[200]=1
         with self.assertRaisesRegex(ValueError,'SOURCE_OUTPUT_REPLAY'):exact_row_word_options(source,5,bg,expected)
+
+    def test_frame_dominance_preserves_one_word_across_different_row_contexts(self):
+        from raster_math_windows import compile_sparse_mask
+        source=fixture();source.update(color_math='additive',scanline_math_controls_source_bound=True,
+            selected_modes={'5':'add','10':'add'},compiled_color_window_descriptors={str(y):compile_sparse_mask({x:1 for x in range(256)})for y in(5,10)})
+        for row in source['trace']:
+            row['resident_before'][4]=[31 if c==33 else c for c in row['resident_before'][4]]
+            for e in row['updates']:
+                if e['bank']==4:e['color']=31
+        bg=np.zeros((224,256),dtype=np.uint16);bg[5,32]=31;gold=bg.copy();gold[10,37]=31
+        row_options,_=exact_row_word_options(source,5,bg[5],gold[5])
+        self.assertNotIn(31,row_options[32][4])
+        options,proofs,cover=exact_frame_word_options(source,bg,gold,0,16)
+        self.assertIn(31,options[5,32][4]);self.assertIn(31,options[10,37][4])
+        self.assertTrue(cover['cross_scanline_word_identity_reuse_preserved'])
+        self.assertTrue(cover['input_upper_bank_operand_identities_retained'])
+        self.assertEqual(set(proofs),{'5','10'})
 
 
 if __name__=='__main__':unittest.main()
