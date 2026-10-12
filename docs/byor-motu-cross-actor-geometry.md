@@ -30,3 +30,20 @@ hash and total 36-sliver result remain unchanged.
 Receipt: docs/receipts/byor-motu-cross-actor-geometry.json and its bounded gzip
 archive. Every successful mask/index schedule receives an independent complete
 viewport replay. No BG fallback, gameplay or Demo certification is claimed.
+
+Allowing every final visible actor pixel to use any exact main-screen math
+operand, rather than reserving ordinary actors as literal colors, gives a
+validated fractional class-pool lower bound of 13.836735 over rows 125–145.
+The two-window four-transition relaxation uses capacities 60/60; actual banks,
+integer residency, geometry and transfer packing remain relaxed. Its 18-write
+integral extension returns UNKNOWN in 92.926 seconds. The synthetic composite
+flag only chooses the shader-cover measurement branch: authoritative source
+metadata and RGB8 SCREEN output remain unchanged. This is not an alpha
+adaptation, emitted source frame or hardware palette schedule.
+
+Repeating the plain precomposited fixed-bank and pooled cache bounds with
+224-line lookahead gives the same bounds, 52.5 and 23.666667. This permits
+preloading across the whole frame and removes the 55-line lookahead restriction
+as an explanation of that family's transfer failure. The complete-frame
+all-pixel shader relaxation reaches its 121.634-second limit without a
+validated bound; its UNKNOWN result is retained, not called infeasible.
