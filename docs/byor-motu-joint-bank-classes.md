@@ -771,3 +771,9 @@ The next ordered necessary-cost trial reaches a 392-clock relaxed peak after
 683 noninitial writes, 21 peak writes and 34-line prefetch. This does not improve
 the 400-clock complete frontier; a complete-partition neighborhood search uses
 that best cache instead of treating the relaxation objective as hardware cost.
+
+Complete-partition LNS retains the 400-clock peak after 180.141 seconds while
+reducing noninitial writes to 663, with 21 peak writes and 32-line prefetch.
+The ordered physical-slot SAT trial remains UNKNOWN after 120.322 seconds,
+despite 2,712,613 branches and 602,736 conflicts. It gives no native witness or
+universal rejection.

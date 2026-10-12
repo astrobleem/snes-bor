@@ -5014,12 +5014,237 @@
         "no_color_reduction": true,
         "input_sha256": "fe828791766a027db2520475da9694f435d7dbcea9ec3bd6f24bc304b91de535"
       }
+    },
+    "byor-motu-full-rise-allactor-add-row152-bank-geometry": {
+      "input_sha256": "2f82183f04673123d5aecdd79b9877ff46cf8d218f6d7e58c1c76d80711d5753",
+      "bound": {
+        "schema": "BYOR_ROW_BANK_GEOMETRY_NECESSARY_RELAXATION_V1",
+        "status": "ROW_OBJ_SLIVER_LIMIT_INFEASIBLE_FOR_FIXED_WORD_ENCODING",
+        "solver_status": "INFEASIBLE",
+        "solver_seconds": 4.9909602,
+        "solver_objective_lower_bound": 0.0,
+        "scanline": 152,
+        "opaque_pixels": 252,
+        "tile_limit": 34,
+        "hardware_tile_sliver_limit": 34,
+        "diagnostic_limit_exceeds_hardware": false,
+        "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+        "input_compiled_schedule_sha256": "95dd000867622ae846d1db3836cf168d244e4548134c07d87e018f5000d29bc1",
+        "palette_banks": 8,
+        "opaque_slots_per_bank": 15,
+        "transparent_slot": 0,
+        "arbitrary_sliver_positions_included": true,
+        "fixed_exact_pixel_words": true,
+        "explicit_pixel_word_option_domain": false,
+        "bank_eligibility_preserved": true,
+        "vertical_geometry_and_oam_lifetimes_relaxed": true,
+        "palette_liveness_and_transfers_relaxed": true,
+        "complete_frame_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "input_sha256": "fe828791766a027db2520475da9694f435d7dbcea9ec3bd6f24bc304b91de535"
+      }
+    },
+    "byor-motu-full-rise-allactor-add-row152-bank-geometry-minimum": {
+      "input_sha256": "26ea7f4e7df4f2a8f38293dc5cbd739456e4da52ead8fcceee5cab5cf000b8fa",
+      "bound": {
+        "schema": "BYOR_ROW_BANK_GEOMETRY_NECESSARY_RELAXATION_V1",
+        "status": "ROW_BANK_GEOMETRY_RELAXED_WITNESS",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 7.311188700000001,
+        "solver_objective_lower_bound": 43.0,
+        "scanline": 152,
+        "opaque_pixels": 252,
+        "tile_limit": 128,
+        "hardware_tile_sliver_limit": 34,
+        "diagnostic_limit_exceeds_hardware": true,
+        "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+        "input_compiled_schedule_sha256": "95dd000867622ae846d1db3836cf168d244e4548134c07d87e018f5000d29bc1",
+        "palette_banks": 8,
+        "opaque_slots_per_bank": 15,
+        "transparent_slot": 0,
+        "arbitrary_sliver_positions_included": true,
+        "fixed_exact_pixel_words": true,
+        "bank_eligibility_preserved": true,
+        "vertical_geometry_and_oam_lifetimes_relaxed": true,
+        "palette_liveness_and_transfers_relaxed": true,
+        "complete_frame_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "tile_slivers": 43,
+        "source_word_and_bank_capacity_replayed": true,
+        "input_sha256": "fe828791766a027db2520475da9694f435d7dbcea9ec3bd6f24bc304b91de535",
+        "retainer_complete_source_row_replay": 256
+      }
+    },
+    "byor-motu-full-rise-allactor-add-row152-complete-operands-geometry": {
+      "input_sha256": "fc296ba8cce79b98219575e0c4a79984d3b24714812db061337983e43fb27a13",
+      "bound": {
+        "schema": "BYOR_ROW_BANK_GEOMETRY_NECESSARY_RELAXATION_V1",
+        "status": "ROW_BANK_GEOMETRY_RELAXED_WITNESS",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 17.945330900000002,
+        "solver_objective_lower_bound": 32.0,
+        "scanline": 152,
+        "opaque_pixels": 252,
+        "tile_limit": 34,
+        "hardware_tile_sliver_limit": 34,
+        "diagnostic_limit_exceeds_hardware": false,
+        "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+        "input_compiled_schedule_sha256": "95dd000867622ae846d1db3836cf168d244e4548134c07d87e018f5000d29bc1",
+        "palette_banks": 8,
+        "opaque_slots_per_bank": 15,
+        "transparent_slot": 0,
+        "arbitrary_sliver_positions_included": true,
+        "fixed_exact_pixel_words": false,
+        "explicit_pixel_word_option_domain": true,
+        "bank_eligibility_preserved": false,
+        "vertical_geometry_and_oam_lifetimes_relaxed": true,
+        "palette_liveness_and_transfers_relaxed": true,
+        "complete_frame_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "tile_slivers": 32,
+        "declared_word_options_and_bank_capacity_replayed": true,
+        "source_word_and_bank_capacity_replayed": false,
+        "source_context_proof": {
+          "complete_row_source_pixels_replayed": 256,
+          "source_output_row_sha256": "ee5edf4fb22dcd7c78ebeb670fd4cb873df048151f50de0a0d1be11dfd8108ae",
+          "background_row_sha256": "513fc0b3a8c14af07b5f211abb91306ed06600af32896e946a2552e924e621d8",
+          "shared_math_mode": "add",
+          "compiled_window_descriptor": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "all_exact_source_output_operands_included": true,
+          "operand_cover": {
+            "modes": [
+              "add"
+            ],
+            "rgb555_operands_examined": 32768,
+            "distinct_requirements": 83,
+            "valid_operands": 2621,
+            "maximal_cover_operands": 47,
+            "dominance_mapping_sha256": "0bbd4af033e5aca53c2ea43b4cdcd80e423c84e311e10e53bf6dc144e8fa3962",
+            "retained_seed_operands": 0,
+            "total_option_operands": 47,
+            "modes_relaxed_per_pixel": false,
+            "mode_tagged_coverage": false,
+            "global_mode_schedule_proven": false,
+            "color_math_window_bypass_relaxed_per_pixel": false,
+            "fixed_color_math_window_context": true,
+            "all_valid_operand_coverages_retained": true,
+            "no_color_reduction": true
+          },
+          "source_alpha_adaptation_selected": false,
+          "no_color_reduction": true
+        },
+        "input_sha256": "fe828791766a027db2520475da9694f435d7dbcea9ec3bd6f24bc304b91de535",
+        "retainer_complete_source_row_replay": 256
+      }
+    },
+    "byor-motu-full-rise-allactor-add-row154-complete-operands-geometry": {
+      "input_sha256": "c8d87d13b70c422c48030deaea47825565484992244639e4c52ff2321016b478",
+      "bound": {
+        "schema": "BYOR_ROW_BANK_GEOMETRY_NECESSARY_RELAXATION_V1",
+        "status": "ROW_BANK_GEOMETRY_RELAXED_WITNESS",
+        "solver_status": "OPTIMAL",
+        "solver_seconds": 17.920343300000003,
+        "solver_objective_lower_bound": 32.0,
+        "scanline": 154,
+        "opaque_pixels": 248,
+        "tile_limit": 34,
+        "hardware_tile_sliver_limit": 34,
+        "diagnostic_limit_exceeds_hardware": false,
+        "source_rgb555_sha256": "44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de",
+        "input_compiled_schedule_sha256": "95dd000867622ae846d1db3836cf168d244e4548134c07d87e018f5000d29bc1",
+        "palette_banks": 8,
+        "opaque_slots_per_bank": 15,
+        "transparent_slot": 0,
+        "arbitrary_sliver_positions_included": true,
+        "fixed_exact_pixel_words": false,
+        "explicit_pixel_word_option_domain": true,
+        "bank_eligibility_preserved": false,
+        "vertical_geometry_and_oam_lifetimes_relaxed": true,
+        "palette_liveness_and_transfers_relaxed": true,
+        "complete_frame_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "tile_slivers": 32,
+        "declared_word_options_and_bank_capacity_replayed": true,
+        "source_word_and_bank_capacity_replayed": false,
+        "source_context_proof": {
+          "complete_row_source_pixels_replayed": 256,
+          "source_output_row_sha256": "857c6710b129514ffb19419918f53fbe44851f95fe4bc7417d22edb0de9b4a41",
+          "background_row_sha256": "808bfa90d6af30af3ed35653a16620b25f0a6322c63d3ea27fe492ce52caa356",
+          "shared_math_mode": "add",
+          "compiled_window_descriptor": {
+            "bounds": [
+              [
+                0,
+                255
+              ],
+              [
+                0,
+                0
+              ]
+            ],
+            "wobjsel_color_bits": 32,
+            "wobjlog_color_bits": 0,
+            "cgwsel_clip_and_prevent_bits": 16,
+            "math_enabled_inside_window": true,
+            "register_timing_admitted": false
+          },
+          "all_exact_source_output_operands_included": true,
+          "operand_cover": {
+            "modes": [
+              "add"
+            ],
+            "rgb555_operands_examined": 32768,
+            "distinct_requirements": 74,
+            "valid_operands": 1685,
+            "maximal_cover_operands": 41,
+            "dominance_mapping_sha256": "8f5749497d3186bcebdf0ffa1e2c0136f292267bd6b0239b061d291db2c43e01",
+            "retained_seed_operands": 0,
+            "total_option_operands": 41,
+            "modes_relaxed_per_pixel": false,
+            "mode_tagged_coverage": false,
+            "global_mode_schedule_proven": false,
+            "color_math_window_bypass_relaxed_per_pixel": false,
+            "fixed_color_math_window_context": true,
+            "all_valid_operand_coverages_retained": true,
+            "no_color_reduction": true
+          },
+          "source_alpha_adaptation_selected": false,
+          "no_color_reduction": true,
+          "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0"
+        },
+        "input_sha256": "fe828791766a027db2520475da9694f435d7dbcea9ec3bd6f24bc304b91de535",
+        "retainer_complete_source_row_replay": 256
+      }
     }
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-cross-actor-geometry.json.gz",
-    "bytes": 512265,
-    "sha256": "0dafdfef9c2e5a2131dd9c2994c58f7e6911eb854911cb233e775a0521aa5aeb"
+    "bytes": 517857,
+    "sha256": "723ce1bb931e051fb7f1edc116ff0c8c00c654280dd9d7812b69bb2df0e2c346"
   },
   "alpha_compatibility_policy_selected": false,
   "universal_raster_rejected": false,

@@ -10,6 +10,23 @@ remain open; raster is not universally rejected. Six focused geometry tests
 pass, including an interleaved-bank fixture whose exact lower bound is 64.
 The source pose remains conditional and its reachability is not certified.
 
+A generic row-only solver now allows every bank reassignment within the input
+encoding's domains and arbitrary eight-pixel sliver positions, with eight
+separate fifteen-slot caches. For the local18 words, row 152 requires exactly
+43 slivers after 7.311 seconds; the actual 34-sliver gate is INFEASIBLE after
+4.991 seconds. The diagnostic 128-sliver bound explicitly exceeds hardware
+and admits no frame. Vertical geometry, OAM lifetimes and transfers are relaxed.
+
+Reopening all exact ADD operands and literal choices under the same source-bound
+global controls removes that row conflict. Rows 152 and 154 each have optimal
+32-sliver witnesses after 17.945 and 17.920 seconds respectively. Their per-bank
+capacity, indexed pixel identity and all 256 source output pixels are replayed
+independently against the actual archive. Source alpha remains exact; no
+compatibility adaptation is selected. This proves neither a fixed bank across
+the complete OAM piece lifetime nor palette liveness or transfer feasibility.
+Thirty-seven focused row, geometry and residency tests pass. These results
+confirm that the word-specific failure cannot reject raster generally.
+
 The full conditional Skeletor rise tick-341 context reproduces the retained
 36-sliver separate-actor lower bound and source viewport hash
 44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de.
