@@ -1,6 +1,6 @@
 import copy,unittest
 import numpy as np
-from raster_mask_rectangle_cover import cover
+from raster_mask_rectangle_cover import cover,fixed_bank_horizontal_bound
 from raster_obj_compact import unpack
 
 
@@ -65,9 +65,25 @@ class MaskCoverTests(unittest.TestCase):
         self.assertEqual(rejected['solver_status'],'INFEASIBLE')
         self.assertFalse(rejected['universal_raster_rejected'])
 
+    def test_horizontal_bound_rejects_interleaved_fixed_banks_even_without_grid(self):
+        source=fixture();source['pieces']=[];source['piece_pixel_masks']=[]
+        for x in range(0,256,8):
+            for bank,offset in ((0,0),(4,1)):
+                image=np.zeros((8,8),dtype=np.uint8);image[0,offset::2]=1;flat=image.flatten()
+                source['pieces'].append(dict(actor=0,bank=bank,x=x,y=4,local_x=x,local_y=4,width=8,height=8))
+                source['piece_pixel_masks'].append(dict(width=8,height=8,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()))
+        source.update(status='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW',hardware_geometry_admitted=False)
+        before=copy.deepcopy(source);bound=fixed_bank_horizontal_bound(source)
+        self.assertEqual(bound['peak_tile_sliver_lower_bound'],64)
+        self.assertEqual(bound['status'],'FIXED_PIXEL_BANK_GEOMETRY_INFEASIBLE')
+        self.assertFalse(bound['universal_raster_rejected'])
+        self.assertEqual(source,before)
+        self.assertEqual(fixed_bank_horizontal_bound(fixture())['peak_tile_sliver_lower_bound'],2)
+
     def test_multiple_visible_actor_owners_at_one_pixel_fail_explicitly(self):
         source=fixture();source['pieces'][1].update(actor=1,x=10,local_x=10)
         with self.assertRaisesRegex(ValueError,'GLOBAL_VISIBLE_OVERLAP'):cover(source)
+        with self.assertRaisesRegex(ValueError,'GLOBAL_VISIBLE_OVERLAP'):fixed_bank_horizontal_bound(source)
 
 
 if __name__=='__main__':unittest.main()

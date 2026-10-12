@@ -11,6 +11,40 @@ from raster_obj_compact import unpack
 from raster_slot_greedy import demand
 
 
+def fixed_bank_horizontal_bound(schedule):
+    """Necessary geometry bound, including exact constructors that overflow OAM.
+
+    Replaying an overflow constructor validates only its indexed pixel demand;
+    the copied status used for that replay does not admit its hardware geometry.
+    Bank changes or cross-actor fusion are outside this bound's fixed scope.
+    """
+    replay=schedule
+    if schedule.get('status')=='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW':
+        if not schedule.get('compiled_pixel_identity_verified') or schedule.get('hardware_geometry_admitted'):
+            raise ValueError('MASK_BOUND_OVERFLOW_IDENTITY')
+        replay=dict(schedule,status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN')
+    _,_,images=demand(replay);height=len(schedule['trace']);rows={};lower=[0]*height;visible=set()
+    for p,image in zip(schedule['pieces'],images):
+        for ly,lx in zip(*np.where(image>=0)):
+            y,x=int(p['y']+ly),int(p['x']+lx)
+            if (y,x)in visible:raise ValueError('MASK_BOUND_GLOBAL_VISIBLE_OVERLAP')
+            visible.add((y,x));rows.setdefault((p.get('actor',0),p['bank'],y),set()).add(x)
+    for (_,_,y),xs in rows.items():
+        end=-1000
+        for x in sorted(xs):
+            if x>end:lower[y]+=1;end=x+7
+    peak=max(lower)
+    return dict(schema='BYOR_FIXED_PIXEL_BANK_HORIZONTAL_BOUND_V1',
+        status='FIXED_PIXEL_BANK_GEOMETRY_INFEASIBLE'if peak>34 else'FIXED_PIXEL_BANK_GEOMETRY_NOT_REJECTED_BY_HORIZONTAL_BOUND',
+        source_rgb555_sha256=schedule.get('source_rgb555_sha256'),
+        input_compiled_schedule_sha256=schedule.get('compiled_schedule_sha256'),
+        peak_tile_sliver_lower_bound=peak,scanline_tile_sliver_lower_bounds=lower,
+        worst_scanlines=[y for y,n in enumerate(lower)if n==peak],
+        fixed_pixel_owner_and_bank_scope=True,arbitrary_legal_rectangle_positions_included=True,
+        bank_reassignment_relaxed=False,cross_actor_fusion_relaxed=False,
+        geometry_admitted=False,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
+
+
 def cover(schedule,time_limit=30,large_size=16,geometry_reservation=None,repair_hint=False,solver_backend='cp-sat'):
     from ortools.sat.python import cp_model
     demand(schedule)

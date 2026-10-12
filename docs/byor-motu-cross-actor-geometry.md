@@ -1,5 +1,15 @@
 # Source-exact cross-actor OBJ geometry probe
 
+The complete all-actor constant-ADD pool18 local encoding now has a checked
+fixed-bank horizontal lower bound of 44 slivers at rows 152 and 154. This bound
+allows arbitrary legal rectangle positions, rather than only an aligned grid:
+each actor/bank's visible x coordinates require their minimum eight-pixel
+interval coverage. It rejects that exact word/bank assignment under the 34-sliver
+limit, including non-grid retiling. Other bank assignments and exact operands
+remain open; raster is not universally rejected. Six focused geometry tests
+pass, including an interleaved-bank fixture whose exact lower bound is 64.
+The source pose remains conditional and its reachability is not certified.
+
 The full conditional Skeletor rise tick-341 context reproduces the retained
 36-sliver separate-actor lower bound and source viewport hash
 44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de.
