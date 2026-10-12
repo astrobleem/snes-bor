@@ -287,8 +287,8 @@ Transfer pattern and eight-clock channel/byte timing were checked against
 Mesen source revision `18c05d3f076728d05310c6e591b7d0a08d604d42`,
 `Core/SNES/SnesDmaController.cpp` lines 8..11 and 74..96. CGADD latch reset
 and CGDATA low/high behavior come from `Core/SNES/SnesPpu.cpp` lines
-2100..2125. The external SNESdev DMA register reference corroborates the
-pattern: https://snes.nesdev.org/wiki/DMA_registers . No new native transport
+2100..2125. The pinned primary implementation is available at
+https://github.com/astrobleem/Mesen2/blob/18c05d3f076728d05310c6e591b7d0a08d604d42/Core/SNES/SnesDmaController.cpp . No new native transport
 code is added from this offline exploration.
 
 All 31 focused scheduler tests pass in 7.392 seconds, including exact event
@@ -296,3 +296,34 @@ scheduling, frozen banks, feasibility-only bounds, redundant-load source
 identity, finite restoring writes, sparse DMA address/color bytes and
 bounded enumeration. The 17 protected files match their saved SHA256 values.
 No color reduction, alpha adaptation or production raster admission occurs.
+
+The current piece-bank assignment's validated fractional cache lower bound
+is 15.25 peak writes (primal residual 7.1e-15, dual residual zero). A generic
+integer cache with a sixteen-write ceiling is OPTIMAL in 8.891 seconds,
+with 363 total writes, two-line prefetch and zero integer constraint violation.
+Its ideal peak remains 360 clocks because some lines touch seven/eight banks.
+
+Adding a six-active-bank ceiling and the strict 345-clock ideal partition
+window yields a complete cache in 40.050 seconds: 304-clock ideal peak,
+sixteen peak writes, 386 total writes, twenty-two-line maximum noninitial
+prefetch and five peak active banks. Independent complete viewport replay
+passes. Physical slot placement returns UNKNOWN in 45.076 seconds; this
+cache remains unadmitted. Two smaller line-130 repairs also return UNKNOWN
+at thirty seconds each. No timeout is treated as hardware infeasibility.
+
+A wider physical diagnostic of the new sixteen-write cache produces a
+600-clock valid witness in thirty seconds, with a 304-clock restricted lower
+bound. Exact dirty-address partitioning removes unnecessary packet padding
+to start at 568 clocks. Fixed-slot permutation reduces it to 424 clocks in
+thirty seconds. Liveness retiming and finite swaps reduce excess/aggregate
+cost without lowering that peak; they may increase a line's write count, so
+the original cache's sixteen-write ceiling is historical, not admission of
+those later repairs. The prior 360-clock witness remains best.
+
+Fixed-time lifetime placement can now use the equivalent rectangle encoding:
+fixed scanline lifetimes are paired with single-slot intervals and constrained
+by NoOverlap2D. The default retains its existing encoding. Both focused
+rectangle cases pass, and the physical-layout regression suite passes all
+21 tests in 11.712 seconds. The 45.072-second strict rectangle search returns
+UNKNOWN. Exhaustive bank/reflection search retains the new cache's 424-clock
+physical peak. No timeout or restricted family excludes raster universally.

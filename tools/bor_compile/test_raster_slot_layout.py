@@ -228,6 +228,16 @@ class SlotLayoutTests(unittest.TestCase):
             if window==1:self.assertEqual(r['physical_slot_layout']['peak_prepared_commit_span'],0)
         with self.assertRaisesRegex(ValueError,'RECTANGLE_LIFETIME_DOMAIN'):optimize(self.schedule(),rectangle_lifetimes=True)
 
+    def test_fixed_time_rectangle_lifetimes_preserve_all_source_slots_and_words(self):
+        from raster_slot_refine import verify_packets
+        from raster_slot_greedy import demand
+        source=self.schedule()
+        result=optimize(source,window=356,time_limit=5,flexible_prefetch=True,retain_write_times=True,rectangle_lifetimes=True,split_bank_ranges=True)
+        verify_packets(result)
+        self.assertTrue(result['physical_slot_layout']['rectangle_lifetimes'])
+        self.assertTrue(result['physical_slot_layout']['retain_write_times'])
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+
     def test_demand_groups_retain_a_color_across_an_unused_line(self):
         r=optimize(self.schedule(),window=356,time_limit=10,demand_gap=1,flexible_prefetch=True)
         self.assertEqual(r['physical_slot_layout']['used_lifetime_segments'],3)

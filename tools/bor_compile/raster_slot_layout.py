@@ -38,7 +38,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
     if permute_hint_slots and(not flexible_prefetch or layout_hint is None or fix_hint_slots):raise ValueError('SLOT_LAYOUT_PERMUTE_HINT_DOMAIN')
     hint_family=fix_hint_slots or permute_hint_slots
     if retain_write_times and(not flexible_prefetch or demand_gap is not None):raise ValueError('SLOT_LAYOUT_RETAIN_WRITE_TIMES_DOMAIN')
-    if rectangle_lifetimes and(not flexible_prefetch or hint_family or retain_write_times):raise ValueError('SLOT_LAYOUT_RECTANGLE_LIFETIME_DOMAIN')
+    if rectangle_lifetimes and(not flexible_prefetch or hint_family):raise ValueError('SLOT_LAYOUT_RECTANGLE_LIFETIME_DOMAIN')
     if collapse_idle_prefix and(not flexible_prefetch or retain_write_times):raise ValueError('SLOT_LAYOUT_IDLE_PREFIX_DOMAIN')
     if lifetime_repair_interval is not None:
         if (not retain_write_times or layout_hint is None or not split_bank_ranges or paired_bank_ranges or reorder_banks or
@@ -186,7 +186,7 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
         for values in lanes.values():model.add_no_overlap(values)
         for values in rectangles.values():
             if values:model.add_no_overlap_2d([v[0]for v in values],[v[1]for v in values])
-    if not flexible_prefetch or retain_write_times:
+    if not flexible_prefetch or(retain_write_times and not rectangle_lifetimes):
         for y in range(height):
             row={i:segment for i,segment in enumerate(segments)if segment['first']<=y<=segment['last']}
             for bank in range(8):
