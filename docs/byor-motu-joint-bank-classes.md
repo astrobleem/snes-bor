@@ -311,3 +311,35 @@ reservation (33 OAM entries, per-line sprite and tile arrays) proves the
 This preserves the evidence and rejects only that fixed encoding/merge family;
 palette/layer admission and more general geometry remain separate. No
 concurrent proof or universal raster rejection is asserted.
+
+The full-frame fixed-control class-pool family proves 17 writes infeasible,
+consistent with its validated 17.333333 fractional bound and 18-write
+witness. The denser pool-derived geometry's bounded rebalance still has a
+validated fixed-bank lower bound of 22.133333 writes, forcing 23 and exceeding
+356 clocks even with ideal prepared transfer packing. A one-second master
+search on the original seven-bank small pieces returns UNKNOWN before a new
+assignment; its initial 30-write bound is retained as restricted evidence.
+
+The generic constructor now optionally assigns one fixed bank per local 8×8
+class piece, allowing an identical RGB555 word to occupy different banks in
+different pieces. It does not change an OAM bank between rows. Applying this
+family to the source-verified full-frame pool reduces geometry from 136 to
+100 OAM entries and from 29 to 19 peak sprites/tile slivers. Compaction with
+the explicit He_Man geometry reservation then produces 74 effect entries,
+18 sprites and 26 tile slivers; combined geometry is 107 OAM entries, 23
+sprites and 34 tile slivers. This proves only geometric capacity with that
+measured reservation, not source compositing, palette, timing or concurrent
+actor admission. Thirteen focused construction/compaction tests pass.
+
+A separate ten-iteration bank/cache cut run on the original seven-bank
+pressure encoding improves its validated fractional bound from 22.5 to
+21.944444. This still requires at least 22 writes and does not admit an
+integer/physical schedule. All full geometry witnesses are retained with
+exact viewport replay; failed merge families are retained without a replay
+or admission claim from the evidence retainer.
+
+Local piece witnesses preserve their explicit bank domains for every later
+optimizer; bank 3 remains excluded. A bounded cache-cut run on the 100-piece
+local encoding gives a best validated fractional bound of 23.142857 across
+nine iterations. A separate compaction-preserving bank rebalance does not
+admit transfer timing. The source geometry reservation remains unchanged.
