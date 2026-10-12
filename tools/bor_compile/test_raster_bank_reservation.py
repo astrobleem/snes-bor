@@ -8,9 +8,11 @@ class ReservationTests(unittest.TestCase):
     def source(self):return fixtures.WordBankBalanceTests().fixture()[0]
 
     def test_reserved_bank_preserves_coordinates_words_and_geometry(self):
-        source=self.source();bank=source['pieces'][0]['bank'];result=reserve(source,[bank])
+        source=self.source();before=copy.deepcopy(source);bank=source['pieces'][0]['bank'];result=reserve(source,[bank])
+        self.assertEqual(source,before)
         self.assertEqual(result['bank_reservation']['status'],'RESERVED_BANK_ROW_CAPACITY_AND_SOURCE_IDENTITIES_PROVEN')
         self.assertTrue(all(p['bank']!=bank for p in result['pieces']))
+        self.assertTrue(all(bank not in p['allowed_banks']for p in result['pieces']))
         def pixels(s):return {(p['actor'],p['x']+x,p['y']+y):int(c)for p,im in zip(s['pieces'],demand(s)[2])for y,row in enumerate(im)for x,c in enumerate(row)if c>=0}
         self.assertEqual(pixels(source),pixels(result))
         self.assertEqual([(p['x'],p['y'],p['width'],p['height'])for p in result['pieces']],

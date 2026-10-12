@@ -3,6 +3,15 @@ from raster_obj_compact import compact,unpack
 
 
 class ObjCompactionTests(unittest.TestCase):
+    def test_merge_retains_intersection_of_child_bank_domains(self):
+        source=self.schedule([(0,4,0,0),(0,4,8,0)])
+        source['pieces'][0]['allowed_banks']=[3,4]
+        source['pieces'][1]['allowed_banks']=[4,5]
+        result=compact(source)
+        self.assertEqual(result['pieces'][0]['allowed_banks'],[4])
+        source['pieces'][1]['allowed_banks']=[5]
+        with self.assertRaisesRegex(ValueError,'PIECE_BANK_ELIGIBILITY'):compact(source)
+
     def test_no_legal_merge_reports_hardware_failure_without_admission(self):
         source=self.schedule([(i,0,i,0)for i in range(33)])
         source['status']='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW'

@@ -41,9 +41,8 @@ def reserve(source,reserved_banks,maximum_assignments=100000,lookahead=17):
     report['valid_assignments']=valid
     if first is None:return dict(report,status='FIXED_GEOMETRY_BANK_RESERVATION_INFEASIBLE')
     for p in pieces:p['allowed_banks']=[b for b in p.get('allowed_banks',range(8))if b not in reserved_banks]
-    seeded=copy.deepcopy(source);seeded['pieces']=pieces
     expanded=[dict(p,source_piece=i,rows=rows[i])for i,p in enumerate(pieces)]
-    result=rebuild_schedule(seeded,dict(status='JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN',
+    result=rebuild_schedule(source,dict(status='JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN',
         pieces=expanded,assignment=first,pixel_word_identities_replayed=True),lookahead)
     report['status']='RESERVED_BANK_ROW_CAPACITY_AND_SOURCE_IDENTITIES_PROVEN'
     result['bank_reservation']=report

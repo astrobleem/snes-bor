@@ -1,0 +1,220 @@
+{
+  "schema": "BYOR_CONCURRENT_ACTOR_BANK_DOMAINS_RECEIPT_V1",
+  "verdict": "ONE_SOURCE_EXACT_GEOMETRY_ASSIGNMENT_REJECTED_BY_CACHE_LOWER_BOUND",
+  "geometry": {
+    "oam_entries": 45,
+    "peak_sprites": 12,
+    "peak_tile_slivers": 33
+  },
+  "source_replay": {
+    "viewport_pixels": 57344,
+    "visible_obj_pixels": 5936,
+    "source_rgb555_sha256": "7ea29ce30140a7ce840e5bec6ca9ad789978d195528aadaaf50c8e0cb4721450",
+    "actor_bank_domains_preserved": true
+  },
+  "actor_bank_domains": [
+    [
+      3
+    ],
+    [
+      0,
+      1,
+      2,
+      4,
+      5,
+      6,
+      7
+    ]
+  ],
+  "fixed_assignment_cache_lower_bound": {
+    "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+    "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+    "solver_status": 0,
+    "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+    "variables": 43649,
+    "constraints": 22037,
+    "lookahead_lines": 55,
+    "geometry_and_pixel_choices_fixed": true,
+    "physical_slots_and_ranges_relaxed": true,
+    "initial_residency_optimal": true,
+    "native_timing_admitted": false,
+    "universal_raster_rejected": false,
+    "no_color_reduction": true,
+    "restricted_scanline_demand_interval": null,
+    "outside_interval_pixels_relaxed": false,
+    "peak_write_lower_bound": 33.5,
+    "validated_dual_lower_bound": 33.5,
+    "maximum_primal_violation": 7.105427357601002e-15,
+    "maximum_dual_residual": 0.0
+  },
+  "minimum_integer_writes": 34,
+  "minimum_optimistic_first_to_last_commit_span": 528,
+  "reference_measured_fixture_window": 344,
+  "generous_window": 356,
+  "bounded_searches": {
+    "byor-motu-controlled-black-player-one-bank-context.json": {
+      "status": "BOUNDED_BANK_SEARCH_LIMIT",
+      "search_nodes": 1181,
+      "search_seconds": 60.03099999995902,
+      "search_limit_reached": true,
+      "scope": "No candidate found by bounded search. This is not hardware infeasibility."
+    },
+    "byor-motu-controlled-black-player-one-bank-highs-cache.json": {
+      "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+      "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+      "solver_backend": "highs",
+      "solver_status": "UNKNOWN",
+      "solver_seconds": 62.342999999877065,
+      "solver_model_variables": 43648,
+      "solver_model_constraints": 75899,
+      "solver_branches": null,
+      "solver_conflicts": null,
+      "solver_message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)",
+      "write_budget": 21,
+      "lookahead_lines": 55,
+      "prepared_window_master_clocks": null,
+      "range_backend": "dp",
+      "static_bank_dominance_enforced": true,
+      "initial_residency_optimal": true,
+      "initial_palette_may_preload_entire_frame": true,
+      "physical_endpoint_slots_relaxed": true,
+      "physical_slot_schedule_proven": false,
+      "native_timing_admitted": false,
+      "universal_raster_rejected": false,
+      "no_color_reduction": true,
+      "fixed_outside_repair_interval": null,
+      "ranges_restricted_to_single_or_adjacent_pair": false,
+      "restricted_scanline_demand_interval": null,
+      "outside_interval_pixels_relaxed": false,
+      "complete_source_frame_pixel_identity_proven": false,
+      "compulsory_bank_interval_cuts": 8427,
+      "soft_residency_hint_interval": null,
+      "total_noninitial_writes_objective": true,
+      "peak_optimistic_prepared_span_objective": false,
+      "solver_search_strategy": "portfolio",
+      "palette_residency_integrality_relaxed": false,
+      "maximum_active_banks_per_line": null,
+      "per_bank_write_caps_enforced": false
+    },
+    "byor-motu-controlled-black-player-one-bank-interval-context.json": {
+      "status": "SOLVER_LIMIT",
+      "solver_status": 1,
+      "message": "Time limit reached. (HiGHS Status 13: model_status is Time limit reached; primal_status is None)"
+    },
+    "byor-motu-controlled-black-player-one-bank-interval-cpsat-context.json": {
+      "status": "SOLVER_LIMIT",
+      "solver_status": 1,
+      "message": "UNKNOWN",
+      "solver_backend": "cp-sat",
+      "interval_write_budget": 21,
+      "interval_lines": 8,
+      "interval_cuts": 371,
+      "solver_model_variables": 294280,
+      "solver_model_constraints": 692797,
+      "universal_raster_rejected": false,
+      "bounded_integer_solver_stats": {
+        "nonboolean_integer_variables": 2968,
+        "hint_variables": 0,
+        "hint_is_soft": true,
+        "log_lines": 343,
+        "sat_inprocessing": false,
+        "branches": 72024,
+        "conflicts": 25181,
+        "wall_seconds": 60.135237700000005,
+        "probing_level": 0,
+        "workers": 4,
+        "search_strategy": "portfolio",
+        "optimal": false
+      }
+    },
+    "byor-motu-controlled-black-player-one-bank-interval-symmetric-context.json": {
+      "status": "SOLVER_LIMIT",
+      "solver_status": 1,
+      "message": "UNKNOWN",
+      "solver_backend": "cp-sat",
+      "interval_write_budget": 21,
+      "interval_lines": 8,
+      "interval_cuts": 371,
+      "solver_model_variables": 295302,
+      "solver_model_constraints": 696732,
+      "universal_raster_rejected": false,
+      "logical_bank_label_symmetry_broken": true,
+      "bounded_integer_solver_stats": {
+        "nonboolean_integer_variables": 2968,
+        "hint_variables": 0,
+        "hint_is_soft": true,
+        "log_lines": 352,
+        "sat_inprocessing": false,
+        "branches": 95463,
+        "conflicts": 29279,
+        "wall_seconds": 60.1652168,
+        "probing_level": 0,
+        "workers": 4,
+        "search_strategy": "portfolio",
+        "optimal": false
+      }
+    }
+  },
+  "interval_search_parameters": {
+    "write_budget": 21,
+    "interval_lines": 8
+  },
+  "focused_tests": {
+    "passed": 29,
+    "seconds": 1.384
+  },
+  "downstream_tests": {
+    "passed": 31,
+    "seconds": 16.845
+  },
+  "no_color_reduction": true,
+  "alpha_adaptation_applied": false,
+  "universal_raster_rejected": false,
+  "actor_domain_family_rejected": false,
+  "concurrent_native_admitted": false,
+  "production_runtime_admitted": false,
+  "motu_gameplay_proven": false,
+  "artifacts": [
+    {
+      "path": "out/byor-motu-controlled-black-player-one-bank-context.json",
+      "sha256": "fe0a7194a8773968673cb14465850b02cf74cf6538e784cb6f18cfe66df6e7e0"
+    },
+    {
+      "path": "out/byor-motu-controlled-black-player-one-bank-generic-context.json",
+      "sha256": "8dee583ada017bc42dc04c842bcc8286589aaf47e9ea06bb95d01700c0d4e271"
+    },
+    {
+      "path": "out/byor-motu-controlled-black-player-one-bank-highs-cache.json",
+      "sha256": "d76bd6f988cf769941debbf98c2509a6e817fe609da15c52036c23697a924b48"
+    },
+    {
+      "path": "out/byor-motu-controlled-black-player-one-bank-cache-lower-bound.json",
+      "sha256": "32bce4174c45b35b4723f526c76797f940350d1da42a722ded05c4ff52914a2e"
+    },
+    {
+      "path": "out/byor-motu-controlled-black-player-one-bank-interval-context.json",
+      "sha256": "081e0ae20972a85c25ba54b7f7dcf659683063a1aabb8e81d87b85bc9fe90c9b"
+    },
+    {
+      "path": "out/byor-motu-controlled-black-player-one-bank-interval-cpsat-context.json",
+      "sha256": "a1f0672b51cf2cd0cf36579fce3cb983716a55e7ecdb32b8c2bd4e7304ec7cc1"
+    },
+    {
+      "path": "out/byor-motu-controlled-black-player-one-bank-interval-symmetric-context.json",
+      "sha256": "0b46c0420d9def9978a6c789028db25e224be75851aaafd07bbbab136166e000"
+    },
+    {
+      "path": "out/byor-motu-controlled-black-player-one-bank-source-replay.json",
+      "sha256": "069c3523e3786363b7d06e0560d5ce9a82bbbefba9ed23bb43d15b5ae9422fda"
+    },
+    {
+      "path": "out/byor-motu-concurrent-player-one-bank-domains.json",
+      "sha256": "3767fde0828b334082b52e80da09138d095ae754d4cfad52ae91497a595f1f56"
+    }
+  ],
+  "compressed_evidence": {
+    "path": "docs\\receipts\\byor-motu-concurrent-actor-bank-domains.json.gz",
+    "sha256": "5d7a0c3be06c6eed2e1415ec15da5787708f6362a803946ea17b4d2882744172",
+    "bytes": 30928
+  }
+}

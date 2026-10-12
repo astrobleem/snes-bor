@@ -11,15 +11,20 @@ from source_scene_obj_joint import probe
 import numpy as np
 from source_scene_obj_raster import prepare,geometry
 from raster_bank_search import assign
-from raster_palette import schedule,split_color_masks,pieces_for_grid
+from raster_palette import schedule,split_color_masks,pieces_for_grid,assign_banks
 from source_bg_feasibility import rgb555
 from source_scene_bg import compose_rgb8
 
 
-def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_budget=21,global_color_banks=False,maximum_frame_colors_per_bank=None,compact_geometry=False,residency_window_lines=None,explicit_actor_banks=None,literal_piece_size=16):
+def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_budget=21,global_color_banks=False,maximum_frame_colors_per_bank=None,compact_geometry=False,residency_window_lines=None,explicit_actor_banks=None,literal_piece_size=16,actor_bank_domains=None,bank_assignment_backend='csp'):
     """Compile a source-exact small-OBJ bank assignment before cache repair."""
     if residency_window_lines is not None and not global_color_banks:raise ValueError('ISOLATED_WINDOW_REQUIRES_GLOBAL_BANKS')
     actors,metadata,expected=prepare(source,stage,scene);pieces=geometry(actors,'small');height=expected.shape[0]
+    if bank_assignment_backend not in('csp','highs','cp-sat'):raise ValueError('ISOLATED_BANK_ASSIGNMENT_BACKEND')
+    if actor_bank_domains is not None:
+        if global_color_banks or explicit_actor_banks is not None:raise ValueError('ISOLATED_ACTOR_DOMAINS_INCOMPATIBLE_SEARCH')
+        if len(actor_bank_domains)!=len(actors)or any(not domain or len(set(domain))!=len(domain)or any(type(b)is not int or not 0<=b<8 for b in domain)for domain in actor_bank_domains):raise ValueError('ISOLATED_ACTOR_BANK_DOMAINS')
+        for piece in pieces:piece['allowed_banks']=sorted(actor_bank_domains[piece['actor']])
     if explicit_actor_banks is not None:
         if global_color_banks or compact_geometry or residency_window_lines is not None:raise ValueError('LITERAL_OBJ_INCOMPATIBLE_SEARCH_OPTIONS')
         if literal_piece_size not in (8,16,32):raise ValueError('LITERAL_OBJ_LEGAL_PIECE_SIZE_REQUIRED')
@@ -34,12 +39,15 @@ def fixed_bank_context(source,stage,scene,lookahead=17,time_limit=30,interval_bu
     elif global_color_banks:
         assignment=split_color_masks(pieces,tuple(range(8)),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',maximum_frame_colors_per_bank=maximum_frame_colors_per_bank,defer_oam_admission=compact_geometry,residency_window_lines=residency_window_lines)
         if 'pieces'in assignment:pieces=assignment.pop('pieces')
+    elif bank_assignment_backend in('highs','cp-sat'):assignment=assign_banks(pieces,tuple(range(8)),time_limit=time_limit,interval_write_budget=interval_budget,interval_lines=8,solver_backend=bank_assignment_backend,break_bank_symmetry=True)
     else:assignment=assign(pieces,tuple(range(8)),time_limit=time_limit,interval_write_budget=interval_budget,interval_lines=8)
     geom=dict(oam_entries=len(pieces),peak_sprites=max((sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height)),default=0),
         peak_tile_slivers=max((sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(height)),default=0))
     report=dict(schema='BYOR_ISOLATED_FIXED_BANK_CONTEXT_V1',status='BOUNDED_FIXED_BANK_CONTEXT_NO_CANDIDATE',metadata=metadata,geometry=geom,
         bank_search=assignment,color_math='precomposited',no_color_reduction=True,native_presentation_proven=False,universal_raster_rejected=False,
         compiled_pixel_identity_verified=False,source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest())
+    if actor_bank_domains is not None:report['actor_bank_domains']=[sorted(domain)for domain in actor_bank_domains]
+    report['bank_assignment_backend']=bank_assignment_backend
     if (geom['oam_entries']>128 and not compact_geometry)or geom['peak_sprites']>32 or geom['peak_tile_slivers']>34:
         report['status']='FIXED_SMALL_GEOMETRY_LIMIT';return report
     if 'assignment'not in assignment:return report
@@ -129,12 +137,15 @@ def main():
     p.add_argument('--maximum-frame-colors-per-bank',type=int)
     p.add_argument('--compact-geometry',action='store_true')
     p.add_argument('--residency-window-lines',type=int)
+    p.add_argument('--actor-bank-domains',type=Path,help='JSON array of eligible palette banks for each source actor; fixed-bank search only.')
+    p.add_argument('--bank-assignment-backend',choices=('csp','highs','cp-sat'),default='csp')
     a=p.parse_args();source,stage,isolation=isolated_source(a.source,tuple(a.underlay_rgb8))
     if a.global_color_banks and not a.bank_search:raise ValueError('ISOLATED_GLOBAL_BANKS_REQUIRE_BANK_SEARCH')
     if a.maximum_frame_colors_per_bank is not None and not a.global_color_banks:raise ValueError('ISOLATED_FRAME_LIMIT_REQUIRES_GLOBAL_BANKS')
     if a.compact_geometry and not a.bank_search:raise ValueError('ISOLATED_COMPACTION_REQUIRES_BANK_SEARCH')
     if a.residency_window_lines is not None and not a.global_color_banks:raise ValueError('ISOLATED_WINDOW_REQUIRES_GLOBAL_BANKS')
-    if a.bank_search:r=fixed_bank_context(source,stage,json.loads(a.scene.read_text()),a.lookahead,a.time_limit,min(a.write_budget,21),a.global_color_banks,a.maximum_frame_colors_per_bank,a.compact_geometry,a.residency_window_lines)
+    if a.actor_bank_domains is not None and not a.bank_search:raise ValueError('ISOLATED_ACTOR_DOMAINS_REQUIRE_BANK_SEARCH')
+    if a.bank_search:r=fixed_bank_context(source,stage,json.loads(a.scene.read_text()),a.lookahead,a.time_limit,min(a.write_budget,21),a.global_color_banks,a.maximum_frame_colors_per_bank,a.compact_geometry,a.residency_window_lines,actor_bank_domains=json.loads(a.actor_bank_domains.read_text())if a.actor_bank_domains else None,bank_assignment_backend=a.bank_assignment_backend)
     else:r=probe(source,stage,json.loads(a.scene.read_text()),size='mixed'if a.size=='mixed'else int(a.size),write_budget=a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,
         solver_backend='cp-sat',color_math='precomposited',coalesce_opaque_choices=True,feasibility_only=not a.minimize_resource_load,align_visible_bounds=True,clip_horizontal=True,
         prepared_dma_window=a.prepared_dma_window,prepared_dma_partition=a.prepared_dma_window is not None)

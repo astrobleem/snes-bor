@@ -5,6 +5,27 @@ from raster_palette import prove_frame, schedule,bounded_schedule, assign_banks,
 
 
 class RasterPaletteTests(unittest.TestCase):
+    def test_bank_label_precedence_preserves_distinct_eligibility_domains(self):
+        pieces=[dict(rows={0:list(range(15))},allowed_banks=[0,1]),
+                dict(rows={0:list(range(15,30))},allowed_banks=[0,1]),
+                dict(rows={0:[31]},allowed_banks=[4])]
+        for backend in('highs','cp-sat'):
+            result=assign_banks(pieces,[0,1,4],solver_backend=backend,break_bank_symmetry=True)
+            self.assertEqual(result['assignment'],[0,1,4])
+            self.assertTrue(result['logical_bank_label_symmetry_broken'])
+        with self.assertRaisesRegex(ValueError,'SYMMETRY_DOMAIN'):assign_banks(pieces,[0,1,4],break_bank_symmetry=1)
+
+    def test_fixed_bank_interval_cut_charges_only_writes_after_first_row(self):
+        pieces=[dict(rows={0:list(range(15)),1:list(range(15,30))})]
+        for backend in('highs','cp-sat'):
+            rejected=assign_banks(pieces,[0],interval_write_budget=14,interval_lines=1,solver_backend=backend)
+            self.assertEqual(rejected['status'],'FIXED_GRID_INFEASIBLE')
+            accepted=assign_banks(pieces,[0],interval_write_budget=15,interval_lines=1,solver_backend=backend)
+            self.assertEqual(accepted['assignment'],[0])
+            self.assertEqual(accepted['interval_cuts'],1)
+        for budget in(-1,True):
+            with self.assertRaisesRegex(ValueError,'INVALID_INTERVAL_WRITE_BUDGET'):assign_banks(pieces,[0],interval_write_budget=budget)
+
     def test_prefetch_limits_allow_other_class_to_share_write_budget(self):
         piece=dict(rows={0:[0],2:[1],3:[2]})
         trace,states=schedule([piece],[0],4,lookahead=1,capacity=3,prefetch_write_limits={1:0,2:1})

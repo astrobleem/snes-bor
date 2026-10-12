@@ -25,6 +25,8 @@ def compact(schedule,time_limit=30,large_size=32,retain_small_geometry=False):
     original=schedule['pieces'];masks=[unpack(m)for m in schedule['piece_pixel_masks']]
     if len(original)!=len(masks) or any(p['width']!=8 or p['height']!=8 for p in original):
         raise ValueError('OBJ_COMPACT_SMALL_GRID_REQUIRED')
+    if any(p['bank']not in p.get('allowed_banks',range(8))for p in original):
+        raise ValueError('OBJ_COMPACT_PIECE_BANK_ELIGIBILITY')
     height=len(schedule['trace']);clip=schedule.get('horizontal_clip_limit_counted',False)
     def slivers(p):
         if not clip or p['x']==-256:return p['width']//8
@@ -44,6 +46,8 @@ def compact(schedule,time_limit=30,large_size=32,retain_small_geometry=False):
         if len(indices)<2:continue
         parent=original[indices[0]];p=dict(actor=actor,bank=bank,local_x=lx,local_y=ly,
             x=parent['x']-parent['local_x']+lx,y=parent['y']-parent['local_y']+ly,width=large_size,height=large_size,rows={})
+        if any('allowed_banks'in original[i]for i in indices):
+            p['allowed_banks']=sorted(set.intersection(*(set(original[i].get('allowed_banks',range(8)))for i in indices)))
         pixels=np.zeros((large_size,large_size),dtype=np.uint8)
         for i in indices:
             child=original[i];x=child['local_x']-lx;y=child['local_y']-ly

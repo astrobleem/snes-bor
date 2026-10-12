@@ -33,10 +33,13 @@ def pieces_for_grid(pixels, size):
     return pieces
 
 
-def assign_banks(pieces, banks, time_limit=60):
+def assign_banks(pieces, banks, time_limit=60,interval_write_budget=None,interval_lines=8,solver_backend='highs',break_bank_symmetry=False):
     """Exact binary model: piece chooses one bank; row union <=15 per bank."""
     if not banks or any(b not in range(8) for b in banks):
         raise ValueError('INVALID_BANKS')
+    if interval_write_budget is not None and(type(interval_write_budget)is not int or interval_write_budget<0 or type(interval_lines)is not int or interval_lines<1):raise ValueError('INVALID_INTERVAL_WRITE_BUDGET')
+    if solver_backend not in('highs','cp-sat'):raise ValueError('FIXED_BANK_SOLVER_BACKEND')
+    if type(break_bank_symmetry)is not bool:raise ValueError('FIXED_BANK_SYMMETRY_DOMAIN')
     pairs=sorted({(y,c) for p in pieces for y,cs in p['rows'].items() for c in cs})
     nb=len(banks); npieces=len(pieces)
     cv={(y,c,b):npieces*nb+i*nb+b for i,(y,c) in enumerate(pairs) for b in range(nb)}
@@ -57,12 +60,57 @@ def assign_banks(pieces, banks, time_limit=60):
                 for b in range(nb): row([(i*nb+b,1),(cv[y,c,b],-1)],-np.inf,0)
     for y in sorted({y for y,c in pairs}):
         for b in range(nb): row([(cv[yy,c,b],1) for yy,c in pairs if yy==y],0,15)
+    upper=[1]*count;interval_cuts=0
+    if break_bank_symmetry:
+        groups={}
+        for b,bank in enumerate(banks):groups.setdefault(tuple(bank in p.get('allowed_banks',banks)for p in pieces),[]).append(b)
+        for group in groups.values():
+            if len(group)<2:continue
+            previous={}
+            for i in range(npieces):
+                current={}
+                for b in group:
+                    v=count;count+=1;upper.append(1);current[b]=v
+                    row([(i*nb+b,1),(v,-1)],-np.inf,0)
+                    if i:
+                        row([(previous[b],1),(v,-1)],-np.inf,0)
+                        row([(v,1),(previous[b],-1),(i*nb+b,-1)],-np.inf,0)
+                    else:row([(v,1),(i*nb+b,-1)],0,0)
+                for before,after in zip(group,group[1:]):
+                    row([(i*nb+after,1)]+([(previous[before],-1)]if i else[]),-np.inf,0)
+                previous=current
+    if interval_write_budget is not None:
+        lines=sorted({y for y,c in pairs});last=max(lines,default=0)
+        occurrences={c:[]for y,c in pairs}
+        for y,c in pairs:occurrences[c].append(y)
+        for first in lines:
+            for end in range(first+1,min(last,first+interval_lines)+1):
+                colors=sorted({c for y,c in pairs if first<=y<=end})
+                if len(colors)<=15:continue
+                excess=[]
+                for b in range(nb):
+                    union=[]
+                    for color in colors:
+                        v=count;count+=1;upper.append(1);union.append(v)
+                        for y in occurrences[color]:
+                            if first<=y<=end:row([(cv[y,color,b],1),(v,-1)],-np.inf,0)
+                    v=count;count+=1;upper.append(len(colors));excess.append(v)
+                    row([(u,1)for u in union]+[(v,-1)],-np.inf,15)
+                row([(v,1)for v in excess],-np.inf,interval_write_budget*(end-first));interval_cuts+=1
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(lo),count)).tocsc()
-    result=milp(np.zeros(count),integrality=np.ones(count),bounds=Bounds(0,1),
+    if solver_backend=='cp-sat':
+        from raster_boolean_solver import solve
+        result=solve(matrix,lo,hi,np.zeros(count),time_limit,variable_upper=upper)
+    else:result=milp(np.zeros(count),integrality=np.ones(count),bounds=Bounds(np.zeros(count),upper),
         constraints=LinearConstraint(matrix,lo,hi),options={'time_limit':time_limit})
+    details=dict(solver_backend=solver_backend,interval_write_budget=interval_write_budget,
+                 interval_lines=interval_lines if interval_write_budget is not None else None,interval_cuts=interval_cuts,
+                 solver_model_variables=count,solver_model_constraints=len(lo),universal_raster_rejected=False)
+    details['logical_bank_label_symmetry_broken']=break_bank_symmetry
+    if hasattr(result,'boolean_stats'):details['bounded_integer_solver_stats']=result.boolean_stats
     if result.x is None:
         return dict(status='FIXED_GRID_INFEASIBLE' if result.status==2 else 'SOLVER_LIMIT',
-                    solver_status=int(result.status),message=result.message)
+                    solver_status=int(result.status),message=result.message,**details)
     assignment=[banks[int(np.argmax(result.x[i*nb:(i+1)*nb]))] for i in range(npieces)]
     if any(bank not in p.get('allowed_banks', banks) for p, bank in zip(pieces, assignment)):
         raise AssertionError('INVALID_SOLVER_BANK_ELIGIBILITY')
@@ -71,8 +119,13 @@ def assign_banks(pieces, banks, time_limit=60):
         for bank in banks:
             colors={c for i,p in enumerate(pieces) if assignment[i]==bank for c in p['rows'].get(y,[])}
             if len(colors)>15: raise AssertionError('INVALID_SOLVER_ASSIGNMENT')
+    if interval_write_budget is not None:
+        for first in lines:
+            for end in range(first+1,min(last,first+interval_lines)+1):
+                excess=sum(max(0,len({c for p,selected in zip(pieces,assignment)if selected==bank for y,cs in p['rows'].items()if first<=y<=end for c in cs})-15)for bank in banks)
+                if excess>interval_write_budget*(end-first):raise AssertionError('INVALID_SOLVER_INTERVAL_BOUND')
     return dict(status='FIXED_BANK_ASSIGNMENT_PROVEN',assignment=assignment,
-                solver_status=int(result.status),message=result.message)
+                solver_status=int(result.status),message=result.message,**details)
 
 
 def split_color_masks(pieces, banks, time_limit=60,global_color_banks=False,solver_backend='highs',maximum_frame_colors_per_bank=None,defer_oam_admission=False,residency_window_lines=None,defer_geometry_admission=False):

@@ -7,6 +7,19 @@ import numpy as np
 
 
 class IsolatedContextTests(unittest.TestCase):
+    def test_actor_domains_survive_fixed_bank_search_and_compaction(self):
+        pixels=np.full((8,16),-1,dtype=np.int32);pixels[0,[0,8]]=31
+        background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy()
+        expected[0,[0,8],0]=248
+        with patch('source_isolated_context.prepare',return_value=([dict(pixels=pixels,left=0,top=0)],{},expected)),patch('source_isolated_context.compose_rgb8',return_value=(background,{})):
+            for backend in('csp','highs','cp-sat'):
+                result=fixed_bank_context(None,None,{},actor_bank_domains=[[3]],bank_assignment_backend=backend,compact_geometry=True)
+                self.assertTrue(result['compiled_pixel_identity_verified'])
+                self.assertTrue(all(p['bank']==3 and p['allowed_banks']==[3]for p in result['pieces']))
+            for domains in([], [[]], [[8]], [[True]], [[3,3]]):
+                with self.assertRaisesRegex(ValueError,'ACTOR_BANK_DOMAINS'):fixed_bank_context(None,None,{},actor_bank_domains=domains)
+            with self.assertRaisesRegex(ValueError,'DOMAINS_INCOMPATIBLE'):fixed_bank_context(None,None,{},actor_bank_domains=[[3]],global_color_banks=True)
+
     def test_literal_actor_bank_replays_black_and_rejects_alpha(self):
         pixels=np.full((16,16),-1,dtype=np.int32);pixels[0,:2]=[0,31]
         background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy();expected[0,1,0]=248
