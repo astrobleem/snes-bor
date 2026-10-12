@@ -527,3 +527,25 @@ The 353-clock CP-SAT flow search returns UNKNOWN after 120.173 seconds.
 Its family lower bound is 346 clocks (at least 352 after integral packet-cost
 rounding), rather than a witness. Six further bank-refinement evaluations retain
 the 337.554147 fractional incumbent; none supplies a physical/native schedule.
+
+A feasibility-only 353-clock integer search returns UNKNOWN at 180.187 seconds.
+Two- and 32-decision local searches retain the same fractional incumbent; a
+compacted-rectangle variant reaches 353.163436 clocks, which rounds above the
+measured maximum for that assignment. Exact isolated compaction reduces the
+128-entry row-mask witness to 85 OAM entries, 23 sprites and 34 tile slivers.
+Adding the independently measured player geometry makes that compaction family
+INFEASIBLE. Palette and layer concurrency remain unproved.
+
+The joint bank/cache solver now accepts independently replayed source-exact
+assignment hints across different mask geometry. It verifies every pixel's
+owner, word and bank eligibility and checks source/control identity. Conflicting
+coarser decisions are omitted from the hint; no choices are pinned. Seven
+focused tests pass, including malformed hint rejection and proof that a legal
+four-object hint cannot admit an infeasible two-object configuration. The new
+hinted full joint search continues without claiming physical/native admission.
+
+The complete joint search consumes 1,908 independently validated soft bank-choice
+hints and the integer cache residency, then returns UNKNOWN at 180.485 seconds.
+It reopens every row/color bank choice under the real 128/32/34 geometry limits;
+no palette transfer or source-geometry constraints are removed. The result does
+not reject raster or prove any gameplay palette reservation.

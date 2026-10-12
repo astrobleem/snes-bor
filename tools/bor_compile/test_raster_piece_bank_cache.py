@@ -31,6 +31,33 @@ class PieceBankCacheTests(unittest.TestCase):
         self.assertEqual(pixels(source),pixels(result))
         self.assertFalse(result['piece_bank_cache']['physical_transfer_admitted'])
 
+    def test_split_assignment_hint_preserves_pixels_without_fixing_choices(self):
+        from raster_piece_bank_cache import validated_assignment_hints
+        source=self.fixture()
+        hint=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,row_word_masks=True,maximum_oam=4)
+        choices=validated_assignment_hints(source,hint,demand(source)[2],{i:tuple(range(4))for i in range(2)},True,True)
+        self.assertGreater(len(choices),0)
+        result=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,row_word_masks=True,maximum_oam=4,assignment_hint=hint)
+        self.assertTrue(result['piece_bank_cache']['validated_assignment_hint_used'])
+        self.assertTrue(result['piece_bank_cache']['bank_choice_hints_are_soft'])
+        self.assertEqual(result['peak_scheduled_writes'],0)
+        # A hint admitting four objects cannot make the two-object model pass.
+        blocked=optimize(source,time_limit=5,write_budget=0,window=1000,lookahead=0,allow_word_masks=True,row_word_masks=True,maximum_oam=2,assignment_hint=hint)
+        self.assertEqual(blocked['solver_status'],'INFEASIBLE')
+
+    def test_assignment_hints_reject_source_or_bank_identity_changes(self):
+        import copy
+        from raster_piece_bank_cache import validated_assignment_hints
+        source=self.fixture();images=demand(source)[2];domains={i:tuple(range(4))for i in range(2)}
+        bad=copy.deepcopy(source);bad['source_rgb555_sha256']='different'
+        with self.assertRaisesRegex(ValueError,'HINT_SOURCE_IDENTITY'):
+            validated_assignment_hints(source,bad,images,domains,True,True)
+        bad=copy.deepcopy(source);bad['pieces'][0]['x']+=1
+        with self.assertRaisesRegex(ValueError,'HINT_PIXEL_IDENTITY'):
+            validated_assignment_hints(source,bad,images,domains,True,True)
+        with self.assertRaisesRegex(ValueError,'HINT_BANK_ELIGIBILITY'):
+            validated_assignment_hints(source,source,images,{i:(7,)for i in range(2)},True,True)
+
     def fixture(self):
         from test_raster_word_bank_balance import WordBankBalanceTests
         return WordBankBalanceTests().fixture()[0]
