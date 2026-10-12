@@ -12,8 +12,10 @@ from raster_slot_refine import verify_packets
 from raster_physical_relabel import point_partition
 
 
-def reindex(source,time_limit=30,iterations=20,radius=3,target_window=345,anneal_steps=0,seed=630):
+def reindex(source,time_limit=30,iterations=20,radius=3,target_window=345,anneal_steps=0,seed=630,remove_redundant_loads=False,interval_radius=0):
     if time_limit<=0 or iterations<1 or radius<0 or target_window<1 or anneal_steps<0:raise ValueError('SUFFIX_REINDEX_DOMAIN')
+    if type(remove_redundant_loads)is not bool:raise ValueError('SUFFIX_REINDEX_REDUNDANCY_DOMAIN')
+    if type(interval_radius)is not int or interval_radius<0:raise ValueError('SUFFIX_REINDEX_INTERVAL_DOMAIN')
     required,uses,pixels=demand(source);verify_packets(source)
     height=len(source['trace']);state=[[None]*15 for _ in range(8)];states=[]
     for row in source['trace']:
@@ -35,6 +37,28 @@ def reindex(source,time_limit=30,iterations=20,radius=3,target_window=345,anneal
         return np.where(counts,np.maximum(0,cost-40),0)
     def score(v):return(int(v.max()),int(np.maximum(v-target_window+1,0).sum()),int(v.sum()))
     flags=dirty(states);current=costs(flags);initial_score=score(current);started=time.monotonic();moves=[];proposals=0
+    removed=[]
+    if remove_redundant_loads:
+        changed=True
+        while changed and time.monotonic()-started<time_limit:
+            changed=False
+            for y,address in zip(*np.where(flags)):
+                b,s=divmod(int(address),16);s-=1
+                old=int(states[y-1,b,s]);color=int(states[y,b,s])
+                end=next((t for t in range(int(y)+1,height)if states[t,b,s]!=states[t-1,b,s]),height)
+                valid=True
+                for t in range(int(y),end):
+                    available=set(map(int,states[t,b]));other=[int(v)for i,v in enumerate(states[t,b])if i!=s]
+                    available=set(other)|{old}
+                    if not required[t][b].issubset(available):valid=False;break
+                if not valid:continue
+                states[y:end,b,s]=old;flags=dirty(states);after=costs(flags)
+                if np.any(after>current):raise AssertionError('REDUNDANT_LOAD_TRANSFER_COST_MONOTONICITY')
+                current=after;removed.append(dict(scanline=int(y),bank=b,opaque_slot=s+1,color=color,retained_color=old,end_scanline_exclusive=end))
+                changed=True;break
+        for p,image,words in zip(source['pieces'],images,pixels):
+            for y,x in zip(*np.where(words>=0)):
+                image[y,x]=int(np.where(states[p['y']+y,p['bank']]==words[y,x])[0][0])+1
     for _ in range(iterations):
         if time.monotonic()-started>=time_limit or score(current)[0]<target_window:break
         critical=np.where(current>=target_window)[0];boundaries={0}
@@ -47,20 +71,26 @@ def reindex(source,time_limit=30,iterations=20,radius=3,target_window=345,anneal
                 for a in range(15):
                     for z in range(a+1,15):
                         if time.monotonic()-started>=time_limit:break
-                        trial=flags.copy();trial[boundary:,16*b+a+1]=flags[boundary:,16*b+z+1];trial[boundary:,16*b+z+1]=flags[boundary:,16*b+a+1]
-                        if boundary:
-                            trial[boundary,16*b+a+1]=states[boundary,b,z]!=states[boundary-1,b,a]
-                            trial[boundary,16*b+z+1]=states[boundary,b,a]!=states[boundary-1,b,z]
-                        values=costs(trial);value=score(values);proposals+=1
-                        if value<before and(best is None or(value,boundary,b,a,z)<best[:5]):best=(value,boundary,b,a,z,trial,values)
+                        ends=[height]+list(range(boundary+1,min(height,boundary+interval_radius+1)))
+                        for end in ends:
+                            if time.monotonic()-started>=time_limit:break
+                            trial=flags.copy();trial[boundary:end,16*b+a+1]=flags[boundary:end,16*b+z+1];trial[boundary:end,16*b+z+1]=flags[boundary:end,16*b+a+1]
+                            if boundary:
+                                trial[boundary,16*b+a+1]=states[boundary,b,z]!=states[boundary-1,b,a]
+                                trial[boundary,16*b+z+1]=states[boundary,b,a]!=states[boundary-1,b,z]
+                            if end<height:
+                                trial[end,16*b+a+1]=states[end,b,a]!=states[end-1,b,z]
+                                trial[end,16*b+z+1]=states[end,b,z]!=states[end-1,b,a]
+                            values=costs(trial);value=score(values);proposals+=1
+                            if value<before and(best is None or(value,boundary,b,a,z,end)<best[:6]):best=(value,boundary,b,a,z,end,trial,values)
         if best is None:break
-        value,boundary,b,a,z,flags,current=best
-        temporary=states[boundary:,b,a].copy();states[boundary:,b,a]=states[boundary:,b,z];states[boundary:,b,z]=temporary
+        value,boundary,b,a,z,end,flags,current=best
+        temporary=states[boundary:end,b,a].copy();states[boundary:end,b,a]=states[boundary:end,b,z];states[boundary:end,b,z]=temporary
         for p,image in zip(source['pieces'],images):
             if p['bank']!=b:continue
-            for y in range(max(0,boundary-p['y']),p['height']):
+            for y in range(max(0,boundary-p['y']),min(p['height'],end-p['y'])):
                 row=image[y];old=row.copy();row[old==a+1]=z+1;row[old==z+1]=a+1
-        moves.append(dict(scanline=boundary,bank=b,opaque_slots=[a+1,z+1],score=list(value)))
+        moves.append(dict(scanline=boundary,end_scanline_exclusive=end,bank=b,opaque_slots=[a+1,z+1],score=list(value)))
     # Keep only the best complete state. Temporary uphill moves carry their
     # live relocation writes exactly like greedy moves and cannot be emitted
     # unless the complete result improves the retained score.
@@ -120,6 +150,8 @@ def reindex(source,time_limit=30,iterations=20,radius=3,target_window=345,anneal
         if key in result:result['input_'+key]=result.pop(key)
     report=dict(schema='BYOR_ROW_BOUNDARY_SLOT_REINDEX_V1',status='PHYSICAL_SLOT_PACKETS_AND_PIXEL_IDENTITIES_PROVEN',initial_score=list(initial_score),final_score=list(score(current)),moves=moves,proposals=proposals,seconds=time.monotonic()-started,all_live_slot_relocation_writes_charged=True,fixed_piece_bank_assignment=True,source_geometry_unchanged=True,maximum_noninitial_prefetch_latency_lines=latency,initial_palette_may_preload_entire_frame=True,peak_prepared_commit_span=score(current)[0],target_window_met_by_all_packets=score(current)[0]<target_window,pixel_color_identity_verified=True,all_packet_cgram_identities_verified=True,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     report.update(anneal_steps_requested=anneal_steps,anneal_proposals=anneal_proposals,anneal_accepted=anneal_accepted,anneal_seed=seed,best_complete_state_retained=True)
+    report.update(redundant_loads_removed=removed,all_future_required_bank_words_preserved=True)
+    report['interval_radius_lines']=interval_radius
     result.update(trace=trace,piece_pixel_masks=masks,prepared_dma_packets=packets,physical_slot_layout=report,native_presentation_proven=False,compiled_indices_sha256=hashlib.sha256(indices.tobytes()).hexdigest(),peak_scheduled_writes=max(r['colors_written']for r in trace[1:]),peak_cgram_data_bytes=max(r['cgram_data_bytes']for r in trace[1:]),average_writes=float(np.mean([r['colors_written']for r in trace[1:]])),worst_scanline=max(range(1,height),key=lambda y:trace[y]['colors_written']))
     result['maximum_noninitial_prefetch_latency_lines']=latency
     result['schedule_latency_requirement']=dict(maximum_noninitial_prefetch_lines=latency,initial_palette_may_preload_entire_frame=True)
@@ -135,7 +167,9 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--schedule',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--time-limit',type=float,default=30);p.add_argument('--iterations',type=int,default=20);p.add_argument('--radius',type=int,default=3);p.add_argument('--target-window',type=int,default=345)
     p.add_argument('--anneal-steps',type=int,default=0);p.add_argument('--seed',type=int,default=630)
-    a=p.parse_args();result=reindex(json.loads(a.schedule.read_text()),a.time_limit,a.iterations,a.radius,a.target_window,a.anneal_steps,a.seed);a.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result['physical_slot_layout'].items()if k!='moves'}))
+    p.add_argument('--remove-redundant-loads',action='store_true')
+    p.add_argument('--interval-radius',type=int,default=0,help='Also try finite interval swaps, charging the restoring palette writes at their ending boundary.')
+    a=p.parse_args();result=reindex(json.loads(a.schedule.read_text()),a.time_limit,a.iterations,a.radius,a.target_window,a.anneal_steps,a.seed,a.remove_redundant_loads,a.interval_radius);a.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result['physical_slot_layout'].items()if k!='moves'}))
 
 
 if __name__=='__main__':main()

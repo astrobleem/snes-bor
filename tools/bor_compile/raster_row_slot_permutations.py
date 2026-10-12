@@ -11,9 +11,12 @@ from raster_slot_greedy import demand,partition
 from raster_physical_ranges import constrain,constrain_fixed_addresses
 
 
-def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals',persistent_word_indices=False,necessary_bank_window=None,probing_level=2,collapse_bank_idle_rows=False,collapse_static_banks=False):
+def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=None,repair_interval=None,maximum_writes=None,search_strategy='portfolio',range_encoding='intervals',persistent_word_indices=False,necessary_bank_window=None,probing_level=2,collapse_bank_idle_rows=False,collapse_static_banks=False,mutable_banks=None,feasibility_only=False):
     from ortools.sat.python import cp_model
     if window<1 or time_limit<=0:raise ValueError('ROW_SLOT_PERMUTATION_DOMAIN')
+    if type(feasibility_only)is not bool:raise ValueError('ROW_SLOT_FEASIBILITY_DOMAIN')
+    if mutable_banks is not None and(not free_residency or layout_hint is None or not isinstance(mutable_banks,(list,tuple))or not mutable_banks or any(type(b)is not int or not 0<=b<8 for b in mutable_banks)or len(set(mutable_banks))!=len(mutable_banks)):
+        raise ValueError('ROW_SLOT_MUTABLE_BANK_DOMAIN')
     if necessary_bank_window is not None and(type(necessary_bank_window)is not int or necessary_bank_window<1):raise ValueError('ROW_SLOT_NECESSARY_BANK_WINDOW')
     if search_strategy not in('portfolio','lns','sat','sat-repair'):raise ValueError('ROW_SLOT_SEARCH_STRATEGY')
     if type(probing_level)is not int or probing_level not in(0,1,2):raise ValueError('ROW_SLOT_PROBING_LEVEL')
@@ -76,6 +79,13 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
                 # A completely demanded bank has no spare resident identity.
                 domain=sorted(word_codes[b][c]for c in required[y][b])
             for s in range(15):
+                if mutable_banks is not None and b not in mutable_banks:
+                    values[y,b,s]=model.new_constant(hint_colors[s]);value_hints[y,b,s]=hint_colors[s]
+                    if y>first:
+                        changed=int(hint_colors[s]!=word_codes[b][0 if hinted[y-1][b][s]is None else hinted[y-1][b][s]])
+                        flags.setdefault((y,b),[]).append((b*15+s,changed))
+                        change_hints[y,b*15+s,b]=(16*b+s+1,changed)
+                    continue
                 if b in static_banks and y>first:
                     values[y,b,s]=values[first,b,s];value_hints[y,b,s]=value_hints[first,b,s]
                     flags.setdefault((y,b),[]).append((b*15+s,0))
@@ -184,14 +194,15 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
         hinted_cost=max((sum(24+16*(hi-lo+1)for lo,hi in row)for y,row in packet_hints.items()if y>first and(transfer_interval is None or transfer_interval[0]<=y<=transfer_interval[1])),default=0)
         model.add_hint(peak,hinted_cost)
     objective_scale=1
-    if repair_interval is None:model.minimize(peak)
+    if repair_interval is None:
+        if not feasibility_only:model.minimize(peak)
     else:
         repair_peak=model.new_int_var(0,4096,'repairPeak');costs=[]
         for y in range(transfer_interval[0],transfer_interval[1]+1):
             cost=sum(24*active+16*length for(line,r),(active,begin,end,length)in ranges.items()if line==y)
             model.add(repair_peak>=cost);costs.append(cost)
         objective_scale=4096*len(costs)+1
-        model.minimize(objective_scale*repair_peak+sum(costs))
+        if not feasibility_only:model.minimize(objective_scale*repair_peak+sum(costs))
         if packet_hints is not None:model.add_hint(repair_peak,hinted_cost)
     solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=time_limit;solver.parameters.num_search_workers=4
     solver.parameters.cp_model_probing_level=probing_level
@@ -202,9 +213,10 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
     if search_strategy=='sat-repair':
         solver.parameters.repair_hint=True;solver.parameters.hint_conflict_limit=50000
     status=solver.solve(model)
-    report=dict(schema='BYOR_ROW_SLOT_PERMUTATION_V1',status='BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE',
+    report=dict(schema='BYOR_ROW_SLOT_PERMUTATION_V1',status='BOUNDED_ROW_SLOT_PERMUTATION_NO_CANDIDATE',mutable_banks=mutable_banks,fixed_other_bank_residency=mutable_banks is not None,
         solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
         solver_search_strategy=search_strategy,
+        solver_objective='FEASIBILITY_ONLY'if feasibility_only else'PEAK_THEN_AGGREGATE'if repair_interval is not None else'PEAK',
         solver_probing_level=probing_level,
         bank_idle_rows_collapsed=collapsed_bank_rows,collapse_bank_idle_rows=collapse_bank_idle_rows,
         collapse_static_banks=collapse_static_banks,static_banks_preloaded=sorted(static_banks),
@@ -214,12 +226,12 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
         persistent_word_index_family_only=persistent_word_indices,
         solver_model_variables=len(model.proto.variables),solver_model_constraints=len(model.proto.constraints),
         solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
-        solver_objective_lower_bound=solver.best_objective_bound,
+        solver_objective_lower_bound=None if feasibility_only else solver.best_objective_bound,
         maximum_physical_writes_per_transfer_row=maximum_writes,
         necessary_bank_window_master_clocks=necessary_bank_window,
         full_frame_write_budget_enforced=maximum_writes is not None and repair_interval is None and not restricted,
         objective_peak_scale=objective_scale,
-        peak_commit_span_lower_bound_for_this_restricted_model=max(0,math.floor(solver.best_objective_bound/objective_scale)-40),
+        peak_commit_span_lower_bound_for_this_restricted_model=None if feasibility_only else max(0,math.floor(solver.best_objective_bound/objective_scale)-40),
         outside_interval_pixels_relaxed=restricted,complete_source_frame_pixel_identity_proven=False,
         window_master_clocks=max((line_windows or {}).values(),default=window),requested_repair_window_master_clocks=window if repair_interval is not None else None,
         physical_repair_interval=list(repair_interval)if repair_interval is not None else None,
@@ -301,6 +313,8 @@ def optimize(source,window=332,time_limit=60,free_residency=False,layout_hint=No
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--schedule',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--layout-hint',type=Path)
+    p.add_argument('--mutable-banks',type=int,nargs='+',help='Restricted repair family: hold every other bank at its independently validated hint residency.')
+    p.add_argument('--feasibility-only',action='store_true',help='Find any complete source-exact schedule meeting all declared transfer windows; do not optimize peak or aggregate cost.')
     p.add_argument('--maximum-writes',type=int,help='Bound every changed physical word, including live moves and prefetch; local repairs enforce this only inside their transfer interval.')
     p.add_argument('--scanline-interval',type=int,nargs=2,metavar=('FIRST','LAST'),help='Explicit restricted-pixel proof with free interval initialization; never complete frame admission.')
     p.add_argument('--repair-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
@@ -317,7 +331,7 @@ def main():
     if a.scanline_interval:
         from raster_bank_residency import restrict_interval
         source=restrict_interval(source,*a.scanline_interval)
-    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval,a.maximum_writes,a.search_strategy,a.range_encoding,a.persistent_word_indices,a.necessary_bank_window,a.probing_level,a.collapse_bank_idle_rows,a.collapse_static_banks);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.get('physical_slot_layout',r).items()if k!='word_indices'}))
+    r=optimize(source,a.window,a.time_limit,a.free_residency,json.loads(a.layout_hint.read_text())if a.layout_hint else None,a.repair_interval,a.maximum_writes,a.search_strategy,a.range_encoding,a.persistent_word_indices,a.necessary_bank_window,a.probing_level,a.collapse_bank_idle_rows,a.collapse_static_banks,a.mutable_banks,a.feasibility_only);a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.get('physical_slot_layout',r).items()if k!='word_indices'}))
 
 
 if __name__=='__main__':main()

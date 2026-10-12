@@ -245,3 +245,54 @@ at 45.073 seconds. The shared-actor-bank cache also fails the 345-clock
 fixed-index event-time family in 7.235 seconds; source banks, residency and
 indices remain alternative search dimensions. No result rejects raster
 universally and no native timing claim is added.
+
+The generic row-slot solver now supports explicitly selected mutable banks.
+All other banks retain the validated hint's residency; source word matching,
+physical packet coverage and per-piece OAM bank selection remain enforced.
+Bank-6-only repairs at the 345-clock strict window return UNKNOWN after
+25.031 and 45.065 seconds, with a 344-clock restricted lower bound. A
+feasibility-only variant also returns UNKNOWN after 45.035 seconds. It reports
+no objective lower bound. Eighteen focused row-slot tests pass, including
+unselected-bank preservation and feasibility-only source/CGRAM replay.
+
+The latest 360-clock witness constructs legal mode-0 8/16 CHR/OAM with 73
+entries, 271 occupied cells, 202 unique tiles and 8,832 CHR bytes. Decoded
+bitplanes and OAM reproduce compiled indices. Its CHR SHA256 is
+`470dbfd5963e2a2837f7d81af7364c1e8b01180cf94f0670f159d41dcbe59a6b`.
+This remains an offline allocation proof, not live upload/native admission.
+An alternative legal bank assignment retains 14.25 interval pressure but its
+35-second cache search and 25-second minimum-write search both return UNKNOWN.
+All source-exact witnesses and bounded search reports are retained; no color
+reduction, alpha adaptation or fallback selection occurs.
+
+The generic reindexer now also removes genuinely redundant loads only when
+every future required bank word remains resident until that slot's next
+change, then remaps pixel indices to surviving compatible slots. Finite
+interval swaps charge both the opening and restoring palette writes. On the
+best witness these changes reduce the overloaded-line count from four to
+three and aggregate span to 9,248 clocks; lines 130, 133 and 136 remain at
+360 clocks. Exact fixed-index retiming rejects the 345-clock target for this
+new event family in 6.687 seconds. It does not reject raster universally.
+
+A generic mixed-transfer planner enumerates sparse-word subsets, combining
+up to three mode-2 CGRAM ranges with one mode-3 sparse stream, or retaining
+four ordinary ranges. Mode 3 at $2121 writes CGADD twice and then the RGB555
+low/high bytes. Independent B-bus descriptor replay verifies CGRAM words;
+enumeration is explicitly bounded at 21 dirty words and channel 0 is unused.
+The peak remains 360 clocks with at most seven channels. Per-line channel
+modes, setup and first-high-byte alignment remain unadmitted natively. This
+alternative transport therefore does not bridge the current witness's gap.
+
+Transfer pattern and eight-clock channel/byte timing were checked against
+Mesen source revision `18c05d3f076728d05310c6e591b7d0a08d604d42`,
+`Core/SNES/SnesDmaController.cpp` lines 8..11 and 74..96. CGADD latch reset
+and CGDATA low/high behavior come from `Core/SNES/SnesPpu.cpp` lines
+2100..2125. The external SNESdev DMA register reference corroborates the
+pattern: https://snes.nesdev.org/wiki/DMA_registers . No new native transport
+code is added from this offline exploration.
+
+All 31 focused scheduler tests pass in 7.392 seconds, including exact event
+scheduling, frozen banks, feasibility-only bounds, redundant-load source
+identity, finite restoring writes, sparse DMA address/color bytes and
+bounded enumeration. The 17 protected files match their saved SHA256 values.
+No color reduction, alpha adaptation or production raster admission occurs.

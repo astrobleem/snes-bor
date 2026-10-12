@@ -7,6 +7,41 @@ import test_raster_slot_layout as fixtures
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class RowSlotPermutationTests(unittest.TestCase):
+    def test_feasibility_only_emits_source_exact_schedule_without_objective_bound(self):
+        from raster_slot_refine import verify_packets
+        source=fixtures.SlotLayoutTests().schedule()
+        result=optimize(source,41,5,free_residency=True,range_encoding='coverage',feasibility_only=True)
+        verify_packets(result);report=result['physical_slot_layout']
+        self.assertEqual(report['solver_objective'],'FEASIBILITY_ONLY')
+        self.assertIsNone(report['solver_objective_lower_bound'])
+        self.assertIsNone(report['peak_commit_span_lower_bound_for_this_restricted_model'])
+        for a,b in zip(demand(source)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        with self.assertRaisesRegex(ValueError,'FEASIBILITY_DOMAIN'):optimize(source,feasibility_only=1)
+
+    def test_selected_bank_repair_freezes_other_residency_and_keeps_pixels(self):
+        import copy
+        from raster_slot_refine import verify_packets
+        source=fixtures.SlotLayoutTests().schedule()
+        source['trace'][2]['updates'][1]['color']=1024
+        for row in source['trace'][3:]:row['resident_before'][1][2]=1024
+        hint=optimize(source,41,5,free_residency=True,range_encoding='coverage')
+        before=copy.deepcopy(hint)
+        result=optimize(hint,41,5,free_residency=True,layout_hint=hint,range_encoding='coverage',mutable_banks=[0])
+        verify_packets(result);self.assertEqual(hint,before)
+        self.assertEqual(result['physical_slot_layout']['mutable_banks'],[0])
+        def states(data):
+            state={b:[0]*15 for b in range(8)};out=[]
+            for row in data['trace']:
+                for e in row['updates']:state[e['bank']][e['slot']-1]=e['color']
+                out.append(copy.deepcopy(state))
+            return out
+        for a,b in zip(states(hint),states(result)):
+            for bank in range(1,8):self.assertEqual(a[bank],b[bank])
+        for a,b in zip(demand(hint)[2],demand(result)[2]):np.testing.assert_array_equal(a,b)
+        for banks in([],[-1],[8],[True],[0,0]):
+            with self.assertRaisesRegex(ValueError,'MUTABLE_BANK_DOMAIN'):
+                optimize(source,free_residency=True,layout_hint=hint,mutable_banks=banks)
+
     def test_static_bank_preloads_all_required_words_and_keeps_exact_pixels(self):
         from raster_slot_refine import verify_packets
         source=fixtures.SlotLayoutTests().schedule()
