@@ -79,5 +79,18 @@ class FrameBankGeometryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'HINT_PIXEL'):
             search(rectangles,{(0,0):{0:[0]}},height=8,time_limit=3,geometry_hint=hint)
 
+    def test_joint_integer_cache_rejects_unavoidable_loads_above_window(self):
+        rectangles=[dict(x=0,y=0,width=32,height=32)]
+        points={(y,x):{x//15:[y*30+x]}for y in range(2)for x in range(30)}
+        rejected=search(rectangles,points,height=32,time_limit=3,cache_window=353)
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+        result=search(rectangles,points,height=32,time_limit=3,cache_window=505)
+        self.assertTrue(result['independent_integer_cache_and_ideal_partition_replayed'])
+        self.assertEqual(result['peak_joint_cache_writes'],30)
+        self.assertEqual(result['peak_joint_cache_ideal_span'],480)
+        self.assertFalse(result['native_presentation_proven'])
+        with self.assertRaisesRegex(ValueError,'CACHE_WINDOW_DOMAIN'):
+            search(rectangles,points,bank_symmetry=True,cache_window=505)
+
 
 if __name__=='__main__':unittest.main()

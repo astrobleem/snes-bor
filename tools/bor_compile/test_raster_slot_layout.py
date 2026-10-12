@@ -6,6 +6,20 @@ from raster_slot_layout import optimize
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class SlotLayoutTests(unittest.TestCase):
+    def test_restricted_demand_keeps_scope_after_physical_slot_search(self):
+        from raster_bank_residency import restrict_interval
+        from raster_slot_greedy import demand
+        from raster_slot_refine import verify_packets
+        source=restrict_interval(self.schedule(),1,2)
+        result=optimize(source,window=356,time_limit=3,flexible_prefetch=True)
+        verify_packets(result)
+        self.assertEqual(result['status'],'RESTRICTED_SCANLINE_DEMAND_ONLY')
+        self.assertFalse(result['compiled_pixel_identity_verified'])
+        self.assertFalse(result['physical_slot_layout']['complete_source_frame_pixel_identity_proven'])
+        self.assertEqual(result['physical_slot_layout']['restricted_scanline_demand_interval'],[1,2])
+        for a,b in zip(demand(source,allow_restricted=True)[2],demand(result,allow_restricted=True)[2]):np.testing.assert_array_equal(a,b)
+        source['compiled_pixel_identity_verified']=True
+        with self.assertRaisesRegex(ValueError,'VALIDATED_SCHEDULE'):optimize(source,time_limit=3)
     def test_hint_empty_rows_preserve_identity_but_real_row_changes_reject(self):
         from raster_slot_greedy import demand
         from raster_slot_refine import verify_packets

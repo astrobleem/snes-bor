@@ -68,6 +68,31 @@ The wider rows 144–159 trial receives 691 soft witness hints but remains
 UNKNOWN after 60.105 seconds. Hints are domain checked and do not fix bank,
 word or ownership decisions. This result is not an infeasibility certificate.
 
+The generic witness compiler now emits exact nibble masks, fixed piece banks,
+palette traces and deterministic hashes. It independently preserves visible
+opaque ownership, including opaque black equal to the underlay. Its three-line
+result replays 768 source output pixels and initially schedules 19 peak writes.
+An optimal integer cache refinement reduces this to 18 writes and an ideal
+352-clock span. A physical slot trial remains UNKNOWN after 45.065 seconds;
+its restricted demand never becomes a complete-frame admission.
+
+Joint bank, word and integer cache decisions improve this three-line family:
+25 OAM entries/sprites, 34 slivers, 17 peak writes and an ideal 336-clock span.
+The cache witness is replayed independently before compilation; its initial
+residency is granted free VBlank and demand outside rows 152–154 is relaxed.
+The compiled schedule retains all 751 encoded pixels and their exact source
+outputs. Its hash is 3286df2e3ad2faeecd5c5e8925e262824793843fb070f830f9225ef33c3398e0.
+Physical endpoint packing and native timing remain separate gates. The wider
+rows 144–159 joint trial returns UNKNOWN after 90.154 seconds (55,207 variables,
+97,518 constraints). Timing-aware cache searches reject palette-label symmetry
+because physical bank order affects transfer cost. Seventy-three focused tests
+cover these paths. No source color reduction or alpha adaptation is selected.
+Physical slot packing for the joint three-line witness succeeds after 0.464
+seconds: four ranges, 344 peak master clocks, fixed banks and complete packet
+CGRAM/opaque pixel replay. It retains the original write times. This removes
+the endpoint-packing relaxation for this interval only; no native test or
+complete-frame admission is claimed.
+
 The full conditional Skeletor rise tick-341 context reproduces the retained
 36-sliver separate-actor lower bound and source viewport hash
 44ad1ccb4a3ea068fe624d6fafa37344058b96e3183a166779698b4f2685e0de.

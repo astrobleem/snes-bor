@@ -26,12 +26,14 @@ def subdivided_candidates(rectangles,pixel_options,small_size=8):
     return list(candidates.values())
 
 
-def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None):
+def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False,feasibility_only=False,geometry_hint=None,cache_window=None):
     from ortools.sat.python import cp_model
     if type(height)is not int or not 1<=height<=256 or time_limit<=0 or not rectangles or not pixel_options:
         raise ValueError('FRAME_BANK_GEOMETRY_DOMAIN')
     if type(bank_symmetry)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_SYMMETRY_DOMAIN')
     if type(feasibility_only)is not bool:raise ValueError('FRAME_BANK_GEOMETRY_FEASIBILITY_DOMAIN')
+    if cache_window is not None and(type(cache_window)is not int or cache_window<1 or bank_symmetry):
+        raise ValueError('FRAME_BANK_GEOMETRY_CACHE_WINDOW_DOMAIN')
     sizes=set()
     for p in rectangles:
         if any(type(p.get(k))is not int for k in ('x','y','width','height'))or p['width']!=p['height']or p['width']not in(8,16,32)or not -256<=p['x']<256 or not -256<=p['y']<256:
@@ -72,6 +74,29 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
             for c in colors:
                 if (y,b,c)not in palette:
                     v=model.new_bool_var(f'color{y}_{b}_{c}');palette[y,b,c]=v;rows.setdefault((y,b),[]).append(v)
+    cache_loads={};initial_cache_row=min(y for y,x in pixel_options)
+    if cache_window is not None:
+        from raster_bank_residency import constrain_flow
+        last_possible={}
+        for y,b,c in palette:last_possible[b,c]=max(y,last_possible.get((b,c),y))
+        for(b,c),last in last_possible.items():
+            previous=None
+            for y in range(initial_cache_row,last+1):
+                if(y,b,c)not in palette:
+                    v=model.new_bool_var(f'cache{y}_{b}_{c}');palette[y,b,c]=v;rows.setdefault((y,b),[]).append(v)
+                v=palette[y,b,c]
+                if previous is not None:
+                    load=model.new_bool_var(f'load{y}_{b}_{c}')
+                    model.add(load<=v);model.add(load+previous<=1);model.add(load>=v-previous)
+                    cache_loads.setdefault((y,b),[]).append(load)
+                previous=v
+        for y in range(initial_cache_row+1,max(y for y,x in pixel_options)+1):
+            counts=[];active=[]
+            for b in range(8):
+                count=model.new_int_var(0,15,f'loadCount{y}_{b}');model.add(count==sum(cache_loads.get((y,b),[])))
+                flag=model.new_bool_var(f'loadActive{y}_{b}');model.add(count>=flag);model.add(count<=15*flag)
+                counts.append(count);active.append(flag)
+            constrain_flow(model,counts,active,cache_window,f'frameCache{y}',4)
     for values in rows.values():model.add(sum(values)<=15)
     for i,p in enumerate(rectangles):
         allowed=p.get('allowed_banks',list(range(8)))
@@ -126,10 +151,14 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
         model_variables=len(model.proto.variables),model_constraints=len(model.proto.constraints),candidate_rectangles=len(rectangles),
         source_pixel_count=len(pixel_options),bank_count=8,opaque_slots_per_bank=15,fixed_bank_for_entire_oam_rectangle=True,
         equivalent_pixel_decision_atoms=len(atoms),equivalent_pixel_decisions_coalesced=len(pixel_options)-len(atoms),
-        safe_class_bank_label_symmetry=bank_symmetry,bank_order_timing_not_modeled=True,
+        safe_class_bank_label_symmetry=bank_symmetry,bank_order_timing_not_modeled=cache_window is None,
         solver_objective='FEASIBILITY_ONLY'if feasibility_only else'MINIMUM_OAM_ENTRIES',
         soft_geometry_hint_variables=len(hinted),
-        full_rectangle_padding_counted=True,palette_liveness_and_transfer_cost_relaxed=True,native_presentation_proven=False,
+        ideal_cache_partition_window_master_clocks=cache_window,
+        joint_cache_residency_enforced=cache_window is not None,
+        initial_cache_row_relaxed_to_free_vblank=initial_cache_row if cache_window is not None else None,
+        full_rectangle_padding_counted=True,palette_liveness_and_transfer_cost_relaxed=cache_window is None,
+        physical_slots_and_transfer_cost_relaxed=True,native_presentation_proven=False,
         universal_raster_rejected=False,no_color_reduction=True)
     if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return report
     pieces=[];selected={}
@@ -148,6 +177,22 @@ def search(rectangles,pixel_options,height=224,time_limit=30,bank_symmetry=False
     geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height)),
         peak_tile_slivers=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(height)))
     if geometry['oam_entries']>128 or geometry['peak_sprites']>32 or geometry['peak_tile_slivers']>34:raise AssertionError('FRAME_BANK_GEOMETRY_HARDWARE_REPLAY')
+    if cache_window is not None:
+        from raster_bank_residency import favorable_span
+        states={};previous={b:set()for b in range(8)};cache=[]
+        for y in range(initial_cache_row,max(y for y,x in pixel_options)+1):
+            current={b:{c for(yy,bb,c),v in palette.items()if yy==y and bb==b and solver.value(v)}for b in range(8)}
+            if any(len(cs)>15 for cs in current.values()):raise AssertionError('FRAME_BANK_CACHE_CAPACITY_REPLAY')
+            updates=[dict(bank=b,color=c)for b in range(8)for c in sorted(current[b]-previous[b])]
+            cost=0 if y==initial_cache_row else favorable_span(updates)
+            if cost>=cache_window:raise AssertionError('FRAME_BANK_CACHE_PARTITION_REPLAY')
+            cache.append(dict(scanline=y,resident_colors={b:sorted(cs)for b,cs in current.items()},colors_written=len(updates),
+                updates=updates,ideal_prepared_commit_span=cost,vblank_initialization_relaxed=y==initial_cache_row))
+            states[y]=current;previous=current
+        if any(p['color']not in states[p['y']][p['bank']]for p in pixels):raise AssertionError('FRAME_BANK_CACHE_PIXEL_REPLAY')
+        report.update(joint_cache_trace=cache,independent_integer_cache_and_ideal_partition_replayed=True,
+            peak_joint_cache_writes=max((r['colors_written']for r in cache[1:]),default=0),
+            peak_joint_cache_ideal_span=max(r['ideal_prepared_commit_span']for r in cache))
     report.update(status='FIXED_FRAME_BANK_GEOMETRY_AND_WORD_OPTIONS_PROVEN',pieces=pieces,pixels=pixels,geometry=geometry,
         declared_word_options_and_fixed_bank_geometry_replayed=True)
     return report
@@ -171,6 +216,7 @@ def main():
     p.add_argument('--subdivide',action='store_true');p.add_argument('--bank-symmetry',action='store_true')
     p.add_argument('--feasibility-only',action='store_true')
     p.add_argument('--geometry-hint',type=Path,help='Soft source-exact geometry witness from a subset of the requested interval.')
+    p.add_argument('--cache-window',type=int,help='Joint integer color residency with ideal bank partitions; physical slots remain relaxed.')
     a=p.parse_args()
     if not 0<=a.scanline_start<a.scanline_end<=224:p.error('scanline interval must be within [0,224)')
     frame=json.loads(a.schedule.read_text(encoding='utf-8'))
@@ -198,14 +244,14 @@ def main():
     hint=json.loads(a.geometry_hint.read_text(encoding='utf-8'))if a.geometry_hint else None
     if hint is not None and hint.get('source_rgb555_sha256')!=frame['source_rgb555_sha256']:
         raise ValueError('FRAME_BANK_GEOMETRY_HINT_SOURCE_IDENTITY')
-    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint)
+    report=search(rectangles,options,time_limit=a.time_limit,bank_symmetry=a.bank_symmetry,feasibility_only=a.feasibility_only,geometry_hint=hint,cache_window=a.cache_window)
     report.update(source_rgb555_sha256=frame['source_rgb555_sha256'],source_input_sha256=hashlib.sha256(a.schedule.read_bytes()).hexdigest(),
         source_pak_sha256=hashlib.sha256(a.exact_source.read_bytes()).hexdigest(),source_row_context_proofs=proofs,
         source_rectangle_cover=geometry['source_rectangle_cover'],scanline_interval=[a.scanline_start,a.scanline_end],
         outside_interval_demand_relaxed=(a.scanline_start,a.scanline_end)!=(0,224),
         source_alpha_policy='EXACT_SOURCE_OUTPUT_OPERANDS',alpha_compatibility_policy_selected=False)
     a.output.write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
-    print(json.dumps({k:v for k,v in report.items()if k not in('pixels','pieces','source_rectangle_cover','source_row_context_proofs')}))
+    print(json.dumps({k:v for k,v in report.items()if k not in('pixels','pieces','source_rectangle_cover','source_row_context_proofs','joint_cache_trace')}))
 
 
 if __name__=='__main__':main()

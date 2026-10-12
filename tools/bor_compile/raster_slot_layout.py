@@ -21,8 +21,12 @@ def piece_identity(piece):
 
 def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_residents=True,flexible_prefetch=False,lookahead=16,demand_gap=None,layout_hint=None,reorder_banks=False,fix_hint_slots=False,split_bank_ranges=False,permute_hint_slots=False,retain_write_times=False,rectangle_lifetimes=False,persistent_color_slots=False,paired_bank_ranges=False,collapse_idle_prefix=False,lifetime_repair_interval=None,search_strategy='portfolio',hint_time_radius=None,necessary_bank_window=None,feasibility_only=False):
     from ortools.sat.python import cp_model
-    if schedule.get('status')!='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN' or not schedule.get('compiled_pixel_identity_verified'):
+    full=schedule.get('status')=='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN'and schedule.get('compiled_pixel_identity_verified')
+    restricted=schedule.get('status')=='RESTRICTED_SCANLINE_DEMAND_ONLY'and schedule.get('restricted_pixel_identity_verified')and schedule.get('outside_interval_pixels_relaxed')and not schedule.get('complete_source_frame_pixel_identity_proven')and not schedule.get('compiled_pixel_identity_verified')
+    if not(full or restricted):
         raise ValueError('SLOT_LAYOUT_VALIDATED_SCHEDULE_REQUIRED')
+    from raster_slot_greedy import demand
+    demand(schedule,allow_restricted=True)
     if not 1<=window or not 1<=maximum_ranges<=4:raise ValueError('SLOT_LAYOUT_TRANSFER_DOMAIN')
     if type(feasibility_only)is not bool:raise ValueError('SLOT_LAYOUT_FEASIBILITY_DOMAIN')
     if search_strategy not in('portfolio','lns'):raise ValueError('SLOT_LAYOUT_SEARCH_STRATEGY')
@@ -271,6 +275,8 @@ def optimize(schedule,window=348,time_limit=180,maximum_ranges=4,trim_dead_resid
                 solver_status=solver.status_name(status),solver_seconds=solver.wall_time,
                 solver_search_strategy=search_strategy,
                 solver_objective='FEASIBILITY_ONLY'if feasibility_only else('PEAK_THEN_TOTAL_TRANSFER_COST'if lifetime_repair_interval is None else'REPAIR_PEAK_THEN_REPAIR_TOTAL_TRANSFER_COST'),
+                restricted_scanline_demand_interval=schedule.get('restricted_scanline_demand_interval')if restricted else None,
+                outside_interval_pixels_relaxed=bool(restricted),complete_source_frame_pixel_identity_proven=bool(full),
                 solver_objective_lower_bound=None if feasibility_only else solver.best_objective_bound,
                 restricted_family_peak_span_lower_bound=None if feasibility_only else max(0,8*math.ceil(math.floor(solver.best_objective_bound/objective_scale)/8)-40),
                 lower_bound_scope=None if feasibility_only else 'SUPPLIED_PIECES_BANKS_LIFETIME_GROUPING_AND_TIMING_CONSTRAINTS',
