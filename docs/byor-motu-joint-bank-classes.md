@@ -191,3 +191,18 @@ lower bound is 305 clocks at the 50-second limit. Lifetime recoloring preserves
 every viewport pixel but requires 504 physical clocks. Joint bank permutation
 and physical placement at the original fixed times returns UNKNOWN at
 345 clocks. These witnesses remain unadmitted; no fallback is selected.
+
+The same bank-permutation model returns UNKNOWN at 353 clocks. Limiting the
+original encoding to five write-active banks also returns UNKNOWN. Neither
+result proves a hardware limit.
+
+A separate complete-operand class-capacity relaxation permits all four shared
+scanline math modes and a two-window transition superset on rows 125–145.
+With only the sixty upper-bank slots, the validated fractional write bound is
+26.771574, forcing at least 27 integral writes and rejecting that prepared-DMA
+family even before bank assignment. Adding 15, 30 or 45 lower-class slots gives
+bounds 19.937500, 16.500000 and 13.645833. Initial residency and preloading are
+optimistic; geometry, fixed banks and physical slots remain relaxed. These
+measurements identify capacity tradeoffs without reserving actor resources or
+claiming a complete frame schedule. No compatibility alpha approximation is
+selected.
