@@ -235,3 +235,13 @@ state. Sixty thousand proposals and 1,273 accepted transitions retain the
 input preservation and best-state retention. This does not admit timing.
 A 45.121-second exact free-residency/slot repair over lines 124..146 returns
 UNKNOWN; its 244-clock restricted lower bound does not reject raster.
+
+Focused remapping of changing slots retains the 360-clock peak and reduces
+aggregate cost to 9,296 clocks. An exhaustive fixed bank/reflection search
+then checks all 5,040 eligible bank permutations, each with 256 slot
+reflections, in 13.391 seconds and finds no better layout in that family.
+A separate complete lifetime-to-slot reassignment search returns UNKNOWN
+at 45.073 seconds. The shared-actor-bank cache also fails the 345-clock
+fixed-index event-time family in 7.235 seconds; source banks, residency and
+indices remain alternative search dimensions. No result rejects raster
+universally and no native timing claim is added.

@@ -74,7 +74,11 @@ def reindex(source,time_limit=30,iterations=20,radius=3,target_window=345,anneal
             critical=np.where(current>=target_window)[0]
             if not len(critical):break
             line=int(rng.choice(critical));boundary=max(0,line-rng.randrange(radius+1))if rng.random()<.8 else 0
-            b=rng.randrange(8);a,z=rng.sample(range(15),2)
+            dirty_banks=[b for b in range(8)if flags[line,16*b+1:16*b+16].any()]
+            b=rng.choice(dirty_banks)if dirty_banks and rng.random()<.8 else rng.randrange(8)
+            dirty_slots=np.where(flags[line,16*b+1:16*b+16])[0].tolist()
+            a=rng.choice(dirty_slots)if dirty_slots and rng.random()<.8 else rng.randrange(15)
+            z=rng.choice([s for s in range(15)if s!=a])
             trial=flags.copy();trial[boundary:,16*b+a+1]=flags[boundary:,16*b+z+1];trial[boundary:,16*b+z+1]=flags[boundary:,16*b+a+1]
             if boundary:
                 trial[boundary,16*b+a+1]=states[boundary,b,z]!=states[boundary-1,b,a]
