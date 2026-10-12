@@ -765,3 +765,9 @@ active banks per noninitial line. Every piece still selects one fixed bank and
 the complete player geometry reservation remains valid. The 400-clock cost
 still exceeds the measured transfer window; no physical slot or native timing
 admission is asserted.
+
+The next ordered necessary-cost trial reaches a 392-clock relaxed peak after
+180.196 seconds, but complete partition replay requires 408 clocks. It uses
+683 noninitial writes, 21 peak writes and 34-line prefetch. This does not improve
+the 400-clock complete frontier; a complete-partition neighborhood search uses
+that best cache instead of treating the relaxation objective as hardware cost.
