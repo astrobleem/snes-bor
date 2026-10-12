@@ -3,6 +3,27 @@ from raster_math_mode_liveness import lower_bound,verify_integer_pool
 
 
 class ModeLivenessTests(unittest.TestCase):
+    def test_controls_only_window_hint_cannot_pin_wrong_pixel_gates(self):
+        rows=[{'a':{(0,(7,))}},{'a':{(1,(7,))}}]
+        pixels=[[{'x':4,'output':out,'modes':{'a':(7,)}}]for out in(0,1)]
+        result=lower_bound(rows,capacities=(0,1),integer_modes=True,integer_windows=True,integer_palette=True,integer_backend='cp-sat',write_budget=0,time_limit=5,window_pixels=pixels,controls_hint={'selected_modes':{0:'a',1:'a'},'selected_window_eligibility':{0:{4:0},1:{4:0}}})
+        self.assertEqual(result['selected_window_eligibility'],{0:{4:1},1:{4:1}})
+        self.assertEqual(result['peak_replayed_pool_writes'],0)
+        self.assertTrue(result['integer_pool_pixel_coverage_verified'])
+        self.assertFalse(result['source_controls_hint']['palette_residency_hinted'])
+        self.assertEqual(result['source_controls_hint']['hint_variables'],4)
+
+    def test_controls_only_hint_can_change_mode_without_pinning_residency(self):
+        rows=[{'a':{(0,(7,))},'b':{(0,(9,))}},{'a':{(1,(8,))},'b':{(1,(9,))}}]
+        result=lower_bound(rows,capacities=(0,1),integer_modes=True,integer_palette=True,integer_backend='cp-sat',write_budget=0,time_limit=5,controls_hint={'selected_modes':{0:'a',1:'a'}})
+        self.assertEqual(result['selected_modes'],{0:'b',1:'b'})
+        self.assertEqual(result['peak_replayed_pool_writes'],0)
+        self.assertEqual(result['source_controls_hint']['pinned_variables'],0)
+        self.assertFalse(result['source_controls_hint']['palette_residency_hinted'])
+        self.assertFalse(result['schedule_proven'])
+        with self.assertRaisesRegex(ValueError,'CONTROLS_HINT_DOMAIN'):
+            lower_bound(rows,integer_modes=True,integer_palette=True,integer_backend='cp-sat',controls_hint={'selected_modes':{0:'missing'}})
+
     def test_fixed_initial_cache_cannot_gain_free_colors_at_segment_boundary(self):
         rows=[{'a':{(1,())}},{'a':{(2,())}}]
         opts=dict(capacities=(2,0),integer_modes=True,integer_palette=True,integer_backend='cp-sat',time_limit=5)

@@ -46,7 +46,7 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     return report
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None):
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None,controls_hint=None):
     reserved_normal_colors=tuple(sorted(set(reserved_normal_colors)))
     if any(type(c)is not int or not 0<=c<32768 for c in reserved_normal_colors):raise ValueError('MODE_LIVENESS_STATIC_RESERVATION_DOMAIN')
     scanline_write_limits=dict(scanline_write_limits or {})
@@ -77,6 +77,10 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     if lp_hint and integer_backend!='cp-sat':raise ValueError('MODE_LIVENESS_LP_HINT_REQUIRES_CP_SAT')
     if residency_hint is not None and(not integer_palette or integer_backend!='cp-sat' or lp_hint):raise ValueError('MODE_LIVENESS_RESIDENCY_HINT_REQUIRES_CP_SAT_WITHOUT_LP_HINT')
     if residency_hint is not None:verify_integer_pool(residency_hint,rows,capacities,window_pixels,maximum_window_transitions)
+    if controls_hint is not None and(not integer_palette or integer_backend!='cp-sat' or residency_hint is not None or lp_hint):raise ValueError('MODE_LIVENESS_CONTROLS_HINT_POLICY')
+    hinted_modes={int(y):m for y,m in controls_hint.get('selected_modes',{}).items()}if controls_hint is not None else{}
+    hinted_masks={int(y):{int(x):v for x,v in mask.items()}for y,mask in controls_hint.get('selected_window_eligibility',{}).items()}if controls_hint is not None else{}
+    if any(not 0<=y<len(rows)or m not in rows[y]for y,m in hinted_modes.items())or any(not 0<=y<len(rows)or any(not 0<=x<256 or type(v)is not int or v not in(0,1)for x,v in mask.items())for y,mask in hinted_masks.items()):raise ValueError('MODE_LIVENESS_CONTROLS_HINT_DOMAIN')
     pruned=[];filtered=[]
     for y,row in enumerate(rows):
         admitted={}
@@ -231,6 +235,10 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
             hint.update({v:int(chosen_modes[y]==mode)for (y,mode),v in modes.items()})
             hint.update({v:int(masks[y].get(x,0))for (y,x),v in enabled.items()})
             hint.update({v:int(masks[y].get(left,0)!=masks[y].get(right,0))for (y,left,right),v in transitions.items()})
+        if controls_hint is not None:
+            hint={v:int(hinted_modes[y]==mode)for (y,mode),v in modes.items()if y in hinted_modes}
+            hint.update({v:hinted_masks[y][x]for(y,x),v in enabled.items()if y in hinted_masks and x in hinted_masks[y]})
+            hint.update({v:int(hinted_masks[y][left]!=hinted_masks[y][right])for(y,left,right),v in transitions.items()if y in hinted_masks and left in hinted_masks[y]and right in hinted_masks[y]})
         solved=solve(all_rows,all_lower,all_upper,objective,time_limit,variable_upper=domains,hint=hint)
         boolean_statistics=solved.boolean_stats
         result=SimpleNamespace(status=solved.status,message=solved.message,x=solved.x,
@@ -265,6 +273,7 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                   subset_mode_cover_cuts=subset_mode_cuts,
                   window_eligibility_variables=len(enabled),maximum_window_transitions=maximum_window_transitions if window_pixels is not None else None)
     if boolean_statistics is not None:report['boolean_stats']=boolean_statistics
+    if controls_hint is not None:report['source_controls_hint']=dict(hint_is_soft=True,pinned_variables=0,palette_residency_hinted=False,hint_variables=boolean_statistics['hint_variables'])
     if lp_hint_report is not None:report['lp_residency_hint']=lp_hint_report
     if residency_hint is not None:report['source_residency_hint']=dict(hint_is_soft=True,pinned_variables=0,input_peak_replayed_writes=residency_hint['peak_replayed_pool_writes'])
     if result.x is not None:

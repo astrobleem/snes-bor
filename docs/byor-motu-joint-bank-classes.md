@@ -213,3 +213,12 @@ now accepts that objective explicitly and never marks it cost-optimal.
 Eight matrix-constraint tests and nineteen existing mode/liveness tests pass;
 every consumer still independently replays an emitted incumbent. No five-bank
 schedule or concurrent-actor reservation is admitted by these searches.
+
+The six-bank-capacity integer pool at seventeen writes also returns UNKNOWN.
+The mode/liveness solver now accepts soft mode/window-only hints separately
+from palette residency. Such hints may be changed by the solver; they pin no
+variables and grant no source or hardware admission. Twenty-one mode/liveness
+tests and eight bounded-integer matrix tests pass, including examples where
+the solver must change a hinted mode and wrong window gates to meet the
+required write budget. A source-bound control hint from the verified original
+encoding still returns UNKNOWN at seventeen writes in 51.300 seconds.
