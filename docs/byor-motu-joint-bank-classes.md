@@ -85,3 +85,15 @@ family results, not rejection of lossless raster presentation. The full
 source replay and bounded schedules are retained in
 [the authored follow-up receipt](receipts/byor-motu-authored-kempe.json)
 and its compressed archive. No color reduction or alpha adaptation occurs.
+
+A whole-piece reassignment lowers the interval-pressure relaxation from 16.5
+to 15.142857 writes per line. Its sixteen-write integer cache is infeasible
+even without range constraints. A seventeen-write logical cache is OPTIMAL
+in 7.797 seconds with 444 writes, six-line prefetch and zero integer constraint
+violation, but its optimistic physical span is 392 clocks. Constrained cache
+searches and broader free-residency physical searches return UNKNOWN at
+their bounded limits. The latter allow live slot moves, preload a static bank
+and do not fix the supplied cache lifetimes. Their results still do not
+reject the raster approach universally. All complete witnesses independently
+replay exact source alpha over the entire viewport; bounded negative search
+reports are retained separately from those witnesses in the same receipt.

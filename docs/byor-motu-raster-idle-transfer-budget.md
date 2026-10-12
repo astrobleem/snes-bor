@@ -36,6 +36,17 @@ in `docs/receipts/byor-motu-raster-idle-transfer-budget.json`. Its paired gzip
 retains successful descriptors and bounded native assembly/observer witnesses
 for both successful and failed trials. No color reduction was applied.
 
+The later controlled-player witness sustains the same 344-clock packet span
+with source-bound window-register traffic. Its explicit private WAI ABI uses
+inline row returns and HTIMER 170; peak IRQ entry-to-RTI is 1,180 clocks.
+Six complete fields have zero unsafe commits or viewport pixel mismatches,
+1,410 context checks with zero faults, and 204 complete physical CGRAM
+snapshots with zero byte faults. The NMI peak is 37,946 clocks with the same
+2,814-byte queue fixture. Every window control field matches its source-bound
+descriptor. Layer math is disabled in this transport test, so authored alpha
+rendering remains unadmitted. Positive and negative evidence is retained in
+[the lifetime native receipt](receipts/byor-motu-kempe-native.json).
+
 The default full-context executor remains byte-identical to parent commit
 `27b8575` under the same compiler inputs. Both ROM hashes are
 `29aa7d9863ab4042de71cea0acdb8568a61f58bb6a6c5044ce7cda5879d5e9e6`;
