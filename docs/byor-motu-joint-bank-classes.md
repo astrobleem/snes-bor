@@ -343,3 +343,19 @@ optimizer; bank 3 remains excluded. A bounded cache-cut run on the 100-piece
 local encoding gives a best validated fractional bound of 23.142857 across
 nine iterations. A separate compaction-preserving bank rebalance does not
 admit transfer timing. The source geometry reservation remains unchanged.
+
+The source-bound joint search on the corrected 74-piece local encoding
+preserves per-pixel operands, math classes, rectangles and bank domains while
+searching new fixed banks and cache residency. At the conservative 345-clock
+prepared-transfer threshold it returns UNKNOWN in 50.255 solver seconds
+(103,278 variables and 258,627 constraints). The hint is soft. This is not
+an infeasibility verdict or native admission.
+
+An exact full-frame word-cover variant also fits the measured player geometry:
+74 effect entries, 18 sprites and 25 tile slivers; combined peaks are 107
+entries, 23 sprites and 33 slivers. Its initial fixed-bank fractional cache
+bound is 33 writes. The earlier local encoding's domain-preserving rebalance
+has bound 23.583333, forcing 24 writes and exceeding the measured window.
+The word-cover DMA-cut search has no candidate because its initial fixed-bank
+LP is infeasible under the 21-write cap; this is a restricted initial
+assignment failure, not a universal raster or bank-assignment verdict.
