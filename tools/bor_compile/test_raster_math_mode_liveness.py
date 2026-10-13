@@ -3,6 +3,18 @@ from raster_math_mode_liveness import lower_bound,verify_integer_pool
 
 
 class ModeLivenessTests(unittest.TestCase):
+    def test_explicit_paths_preserve_exact_integer_pixel_coverage(self):
+        rows=[{'add':{(2,(1,))},'half-add':{(2,(3,))}}]
+        pixels=[[dict(x=0,output=2,modes={'add':(1,),'half-add':(3,)})]]
+        result=lower_bound(rows,capacities=(0,1),window_pixels=pixels,explicit_pixel_paths=True,
+            integer_modes=True,integer_windows=True,integer_palette=True,integer_backend='cp-sat',write_budget=0,time_limit=5)
+        self.assertTrue(result['explicit_exact_pixel_paths'])
+        self.assertEqual(result['explicit_pixel_path_variables'],4)
+        self.assertTrue(result['integer_pool_pixel_coverage_verified'])
+        self.assertFalse(result['schedule_proven'])
+        with self.assertRaisesRegex(ValueError,'PIXEL_PATH_POLICY'):
+            lower_bound(rows,explicit_pixel_paths=True)
+
     def test_fixed_controls_keep_shared_modes_and_window_without_palette_admission(self):
         rows=[{'add':{(2,(1,))},'half-add':{(2,(3,))}}]
         pixels=[[dict(x=0,output=2,modes={'add':(1,),'half-add':(3,)})]]

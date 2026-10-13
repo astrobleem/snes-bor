@@ -53,7 +53,8 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     return report
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None,controls_hint=None,minimum_transfer_window=None,integer_cache_objective='peak',fixed_controls=None):
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None,controls_hint=None,minimum_transfer_window=None,integer_cache_objective='peak',fixed_controls=None,explicit_pixel_paths=False):
+    if type(explicit_pixel_paths)is not bool or explicit_pixel_paths and window_pixels is None:raise ValueError('MODE_LIVENESS_PIXEL_PATH_POLICY')
     if fixed_controls is not None and(controls_hint is not None or residency_hint is not None or lp_hint or pin_lp_controls or window_pixels is None):raise ValueError('MODE_LIVENESS_FIXED_CONTROLS_POLICY')
     if integer_cache_objective not in('peak','loads','resident-lines')or(integer_cache_objective!='peak'and not integer_palette):raise ValueError('MODE_INTEGER_CACHE_OBJECTIVE')
     reserved_normal_colors=tuple(sorted(set(reserved_normal_colors)))
@@ -127,6 +128,14 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
             if positive_windows_only:coordinates=sorted(set(coordinates)|{0,255})
             for x in coordinates:enabled[y,x]=count;count+=1
             for left,right in zip(coordinates,coordinates[1:]):transitions[y,left,right]=count;count+=1
+    pixel_paths={}
+    if explicit_pixel_paths:
+        for y in active:
+            for i,pixel in enumerate(window_pixels[y]):
+                normal,bypass=count,count+1;count+=2;arithmetic={}
+                for mode,choices in pixel['modes'].items():
+                    if choices:arithmetic[mode]=count;count+=1
+                pixel_paths[y,i]=(normal,bypass,arithmetic)
     minimum_banks={}
     if minimum_transfer_window is not None:
         for y in range(first+1,max(active)+1):
@@ -136,6 +145,16 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
         index=len(limits)
         for variable,value in items:rr.append(index);cc.append(variable);vv.append(value)
         limits.append(upper)
+    for(y,i),(normal,bypass,arithmetic)in pixel_paths.items():
+        pixel=window_pixels[y][i];out=pixel['output'];gate=enabled[y,pixel['x']]
+        paths=[normal,bypass,*arithmetic.values()]
+        constraint([(v,1)for v in paths],1);constraint([(v,-1)for v in paths],-1)
+        constraint([(normal,1),(resident[0,out,y],-1)],0)
+        constraint([(bypass,1),(resident[1,out,y],-1)],0);constraint([(bypass,1),(gate,1)],1)
+        constraint([(v,1)for v in arithmetic.values()]+[(gate,-1)],0)
+        for mode,v in arithmetic.items():
+            constraint([(v,1),(modes[y,mode],-1)],0)
+            constraint([(v,1)]+[(resident[1,c,y],-1)for c in pixel['modes'][mode]],0)
     for y in active:
         admitted_colors={c for requirements in rows[y].values()for normal,choices in requirements for c in choices}
         if window_pixels is not None:admitted_colors.update(pixel['output']for pixel in window_pixels[y])
@@ -295,6 +314,8 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                 variables=peak+1,constraints=len(limits),mode_variables=len(modes),integer_modes=integer_modes,write_budget=write_budget,
         palette_residency_integrality_relaxed=not integer_palette,geometry_and_bank_assignment_relaxed=True,
                 optimal_initial_residency_allowed=initial_state is None,fixed_initial_palette_state=None if initial_state is None else{k:sorted(cs)for k,cs in initial_state.items()},unbounded_preloading_allowed=True,schedule_proven=False,no_color_reduction=True)
+    report['explicit_exact_pixel_paths']=explicit_pixel_paths
+    report['explicit_pixel_path_variables']=sum(2+len(v[2])for v in pixel_paths.values())
     report['fixed_source_control_family']=fixed_controls is not None
     if fixed_controls is not None:report['fixed_controls']=dict(selected_modes=fixed_modes,selected_window_eligibility=fixed_masks)
     report['fixed_controls_grant_palette_or_native_admission']=False

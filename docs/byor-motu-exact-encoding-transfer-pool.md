@@ -400,3 +400,17 @@ or broader infeasibility claim. No color reduction is applied.
 The sixty-second add/window dual-simplex LP also returns UNKNOWN with no
 primal candidate. It supplies no bound. The fixed-control source-digest
 regression passes, and the static-demand suite now has fifteen passing cases.
+
+Optional explicit pixel paths strengthen coverage with a one-unit choice
+through a resident opaque color, a resident bypass color under a disabled
+window, or a palette-covered selected math mode. Integer cache witnesses
+still undergo the independent existing source/control replay. Tests verify
+that no palette/native admission follows solely from these auxiliary paths.
+Older model results keep their original formulation.
+
+The strengthened add/window LP remains UNKNOWN after 66.654 seconds. The
+four-mode integer cache remains UNKNOWN after 95.742 seconds; restricting
+its operator domain to add/half-add remains UNKNOWN after 94.627 seconds.
+These are bounded search results, not rendering limits. The full focused
+window/liveness/static-demand/joint/backend suite passes 159 cases.
+No color reduction, alpha adaptation or production raster admission occurs.
