@@ -620,7 +620,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
         result=linprog(objective,A_ub=inequalities,b_ub=limits,A_eq=matrix[equal],b_eq=low[equal],bounds=list(zip(np.zeros(variable_count),upper)),method='highs-ipm',options={'time_limit':time_limit})
     elif solver_backend=='cp-sat':
         from raster_boolean_solver import solve
-        result=solve(matrix,lo,hi,objective,time_limit,hint=hint,variable_upper=upper,search_strategy=cp_search_strategy)
+        result=solve(matrix,lo,hi,objective,time_limit,hint=hint,variable_upper=upper,search_strategy=cp_search_strategy,feasibility_only=feasibility_only)
     else:
         result=milp(objective,integrality=integrality,bounds=Bounds(0,upper),constraints=LinearConstraint(matrix,lo,hi),options={'time_limit':time_limit,'mip_rel_gap':.05})
     report=dict(schema='BYOR_JOINT_EXACT_CONTEXT_OBJ_MILP_V1',status='BOUNDED_JOINT_SOLVER_NO_CANDIDATE',

@@ -10,6 +10,16 @@ from raster_boolean_solver import solve
 
 @unittest.skipUnless(importlib.util.find_spec('ortools'),'optional OR-Tools backend')
 class BooleanMatrixTests(unittest.TestCase):
+    def test_joint_feasibility_flag_reaches_backend_and_replays_pixels(self):
+        background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy();expected[:8,:8,0]=16
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=np.full((8,8),2,dtype=np.int32),left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            result=joint.probe(None,None,{},size=8,write_budget=0,time_limit=5,
+                solver_backend='cp-sat',feasibility_only=True)
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        stats=result['solver']['boolean_stats']
+        self.assertEqual(stats['search_objective'],'FEASIBILITY_ONLY')
+        self.assertFalse(stats['optimal'])
+
     def test_feasibility_objective_preserves_constraints_without_optimality(self):
         result=solve(coo_matrix([[1,1],[1,-1]]),[1,-np.inf],[1,0],[1,2],time_limit=5,workers=1,feasibility_only=True)
         self.assertEqual(result.status,0)

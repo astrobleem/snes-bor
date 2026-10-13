@@ -206,3 +206,18 @@ and 32 slivers. This is a code/data correctness proof, not native admission.
 The continued rectangular cache-cut search retains a 23.833-write fractional
 bound; its transfer-cost relaxation's best selected assignment requires
 404.854 clocks. Neither result universally rejects rectangular raster rendering.
+
+The source joint CLI's feasibility-only option is now forwarded to CP-SAT.
+Earlier joint experiments requested feasibility but still optimized their
+weighted objective; their retained objective label exposes that behavior.
+No constraints or source replay are weakened by the fix. A focused native
+backend fixture verifies FEASIBILITY_ONLY reporting and exact pixel replay.
+
+The corrected 16-pixel interval search returns UNKNOWN after 90.089 seconds,
+with 1,436,371 reported branches and 1,035,043 conflicts. Collapsing the inactive
+prefix and coalescing equal pixel contexts reduces the unrestricted model from
+433,846 variables/1,083,373 constraints to 94,675/237,265, but the bounded run
+remains UNKNOWN after 120.180 seconds. The prior ten-minute run likewise returns
+UNKNOWN. Its zero response-level branch count does not mean workers did no
+search: the retained bounded log includes millions of feasibility-jump moves.
+There is still no broad infeasibility certificate or native peak-frame witness.
