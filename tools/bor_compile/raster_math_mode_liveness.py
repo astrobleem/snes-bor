@@ -17,7 +17,7 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     states={int(y):{int(k):set(colors)for k,colors in state.items()}for y,state in report['selected_palette_residency'].items()}
     modes={int(y):m for y,m in report['selected_modes'].items()}
     masks={int(y):{int(x):v for x,v in mask.items()}for y,mask in report.get('selected_window_eligibility',{}).items()}
-    first,last=min(active),max(active);peak=0
+    first,last=min(active),max(active);peak=0;total=0
     if set(states)!=set(range(first,last+1)):raise ValueError('MODE_INTEGER_POOL_STATE_DOMAIN')
     if report.get('fixed_initial_palette_state')is not None and states[first]!={int(k):set(cs)for k,cs in report['fixed_initial_palette_state'].items()}:raise AssertionError('MODE_INTEGER_POOL_INITIAL_STATE_REPLAY')
     for y,state in states.items():
@@ -27,7 +27,7 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
         if not {int(yy):set(cs)for yy,cs in report.get('required_normal_rows',{}).items()}.get(y,set()).issubset(state[0]):raise AssertionError('MODE_INTEGER_POOL_NORMAL_ROW_REPLAY')
         if y>first:
             class_writes=[len(state[k]-states[y-1][k])for k in range(2)]
-            line_writes=sum(class_writes);peak=max(peak,line_writes)
+            line_writes=sum(class_writes);peak=max(peak,line_writes);total+=line_writes
             transfer_window=report.get('necessary_minimum_transfer_window')
             if transfer_window is not None:
                 banks=sum((n+14)//15 for n in class_writes)
@@ -48,10 +48,12 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
             if out not in state[0]and not set(choices)&state[1]:raise AssertionError('MODE_INTEGER_POOL_PIXEL_REPLAY')
     if peak>report['peak_write_objective']:raise AssertionError('MODE_INTEGER_POOL_WRITE_REPLAY')
     report.update(integer_pool_pixel_coverage_verified=True,integer_pool_residency_capacity_verified=True,peak_replayed_pool_writes=peak)
+    report['total_replayed_pool_writes']=total
     return report
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None,controls_hint=None,minimum_transfer_window=None):
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None,controls_hint=None,minimum_transfer_window=None,integer_cache_objective='peak'):
+    if integer_cache_objective not in('peak','loads')or(integer_cache_objective!='peak'and not integer_palette):raise ValueError('MODE_INTEGER_CACHE_OBJECTIVE')
     reserved_normal_colors=tuple(sorted(set(reserved_normal_colors)))
     if any(type(c)is not int or not 0<=c<32768 for c in reserved_normal_colors):raise ValueError('MODE_LIVENESS_STATIC_RESERVATION_DOMAIN')
     scanline_write_limits=dict(scanline_write_limits or {})
@@ -185,6 +187,9 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
         pool_lines.setdefault((kind,y),[]).append(variable)
         if y>first:
             constraint([(variable,1),(resident[kind,color,y-1],-1),(writes[kind,color,y],-1)],0)
+            if integer_palette:
+                constraint([(writes[kind,color,y],1),(variable,-1)],0)
+                constraint([(writes[kind,color,y],1),(resident[kind,color,y-1],1)],1)
             write_lines.setdefault(y,[]).append(writes[kind,color,y])
     for (kind,y),variables in pool_lines.items():constraint([(v,1)for v in variables],capacities[kind])
     for y,variables in write_lines.items():
@@ -198,6 +203,9 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
             constraint([(v,16)for v in variables]+[(minimum_banks[y,k],16)for k in (0,1)],minimum_transfer_window+31)
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(limits),peak+1)).tocsc()
     objective=np.zeros(peak+1);objective[peak]=1
+    if integer_cache_objective=='loads':
+        objective[peak]=0
+        for variable in writes.values():objective[variable]=1
     lower=np.zeros(peak+1);upper=np.ones(peak+1);upper[peak]=np.inf if write_budget is None else write_budget
     for variable in minimum_banks.values():upper[variable]=4
     for c in reserved_normal_colors:
@@ -299,7 +307,7 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     if result.x is not None:
         violation=max(float(np.max(np.maximum(matrix@result.x-np.array(limits),0))),float(np.max(np.maximum(lower-result.x,0))),float(np.max(np.maximum(result.x-upper,0))))
         if violation>1e-6:raise AssertionError('MODE_LIVENESS_PRIMAL_RESIDUAL')
-        report.update(status='RELAXED_MODE_LIVENESS_CANDIDATE',peak_write_objective=float(result.fun),maximum_primal_violation=violation)
+        report.update(status='RELAXED_MODE_LIVENESS_CANDIDATE',peak_write_objective=float(result.x[peak]),cache_objective=integer_cache_objective,cache_objective_value=float(result.fun),maximum_primal_violation=violation)
         if mixed_integer:
             integer_variables=list(range(peak+1))if integer_palette else([*modes.values()]if integer_modes else[])+([*enabled.values()]if integer_windows else[])
             residual=max(abs(result.x[v]-round(result.x[v]))for v in integer_variables)
@@ -313,6 +321,10 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                 states={y:{kind:{c for (k,c,yy),v in resident.items()if k==kind and yy==y and result.x[v]>.5}for kind in range(2)}for y in range(first,max(active)+1)}
                 report['selected_palette_residency']={y:{kind:sorted(colors)for kind,colors in state.items()}for y,state in states.items()}
                 verify_integer_pool(report,rows,capacities,window_pixels,maximum_window_transitions)
+                modeled_loads=int(round(sum(result.x[v]for v in writes.values())))
+                if modeled_loads!=report['total_replayed_pool_writes']:raise AssertionError('MODE_INTEGER_POOL_EXACT_LOAD_REPLAY')
+                report['modeled_loads_match_replayed_residency_changes']=True
+                if integer_cache_objective=='loads':report['peak_write_objective']=report['peak_replayed_pool_writes']
         elif result.success:
             dual=float(np.dot(limits,result.ineqlin.marginals)+np.dot(lower,result.lower.marginals)+np.dot(np.where(np.isfinite(upper),upper,0),result.upper.marginals))
             residual=float(np.max(np.abs(objective-matrix.T@result.ineqlin.marginals-result.lower.marginals-result.upper.marginals)))

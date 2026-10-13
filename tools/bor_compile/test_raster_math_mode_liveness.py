@@ -3,6 +3,19 @@ from raster_math_mode_liveness import lower_bound,verify_integer_pool
 
 
 class ModeLivenessTests(unittest.TestCase):
+    def test_total_load_objective_reports_peak_and_total_separately(self):
+        rows=[{'add':{(c,())}}for c in (1,2,1)]
+        result=lower_bound(rows,capacities=(1,0),integer_modes=True,
+            integer_palette=True,integer_backend='cp-sat',time_limit=5,
+            write_budget=4,integer_cache_objective='loads')
+        self.assertEqual(result['cache_objective_value'],2)
+        self.assertEqual(result['total_replayed_pool_writes'],2)
+        self.assertTrue(result['modeled_loads_match_replayed_residency_changes'])
+        self.assertEqual(result['peak_write_objective'],1)
+        self.assertFalse(result['schedule_proven'])
+        with self.assertRaisesRegex(ValueError,'INTEGER_CACHE_OBJECTIVE'):
+            lower_bound(rows,integer_cache_objective='loads')
+
     def test_class_load_transfer_bound_rejects_twenty_two_writes_in_three_banks(self):
         first={(c,())for c in range(60)}|{(1000+c,(c,))for c in range(60)}
         second={(c,())for c in range(43)}|{(c,())for c in range(60,77)}|{(2000+c,(60+c,))for c in range(5)}

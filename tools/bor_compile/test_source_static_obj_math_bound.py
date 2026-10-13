@@ -7,7 +7,7 @@ from raster_obj_math_cover import MODES
 
 
 class StaticObjBoundTests(unittest.TestCase):
-    def run_fixture(self,effect=False,ordinary_residency='static',scanline_interval=(125,139),integer_bound=None,ordinary_top=0,hardware_windows=True,background_red=0,allowed_modes=MODES,all_visible_actor_pixels_reencodable=False):
+    def run_fixture(self,effect=False,ordinary_residency='static',scanline_interval=(125,139),integer_bound=None,ordinary_top=0,hardware_windows=True,background_red=0,allowed_modes=MODES,all_visible_actor_pixels_reencodable=False,integer_pool_hint=None):
         layer=dict(kind='actor:Ordinary',alpha=0,path='ordinary.png',requested_map=0,source_flip=True)
         actors=[dict(metadata=layer,pixels=np.array([[-1,1]]),left=0,top=ordinary_top)]
         if effect:actors.append(dict(metadata=dict(alpha=1),pixels=np.array([[15]]),left=0,top=128))
@@ -21,8 +21,17 @@ class StaticObjBoundTests(unittest.TestCase):
              patch('source_static_obj_math_bound.decode',return_value=(np.array([[1,2]]),np.array([[[8,0,0],[16,0,0]]]),'hash')), \
              patch('source_static_obj_math_bound.complete_math_cover',return_value=({(mode,out,background_red//8):[out-background_red//8]for mode in MODES for out in (1,15)},{})), \
              patch('source_static_obj_math_bound.lower_bound',return_value=integer_bound or {'status':'TEST_BOUND'}) as bound:
-            result=measure(SimpleNamespace(index={}), 'stage', {},scanline_interval=scanline_interval,ordinary_residency=ordinary_residency,integer_pool_budget=21 if integer_bound else None,hardware_windows=hardware_windows,allowed_modes=allowed_modes,all_visible_actor_pixels_reencodable=all_visible_actor_pixels_reencodable)
+            result=measure(SimpleNamespace(index={}), 'stage', {},scanline_interval=scanline_interval,ordinary_residency=ordinary_residency,integer_pool_budget=21 if integer_bound else None,hardware_windows=hardware_windows,allowed_modes=allowed_modes,all_visible_actor_pixels_reencodable=all_visible_actor_pixels_reencodable,integer_pool_hint=integer_pool_hint)
         return result,bound
+
+    def test_integer_pool_hint_requires_matching_source_context(self):
+        previous,_=self.run_fixture(effect=True)
+        hint=dict(previous,cache_bound={'status':'SOFT_HINT'})
+        result,bound=self.run_fixture(effect=True,integer_bound={'status':'TEST_BOUND'},integer_pool_hint=hint)
+        self.assertEqual(bound.call_args.kwargs['residency_hint'],hint['cache_bound'])
+        hint['source_rgb555_sha256']='stale'
+        with self.assertRaisesRegex(ValueError,'POOL_HINT_SOURCE_IDENTITY'):
+            self.run_fixture(effect=True,integer_bound={'status':'TEST_BOUND'},integer_pool_hint=hint)
 
     def test_all_actor_reencoding_covers_ordinary_pixels_without_literal_reservation(self):
         result,bound=self.run_fixture(effect=True,ordinary_top=128,all_visible_actor_pixels_reencodable=True)
