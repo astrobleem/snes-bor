@@ -78,6 +78,8 @@ def main():
     p.add_argument('--player-state-birth',action='store_true',help='Execute the checked VM-tail lease and actual constructor state clearing through an opt-in birth bridge.')
     p.add_argument('--run-tuple-birth',action='store_true',help='Capture exact RUN snapshot after actual constructor model-data copy; requires player-state birth bridge.')
     p.add_argument('--ground-walk',action='store_true',help='After actual SELECT construction, run canonical ground movement and real WALK frame-zero services.')
+    p.add_argument('--live-ground',action='store_true',help='Emit a bounded persistent ground/input/snapshot owner; requires ground-walk and emit-only.')
+    p.add_argument('--live-ground-display',action='store_true',help='Bind the bounded native snapshot publisher at bank 57; requires live-ground.')
     p.add_argument('--canonical-attack',action='store_true',help='Canonical ordinary attack with actual chain/frame owners; source sound result instrumented.')
     p.add_argument('--early-attack',action='store_true',help='Join ordinary attack after release in the real early player prefix.')
     p.add_argument('--pending-jump-birth',action='store_true',help='Clear exact pending jump descriptor before actual constructor exists publication, bind after model copy.')
@@ -114,6 +116,8 @@ def main():
     p.add_argument('--stationary-post',action='store_true',help='checked source-derived stationary post-update after complete NONE constructor; phase owner context supplied')
     p.add_argument('--ctor-altitude-q16',type=int,default=0,help='generic explicit constructor altitude input')
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
+    if a.live_ground and not(a.ground_walk and a.emit_only):raise ValueError('LIVE_GROUND_REQUIRES_EMIT_ONLY_GROUND_OWNER')
+    if a.live_ground_display and not a.live_ground:raise ValueError('LIVE_GROUND_DISPLAY_REQUIRES_LIVE_GROUND')
     (folder/'report.json').write_text(json.dumps(dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='RUNNING'))+'\n')
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.spawn_recovery_joint and not(a.player_state_birth and a.ctor_model and (a.initial_jump or a.initial_select) and a.frame_owner and a.script_clone):raise ValueError('SPAWN_RECOVERY_REQUIRES_REAL_PLAYER_CONSTRUCTOR')
@@ -298,6 +302,7 @@ def main():
         rows=[dict(f=0,direction=d,default=default,fault=0,lie_port=port,lie_health=health)for port in range(4)for health in(-2147483648,0,150)for d in(0,1)]
     if a.common_spawn:
         previous_animation=next(h for h in compile_source(source)['animation_handles']if h['model']==registry['models'][default]['identity'] and h['role']!='idle')
+    if a.live_ground:rows=[dict(f=0,direction=1,default=default,fault=0,ground_keys=0,run_mode=0)]
     sy=symbols(Path('src/main.sym'));raw=bytearray(a.rom.read_bytes());entry=sy['Vm_SourceFrameGate']
     if a.player_state_birth:
         from source_foreign_slot_tail import derive_plan
@@ -1738,6 +1743,9 @@ CallbackFixture_WorldAIComplete:
         if a.foreign_ai_native_target:
             from source_normal_target_native import emit as emit_native_target
             asm+=emit_native_target(sy,chain=ac)
+    if a.live_ground:
+        from m4_live_ground_owner import bind
+        asm=bind(asm,gr,sy,a.live_ground_display)
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):
@@ -2273,7 +2281,7 @@ emu.addMemoryCallback(function()
  emu.log('CTORPENDINGCOPY|'..word(INDEX)..'|'..cleared..'|'..word(at+16)..'|'..word(at+18)..'|'..dw(at+20)..'|'..word({pending_work}+2))
 end,emu.callbackType.exec,{run_done},{run_done},emu.cpuType.snes,mt)
 """
-    if a.ground_walk:
+    if a.ground_walk and not a.live_ground:
         prepare=fs['CallbackFixture_GroundPrepare'];done=fs['CallbackFixture_GroundDone']
         lua+=f'''emu.addMemoryCallback(function()
  local c=rows[word(INDEX)+1]
@@ -2839,6 +2847,12 @@ end,emu.callbackType.exec,{fs['CallbackFixture_LieDone']},{fs['CallbackFixture_L
         # autokill only at timed execution would expose a stale cache-tail row.
         initialinstall+="\nset('SourceAutokillState4086_Ready',0xb60e);set('SourceAttackCostState4086_Ready',0xb609);set('SourceMovementState4086_Ready',0xb60b);put(0x43d800,0xdeadbeef,4)\n"
         lua+=f"emu.addMemoryCallback(function()emu.log('NATURALDELAYBIRTH|'..word(INDEX)..'|'..dw(0x43d800))end,emu.callbackType.exec,{sy['SourceAutokillState4086_ClearGood']},{sy['SourceAutokillState4086_ClearGood']},emu.cpuType.snes,mt)\n"
+    if a.live_ground:
+        for name in ('SourceModelAttackPolicy4086_Ready','SourceAttackTiming4086_Ready','SourceAttackBody4086_Ready',
+                     'SourceOffscreenState4086_Ready','SourceDeathFields4086_Ready','SourceDamageState4086_Ready',
+                     'SourceDamageEffectsState4086_Ready','SourcePhysicsState4086_Ready','SourceFreeze4086_Ready',
+                     'SourceAutokillState4086_Ready','SourceAttackCostState4086_Ready','SourceMovementState4086_Ready'):
+            initialinstall+=f" set('{name}',0)\n"
     lua=lua.replace('INSTALL_INITIAL_SELECT',initialinstall)
     for k,v in values.items():lua=re.sub(r'\b'+k+r'\b',str(v),lua)
     for label in ('Vm_SourceCallbackScan','Vm_SourceCallbackPoll__save','Vm_SourceCallbackPoll__ok',
@@ -2861,6 +2875,21 @@ end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)
         lua+=f"emu.addMemoryCallback(function()local c=rows[word(INDEX)+1];emu.log('COMMANDCOMPLETE|'..word(INDEX)..'|'..word({controller['combo_controls']+2})..'|'..word({controller['combo_controls']+8})..'|'..dw({controller['input_history']}+c.direction*256+224)..'|'..dw({controller['input_history']+224})..'|'..dw({controller['input_history']+480}))end,emu.callbackType.exec,RESULT,RESULT,emu.cpuType.snes,mt)\n"
         for name,value in values.items():lua=re.sub(r'\b'+name+r'\b',str(value),lua)
     script=folder/'callback_owner.lua';script.write_text(lua)
+    if a.live_ground:
+        with script.open('a') as f:
+            f.write("\nlocal liveGuard='none'\n")
+            for label,address in sy.items():
+                if label.startswith(('SourceCtorState4086_','SourceCtorModel4086_','SourceCheckMove4086_','SourceVelocity4086_','SourceFrameOwner4086_','SourceAnimationInit4086_','SourceUpdateFrame4086_')) and address>>16<64 and not label.endswith(('Bad','Good','Return')):
+                    f.write(f"emu.addMemoryCallback(function()liveGuard='{label}'end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n")
+            for label,address in fs.items():
+                if label.startswith(('Ground','SourceRunBinding','LiveGround','PlayerHistory')) and not label.endswith(('Bad','Good','Return')):
+                    f.write(f"emu.addMemoryCallback(function()liveGuard='{label}'end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,mt)\n")
+            f.write(f"emu.addMemoryCallback(function()emu.log('LIVEGUARD|'..liveGuard)end,emu.callbackType.exec,{fs['CallbackFixture_Bad']},{fs['CallbackFixture_Bad']},emu.cpuType.snes,mt)\n")
+            for label in ('CallbackFixture_Init','SourcePlayerState_Init','SourcePlayerState_Bad','LiveGroundBoot'):
+                f.write(f"\nemu.addMemoryCallback(function()emu.log('LIVEGROUND|{label}|'..word({player_state_work})..'|'..dw({player_state_work}+8)..'|'..word(sy.VmState_SlotCount)..'|'..word(sy.VmState_FrameTop)..'|'..word(sy.SourceVMRun4086_Busy)..'|'..word(sy.SourceCtorState4086_Ready)..'|'..word(sy.SourceCtorState4086_Status)..'|'..word(sy.SourceSpawnSlot4086_Ready)..'|'..word(sy.SourceSpawnSlot4086_Status))end,emu.callbackType.exec,{fs[label]},{fs[label]},emu.cpuType.snes,mt)\n")
+            for label in ('SourceCtorOwner4086_Begin','SourceCtorOwner4086_Bad','SourceCtorState4086_Bad','SourceSpawnSlot4086_Bad','SourceDefaultInit4086_Bad','SourceCtorOwner4086_Return'):
+                if label in sy:
+                    f.write(f"\nemu.addMemoryCallback(function()emu.log('LIVECTOR|{label}|'..word(sy.SourceCtorOwner4086_Phase)..'|'..word(sy.SourceCtorState4086_Status)..'|'..word(sy.SourceSpawnSlot4086_Status)..'|'..word(sy.SourceDefaultInit4086_Phase)..'|'..emu.getState()['cpu.a'])end,emu.callbackType.exec,{sy[label]},{sy[label]},emu.cpuType.snes,mt)\n")
     if a.emit_only:
         print('Private source-derived fixture emitted; native execution NOT performed:',path)
         return

@@ -1,0 +1,352 @@
+{
+  "schema": "BYOR_MOTU_NATIVE_MOVEMENT_COMPONENT_V1",
+  "classification": "BOUNDED_NATIVE_SOURCE_GROUND_COMPONENT_DISPLAY_PASS",
+  "status": "PASS",
+  "starting_commit": "224e64d1e7885715103f8e38fe9d21aadba59f4d",
+  "branch": "feat/byor-motu",
+  "immediate_objective_complete": true,
+  "external_limit_reached": false,
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "rom_path": "out\\byor-motu-movement-component-v5\\integrated\\bor.sfc",
+  "rom_sha256": "0d6d45c366acaeae535846ac6caf607722bc9c5117ccf1d1be6c97e83d9ea1b2",
+  "native_epochs": 12,
+  "verified_pixels": 688128,
+  "pixel_mismatches": 0,
+  "controller_inputs": [
+    "RIGHT x4",
+    "release",
+    "UP x5",
+    "release",
+    "LEFT admission-miss guard"
+  ],
+  "world_start": [
+    80,
+    220,
+    0
+  ],
+  "world_finish": [
+    82,
+    218.75,
+    0
+  ],
+  "independent_movement_checks": [
+    {
+      "epoch": 1,
+      "dx_q16": 32768,
+      "dz_q16": 0,
+      "exact": true
+    },
+    {
+      "epoch": 2,
+      "dx_q16": 32768,
+      "dz_q16": 0,
+      "exact": true
+    },
+    {
+      "epoch": 3,
+      "dx_q16": 32768,
+      "dz_q16": 0,
+      "exact": true
+    },
+    {
+      "epoch": 4,
+      "dx_q16": 32768,
+      "dz_q16": 0,
+      "exact": true
+    },
+    {
+      "epoch": 5,
+      "dx_q16": 0,
+      "dz_q16": 0,
+      "exact": true
+    },
+    {
+      "epoch": 6,
+      "dx_q16": 0,
+      "dz_q16": -16384,
+      "exact": true
+    },
+    {
+      "epoch": 7,
+      "dx_q16": 0,
+      "dz_q16": -16384,
+      "exact": true
+    },
+    {
+      "epoch": 8,
+      "dx_q16": 0,
+      "dz_q16": -16384,
+      "exact": true
+    },
+    {
+      "epoch": 9,
+      "dx_q16": 0,
+      "dz_q16": -16384,
+      "exact": true
+    },
+    {
+      "epoch": 10,
+      "dx_q16": 0,
+      "dz_q16": -16384,
+      "exact": true
+    },
+    {
+      "epoch": 11,
+      "dx_q16": 0,
+      "dz_q16": 0,
+      "exact": true
+    }
+  ],
+  "actual_snapshots_match_compiler_inputs": true,
+  "movement_only_pairs": [
+    {
+      "before": 1,
+      "after": 2,
+      "changed_pixels": 2547,
+      "animation": "walk",
+      "frame": 0
+    },
+    {
+      "before": 3,
+      "after": 4,
+      "changed_pixels": 2539,
+      "animation": "walk",
+      "frame": 0
+    },
+    {
+      "before": 9,
+      "after": 10,
+      "changed_pixels": 1822,
+      "animation": "walk",
+      "frame": 0
+    }
+  ],
+  "observations": [
+    {
+      "epoch": 0,
+      "label": "birth",
+      "x_q16": 5242880,
+      "z_q16": 14417920,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 8,
+      "snapshot_sha256": "35df29b2ab85325e348bca2b23076497a3cd6e17a87129117925bca6bfca068d",
+      "pixels": 57344
+    },
+    {
+      "epoch": 1,
+      "label": "right",
+      "x_q16": 5275648,
+      "z_q16": 14417920,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 5,
+      "snapshot_sha256": "0c12a00db999352e51e0361ba2544a308f32dfe8f29a7c0bb9e730368e60e660",
+      "pixels": 57344
+    },
+    {
+      "epoch": 2,
+      "label": "right",
+      "x_q16": 5308416,
+      "z_q16": 14417920,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 3,
+      "snapshot_sha256": "9c590346903387b0f96080d9f0625f2fc04f2ca8f61780ce4b085223d9afc3c8",
+      "pixels": 57344
+    },
+    {
+      "epoch": 3,
+      "label": "right",
+      "x_q16": 5341184,
+      "z_q16": 14417920,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 4,
+      "snapshot_sha256": "81604bbc1c8f677bca4eb2ab9b567f6843d3a654abae9a2271005ed28eb996e1",
+      "pixels": 57344
+    },
+    {
+      "epoch": 4,
+      "label": "right",
+      "x_q16": 5373952,
+      "z_q16": 14417920,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 4,
+      "snapshot_sha256": "a5911c50887abebb14a157b295c324b6043a79fb7cb411556a3ec9bcfdc83823",
+      "pixels": 57344
+    },
+    {
+      "epoch": 5,
+      "label": "released",
+      "x_q16": 5373952,
+      "z_q16": 14417920,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 5,
+      "snapshot_sha256": "b33bd65ef2d17c63dc37f6f2fa46537550fea20b1da47b10598bc5d97baf4262",
+      "pixels": 57344
+    },
+    {
+      "epoch": 6,
+      "label": "up",
+      "x_q16": 5373952,
+      "z_q16": 14401536,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 5,
+      "snapshot_sha256": "1f10aeb88a97e10a11db8ffd0a1c5a90e5025080c1ac43dbc58cd83e2c4d8c46",
+      "pixels": 57344
+    },
+    {
+      "epoch": 7,
+      "label": "up",
+      "x_q16": 5373952,
+      "z_q16": 14385152,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 4,
+      "snapshot_sha256": "07eb17368f028f2d234e97ae71f11f4ee670805b35e3d4e3b4e95a0ae0bd3a85",
+      "pixels": 57344
+    },
+    {
+      "epoch": 8,
+      "label": "up",
+      "x_q16": 5373952,
+      "z_q16": 14368768,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 4,
+      "snapshot_sha256": "366e4be16ca015422986ffa7008237d0892737a615cf4acbe495b6567b6f2af6",
+      "pixels": 57344
+    },
+    {
+      "epoch": 9,
+      "label": "up",
+      "x_q16": 5373952,
+      "z_q16": 14352384,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 4,
+      "snapshot_sha256": "707a4b1a4e5f38672de14e67623fafd6c22072b74b2a330e91b45b3be14f7936",
+      "pixels": 57344
+    },
+    {
+      "epoch": 10,
+      "label": "up",
+      "x_q16": 5373952,
+      "z_q16": 14336000,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 4,
+      "snapshot_sha256": "77879b698ea15e5e70aac1256c2ab97a6a426ec21a1955868a2ad60487c224b6",
+      "pixels": 57344
+    },
+    {
+      "epoch": 11,
+      "label": "released",
+      "x_q16": 5373952,
+      "z_q16": 14336000,
+      "tuple_matches": true,
+      "pixel_mismatches": 0,
+      "publication_wait_fields": 5,
+      "snapshot_sha256": "469d6c2df5a67250598807763846c9b969669fee4634607933d28ee6d3893f31",
+      "pixels": 57344
+    }
+  ],
+  "context_miss_rejected": true,
+  "context_miss_retains_display": true,
+  "publication_wait_fields": [
+    3,
+    8
+  ],
+  "publication": "Forced blank, complete component context selected by sealed native world tuple; no ordinal/time-driven motion",
+  "resource_plan": {
+    "high_chr": [
+      0,
+      49152
+    ],
+    "low_chr": [
+      49152,
+      61440
+    ],
+    "high_map": [
+      61440,
+      63488
+    ],
+    "low_map": [
+      63488,
+      65536
+    ],
+    "additional_obj_arena_bytes": 0
+  },
+  "regression_control": {
+    "status": "RETAINED_PASS_IDENTITIES_VERIFIED_WITHOUT_NATIVE_RERUN",
+    "kind": "retained fixed-context component sequence",
+    "rom_path": "out/byor-motu-component-production-clock-audio-native/proof.sfc",
+    "rom_sha256": "300a6988e3cf15ac0bf4626bf7efd3305d36e78b13e9ce0355dfa9671e13d2b3",
+    "result_path": "out/byor-motu-live-component-20261013/control-absolute/result.json",
+    "completed_fields": 75,
+    "verified_pixels": 4300800,
+    "pixel_mismatches": 0,
+    "context_faults": 0,
+    "unsafe_palette_samples": 0,
+    "unsafe_vram_writes": 0,
+    "peak_nmi_master_clocks": 50244,
+    "minimum_rti_entry_margin": 144,
+    "native_rti_clocks": 50,
+    "nmi_guard_clocks": 64,
+    "clock_ticks_committed": 252,
+    "clock_scope": "Empty logical ticks only; no live MOTU world ticks",
+    "audio_chunks_accepted": 19,
+    "audio_scope": "Production original-BOR source-2 transport activity, incomplete stream; no authored MOTU sound timing or DSP admission",
+    "audio_service_peak_clocks": 2913914,
+    "cgram_trace_exact": true
+  },
+  "focused_tests": 21,
+  "preservation": {
+    "inherited_dirty_tracked_files": 29,
+    "sha256_verified": true,
+    "baseline": "out/byor-motu-movement-dirty-before.json",
+    "renderer_rebuilt": false,
+    "pcm_copied": false
+  },
+  "full_evidence": {
+    "path": "out\\byor-motu-movement-component-v5\\result.json",
+    "sha256": "334d49715ba87164cb9fedcd28f6210abe98bc2870b2597e76d483eeb6720933"
+  },
+  "scope": "One native ROM: real JOY1 -> persistent authored constructor -> source history/ground/frame/velocity/check_move -> sealed world tuple -> bounded admitted component context -> native DMA/PPU display. Forced-blank publication; host supplies input and requests only. General online composition, 200-Hz traversal, breath, HUD and Demo remain unproven.",
+  "nonclaims": [
+    "Full player controller prefix and phase-6 AI/world traversal",
+    "200-Hz simulation and natural timed animation",
+    "General online compositor/cache/bundle publication",
+    "Production presentation latency/cadence or audio",
+    "Authored stage player placement/collision/camera",
+    "Breath lifecycle, HUD and complete MOTU Demo"
+  ],
+  "screenshots": [
+    {
+      "path": "docs\\receipts\\byor-motu-movement-walk-80_5.png",
+      "sha256": "3c396b3433f14e561e43dfb80d8ded0ccd4cb4427d6b7d236bdabbd8b624fceb"
+    },
+    {
+      "path": "docs\\receipts\\byor-motu-movement-walk-81.png",
+      "sha256": "3d11a9d67c8b44a68ac6742b147752af8974965768b24bf68dba7f9743a69986"
+    }
+  ],
+  "assembled_inputs": {
+    "src\\main.bin": {
+      "sha256": "01e29185c9be320306ba46a5399ee16d72675ef9026fdb2a7fd19f3d6f3393ea",
+      "bytes": 2096159
+    },
+    "src\\main.sym": {
+      "sha256": "7a77f0252356ee2c559cc02c721a826aef9ed4929b3bb4864814bf0421e51d86",
+      "bytes": 545121
+    }
+  },
+  "matching_bootstrap_msu": {
+    "path": "out/byor-motu-player-controller-native/bor.msu",
+    "sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf"
+  }
+}
