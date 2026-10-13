@@ -285,3 +285,44 @@ transfer setup, integer schedules need at least 47 words, far beyond HBlank.
 This rejects the selected assignment/control family for timing; it is not
 a broad infeasibility result because changing pixel bank ownership, controls
 or geometry can change the bound.
+
+Saved scanline pool coverage is now independently checked against actual
+visible source pixels before either the joint solver or pool constructor
+uses it. Relaxing saved operand identities still requires the input guide
+to be truthful. Tests reject a guide whose correct source hash and declared
+replay flag conceal missing source colors. Reports include the actual checked
+pixel count. Earlier bounded experiments retain their original fields; this
+consumer check is newly enforced. CLI summaries omit full scanline arrays.
+
+Source-400 guided operand repair remains UNKNOWN (209,981 variables, 522,441
+constraints, 62.126 seconds). Preserving original words while allowing fresh
+bank masks also remains UNKNOWN (103,063 / 257,659, 60.284 seconds). These
+results provide no hardware rejection.
+
+The cache-cut master now handles infeasible proposed bank assignments using
+a phase-I LP. It independently checks positive minimum slack and dual signs,
+unbounded-variable stationarity and bounded-variable residuals before adding
+a feasibility cut. Outward-rounded cuts and exact certified-assignment
+exclusions preserve the remaining domain. A timeout or an infeasible solver
+label alone never adds this cut. The witness has positive certified slack
+0.0004118616; search continues through eight further proposals. Resuming the
+retained feasibility certificate also passes. The original assignment still
+has the best optimistic fractional transfer bound, 331.330 clocks; no integer
+cache, physical transfer or native admission follows. Future iteration reports
+retain the exact decision assignment rather than relying on ordering.
+
+The actual player/effect source-bound warm cache search with 31 static ordinary
+words remains UNKNOWN after 96.142 seconds. It does not reject concurrent
+raster presentation. The focused solver/consumer suite passes 133 tests, and
+the final constructor coverage check passes its nine cases.
+
+The recovered twenty-piece bank change retains source pixels and 86 entries
+(22 sprites / 27 slivers). Its fixed-bank integer search returns UNKNOWN
+after 90.143 seconds, with a valid optimistic objective lower bound of
+349 clocks. This assignment cannot satisfy the conservative 344-clock budget;
+a physical/native witness within the 356-clock maximum window is still absent.
+
+A new integration test starts with a genuinely infeasible zero-write bank
+assignment, verifies its positive slack certificate, confirms that search
+continues, and resumes its certificates before any feasible cache has been
+found. Fourteen cache-decomposition tests pass. No color reduction is applied.

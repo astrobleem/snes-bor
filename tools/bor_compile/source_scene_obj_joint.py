@@ -41,6 +41,23 @@ def scanline_controls(candidate,metadata,pixel_digest,height):
     return modes,windows,states
 
 
+def replay_scanline_pool(actors,background,modes,windows,states):
+    """Verify saved operand coverage against actual visible source output."""
+    checked=0
+    for actor in actors:
+        for ly,lx in np.argwhere(actor['pixels']>=0):
+            y,x=int(actor['top']+ly),int(actor['left']+lx)
+            if y not in states or not(0<=y<background.shape[0]and 0<=x<background.shape[1]):continue
+            output=int(actor['pixels'][ly,lx]);bg=int(background[y,x])
+            if output==bg:continue
+            enabled=y not in windows or evaluate(windows[y],x)
+            state=states[y];mode=modes.get(y,'add')
+            if output not in state[0]and not any((apply_math(c,bg,mode)if enabled else c)==output for c in state[1]):
+                raise ValueError('JOINT_SCANLINE_CONTROL_SOURCE_PIXEL_COVERAGE')
+            checked+=1
+    return checked
+
+
 def saturated_corners(output,background):
     """Exact min/max operands for each saturated channel, at most eight words."""
     base=residual(output,background)
@@ -172,6 +189,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     def allowed(bank,color,y):return not pool_residency or (kind(bank),color,max(y,pool_first))in pool
     bg, _ = compose_rgb8(source, stage, dict(scene, actors=[])); bg = rgb555(bg)
     control_modes,control_windows,control_states=scanline_controls(scanline_math_candidate,metadata,hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),len(bg))if scanline_math_candidate is not None else({},{},{})
+    checked_pool_pixels=replay_scanline_pool(actors,bg,control_modes,control_windows,control_states)if scanline_math_candidate is not None else 0
     if relax_scanline_pool:
         if scanline_math_candidate is None:raise ValueError('JOINT_RELAXED_POOL_REQUIRES_SOURCE_CONTROLS')
         control_states={}
@@ -673,7 +691,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     if scanline_math_candidate is not None:
         report.update(scanline_math_controls_source_bound=True,scanline_math_candidate_sha256=hashlib.sha256(json.dumps(scanline_math_candidate,sort_keys=True).encode()).hexdigest(),
             scanline_math_control_rows=sorted(control_modes),outside_control_rows_math_policy='FULL_ADD_NO_WINDOW',
-            scanline_pool_candidate_pixel_coverage_replayed=True,
+            scanline_pool_candidate_pixel_coverage_replayed=True,scanline_pool_source_pixels_replayed=checked_pool_pixels,
             scanline_pool_operand_choices_restricted=not relax_scanline_pool,scanline_pool_residency_pinned=False,
             selected_modes={y:control_modes.get(y,'add')for y in range(height)},compiled_color_window_descriptors=control_windows,
             complete_outside_control_math_cover=control_cover,window_register_schedule_proven=False)
@@ -822,7 +840,10 @@ def main():
     p.add_argument('--obj-size-mode',type=int,choices=(6,),help='Search source-bound fixed rectangular hints under production OBSEL mode 6 (16x32 / 32x64).')
     p.add_argument('--pixel-repair-interval',type=int,nargs=2,metavar=('FIRST','LAST'))
     a=p.parse_args();r=probe(Source(a.source),a.stage,json.loads(a.scene.read_text()),'mixed'if a.size=='mixed'else int(a.size),a.write_budget,lookahead=a.lookahead,time_limit=a.time_limit,relaxed=a.relaxed,pool_residency=json.loads(a.pool_residency.read_text())if a.pool_residency else None,clip_horizontal=a.clip_horizontal,feasibility_only=a.feasibility_only,bank_symmetry=a.bank_symmetry,early_write_budget=a.early_write_budget,late_start=a.late_start,saturated_reuse=a.saturated_reuse,pool_only=a.pool_only,integer_pool_budget=a.integer_pool_budget,align_visible_bounds=a.align_visible_bounds,solver_backend=a.solver_backend,pin_pool_intervals=a.pin_pool_intervals,prepared_dma_window=a.prepared_dma_window,schedule_hint=json.loads(a.schedule_hint.read_text())if a.schedule_hint else None,underlay_bypass=a.underlay_bypass,saturated_extrema=a.saturated_extrema,complete_additive_cover=a.complete_additive_cover,grid_padding_x=a.grid_padding_x,grid_padding_y=a.grid_padding_y,prepared_dma_partition=a.prepared_dma_partition,coalesce_opaque_choices=a.coalesce_opaque_choices,color_math=a.color_math,mixed_small_size=a.mixed_small_size,mixed_large_size=a.mixed_large_size,additive_only=a.additive_only,pool_math_modes=a.pool_math_mode,fixed_geometry=a.fixed_geometry,maximum_frame_colors_per_bank=a.maximum_frame_colors_per_bank,scanline_math_candidate=json.loads(a.scanline_math_candidate.read_text())if a.scanline_math_candidate else None,row_capacity_only=a.row_capacity_only,coalesce_math_choices=a.coalesce_math_choices,fixed_rectangles=a.fixed_rectangles,pin_scanline_pool_intervals=a.pin_scanline_pool_intervals,pool_interval_bank_copies=a.pool_interval_bank_copies,pool_interval_max_lines=a.pool_interval_max_lines,maximum_banks_per_piece_class=a.maximum_banks_per_piece_class,preserve_hint_math_classes=a.preserve_hint_math_classes,preserve_hint_words=a.preserve_hint_words,pool_interval_initial_preload=a.pool_interval_initial_preload,pool_interval_gap_bridge_lines=a.pool_interval_gap_bridge_lines,collapse_inactive_prefix=a.collapse_inactive_prefix,rectangle_bank_slack=a.rectangle_bank_slack,rectangle_cover=json.loads(a.rectangle_cover.read_text())if a.rectangle_cover else None,literal_actor_bank=a.literal_actor_bank,subdivide_rectangle_cover=a.subdivide_rectangle_cover,relax_scanline_pool=a.relax_scanline_pool,cp_search_strategy=a.cp_search_strategy,pixel_repair_interval=a.pixel_repair_interval,obj_size_mode=a.obj_size_mode)
-    a.output.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({k:v for k,v in r.items() if k in ('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}))
+    a.output.write_text(json.dumps(r,indent=2)+'\n')
+    summary={k:v for k,v in r.items()if k in('status','solver','geometry','peak_scheduled_writes','peak_write_lower_bound','candidate_peak_writes')}
+    if 'geometry'in summary:summary['geometry']={k:v for k,v in summary['geometry'].items()if not isinstance(v,list)}
+    print(json.dumps(summary))
 
 
 if __name__=='__main__':main()

@@ -9,7 +9,7 @@ transfer timing and source alpha still require their existing verification.
 import copy,hashlib,json,time
 import numpy as np
 from scipy.optimize import linprog
-from scipy.sparse import coo_matrix
+from scipy.sparse import coo_matrix,hstack
 from raster_slot_greedy import demand,bank_groups
 from raster_obj_geometry import active_on_line,tile_slivers
 from raster_global_bank_classes import rebuild_schedule
@@ -21,6 +21,29 @@ def nonpositive_solver_dual(values):
     if values.ndim!=1 or not np.all(np.isfinite(values)) or np.any(values>1e-9):
         raise ValueError('PIECE_CACHE_FRESH_DUAL_SIGN')
     return np.minimum(values,0)
+
+
+def cache_feasibility_certificate(matrix,rhs,bounds,peak,time_limit=30):
+    """Certify positive minimum slack; never exclude a timeout or solver label."""
+    if peak!=matrix.shape[1]-1 or bounds!=[(0,1)]*peak+[(0,None)]:raise ValueError('PIECE_CACHE_PHASE_DOMAIN')
+    phase_matrix=hstack((matrix,-np.ones((matrix.shape[0],1)))).tocsc()
+    objective=np.zeros(peak+2);objective[-1]=1
+    result=linprog(objective,A_ub=phase_matrix,b_ub=rhs,bounds=bounds+[(0,None)],method='highs-ipm',options={'time_limit':time_limit})
+    if not result.success or result.fun<=1e-6:return None
+    primal=float(np.max(np.maximum(phase_matrix@result.x-rhs,0)))
+    q=nonpositive_solver_dual(result.ineqlin.marginals);u=nonpositive_solver_dual(result.upper.marginals[:-1])
+    # The original peak is unbounded and can absorb every transfer-cost row.
+    # Its feasibility dual must be exactly zero, including solver roundoff.
+    peak_rows=np.flatnonzero(np.asarray(matrix[:,peak].toarray()).ravel())
+    if np.any(np.abs(q[peak_rows])>1e-6)or abs(u[peak])>1e-6:raise AssertionError('PIECE_CACHE_PHASE_UNBOUNDED_DUAL')
+    q[peak_rows]=0;u[peak]=0
+    factor=min(1.,1/max(1.,-float(q.sum())+1e-12));q*=factor;u*=factor
+    lower=-matrix.T@q-u
+    if lower[peak]<0:raise AssertionError('PIECE_CACHE_PHASE_PEAK_STATIONARITY')
+    certified=float(np.asarray(rhs)@q+u.sum()-np.maximum(-lower[:-1],0).sum())
+    if primal>1e-6 or certified<=1e-6 or certified>result.fun+1e-6:raise AssertionError('PIECE_CACHE_PHASE_CERTIFICATE')
+    certificate=dict(kind='CACHE_FEASIBILITY',inequality_dual=[[i,float(v)]for i,v in enumerate(q)if v],upper_dual=[[i,float(v)]for i,v in enumerate(u)if v])
+    return certificate,dict(certified_minimum_slack=certified,phase_objective=float(result.fun),maximum_phase_primal_violation=primal)
 
 
 def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21,row_word_masks=False,resume_report=None,interval_cut_span=0,geometry_reservation=None,master_search_strategy='portfolio'):
@@ -170,17 +193,22 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
             return result
         q=vector(certificate['inequality_dual'],len(rhs));u=vector(certificate['upper_dual'],peak+1)
         if u[peak]!=0:raise ValueError('PIECE_CACHE_RESUME_UNBOUNDED_PEAK_DUAL')
-        lower=objective-matrix.T@q-u
+        feasibility=certificate.get('kind')=='CACHE_FEASIBILITY'
+        if certificate.get('kind')not in(None,'CACHE_FEASIBILITY'):raise ValueError('PIECE_CACHE_RESUME_CUT_KIND')
+        cut_objective=np.zeros_like(objective)if feasibility else objective
+        lower=cut_objective-matrix.T@q-u
         if float(lower.min()) < -1e-6:raise ValueError('PIECE_CACHE_RESUME_DUAL_STATIONARITY')
         # Normalize the unbounded peak column strictly inward. Finite columns
         # have upper bound one; subtract their aggregate negative residual.
-        factor=min(1.,1/(1-float(lower[peak])+1e-12))
-        q*=factor;u*=factor;lower=objective-matrix.T@q-u
+        if feasibility and lower[peak]<0:raise ValueError('PIECE_CACHE_RESUME_FEASIBILITY_STATIONARITY')
+        factor=1. if feasibility else min(1.,1/(1-float(lower[peak])+1e-12))
+        q*=factor;u*=factor;lower=cut_objective-matrix.T@q-u
         base=np.array(rhs,copy=True)
         for row in required_rows.values():base[row]=0
         constant=float(base@q+u.sum()-np.maximum(-lower[:-1],0).sum())
         weights={key:max(0.,-float(q[row]))for key,row in required_rows.items()}
-        model.add(t>=sum(int(np.floor(value*scale))*required[key]for key,value in weights.items()if value>1e-9)+int(np.floor(constant*scale)))
+        expression=sum(int(np.floor(value*scale))*required[key]for key,value in weights.items()if value>1e-9)+int(np.floor(constant*scale))
+        model.add(expression<=0 if feasibility else t>=expression)
         cuts.append(copy.deepcopy(certificate))
     def valid_assignment(a):
         return isinstance(a,list)and len(a)==len(domains)and all(type(b)is int and b in domain for b,domain in zip(a,domains))
@@ -199,18 +227,42 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         for a in resume_report['evaluated_assignments']:
             if not valid_assignment(a):raise ValueError('PIECE_CACHE_RESUME_ASSIGNMENT_DOMAIN')
             model.add(sum(selection[i][b]for i,b in enumerate(a))<=len(a)-1);evaluated.append(a.copy())
-        assignment=resume_report['best_decision_assignment']
+        assignment=resume_report['best_decision_assignment']if resume_report['best_decision_assignment']is not None else resume_report.get('next_decision_assignment')
         if not valid_assignment(assignment):raise ValueError('PIECE_CACHE_RESUME_ASSIGNMENT_DOMAIN')
+    def advance_master(incumbent,report):
+        model.clear_hints()
+        for i,b in enumerate(incumbent):
+            for bb,v in selection[i].items():model.add_hint(v,int(bb==b))
+        master=model.clone()
+        if maximum_changes is not None:
+            master.add(sum(selection[i][b]for i,b in enumerate(incumbent))>=len(selection)-maximum_changes)
+        solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=master_seconds;solver.parameters.num_search_workers=4
+        if master_search_strategy=='sat-repair':
+            solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
+            solver.parameters.linearization_level=0;solver.parameters.subsolvers.append('no_lp');solver.parameters.num_full_subsolvers=1
+            solver.parameters.repair_hint=True;solver.parameters.hint_conflict_limit=50000
+        status=solver.solve(master);report.update(master_status=solver.status_name(status),master_seconds=solver.wall_time,master_lower_bound=float(solver.best_objective_bound)/scale,master_variables=len(master.proto.variables),master_constraints=len(master.proto.constraints),master_branches=solver.num_branches,master_conflicts=solver.num_conflicts)
+        if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):return None
+        return [next(b for b,v in choices.items()if solver.value(v))for choices in selection]
+
     best=float('inf');best_assignment=None;reports=[];started=time.monotonic()
     for iteration in range(iterations):
         if time.monotonic()-started>time_limit:break
         for key,row in required_rows.items():rhs[row]=-int(any(assignment[i]==key[0] for i in owners[key]))
         solved=linprog(objective,A_ub=matrix,b_ub=rhs,bounds=bounds,method='highs-ipm',options={'time_limit':min(30,time_limit)})
         if not solved.success:
-            reports.append(dict(iteration=iteration,objective_kind=objective_kind,
-                                cache_lp_status=int(solved.status),message=solved.message,
-                                validated_bound_available=False))
-            break
+            report=dict(iteration=iteration,decision_assignment=assignment.copy(),objective_kind=objective_kind,cache_lp_status=int(solved.status),message=solved.message,validated_bound_available=False)
+            reports.append(report)
+            proof=cache_feasibility_certificate(matrix,rhs,bounds,peak,min(30,time_limit))if solved.status==2 else None
+            if proof is None:break
+            certificate,details=proof;install_cut(certificate);report.update(details,cache_infeasibility_independently_certified=True)
+            # A certified positive slack excludes this exact assignment even
+            # if outward rounding makes its general cut too weak to do so.
+            model.add(sum(selection[i][b]for i,b in enumerate(assignment))<=len(assignment)-1)
+            if assignment not in evaluated:evaluated.append(assignment.copy())
+            proposed=advance_master(best_assignment if best_assignment is not None else assignment,report)
+            if proposed is None:break
+            assignment=proposed;continue
         dual=float(rhs@solved.ineqlin.marginals+sum(solved.upper.marginals[:-1]))
         residual=float(np.max(np.abs(objective-matrix.T@solved.ineqlin.marginals-solved.lower.marginals-solved.upper.marginals)))
         violation=float(np.max(np.maximum(matrix@solved.x-rhs,0)))
@@ -224,7 +276,7 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
             bound=loads/lines if objective_kind=='writes'else 256*loads/(15*lines)-40
             interval_bound=max(interval_bound,bound)
         if interval_bound>solved.fun+1e-6:raise AssertionError('PIECE_CACHE_INTERVAL_BOUND_REPLAY')
-        report=dict(iteration=iteration,objective_kind=objective_kind,validated_dual_lower_bound=dual,maximum_dual_residual=residual,maximum_primal_violation=violation)
+        report=dict(iteration=iteration,decision_assignment=assignment.copy(),objective_kind=objective_kind,validated_dual_lower_bound=dual,maximum_dual_residual=residual,maximum_primal_violation=violation)
         report['independently_replayed_interval_lower_bound']=interval_bound
         report['peak_write_lower_bound'if objective_kind=='writes'else'peak_dma_span_lower_bound']=float(solved.fun)
         reports.append(report)
@@ -238,28 +290,16 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         # Exclude an evaluated assignment so a rounded tie cannot stall search.
         model.add(sum(selection[i][b]for i,b in enumerate(assignment))<=len(assignment)-1)
         if assignment not in evaluated:evaluated.append(assignment.copy())
-        model.clear_hints()
-        incumbent=best_assignment if best_assignment is not None else assignment
-        for i,b in enumerate(incumbent):
-            for bb,v in selection[i].items():model.add_hint(v,int(bb==b))
-        master=model.clone()
-        if maximum_changes is not None:
-            master.add(sum(selection[i][b]for i,b in enumerate(incumbent))>=len(selection)-maximum_changes)
-        solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=master_seconds;solver.parameters.num_search_workers=4
-        if master_search_strategy=='sat-repair':
-            solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
-            solver.parameters.linearization_level=0;solver.parameters.subsolvers.append('no_lp');solver.parameters.num_full_subsolvers=1
-            solver.parameters.repair_hint=True;solver.parameters.hint_conflict_limit=50000
-        status=solver.solve(master);report.update(master_status=solver.status_name(status),master_seconds=solver.wall_time,master_lower_bound=float(solver.best_objective_bound)/scale,master_variables=len(master.proto.variables),master_constraints=len(master.proto.constraints),master_branches=solver.num_branches,master_conflicts=solver.num_conflicts)
-        if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):break
-        assignment=[next(b for b,v in choices.items()if solver.value(v))for choices in selection]
+        proposed=advance_master(best_assignment if best_assignment is not None else assignment,report)
+        if proposed is None:break
+        assignment=proposed
     report=dict(schema='BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1',iterations=reports,seconds=time.monotonic()-started,maximum_changed_pieces_per_master=maximum_changes,
         master_search_strategy=master_search_strategy,master_hints_are_soft=True,objective_kind=objective_kind,row_word_masks=row_word_masks,write_budget=write_budget if objective_kind=='dma-window'else None,alias_aware=True,initial_residency_optimal=True,
         interval_cut_span=interval_cut_span,interval_cut_count=len(interval_requirements),
         geometry_reservation=reservation,reservation_proves_concurrent_palette_or_layer_admission=False,
         cache_basis_sha256=basis_hash,certified_master_cuts=cuts,restored_certified_cuts=restored,
         cache_lp_variables=peak+1,cache_lp_constraints=len(rhs),
-        evaluated_assignments=evaluated,best_decision_assignment=best_assignment,
+        evaluated_assignments=evaluated,best_decision_assignment=best_assignment,next_decision_assignment=assignment.copy(),
         fractional_residency_only=True,physical_transfer_admitted=False,native_timing_admitted=False,universal_raster_rejected=False,no_color_reduction=True)
     report['best_fractional_cache_bound'if objective_kind=='writes'else'best_fractional_dma_span_bound']=best if best_assignment is not None else None
     if best_assignment is None:return report

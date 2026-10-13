@@ -10,7 +10,7 @@ from compiler import Source
 from source_scene_obj_raster import prepare
 from source_scene_bg import compose_rgb8
 from source_bg_feasibility import rgb555
-from source_scene_obj_joint import scanline_controls
+from source_scene_obj_joint import scanline_controls,replay_scanline_pool
 from source_scene_obj_math import residual
 from raster_obj_math_cover import apply_math
 from raster_math_windows import evaluate,compile_sparse_mask
@@ -57,6 +57,7 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
     background=rgb555(compose_rgb8(source,stage,dict(scene,actors=[]))[0])
     digest=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()
     modes,windows,states=scanline_controls(candidate,metadata,digest,len(background))
+    checked_pool_pixels=replay_scanline_pool(actors,background,modes,windows,states)
     windows={y:windows.get(y,compile_sparse_mask({0:1}))for y in range(len(background))}
     def enabled(y,x):return y not in windows or evaluate(windows[y],x)
     def render(c,y,x):return apply_math(c,int(background[y,x]),modes.get(y,'add'))if enabled(y,x)else c
@@ -98,6 +99,7 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
         outside_control_rows_math_policy='FULL_ADD_NO_WINDOW_MINIMAL_OPERAND_OR_LITERAL',
         peak_selected_colors_by_class=[max(row[k]for row in counts)for k in range(2)],
         global_color_bank_identity_restricted=not local_piece_banks and not row_word_masks,bank_search=[],exact_underlay_bypass=True,underlay_bypassed_pixels=bypassed)
+    report['scanline_pool_source_pixels_replayed']=checked_pool_pixels
     report['eligible_banks_by_math_class']={k:list(bs)for k,bs in class_banks.items()}
     if composite_proof is not None:report['source_visible_composite_geometry']=composite_proof
     report['prefer_exact_math_outside_control_rows']=prefer_math_outside_controls

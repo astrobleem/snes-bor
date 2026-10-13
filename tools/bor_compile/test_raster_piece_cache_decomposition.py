@@ -2,12 +2,39 @@ import copy,unittest
 import numpy as np
 import test_raster_word_bank_balance as fixtures
 from raster_slot_greedy import demand
-from raster_piece_cache_decomposition import search,nonpositive_solver_dual
+from raster_piece_cache_decomposition import search,nonpositive_solver_dual,cache_feasibility_certificate
 from raster_bank_residency import relaxed_bound
 from test_raster_mask_rectangle_cover import fixture as mask_fixture
 
 
 class DecompositionTests(unittest.TestCase):
+    def test_search_continues_past_a_certified_infeasible_bank_assignment(self):
+        source=fixtures.WordBankBalanceTests().fixture()[0]
+        result=search(source,iterations=4,time_limit=10,master_seconds=1,
+            row_word_masks=True,objective_kind='dma-window',write_budget=0)
+        report=result.get('piece_cache_decomposition',result)
+        self.assertTrue(report['iterations'][0]['cache_infeasibility_independently_certified'])
+        self.assertGreater(report['iterations'][0]['certified_minimum_slack'],0)
+        self.assertGreater(len(report['iterations']),1)
+        self.assertTrue(any(c.get('kind')=='CACHE_FEASIBILITY'for c in report['certified_master_cuts']))
+        self.assertIn(report['iterations'][0]['decision_assignment'],report['evaluated_assignments'])
+        self.assertFalse(report['native_timing_admitted'])
+        resumed=search(source,iterations=1,time_limit=5,master_seconds=1,
+            row_word_masks=True,objective_kind='dma-window',write_budget=0,resume_report=report)
+        self.assertEqual(resumed.get('piece_cache_decomposition',resumed)['restored_certified_cuts'],len(report['certified_master_cuts']))
+
+    def test_cache_infeasibility_has_a_positive_dual_slack_certificate(self):
+        from scipy.sparse import coo_matrix
+        matrix=coo_matrix([[-1,0],[1,0]]).tocsc();rhs=np.array([-1.,0.]);bounds=[(0,1),(0,None)]
+        certificate,report=cache_feasibility_certificate(matrix,rhs,bounds,1,time_limit=5)
+        self.assertEqual(certificate['kind'],'CACHE_FEASIBILITY')
+        self.assertGreater(report['certified_minimum_slack'],.49)
+        q=np.zeros(2)
+        for i,v in certificate['inequality_dual']:q[i]=v
+        self.assertTrue(np.all(q<=0))
+        self.assertGreater(rhs@q,.49)
+        self.assertIsNone(cache_feasibility_certificate(matrix,np.array([-1.,1.]),bounds,1,time_limit=5))
+
     def test_wrapped_padding_and_clipped_slivers_use_actual_hardware_rows(self):
         source=mask_fixture();piece=source['pieces'][0]
         piece.update(x=248,y=220,local_x=0,local_y=0,width=64,height=64)

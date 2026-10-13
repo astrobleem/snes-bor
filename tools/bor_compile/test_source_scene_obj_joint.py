@@ -6,6 +6,19 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_relaxed_pool_still_rejects_false_source_coverage_receipt(self):
+        import hashlib
+        from raster_math_windows import compile_mask
+        background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy();expected[0,0,0]=16
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            selected_modes={'0':'add'},compiled_color_window_descriptors={'0':compile_mask([True]*256)},
+            selected_palette_residency={'0':{'0':[1],'1':[]}})
+        with patch('source_scene_obj_joint.prepare',return_value=([dict(pixels=np.array([[2]],dtype=np.int32),left=0,top=0)],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            with self.assertRaisesRegex(ValueError,'SOURCE_PIXEL_COVERAGE'):
+                probe(None,None,{},size=8,scanline_math_candidate=candidate,relax_scanline_pool=True)
+
     def test_rectangular_mode6_joint_replay_counts_wrapped_padding(self):
         import copy
         from raster_obj_compact import unpack

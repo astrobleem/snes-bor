@@ -39,6 +39,10 @@ class PoolConstructionTests(unittest.TestCase):
         with patch('source_scene_obj_pool_construct.prepare',return_value=([dict(pixels=words,left=0,top=0)],{},expected)),patch('source_scene_obj_pool_construct.compose_rgb8',return_value=(background,{})):
             result=construct(None,None,{},candidate,time_limit=5,obj_size_mode=6,row_word_masks=True)
             joint_result=construct(None,None,{},candidate,time_limit=5,obj_size_mode=6,joint_bank_geometry=True,word_epoch_lines=1)
+            bad=dict(candidate,selected_palette_residency=dict(candidate['selected_palette_residency']))
+            bad['selected_palette_residency']['0']={'0':[5],'1':[]}
+            with self.assertRaisesRegex(ValueError,'SOURCE_PIXEL_COVERAGE'):
+                construct(None,None,{},bad,time_limit=5,obj_size_mode=6)
         self.assertTrue(joint_result['compiled_pixel_identity_verified'])
         self.assertEqual(joint_result['obsel_mode'],6)
         self.assertEqual(joint_result['geometry'],result['geometry'])
