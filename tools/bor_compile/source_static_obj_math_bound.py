@@ -123,7 +123,7 @@ def main():
     parser.add_argument('--math-mode',action='append',choices=MODES,help='Restrict the globally selected scanline math modes; repeat to allow multiple modes.')
     parser.add_argument('--initial-palette-state',type=Path,help='Pin both class caches at the first controlled row, for continuation without a palette reset.')
     parser.add_argument('--minimum-transfer-window',type=int,help='Necessary two-class bank/write transfer bound only; fixed banks and physical slots remain unproved.')
-    parser.add_argument('--integer-cache-objective',choices=('peak','loads'),default='peak',help='Select peak loads or total loads; total loads requires an integer pool budget.')
+    parser.add_argument('--integer-cache-objective',choices=('peak','loads','resident-lines'),default='peak',help='Select peak loads, total loads or lexicographic resident lines then loads; nonpeak objectives require an integer pool budget.')
     parser.add_argument('--integer-pool-hint',type=Path,help='Source-bound prior integer pool; independently replayed before supplying soft cache and control hints.')
     parser.add_argument('--integer-controls-hint',type=Path,help='Soft mode/window guide only; no prior palette residency or source identity admission is imported.')
     args=parser.parse_args();limits={int(y):n for y,n in json.loads(args.scanline_write_limits.read_text()).items()}if args.scanline_write_limits else None

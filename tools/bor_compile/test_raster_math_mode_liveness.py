@@ -3,6 +3,20 @@ from raster_math_mode_liveness import lower_bound,verify_integer_pool
 
 
 class ModeLivenessTests(unittest.TestCase):
+    def test_resident_line_objective_avoids_unused_initial_preloads(self):
+        rows=[{'add':{(1,())}},{'add':{(2,())}}]
+        result=lower_bound(rows,capacities=(2,0),integer_modes=True,
+            integer_palette=True,integer_backend='cp-sat',time_limit=5,
+            write_budget=1,integer_cache_objective='resident-lines')
+        self.assertEqual(result['total_replayed_pool_resident_lines'],2)
+        self.assertEqual(result['total_replayed_pool_writes'],1)
+        self.assertEqual(result['cache_objective_value'],
+            result['resident_line_objective_primary_weight']*2+1)
+        self.assertEqual(result['peak_write_objective'],1)
+        self.assertEqual(result['selected_palette_residency'][0][0],[1])
+        self.assertTrue(result['modeled_loads_match_replayed_residency_changes'])
+        self.assertFalse(result['schedule_proven'])
+
     def test_total_load_objective_reports_peak_and_total_separately(self):
         rows=[{'add':{(c,())}}for c in (1,2,1)]
         result=lower_bound(rows,capacities=(1,0),integer_modes=True,

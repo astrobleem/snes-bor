@@ -140,3 +140,31 @@ checked combined counts. Regression fixtures reject wrapped transparent padding
 against a full top-row sprite reservation and correctly count one visible sliver
 for a 64-pixel object at x=248. The evidence retainer independently replays these
 resource counts instead of relying on the constructor's assertions.
+
+The integer source solver also minimizes resident color-lines, then loads,
+lexicographically. Its source-replayed proposal occupies 2,287 color-lines,
+with 635 loads and a 22-load peak. The selected-word bank-copy search returns
+UNKNOWN after 90.163 seconds. Its balanced 93-piece assignment has a checked
+22.583-write lower bound, requiring at least 23 writes. Lower pool residency
+is therefore not substituted for a valid bank schedule.
+
+The generic source constructor now supports largest legal pieces of 8, 16 or
+32 pixels. A larger piece whose row needs more than fifteen words subdivides
+source-exactly into eight-pixel pieces, preserving the single global 8/16 or
+8/32 size pair. Pixel masks retain their actual dimensions. Wrapped padding
+and clipped slivers remain counted. The ordinary default is eight pixels.
+
+Legal 16-pixel construction of the 358-load encoding uses 34 effect OAM entries,
+12 peak sprites and 22 slivers. Its balanced fixed-bank LP requires 24.286 loads.
+Allowing additional bank masks reduces the fractional bound to 19.643, with
+71 entries, 19 sprites and 34 slivers. The complete fixed-bank transfer model
+is INFEASIBLE at 344 clocks after 26.248 seconds; the 356-clock test remains
+UNKNOWN after 60.163 seconds. Neither isolated geometry admits concurrent
+actor palettes or a native timing witness.
+
+Joint operand/bank construction with saved pool intervals uses only 17,038
+variables and 52,725 constraints. Its original mask allowance is INFEASIBLE
+after 1.919 seconds; allowing extra masks returns UNKNOWN after 60.080 seconds.
+Two-line interval chunks with up to four charged bank copies remain UNKNOWN
+after 90.104 seconds (28,429 variables and 78,111 constraints). The restrictions
+are explicit and no universal raster rejection is inferred.

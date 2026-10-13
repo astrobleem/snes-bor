@@ -49,11 +49,12 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     if peak>report['peak_write_objective']:raise AssertionError('MODE_INTEGER_POOL_WRITE_REPLAY')
     report.update(integer_pool_pixel_coverage_verified=True,integer_pool_residency_capacity_verified=True,peak_replayed_pool_writes=peak)
     report['total_replayed_pool_writes']=total
+    report['total_replayed_pool_resident_lines']=sum(len(cs)for state in states.values()for cs in state.values())
     return report
 
 
 def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None,controls_hint=None,minimum_transfer_window=None,integer_cache_objective='peak'):
-    if integer_cache_objective not in('peak','loads')or(integer_cache_objective!='peak'and not integer_palette):raise ValueError('MODE_INTEGER_CACHE_OBJECTIVE')
+    if integer_cache_objective not in('peak','loads','resident-lines')or(integer_cache_objective!='peak'and not integer_palette):raise ValueError('MODE_INTEGER_CACHE_OBJECTIVE')
     reserved_normal_colors=tuple(sorted(set(reserved_normal_colors)))
     if any(type(c)is not int or not 0<=c<32768 for c in reserved_normal_colors):raise ValueError('MODE_LIVENESS_STATIC_RESERVATION_DOMAIN')
     scanline_write_limits=dict(scanline_write_limits or {})
@@ -203,9 +204,11 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
             constraint([(v,16)for v in variables]+[(minimum_banks[y,k],16)for k in (0,1)],minimum_transfer_window+31)
     matrix=coo_matrix((vv,(rr,cc)),shape=(len(limits),peak+1)).tocsc()
     objective=np.zeros(peak+1);objective[peak]=1
-    if integer_cache_objective=='loads':
+    if integer_cache_objective!='peak':
         objective[peak]=0
         for variable in writes.values():objective[variable]=1
+        if integer_cache_objective=='resident-lines':
+            for variable in resident.values():objective[variable]=len(writes)+1
     lower=np.zeros(peak+1);upper=np.ones(peak+1);upper[peak]=np.inf if write_budget is None else write_budget
     for variable in minimum_banks.values():upper[variable]=4
     for c in reserved_normal_colors:
@@ -286,6 +289,7 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
     report['necessary_minimum_transfer_window']=minimum_transfer_window
     report['minimum_transfer_bound_is_complete_partition_proof']=False
     report['minimum_transfer_bank_classes_disjoint']=minimum_transfer_window is not None
+    report['resident_line_objective_primary_weight']=len(writes)+1 if integer_cache_objective=='resident-lines'else None
     report['reserved_normal_colors']=list(reserved_normal_colors)
     report['static_normal_residency_fixed_for_complete_interval']=bool(reserved_normal_colors)
     report['scanline_write_limits']=scanline_write_limits
@@ -324,7 +328,7 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                 modeled_loads=int(round(sum(result.x[v]for v in writes.values())))
                 if modeled_loads!=report['total_replayed_pool_writes']:raise AssertionError('MODE_INTEGER_POOL_EXACT_LOAD_REPLAY')
                 report['modeled_loads_match_replayed_residency_changes']=True
-                if integer_cache_objective=='loads':report['peak_write_objective']=report['peak_replayed_pool_writes']
+                if integer_cache_objective!='peak':report['peak_write_objective']=report['peak_replayed_pool_writes']
         elif result.success:
             dual=float(np.dot(limits,result.ineqlin.marginals)+np.dot(lower,result.lower.marginals)+np.dot(np.where(np.isfinite(upper),upper,0),result.upper.marginals))
             residual=float(np.max(np.abs(objective-matrix.T@result.ineqlin.marginals-result.lower.marginals-result.upper.marginals)))

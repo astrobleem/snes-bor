@@ -15,6 +15,7 @@ from source_scene_obj_math import residual
 from raster_obj_math_cover import apply_math
 from raster_math_windows import evaluate,compile_sparse_mask
 from raster_palette import pieces_for_grid,split_color_masks,schedule,assign_banks
+from raster_obj_geometry import active_on_line,tile_slivers
 
 
 def select_words(requirements,preferences=None):
@@ -34,7 +35,8 @@ def select_words(requirements,preferences=None):
     return owners,selected
 
 
-def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False,persistent_word_indices=False,banks_by_kind=None,prefer_math_outside_controls=False,local_piece_banks=False,composite_visible_geometry=False):
+def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False,persistent_word_indices=False,banks_by_kind=None,prefer_math_outside_controls=False,local_piece_banks=False,composite_visible_geometry=False,piece_size=8):
+    if type(piece_size)is not int or piece_size not in(8,16,32):raise ValueError('POOL_CONSTRUCT_PIECE_SIZE')
     if type(composite_visible_geometry)is not bool:raise ValueError('POOL_CONSTRUCT_COMPOSITE_GEOMETRY_POLICY')
     if type(local_piece_banks)is not bool or local_piece_banks and (joint_bank_geometry or persistent_word_indices or bank_residency_window_lines is not None):raise ValueError('POOL_CONSTRUCT_LOCAL_PIECE_BANK_POLICY')
     class_banks={k:tuple(range(4*k,4*k+4))for k in range(2)}if banks_by_kind is None else banks_by_kind
@@ -98,7 +100,14 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
     for k in range(2):
         cells=[]
         for i,a in enumerate(actors):
-            for p in pieces_for_grid(canvases[k][i],(8,8)):
+            geometry=[]
+            for parent in pieces_for_grid(canvases[k][i],(piece_size,piece_size)):
+                if piece_size>8 and any(len(cs)>15 for cs in parent['rows'].values()):
+                    x,y=parent['x'],parent['y']
+                    for child in pieces_for_grid(canvases[k][i][y:y+piece_size,x:x+piece_size],(8,8)):
+                        child['x']+=x;child['y']+=y;child['rows']={yy+y:cs for yy,cs in child['rows'].items()};geometry.append(child)
+                else:geometry.append(parent)
+            for p in geometry:
                 p.update(actor=i,local_x=p['x'],local_y=p['y'])
                 p['x']+=a['left'];p['y']+=a['top'];p['rows']={y+a['top']:cs for y,cs in p['rows'].items()if cs and 0<=y+a['top']<len(background)}
                 cells.append(p)
@@ -131,11 +140,11 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
     compiled=[]
     for p,b in zip(pieces,assignment):
         k=b//4;canvas=canvases[k][p['actor']];a=actors[p['actor']]
-        image=np.zeros((8,8),dtype=np.uint8)
-        for ly in range(8):
+        image=np.zeros((p['height'],p['width']),dtype=np.uint8)
+        for ly in range(p['height']):
             y=p['y']+ly;ay=y-a['top']
             if not 0<=ay<len(canvas):continue
-            for lx in range(8):
+            for lx in range(p['width']):
                 x=p['x']+lx;ax=x-a['left']
                 if not 0<=ax<canvas.shape[1]:continue
                 c=int(canvas[ay,ax])
@@ -143,13 +152,13 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
                 if ownership[y,x]:raise AssertionError('POOL_CONSTRUCT_PIXEL_OVERLAP')
                 ownership[y,x]=1;slot=palette_states[y][b].index(c)+1;image[ly,lx]=slot
                 replay[y,x]=c if k==0 else render(c,y,x)
-        flat=image.flatten();images.append(dict(width=8,height=8,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()));compiled.append(dict(p,bank=b))
+        flat=image.flatten();images.append(dict(width=p['width'],height=p['height'],pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex()));compiled.append(dict(p,bank=b))
     if not np.array_equal(replay,rgb555(expected)):raise AssertionError('POOL_CONSTRUCT_SOURCE_PIXEL_IDENTITY')
     if int(ownership.sum())!=sum(map(len,coordinates)):raise AssertionError('POOL_CONSTRUCT_OPAQUE_MASK_IDENTITY')
-    geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(p['y']<=y<p['y']+8 for p in pieces)for y in range(len(background))),peak_tile_slivers=max(sum(p['y']<=y<p['y']+8 for p in pieces)for y in range(len(background))))
+    geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(active_on_line(p,y)for p in pieces)for y in range(len(background))),peak_tile_slivers=max(sum(tile_slivers(p)for p in pieces if active_on_line(p,y))for y in range(len(background))))
     report.update(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN',compiled_pixel_identity_verified=True,
         hardware_geometry_admitted=geometry['oam_entries']<=128 and geometry['peak_sprites']<=32 and geometry['peak_tile_slivers']<=34,
-        color_math='additive',geometry=geometry,geometry_size=8,pieces=compiled,piece_pixel_masks=images,trace=trace,
+        color_math='additive',geometry=geometry,geometry_size=piece_size,mixed_small_size=8,mixed_large_size=piece_size if piece_size>8 else 16,obsel_mode=1 if piece_size==32 else 0,pieces=compiled,piece_pixel_masks=images,trace=trace,
         selected_modes={y:modes.get(y,'add')for y in range(len(background))},compiled_color_window_descriptors=windows,
         scanline_math_controls_source_bound=True,window_register_schedule_proven=False,
         peak_scheduled_writes=max(row['colors_written']for row in trace[1:]),lookahead_lines=lookahead)
@@ -173,7 +182,8 @@ def main():
     p.add_argument('--prefer-math-outside-controls',action='store_true')
     p.add_argument('--local-piece-banks',action='store_true')
     p.add_argument('--composite-visible-geometry',action='store_true',help='Fuse already occluded source pixels for fixed-context geometry, retaining source owner provenance. No live compositor admission.')
-    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry,persistent_word_indices=a.persistent_word_indices,banks_by_kind={0:a.opaque_banks,1:a.math_banks},prefer_math_outside_controls=a.prefer_math_outside_controls,local_piece_banks=a.local_piece_banks,composite_visible_geometry=a.composite_visible_geometry)
+    p.add_argument('--piece-size',type=int,choices=(8,16,32),default=8,help='Largest legal OBJ piece; rows exceeding fifteen words subdivide source-exactly into eight-pixel pieces.')
+    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry,persistent_word_indices=a.persistent_word_indices,banks_by_kind={0:a.opaque_banks,1:a.math_banks},prefer_math_outside_controls=a.prefer_math_outside_controls,local_piece_banks=a.local_piece_banks,composite_visible_geometry=a.composite_visible_geometry,piece_size=a.piece_size)
     Path(a.output).write_text(json.dumps(r,indent=2)+'\n')
     summary={k:r[k]for k in ('status','peak_selected_colors_by_class','geometry','hardware_geometry_admitted','peak_scheduled_writes')if k in r}
     summary['bank_search']=[{k:v for k,v in search.items()if k not in('assignment','word_slot_indices')}for search in r['bank_search']]

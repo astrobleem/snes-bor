@@ -8,6 +8,29 @@ from raster_palette import split_color_masks
 
 
 class PoolConstructionTests(unittest.TestCase):
+    def test_legal_large_pieces_subdivide_only_over_capacity_rows(self):
+        background=np.zeros((224,256,3),dtype=np.uint8)
+        for piece_size,words,expected_entries in ((16,np.full((16,16),6,dtype=np.int32),1),
+                                                 (16,np.tile(np.arange(1,17,dtype=np.int32),(16,1)),4),
+                                                 (32,np.full((16,16),6,dtype=np.int32),1),
+                                                 (32,np.tile(np.arange(1,17,dtype=np.int32),(16,1)),4)):
+            expected=background.copy();expected[:16,:16,0]=words*8
+            candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+                source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+                full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+                selected_modes={str(y):'add'for y in range(16)},
+                compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(16)},
+                selected_palette_residency={str(y):{'0':sorted(set(map(int,words[y]))),'1':[]}for y in range(16)})
+            with patch('source_scene_obj_pool_construct.prepare',return_value=([dict(pixels=words,left=0,top=0)],{},expected)),patch('source_scene_obj_pool_construct.compose_rgb8',return_value=(background,{})):
+                result=construct(None,None,{},candidate,time_limit=5,local_piece_banks=True,piece_size=piece_size)
+            self.assertTrue(result['compiled_pixel_identity_verified'])
+            self.assertEqual(result['geometry']['oam_entries'],expected_entries)
+            self.assertEqual(result['geometry']['peak_tile_slivers'],4 if piece_size==32 and expected_entries==1 else 2)
+            self.assertTrue(all(p['width']in(8,piece_size)for p in result['pieces']))
+            self.assertEqual(result['obsel_mode'],1 if piece_size==32 else 0)
+        with self.assertRaisesRegex(ValueError,'PIECE_SIZE'):
+            construct(None,None,{},None,piece_size=24)
+
     def test_local_piece_bank_policy_rejects_conflicting_geometry_modes(self):
         for kwargs in (dict(joint_bank_geometry=True),dict(persistent_word_indices=True),dict(bank_residency_window_lines=8)):
             with self.assertRaisesRegex(ValueError,'LOCAL_PIECE_BANK_POLICY'):
