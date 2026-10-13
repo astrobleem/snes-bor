@@ -1,0 +1,182 @@
+{
+  "schema": "BYOR_LITERAL_PRECOMPOSITED_OBJ_TRANSFER_BOUND_V1",
+  "policy": "LITERAL_PRECOMPOSITED_RGB555_OBJ_ALL_EIGHT_BANKS",
+  "source_rgb555_sha256": "079de2d8ffbbe72c9779904f3a0ef2fe6d0283331dd49838a79ed2cc7e889f45",
+  "source_metadata": {
+    "stage": "DATA/LEVELS/GUILE2.TXT",
+    "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+    "scene": {
+      "viewport": [
+        256,
+        224
+      ],
+      "piece_size": [
+        16,
+        32
+      ],
+      "provenance": "Explicit source player/effect pose; uninterrupted player timeline uses supplied birth tick 48. No enemy or authored playback reachability claim.",
+      "actors": [
+        {
+          "model": "HBreath",
+          "animation": "idle",
+          "frame": 11,
+          "position": [
+            98,
+            220,
+            93
+          ],
+          "order": 2
+        },
+        {
+          "model": "He_ManB",
+          "animation": "freespecial4",
+          "frame": 6,
+          "position": [
+            80,
+            220,
+            0
+          ],
+          "order": 0
+        }
+      ]
+    },
+    "layers": [
+      {
+        "kind": "background",
+        "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+        "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+        "source_dimensions": [
+          800,
+          400
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 57344,
+        "source_flip": false
+      },
+      {
+        "kind": "panel",
+        "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+        "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+        "source_dimensions": [
+          2544,
+          245
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 44246,
+        "source_flip": false
+      },
+      {
+        "kind": "actor:He_ManB",
+        "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+        "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+        "source_dimensions": [
+          200,
+          200
+        ],
+        "position": [
+          -16,
+          44
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 3327,
+        "source_flip": false,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "none",
+        "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+        "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814",
+        "pre_occlusion_pixels": 3327,
+        "final_visible_pixels": 2762
+      },
+      {
+        "kind": "actor:HBreath",
+        "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+        "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+        "source_dimensions": [
+          110,
+          90
+        ],
+        "position": [
+          84,
+          92
+        ],
+        "alpha": 1,
+        "visible_source_pixels": 2751,
+        "source_flip": false,
+        "requested_map": 0,
+        "selected_map": 0,
+        "source_model_type": "none",
+        "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+        "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+        "pre_occlusion_pixels": 2751,
+        "final_visible_pixels": 2751
+      },
+      {
+        "kind": "frontpanel",
+        "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+        "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+        "source_dimensions": [
+          350,
+          245
+        ],
+        "position": [
+          0,
+          0
+        ],
+        "alpha": 0,
+        "visible_source_pixels": 2749,
+        "source_flip": false
+      }
+    ],
+    "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+    "alpha_source_dimensions": [
+      [
+        110,
+        90
+      ]
+    ],
+    "camera": [
+      0.0,
+      0.0
+    ],
+    "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+    "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+    "all_actor_models_preserved": true
+  },
+  "source_bound_report_sha256": "51a78eabccbf1b5c2478c6a3bbaf2a4949667ad517ecfcadadb289ab94790585",
+  "full_frame_required_rgb555_identities": 630,
+  "peak_required_rgb555_identities": 75,
+  "opaque_slots": 120,
+  "additive_operand_slots": 0,
+  "optimal_fractional_peak_writes": 26.42857142857141,
+  "integer_peak_write_lower_bound": 27,
+  "cgram_dirty_byte_lower_bound": 54,
+  "first_to_last_high_byte_commit_lower_bound": 416,
+  "first_low_byte_preloaded_for_free": true,
+  "address_and_setup_costs_relaxed": true,
+  "conservative_available_master_clocks": 344,
+  "maximum_available_master_clocks": 356,
+  "selected_policy_rejected": true,
+  "universal_raster_rejected": false,
+  "source_geometry_and_fixed_banks_relaxed": true,
+  "math_operand_reencoding_excluded": true,
+  "live_alpha_renderer_admitted": false,
+  "no_color_reduction": true,
+  "dma_source_authority": {
+    "path": "E:\\gh\\Mesen2-mcp-frameexact\\Core\\SNES\\SnesDmaController.cpp",
+    "sha256": "0862d1ee03ccdc8a13108548c3a84b54ae325709fadaa6cf1db9903bc6ca89cf",
+    "master_clocks_per_byte": 8
+  },
+  "lp_validation": {
+    "maximum_primal_violation": 1.7763568394002505e-14,
+    "maximum_dual_residual": 2.220446049250313e-16
+  }
+}

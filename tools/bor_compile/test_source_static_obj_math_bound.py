@@ -7,6 +7,48 @@ from raster_obj_math_cover import MODES
 
 
 class StaticObjBoundTests(unittest.TestCase):
+    def test_relaxed_controls_keep_static_ordinary_words_on_every_effect_row(self):
+        from source_static_obj_math_bound import MODES
+        layer=dict(kind='actor:Ordinary',alpha=0,path='ordinary.png',requested_map=0,source_flip=False)
+        actors=[dict(metadata=layer,pixels=np.array([[1]]),left=0,top=0),
+                dict(metadata=dict(alpha=1),pixels=np.array([[2],[-1],[3]]),left=0,top=10)]
+        canvas=np.zeros((224,256,3),dtype=np.uint8)
+        with patch('source_static_obj_math_bound.prepare',return_value=(actors,{},canvas)),patch('source_static_obj_math_bound.compose_rgb8',return_value=(canvas,{})),patch('source_static_obj_math_bound.discover',return_value={'models':[{'name':'Ordinary'}]}),patch('source_static_obj_math_bound.model_palettes',return_value={}),patch('source_static_obj_math_bound.select_model_palette',return_value=({'rgb8':[]},0)),patch('source_static_obj_math_bound.decode',return_value=(np.array([[1]]),np.array([[[8,0,0]]]),'hash')),patch('source_static_obj_math_bound.cover_lower_bound',return_value=dict(status='TEST_RELAXATION'))as bound:
+            result=measure(SimpleNamespace(index={}),None,{},relax_per_pixel_controls=True)
+        rows=bound.call_args.args[0]
+        self.assertTrue(all((1,())in rows[y]for y in range(10,13)))
+        self.assertEqual(rows[0],set())
+        self.assertEqual(result['reserved_visible_source_words'],[1])
+        self.assertTrue(result['ordinary_palette_reservation_enforced_through_effect_interval'])
+
+    def test_fractional_weights_guide_controls_without_importing_a_palette(self):
+        canvas=np.zeros((224,256,3),dtype=np.uint8);expected=canvas.copy();expected[1,0,0]=16
+        actors=[dict(metadata=dict(alpha=1),pixels=np.array([[2]]),left=0,top=1)]
+        fractional=dict(status='TEST_RELAXATION',fractional_residency=[dict(kind=1,color=4,line=1,value=1.)])
+        with patch('source_static_obj_math_bound.prepare',return_value=(actors,{},expected)),patch('source_static_obj_math_bound.compose_rgb8',return_value=(canvas,{})),patch('source_static_obj_math_bound.discover',return_value={'models':[]}),patch('source_static_obj_math_bound.cover_lower_bound',return_value=fractional):
+            result=measure(SimpleNamespace(index={}),None,{},relax_per_pixel_controls=True)
+        guide=result['fractional_control_guide']
+        self.assertEqual(guide['selected_modes'],{1:'half-add'})
+        self.assertEqual(guide['selected_window_eligibility'],{1:{0:1}})
+        self.assertFalse(guide['fractional_palette_imported'])
+        self.assertFalse(guide['pixel_coverage_admitted'])
+
+    def test_per_pixel_control_relaxation_is_only_a_necessary_capacity_bound(self):
+        canvas=np.zeros((224,256,3),dtype=np.uint8);expected=canvas.copy();expected[1,0,0]=16
+        actors=[dict(metadata=dict(alpha=1),pixels=np.array([[2]]),left=0,top=1)]
+        with patch('source_static_obj_math_bound.prepare',return_value=(actors,{},expected)),patch('source_static_obj_math_bound.compose_rgb8',return_value=(canvas,{})),patch('source_static_obj_math_bound.discover',return_value={'models':[]}),patch('source_static_obj_math_bound.cover_lower_bound',return_value=dict(status='TEST_RELAXATION'))as bound:
+            result=measure(SimpleNamespace(index={}),None,{},relax_per_pixel_controls=True)
+        self.assertTrue(result['global_scanline_math_mode_relaxed'])
+        self.assertTrue(result['window_gate_relaxed_per_pixel'])
+        self.assertFalse(result['palette_bank_assignment_proven'])
+        self.assertEqual(bound.call_args.kwargs['capacities'],(60,60))
+        self.assertIn(2,next(iter(bound.call_args.args[0][1]))[1])
+        self.assertEqual(result['effect_cache_interval'],[1,1])
+        self.assertEqual(bound.call_args.args[0][0],set())
+        self.assertEqual(bound.call_args.args[0][2],set())
+        with self.assertRaisesRegex(ValueError,'RELAXED_CONTROL_POLICY'):
+            measure(None,None,{},relax_per_pixel_controls=True,integer_pool_budget=22)
+
     def run_fixture(self,effect=False,ordinary_residency='static',scanline_interval=(125,139),integer_bound=None,ordinary_top=0,hardware_windows=True,background_red=0,allowed_modes=MODES,all_visible_actor_pixels_reencodable=False,integer_pool_hint=None,integer_controls_hint=None):
         layer=dict(kind='actor:Ordinary',alpha=0,path='ordinary.png',requested_map=0,source_flip=True)
         actors=[dict(metadata=layer,pixels=np.array([[-1,1]]),left=0,top=ordinary_top)]

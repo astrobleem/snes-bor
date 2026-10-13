@@ -13,9 +13,11 @@ from source_scene_bg import compose_rgb8
 from source_bg_feasibility import decode,rgb555
 from raster_obj_math_cover import MODES,complete_math_cover,apply_math
 from raster_math_mode_liveness import lower_bound
+from raster_palette_cover_liveness import lower_bound as cover_lower_bound
 
 
-def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_interval=None,solver_method='highs-ipm',scanline_write_limits=None,ordinary_residency='static',integer_pool_budget=None,initial_state=None,allowed_modes=MODES,all_visible_actor_pixels_reencodable=False,minimum_transfer_window=None,integer_cache_objective='peak',integer_pool_hint=None,integer_controls_hint=None):
+def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_interval=None,solver_method='highs-ipm',scanline_write_limits=None,ordinary_residency='static',integer_pool_budget=None,initial_state=None,allowed_modes=MODES,all_visible_actor_pixels_reencodable=False,minimum_transfer_window=None,integer_cache_objective='peak',integer_pool_hint=None,integer_controls_hint=None,relax_per_pixel_controls=False):
+    if type(relax_per_pixel_controls)is not bool or relax_per_pixel_controls and(integer_pool_budget is not None or initial_state is not None or scanline_write_limits is not None or minimum_transfer_window is not None or integer_pool_hint is not None or integer_controls_hint is not None):raise ValueError('STATIC_OBJ_BOUND_RELAXED_CONTROL_POLICY')
     if type(all_visible_actor_pixels_reencodable)is not bool:raise ValueError('STATIC_OBJ_BOUND_REENCODING_POLICY')
     if scanline_interval is not None and (len(scanline_interval)!=2 or not 0<=scanline_interval[0]<=scanline_interval[1]<224):raise ValueError('STATIC_OBJ_BOUND_SCANLINE_DOMAIN')
     if ordinary_residency not in ('static','scanline'):raise ValueError('STATIC_OBJ_BOUND_RESIDENCY_POLICY')
@@ -53,6 +55,43 @@ def measure(source,stage,scene,time_limit=60,hardware_windows=True,scanline_inte
         zero_main_clipping_not_modeled=True,scanline_interval=scanline_interval,outside_interval_demand_relaxed=scanline_interval is not None,allowed_math_modes=list(allowed_modes),universal_raster_rejected=False,no_color_reduction=True)
     if not pixels:
         report.update(status='NO_NONBYPASSED_EFFECT_PIXELS');return report
+    if relax_per_pixel_controls:
+        options,cover=complete_math_cover(((out,bg)for y,x,out,bg in pixels),modes=allowed_modes,allow_window_bypass=True)
+        rows=[set()for _ in background]
+        for y,x,out,bg in pixels:rows[y].add((out,tuple(options[out,bg])))
+        lo,hi=min(y for y,x,out,bg in pixels),max(y for y,x,out,bg in pixels)
+        if ordinary_residency=='static':
+            for y in range(lo,hi+1):rows[y].update((c,())for c in reserve)
+        else:
+            for y,cs in ordinary_rows.items():
+                if lo<=y<=hi:rows[y].update((c,())for c in cs)
+        bound=cover_lower_bound(rows,capacities=(60,60),time_limit=time_limit,solver_method=solver_method,include_solution=True)
+        report.update(status=bound['status'],cache_bound=bound,operand_cover=cover,effect_cache_interval=[lo,hi],ordinary_palette_reservation_enforced_through_effect_interval=ordinary_residency=='static',scanline_controls_relaxed_per_pixel=True,
+            window_gate_relaxed_per_pixel=True,global_scanline_math_mode_relaxed=True,
+            fixed_color_operands_and_main_screen_zero_clipping_not_modeled=True,
+            source_alpha_policy='BOR4086_SCREEN_RGB8_THEN_RGB555',alpha_compatibility_policy_selected=False)
+        if 'fractional_residency'in bound:
+            from raster_math_windows import best_weighted_mask
+            weights={(e['kind'],e['color'],e['line']):e['value']for e in bound['fractional_residency']}
+            tagged,_=complete_math_cover(((out,bg)for y,x,out,bg in pixels),modes=allowed_modes,tag_modes=True)
+            guide=dict(selected_modes={},selected_window_eligibility={},fractional_palette_imported=False,pixel_coverage_admitted=False,source_rgb555_sha256=report['source_rgb555_sha256'])
+            grouped={}
+            for y,x,out,bg in pixels:grouped.setdefault(y,[]).append((x,out,bg))
+            for y,entries in grouped.items():
+                candidates=[]
+                for mode in allowed_modes:
+                    scores={}
+                    for x,out,bg in entries:
+                        normal=weights.get((0,out,y),0.)
+                        off=max(normal,weights.get((1,out,y),0.))
+                        on=max(normal,max((weights.get((1,c,y),0.)for c in tagged[mode,out,bg]),default=0.))
+                        scores[x]=(off,on)
+                    score,mask=best_weighted_mask(scores)
+                    candidates.append((score,mode,mask))
+                score,mode,mask=max(candidates,key=lambda v:(v[0],-allowed_modes.index(v[1])))
+                guide['selected_modes'][y]=mode;guide['selected_window_eligibility'][y]=mask
+            report['fractional_control_guide']=guide
+        return report
     options,cover=complete_math_cover(((out,bg)for y,x,out,bg in pixels),modes=allowed_modes,tag_modes=True)
     rows=[{mode:set()for mode in allowed_modes}for _ in range(len(background))]
     window_pixels=[[]for _ in rows]if hardware_windows else None
@@ -118,6 +157,7 @@ def main():
     parser.add_argument('--scanline-interval',type=int,nargs=2);parser.add_argument('--lp-method',choices=('highs-ipm','highs-ds'),default='highs-ipm')
     parser.add_argument('--scanline-write-limits',type=Path)
     parser.add_argument('--ordinary-residency',choices=('static','scanline'),default='static')
+    parser.add_argument('--relax-per-pixel-controls',action='store_true',help='Necessary LP only: allow different exact math modes and window gates per pixel; retain ordinary palette demand.')
     parser.add_argument('--integer-pool-budget',type=int,help='Search an independently replayed integer two-class cache; bank geometry and physical timing remain relaxed.')
     parser.add_argument('--reencode-all-visible-actors',action='store_true',help='Relax literal ordinary actor ownership and cover every final source actor pixel with exact shader operands. No live compositor admission.')
     parser.add_argument('--math-mode',action='append',choices=MODES,help='Restrict the globally selected scanline math modes; repeat to allow multiple modes.')
@@ -128,7 +168,7 @@ def main():
     parser.add_argument('--integer-controls-hint',type=Path,help='Soft mode/window guide only; no prior palette residency or source identity admission is imported.')
     args=parser.parse_args();limits={int(y):n for y,n in json.loads(args.scanline_write_limits.read_text()).items()}if args.scanline_write_limits else None
     initial=json.loads(args.initial_palette_state.read_text())if args.initial_palette_state else None
-    result=measure(Source(args.source),args.stage,json.loads(args.scene.read_text()),args.time_limit,not args.no_windows,args.scanline_interval,args.lp_method,limits,args.ordinary_residency,args.integer_pool_budget,initial,args.math_mode or MODES,args.reencode_all_visible_actors,args.minimum_transfer_window,args.integer_cache_objective,json.loads(args.integer_pool_hint.read_text())if args.integer_pool_hint else None,json.loads(args.integer_controls_hint.read_text())if args.integer_controls_hint else None)
+    result=measure(Source(args.source),args.stage,json.loads(args.scene.read_text()),args.time_limit,not args.no_windows,args.scanline_interval,args.lp_method,limits,args.ordinary_residency,args.integer_pool_budget,initial,args.math_mode or MODES,args.reencode_all_visible_actors,args.minimum_transfer_window,args.integer_cache_objective,json.loads(args.integer_pool_hint.read_text())if args.integer_pool_hint else None,json.loads(args.integer_controls_hint.read_text())if args.integer_controls_hint else None,args.relax_per_pixel_controls)
     args.output.write_text(json.dumps(result,indent=2)+'\n')
     bound=result.get('cache_bound',{})
     print(json.dumps(dict(status=result['status'],reserved_word_count=result['reserved_word_count'],cache_bound={k:bound[k]for k in ('status','message','validated_dual_lower_bound','peak_replayed_pool_writes','solver_seconds','variables','constraints')if k in bound})))

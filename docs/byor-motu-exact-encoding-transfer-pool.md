@@ -326,3 +326,43 @@ A new integration test starts with a genuinely infeasible zero-write bank
 assignment, verifies its positive slack certificate, confirms that search
 continues, and resumes its certificates before any feasible cache has been
 found. Fourteen cache-decomposition tests pass. No color reduction is applied.
+
+The precomposited pool relaxation incorrectly exposed sixty additive slots
+in addition to the 120 literal OBJ slots. That is corrected: precomposited
+pixels have no additive operand alternatives and the pool capacities are
+120/0. A 121-color simultaneous fixture now fails explicitly. The fixed-bank
+joint model already used the correct eight-bank domain; this fix concerns
+its pool-only relaxation.
+
+For the authored player/effect scene, literal precomposited output uses 630
+non-bypassed RGB555 identities and 75 at peak on one line. Its independently
+checked liveness LP is optimal at 26.428571 writes (dual residual 2.22e-16;
+primal residual 1.78e-14). An integer schedule therefore needs at least 27
+changed words on some line. Even granting a preloaded first low byte and
+ignoring addressing/setup, consecutive high-byte commits span at least
+16*(27-1)=416 master clocks, above the measured 356-clock maximum. This rejects
+the literal precomposited OBJ policy for this source context, with all eight
+banks and geometry relaxed. It does not reject encoded math operands or
+other lossless presentation strategies. The broad 329,869-variable joint
+precomposited search is UNKNOWN, which is not itself rejection evidence.
+
+A separate necessary relaxation allows each effect pixel its own exact
+add/half-add/subtract/half-subtract mode and window gate. Ordinary player
+words remain statically reserved. Restricting cache variables to the effect
+interval retains those reservations while reducing the model from 413,405
+variables to 86,863. The reduced LP is optimal at 16.3 writes; fixed banks,
+physical slots and shared scanline controls remain relaxed. Thus encoded
+math remains open. Fixed-color operands and main-screen zero clipping are
+not modeled, so no universal rendering rejection is claimed.
+
+Fractional cache weights can now guide legal two-window masks through a
+bounded-transition dynamic program. An exhaustive small fixture verifies
+its weighted optimum and register-mask replay. This guide imports no palette
+residency and grants no source pixel or native admission. Its suggested
+55 controlled rows use 35 full-add and twenty half-add modes. The existing
+joint/backend/capacity suite passes 132 tests; window and static-demand
+fixtures pass eighteen cases. No alpha adaptation or color reduction is used.
+
+The source-bound fractional control guide still returns UNKNOWN in the full
+integer class cache after 94.975 seconds. No palette residency was imported
+from the LP, and no infeasibility follows from the timeout.

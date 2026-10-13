@@ -324,7 +324,7 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     if pool_only:
         from raster_palette_cover_liveness import lower_bound
         rows=[set() for _ in range(height)]
-        for atom in atoms:rows[atom['line']].add((atom['output'],tuple(atom['residual_options'])))
+        for atom in atoms:rows[atom['line']].add((atom['output'],()if color_math=='precomposited'else tuple(atom['residual_options'])))
         math_cover_report=None
         if pool_math_modes is not None:
             requirements={(atom['output'],int(bg[y,x]))for atom in atoms for y,x in atom['pixels']}
@@ -332,7 +332,9 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
             rows=[set()for _ in range(height)]
             for atom in atoms:
                 for y,x in atom['pixels']:rows[y].add((atom['output'],tuple(math_options[atom['output'],int(bg[y,x])])))
-        result=lower_bound(rows,capacities=(0,120)if color_math=='subscreen-additive'else(0,60)if additive_only else(120,60)if color_math=='precomposited'else(60,60),time_limit=time_limit,include_solution=True,integer_budget=integer_pool_budget)
+        pool_capacities=(0,120)if color_math=='subscreen-additive'else(0,60)if additive_only else(120,0)if color_math=='precomposited'else(60,60)
+        result=lower_bound(rows,capacities=pool_capacities,time_limit=time_limit,include_solution=True,integer_budget=integer_pool_budget)
+        result['eligibility_pool_capacities']=list(pool_capacities)
         output_sets=[{normal for normal,additive in row}for row in rows]
         result.update(visible_final_obj_output_full_frame_colors=len(set().union(*output_sets)),
                       peak_visible_final_obj_output_colors_per_scanline=max(map(len,output_sets),default=0),

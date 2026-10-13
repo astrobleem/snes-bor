@@ -605,6 +605,17 @@ class JointSceneSolverTests(unittest.TestCase):
         self.assertTrue(r['compiled_pixel_identity_verified'])
         self.assertTrue(all(p['width']in(8,16)for p in r['pieces']))
 
+    def test_precomposited_pool_does_not_invent_sixty_additive_slots(self):
+        background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy()
+        pixels=np.arange(1,122,dtype=np.int32).reshape(1,121)
+        for x,c in enumerate(pixels[0]):expected[0,x]=[(int(c)>>shift&31)*8 for shift in(0,5,10)]
+        actor=dict(pixels=pixels,left=0,top=0)
+        with patch('source_scene_obj_joint.prepare',return_value=([actor],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            result=probe(None,None,{},size=8,pool_only=True,color_math='precomposited',time_limit=5)
+        self.assertEqual(result['status'],'RELAXED_COVER_INFEASIBLE')
+        self.assertEqual(result['eligibility_pool_capacities'],[120,0])
+        self.assertFalse(result['schedule_proven'])
+
     def test_precomposited_context_can_use_all_eight_opaque_banks(self):
         background=np.full((224,256,3),255,dtype=np.uint8)
         pixels=np.full((8,120),-1,dtype=np.int32);pixels[0]=np.arange(120)

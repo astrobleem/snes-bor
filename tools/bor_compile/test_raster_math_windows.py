@@ -1,9 +1,21 @@
 import itertools
 import unittest
-from raster_math_windows import compile_mask,compile_sparse_mask,evaluate
+from raster_math_windows import compile_mask,compile_sparse_mask,evaluate,best_weighted_mask
 
 
 class WindowTests(unittest.TestCase):
+    def test_weighted_guide_matches_exhaustive_bounded_masks(self):
+        scores={x:(float(x%3),float((x+1)%3))for x in (2,4,8,16,32,64)}
+        value,mask=best_weighted_mask(scores,maximum_transitions=2)
+        expected=max(sum(scores[x][b]for x,b in zip(scores,bits))
+                     for bits in itertools.product((0,1),repeat=len(scores))
+                     if sum(a!=b for a,b in zip(bits,bits[1:]))<=2)
+        self.assertEqual(value,expected)
+        descriptor=compile_sparse_mask(mask)
+        self.assertTrue(all(evaluate(descriptor,x)==bool(b)for x,b in mask.items()))
+        with self.assertRaisesRegex(ValueError,'SCORE_DOMAIN'):
+            best_weighted_mask({256:(0.,1.)})
+
     def test_all_masks_with_up_to_four_transitions_replay(self):
         for count in range(5):
             for positions in itertools.combinations((1,32,64,96,128,192,255),count):

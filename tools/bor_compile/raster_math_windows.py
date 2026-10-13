@@ -4,6 +4,37 @@ Only the color-window bits are owned. OBJ/BG window fields must be merged by
 their presentation owner. These descriptors do not admit register timing.
 """
 
+import math
+
+
+def best_weighted_mask(scores, maximum_transitions=4):
+    """Choose a sparse two-window guide; scores grant no pixel admission."""
+    if type(maximum_transitions) is not int or not 0 <= maximum_transitions <= 4:
+        raise ValueError('COLOR_WINDOW_SCORE_TRANSITIONS')
+    if any(type(x) is not int or not 0 <= x < 256 or len(values) != 2
+           or any(not math.isfinite(v) for v in values)
+           for x, values in scores.items()):
+        raise ValueError('COLOR_WINDOW_SCORE_DOMAIN')
+    if not scores:
+        return 0., {}
+    positions = sorted(scores)
+    first = positions[0]
+    states = {(bit, 0): (float(scores[first][bit]), (bit,)) for bit in (0, 1)}
+    for x in positions[1:]:
+        updated = {}
+        for (previous, transitions), (score, mask) in states.items():
+            for bit in (0, 1):
+                count = transitions + int(bit != previous)
+                if count > maximum_transitions:
+                    continue
+                value = score + scores[x][bit], mask + (bit,)
+                key = bit, count
+                if key not in updated or value > updated[key]:
+                    updated[key] = value
+        states = updated
+    score, mask = max(states.values())
+    return score, dict(zip(positions, mask))
+
 
 def evaluate(descriptor,x):
     selected=[]
