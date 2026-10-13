@@ -1,0 +1,200 @@
+{
+  "schema": "BYOR_MOTU_RASTER_RESEARCH_SLICE1_V1",
+  "classification": "MOTU_RASTER_SLICE_COMPLETE",
+  "starting_branch": "feat/byor-motu",
+  "starting_commit": "68314c349d9daba12781a1d2a14ffab867389172",
+  "hypothesis": "Delete unused or cancelled noninitial palette loads at their existing physical slots and scanline times, preserving every source-pixel operand and all math/window controls.",
+  "selection_reason": "The fixed-event retiming model explicitly excludes event removal. Exact subset reachability is a small physical-operation model and supplies a stronger negative certificate than dead-write labels alone.",
+  "expected_benefit": "An omitted endpoint word saves 16 DMA data clocks; three useful omissions could save 48 clocks, unless bridging or range overhead erases the saving. Confirmation requires independently replayed lower complete packet peak. A certified mandatory-address peak rejects this fixed family.",
+  "strategy_family": "Delete subset of existing noninitial events; fixed times, slots, indices, banks, initial palette and math/window controls",
+  "input_schedule": {
+    "path": "out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-window-slots-resident-operands.json",
+    "sha256": "6bdfcc4ce0b4c0c0cc6328a09a0014cd1983d5bab4499147d0298715d4ceb600",
+    "source_context": "Isolated HBreath frame 11 on GUILE2 underlay; no concurrent player",
+    "legal_obj_mode": 0,
+    "legal_size_pair": [
+      8,
+      16
+    ]
+  },
+  "solver": {
+    "schema": "BYOR_FIXED_EVENT_DELETION_V1",
+    "solver_status": "OPTIMAL",
+    "result": "SAT",
+    "solver_seconds": 0.21450290000000002,
+    "time_limit_seconds": 120.0,
+    "model_variables": 4763,
+    "model_constraints": 8289,
+    "raw_objective_bound": 207250.00000000003,
+    "objective_peak_weight": 404,
+    "restricted_peak_commit_span_lower_bound": 472,
+    "original_noninitial_events": 403,
+    "maximum_ranges": 4,
+    "family": "Delete subset of existing noninitial events; fixed times, slots, indices, banks, initial palette and math/window controls",
+    "native_timing_admitted": false,
+    "physical_witness": false,
+    "no_color_reduction": true,
+    "universal_raster_rejected": false,
+    "removed_events": [
+      {
+        "scanline": 153,
+        "update_index": 1,
+        "bank": 5,
+        "slot": 13,
+        "old": 9410,
+        "color": 9614,
+        "kind": "dead_palette_write",
+        "next_source_use_scanline": null
+      }
+    ],
+    "retained_noninitial_events": 402,
+    "input_peak_commit_span": 472,
+    "peak_prepared_commit_span": 472,
+    "all_packet_cgram_identities_verified": true,
+    "indexed_pixel_operands_verified": true,
+    "solver_objective": 207250.00000000003
+  },
+  "physical_costs": {
+    "input_peak_commit_span": 472,
+    "result_peak_commit_span": 472,
+    "scanline153_before": 72,
+    "scanline153_after": 56,
+    "sum_packet_spans_before": 8848,
+    "sum_packet_spans_after": 8832,
+    "original_noninitial_words": 403,
+    "result_noninitial_words": 402,
+    "conservative_budget": 344,
+    "maximum_budget": 356,
+    "peak_gap_to_maximum": 116,
+    "peak_gap_to_conservative": 128
+  },
+  "prior_400_clock_frontier": {
+    "cost": 400,
+    "cost_kind": "Complete ideal bank-partition span, not a validated fixed physical-slot schedule",
+    "unchanged": true,
+    "evidence": "docs/byor-motu-joint-bank-classes.md lines 1444-1459 explicitly withhold physical-slot admission; continuation key best_authored_peak_ideal_master_clocks"
+  },
+  "independent_verification": {
+    "schema": "BYOR_EVENT_DELETE_INDEPENDENT_REPLAY_V1",
+    "source_exact": true,
+    "viewport_pixels": 57344,
+    "source_mismatches": 0,
+    "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+    "palette_high_byte_commits": 483,
+    "peak_prepared_commit_span": 472,
+    "geometry": {
+      "schema": "BYOR_RASTER_OBJ_CHR_V1",
+      "status": "LEGAL_MODE0_CHR_OAM_CONSTRUCTIVE_PROOF",
+      "obj_size_mode": 0,
+      "obj_size_pair": [
+        8,
+        16
+      ],
+      "oam_entries": 80,
+      "obj_chr_bytes": 6400,
+      "occupied_tile_cells": 200,
+      "unique_tiles": 163,
+      "reserved_tile_cells": [],
+      "chr_sha256": "f3aff8cec10c4d6b7bfe2344e26db0c56d4f2c1fb4ccfdbc2031f8db79782fd9",
+      "oam_sha256": "17f6bc41a8fecc14fddf205599a076e7ca94651822c6a300f4aedaab6025e22b",
+      "emitted_oam_chr_pixel_indices_verified": true,
+      "native_render_proven": false,
+      "no_color_reduction": true,
+      "emitted_oam_geometry_replayed": true,
+      "peak_sprites_per_line": 24,
+      "peak_tile_slivers_per_line": 34,
+      "unused_oam_hidden_x": -64,
+      "hardware_scanline_geometry_admitted": true
+    },
+    "chr_oam_byte_identical": true,
+    "deletion_family_peak_optimal": true,
+    "family_infeasible_at_344_and_356": true,
+    "physical_witness": false,
+    "native_timing_admitted": false,
+    "production_mode6_admitted": false,
+    "concurrent_actor_admitted": false
+  },
+  "independent_certificate": {
+    "independently_certified_peak_lower_bound": 472,
+    "critical_scanline": 136,
+    "critical_dirty_addresses": [
+      31,
+      40,
+      41,
+      61,
+      62,
+      63,
+      66,
+      67,
+      69,
+      71,
+      72,
+      76,
+      77,
+      81,
+      103,
+      104
+    ],
+    "critical_optimal_ranges": [
+      [
+        31,
+        31
+      ],
+      [
+        40,
+        41
+      ],
+      [
+        61,
+        81
+      ],
+      [
+        103,
+        104
+      ]
+    ],
+    "method": "Forward/backward exact per-slot event-subset reachability; exhaustive <=4 contiguous-range partitions of mandatory addresses"
+  },
+  "mandatory_events": 402,
+  "optional_events": 1,
+  "applicable_result": "SAT with OPTIMAL solver status at 472 clocks. Independently INFEASIBLE at 344 and 356 for fixed-time, fixed-slot event deletion with <=4 prepared mode-2 CGRAM ranges. No general raster rejection.",
+  "nonclaims": [
+    "No PHYSICAL_WITNESS within measured window",
+    "No native timing, production register setup, control deadlines, HDMA/NMI contention or gameplay admission",
+    "No production mode-6 or concurrent-player witness",
+    "No color reduction, alpha approximation, BG fallback or full MOTU build"
+  ],
+  "expensive_solver_runs": 1,
+  "expensive_solver_run_cap_seconds": 120,
+  "second_run": "Not needed: independently certified optimum",
+  "focused_validation": {
+    "tests": 13,
+    "command": "PYTHONPATH=tools/bor_compile;tools/verify; python -m unittest test_raster_physical_event_delete test_verify_raster_event_delete test_raster_physical_write_shift test_raster_physical_event_schedule -v",
+    "changed_python_compilation": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "preservation": {
+    "protected17_matches": true,
+    "inherited29_matches": true,
+    "pcm_copied": false,
+    "production_files_changed": false
+  },
+  "archive": {
+    "path": "docs/receipts/byor-motu-raster-slice1-event-deletion.json.gz",
+    "sha256": "84cf030991d473a9d48596a4ab1233b7422d2e5534ece0235226691732908ce3",
+    "bytes": 63910,
+    "contents": [
+      "original full schedule",
+      "candidate full schedule",
+      "actual solver status and objective",
+      "independent CGRAM/source replay",
+      "mandatory-event certificate",
+      "protected and inherited tracked fingerprints"
+    ]
+  },
+  "next_experiment": "Generate a source-bound COLDATA operand-reuse guide beyond the four retained policies: choose shared per-row fixed colors to reuse prior-row exact operands, retaining all 31 ordinary player words. Evaluate actual COLDATA updates and earliest source-pixel control deadlines before any palette bank/slot construction. Do not repeat unchanged four-guide searches or fixed-time deletion.",
+  "reproduction_commands": {
+    "solve": "out/byor-motu-solver-venv/Scripts/python.exe tools/bor_compile/raster_physical_event_delete.py --schedule out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-window-slots-resident-operands.json --output out/byor-motu-raster-slice1/event-delete.json --time-limit 120",
+    "verify": "PYTHONPATH=tools/bor_compile; out/byor-motu-solver-venv/Scripts/python.exe tools/verify/verify_raster_event_delete.py --original out/byor-motu-authored-hbreath-only-frame11-math15-window2-joint34-window-slots-resident-operands.json --candidate out/byor-motu-raster-slice1/event-delete.json --source 'Masters of the Universe [v.3.0 Build 4086].pak' --output out/byor-motu-raster-slice1/independent-replay.json"
+  }
+}
