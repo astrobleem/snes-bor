@@ -36,11 +36,23 @@ def fixed_palette_edges(reports,initials,capacity=236):
     return prefix,suffix
 
 
+def validate_sequence_aliases(residency,count,plane):
+    if plane not in ('high','low'):raise ValueError('PRODUCTION_SEQUENCE_OFFSET_ALIAS_PLANE')
+    for i in range(count):
+        words=np.frombuffer((residency/f'{i:02d}-{plane}.map').read_bytes(),dtype='<u2')
+        if len(words)!=1024 or np.any(words&0x6000):
+            raise ValueError('PRODUCTION_SEQUENCE_OFFSET_ALIAS_ENABLE_BITS:'+str(i))
+
+
 def build(sequence,residency,deadlines,original,sy,folder,audio_service=False,source_clock=False,compact_canvas_nmi=False,sparse_palette=False,serialize_audio_raster=False,fold_first_use=False,prepared_sequence=None,continuous_audio_pump=False,source_audio_index=None,early_source_packet_staging=False):
     schedule=json.loads(deadlines.read_text());plan=json.loads((residency/'report.json').read_text())
     if not schedule['resident_identity_replay']:raise ValueError('PRODUCTION_SEQUENCE_UNPROVEN_DEADLINES')
     hybrid=plan.get('schema')=='BYOR_HYBRID_FIXED_CONTEXT_RESIDENCY_V1'
     assets=[sequence/f'frame-{i:02d}' for i in range(len(schedule['source_frame_start_fields']))]
+    # Check every emitted map, not only the boot map. Priority/horizontal-flip
+    # bits in a newly published alias are live Mode-4 offset enable bits.
+    alias_plane='low' if plan.get('offset_map_aliases_bg2') else 'high' if plan.get('offset_map_aliases_bg1') else None
+    if alias_plane:validate_sequence_aliases(residency,len(assets),alias_plane)
     if prepared_sequence:
         # A regression must consume immutable compiler inputs from its receipt,
         # rather than regenerating a palette assignment beside an older atlas.
@@ -247,11 +259,18 @@ SourceCanvasProgramTable:
     return bytes(rom),gates,resources,traces,assets
 
 
-def verify(rom,gates,resources,traces,assets,source_rom,sy,folder,audio_hooks=None):
-    path=folder/'proof.sfc';path.write_bytes(rom)
-    for p in [source_rom.with_suffix('.msu'),*source_rom.parent.glob('bor-*.pcm')]:
-        destination=folder/('proof'+p.name[3:])
-        if not destination.exists():os.link(p,destination)
+def verify(rom,gates,resources,traces,assets,source_rom,sy,folder,audio_hooks=None,existing_rom=None):
+    folder=Path(folder).resolve()
+    if existing_rom is not None:
+        # Replay retained media in place when its PCM/MSU hardlink count is
+        # exhausted. Observer/results stay in a new directory; no media copies.
+        path=Path(existing_rom).resolve()
+        if path.read_bytes()!=rom:raise ValueError('CONTROL_RETAINED_ROM_IDENTITY')
+    else:
+        path=folder/'proof.sfc';path.write_bytes(rom)
+        for p in [source_rom.with_suffix('.msu'),*source_rom.parent.glob('bor-*.pcm')]:
+            destination=folder/('proof'+p.name[3:])
+            if not destination.exists():os.link(p,destination)
     lua=folder/'observer.lua'
     expected_runs=[]
     for p in assets:

@@ -1,0 +1,136 @@
+{
+  "schema": "BYOR_MOTU_COMPONENT_LIVE_ENTRY_V1",
+  "classification": "EXTERNAL_LIMIT",
+  "starting_commit": "87e6e5019edd96877645f3b6990a871405a5c42b",
+  "starting_branch": "feat/byor-motu",
+  "limit": "This turn reached its available inference budget before a safe implementation and native verification of the remaining live-world/render integration. This is an execution limit, not hardware infeasibility.",
+  "live_moving_sample_completed": false,
+  "gameplay_ready": false,
+  "motu_demo_complete": false,
+  "authorized_direction": "Lossless component BG. BG/hybrid is authorized without OBJ-only prerequisite or universal OBJ impossibility proof. No color reduction, SCREEN approximation, actor/effect removal or artwork shrinking.",
+  "actual_native_run": {
+    "kind": "retained fixed-context component sequence",
+    "rom_path": "out/byor-motu-component-production-clock-audio-native/proof.sfc",
+    "rom_sha256": "300a6988e3cf15ac0bf4626bf7efd3305d36e78b13e9ce0355dfa9671e13d2b3",
+    "result_path": "out/byor-motu-live-component-20261013/control-absolute/result.json",
+    "completed_fields": 75,
+    "verified_pixels": 4300800,
+    "pixel_mismatches": 0,
+    "context_faults": 0,
+    "unsafe_palette_samples": 0,
+    "unsafe_vram_writes": 0,
+    "peak_nmi_master_clocks": 50244,
+    "minimum_rti_entry_margin": 144,
+    "native_rti_clocks": 50,
+    "nmi_guard_clocks": 64,
+    "clock_ticks_committed": 252,
+    "clock_scope": "Empty logical ticks only; no live MOTU world ticks",
+    "audio_chunks_accepted": 19,
+    "audio_scope": "Production original-BOR source-2 transport activity, incomplete stream; no authored MOTU sound timing or DSP admission",
+    "audio_service_peak_clocks": 2913914,
+    "cgram_trace_exact": true
+  },
+  "checks": {
+    "astra_manifest": "8 files match bytes and SHA256",
+    "standalone": "3 checks pass; offline only",
+    "focused_regressions": 18,
+    "changed_python_compile": "PASS",
+    "assembly": "Current src/main.pasm assembled to scratch layout-guard.bin with no protected-output regeneration",
+    "actual_offset_alias_maps": "40 HIGH maps checked, 0x6000 enable bits clear",
+    "diff_check": "PASS"
+  },
+  "changes": [
+    "Retained native control replay with immutable ROM/input identity checks and in-place existing media, avoiding hardlink exhaustion and PCM copies",
+    "Online one-snapshot extension of existing deduplicated plane cache; displayed slots pinned, safe preload capacity explicit, epoch transfer acknowledgments required",
+    "Compiler bundle contract binds HIGH/LOW maps/CHR, palette, scanline and drawn HUD fences to one full source context; rollback on second-plane preparation failure",
+    "Every emitted sequence map is checked for Mode-4 offset enable bits, including later priority/flip changes",
+    "Continuation records user-authorized component direction and removes OBJ research prerequisite"
+  ],
+  "resource_plan": {
+    "kind": "full component canvas",
+    "high_chr": [
+      0,
+      49152
+    ],
+    "low_chr": [
+      49152,
+      61440
+    ],
+    "high_map": [
+      61440,
+      63488
+    ],
+    "low_map": [
+      63488,
+      65536
+    ],
+    "total_vram_bytes": 65536,
+    "additional_obj_arena_bytes": 0,
+    "gameplay_actor_drawing_owner": "component canvas",
+    "hud_drawing_owner": "component canvas",
+    "hud_draw_in_live_sample": "NOT IMPLEMENTED",
+    "online_native_allocator_bound": false,
+    "dense_double_framebuffer_allocated": false,
+    "bwram_overwritten": false
+  },
+  "cadence_contract": {
+    "simulation_hz": 200,
+    "presentation_every_fields": 2,
+    "stricter_live_contract_found": false,
+    "prior_one_field_deadlines_scope": "Fixed precompiled sequence, not a mandatory live-world every-pose product contract",
+    "input_to_display_latency": "UNMEASURED",
+    "live_simulation_debt": "UNMEASURED",
+    "live_presentation_misses": "UNMEASURED",
+    "live_render_readiness": "UNMEASURED"
+  },
+  "remaining_blocker": "Existing source player/controller, constructor/script and world services have isolated native proofs but no installed live owner for this sample. Existing returning graphics jobs consume sealed fixed contexts and require a live authoritative snapshot/dirty-tile producer and native fenced publication binding.",
+  "next_actions": [
+    "Bind source-world initialization at the existing drained scene/stage handoff, keeping actor/world state. Reuse current complete constructor/model pipeline; no debugger actor initialization.",
+    "Install source_player_controller_native and source_player_ground_services at actual phase-6 dispatch with real controller history. Execute every requested frame/callback/sound/target continuation.",
+    "Drive actual SourceWorldTick4086 service loop and SourceUpdateAnimation4086/SourceFrameOwner4086; use authored D,U,J freespecial4 and actual spawn01 callback, constructor and retirement.",
+    "Use a second real input-driven source player or source-driven enemy for changing overlap while the breath parent is held in its authored pose. Never inject motion or effect frames.",
+    "Capture immutable source epochs after world commit and adapt existing returning_graphics_kernel/returning_graphics_row to live source inputs. Existing fixed-underlay guards cannot be removed without replacement identity checks.",
+    "Bind the online tile cache/bundle contract natively through existing display/workspace leases; all actors and actual HUD draw into the chosen 64-KiB canvas. RGB8 SCREEN precedes RGB555 decomposition.",
+    "Profile compositor, queue generation and world debt outside NMI. The fixed control has only 144 clocks at RTI entry; do not assume spare NMI capacity.",
+    "Observe completed native samples and compare source snapshots independently; collect real audio/lifecycle/debt/latency/transfer data before declaring the moving sample passed."
+  ],
+  "relevant_files": [
+    "tools/bor_compile/source_player_controller_native.py",
+    "tools/bor_compile/source_player_ground_services.py",
+    "tools/verify/m4_animation_callback_owner_native.py",
+    "src/core/vm/vm_source_world_tick.pasm",
+    "src/core/vm/vm_source_update_animation.pasm",
+    "src/core/vm/vm_source_frame_owner.pasm",
+    "tools/verify/m4_cooperative_source_graphics_native.py",
+    "tools/bor_compile/sa1_workspace_jobs.py",
+    "tools/verify/m4_component_production_sequence.py"
+  ],
+  "reproduction": {
+    "native_control": "$env:PYTHONPATH='tools/bor_compile;tools/verify'; $env:MESEN_EXE='E:/gh/Mesen2-mcp-frameexact/bin/win-x64/Release/Mesen.exe'; out/byor-motu-solver-venv/Scripts/python.exe tools/verify/m4_component_control_replay.py --retained out/byor-motu-component-production-clock-audio-native --output out/byor-motu-live-component-control-replay-NEW",
+    "tests": "$env:PYTHONPATH='tools/bor_compile;tools/verify'; out/byor-motu-solver-venv/Scripts/python.exe -m unittest test_component_live_bundle test_m4_component_publication test_bg_component_residency test_bg_component_deadlines test_bg_components -v",
+    "standalone_workdir": "out/byor-motu-live-component-20261013/astra",
+    "standalone_commands": [
+      "E:/gh/snes-bor/out/byor-motu-solver-venv/Scripts/python.exe audit_fixed_schedule.py --output replay-fixed-schedule.json",
+      "E:/gh/snes-bor/out/byor-motu-solver-venv/Scripts/python.exe exact_blend_cache.py self-test --output replay-exact-blend.json",
+      "E:/gh/snes-bor/out/byor-motu-solver-venv/Scripts/python.exe tile_codec_proof.py --output replay-tile-codec.json"
+    ]
+  },
+  "preservation": {
+    "protected17_matches": true,
+    "inherited29_matches": true,
+    "original_bytes_backup": "out/byor-motu-live-component-20261013/dirty-originals",
+    "fingerprints": "out/byor-motu-live-component-20261013/dirty-before.json",
+    "pcm_copied": false,
+    "evidence_removed": false
+  },
+  "failures_retained": [
+    "control initial media link WinError 1142; fixed by replay in place",
+    "control relative observer path yielded no instrumentation; fixed by resolving folder paths"
+  ],
+  "evidence_archive": {
+    "path": "docs/receipts/byor-motu-component-live-entry.json.gz",
+    "sha256": "d66e9350e46ccd5a595ac6d5a3d8c981ccb7656423bc11bf4751fa477229017e",
+    "bytes": 11057,
+    "rom_msu_pcm_included": false
+  }
+}

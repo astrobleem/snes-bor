@@ -21,6 +21,69 @@ def encode(tile,bpp):
     return bytes(data)
 
 
+class OnlinePlaneCache:
+    """One-snapshot extension of the existing deduplicated tile cache.
+
+    Unlike plan_plane this uses no future poses. It accepts tile-sized producer
+    outputs, pins displayed storage, and fails if safe preload storage is short.
+    Publication requires actual transfer fence acknowledgments. This compiler
+    model is not a native live producer or a gameplay admission.
+    """
+    def __init__(self,bpp,capacity,physical_slots=None):
+        if bpp not in (2,8) or not 1<=capacity<=1024:
+            raise ValueError('ONLINE_COMPONENT_CACHE_DOMAIN')
+        slots=list(range(capacity)) if physical_slots is None else list(physical_slots)
+        if len(slots)!=capacity or len(set(slots))!=capacity or any(type(s)is not int or not 0<=s<1024 for s in slots):
+            raise ValueError('ONLINE_COMPONENT_CACHE_SLOTS')
+        self.bpp=bpp;self.slots=slots;self.resident={};self.visible=set()
+        self.visible_epoch=None;self.pending=None
+
+    def prepare(self,epoch,tiles):
+        if type(epoch)is not int or not 0<=epoch<=0xffffffff or self.pending is not None or (self.visible_epoch is not None and epoch<=self.visible_epoch):
+            raise ValueError('ONLINE_COMPONENT_CACHE_EPOCH')
+        items={};positions={}
+        for x,y,pixels in tiles:
+            tile=np.asarray(pixels)
+            if type(x)is not int or type(y)is not int or not 0<=x<32 or not 0<=y<28 or (x,y)in positions:
+                raise ValueError('ONLINE_COMPONENT_CACHE_TILE_POSITION')
+            if tile.shape!=(8,8) or tile.dtype.kind not in 'ui' or np.any(tile<0) or np.any(tile>=(1<<self.bpp)):
+                raise ValueError('ONLINE_COMPONENT_CACHE_TILE_DOMAIN')
+            raw=tile.astype(np.uint8).tobytes();items.setdefault(raw,tile.copy());positions[x,y]=raw
+        if len(positions)!=32*28:
+            raise ValueError('ONLINE_COMPONENT_CACHE_COMPLETE_MAP_REQUIRED')
+        present={raw:slot for slot,raw in self.resident.items()}
+        missing=[raw for raw in items if raw not in present]
+        free=[slot for slot in self.slots if slot not in self.visible and self.resident.get(slot) not in items]
+        if len(free)<len(missing):
+            raise ValueError('ONLINE_COMPONENT_CACHE_SAFE_PRELOAD_CAPACITY')
+        assigned=dict(present);writes=[]
+        for raw,slot in zip(missing,free):
+            assigned[raw]=slot
+            writes.append(dict(slot=slot,data=encode(items[raw],self.bpp)))
+        tilemap=np.zeros((32,32),dtype='<u2')
+        for (x,y),raw in positions.items():tilemap[y,x]=assigned[raw]
+        # Mode-4 disabled offset words can alias this actual emitted map.
+        if np.any(tilemap&0x6000):raise ValueError('ONLINE_COMPONENT_OFFSET_ENABLE')
+        self.pending=dict(epoch=epoch,writes=writes,map=tilemap,required={assigned[raw]for raw in items},
+                          contents={assigned[raw]:raw for raw in items},acknowledged=set())
+        return dict(epoch=epoch,writes=[dict(w)for w in writes],map=tilemap.copy(),
+                    preload_bytes=sum(len(w['data'])for w in writes),displayed_slots_overwritten=False)
+
+    def acknowledge(self,epoch,slot):
+        if self.pending is None or self.pending['epoch']!=epoch or slot not in {w['slot']for w in self.pending['writes']}:
+            raise ValueError('ONLINE_COMPONENT_CACHE_TRANSFER_FENCE')
+        if slot in self.pending['acknowledged']:raise ValueError('ONLINE_COMPONENT_CACHE_DUPLICATE_FENCE')
+        self.pending['acknowledged'].add(slot)
+
+    def ready(self,epoch):
+        return self.pending is not None and self.pending['epoch']==epoch and self.pending['acknowledged']=={w['slot']for w in self.pending['writes']}
+
+    def publish(self,epoch):
+        if not self.ready(epoch):raise ValueError('ONLINE_COMPONENT_CACHE_NOT_READY')
+        self.resident.update(self.pending['contents']);self.visible=self.pending['required']
+        self.visible_epoch=epoch;self.pending=None
+
+
 def plan_plane(frames,bpp,capacity,physical_slots=None,initial_layout='first'):
     if not 1<=capacity<=1024:raise ValueError('COMPONENT_RESIDENT_TILE_CAPACITY')
     if initial_layout not in ('first','frequency'):raise ValueError('COMPONENT_INITIAL_TILE_LAYOUT')
