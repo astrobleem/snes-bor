@@ -80,6 +80,7 @@ def main():
     p.add_argument('--ground-walk',action='store_true',help='After actual SELECT construction, run canonical ground movement and real WALK frame-zero services.')
     p.add_argument('--live-ground',action='store_true',help='Emit a bounded persistent ground/input/snapshot owner; requires ground-walk and emit-only.')
     p.add_argument('--live-ground-display',action='store_true',help='Bind the bounded native snapshot publisher at bank 57; requires live-ground.')
+    p.add_argument('--live-ground-online',action='store_true',help='Keep persistent owner alive after an online renderer capability rejection.')
     p.add_argument('--canonical-attack',action='store_true',help='Canonical ordinary attack with actual chain/frame owners; source sound result instrumented.')
     p.add_argument('--early-attack',action='store_true',help='Join ordinary attack after release in the real early player prefix.')
     p.add_argument('--pending-jump-birth',action='store_true',help='Clear exact pending jump descriptor before actual constructor exists publication, bind after model copy.')
@@ -118,6 +119,7 @@ def main():
     a=p.parse_args();a.initial_walk=a.initial_walk or a.initial_none_walk;folder=a.output.resolve();folder.mkdir(parents=True,exist_ok=True);source=Source(a.source)
     if a.live_ground and not(a.ground_walk and a.emit_only):raise ValueError('LIVE_GROUND_REQUIRES_EMIT_ONLY_GROUND_OWNER')
     if a.live_ground_display and not a.live_ground:raise ValueError('LIVE_GROUND_DISPLAY_REQUIRES_LIVE_GROUND')
+    if a.live_ground_online and not a.live_ground_display:raise ValueError('LIVE_GROUND_ONLINE_REQUIRES_DISPLAY')
     (folder/'report.json').write_text(json.dumps(dict(schema='BYOR_NATIVE_ANIMATION_CALLBACK_OWNER_V1',status='RUNNING'))+'\n')
     if a.player_state_birth and not(a.ctor_owner and a.ctor_state):raise ValueError('PLAYER_STATE_BIRTH_REQUIRES_ACTUAL_CONSTRUCTOR')
     if a.spawn_recovery_joint and not(a.player_state_birth and a.ctor_model and (a.initial_jump or a.initial_select) and a.frame_owner and a.script_clone):raise ValueError('SPAWN_RECOVERY_REQUIRES_REAL_PLAYER_CONSTRUCTOR')
@@ -1745,7 +1747,7 @@ CallbackFixture_WorldAIComplete:
             asm+=emit_native_target(sy,chain=ac)
     if a.live_ground:
         from m4_live_ground_owner import bind
-        asm=bind(asm,gr,sy,a.live_ground_display)
+        asm=bind(asm,gr,sy,a.live_ground_display,a.live_ground_online)
     for k,v in values.items():asm=re.sub(r'\b'+k+r'\b',str(v),asm)
     branch=[0]
     def relax(m):

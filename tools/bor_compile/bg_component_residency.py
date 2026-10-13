@@ -21,6 +21,24 @@ def encode(tile,bpp):
     return bytes(data)
 
 
+def emit_native_planar_pixel(high,low):
+    """S-CPU counterpart of encode for an online paired component producer.
+
+    Caller leases DP $32 mask, $34 HIGH and $36 LOW, X=row*2. The
+    caller clears each output tile first and gathers the exact component bytes.
+    This service changes no palette, PPU allocation, DMA fence or presentation.
+    """
+    lines=[]
+    for base,dp,bpp in ((high,0x34,8),(low,0x36,2)):
+        for plane in range(bpp):
+            label=f'OnlinePlane{base:x}_{plane}'
+            lines.extend([f' lda ${dp:02X}',f' and #{1<<plane}',f' beq {label}',
+                ' sep #$20','.a8',f' lda.l {base+(plane//2)*16+plane%2},x',
+                ' ora $32',f' sta.l {base+(plane//2)*16+plane%2},x',
+                ' rep #$20','.a16',label+':','.a16','.i16'])
+    return lines
+
+
 class OnlinePlaneCache:
     """One-snapshot extension of the existing deduplicated tile cache.
 

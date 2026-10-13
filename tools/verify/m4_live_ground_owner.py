@@ -3,7 +3,7 @@
 One real constructor persists across requests. Native hardware input, source
 history, ground/frame services, velocity and check_move own all movement.
 The host may request a step and read the sealed snapshot; it never writes keys,
-poses, velocities or animation frames. Snapshot composition is host-side.
+poses, velocities or animation frames. The caller binds snapshot publication.
 """
 from source_player_input_native import emit as emit_history
 
@@ -12,7 +12,7 @@ EPOCH = 0x7ffb90
 SNAPSHOT = 0x7fba00
 
 
-def bind(asm, regions, sy,display=False):
+def bind(asm, regions, sy,display=False,online=False):
     g=regions['ground_controls']; history=regions['input_history']
     needle=' lda.l REQUEST\n cmp #$B4E7'
     if asm.count(needle)!=1:raise ValueError('LIVE_GROUND_GATE')
@@ -93,6 +93,14 @@ def bind(asm, regions, sy,display=False):
         joined=joined.replace(' jsl LiveGroundSeal\n jmp CallbackFixture_Return',
             ' jsl LiveGroundSeal\n jsl $398000\n bcs CallbackFixture_Bad\n jmp LiveGroundIdle')
         joined+='\nLiveGroundIdle:\n.a16\n.i16\n sep #$20\n.a8\n lda #$81\n sta.l $004200\n rep #$20\n.a16\nLiveGroundIdlePoll:\n.a16\n.i16\n lda.l REQUEST\n cmp #$B4E8\n bne LiveGroundIdlePoll\n jmp LiveGroundStart\n'
+        if online:
+            joined=joined.replace(' jsl $398000\n bcs CallbackFixture_Bad',
+                ' jsl $398000\n bcc LiveGroundPublished\n lda #1\n sta.l $7FFB84\n jmp LiveGroundIdle\nLiveGroundPublished:\n.a16\n.i16\n lda #0\n sta.l $7FFB84')
+            # Birth and step have separate call sites and therefore need unique
+            # labels while sharing the same persistent foreground owner.
+            first=joined.find('LiveGroundPublished')
+            second=joined.find('LiveGroundPublished',first+1)
+            joined=joined[:second+len('LiveGroundPublished')]+joined[second+len('LiveGroundPublished'):].replace('LiveGroundPublished','LiveGroundPublishedStep')
         lines=joined.splitlines()
     return asm+'\n'+'\n'.join(lines)+'\n'+emit_history(history,regions['input_scratch'],regions['input_snapshot'],
                        regions['combo_sequence'],regions['input_owner'],0xb674)
