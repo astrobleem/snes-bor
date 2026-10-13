@@ -1,0 +1,1062 @@
+{
+  "schema": "BYOR_FIXED_COLOR_OPERAND_CONTINUATION_V1",
+  "preserved_base": "0ed0d89fb5308fa09adb5da1ffcbdadf00dc636e",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "source_rgb555_sha256": "079de2d8ffbbe72c9779904f3a0ef2fe6d0283331dd49838a79ed2cc7e889f45",
+  "new_degree_of_freedom": "Shared per-scanline COLDATA operand, optionally selected jointly with math mode and positive windows.",
+  "experiments": {
+    "add-minimum-lp": {
+      "path": "out\\byor-motu-fixed-color-continuation\\add-minimum-lp.json",
+      "sha256": "ff92970d64749bc5115344d757b338fd8a1b216b58f6df1a05c261e361800947",
+      "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+      "fixed_color_policy": "add-minimum",
+      "variables": 133222,
+      "constraints": 95465,
+      "seconds": 71.85309029975906
+    },
+    "add-minimum-no-window-lp": {
+      "path": "out\\byor-motu-fixed-color-continuation\\add-minimum-no-window-lp.json",
+      "sha256": "5e875a78fe79d5861c7f3aa0da30278d1d4e934b827f2c819d445750b023f827",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "fixed_color_policy": "add-minimum",
+      "variables": 93289,
+      "constraints": 49493,
+      "seconds": 9.721797400154173,
+      "validated_dual_lower_bound": 34.28571428571426,
+      "minimum_integer_words": 35,
+      "high_byte_commit_span_without_setup": 544,
+      "primal_residual": 2.842170943040401e-14,
+      "dual_residual": 2.220446049250313e-16
+    },
+    "half-add-bright-no-window-lp": {
+      "path": "out\\byor-motu-fixed-color-continuation\\half-add-bright-no-window-lp.json",
+      "sha256": "eb8dd2755287a40d33a2eae925b574417d631dc7db108ce588ca21970fa8dfad",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "fixed_color_policy": "half-add-bright",
+      "variables": 75249,
+      "constraints": 40702,
+      "seconds": 6.668003800325096,
+      "validated_dual_lower_bound": 30.307692307692328,
+      "minimum_integer_words": 31,
+      "high_byte_commit_span_without_setup": 480,
+      "primal_residual": 3.907985046680551e-14,
+      "dual_residual": 2.220446049250313e-16
+    },
+    "subtract-headroom-no-window-lp": {
+      "path": "out\\byor-motu-fixed-color-continuation\\subtract-headroom-no-window-lp.json",
+      "sha256": "29ecee5816b8113686786c4afdee507f83e7b77a577672687393e7068e5feb1a",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "fixed_color_policy": "subtract-headroom",
+      "variables": 85795,
+      "constraints": 45841,
+      "seconds": 9.29854549979791,
+      "validated_dual_lower_bound": 29.33962264150944,
+      "minimum_integer_words": 30,
+      "high_byte_commit_span_without_setup": 464,
+      "primal_residual": 4.263256414560601e-14,
+      "dual_residual": 1.1102230246251565e-16
+    },
+    "half-add-bright-four-mode-no-window-lp": {
+      "path": "out\\byor-motu-fixed-color-continuation\\half-add-bright-four-mode-no-window-lp.json",
+      "sha256": "3e9fcf763c8b36fe2f28b510291d98269d13567dc81047f52bc13b05c6897289",
+      "status": "FRACTIONAL_MODE_LIVENESS_LOWER_BOUND",
+      "fixed_color_policy": "half-add-bright",
+      "variables": 106613,
+      "constraints": 61038,
+      "seconds": 17.790300299879164,
+      "validated_dual_lower_bound": 30.307692307692324,
+      "minimum_integer_words": 31,
+      "high_byte_commit_span_without_setup": 480,
+      "primal_residual": 2.2026824808563106e-13,
+      "dual_residual": 2.220446049250313e-16
+    },
+    "joint-four-guides-four-modes-no-window-lp": {
+      "path": "out\\byor-motu-fixed-color-continuation\\joint-four-guides-four-modes-no-window-lp.json",
+      "sha256": "bf0d48a52d762418d074b97a28245395992d798c35fa8332a09398f103890cbc",
+      "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+      "fixed_color_policy": "JOINT_SELECTED_GUIDES",
+      "variables": 327627,
+      "constraints": 190382,
+      "seconds": 45.636841900181025
+    },
+    "joint-four-guides-four-modes-no-window-integer22": {
+      "path": "out\\byor-motu-fixed-color-continuation\\joint-four-guides-four-modes-no-window-integer22.json",
+      "sha256": "ddd510a45f11d50c26c944927fa6de8e9ed465b7421f0cba60e5607383435b2f",
+      "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+      "fixed_color_policy": "JOINT_SELECTED_GUIDES",
+      "variables": 327735,
+      "constraints": 511724,
+      "seconds": 56.93176160007715
+    },
+    "joint-four-guides-four-modes-positive-window-integer22": {
+      "path": "out\\byor-motu-fixed-color-continuation\\joint-four-guides-four-modes-positive-window-integer22.json",
+      "sha256": "05fb2be3265605c4880e6b73324049c0d864c5aa812ca045c20eb3d1b6bc5055",
+      "status": "BOUNDED_MODE_LIVENESS_NO_CANDIDATE",
+      "fixed_color_policy": "JOINT_SELECTED_GUIDES",
+      "variables": 360958,
+      "constraints": 638427,
+      "seconds": 104.74089100025594
+    }
+  },
+  "native": [
+    {
+      "name": "native-four-mode-constant-corrected",
+      "report": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "PASS",
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "palette_identity_verified": true,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": true,
+        "observed_cgram_word_packets": 447,
+        "opaque_palette_words_per_line": 19,
+        "packets": 447,
+        "high_commits": 8493,
+        "unsafe_high_commits": 0,
+        "peak_commit_span": 320,
+        "descriptors": 669,
+        "latest_descriptor_hclock": 992,
+        "visible_obj_descriptor_latest_hclock": 132,
+        "complete_packet_fields_verified": true,
+        "timer": 81,
+        "first_palette_row": 75,
+        "first_obj_row": 80,
+        "first_math_obj_x": 128,
+        "oam_entries": 16,
+        "peak_sprites": 4,
+        "peak_slivers": 16,
+        "dma_channels": [
+          1,
+          2,
+          3,
+          6,
+          7
+        ],
+        "dummy_apu_hdma_channel": 0,
+        "dummy_apu_hdma_rows": 73,
+        "rom_sha256": "83d17869d996969ec31f48cd649e184f74831bc825ea717c31f64455adcfa4ed",
+        "expected_rgb555_sha256": "3f42988cc177d0306e29b74346f406b0439dcbf9d48920bdcfb2e5f2756dae6a",
+        "source_hbreath_proven": false,
+        "production_interrupt_context_proven": false,
+        "no_color_reduction": true,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "ppu": {
+          "frameCount": 3,
+          "scanline": 226,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 1,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 28672,
+              "chrAddr": 8192,
+              "hscroll": 0,
+              "vscroll": 1023,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 33390,
+          "k": 1,
+          "a": 4660,
+          "x": 22136,
+          "y": 43981,
+          "sp": 8191,
+          "d": 9029,
+          "dbr": 64,
+          "ps": 1,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 116541
+        },
+        "synthetic_register_context_preserved": true,
+        "context_observations": 786,
+        "cursor_in_private_wram": false,
+        "automatic_dma_descriptor_cursors": true,
+        "window_transfer": "DMA",
+        "per_line_palette_payload_changes": true,
+        "general_window_controls": false,
+        "window_descriptor_bytes": 5,
+        "cgram_destination_ranges": 2,
+        "fixed_math_mode": false,
+        "fixed_color_rgb555": 11491,
+        "fixed_color_loaded_in_vblank": true,
+        "four_math_modes_cycled": true,
+        "per_line_fixed_color_changes_native_proven": false,
+        "completed_dummy_audio_hdma_retired": false,
+        "production_fetch_gateway_instruction_shape": false,
+        "ordinary_fetch_body_stubbed": false,
+        "direct_fetch_route_instruction_shape": false,
+        "ordinary_far_fetch_body_stubbed": false,
+        "compact_visible_irq_cursor_checks": false,
+        "irq_entry_context_observations": 786,
+        "interrupted_context_widths": "16/16",
+        "interrupted_decimal_context": false,
+        "hardware_return_status_verified": true,
+        "cpu_snapshot_may_be_inside_irq": true,
+        "irq_entry_to_rti_peak_master_clocks": 1104,
+        "visible_irq_entry_to_rti_peak_master_clocks": 1104,
+        "irq_timing_excludes_hardware_entry_gateway_and_rti": true
+      },
+      "artifacts": {
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-constant-corrected\\report.json": "2aee649113a00ccc6323a3b664d90afbc149a9c76fed34f914a3031782c3fb6d",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-constant-corrected\\proof.sfc": "83d17869d996969ec31f48cd649e184f74831bc825ea717c31f64455adcfa4ed",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-constant-corrected\\screenshot.png": "f3c07e108b17995780db47393e58eb19c01cb7f802edaffe1f82a478fb1890df",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-constant-corrected\\expected.rgb555": "3f42988cc177d0306e29b74346f406b0439dcbf9d48920bdcfb2e5f2756dae6a",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-constant-corrected\\cgram-word-observer.json": "a79c61cb269c774d494acf7a2b4482ab3ef68e9ff3b62de026ca25afb1d003c0"
+      }
+    },
+    {
+      "name": "native-four-mode-dynamic-observed",
+      "report": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "PASS",
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "palette_identity_verified": true,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": true,
+        "observed_cgram_word_packets": 447,
+        "opaque_palette_words_per_line": 19,
+        "packets": 447,
+        "high_commits": 8493,
+        "unsafe_high_commits": 0,
+        "peak_commit_span": 320,
+        "descriptors": 669,
+        "latest_descriptor_hclock": 1020,
+        "visible_obj_descriptor_latest_hclock": 168,
+        "complete_packet_fields_verified": true,
+        "timer": 71,
+        "first_palette_row": 75,
+        "first_obj_row": 80,
+        "first_math_obj_x": 128,
+        "oam_entries": 16,
+        "peak_sprites": 4,
+        "peak_slivers": 16,
+        "dma_channels": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          7
+        ],
+        "dummy_apu_hdma_channel": 0,
+        "dummy_apu_hdma_rows": 73,
+        "rom_sha256": "e98e79fe376680cb64980095f582cae8de1de6d6898c60d0a486998024434866",
+        "expected_rgb555_sha256": "d68a51ff222176efedc86d56df912ef55e4e38d4916185bdb5128c5a92899389",
+        "source_hbreath_proven": false,
+        "production_interrupt_context_proven": false,
+        "no_color_reduction": true,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "ppu": {
+          "frameCount": 3,
+          "scanline": 227,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 1,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 28672,
+              "chrAddr": 8192,
+              "hscroll": 0,
+              "vscroll": 1023,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 33420,
+          "k": 1,
+          "a": 4660,
+          "x": 22136,
+          "y": 43981,
+          "sp": 8191,
+          "d": 9029,
+          "dbr": 64,
+          "ps": 1,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 115331
+        },
+        "synthetic_register_context_preserved": true,
+        "context_observations": 786,
+        "cursor_in_private_wram": false,
+        "automatic_dma_descriptor_cursors": true,
+        "window_transfer": "DMA",
+        "per_line_palette_payload_changes": true,
+        "general_window_controls": false,
+        "window_descriptor_bytes": 5,
+        "cgram_destination_ranges": 2,
+        "fixed_math_mode": false,
+        "fixed_color_rgb555": 11491,
+        "fixed_color_loaded_in_vblank": true,
+        "per_line_fixed_color_changes": true,
+        "four_math_modes_cycled": true,
+        "per_line_fixed_color_component_pixel_replay_verified": true,
+        "fixed_color_control_bytes_observed": 2016,
+        "fixed_color_control_payload_identity_verified": true,
+        "visible_obj_fixed_color_latest_hclock": 112,
+        "authored_fixed_color_control_deadlines_proven": false,
+        "completed_dummy_audio_hdma_retired": false,
+        "production_fetch_gateway_instruction_shape": false,
+        "ordinary_fetch_body_stubbed": false,
+        "direct_fetch_route_instruction_shape": false,
+        "ordinary_far_fetch_body_stubbed": false,
+        "compact_visible_irq_cursor_checks": false,
+        "irq_entry_context_observations": 786,
+        "interrupted_context_widths": "16/16",
+        "interrupted_decimal_context": false,
+        "hardware_return_status_verified": true,
+        "cpu_snapshot_may_be_inside_irq": true,
+        "irq_entry_to_rti_peak_master_clocks": 1176,
+        "visible_irq_entry_to_rti_peak_master_clocks": 1176,
+        "irq_timing_excludes_hardware_entry_gateway_and_rti": true
+      },
+      "artifacts": {
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-observed\\report.json": "1f9b8151df0e932535e5beb8af105b4365cd541d5c109dbce966e47410522edf",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-observed\\proof.sfc": "e98e79fe376680cb64980095f582cae8de1de6d6898c60d0a486998024434866",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-observed\\screenshot.png": "a0268bbd1b9123023bcc459ff427c9bbda72906bda186d8e93f245475df4e3c0",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-observed\\expected.rgb555": "d68a51ff222176efedc86d56df912ef55e4e38d4916185bdb5128c5a92899389",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-observed\\cgram-word-observer.json": "a79c61cb269c774d494acf7a2b4482ab3ef68e9ff3b62de026ca25afb1d003c0",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-observed\\fixed-color-observer.json": "fc9e567e37bbdfe8044e52848a9449585f3cdc37e977aa5e5174d3587c01ca8e"
+      }
+    },
+    {
+      "name": "native-four-mode-dynamic-context8",
+      "report": {
+        "schema": "BYOR_CPU_WINDOWS_CGRAM_PIXEL_COMPONENT_V1",
+        "status": "PASS",
+        "pixel_identity_verified": true,
+        "pixel_mismatches": 0,
+        "palette_identity_verified": true,
+        "oam_identity_verified": true,
+        "every_packet_destination_and_word_identity_verified": true,
+        "observed_cgram_word_packets": 447,
+        "opaque_palette_words_per_line": 19,
+        "packets": 447,
+        "high_commits": 8493,
+        "unsafe_high_commits": 0,
+        "peak_commit_span": 320,
+        "descriptors": 669,
+        "latest_descriptor_hclock": 1024,
+        "visible_obj_descriptor_latest_hclock": 168,
+        "complete_packet_fields_verified": true,
+        "timer": 71,
+        "first_palette_row": 75,
+        "first_obj_row": 80,
+        "first_math_obj_x": 128,
+        "oam_entries": 16,
+        "peak_sprites": 4,
+        "peak_slivers": 16,
+        "dma_channels": [
+          1,
+          2,
+          3,
+          4,
+          6,
+          7
+        ],
+        "dummy_apu_hdma_channel": 0,
+        "dummy_apu_hdma_rows": 73,
+        "rom_sha256": "0dc82bb42a6c62674090da4186da2ac8ec9b7bea1b5762fd8ba180ed65554c68",
+        "expected_rgb555_sha256": "d68a51ff222176efedc86d56df912ef55e4e38d4916185bdb5128c5a92899389",
+        "source_hbreath_proven": false,
+        "production_interrupt_context_proven": false,
+        "no_color_reduction": true,
+        "frame_advancement": [
+          {
+            "requested": 1,
+            "startFrame": 0,
+            "endFrame": 1,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 1,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 1,
+            "endFrame": 2,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 2,
+            "framesAdvanced": 0,
+            "isPaused": true,
+            "timedOut": true
+          },
+          {
+            "requested": 1,
+            "startFrame": 2,
+            "endFrame": 3,
+            "framesAdvanced": 1,
+            "isPaused": true,
+            "timedOut": false
+          }
+        ],
+        "ppu": {
+          "frameCount": 3,
+          "scanline": 226,
+          "forcedBlank": false,
+          "brightness": 15,
+          "bgMode": 1,
+          "mainScreenLayers": 16,
+          "subScreenLayers": 1,
+          "mainScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "subScreenWindowMask": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mosaicSize": 0,
+          "mosaicEnabled": 0,
+          "layers": [
+            {
+              "index": 0,
+              "tilemapAddr": 28672,
+              "chrAddr": 8192,
+              "hscroll": 0,
+              "vscroll": 1023,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 1,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 2,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            },
+            {
+              "index": 3,
+              "tilemapAddr": 0,
+              "chrAddr": 0,
+              "hscroll": 0,
+              "vscroll": 0,
+              "largeTiles": false,
+              "doubleWidth": false,
+              "doubleHeight": false
+            }
+          ]
+        },
+        "cpu": {
+          "cpuType": "Snes",
+          "pc": 33423,
+          "k": 1,
+          "a": 4660,
+          "x": 120,
+          "y": 205,
+          "sp": 8191,
+          "d": 9029,
+          "dbr": 64,
+          "ps": 57,
+          "emulationMode": false,
+          "stopState": "Running",
+          "cycleCount": 115146
+        },
+        "synthetic_register_context_preserved": true,
+        "context_observations": 786,
+        "cursor_in_private_wram": false,
+        "automatic_dma_descriptor_cursors": true,
+        "window_transfer": "DMA",
+        "per_line_palette_payload_changes": true,
+        "general_window_controls": false,
+        "window_descriptor_bytes": 5,
+        "cgram_destination_ranges": 2,
+        "fixed_math_mode": false,
+        "fixed_color_rgb555": 11491,
+        "fixed_color_loaded_in_vblank": true,
+        "per_line_fixed_color_changes": true,
+        "four_math_modes_cycled": true,
+        "per_line_fixed_color_component_pixel_replay_verified": true,
+        "fixed_color_control_bytes_observed": 2016,
+        "fixed_color_control_payload_identity_verified": true,
+        "visible_obj_fixed_color_latest_hclock": 112,
+        "authored_fixed_color_control_deadlines_proven": false,
+        "completed_dummy_audio_hdma_retired": false,
+        "production_fetch_gateway_instruction_shape": false,
+        "ordinary_fetch_body_stubbed": false,
+        "direct_fetch_route_instruction_shape": false,
+        "ordinary_far_fetch_body_stubbed": false,
+        "compact_visible_irq_cursor_checks": false,
+        "irq_entry_context_observations": 786,
+        "interrupted_context_widths": "8/8",
+        "interrupted_decimal_context": true,
+        "hardware_return_status_verified": true,
+        "cpu_snapshot_may_be_inside_irq": true,
+        "irq_entry_to_rti_peak_master_clocks": 1176,
+        "visible_irq_entry_to_rti_peak_master_clocks": 1176,
+        "irq_timing_excludes_hardware_entry_gateway_and_rti": true
+      },
+      "artifacts": {
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-context8\\report.json": "222f646d7ea433e4746e78386f1d3e90394bef325e1c3197bfc97cb20172bcfa",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-context8\\proof.sfc": "0dc82bb42a6c62674090da4186da2ac8ec9b7bea1b5762fd8ba180ed65554c68",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-context8\\screenshot.png": "a0268bbd1b9123023bcc459ff427c9bbda72906bda186d8e93f245475df4e3c0",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-context8\\expected.rgb555": "d68a51ff222176efedc86d56df912ef55e4e38d4916185bdb5128c5a92899389",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-context8\\cgram-word-observer.json": "a79c61cb269c774d494acf7a2b4482ab3ef68e9ff3b62de026ca25afb1d003c0",
+        "out\\byor-motu-fixed-color-continuation\\native-four-mode-dynamic-context8\\fixed-color-observer.json": "f1bf9b7052a5bfcef0b42c022002bd9c6c683dbb8af5a0d8fd719647b0c2c16d"
+      }
+    }
+  ],
+  "focused_tests_passed": 34,
+  "protected_17_hashes_verified": true,
+  "inherited_tracked_dirty_hashes_verified": true,
+  "conservative_transfer_budget": 344,
+  "maximum_transfer_budget": 356,
+  "no_color_reduction": true,
+  "bg_fallback_selected": false,
+  "native_authored_peak_proven": false,
+  "motu_candidate_admitted": false,
+  "raster_feasibility": "OPEN",
+  "universal_raster_rejected": false,
+  "timing_audit": "Existing prepared-DMA bounds already grant adjacent bank bridges and first-low preload. No measured window extension or timing-model discount is admitted.",
+  "mesen_binary": {
+    "path": "E:/gh/Mesen2-mcp-frameexact/bin/win-x64/Release/Mesen.exe",
+    "sha256": "3fbb4f3a12e9a4bcf6f6e00c03f3a63f9fc587f28ebc34ef40da7c772b0cda14"
+  },
+  "hardware_source_inspected": {
+    "E:\\gh\\Mesen2-mcp-frameexact\\Core\\SNES\\SnesPpu.cpp": "5823ac6e89e8966ae2a8186f368ef4abb4d09bd4535e1483ff4a6871dd35f1f5",
+    "E:\\gh\\Mesen2-mcp-frameexact\\Core\\SNES\\SnesDmaController.cpp": "0862d1ee03ccdc8a13108548c3a84b54ae325709fadaa6cf1db9903bc6ca89cf"
+  },
+  "source_solver_environments": {
+    "first_five": "Python 3.10.6 / scipy 1.11.2 / numpy 1.23.5",
+    "joint": "out/byor-motu-solver-venv: ortools 9.15.6755 / scipy 1.15.3 / numpy 2.2.6"
+  },
+  "retained_counterexample": {
+    "path": "out\\byor-motu-fixed-color-continuation\\native-four-mode-constant-frameexact\\report.json",
+    "sha256": "5f39238efd21b5a5cea197b902a767774781512b484c0f14636d88a3a6da19a2",
+    "pixel_mismatches": 8192,
+    "cause": "Fixture CGWSEL prevent-mode inverted; corrected from $20 to $10."
+  },
+  "compressed_evidence": {
+    "path": "docs\\receipts\\byor-motu-fixed-color-operands.json.gz",
+    "bytes": 51365,
+    "sha256": "d0ce3d3821e71bf5742cd94a8d3c9083412adf7e7137c9925b9ba489c6e5fdd6"
+  }
+}
