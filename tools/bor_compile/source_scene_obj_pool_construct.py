@@ -35,7 +35,10 @@ def select_words(requirements,preferences=None):
     return owners,selected
 
 
-def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False,persistent_word_indices=False,banks_by_kind=None,prefer_math_outside_controls=False,local_piece_banks=False,composite_visible_geometry=False,piece_size=8):
+def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False,persistent_word_indices=False,banks_by_kind=None,prefer_math_outside_controls=False,local_piece_banks=False,composite_visible_geometry=False,piece_size=8,obj_size_mode=None,row_word_masks=False):
+    if type(row_word_masks)is not bool or row_word_masks and(local_piece_banks or joint_bank_geometry or bank_residency_window_lines is not None):raise ValueError('POOL_CONSTRUCT_ROW_WORD_MASK_POLICY')
+    if obj_size_mode is not None and(type(obj_size_mode)is not int or obj_size_mode!=6 or joint_bank_geometry):raise ValueError('POOL_CONSTRUCT_RECTANGULAR_MODE_POLICY')
+    shape=(16,32)if obj_size_mode==6 else(piece_size,piece_size)
     if type(piece_size)is not int or piece_size not in(8,16,32):raise ValueError('POOL_CONSTRUCT_PIECE_SIZE')
     if type(composite_visible_geometry)is not bool:raise ValueError('POOL_CONSTRUCT_COMPOSITE_GEOMETRY_POLICY')
     if type(local_piece_banks)is not bool or local_piece_banks and (joint_bank_geometry or persistent_word_indices or bank_residency_window_lines is not None):raise ValueError('POOL_CONSTRUCT_LOCAL_PIECE_BANK_POLICY')
@@ -92,7 +95,7 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
         native_presentation_proven=False,operand_selection_policy='GREEDY_EXACT_FRAME_SET_COVER'if frame_word_cover else'GREEDY_EXACT_ROW_SET_COVER_PREFER_RESIDENT'if prefer_resident_words else'GREEDY_EXACT_ROW_SET_COVER',
         outside_control_rows_math_policy='FULL_ADD_NO_WINDOW_MINIMAL_OPERAND_OR_LITERAL',
         peak_selected_colors_by_class=[max(row[k]for row in counts)for k in range(2)],
-        global_color_bank_identity_restricted=not local_piece_banks,bank_search=[],exact_underlay_bypass=True,underlay_bypassed_pixels=bypassed)
+        global_color_bank_identity_restricted=not local_piece_banks and not row_word_masks,bank_search=[],exact_underlay_bypass=True,underlay_bypassed_pixels=bypassed)
     report['eligible_banks_by_math_class']={k:list(bs)for k,bs in class_banks.items()}
     if composite_proof is not None:report['source_visible_composite_geometry']=composite_proof
     report['prefer_exact_math_outside_control_rows']=prefer_math_outside_controls
@@ -101,8 +104,8 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
         cells=[]
         for i,a in enumerate(actors):
             geometry=[]
-            for parent in pieces_for_grid(canvases[k][i],(piece_size,piece_size)):
-                if piece_size>8 and any(len(cs)>15 for cs in parent['rows'].values()):
+            for parent in pieces_for_grid(canvases[k][i],shape):
+                if obj_size_mode is None and piece_size>8 and any(len(cs)>15 for cs in parent['rows'].values()):
                     x,y=parent['x'],parent['y']
                     for child in pieces_for_grid(canvases[k][i][y:y+piece_size,x:x+piece_size],(8,8)):
                         child['x']+=x;child['y']+=y;child['rows']={yy+y:cs for yy,cs in child['rows'].items()};geometry.append(child)
@@ -120,7 +123,7 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
             report['bank_search'].append(dict(kind=k,**search))
             if search['status']!='FIXED_BANK_ASSIGNMENT_PROVEN':return report
             pieces.extend(cells);assignment.extend(search['assignment']);continue
-        search=split_color_masks(cells,tuple(class_banks[k]),time_limit=time_limit,global_color_banks=True,solver_backend='cp-sat',defer_geometry_admission=True,residency_window_lines=bank_residency_window_lines)
+        search=split_color_masks(cells,tuple(class_banks[k]),time_limit=time_limit,global_color_banks=not row_word_masks,solver_backend='cp-sat',defer_geometry_admission=True,residency_window_lines=bank_residency_window_lines)
         expanded=search.pop('pieces',None);report['bank_search'].append(dict(kind=k,**search))
         if expanded is None:return report
         pieces.extend(expanded);assignment.extend(search['assignment'])
@@ -158,7 +161,7 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
     geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(active_on_line(p,y)for p in pieces)for y in range(len(background))),peak_tile_slivers=max(sum(tile_slivers(p)for p in pieces if active_on_line(p,y))for y in range(len(background))))
     report.update(status='JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN',compiled_pixel_identity_verified=True,
         hardware_geometry_admitted=geometry['oam_entries']<=128 and geometry['peak_sprites']<=32 and geometry['peak_tile_slivers']<=34,
-        color_math='additive',geometry=geometry,geometry_size=piece_size,mixed_small_size=8,mixed_large_size=piece_size if piece_size>8 else 16,obsel_mode=1 if piece_size==32 else 0,pieces=compiled,piece_pixel_masks=images,trace=trace,
+        color_math='additive',geometry=geometry,geometry_size=list(shape)if obj_size_mode==6 else piece_size,mixed_small_size=[16,32]if obj_size_mode==6 else 8,mixed_large_size=[32,64]if obj_size_mode==6 else piece_size if piece_size>8 else 16,obsel_mode=6 if obj_size_mode==6 else 1 if piece_size==32 else 0,pieces=compiled,piece_pixel_masks=images,trace=trace,
         selected_modes={y:modes.get(y,'add')for y in range(len(background))},compiled_color_window_descriptors=windows,
         scanline_math_controls_source_bound=True,window_register_schedule_proven=False,
         peak_scheduled_writes=max(row['colors_written']for row in trace[1:]),lookahead_lines=lookahead)
@@ -183,7 +186,9 @@ def main():
     p.add_argument('--local-piece-banks',action='store_true')
     p.add_argument('--composite-visible-geometry',action='store_true',help='Fuse already occluded source pixels for fixed-context geometry, retaining source owner provenance. No live compositor admission.')
     p.add_argument('--piece-size',type=int,choices=(8,16,32),default=8,help='Largest legal OBJ piece; rows exceeding fifteen words subdivide source-exactly into eight-pixel pieces.')
-    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry,persistent_word_indices=a.persistent_word_indices,banks_by_kind={0:a.opaque_banks,1:a.math_banks},prefer_math_outside_controls=a.prefer_math_outside_controls,local_piece_banks=a.local_piece_banks,composite_visible_geometry=a.composite_visible_geometry,piece_size=a.piece_size)
+    p.add_argument('--obj-size-mode',type=int,choices=(6,),help='Production rectangular 16x32/32x64 size family; bank masks retain legal full rectangles.')
+    p.add_argument('--row-word-masks',action='store_true',help='Allow per-row word bank masks, retaining each legal rectangle and actual hardware counts.')
+    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry,persistent_word_indices=a.persistent_word_indices,banks_by_kind={0:a.opaque_banks,1:a.math_banks},prefer_math_outside_controls=a.prefer_math_outside_controls,local_piece_banks=a.local_piece_banks,composite_visible_geometry=a.composite_visible_geometry,piece_size=a.piece_size,obj_size_mode=a.obj_size_mode,row_word_masks=a.row_word_masks)
     Path(a.output).write_text(json.dumps(r,indent=2)+'\n')
     summary={k:r[k]for k in ('status','peak_selected_colors_by_class','geometry','hardware_geometry_admitted','peak_scheduled_writes')if k in r}
     summary['bank_search']=[{k:v for k,v in search.items()if k not in('assignment','word_slot_indices')}for search in r['bank_search']]

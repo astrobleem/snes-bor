@@ -4,6 +4,27 @@ from raster_obj_chr import compile,encode,decode
 
 
 class ObjChrTests(unittest.TestCase):
+    def test_mode6_rectangles_decode_from_emitted_chr_and_oam(self):
+        images=[np.arange(32*16,dtype=np.uint8).reshape(32,16)%16,
+                np.arange(64*32,dtype=np.uint8).reshape(64,32)%15+1]
+        source=self.schedule(images);source['obsel_mode']=6
+        for p,image in zip(source['pieces'],images):p.update(width=image.shape[1],height=image.shape[0])
+        for m,image in zip(source['piece_pixel_masks'],images):m.update(width=image.shape[1],height=image.shape[0])
+        report,data,oam=compile(source)
+        self.assertEqual(report['obj_size_pair'],[[16,32],[32,64]])
+        self.assertEqual(oam[512]&2,0)
+        self.assertEqual((oam[512]>>2)&2,2)
+        self.assertTrue(report['emitted_oam_chr_pixel_indices_verified'])
+        self.assertFalse(report['native_render_proven'])
+        from raster_obj_geometry import active_on_line
+        for i in range(len(images),128):
+            high=(oam[512+i//4]>>(2*(i%4)))&3
+            x=oam[4*i]+((high&1)<<8);x=x-512 if x>=256 else x
+            hidden=dict(x=x,y=oam[4*i+1],width=16,height=32)
+            self.assertTrue(all(not active_on_line(hidden,y)for y in range(224)))
+        wrong=self.schedule([np.ones((16,16),dtype=np.uint8)]);wrong['obsel_mode']=6
+        with self.assertRaisesRegex(ValueError,'SIZE_PAIR_GEOMETRY'):compile(wrong)
+
     def schedule(self,images):
         pieces=[];masks=[]
         for i,image in enumerate(images):
@@ -22,6 +43,8 @@ class ObjChrTests(unittest.TestCase):
             image=np.ones((32,32),dtype=np.uint8);image[0,0]=i%16;image[0,1]=i//16;images.append(image)
         report,data,oam=compile(self.schedule(images))
         self.assertEqual(report['occupied_tile_cells'],272)
+        self.assertFalse(report['hardware_scanline_geometry_admitted'])
+        self.assertEqual(report['status'],'CHR_OAM_INDICES_PROVEN_SCANLINE_GEOMETRY_OVERFLOW')
         self.assertTrue(oam[16*4+3]&1)
         self.assertEqual((oam[512+16//4]>>(2*(16%4)))&2,2)
         self.assertTrue(report['emitted_oam_chr_pixel_indices_verified'])

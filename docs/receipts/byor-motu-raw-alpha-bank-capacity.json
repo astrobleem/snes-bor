@@ -1,0 +1,1378 @@
+{
+  "status": "STATIC_OBJ_COLOR_RESOURCE_LIMIT",
+  "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "model": "HBreath",
+  "role": "idle",
+  "model_source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+  "palette_authority": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+  "alpha": [
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 3,
+      "directive": "alpha",
+      "values": [
+        "1"
+      ]
+    }
+  ],
+  "peak_frame": {
+    "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+    "line": 26,
+    "directive": "frame",
+    "values": [
+      "data/chars/he-man/fx/br12.png"
+    ],
+    "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+    "asset_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+    "colors": 204,
+    "visible_pixels": 2751,
+    "maximum_scanline_colors": 54,
+    "maximum_adjacent_union_colors": 85,
+    "adjacent_union_write_lower_bounds_by_bank_count": {
+      "1": 70,
+      "2": 55,
+      "3": 40,
+      "4": 25,
+      "5": 10,
+      "6": 0,
+      "7": 0,
+      "8": 0
+    },
+    "maximum_adjacent_new_colors": 32,
+    "frame_palette_matches_authority": true,
+    "raw_rgb555_pixels_sha256": "24251e2fcfa76114ec1d4b1b29cd9a019c34c9ee865f7a1098355b8822a18cd6"
+  },
+  "animation_union_colors": 213,
+  "maximum_animation_scanline_colors": 58,
+  "maximum_animation_adjacent_new_colors": 32,
+  "peak_frame_raw_palette_interval_bounds_by_bank_count": {
+    "1": {
+      "status": "CGRAM_DATA_WINDOW_INFEASIBLE",
+      "worst_interval": {
+        "first_line": 38,
+        "last_line": 39,
+        "distinct_colors": 85,
+        "resident_capacity": 15,
+        "minimum_new_color_commits": 70,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 139,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 94,
+        "minimum_peak_data_bytes": 139,
+        "minimum_peak_data_master_clocks": 1112,
+        "minimum_peak_color_commits": 70,
+        "minimum_peak_commit_span_master_clocks": 1104,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": 47
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "transparent_obj_bank_gaps_included": false,
+      "transfer_mechanism_scope": "COLOR_POOL_DATA_ONLY",
+      "feasibility_proven": false
+    },
+    "2": {
+      "status": "CGRAM_DATA_WINDOW_INFEASIBLE",
+      "worst_interval": {
+        "first_line": 38,
+        "last_line": 39,
+        "distinct_colors": 85,
+        "resident_capacity": 30,
+        "minimum_new_color_commits": 55,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 109,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 64,
+        "minimum_peak_data_bytes": 109,
+        "minimum_peak_data_master_clocks": 872,
+        "minimum_peak_color_commits": 55,
+        "minimum_peak_commit_span_master_clocks": 864,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": 32
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "transparent_obj_bank_gaps_included": false,
+      "transfer_mechanism_scope": "COLOR_POOL_DATA_ONLY",
+      "feasibility_proven": false
+    },
+    "3": {
+      "status": "CGRAM_DATA_WINDOW_INFEASIBLE",
+      "worst_interval": {
+        "first_line": 38,
+        "last_line": 39,
+        "distinct_colors": 85,
+        "resident_capacity": 45,
+        "minimum_new_color_commits": 40,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 79,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 34,
+        "minimum_peak_data_bytes": 79,
+        "minimum_peak_data_master_clocks": 632,
+        "minimum_peak_color_commits": 40,
+        "minimum_peak_commit_span_master_clocks": 624,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": 17
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "transparent_obj_bank_gaps_included": false,
+      "transfer_mechanism_scope": "COLOR_POOL_DATA_ONLY",
+      "feasibility_proven": false
+    },
+    "4": {
+      "status": "CGRAM_DATA_WINDOW_INFEASIBLE",
+      "worst_interval": {
+        "first_line": 38,
+        "last_line": 39,
+        "distinct_colors": 85,
+        "resident_capacity": 60,
+        "minimum_new_color_commits": 25,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 49,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 4,
+        "minimum_peak_data_bytes": 49,
+        "minimum_peak_data_master_clocks": 392,
+        "minimum_peak_color_commits": 25,
+        "minimum_peak_commit_span_master_clocks": 384,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": 2
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "transparent_obj_bank_gaps_included": false,
+      "transfer_mechanism_scope": "COLOR_POOL_DATA_ONLY",
+      "feasibility_proven": false
+    },
+    "5": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 38,
+        "last_line": 39,
+        "distinct_colors": 85,
+        "resident_capacity": 75,
+        "minimum_new_color_commits": 10,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 19,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 19,
+        "minimum_peak_data_master_clocks": 152,
+        "minimum_peak_color_commits": 10,
+        "minimum_peak_commit_span_master_clocks": 144,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -13
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "transparent_obj_bank_gaps_included": false,
+      "transfer_mechanism_scope": "COLOR_POOL_DATA_ONLY",
+      "feasibility_proven": false
+    },
+    "6": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 0,
+        "last_line": 1,
+        "distinct_colors": 0,
+        "resident_capacity": 90,
+        "minimum_new_color_commits": 0,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 0,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 0,
+        "minimum_peak_data_master_clocks": 0,
+        "minimum_peak_color_commits": 0,
+        "minimum_peak_commit_span_master_clocks": 0,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -23
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "transparent_obj_bank_gaps_included": false,
+      "transfer_mechanism_scope": "COLOR_POOL_DATA_ONLY",
+      "feasibility_proven": false
+    },
+    "7": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 0,
+        "last_line": 1,
+        "distinct_colors": 0,
+        "resident_capacity": 105,
+        "minimum_new_color_commits": 0,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 0,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 0,
+        "minimum_peak_data_master_clocks": 0,
+        "minimum_peak_color_commits": 0,
+        "minimum_peak_commit_span_master_clocks": 0,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -23
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "transparent_obj_bank_gaps_included": false,
+      "transfer_mechanism_scope": "COLOR_POOL_DATA_ONLY",
+      "feasibility_proven": false
+    },
+    "8": {
+      "status": "LOWER_BOUND_DOES_NOT_REJECT",
+      "worst_interval": {
+        "first_line": 0,
+        "last_line": 1,
+        "distinct_colors": 0,
+        "resident_capacity": 120,
+        "minimum_new_color_commits": 0,
+        "hblanks": 1,
+        "minimum_window_cgram_data_bytes": 0,
+        "maximum_window_data_bytes": 45,
+        "byte_deficit": 0,
+        "minimum_peak_data_bytes": 0,
+        "minimum_peak_data_master_clocks": 0,
+        "minimum_peak_color_commits": 0,
+        "minimum_peak_commit_span_master_clocks": 0,
+        "maximum_color_commits_per_hblank": 23,
+        "commit_deficit": -23
+      },
+      "available_master_clocks_per_line": 356,
+      "minimum_master_clocks_per_byte": 8,
+      "preloaded_low_byte_latch_allowed": true,
+      "low_preload_per_hblank_allowed": true,
+      "window_budget_is_first_to_last_commit_span": true,
+      "addresses_setup_and_contention_excluded": true,
+      "bank_assignment_relaxed_for_lower_bound": true,
+      "transparent_obj_bank_gaps_included": false,
+      "transfer_mechanism_scope": "COLOR_POOL_DATA_ONLY",
+      "feasibility_proven": false
+    }
+  },
+  "raw_palette_interval_scope": "Optimistic source RGB555 residency only; excludes alpha context encoding and fixed bank assignment. Cannot prove feasibility or universally reject raster.",
+  "hardware": {
+    "obj_palette_banks": 8,
+    "opaque_colors_per_bank": 15,
+    "static_opaque_capacity": 120,
+    "source": "E:\\gh\\Mesen2\\Core\\SNES\\SnesPpu.cpp",
+    "source_sha256": "5823ac6e89e8966ae2a8186f368ef4abb4d09bd4535e1483ff4a6871dd35f1f5",
+    "online_source": "https://github.com/SourMesen/Mesen2/blob/master/Core/SNES/SnesPpu.cpp",
+    "invariants": [
+      "Palette=(flags>>1)&7",
+      "GetTilePixelColor<4>",
+      "color zero transparent",
+      "CGRAM offset=128+(palette<<4)+color"
+    ]
+  },
+  "static_color_deficit": 84,
+  "required_static_palettes": 14,
+  "frame_requirements": [
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 12,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br01.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+      "asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+      "colors": 22,
+      "visible_pixels": 214,
+      "maximum_scanline_colors": 13,
+      "maximum_adjacent_union_colors": 18,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 3,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 7,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 13,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br02.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR02.PNG",
+      "asset_sha256": "fafd54dd0b36783a08a5c8f082fb4788b2d0b8bd65130df7c73e05890e978c37",
+      "colors": 30,
+      "visible_pixels": 281,
+      "maximum_scanline_colors": 16,
+      "maximum_adjacent_union_colors": 24,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 9,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 10,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 14,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br03.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR03.PNG",
+      "asset_sha256": "822757c2f84bd65a0d0526a93c3ef229241ad563eff3a98ebf35012657cc1258",
+      "colors": 38,
+      "visible_pixels": 446,
+      "maximum_scanline_colors": 19,
+      "maximum_adjacent_union_colors": 27,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 12,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 10,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 15,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br04.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR04.PNG",
+      "asset_sha256": "d34804ac83de7d51bc0769a2e982dd2fa20b35195da3496392380b52dbd7631b",
+      "colors": 47,
+      "visible_pixels": 599,
+      "maximum_scanline_colors": 22,
+      "maximum_adjacent_union_colors": 33,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 18,
+        "2": 3,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 13,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 17,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br05.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR05.PNG",
+      "asset_sha256": "6bb13a182826c9acf98f5f52ddd8ff68277443ab78424815f1417c9b7762c4d7",
+      "colors": 55,
+      "visible_pixels": 770,
+      "maximum_scanline_colors": 26,
+      "maximum_adjacent_union_colors": 38,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 23,
+        "2": 8,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 13,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 18,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br06.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR06.PNG",
+      "asset_sha256": "2570fd356db246aacd0a778d5360efe18cb7eb6c7362a26f96b5529321250d84",
+      "colors": 61,
+      "visible_pixels": 962,
+      "maximum_scanline_colors": 29,
+      "maximum_adjacent_union_colors": 40,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 25,
+        "2": 10,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 15,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 19,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br07.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR07.PNG",
+      "asset_sha256": "24664c840e7d9fd1366b345f8627aff891484de6a8f52d20eef9b47de965ca0f",
+      "colors": 83,
+      "visible_pixels": 1233,
+      "maximum_scanline_colors": 35,
+      "maximum_adjacent_union_colors": 48,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 33,
+        "2": 18,
+        "3": 3,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 17,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 21,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br08.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR08.PNG",
+      "asset_sha256": "47dc04a8b2b701dc19be43635cb152bfc86f63ed4a63646789c830550ae29b49",
+      "colors": 89,
+      "visible_pixels": 1523,
+      "maximum_scanline_colors": 37,
+      "maximum_adjacent_union_colors": 55,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 40,
+        "2": 25,
+        "3": 10,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 21,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 22,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br09.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR09.PNG",
+      "asset_sha256": "0d271928eac467d38f3fec098d2a316a8223668536f7fc9c91ef7be47eb2d995",
+      "colors": 106,
+      "visible_pixels": 1843,
+      "maximum_scanline_colors": 42,
+      "maximum_adjacent_union_colors": 58,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 43,
+        "2": 28,
+        "3": 13,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 23,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 23,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br10.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR10.PNG",
+      "asset_sha256": "36c74c714d0c55994cc574a4e2c27f3f3617abcf7462d2b9e8e98a7aba701502",
+      "colors": 126,
+      "visible_pixels": 2160,
+      "maximum_scanline_colors": 48,
+      "maximum_adjacent_union_colors": 66,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 51,
+        "2": 36,
+        "3": 21,
+        "4": 6,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 26,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 25,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br11.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR11.PNG",
+      "asset_sha256": "a1c0c94d987a99293959f270e977d0542d13fbcedce9694dc46826db4a0482f2",
+      "colors": 158,
+      "visible_pixels": 2377,
+      "maximum_scanline_colors": 51,
+      "maximum_adjacent_union_colors": 75,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 60,
+        "2": 45,
+        "3": 30,
+        "4": 15,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 31,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 26,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br12.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+      "asset_sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+      "colors": 204,
+      "visible_pixels": 2751,
+      "maximum_scanline_colors": 54,
+      "maximum_adjacent_union_colors": 85,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 70,
+        "2": 55,
+        "3": 40,
+        "4": 25,
+        "5": 10,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 32,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 27,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br13.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR13.PNG",
+      "asset_sha256": "280a8f951a276926250cdc94a263129213916e561a268c7e1e7275bf88b34fa5",
+      "colors": 174,
+      "visible_pixels": 3106,
+      "maximum_scanline_colors": 55,
+      "maximum_adjacent_union_colors": 74,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 59,
+        "2": 44,
+        "3": 29,
+        "4": 14,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 26,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 29,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br14.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR14.PNG",
+      "asset_sha256": "72ef5a8d418f2e160a9af6985deee4b4605b95a76a21ea0c6694048f2832925f",
+      "colors": 170,
+      "visible_pixels": 3421,
+      "maximum_scanline_colors": 54,
+      "maximum_adjacent_union_colors": 72,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 57,
+        "2": 42,
+        "3": 27,
+        "4": 12,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 22,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 30,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br15.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR15.PNG",
+      "asset_sha256": "d8e1bd148cea795f029c010809640de22aee004635a86834a5608bfe3a74ed8d",
+      "colors": 161,
+      "visible_pixels": 3705,
+      "maximum_scanline_colors": 58,
+      "maximum_adjacent_union_colors": 77,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 62,
+        "2": 47,
+        "3": 32,
+        "4": 17,
+        "5": 2,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 22,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 31,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br16.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR16.PNG",
+      "asset_sha256": "625013aa68064ce978a7b60cb5a8a6d17cce09248e4b04a9e7f32d0728fdf334",
+      "colors": 147,
+      "visible_pixels": 3929,
+      "maximum_scanline_colors": 57,
+      "maximum_adjacent_union_colors": 72,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 57,
+        "2": 42,
+        "3": 27,
+        "4": 12,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 19,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 32,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br17.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR17.PNG",
+      "asset_sha256": "ffb1c9eb42edb86eaf0092082917d4836e7089f982d2bdf2ac0dc356928fc82b",
+      "colors": 156,
+      "visible_pixels": 3975,
+      "maximum_scanline_colors": 53,
+      "maximum_adjacent_union_colors": 69,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 54,
+        "2": 39,
+        "3": 24,
+        "4": 9,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 19,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 33,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br18.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR18.PNG",
+      "asset_sha256": "9e64c0228740a584d76ebe626747c01ce43dc64a1f6d64b95a6440d469bf7546",
+      "colors": 146,
+      "visible_pixels": 3805,
+      "maximum_scanline_colors": 52,
+      "maximum_adjacent_union_colors": 65,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 50,
+        "2": 35,
+        "3": 20,
+        "4": 5,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 17,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 34,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br19.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR19.PNG",
+      "asset_sha256": "ce732302993b16d518f1226f585045bf88b2f3728b31fc4b10a3d9b771b9f959",
+      "colors": 145,
+      "visible_pixels": 3611,
+      "maximum_scanline_colors": 55,
+      "maximum_adjacent_union_colors": 68,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 53,
+        "2": 38,
+        "3": 23,
+        "4": 8,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 16,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 35,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br20.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR20.PNG",
+      "asset_sha256": "fc5e0fe22187cda7a79bb744995e964a12234bb3ecc95454852ac6a4cd809080",
+      "colors": 144,
+      "visible_pixels": 3672,
+      "maximum_scanline_colors": 53,
+      "maximum_adjacent_union_colors": 66,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 51,
+        "2": 36,
+        "3": 21,
+        "4": 6,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 18,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 36,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br21.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR21.PNG",
+      "asset_sha256": "4f826b64c63d5311121f3ec80437610da9ea4166c50898f17711b151cbd4f572",
+      "colors": 141,
+      "visible_pixels": 3785,
+      "maximum_scanline_colors": 52,
+      "maximum_adjacent_union_colors": 63,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 48,
+        "2": 33,
+        "3": 18,
+        "4": 3,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 16,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 37,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br22.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR22.PNG",
+      "asset_sha256": "3907f84a8d6410e382a13ffad093e747e5138ffb3eb2b144b19e811600d42f53",
+      "colors": 137,
+      "visible_pixels": 3819,
+      "maximum_scanline_colors": 52,
+      "maximum_adjacent_union_colors": 65,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 50,
+        "2": 35,
+        "3": 20,
+        "4": 5,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 14,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 38,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br23.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR23.PNG",
+      "asset_sha256": "0acb3c98e5eb9ac90da0f8eeb7937d8c9a56b1d4b34cb0f35b74b0c1d83174a0",
+      "colors": 127,
+      "visible_pixels": 4177,
+      "maximum_scanline_colors": 47,
+      "maximum_adjacent_union_colors": 60,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 45,
+        "2": 30,
+        "3": 15,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 17,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 39,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br24.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR24.PNG",
+      "asset_sha256": "87e9125145e2aaa57a5a54ef5ca0855a78a63378515cd4321ee87632b3a8cee8",
+      "colors": 125,
+      "visible_pixels": 4163,
+      "maximum_scanline_colors": 48,
+      "maximum_adjacent_union_colors": 58,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 43,
+        "2": 28,
+        "3": 13,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 19,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 40,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br25.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR25.PNG",
+      "asset_sha256": "97fc375065143cabb1b04da05a029a33dc0dfc2d8269927f22ba48c9a8ce5846",
+      "colors": 116,
+      "visible_pixels": 4132,
+      "maximum_scanline_colors": 50,
+      "maximum_adjacent_union_colors": 58,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 43,
+        "2": 28,
+        "3": 13,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 15,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 41,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br26.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR26.PNG",
+      "asset_sha256": "5ef36e0607d38305499ece40b66db6bd9f7d57d4d4b1a6bc31bbef94be7fe56d",
+      "colors": 101,
+      "visible_pixels": 4216,
+      "maximum_scanline_colors": 46,
+      "maximum_adjacent_union_colors": 58,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 43,
+        "2": 28,
+        "3": 13,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 15,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 42,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br27.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR27.PNG",
+      "asset_sha256": "134416d19ecd008f5ab368fc48c68d05db761de20442680e628f285f198265f7",
+      "colors": 83,
+      "visible_pixels": 4244,
+      "maximum_scanline_colors": 46,
+      "maximum_adjacent_union_colors": 58,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 43,
+        "2": 28,
+        "3": 13,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 20,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 44,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br28.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR28.PNG",
+      "asset_sha256": "bccdc48cf09223f4d2d4a411b4dd504ef30c7451044a81f3a3d37f74edae1c40",
+      "colors": 69,
+      "visible_pixels": 3794,
+      "maximum_scanline_colors": 43,
+      "maximum_adjacent_union_colors": 51,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 36,
+        "2": 21,
+        "3": 6,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 15,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 45,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br29.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR29.PNG",
+      "asset_sha256": "8c955c1e7a0ff1cf29a4ffe182a5cfe0979b453dac4c368dc06aa806e333769f",
+      "colors": 60,
+      "visible_pixels": 3670,
+      "maximum_scanline_colors": 39,
+      "maximum_adjacent_union_colors": 47,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 32,
+        "2": 17,
+        "3": 2,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 13,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 46,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br30.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR30.PNG",
+      "asset_sha256": "061ccaa2273335115138763461681b20b067c12844d3a85152c16d20dda49ecc",
+      "colors": 41,
+      "visible_pixels": 3606,
+      "maximum_scanline_colors": 31,
+      "maximum_adjacent_union_colors": 37,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 22,
+        "2": 7,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 9,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 47,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br31.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR31.PNG",
+      "asset_sha256": "d10535817193e5614dbd05492dd8c4ed2ddf9ac48111ebe6e4be765ab26b19c5",
+      "colors": 36,
+      "visible_pixels": 3591,
+      "maximum_scanline_colors": 28,
+      "maximum_adjacent_union_colors": 32,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 17,
+        "2": 2,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 9,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 48,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br32.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR32.PNG",
+      "asset_sha256": "8237ba5607b1cb493183e8d8fd411fd2b2b650402457c3df7bbddf3a8f13b55d",
+      "colors": 27,
+      "visible_pixels": 3498,
+      "maximum_scanline_colors": 24,
+      "maximum_adjacent_union_colors": 26,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 11,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 5,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 49,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br33.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR33.PNG",
+      "asset_sha256": "6d7e9a59a619bf558d0540982ee514405ba5aa19ade3aa33b370ec5a7c20947c",
+      "colors": 22,
+      "visible_pixels": 3257,
+      "maximum_scanline_colors": 20,
+      "maximum_adjacent_union_colors": 22,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 7,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 4,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 51,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br34.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR34.PNG",
+      "asset_sha256": "0dca48297bbba57ab1459910eb1a4a2074f9b644d3964c8d35d554d4abfdc619",
+      "colors": 16,
+      "visible_pixels": 3548,
+      "maximum_scanline_colors": 16,
+      "maximum_adjacent_union_colors": 16,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 4,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 52,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br35.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR35.PNG",
+      "asset_sha256": "f2fb78209af7c2ea2d089802b81f3d0830dc4b794044f711045dee0c682e06a5",
+      "colors": 12,
+      "visible_pixels": 3465,
+      "maximum_scanline_colors": 12,
+      "maximum_adjacent_union_colors": 12,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 2,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 53,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br36.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR36.PNG",
+      "asset_sha256": "f1d615068dae048b9428c41bac5dc05f2e5362b8f4a2fbbac9d608a046a80f09",
+      "colors": 9,
+      "visible_pixels": 3064,
+      "maximum_scanline_colors": 9,
+      "maximum_adjacent_union_colors": 9,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 2,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 54,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br37.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR37.PNG",
+      "asset_sha256": "bb7d82ec4bb2f5bfdec3edb1f76369c48aae1af649c09fa93b5cb56f1e92e9c5",
+      "colors": 4,
+      "visible_pixels": 2599,
+      "maximum_scanline_colors": 4,
+      "maximum_adjacent_union_colors": 4,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 1,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 55,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br38.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR38.PNG",
+      "asset_sha256": "dcc444ce3a4d7ee2a002f98f99c8f34bf7e26b5d124374c3beab251f3f1eb269",
+      "colors": 2,
+      "visible_pixels": 1314,
+      "maximum_scanline_colors": 2,
+      "maximum_adjacent_union_colors": 2,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 1,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 56,
+      "directive": "frame",
+      "values": [
+        "data/chars/he-man/fx/br39.png"
+      ],
+      "image_path": "DATA\\CHARS\\HE-MAN\\FX\\BR39.PNG",
+      "asset_sha256": "c723c9b3736fed2272595ffbba6a17ad26b3862a7daa5a3facb8cd21dc6f7fae",
+      "colors": 1,
+      "visible_pixels": 627,
+      "maximum_scanline_colors": 1,
+      "maximum_adjacent_union_colors": 1,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 1,
+      "frame_palette_matches_authority": true
+    },
+    {
+      "source_path": "DATA\\CHARS\\HE-MAN\\FX\\HBREATH.TXT",
+      "line": 57,
+      "directive": "frame",
+      "values": [
+        "data/chars/misc/empty.gif"
+      ],
+      "image_path": "DATA\\CHARS\\MISC\\EMPTY.GIF",
+      "asset_sha256": "dbe7853d2e46e131cb781fb19f128e88913bb0beef541dc73dc59ab8f47effc1",
+      "colors": 0,
+      "visible_pixels": 0,
+      "maximum_scanline_colors": 0,
+      "maximum_adjacent_union_colors": 0,
+      "adjacent_union_write_lower_bounds_by_bank_count": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0,
+        "8": 0
+      },
+      "maximum_adjacent_new_colors": 0,
+      "frame_palette_matches_authority": true
+    }
+  ],
+  "raster_peak_frame": null,
+  "raster_all_frame_results": null,
+  "other_options": [
+    {
+      "policy": "RASTER_PALETTE_REUSE",
+      "fidelity": "Potential RGB555 color preservation; not proven.",
+      "costs": "Per-line CGRAM traffic and fixed OAM bank/index constraints; competes with actor palettes and HDMA.",
+      "measurements": {
+        "peak_frame_max_line_colors": 54,
+        "peak_frame_max_adjacent_new_colors": 32
+      },
+      "admission": "NOT_PROVEN; no impossibility inference from full-frame color count"
+    },
+    {
+      "policy": "BG_EFFECT_RENDERER",
+      "fidelity": "Potential RGB555 color preservation; not proven.",
+      "costs": "Dedicated BG resources or software compositing; conflicts with stage frontpanel, background and HUD allocation.",
+      "admission": "NOT_PROVEN"
+    }
+  ],
+  "nonclaims": [
+    "No universal SNES rendering impossibility proof.",
+    "Color demand is before alpha compositing; alpha fidelity is a separate unresolved capability.",
+    "No quantization, artwork resize, source substitution or candidate build performed."
+  ],
+  "retained_input_sha256": "374f2588c5c1c6b45c6977259b2606ed28210e3848abcd950ae65a84f6f89477",
+  "raw_four_math_bank_family_rejected": true,
+  "encoded_operand_raster_rejected": false,
+  "no_color_reduction": true
+}

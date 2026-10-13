@@ -51,6 +51,11 @@ def measure(path, model_name, role, raster=False, banks=tuple(range(8)), piece_s
             frame_reports.append(dict(**frame, image_path=image_path, asset_sha256=sha(raw),
                 colors=len(set(map(int,visible))), visible_pixels=int(visible.size),
                 maximum_scanline_colors=max(map(len,line_sets), default=0),
+                maximum_adjacent_union_colors=max((len(line_sets[y]|line_sets[y-1])
+                                                  for y in range(1,len(line_sets))),default=0),
+                adjacent_union_write_lower_bounds_by_bank_count={str(n):max(
+                    (max(0,len(line_sets[y]|line_sets[y-1])-15*n)
+                     for y in range(1,len(line_sets))),default=0)for n in range(1,9)},
                 maximum_adjacent_new_colors=max((len(line_sets[y]-line_sets[y-1])
                                                  for y in range(1,len(line_sets))),default=0),
                 frame_palette_matches_authority=(image.getpalette()==palette or visible.size==0)))

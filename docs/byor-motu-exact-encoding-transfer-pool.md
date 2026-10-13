@@ -168,3 +168,41 @@ after 1.919 seconds; allowing extra masks returns UNKNOWN after 60.080 seconds.
 Two-line interval chunks with up to four charged bank copies remain UNKNOWN
 after 90.104 seconds (28,429 variables and 78,111 constraints). The restrictions
 are explicit and no universal raster rejection is inferred.
+
+The production OAM authority uses OBSEL `$C2`, size mode 6, with 16×32 small
+and 32×64 large rectangles (`src/core/oam.pasm`). The pinned Mesen PPU width
+and height tables confirm those dimensions. The generic constructor and CHR
+compiler now retain this legal rectangular family; they never substitute an
+eight-pixel object under mode 6. Emitted OAM size bits, tile row strides and
+decoded pixel indices are independently replayed for both rectangle sizes.
+
+The source-exact mode-6 row-mask constructor uses 28 OAM entries, 16 peak sprites
+and 32 slivers. Its global word-bank alternative exceeds the tile limit at 40
+slivers. The admitted geometry emits 7,936 CHR bytes and 544 OAM bytes, with
+exact index/bank replay. The selected balanced cache requires 24 writes in the
+LP; bounded row-mask feedback reaches 23.833. Native timing is not admitted.
+
+Raw palette demand is also independently remeasured from BR12.PNG: 204 colors,
+54 peak scanline colors, 32 peak adjacent new colors and an 85-color adjacent
+union. Rows 38/39 force at least 25 writes with sixty resident raw words, even
+after arbitrary preload, eviction, bank assignment and geometry are relaxed.
+The existing interval checker grants a preloaded low-byte latch and still
+requires a 384-clock first-to-last commit span, exceeding 356 clocks. This
+rejects the raw-word four-math-bank family, not the encoded operand schedules.
+[Raw alpha-bank receipt](receipts/byor-motu-raw-alpha-bank-capacity.json).
+
+The CHR compiler now hides unused OAM at X=-64, matching production authority.
+Y=240 alone is unsafe for mode-6 height 32 because transparent padding wraps
+onto top scanlines and can overflow sprite evaluation. All 128 emitted entries
+are decoded independently; their sprite/sliver rows must equal the planner's
+actual geometry. Scanline overflow is an explicit report failure even when
+CHR pixel indices round-trip correctly. Used-entry high bits replace the
+hidden defaults, rather than inheriting a stale X-high bit.
+
+The corrected mode-6 OAM digest is
+`002584f2baea052a20e563892d9a09adbdba3bae8e713727a46ce08d9dbd68aa`;
+CHR bytes remain identical. Emitted geometry independently confirms 16 sprites
+and 32 slivers. This is a code/data correctness proof, not native admission.
+The continued rectangular cache-cut search retains a 23.833-write fractional
+bound; its transfer-cost relaxation's best selected assignment requires
+404.854 clocks. Neither result universally rejects rectangular raster rendering.

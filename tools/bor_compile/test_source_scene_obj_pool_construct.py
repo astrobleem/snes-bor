@@ -8,6 +8,24 @@ from raster_palette import split_color_masks
 
 
 class PoolConstructionTests(unittest.TestCase):
+    def test_production_rectangular_mode_retains_bank_masks_and_source_pixels(self):
+        background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy();expected[:16,:16,0]=48
+        words=np.full((16,16),6,dtype=np.int32)
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            selected_modes={str(y):'add'for y in range(16)},
+            compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(16)},
+            selected_palette_residency={str(y):{'0':[6],'1':[]}for y in range(16)})
+        with patch('source_scene_obj_pool_construct.prepare',return_value=([dict(pixels=words,left=0,top=0)],{},expected)),patch('source_scene_obj_pool_construct.compose_rgb8',return_value=(background,{})):
+            result=construct(None,None,{},candidate,time_limit=5,obj_size_mode=6,row_word_masks=True)
+        self.assertEqual(result['obsel_mode'],6)
+        self.assertEqual(result['geometry'],dict(oam_entries=1,peak_sprites=1,peak_tile_slivers=2))
+        self.assertEqual((result['pieces'][0]['width'],result['pieces'][0]['height']),(16,32))
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertFalse(result['global_color_bank_identity_restricted'])
+        self.assertFalse(result['native_presentation_proven'])
+
     def test_legal_large_pieces_subdivide_only_over_capacity_rows(self):
         background=np.zeros((224,256,3),dtype=np.uint8)
         for piece_size,words,expected_entries in ((16,np.full((16,16),6,dtype=np.int32),1),
