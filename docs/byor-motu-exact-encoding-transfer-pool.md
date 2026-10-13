@@ -381,3 +381,22 @@ a palette schedule or pixel admission. Its 122,750-variable / 88,896-constraint
 reservation remains enforced. Both fixed-control and integer-control-only
 paths are covered by focused tests; 44 window/liveness/static-demand cases
 pass. Raster feasibility remains open and no BG fallback is selected.
+
+Fixed full-add without a color window has an optimal 24-write fractional
+cache bound for the actual player/effect pose. Even perfect integer slots
+need at least 24 words on some line; high-byte commits alone span at least
+368 clocks. Fixed half-add and subtract without windows are infeasible.
+A source-derived forced-opaque audit independently finds peaks of 73 words
+for half-add, 79 for subtract, and 91 for half-subtract, against the lower
+class's sixty slots. Those counts include the 31 static ordinary words.
+Full addition needs only 35 forced opaque words, so its failure is bandwidth
+rather than forced-color capacity. These apply to fixed modes with the math
+gate enabled, not source rows with shared windows or changing modes.
+
+Thirty-second windowed LP trials for add, half-add and half-subtract reach
+no primal candidate. They are retained as UNKNOWN, with no palette admission
+or broader infeasibility claim. No color reduction is applied.
+
+The sixty-second add/window dual-simplex LP also returns UNKNOWN with no
+primal candidate. It supplies no bound. The fixed-control source-digest
+regression passes, and the static-demand suite now has fifteen passing cases.

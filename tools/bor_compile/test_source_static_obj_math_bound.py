@@ -60,7 +60,7 @@ class StaticObjBoundTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'RELAXED_CONTROL_POLICY'):
             measure(None,None,{},relax_per_pixel_controls=True,integer_pool_budget=22)
 
-    def run_fixture(self,effect=False,ordinary_residency='static',scanline_interval=(125,139),integer_bound=None,ordinary_top=0,hardware_windows=True,background_red=0,allowed_modes=MODES,all_visible_actor_pixels_reencodable=False,integer_pool_hint=None,integer_controls_hint=None,integer_controls_only=False,control_write_budget=None):
+    def run_fixture(self,effect=False,ordinary_residency='static',scanline_interval=(125,139),integer_bound=None,ordinary_top=0,hardware_windows=True,background_red=0,allowed_modes=MODES,all_visible_actor_pixels_reencodable=False,integer_pool_hint=None,integer_controls_hint=None,integer_controls_only=False,control_write_budget=None,fixed_controls=None):
         layer=dict(kind='actor:Ordinary',alpha=0,path='ordinary.png',requested_map=0,source_flip=True)
         actors=[dict(metadata=layer,pixels=np.array([[-1,1]]),left=0,top=ordinary_top)]
         if effect:actors.append(dict(metadata=dict(alpha=1),pixels=np.array([[15]]),left=0,top=128))
@@ -74,8 +74,18 @@ class StaticObjBoundTests(unittest.TestCase):
              patch('source_static_obj_math_bound.decode',return_value=(np.array([[1,2]]),np.array([[[8,0,0],[16,0,0]]]),'hash')), \
              patch('source_static_obj_math_bound.complete_math_cover',return_value=({(mode,out,background_red//8):[out-background_red//8]for mode in MODES for out in (1,15)},{})), \
              patch('source_static_obj_math_bound.lower_bound',return_value=integer_bound or {'status':'TEST_BOUND'}) as bound:
-            result=measure(SimpleNamespace(index={}), 'stage', {},scanline_interval=scanline_interval,ordinary_residency=ordinary_residency,integer_pool_budget=21 if integer_bound else None,hardware_windows=hardware_windows,allowed_modes=allowed_modes,all_visible_actor_pixels_reencodable=all_visible_actor_pixels_reencodable,integer_pool_hint=integer_pool_hint,integer_controls_hint=integer_controls_hint,integer_controls_only=integer_controls_only,control_write_budget=control_write_budget)
+            result=measure(SimpleNamespace(index={}), 'stage', {},scanline_interval=scanline_interval,ordinary_residency=ordinary_residency,integer_pool_budget=21 if integer_bound else None,hardware_windows=hardware_windows,allowed_modes=allowed_modes,all_visible_actor_pixels_reencodable=all_visible_actor_pixels_reencodable,integer_pool_hint=integer_pool_hint,integer_controls_hint=integer_controls_hint,integer_controls_only=integer_controls_only,control_write_budget=control_write_budget,fixed_controls=fixed_controls)
         return result,bound
+
+    def test_fixed_control_family_requires_current_source_digest(self):
+        previous,_=self.run_fixture(effect=True)
+        guide=dict(source_rgb555_sha256=previous['source_rgb555_sha256'],selected_modes={'128':'add'},selected_window_eligibility={'128':{'0':1}})
+        result,bound=self.run_fixture(effect=True,fixed_controls=guide)
+        self.assertEqual(bound.call_args.kwargs['fixed_controls'],guide)
+        self.assertFalse(result['palette_bank_assignment_proven'])
+        guide['source_rgb555_sha256']='stale'
+        with self.assertRaisesRegex(ValueError,'FIXED_CONTROL_SOURCE_IDENTITY'):
+            self.run_fixture(effect=True,fixed_controls=guide)
 
     def test_control_guide_does_not_import_palette_residency(self):
         guide=dict(selected_modes={'128':'add'},selected_window_eligibility={'128':{'0':1}})
