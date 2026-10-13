@@ -11,6 +11,7 @@ import numpy as np
 from scipy.optimize import linprog
 from scipy.sparse import coo_matrix
 from raster_slot_greedy import demand,bank_groups
+from raster_obj_geometry import active_on_line,tile_slivers
 from raster_global_bank_classes import rebuild_schedule
 
 
@@ -22,8 +23,9 @@ def nonpositive_solver_dual(values):
     return np.minimum(values,0)
 
 
-def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21,row_word_masks=False,resume_report=None,interval_cut_span=0,geometry_reservation=None):
+def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=None,objective_kind='writes',write_budget=21,row_word_masks=False,resume_report=None,interval_cut_span=0,geometry_reservation=None,master_search_strategy='portfolio'):
     from ortools.sat.python import cp_model
+    if master_search_strategy not in('portfolio','sat-repair'):raise ValueError('PIECE_CACHE_MASTER_SEARCH_STRATEGY')
     if iterations<1 or time_limit<=0 or master_seconds<=0 or (maximum_changes is not None and maximum_changes<1): raise ValueError('PIECE_CACHE_DECOMPOSITION_DOMAIN')
     if objective_kind not in('writes','dma-window')or type(write_budget)is not int or not 0<=write_budget<=120:raise ValueError('PIECE_CACHE_DECOMPOSITION_OBJECTIVE_DOMAIN')
     if type(interval_cut_span)is not int or not 0<=interval_cut_span<=256:raise ValueError('PIECE_CACHE_INTERVAL_CUT_DOMAIN')
@@ -117,9 +119,9 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
                 model.add_max_equality(v,[selection[j][b]for j in indices]);masks[i,b]=v
         model.add(sum(masks.values())<=128-reservation['oam_entries'])
         for y in range(len(source['trace'])):
-            live=[(i,b)for i,b in masks if pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height']]
+            live=[(i,b)for i,b in masks if active_on_line(pieces[i],y)]
             model.add(sum(masks[i,b]for i,b in live)<=32-reservation['sprites_per_line'][y])
-            model.add(sum(masks[i,b]*(pieces[i]['width']//8)for i,b in live)<=34-reservation['tile_slivers_per_line'][y])
+            model.add(sum(masks[i,b]*tile_slivers(pieces[i])for i,b in live)<=34-reservation['tile_slivers_per_line'][y])
     # Certified cuts are rounded outward to integers to avoid false rejection.
     scale=1000000;t=model.new_int_var(0,(120 if objective_kind=='writes'else 4096)*scale,'fractionalPeak');model.minimize(t)
     interval_requirements=[]
@@ -186,8 +188,8 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         if not row_word_masks:return True
         entries=[i for i,indices in piece_decisions.items()for b in {a[j]for j in indices}]
         return (len(entries)+reservation['oam_entries']<=128 and
-                all(sum(pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height']for i in entries)+reservation['sprites_per_line'][y]<=32 and
-                    sum(pieces[i]['width']//8 for i in entries if pieces[i]['y']<=y<pieces[i]['y']+pieces[i]['height'])+reservation['tile_slivers_per_line'][y]<=34
+                all(sum(active_on_line(pieces[i],y)for i in entries)+reservation['sprites_per_line'][y]<=32 and
+                    sum(tile_slivers(pieces[i])for i in entries if active_on_line(pieces[i],y))+reservation['tile_slivers_per_line'][y]<=34
                     for y in range(height)))
     assignment=[pieces[key[0]]['bank'] for key in decision_keys]
     if resume_report is not None:
@@ -244,11 +246,15 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
         if maximum_changes is not None:
             master.add(sum(selection[i][b]for i,b in enumerate(incumbent))>=len(selection)-maximum_changes)
         solver=cp_model.CpSolver();solver.parameters.max_time_in_seconds=master_seconds;solver.parameters.num_search_workers=4
-        status=solver.solve(master);report.update(master_status=solver.status_name(status),master_seconds=solver.wall_time,master_lower_bound=float(solver.best_objective_bound)/scale)
+        if master_search_strategy=='sat-repair':
+            solver.parameters.cp_model_probing_level=0;solver.parameters.use_sat_inprocessing=False
+            solver.parameters.linearization_level=0;solver.parameters.subsolvers.append('no_lp');solver.parameters.num_full_subsolvers=1
+            solver.parameters.repair_hint=True;solver.parameters.hint_conflict_limit=50000
+        status=solver.solve(master);report.update(master_status=solver.status_name(status),master_seconds=solver.wall_time,master_lower_bound=float(solver.best_objective_bound)/scale,master_variables=len(master.proto.variables),master_constraints=len(master.proto.constraints),master_branches=solver.num_branches,master_conflicts=solver.num_conflicts)
         if status not in(cp_model.FEASIBLE,cp_model.OPTIMAL):break
         assignment=[next(b for b,v in choices.items()if solver.value(v))for choices in selection]
     report=dict(schema='BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1',iterations=reports,seconds=time.monotonic()-started,maximum_changed_pieces_per_master=maximum_changes,
-        objective_kind=objective_kind,row_word_masks=row_word_masks,write_budget=write_budget if objective_kind=='dma-window'else None,alias_aware=True,initial_residency_optimal=True,
+        master_search_strategy=master_search_strategy,master_hints_are_soft=True,objective_kind=objective_kind,row_word_masks=row_word_masks,write_budget=write_budget if objective_kind=='dma-window'else None,alias_aware=True,initial_residency_optimal=True,
         interval_cut_span=interval_cut_span,interval_cut_count=len(interval_requirements),
         geometry_reservation=reservation,reservation_proves_concurrent_palette_or_layer_admission=False,
         cache_basis_sha256=basis_hash,certified_master_cuts=cuts,restored_certified_cuts=restored,
@@ -268,6 +274,9 @@ def search(source,iterations=20,time_limit=120,master_seconds=3,maximum_changes=
                 if any(rows.values()):expanded.append(dict(p,source_piece=i,rows=rows));banks.append(b)
     else:expanded=[dict(p,source_piece=i)for i,p in enumerate(pieces)];banks=best_assignment
     rebuilt=rebuild_schedule(source,dict(status='JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN',pieces=expanded,assignment=banks,pixel_word_identities_replayed=True),last-first)
+    combined=dict(oam_entries=len(rebuilt['pieces'])+reservation['oam_entries'],peak_sprites=max(sum(active_on_line(p,y)for p in rebuilt['pieces'])+reservation['sprites_per_line'][y]for y in range(height)),peak_tile_slivers=max(sum(tile_slivers(p)for p in rebuilt['pieces']if active_on_line(p,y))+reservation['tile_slivers_per_line'][y]for y in range(height)))
+    if combined['oam_entries']>128 or combined['peak_sprites']>32 or combined['peak_tile_slivers']>34:raise AssertionError('PIECE_CACHE_RESERVED_GEOMETRY_REPLAY')
+    rebuilt.update(geometry_reservation=copy.deepcopy(reservation),combined_reserved_geometry=combined,reservation_palette_and_layer_demand_included=False)
     rebuilt['piece_cache_decomposition']=report
     return rebuilt
 
@@ -284,9 +293,10 @@ def main():
     parser.add_argument('--resume-report',type=Path)
     parser.add_argument('--interval-cut-span',type=int,default=0)
     parser.add_argument('--geometry-reservation',type=Path,help='JSON with other actors OAM count and sprites/tile slivers per line. Geometry only; concurrent palette and layer admission remain separate.')
+    parser.add_argument('--master-search-strategy',choices=('portfolio','sat-repair'),default='portfolio')
     args=parser.parse_args();resume=json.loads(args.resume_report.read_text())if args.resume_report else None
     if resume is not None:resume=resume.get('piece_cache_decomposition',resume)
-    result=search(json.loads(args.schedule.read_text()),args.iterations,args.time_limit,args.master_seconds,args.maximum_changes,args.objective,args.write_budget,args.row_word_masks,resume,args.interval_cut_span,json.loads(args.geometry_reservation.read_text())if args.geometry_reservation else None)
+    result=search(json.loads(args.schedule.read_text()),args.iterations,args.time_limit,args.master_seconds,args.maximum_changes,args.objective,args.write_budget,args.row_word_masks,resume,args.interval_cut_span,json.loads(args.geometry_reservation.read_text())if args.geometry_reservation else None,args.master_search_strategy)
     args.output.write_text(json.dumps(result,indent=2)+'\n');report=result.get('piece_cache_decomposition',result)
     print(json.dumps(dict({k:v for k,v in report.items()if k not in('iterations','certified_master_cuts','evaluated_assignments','best_decision_assignment','geometry_reservation')},iterations_completed=len(report['iterations']))))
 

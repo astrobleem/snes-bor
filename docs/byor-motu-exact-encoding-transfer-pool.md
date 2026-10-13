@@ -88,3 +88,55 @@ source-bound class proposal: 470 total loads, 20 peak loads and a 320-clock
 peak under the necessary class-bank transfer relaxation. This proposal is
 replayed before guiding a new total-load search; its real fixed-bank schedule
 still costs 400 clocks. Pool cost is never substituted for that transfer cost.
+
+The guided source solve reduces the class proposal to 358 total loads and a
+19-load peak. Independently replayed frame-word selection compiles 89 effect
+objects, with peaks of 19 sprites and tile slivers. Rebalancing lowers interval
+pressure to 19.429; the stronger fixed-bank LP requires 21.571 loads. Certified
+cache cuts improve the latter to 21.25, which still requires at least 22 integer
+loads. The selected class-cache bank construction remains UNKNOWN after
+90.195 seconds. None of these class or fractional witnesses admits CGRAM timing.
+
+Integer cache construction for the 89-piece assignment finds 22 peak writes,
+558 total writes and 15-line maximum prefetch latency. Complete ideal bank
+partition replay requires 472 clocks. All 576 eligible fixed bank relabelings
+retain that peak. Exact bank-cost optimization gives a 377-clock lower bound
+within this fixed word/bank family and the 22-write cap. This rejects that
+assignment against the measured window, while alternate bank masks remain open.
+
+The source compiler can accept a mode/window-only guide independently of a
+palette guide. Its choices stay soft; no palette contents or prior source
+identity admission is imported. The actual He_ManB + HBreath pose retains all
+31 ordinary source words statically while testing complete exact effect
+operands and all four scanline math modes. Two LP methods time out at 30.283
+and 60.206 seconds without a validated bound. The guided integer test returns
+UNKNOWN after 96.470 seconds including construction. Its 122,858 variables
+and 204,162 constraints do not certify concurrent feasibility or infeasibility.
+Those results are retained in the separate
+[concurrent source receipt](receipts/byor-motu-authored-peak-player-joint.json).
+
+The generic cache-cut master has an optional SAT hint-repair strategy, preserving
+all source, bank and geometry constraints. Resuming certified cuts lowers the
+fractional write bound to 18.824, but consumes 128 effect OAM entries and peaks
+of 32 sprites and tile slivers. That is not a concurrent gameplay allocation.
+Its bounded integer transfer test at 344 clocks returns UNKNOWN after 90.108
+seconds.
+
+Repeating the mask search with the actual 33-entry player geometry reservation
+enforced reaches a 20.333-write fractional bound. It uses 95 effect objects and
+22 peak sprites/slivers; the complete source viewport still replays exactly.
+This reservation accounts for geometry only, not player palettes or compositing.
+The separate full actor tests above cover those demands without claiming admission.
+
+Independent replay counts the selected reservation as 128 combined OAM entries,
+26 peak sprites and 30 peak tile slivers. The selected masks' fixed-bank transfer
+model is INFEASIBLE after 24.419 seconds at the strict 357-clock gate, which
+permits at most 356 clocks. This rejects those masks and words. It does not
+reject alternate source-exact bank masks or the general raster capability.
+
+Generic geometry counts now use the shared wrapped OAM row and clipped sliver
+helpers. Returned cache-cut candidates retain their reservation and independently
+checked combined counts. Regression fixtures reject wrapped transparent padding
+against a full top-row sprite reservation and correctly count one visible sliver
+for a 64-pixel object at x=248. The evidence retainer independently replays these
+resource counts instead of relying on the constructor's assertions.

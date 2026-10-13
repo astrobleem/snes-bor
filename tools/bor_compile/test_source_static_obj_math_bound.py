@@ -7,7 +7,7 @@ from raster_obj_math_cover import MODES
 
 
 class StaticObjBoundTests(unittest.TestCase):
-    def run_fixture(self,effect=False,ordinary_residency='static',scanline_interval=(125,139),integer_bound=None,ordinary_top=0,hardware_windows=True,background_red=0,allowed_modes=MODES,all_visible_actor_pixels_reencodable=False,integer_pool_hint=None):
+    def run_fixture(self,effect=False,ordinary_residency='static',scanline_interval=(125,139),integer_bound=None,ordinary_top=0,hardware_windows=True,background_red=0,allowed_modes=MODES,all_visible_actor_pixels_reencodable=False,integer_pool_hint=None,integer_controls_hint=None):
         layer=dict(kind='actor:Ordinary',alpha=0,path='ordinary.png',requested_map=0,source_flip=True)
         actors=[dict(metadata=layer,pixels=np.array([[-1,1]]),left=0,top=ordinary_top)]
         if effect:actors.append(dict(metadata=dict(alpha=1),pixels=np.array([[15]]),left=0,top=128))
@@ -21,8 +21,14 @@ class StaticObjBoundTests(unittest.TestCase):
              patch('source_static_obj_math_bound.decode',return_value=(np.array([[1,2]]),np.array([[[8,0,0],[16,0,0]]]),'hash')), \
              patch('source_static_obj_math_bound.complete_math_cover',return_value=({(mode,out,background_red//8):[out-background_red//8]for mode in MODES for out in (1,15)},{})), \
              patch('source_static_obj_math_bound.lower_bound',return_value=integer_bound or {'status':'TEST_BOUND'}) as bound:
-            result=measure(SimpleNamespace(index={}), 'stage', {},scanline_interval=scanline_interval,ordinary_residency=ordinary_residency,integer_pool_budget=21 if integer_bound else None,hardware_windows=hardware_windows,allowed_modes=allowed_modes,all_visible_actor_pixels_reencodable=all_visible_actor_pixels_reencodable,integer_pool_hint=integer_pool_hint)
+            result=measure(SimpleNamespace(index={}), 'stage', {},scanline_interval=scanline_interval,ordinary_residency=ordinary_residency,integer_pool_budget=21 if integer_bound else None,hardware_windows=hardware_windows,allowed_modes=allowed_modes,all_visible_actor_pixels_reencodable=all_visible_actor_pixels_reencodable,integer_pool_hint=integer_pool_hint,integer_controls_hint=integer_controls_hint)
         return result,bound
+
+    def test_control_guide_does_not_import_palette_residency(self):
+        guide=dict(selected_modes={'128':'add'},selected_window_eligibility={'128':{'0':1}})
+        _,bound=self.run_fixture(effect=True,integer_bound={'status':'TEST_BOUND'},integer_controls_hint=guide)
+        self.assertEqual(bound.call_args.kwargs['controls_hint'],guide)
+        self.assertIsNone(bound.call_args.kwargs['residency_hint'])
 
     def test_integer_pool_hint_requires_matching_source_context(self):
         previous,_=self.run_fixture(effect=True)

@@ -54,6 +54,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -138,6 +144,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -283,6 +295,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -351,6 +369,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -419,6 +443,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -657,6 +687,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -716,6 +752,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -956,6 +998,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -986,6 +1034,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -1417,6 +1471,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -1610,6 +1670,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -1806,6 +1872,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -2026,6 +2098,12 @@
         "peak_sprites_per_line": 25,
         "peak_tile_slivers_per_line": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 82,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -2293,6 +2371,12 @@
         "peak_sprites_per_line": 25,
         "peak_tile_slivers_per_line": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 82,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -2705,6 +2789,12 @@
         "peak_sprites_per_line": 25,
         "peak_tile_slivers_per_line": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 82,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -2952,6 +3042,12 @@
         "peak_sprites_per_line": 25,
         "peak_tile_slivers_per_line": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 82,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -3186,6 +3282,12 @@
         "peak_sprites_per_line": 25,
         "peak_tile_slivers_per_line": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 82,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -3395,6 +3497,12 @@
         "peak_sprites_per_line": 25,
         "peak_tile_slivers_per_line": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 82,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -3728,6 +3836,12 @@
         "peak_sprites_per_line": 25,
         "peak_tile_slivers_per_line": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 82,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -4033,6 +4147,12 @@
         "peak_sprites": 25,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 82,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -4207,6 +4327,12 @@
         "peak_sprites_per_line": 25,
         "peak_tile_slivers_per_line": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 82,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -5345,6 +5471,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -5473,6 +5605,12 @@
         "peak_sprites_per_line": 32,
         "peak_tile_slivers_per_line": 33
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 33
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -5682,6 +5820,12 @@
         "peak_sprites_per_line": 32,
         "peak_tile_slivers_per_line": 33
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 33
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -6072,6 +6216,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -6126,6 +6276,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -6229,6 +6385,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -6297,6 +6459,12 @@
         "peak_sprites": 24,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 80,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 49,
         "selected_merges": 40,
@@ -15611,7 +15779,13 @@
         "oam_entries": 119,
         "peak_sprites": 30,
         "peak_tile_slivers": 30
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 30,
+        "peak_tile_slivers": 30
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-sixbank-pressure-math-compact16": {
       "input_sha256": "6321041fd605ffa9f6ebbceb05a0c9c43fc0fc95f15a1ba233fd1ad5cf401b31",
@@ -15628,6 +15802,12 @@
         "peak_sprites": 20,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 56,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 36,
         "selected_merges": 32,
@@ -15683,6 +15863,12 @@
         "peak_sprites": 20,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 56,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 36,
         "selected_merges": 32,
@@ -15814,6 +16000,12 @@
         "peak_sprites": 20,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 56,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 36,
         "selected_merges": 32,
@@ -15900,6 +16092,12 @@
         "peak_sprites": 30,
         "peak_tile_slivers": 30
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 30,
+        "peak_tile_slivers": 30
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_cache_decomposition": {
         "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
         "seconds": 50.48400000017136,
@@ -21074,7 +21272,13 @@
         "oam_entries": 119,
         "peak_sprites": 29,
         "peak_tile_slivers": 29
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 29,
+        "peak_tile_slivers": 29
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-sevenbank-pressure-math-compact16": {
       "input_sha256": "5094ca11520439a8f22ed6e1d37867a0ddac9c3f6f8945ae64a57eb9f6b0e1c3",
@@ -21091,6 +21295,12 @@
         "peak_sprites": 29,
         "peak_tile_slivers": 29
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 29,
+        "peak_tile_slivers": 29
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 36,
         "selected_merges": 0,
@@ -21146,6 +21356,12 @@
         "peak_sprites": 29,
         "peak_tile_slivers": 29
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 29,
+        "peak_tile_slivers": 29
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "bank_rebalance": {
         "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
         "status": "REBALANCED_SOURCE_PIXEL_IDENTITIES_PROVEN",
@@ -33754,6 +33970,12 @@
         "peak_sprites": 27,
         "peak_tile_slivers": 29
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 127,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 29
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 40,
         "selected_merges": 3,
@@ -33784,6 +34006,12 @@
         "peak_sprites": 20,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 58,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 40,
         "selected_merges": 40,
@@ -34310,6 +34538,12 @@
         "peak_sprites": 20,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 58,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 40,
         "selected_merges": 40,
@@ -34456,6 +34690,12 @@
         "peak_sprites": 29,
         "peak_tile_slivers": 29
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 29,
+        "peak_tile_slivers": 29
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_cache_decomposition": {
         "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
         "seconds": 1.9369999999180436,
@@ -36809,6 +37049,12 @@
         "peak_sprites": 29,
         "peak_tile_slivers": 29
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 29,
+        "peak_tile_slivers": 29
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_cache_decomposition": {
         "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
         "seconds": 54.54600000008941,
@@ -36848,7 +37094,13 @@
         "oam_entries": 100,
         "peak_sprites": 19,
         "peak_tile_slivers": 19
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 100,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-sevenbank-pool18-local-player-compact16": {
       "input_sha256": "dcb22d80bfb1d1f2576cb5602700d4434f2efc112f5bf795ab052b3ef7d79196",
@@ -36865,6 +37117,12 @@
         "peak_sprites": 18,
         "peak_tile_slivers": 26
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 74,
+        "peak_sprites": 18,
+        "peak_tile_slivers": 26
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 25,
         "selected_merges": 20,
@@ -37356,6 +37614,12 @@
         "peak_sprites": 18,
         "peak_tile_slivers": 26
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 74,
+        "peak_sprites": 18,
+        "peak_tile_slivers": 26
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 25,
         "selected_merges": 20,
@@ -38043,6 +38307,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 100,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_cache_decomposition": {
         "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
         "seconds": 53.5,
@@ -39833,7 +40103,13 @@
         "oam_entries": 100,
         "peak_sprites": 19,
         "peak_tile_slivers": 19
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 100,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-sevenbank-pool18-framecover-local-player-compact16": {
       "input_sha256": "9ec0365754e8a774a322649bc43e1b1ca80e9dfe082919d9bdcb9b1a2209709e",
@@ -39850,6 +40126,12 @@
         "peak_sprites": 18,
         "peak_tile_slivers": 25
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 74,
+        "peak_sprites": 18,
+        "peak_tile_slivers": 25
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 22,
         "selected_merges": 18,
@@ -40993,6 +41275,12 @@
         "peak_sprites": 18,
         "peak_tile_slivers": 26
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 107,
+        "peak_sprites": 23,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 25,
         "selected_merges": 20,
@@ -41508,6 +41796,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 26
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 113,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 25,
         "selected_merges": 20,
@@ -42023,6 +42317,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 26
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 117,
+        "peak_sprites": 24,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 25,
         "selected_merges": 20,
@@ -47857,7 +48157,13 @@
         "oam_entries": 100,
         "peak_sprites": 19,
         "peak_tile_slivers": 19
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 100,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-eightbank-pool18-local-compact16": {
       "input_sha256": "9f843bab0ea1005014c55c5aec9e616567ae3abfaea28f3356f718705fa50717",
@@ -47874,6 +48180,12 @@
         "peak_sprites": 20,
         "peak_tile_slivers": 29
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 68,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 29
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 26,
         "selected_merges": 26,
@@ -47904,6 +48216,12 @@
         "peak_sprites": 20,
         "peak_tile_slivers": 29
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 68,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 29
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 26,
         "selected_merges": 26,
@@ -47987,7 +48305,13 @@
         "oam_entries": 107,
         "peak_sprites": 19,
         "peak_tile_slivers": 19
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 107,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-eightbank-pool18-globalgrid-rebalanced": {
       "input_sha256": "a978a8ab52860612e0dcd3f0e46eb5b9f7f66b642fe32fafe7da748e03a6aaf1",
@@ -48004,6 +48328,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 107,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -60805,7 +61135,13 @@
         "oam_entries": 103,
         "peak_sprites": 19,
         "peak_tile_slivers": 19
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 103,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-eightbank-pool16-local-rebalanced": {
       "input_sha256": "7d78e8d60aa4a0bcfc7c244c2fbf2310655966e3d2fe925f24a09b5b58fc84fd",
@@ -60822,6 +61158,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 103,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -60891,7 +61233,13 @@
         "oam_entries": 111,
         "peak_sprites": 19,
         "peak_tile_slivers": 19
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 111,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-eightbank-pool16-globalgrid-rebalanced": {
       "input_sha256": "678149b2e0e89826096764407f273c98d4c6db15914ede87edb226a6c8181af4",
@@ -60908,6 +61256,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 111,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -60978,6 +61332,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 103,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -61060,6 +61420,12 @@
         "peak_sprites": 18,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 55,
+        "peak_sprites": 18,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 40,
         "selected_merges": 40,
@@ -70152,7 +70518,13 @@
         "oam_entries": 99,
         "peak_sprites": 19,
         "peak_tile_slivers": 19
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 99,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-eightbank-add-pool16-local-rebalanced": {
       "input_sha256": "42624015d798c0f51757514c7e22f6b535f73c682b555a27c6c955033562f9f2",
@@ -70169,6 +70541,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 99,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -70238,7 +70616,13 @@
         "oam_entries": 99,
         "peak_sprites": 19,
         "peak_tile_slivers": 19
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 99,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-eightbank-add-pool16-framecover-rebalanced": {
       "input_sha256": "b696db28dbe75b820115ca0f0551848eb7f4ef4f052340904f27d65050f8b41a",
@@ -70255,6 +70639,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 99,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -72076,6 +72466,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 99,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -72194,6 +72590,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 99,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -72308,6 +72710,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 99,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -72425,6 +72833,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 99,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -72494,6 +72908,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 19
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 99,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -72563,6 +72983,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -72824,6 +73250,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -73036,6 +73468,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -73105,6 +73543,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -73174,6 +73618,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -73340,6 +73790,12 @@
         "peak_sprites": 23,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 85,
+        "peak_sprites": 23,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 32,
         "selected_merges": 24,
@@ -73906,6 +74362,12 @@
         "peak_sprites": 16,
         "peak_tile_slivers": 24
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 64,
+        "peak_sprites": 16,
+        "peak_tile_slivers": 24
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 22,
         "selected_merges": 22,
@@ -73989,6 +74451,12 @@
         "peak_sprites": 18,
         "peak_tile_slivers": 33
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 70,
+        "peak_sprites": 18,
+        "peak_tile_slivers": 33
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "geometry_compaction": {
         "candidate_merges": 22,
         "selected_merges": 22,
@@ -74272,6 +74740,12 @@
         "peak_sprites": 31,
         "peak_tile_slivers": 31
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 117,
+        "peak_sprites": 31,
+        "peak_tile_slivers": 31
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -74341,6 +74815,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 125,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -74410,6 +74890,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -74479,6 +74965,12 @@
         "peak_sprites": 31,
         "peak_tile_slivers": 31
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 127,
+        "peak_sprites": 31,
+        "peak_tile_slivers": 31
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -74951,6 +75443,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -75028,6 +75526,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -75148,6 +75652,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -75268,6 +75778,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -78979,6 +79495,12 @@
         "peak_sprites": 32,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -79099,6 +79621,12 @@
         "peak_sprites": 20,
         "peak_tile_slivers": 32
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 71,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -79819,6 +80347,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 30
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 70,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 30
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -80869,6 +81403,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 30
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 70,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 30
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -82376,6 +82916,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 30
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 70,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 30
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -83229,6 +83775,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 87,
+        "peak_sprites": 22,
+        "peak_tile_slivers": 28
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -83566,6 +84118,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -85723,6 +86281,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 86,
+        "peak_sprites": 22,
+        "peak_tile_slivers": 28
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -86111,6 +86675,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -86544,6 +87114,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -86889,6 +87465,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -87226,6 +87808,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -87614,6 +88202,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -89778,6 +90372,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -90357,6 +90957,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -90746,6 +91352,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -91091,6 +91703,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -91480,6 +92098,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -91871,6 +92495,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -92260,6 +92890,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "piece_bank_balance": {
         "initial_objective": [
           0,
@@ -96333,7 +96969,13 @@
         "oam_entries": 86,
         "peak_sprites": 22,
         "peak_tile_slivers": 27
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-player-cover-global-joint-fixedwords-minspan401": {
       "input_sha256": "cce38ed1aef2a976fac60a01f3e9a483e8d2f4c8e16424f477b1180168ff15aa",
@@ -96404,7 +97046,13 @@
         "oam_entries": 86,
         "peak_sprites": 22,
         "peak_tile_slivers": 27
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-player-cover-global-joint-minspan401-lns": {
       "input_sha256": "5412bec216937e05efc7cdf59af0f9de6cd096c0d397d859820118514c3a6a60",
@@ -97741,7 +98389,13 @@
         "oam_entries": 86,
         "peak_sprites": 22,
         "peak_tile_slivers": 27
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-player-cover-global-joint-complete-mode-repair134-145": {
       "input_sha256": "28bbe4084cc98dea51b8cc47832528e1b50d80ad32fbcacd0f8009020611e8cb",
@@ -97826,7 +98480,13 @@
         "oam_entries": 86,
         "peak_sprites": 22,
         "peak_tile_slivers": 27
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-player-cover-global-joint-complete-mode-repair126-147-local": {
       "input_sha256": "05f82800c1fb5709082e98a06a07a507cc91f552f6dcc62711d073701706b0e1",
@@ -97913,7 +98573,13 @@
         "oam_entries": 86,
         "peak_sprites": 22,
         "peak_tile_slivers": 27
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-player-cover-global-joint-mode-geometry-minspan401": {
       "input_sha256": "10e40ef400b383b15c63fb8ecd7cbf0c3dcd8ea580771fd868d271fb0020964b",
@@ -98547,6 +99213,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 121,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "bca953c3e7ab4037c1070b83b73492b14095517f2fb087e5bb59b89e02ee0376"
     },
     "byor-motu-authored-hbreath-peak-player-cover-global-joint-mode-subdivision-repair126-147": {
@@ -100750,6 +101422,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 27
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "a6969b1e1cc8da198603d15ef44b8d81255381d5ecb0e7417d8b5ad281e9f0d0"
     },
     "byor-motu-authored-hbreath-peak-player-cover-global-joint-window-mode-coverage-repair126-147": {
@@ -107569,6 +108247,12 @@
         "peak_sprites": 10,
         "peak_tile_slivers": 20
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 61,
+        "peak_sprites": 14,
+        "peak_tile_slivers": 28
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "416b4d6f2b8416ce96e440217fae54de0f2da546349e5d1d70972a57c9b8f28c"
     },
     "byor-motu-authored-hbreath-peak-pure-source-compiled28-cache-bound": {
@@ -108716,7 +109400,13 @@
         "oam_entries": 124,
         "peak_sprites": 27,
         "peak_tile_slivers": 27
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 124,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 27
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-literal-pool-bank-gap-bound": {
       "input_sha256": "4e2f1a70502b7af00459e57825a264b8f199456d2e340adb75e5d283870d4567",
@@ -112562,6 +113252,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 27
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "ed3771ade941858d6295529c1ef4212a05dbc29ba04266867174475c2d8b604f"
     },
     "byor-motu-authored-hbreath-peak-source-geometry-class-cuts-mode-window-compiled400": {
@@ -112579,6 +113275,12 @@
         "peak_sprites": 23,
         "peak_tile_slivers": 27
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 121,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "afe97215ffe9c4a707bd301d6b53d1f925fe294cc6788c49f43f97b65e0aa28d"
     },
     "byor-motu-authored-hbreath-peak-source-geometry-class-cuts-highs-repair126-147": {
@@ -114757,6 +115459,12 @@
         "peak_sprites": 18,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 97,
+        "peak_sprites": 21,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "03a10f7f0961ec7af57b0a246b22aa21edab484aca12d02d6f224797197ac92c"
     },
     "byor-motu-authored-hbreath-peak-pure-source-row-word-class-bound": {
@@ -116401,6 +117109,12 @@
         "peak_sprites": 19,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 123,
+        "peak_sprites": 22,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "420b676455a4c0b19c14cc0deba22bfd70e7f59255d5ef08b119275daedcebd3"
     },
     "byor-motu-authored-hbreath-peak-pure-source-frame-word-class-bound": {
@@ -118027,6 +118741,12 @@
         "peak_sprites": 23,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 127,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "c49cfbde48f3c3915e97d9a87294421596b46149b9efa0a084aefc0992d372b7"
     },
     "byor-motu-authored-hbreath-peak-source-geometry-frame-word-class-bound": {
@@ -118174,6 +118894,12 @@
         "peak_sprites": 23,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 127,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "3db386af8565bbe23d6a68535d4a310b802f36fb1820ea914d2ef6b65d9b1226"
     },
     "byor-motu-authored-hbreath-peak-source-geometry-frame-word-cache21-ordered": {
@@ -118199,6 +118925,12 @@
         "peak_sprites": 23,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 127,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "28270ee6a45ed1f18b4123c64a62c3d31471dcc3769af2751beeb129d84a1286"
     },
     "byor-motu-authored-hbreath-peak-source-geometry-frame-word-cache21-minspan457": {
@@ -118283,6 +119015,12 @@
         "peak_sprites": 23,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 127,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "f60c71e1c62f7adf75bf9269f7f719e0a347df51c4e82370ad90875b18b955a8"
     },
     "byor-motu-authored-hbreath-peak-source-geometry-frame-word-rebank353": {
@@ -118902,6 +119640,12 @@
         "peak_sprites": 23,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 127,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "855222d7c4d902c398159fdf0f8dde23702fa1ff6944855213ccf8c8e4f7d915"
     },
     "byor-motu-authored-hbreath-peak-source-geometry-frame-word-rebank22-window357": {
@@ -120944,6 +121688,12 @@
         "peak_sprites": 21,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "da4b69dab6c13eccf7ee12946d94bad9344ae40653bf9c6a35eac0b0741d84c3",
       "geometry_pixel_rectangle_cover": {
         "schema": "BYOR_FIXED_BANK_PIXEL_RECTANGLE_COVER_V1",
@@ -121291,6 +122041,12 @@
         "peak_sprites_per_line": 23,
         "peak_tile_slivers_per_line": 26
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "351c447f77ed02e5c9c596e5b1fd1bf8c998dc402cbb4251ce790dfac6e9bdef",
       "geometry_pixel_rectangle_cover": {
         "schema": "BYOR_FIXED_BANK_PIXEL_RECTANGLE_COVER_V1",
@@ -122177,6 +122933,12 @@
         "peak_sprites_per_line": 23,
         "peak_tile_slivers_per_line": 26
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "72dd2cc17635dea08089ca8d1cdb5276362e6cd75ef672e3778a1a3fbde49258",
       "bank_rebalance": {
         "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
@@ -122844,6 +123606,12 @@
         "peak_sprites_per_line": 23,
         "peak_tile_slivers_per_line": 26
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "54ec64cbdcbf8a0844d589856ad0f8acc4e8476e46e29ba4c3023db6137902a6",
       "bank_rebalance": {
         "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
@@ -123492,6 +124260,12 @@
         "peak_sprites_per_line": 23,
         "peak_tile_slivers_per_line": 26
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "a5e152a6425180ee1c1c6b98ac68ee3e22abd391606ba3897d83134f338ae47c",
       "bank_rebalance": {
         "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
@@ -124140,6 +124914,12 @@
         "peak_sprites_per_line": 23,
         "peak_tile_slivers_per_line": 26
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "5f8711b1ce51ac853cca08b0923bba4418b3d1e6d2a8245afe5c804020b70232",
       "bank_rebalance": {
         "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
@@ -125398,6 +126178,12 @@
         "peak_sprites_per_line": 23,
         "peak_tile_slivers_per_line": 26
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "8b51f81fa2abbe08fa26825ae48e0433b3877fb2e0586f5c6429bffb33523887",
       "bank_rebalance": {
         "schema": "BYOR_FIXED_BANK_REBALANCE_V1",
@@ -127078,6 +127864,12 @@
         "peak_sprites": 16,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 66,
+        "peak_sprites": 16,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "9a65eca4c0083d9368e386b854b956889968e34f2190ace35aacdcc859b3a0e2"
     },
     "byor-motu-authored-hbreath-peak-pure32-frame-word-class-bound": {
@@ -128811,6 +129603,12 @@
         "peak_sprites": 10,
         "peak_tile_slivers": 10
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 90,
+        "peak_sprites": 14,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "0e2e5287eeb3711ec2c8f47cef08123a641dc9c5bb1f094eabea78fe8e0b4456"
     },
     "byor-motu-authored-hbreath-peak-pure8-single-bank-add-class-bound": {
@@ -129564,6 +130362,12 @@
         "peak_sprites": 17,
         "peak_tile_slivers": 17
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 118,
+        "peak_sprites": 21,
+        "peak_tile_slivers": 25
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "9eddedad880093eae028b2693d9199ca319b31b504d08e55e630d2f1841afbcf"
     },
     "byor-motu-authored-hbreath-peak-pure8-global-word-fixed-bound": {
@@ -130180,6 +130984,12 @@
         "peak_sprites": 21,
         "peak_tile_slivers": 21
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 25,
+        "peak_tile_slivers": 29
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "63b448713bb9f5716933c38a6db92ce4ecc3b7821b11ea2dde1090baa19425c2"
     },
     "byor-motu-authored-hbreath-peak-pure8-global-word-balanced-search": {
@@ -138998,6 +139808,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 22
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 30
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "cache_segment_construction": {
         "schema": "BYOR_CLASS_CACHE_SEGMENT_BANK_CONSTRUCTION_V1",
         "status": "CLASS_CACHE_SEGMENTS_AND_FIXED_BANK_MASKS_PROVEN",
@@ -142044,6 +142860,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 27
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 123,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "cache_segment_construction": {
         "schema": "BYOR_CLASS_CACHE_SEGMENT_BANK_CONSTRUCTION_V1",
         "status": "CLASS_CACHE_SEGMENTS_AND_FIXED_BANK_MASKS_PROVEN",
@@ -142145,6 +142967,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 27
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 119,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "cache_segment_construction": {
         "schema": "BYOR_CLASS_CACHE_SEGMENT_BANK_CONSTRUCTION_V1",
         "status": "CLASS_CACHE_SEGMENTS_AND_FIXED_BANK_MASKS_PROVEN",
@@ -142252,6 +143080,12 @@
         "peak_sprites": 22,
         "peak_tile_slivers": 27
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 120,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "cache_segment_construction": {
         "schema": "BYOR_CLASS_CACHE_SEGMENT_BANK_CONSTRUCTION_V1",
         "status": "CLASS_CACHE_SEGMENTS_AND_FIXED_BANK_MASKS_PROVEN",
@@ -142361,6 +143195,12 @@
         "peak_sprites": 23,
         "peak_tile_slivers": 28
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 123,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "cache_segment_construction": {
         "schema": "BYOR_CLASS_CACHE_SEGMENT_BANK_CONSTRUCTION_V1",
         "status": "CLASS_CACHE_SEGMENTS_AND_FIXED_BANK_MASKS_PROVEN",
@@ -142484,6 +143324,12 @@
         "peak_sprites": 27,
         "peak_tile_slivers": 33
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 90,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 33
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "89d84a6d5ccfdb173944db672ed1dd174b662e36179d4a32c07d3be93c4e6c19",
       "geometry_pixel_rectangle_cover": {
         "schema": "BYOR_FIXED_BANK_PIXEL_RECTANGLE_COVER_V1",
@@ -143340,6 +144186,12 @@
         "peak_sprites": 29,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 100,
+        "peak_sprites": 29,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "cache_segment_construction": {
         "schema": "BYOR_CLASS_CACHE_SEGMENT_BANK_CONSTRUCTION_V1",
         "status": "CLASS_CACHE_SEGMENTS_AND_FIXED_BANK_MASKS_PROVEN",
@@ -143711,6 +144563,12 @@
         "peak_sprites": 29,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 104,
+        "peak_sprites": 29,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "cache_segment_construction": {
         "schema": "BYOR_CLASS_CACHE_SEGMENT_BANK_CONSTRUCTION_V1",
         "status": "CLASS_CACHE_SEGMENTS_AND_FIXED_BANK_MASKS_PROVEN",
@@ -144083,6 +144941,12 @@
         "peak_sprites": 29,
         "peak_tile_slivers": 34
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 104,
+        "peak_sprites": 29,
+        "peak_tile_slivers": 34
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "cache_segment_construction": {
         "schema": "BYOR_CLASS_CACHE_SEGMENT_BANK_CONSTRUCTION_V1",
         "status": "CLASS_CACHE_SEGMENTS_AND_FIXED_BANK_MASKS_PROVEN",
@@ -146227,6 +147091,12 @@
         "peak_sprites": 27,
         "peak_tile_slivers": 33
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 90,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 33
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "c081ec32d351f7f3c9bb0f7b06619041e0b681d4decb40de39f9b0ae6010ac66",
       "piece_bank_balance": {
         "initial_objective": [
@@ -147057,6 +147927,12 @@
         "peak_sprites": 27,
         "peak_tile_slivers": 33
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 90,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 33
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "2ace133adce75adbbff9b0c9b48117f9e1d4f2ea5e7d67c82f36d731c68c4e00",
       "piece_bank_balance": {
         "initial_objective": [
@@ -148117,6 +148993,12 @@
         "peak_sprites": 27,
         "peak_tile_slivers": 33
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 90,
+        "peak_sprites": 27,
+        "peak_tile_slivers": 33
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "f8e59b10316e90d56b2705466552bebd1f7e7a7ff406d79a0d98bbaf3dbda9cc",
       "piece_bank_balance": {
         "initial_objective": [
@@ -148451,7 +149333,13 @@
         "oam_entries": 109,
         "peak_sprites": 20,
         "peak_tile_slivers": 20
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 109,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 20
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-class-transfer20-local-bound": {
       "input_sha256": "f994cf0159412cb6ad2c872966a43919b54ef247e33fc787cbeba1b61d8fd1be",
@@ -149211,6 +150099,12 @@
         "peak_sprites": 20,
         "peak_tile_slivers": 20
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 109,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 20
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "176c10ccac4a6507aa32a35514a3472aee007cf96a14892e2a456efe82dafec3",
       "piece_bank_balance": {
         "initial_objective": [
@@ -149278,7 +150172,13 @@
         "oam_entries": 107,
         "peak_sprites": 20,
         "peak_tile_slivers": 20
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 107,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 20
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-total-loads-local-balanced": {
       "input_sha256": "5422d6317a515c5a9684df7f1b21cbb2f0c31c95ef46bb28b0482c54d0b48bac",
@@ -149295,6 +150195,12 @@
         "peak_sprites": 20,
         "peak_tile_slivers": 20
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 107,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 20
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "2d10550df048c1a88103ed6ecb75c6f37f7a23984eca6fabfeec5ca39a364e39",
       "piece_bank_balance": {
         "initial_objective": [
@@ -149340,7 +150246,13 @@
         "oam_entries": 107,
         "peak_sprites": 20,
         "peak_tile_slivers": 20
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 107,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 20
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-total-loads-warm-cache357": {
       "input_sha256": "58d494c142f2636493d0855295e7b7e24286756137ac2948355a336bd0490e8d",
@@ -149916,7 +150828,13 @@
         "oam_entries": 107,
         "peak_sprites": 20,
         "peak_tile_slivers": 20
-      }
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 107,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 20
+      },
+      "reservation_palette_and_layer_demand_included": false
     },
     "byor-motu-authored-hbreath-peak-total-loads-warm-frame-balanced": {
       "input_sha256": "6c21f92286356cb4c52547eb2f288a2dcfe18974818fa5b7f20f09f3d4cea180",
@@ -149933,6 +150851,12 @@
         "peak_sprites": 20,
         "peak_tile_slivers": 20
       },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 107,
+        "peak_sprites": 20,
+        "peak_tile_slivers": 20
+      },
+      "reservation_palette_and_layer_demand_included": false,
       "compiled_presentation_sha256": "99bb5cc71d8104b8025924298b977eda584d9b0d1edaf9dcfb29c0c3f7781bd8",
       "piece_bank_balance": {
         "initial_objective": [
@@ -149964,6 +150888,1867 @@
         "no_color_reduction": true
       }
     },
+    "byor-motu-authored-hbreath-peak-source400-exact-encoding-minloads357": {
+      "input_sha256": "d30d86f2343615d21f67b39cad2f5c48ecef80064bcc381758efe98639f77f20",
+      "status": "RELAXED_MODE_LIVENESS_CANDIDATE",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "peak_pool_writes": 19,
+      "total_pool_writes": 358,
+      "class_pool_only": true,
+      "fixed_bank_assignment_proven": false,
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-local-pieces": {
+      "input_sha256": "1ef1a19703fefed4595fd59a50c120fbea29f59041b8d9b57c3c5b82e05bdae9",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "0bdfe01e6a6ee32de8ca84f268ed355b9ec8d747e61a429af0ab434e3a17ff6b",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-local-balanced": {
+      "input_sha256": "5a5c9bff7c9020e4760b445ec6109fe03615b9fb978327a132f37eb4e53f4201",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "b433bed5d6da0c1855f325f57ff3f7d5d914c6cb81962c5c2b1e0cc3846c3a50",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
+      "compiled_presentation_sha256": "1a84ee8d0ff5813c53e5761381bd9a6669b110a158c8fce91e4f9c5b8aa241cb",
+      "piece_bank_balance": {
+        "initial_objective": [
+          0,
+          28.75,
+          11.434056335975363
+        ],
+        "final_objective": [
+          0,
+          19.428571428571427,
+          9.182970204911559
+        ],
+        "seed": 618,
+        "steps_requested": 20000,
+        "proposals_sampled": 16818,
+        "moves_accepted": 6702,
+        "swap_probability": 0.35,
+        "swap_proposals_sampled": 7036,
+        "swap_moves_accepted": 1837,
+        "sample_equal_best": false,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 14.686999999918044,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      }
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-local-balanced-bound": {
+      "input_sha256": "701c5f9edc52d748bd82957da54bb6a35cdb7a7e36a295ca0ef547375d61f316",
+      "search": {
+        "schema": "BYOR_FIXED_BANK_CACHE_LP_BOUND_V1",
+        "status": "FRACTIONAL_FIXED_BANK_CACHE_LOWER_BOUND",
+        "solver_status": 0,
+        "message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+        "variables": 30292,
+        "constraints": 15291,
+        "lookahead_lines": 224,
+        "geometry_and_pixel_choices_fixed": true,
+        "physical_slots_and_ranges_relaxed": true,
+        "initial_residency_optimal": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "peak_write_lower_bound": 21.571428571428573,
+        "validated_dual_lower_bound": 21.57142857142855,
+        "maximum_primal_violation": 7.105427357601002e-15,
+        "maximum_dual_residual": 2.220446049250313e-16
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-cache357": {
+      "input_sha256": "a85e8bbdd4def3f8a827e6150f9536574de9912b7024ad4fc00374e66d481938",
+      "search": {
+        "schema": "BYOR_CLASS_CACHE_SEGMENT_BANK_CONSTRUCTION_V1",
+        "status": "BOUNDED_SELECTED_CACHE_BANK_NO_CANDIDATE",
+        "class_cache_backend": "cp-sat",
+        "class_cache_status": "OPTIMAL",
+        "class_cache_seconds": 0.0358939,
+        "class_cache_objective": "loads",
+        "class_cache_branches": 0,
+        "class_cache_conflicts": 0,
+        "class_cache_backend_report": {
+          "solver_status": "OPTIMAL",
+          "solver_seconds": 0.0358939,
+          "solver_branches": 0,
+          "solver_conflicts": 0
+        },
+        "class_cache_variables": 20641,
+        "class_cache_constraints": 42461,
+        "source_words_and_classes_fixed": true,
+        "class_capacities": [
+          60,
+          60
+        ],
+        "class_load_profile_has_necessary_transfer_bound": true,
+        "class_load_banks_are_not_persistent": true,
+        "class_transfer_bound_is_complete_partition_proof": false,
+        "validated_class_cache_hint_used": true,
+        "class_cache_hints_are_soft": false,
+        "class_cache_lifetimes_fixed_to_validated_input": true,
+        "class_cache_hint_scope": "class proposal; bank fragments may drop unused residency",
+        "bank_stage_may_drop_unused_fragments": true,
+        "one_resident_bank_per_class_word_per_line": false,
+        "bank_word_copies_allowed": true,
+        "selected_cache_family_only": true,
+        "word_bank_can_change_after_eviction": true,
+        "fixed_bank_per_compiled_oam_entry": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "write_budget": 22,
+        "window": 357,
+        "lookahead": 224,
+        "class_cache_peak_writes": 19,
+        "class_cache_total_writes": 345,
+        "class_cache_total_resident_lines": 3856,
+        "geometry_edge_bank_migration_allowed": true,
+        "bank_residency_fragments": 6457,
+        "additional_bank_fragment_stride": 1,
+        "bank_interval_prefetch_margin": 8,
+        "continuous_fragment_migrations_require_cgram_writes": true,
+        "validated_source_assignment_hint_used": false,
+        "validated_owner_bank_hint_count": 0,
+        "owner_bank_hints_are_soft": true,
+        "validated_resident_bank_hint_count": 0,
+        "all_bank_hints_are_soft": true,
+        "complete_bank_hint_model_verified": false,
+        "bank_hint_variable_count": 104,
+        "bank_hint_violation_count": 0,
+        "bank_hint_first_violations": [],
+        "bank_hint_first_constraint_details": [],
+        "bank_repair_interval": null,
+        "bank_repair_fixed_variables": 0,
+        "outside_repair_bank_residency_and_owner_choices_fixed": false,
+        "bank_status": "UNKNOWN",
+        "bank_seconds": 90.19529870000001,
+        "bank_backend": "cp-sat",
+        "bank_backend_report": {
+          "solver_status": "UNKNOWN",
+          "solver_seconds": 90.19529870000001,
+          "solver_branches": 40706,
+          "solver_conflicts": 9829
+        },
+        "bank_search_strategy": "portfolio",
+        "bank_objective": "FEASIBILITY_ONLY",
+        "interchangeable_segment_bank_first_use_order": false,
+        "complete_partition_constraints_provably_redundant": false,
+        "bank_branches": 40706,
+        "bank_conflicts": 9829,
+        "bank_variables": 61192,
+        "bank_constraints": 150451,
+        "geometry_reservation": {
+          "oam_entries": 0,
+          "sprites_per_line": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "tile_slivers_per_line": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "reservation_palette_and_layer_demand_included": false,
+        "source_input_sha256": "1ef1a19703fefed4595fd59a50c120fbea29f59041b8d9b57c3c5b82e05bdae9",
+        "source_input_path": "out\\byor-motu-authored-hbreath-peak-source400-minloads-local-pieces.json",
+        "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+        "source_pak_sha256": null,
+        "retainer_class_cache_lifetimes_source_replayed": true,
+        "retainer_class_cache_is_not_fixed_bank_admission": true,
+        "class_cache_lifetime_count": 424,
+        "class_cache_lifetimes_sha256": "f42d18cc4360ab4e49fb8dc1b758e14ea0d3e8e66dc12fe8b4f042f57ed1c0c1"
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-piece-write-cuts": {
+      "input_sha256": "fbbf3cd8ca576aa9afbd916dff1a9926329244ed62fdd353757c3a3ac9472a2d",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "74fab67c2f27f88a58def2b8b1a76737ceb4e516c56a2646d22f6e7daba33e7e",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
+      "compiled_presentation_sha256": "4f1d2d64822c295f57f5bae57571be0f0716d3201b6571797348ff2e685bc684",
+      "piece_bank_balance": {
+        "initial_objective": [
+          0,
+          28.75,
+          11.434056335975363
+        ],
+        "final_objective": [
+          0,
+          19.428571428571427,
+          9.182970204911559
+        ],
+        "seed": 618,
+        "steps_requested": 20000,
+        "proposals_sampled": 16818,
+        "moves_accepted": 6702,
+        "swap_probability": 0.35,
+        "swap_proposals_sampled": 7036,
+        "swap_moves_accepted": 1837,
+        "sample_equal_best": false,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 14.686999999918044,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 94.03200000012293,
+        "maximum_changed_pieces_per_master": 12,
+        "objective_kind": "writes",
+        "row_word_masks": false,
+        "write_budget": null,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 16,
+        "interval_cut_count": 192,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "d2927a266556ead20a2c706a2c5fb5841f1c57689a8939e8e908465115a786cd",
+        "restored_certified_cuts": 0,
+        "cache_lp_variables": 82133,
+        "cache_lp_constraints": 46582,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_cache_bound": 21.250000000000004,
+        "iterations_count": 19
+      }
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-fixed-bank-integer22": {
+      "input_sha256": "884692eb8ee105c63e39cb70945236d0dca558cae89bfc35ae9a7f6d432a9f2f",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "a0f4161bfee5e1a4aa7de7895b7aa10f3ea5fab1e127899f0e56e092840c54ce",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "FIXED_BANK_RESIDENCY_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_backend": "cp-sat",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 60.0671918,
+        "solver_model_variables": 30414,
+        "solver_model_constraints": 53778,
+        "solver_branches": 57148,
+        "solver_conflicts": 11992,
+        "write_budget": 22,
+        "lookahead_lines": 224,
+        "prepared_window_master_clocks": null,
+        "range_backend": "dp",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": false,
+        "overlapping_adjacent_bridge_cost_relaxation": false,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "compulsory_bank_interval_cuts": 6889,
+        "soft_residency_hint_interval": null,
+        "solver_consumes_soft_hints": true,
+        "supplied_residency_hint_used_by_solver": false,
+        "collapse_bank_idle_prefix": false,
+        "bank_first_visible_rows": null,
+        "bank_idle_prefix_resident_variables_collapsed": 0,
+        "total_noninitial_writes_objective": true,
+        "peak_optimistic_prepared_span_objective": false,
+        "solver_search_strategy": "portfolio",
+        "palette_residency_integrality_relaxed": false,
+        "maximum_active_banks_per_line": null,
+        "per_bank_write_caps_enforced": false,
+        "peak_scheduled_writes": 22,
+        "maximum_noninitial_prefetch_latency_lines": 15,
+        "pixel_color_identity_verified": true,
+        "independent_prepared_partition_bound_verified": false,
+        "peak_optimistic_prepared_span": 472,
+        "total_noninitial_scheduled_writes": 558,
+        "peak_noninitial_active_banks": 8
+      },
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
+      "compiled_presentation_sha256": "bc4c0e9cff0433c72c654a204688b16303438ef120abde4ba4e88367e844e995",
+      "piece_bank_balance": {
+        "initial_objective": [
+          0,
+          28.75,
+          11.434056335975363
+        ],
+        "final_objective": [
+          0,
+          19.428571428571427,
+          9.182970204911559
+        ],
+        "seed": 618,
+        "steps_requested": 20000,
+        "proposals_sampled": 16818,
+        "moves_accepted": 6702,
+        "swap_probability": 0.35,
+        "swap_proposals_sampled": 7036,
+        "swap_moves_accepted": 1837,
+        "sample_equal_best": false,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 14.686999999918044,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 94.03200000012293,
+        "maximum_changed_pieces_per_master": 12,
+        "objective_kind": "writes",
+        "row_word_masks": false,
+        "write_budget": null,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 16,
+        "interval_cut_count": 192,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "d2927a266556ead20a2c706a2c5fb5841f1c57689a8939e8e908465115a786cd",
+        "restored_certified_cuts": 0,
+        "cache_lp_variables": 82133,
+        "cache_lp_constraints": 46582,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_cache_bound": 21.250000000000004,
+        "iterations_count": 19
+      }
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-fixed-bank-minspan473": {
+      "input_sha256": "eaa2d1276e0fbcdad0f1b30d540634fdf32507894ec65c577d75d9876f37da10",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "4033bec8a553480a94451bd6baab4f0d6af32353dc9be971590f36af96b5b2ce",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "FIXED_BANK_RESIDENCY_AND_PIXEL_IDENTITIES_PROVEN",
+        "solver_backend": "cp-sat",
+        "solver_status": "FEASIBLE",
+        "solver_seconds": 90.1176841,
+        "solver_model_variables": 33547,
+        "solver_model_constraints": 75192,
+        "solver_branches": 59855,
+        "solver_conflicts": 19110,
+        "write_budget": 22,
+        "lookahead_lines": 224,
+        "prepared_window_master_clocks": 473,
+        "range_backend": "flow",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": false,
+        "overlapping_adjacent_bridge_cost_relaxation": false,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": true,
+        "compulsory_bank_interval_cuts": 6889,
+        "soft_residency_hint_interval": [
+          0,
+          223
+        ],
+        "solver_consumes_soft_hints": true,
+        "supplied_residency_hint_used_by_solver": true,
+        "collapse_bank_idle_prefix": false,
+        "bank_first_visible_rows": null,
+        "bank_idle_prefix_resident_variables_collapsed": 0,
+        "total_noninitial_writes_objective": false,
+        "peak_optimistic_prepared_span_objective": true,
+        "solver_search_strategy": "portfolio",
+        "palette_residency_integrality_relaxed": false,
+        "maximum_active_banks_per_line": null,
+        "per_bank_write_caps_enforced": false,
+        "peak_optimistic_span_lower_bound_for_this_fixed_bank_family": 377,
+        "peak_span_lower_bound_scope": {
+          "fixed_source_words_and_piece_banks": true,
+          "maximum_writes_per_line": 22,
+          "noninitial_prefetch_lookahead_lines": 224,
+          "range_backend": "flow",
+          "ideal_window_constraint": 473,
+          "maximum_active_banks_per_line": null,
+          "per_bank_write_caps_enforced": false,
+          "fixed_outside_repair_interval": null,
+          "scanline_demand_interval": [
+            0,
+            223
+          ],
+          "universal_raster_rejected": false
+        },
+        "peak_scheduled_writes": 22,
+        "maximum_noninitial_prefetch_latency_lines": 15,
+        "pixel_color_identity_verified": true,
+        "independent_prepared_partition_bound_verified": true,
+        "peak_optimistic_prepared_span": 472,
+        "total_noninitial_scheduled_writes": 559,
+        "peak_noninitial_active_banks": 8
+      },
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
+      "compiled_presentation_sha256": "dcf4975b2cf7e2f34573acbd12a716596365fa757ca164703d8301d8c976e236",
+      "piece_bank_balance": {
+        "initial_objective": [
+          0,
+          28.75,
+          11.434056335975363
+        ],
+        "final_objective": [
+          0,
+          19.428571428571427,
+          9.182970204911559
+        ],
+        "seed": 618,
+        "steps_requested": 20000,
+        "proposals_sampled": 16818,
+        "moves_accepted": 6702,
+        "swap_probability": 0.35,
+        "swap_proposals_sampled": 7036,
+        "swap_moves_accepted": 1837,
+        "sample_equal_best": false,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 14.686999999918044,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 94.03200000012293,
+        "maximum_changed_pieces_per_master": 12,
+        "objective_kind": "writes",
+        "row_word_masks": false,
+        "write_budget": null,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 16,
+        "interval_cut_count": 192,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "d2927a266556ead20a2c706a2c5fb5841f1c57689a8939e8e908465115a786cd",
+        "restored_certified_cuts": 0,
+        "cache_lp_variables": 82133,
+        "cache_lp_constraints": 46582,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_cache_bound": 21.250000000000004,
+        "iterations_count": 19
+      }
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-fixed-bank-permutation-bound": {
+      "input_sha256": "8acce6b8b175992c4981c39af6ddaa09583102f02dadfe3076975246cb98033a",
+      "search": {
+        "schema": "BYOR_ELIGIBLE_FIXED_BANK_PERMUTATION_BOUND_V1",
+        "legal_permutations_checked": 576,
+        "minimum_peak_favorable_span": 472,
+        "sum_favorable_spans": 11432,
+        "best_bank_mapping": [
+          2,
+          0,
+          3,
+          1,
+          7,
+          6,
+          5,
+          4
+        ],
+        "write_times_and_word_residency_fixed": true,
+        "math_bank_eligibility_preserved": true,
+        "physical_slots_relaxed": true,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-piece-span-cuts": {
+      "input_sha256": "6f97f3fc06312da4d4cb6393fd66b8709a9edc21fbbab94189ad1017c8a1dff9",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "74fab67c2f27f88a58def2b8b1a76737ceb4e516c56a2646d22f6e7daba33e7e",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 89,
+        "peak_sprites": 19,
+        "peak_tile_slivers": 19
+      },
+      "reservation_palette_and_layer_demand_included": false,
+      "compiled_presentation_sha256": "4f1d2d64822c295f57f5bae57571be0f0716d3201b6571797348ff2e685bc684",
+      "piece_bank_balance": {
+        "initial_objective": [
+          0,
+          28.75,
+          11.434056335975363
+        ],
+        "final_objective": [
+          0,
+          19.428571428571427,
+          9.182970204911559
+        ],
+        "seed": 618,
+        "steps_requested": 20000,
+        "proposals_sampled": 16818,
+        "moves_accepted": 6702,
+        "swap_probability": 0.35,
+        "swap_proposals_sampled": 7036,
+        "swap_moves_accepted": 1837,
+        "sample_equal_best": false,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 14.686999999918044,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 12.515000000130385,
+        "maximum_changed_pieces_per_master": 12,
+        "objective_kind": "dma-window",
+        "row_word_masks": false,
+        "write_budget": 22,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 16,
+        "interval_cut_count": 192,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "18dcdbc6e5940dec62d647fae26806b21a26c1a391340fccb2abf1167c2687af",
+        "restored_certified_cuts": 0,
+        "cache_lp_variables": 82943,
+        "cache_lp_constraints": 88144,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_dma_span_bound": 369.28971881265926,
+        "iterations_count": 2
+      }
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-row-mask-cuts": {
+      "input_sha256": "818596375e4b339e6a32defa23c24a87b94b0b1fdba786d6f7c877882cf11950",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "e0205f8bb67bde741043f8560016caff225db577399a222585a7c53ea310f03f",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 127,
+        "peak_sprites": 28,
+        "peak_tile_slivers": 28
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 127,
+        "peak_sprites": 28,
+        "peak_tile_slivers": 28
+      },
+      "reservation_palette_and_layer_demand_included": false,
+      "compiled_presentation_sha256": "f63187f6afd7fcf1fddacbe53d968128c357bdc40830f46cf19f4aaa34625deb",
+      "piece_bank_balance": {
+        "initial_objective": [
+          0,
+          28.75,
+          11.434056335975363
+        ],
+        "final_objective": [
+          0,
+          19.428571428571427,
+          9.182970204911559
+        ],
+        "seed": 618,
+        "steps_requested": 20000,
+        "proposals_sampled": 16818,
+        "moves_accepted": 6702,
+        "swap_probability": 0.35,
+        "swap_proposals_sampled": 7036,
+        "swap_moves_accepted": 1837,
+        "sample_equal_best": false,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 14.686999999918044,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 25.390999999828637,
+        "maximum_changed_pieces_per_master": null,
+        "objective_kind": "writes",
+        "row_word_masks": true,
+        "write_budget": null,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 16,
+        "interval_cut_count": 192,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "72b5a6460c47d8036e943cbb71573365045e6a3ec252c0b4bdde1b515f3e6162",
+        "restored_certified_cuts": 0,
+        "cache_lp_variables": 82133,
+        "cache_lp_constraints": 46582,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_cache_bound": 21.142857142857142,
+        "iterations_count": 4
+      }
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-row-mask-repair-cuts": {
+      "input_sha256": "ab760729006122f463cd209ce48b870354c8fcf35c2099510b2ff1e795998796",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "e2d8de10fbd5185ae6148a3b82c57cddded64d3d9782015e681ffce3231ebe1a",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 32,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false,
+      "compiled_presentation_sha256": "4f959d052b97cecccc5d3febcf390b0ac3b108dcb4469d0464d2edf0dfce6d7e",
+      "piece_bank_balance": {
+        "initial_objective": [
+          0,
+          28.75,
+          11.434056335975363
+        ],
+        "final_objective": [
+          0,
+          19.428571428571427,
+          9.182970204911559
+        ],
+        "seed": 618,
+        "steps_requested": 20000,
+        "proposals_sampled": 16818,
+        "moves_accepted": 6702,
+        "swap_probability": 0.35,
+        "swap_proposals_sampled": 7036,
+        "swap_moves_accepted": 1837,
+        "sample_equal_best": false,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 14.686999999918044,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 91.06300000008196,
+        "maximum_changed_pieces_per_master": null,
+        "master_search_strategy": "sat-repair",
+        "master_hints_are_soft": true,
+        "objective_kind": "writes",
+        "row_word_masks": true,
+        "write_budget": null,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 16,
+        "interval_cut_count": 192,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "72b5a6460c47d8036e943cbb71573365045e6a3ec252c0b4bdde1b515f3e6162",
+        "restored_certified_cuts": 4,
+        "cache_lp_variables": 82133,
+        "cache_lp_constraints": 46582,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_cache_bound": 18.823529411764707,
+        "iterations_count": 8
+      }
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-row-mask-residency345": {
+      "input_sha256": "4a10892cdc430647be29e18f7c28bbded63f89ffc8d6f9a8e7718369783247bc",
+      "search": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_backend": "cp-sat",
+        "solver_status": "UNKNOWN",
+        "solver_seconds": 90.1077135,
+        "solver_model_variables": 32336,
+        "solver_model_constraints": 72622,
+        "solver_branches": 16329,
+        "solver_conflicts": 481,
+        "write_budget": 21,
+        "lookahead_lines": 224,
+        "prepared_window_master_clocks": 345,
+        "range_backend": "flow",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": false,
+        "overlapping_adjacent_bridge_cost_relaxation": false,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": false,
+        "compulsory_bank_interval_cuts": 6792,
+        "soft_residency_hint_interval": null,
+        "solver_consumes_soft_hints": true,
+        "supplied_residency_hint_used_by_solver": false,
+        "collapse_bank_idle_prefix": false,
+        "bank_first_visible_rows": null,
+        "bank_idle_prefix_resident_variables_collapsed": 0,
+        "total_noninitial_writes_objective": false,
+        "peak_optimistic_prepared_span_objective": false,
+        "solver_search_strategy": "portfolio",
+        "palette_residency_integrality_relaxed": false,
+        "maximum_active_banks_per_line": null,
+        "per_bank_write_caps_enforced": false
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-row-mask-player-repair-cuts": {
+      "input_sha256": "a74ca6d70396b46e25b46753415d41ce09bb8b050e89f0f53576594ad8730777",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "f3b5280882a0f2f084753a3278f5bcee789f54d1b91667883e4237223c7cafde",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 95,
+        "peak_sprites": 22,
+        "peak_tile_slivers": 22
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 30
+      },
+      "reservation_palette_and_layer_demand_included": false,
+      "compiled_presentation_sha256": "4f518a0e2f7f2bf5c68787966cf23f11381c940509acbf49519b57b4d23a1892",
+      "piece_bank_balance": {
+        "initial_objective": [
+          0,
+          28.75,
+          11.434056335975363
+        ],
+        "final_objective": [
+          0,
+          19.428571428571427,
+          9.182970204911559
+        ],
+        "seed": 618,
+        "steps_requested": 20000,
+        "proposals_sampled": 16818,
+        "moves_accepted": 6702,
+        "swap_probability": 0.35,
+        "swap_proposals_sampled": 7036,
+        "swap_moves_accepted": 1837,
+        "sample_equal_best": false,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 14.686999999918044,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 92.84400000004098,
+        "maximum_changed_pieces_per_master": null,
+        "master_search_strategy": "sat-repair",
+        "master_hints_are_soft": true,
+        "objective_kind": "writes",
+        "row_word_masks": true,
+        "write_budget": null,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 16,
+        "interval_cut_count": 192,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "72b5a6460c47d8036e943cbb71573365045e6a3ec252c0b4bdde1b515f3e6162",
+        "restored_certified_cuts": 0,
+        "cache_lp_variables": 82133,
+        "cache_lp_constraints": 46582,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_cache_bound": 20.333333333333332,
+        "iterations_count": 8
+      }
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-player-mask-residency357": {
+      "input_sha256": "1ffde4b43e4631c37efe20202ba2bf4b335cb137a2bd5ea7e8976149ecb0aa7a",
+      "search": {
+        "schema": "BYOR_FIXED_BANK_RESIDENCY_V1",
+        "status": "BOUNDED_FIXED_BANK_RESIDENCY_NO_CANDIDATE",
+        "solver_backend": "cp-sat",
+        "solver_status": "INFEASIBLE",
+        "solver_seconds": 24.419115100000003,
+        "solver_model_variables": 33135,
+        "solver_model_constraints": 74281,
+        "solver_branches": 548,
+        "solver_conflicts": 1,
+        "write_budget": 22,
+        "lookahead_lines": 224,
+        "prepared_window_master_clocks": 357,
+        "range_backend": "flow",
+        "static_bank_dominance_enforced": true,
+        "initial_residency_optimal": true,
+        "initial_palette_may_preload_entire_frame": true,
+        "physical_endpoint_slots_relaxed": true,
+        "physical_slot_schedule_proven": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "fixed_outside_repair_interval": null,
+        "ranges_restricted_to_single_or_adjacent_pair": false,
+        "overlapping_adjacent_bridge_cost_relaxation": false,
+        "restricted_scanline_demand_interval": null,
+        "outside_interval_pixels_relaxed": false,
+        "complete_source_frame_pixel_identity_proven": false,
+        "compulsory_bank_interval_cuts": 6861,
+        "soft_residency_hint_interval": null,
+        "solver_consumes_soft_hints": true,
+        "supplied_residency_hint_used_by_solver": false,
+        "collapse_bank_idle_prefix": false,
+        "bank_first_visible_rows": null,
+        "bank_idle_prefix_resident_variables_collapsed": 0,
+        "total_noninitial_writes_objective": false,
+        "peak_optimistic_prepared_span_objective": false,
+        "solver_search_strategy": "portfolio",
+        "palette_residency_integrality_relaxed": false,
+        "maximum_active_banks_per_line": null,
+        "per_bank_write_caps_enforced": false
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-player-mask-span-cuts": {
+      "input_sha256": "1e8cf31cdd2bd35189284c0da8138e78034f25f452fb638e5b09298153fd9e56",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "5a0db35a9224cdb8312065a185491280f2839f1d229137f72c03d4699c9669cc",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 95,
+        "peak_sprites": 22,
+        "peak_tile_slivers": 22
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 128,
+        "peak_sprites": 26,
+        "peak_tile_slivers": 30
+      },
+      "reservation_palette_and_layer_demand_included": false,
+      "compiled_presentation_sha256": "faf7496d007850e086b2fb322a12ce787dfcd0d120e3871884aec5686256a35f",
+      "piece_bank_balance": {
+        "initial_objective": [
+          0,
+          28.75,
+          11.434056335975363
+        ],
+        "final_objective": [
+          0,
+          19.428571428571427,
+          9.182970204911559
+        ],
+        "seed": 618,
+        "steps_requested": 20000,
+        "proposals_sampled": 16818,
+        "moves_accepted": 6702,
+        "swap_probability": 0.35,
+        "swap_proposals_sampled": 7036,
+        "swap_moves_accepted": 1837,
+        "sample_equal_best": false,
+        "equivalent_best_samples": 0,
+        "interval_peak_only_objective": false,
+        "seconds": 14.686999999918044,
+        "word_bank_copies_allowed": true,
+        "interval_objective_is_residency_relaxation": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true
+      },
+      "piece_cache_decomposition": {
+        "schema": "BYOR_FIXED_PIECE_CACHE_DECOMPOSITION_V1",
+        "seconds": 31.594000000040978,
+        "maximum_changed_pieces_per_master": null,
+        "master_search_strategy": "sat-repair",
+        "master_hints_are_soft": true,
+        "objective_kind": "dma-window",
+        "row_word_masks": true,
+        "write_budget": 22,
+        "alias_aware": true,
+        "initial_residency_optimal": true,
+        "interval_cut_span": 16,
+        "interval_cut_count": 192,
+        "reservation_proves_concurrent_palette_or_layer_admission": false,
+        "cache_basis_sha256": "130f46725c49a4e162b85305aea5e0c1f90f5fc6e917209e50ad2359405ef6f8",
+        "restored_certified_cuts": 0,
+        "cache_lp_variables": 82943,
+        "cache_lp_constraints": 88144,
+        "fractional_residency_only": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "best_fractional_dma_span_bound": 370.45364010057915,
+        "iterations_count": 3
+      }
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-player-mask-interval357": {
+      "input_sha256": "ad3a8e1d9a8b88a4c7dd4902a2eb4e7076e9a3b4ec8ad43ada92ec4eb4e92a70",
+      "search": {
+        "schema": "BYOR_NECESSARY_PIECE_INTERVAL_MASTER_V1",
+        "combined_reserved_geometry": {
+          "oam_entries": 95,
+          "peak_sprites": 22,
+          "peak_tile_slivers": 22
+        },
+        "palette_cache_continuity_relaxed": true,
+        "initial_contents_free_for_each_interval": true,
+        "physical_slots_relaxed": true,
+        "physical_transfer_admitted": false,
+        "native_timing_admitted": false,
+        "full_frame_schedule_proven": false,
+        "universal_raster_rejected": false,
+        "no_color_reduction": true,
+        "geometry_fixed": true,
+        "pixel_words_fixed": true,
+        "fixed_bank_per_oam_piece": true,
+        "concurrent_palette_and_layer_admitted": false,
+        "window": 357,
+        "write_budget": 22,
+        "fractional_aggregate_loads": false,
+        "status": "BOUNDED_INTERVAL_MASTER_NO_ASSIGNMENT",
+        "solver_status": "UNKNOWN",
+        "solver_backend": "cp-sat",
+        "solver_seconds": 60.05580080000001,
+        "variables": 7701,
+        "constraints": 30903,
+        "interval_count": 75,
+        "selected_source_intervals": [
+          [
+            112,
+            116
+          ],
+          [
+            112,
+            120
+          ],
+          [
+            112,
+            128
+          ],
+          [
+            112,
+            144
+          ],
+          [
+            112,
+            166
+          ],
+          [
+            116,
+            120
+          ],
+          [
+            116,
+            124
+          ],
+          [
+            116,
+            132
+          ],
+          [
+            116,
+            148
+          ],
+          [
+            120,
+            124
+          ],
+          [
+            120,
+            128
+          ],
+          [
+            120,
+            136
+          ],
+          [
+            120,
+            152
+          ],
+          [
+            122,
+            138
+          ],
+          [
+            123,
+            139
+          ],
+          [
+            124,
+            128
+          ],
+          [
+            124,
+            132
+          ],
+          [
+            124,
+            140
+          ],
+          [
+            124,
+            156
+          ],
+          [
+            125,
+            133
+          ],
+          [
+            125,
+            141
+          ],
+          [
+            126,
+            134
+          ],
+          [
+            126,
+            142
+          ],
+          [
+            127,
+            131
+          ],
+          [
+            127,
+            135
+          ],
+          [
+            127,
+            143
+          ],
+          [
+            128,
+            132
+          ],
+          [
+            128,
+            136
+          ],
+          [
+            128,
+            144
+          ],
+          [
+            128,
+            160
+          ],
+          [
+            129,
+            131
+          ],
+          [
+            129,
+            133
+          ],
+          [
+            129,
+            137
+          ],
+          [
+            129,
+            145
+          ],
+          [
+            130,
+            132
+          ],
+          [
+            130,
+            134
+          ],
+          [
+            130,
+            138
+          ],
+          [
+            130,
+            146
+          ],
+          [
+            131,
+            135
+          ],
+          [
+            131,
+            139
+          ],
+          [
+            131,
+            147
+          ],
+          [
+            132,
+            136
+          ],
+          [
+            132,
+            140
+          ],
+          [
+            132,
+            148
+          ],
+          [
+            132,
+            164
+          ],
+          [
+            133,
+            141
+          ],
+          [
+            133,
+            149
+          ],
+          [
+            134,
+            142
+          ],
+          [
+            135,
+            143
+          ],
+          [
+            136,
+            140
+          ],
+          [
+            136,
+            144
+          ],
+          [
+            136,
+            152
+          ],
+          [
+            136,
+            166
+          ],
+          [
+            139,
+            143
+          ],
+          [
+            140,
+            144
+          ],
+          [
+            140,
+            148
+          ],
+          [
+            140,
+            156
+          ],
+          [
+            140,
+            166
+          ],
+          [
+            144,
+            148
+          ],
+          [
+            144,
+            152
+          ],
+          [
+            144,
+            160
+          ],
+          [
+            144,
+            166
+          ],
+          [
+            148,
+            152
+          ],
+          [
+            148,
+            156
+          ],
+          [
+            148,
+            164
+          ],
+          [
+            148,
+            166
+          ],
+          [
+            152,
+            156
+          ],
+          [
+            152,
+            160
+          ],
+          [
+            152,
+            166
+          ],
+          [
+            156,
+            160
+          ],
+          [
+            156,
+            164
+          ],
+          [
+            156,
+            166
+          ],
+          [
+            160,
+            164
+          ],
+          [
+            160,
+            166
+          ],
+          [
+            164,
+            166
+          ]
+        ],
+        "alias_variables": 3756,
+        "branches": 136337,
+        "conflicts": 1994,
+        "aggregate_peak_cost_objective": false,
+        "complete_input_aggregate_hint_model_verified": false,
+        "complete_hint_violation_count": 17,
+        "complete_hint_first_violations": [
+          "constraint:4863",
+          "constraint:4965",
+          "constraint:4991",
+          "constraint:5093",
+          "constraint:5349",
+          "constraint:5375",
+          "constraint:5477",
+          "constraint:5605"
+        ],
+        "source_input_sha256": "a74ca6d70396b46e25b46753415d41ce09bb8b050e89f0f53576594ad8730777",
+        "source_input_path": "out\\byor-motu-authored-hbreath-peak-source400-minloads-row-mask-player-repair-cuts.json",
+        "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+        "source_pak_sha256": null
+      },
+      "native_admitted": false
+    },
     "byor-motu-authored-hbreath-peak-player-cover-global-joint-chr": {
       "chr_oam": {
         "schema": "BYOR_RASTER_OBJ_CHR_V1",
@@ -149990,8 +152775,8 @@
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-authored-kempe.json.gz",
-    "bytes": 28186844,
-    "sha256": "34b28eae64e2f2929d44e4c8ebcf635c91481ae55e48e04ca759d8578df32a27"
+    "bytes": 28996636,
+    "sha256": "5e9e46234375d76f2efcabf7d1f25000647466032db151286699100f8983db42"
   },
   "source_alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555",
   "universal_raster_rejected": false,

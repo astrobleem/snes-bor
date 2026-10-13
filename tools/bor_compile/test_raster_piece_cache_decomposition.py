@@ -4,9 +4,45 @@ import test_raster_word_bank_balance as fixtures
 from raster_slot_greedy import demand
 from raster_piece_cache_decomposition import search,nonpositive_solver_dual
 from raster_bank_residency import relaxed_bound
+from test_raster_mask_rectangle_cover import fixture as mask_fixture
 
 
 class DecompositionTests(unittest.TestCase):
+    def test_wrapped_padding_and_clipped_slivers_use_actual_hardware_rows(self):
+        source=mask_fixture();piece=source['pieces'][0]
+        piece.update(x=248,y=220,local_x=0,local_y=0,width=64,height=64)
+        image=np.zeros((64,64),dtype=np.uint8);image[0,7]=1;flat=image.flatten()
+        source['pieces']=[piece];source['piece_pixel_masks']=[dict(width=64,height=64,pixels_hex=(flat[::2]|flat[1::2]<<4).tobytes().hex())]
+        state=source['trace'][-1]['resident_before']
+        source['trace'] += [dict(scanline=y,resident_before=copy.deepcopy(state),updates=[])for y in range(16,224)]
+        reservation=dict(oam_entries=0,sprites_per_line=[0]*224,tile_slivers_per_line=[0]*224)
+        reservation['sprites_per_line'][0]=32
+        blocked=search(source,iterations=1,time_limit=5,row_word_masks=True,geometry_reservation=reservation)
+        self.assertIsNone(blocked['best_fractional_cache_bound'])
+        self.assertFalse(blocked['iterations'][0]['reserved_geometry_admitted'])
+        reservation['sprites_per_line'][0]=0;reservation['tile_slivers_per_line'][220]=33
+        admitted=search(source,iterations=1,time_limit=5,row_word_masks=True,geometry_reservation=reservation)
+        self.assertEqual(admitted['geometry']['peak_tile_slivers'],1)
+        self.assertEqual(admitted['combined_reserved_geometry']['peak_tile_slivers'],34)
+        self.assertEqual(admitted['geometry_reservation'],reservation)
+        self.assertFalse(admitted['reservation_palette_and_layer_demand_included'])
+
+    def test_repaired_master_keeps_source_identity_and_admission_scope(self):
+        source=fixtures.WordBankBalanceTests().fixture()[0]
+        result=search(source,iterations=2,time_limit=10,master_seconds=2,
+            master_search_strategy='sat-repair')
+        report=result.get('piece_cache_decomposition',result)
+        self.assertEqual(report['master_search_strategy'],'sat-repair')
+        self.assertTrue(report['master_hints_are_soft'])
+        self.assertFalse(report['native_timing_admitted'])
+        self.assertFalse(report['universal_raster_rejected'])
+        self.assertIn('master_branches',report['iterations'][0])
+        if 'trace'in result:
+            self.assertEqual([sorted(set(image[image>=0]))for image in demand(source)[2]],
+                             [sorted(set(image[image>=0]))for image in demand(result)[2]])
+        with self.assertRaisesRegex(ValueError,'MASTER_SEARCH_STRATEGY'):
+            search(source,master_search_strategy='unsupported')
+
     def test_fresh_dual_sign_noise_is_clipped_without_accepting_invalid_certificates(self):
         np.testing.assert_array_equal(nonpositive_solver_dual([-1.,0.,1e-14]),[-1.,0.,0.])
         for bad in ([1e-6],[float('nan')],[[0.]]):

@@ -4,6 +4,13 @@ from test_raster_slot_greedy import source_schedule
 
 
 class GlobalBankClassTests(unittest.TestCase):
+    def test_clipped_global_masks_count_only_visible_hardware_slivers(self):
+        pieces=[dict(x=248,y=0,width=32,height=32,rows={0:[0]},allowed_banks=[0])]
+        result=assign_masks(pieces,time_limit=5,maximum_tile_slivers=1)
+        self.assertEqual(result['status'],'JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN')
+        self.assertEqual(result['peak_tile_slivers'],1)
+        self.assertFalse(result['native_timing_admitted'])
+
     def test_sat_strategy_preserves_transfer_witness(self):
         pieces=[dict(x=0,y=0,width=8,height=8,
                      rows={y:list(range(y*8,y*8+8))for y in range(8)},allowed_banks=[0])]
@@ -74,7 +81,7 @@ class GlobalBankClassTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'OAM_DOMAIN'):assign_masks(pieces,maximum_oam_entries=129)
 
     def test_shared_geometry_ceiling_combines_disjoint_math_domains(self):
-        pieces=[dict(x=i*8,y=0,width=8,height=8,rows={0:[1]},allowed_banks=[0]if i<18 else[4])for i in range(35)]
+        pieces=[dict(x=(i%32)*8,y=0,width=8,height=8,rows={0:[1]},allowed_banks=[0]if i<18 else[4])for i in range(35)]
         rejected=assign_masks(pieces,time_limit=5)
         self.assertEqual(rejected['solver_status'],'INFEASIBLE')
         self.assertFalse(rejected['universal_raster_rejected'])

@@ -5,6 +5,7 @@ are a restricted cache construction. OAM/sprite admission is deferred to legal
 geometry compaction; pixel identity and the requested tile ceiling are replayed.
 """
 import itertools
+from raster_obj_geometry import active_on_line,tile_slivers
 
 
 def rebuild_schedule(source,search,lookahead=16):
@@ -43,7 +44,7 @@ def rebuild_schedule(source,search,lookahead=16):
             if not 0<=ly<len(image)or set(cs)!=set(map(int,image[ly][image[ly]>=0])):raise ValueError('GLOBAL_BANK_REBUILD_ROW_IDENTITY')
         filtered.append(image)
     if replayed!=expected:raise ValueError('GLOBAL_BANK_REBUILD_SOURCE_PIXEL_IDENTITY')
-    geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(p['y']<=y<p['y']+p['height']for p in pieces)for y in range(height)),peak_tile_slivers=max(sum(p['width']//8 for p in pieces if p['y']<=y<p['y']+p['height'])for y in range(height)))
+    geometry=dict(oam_entries=len(pieces),peak_sprites=max(sum(active_on_line(p,y)for p in pieces)for y in range(height)),peak_tile_slivers=max(sum(tile_slivers(p)for p in pieces if active_on_line(p,y))for y in range(height)))
     if geometry['oam_entries']>128 or geometry['peak_sprites']>32 or geometry['peak_tile_slivers']>34:raise ValueError('GLOBAL_BANK_REBUILD_HARDWARE_GEOMETRY')
     trace,states=logical_schedule(pieces,assignment,height,lookahead);masks=[];indices=np.zeros((height,256),dtype=np.uint8)
     for row in trace:row['resident_before']={b:row['resident_before'].get(b,[None]*15)for b in range(8)}
@@ -162,8 +163,8 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
         for(i,b),v in masks.items():model.add_hint(v,int(any(word_bank_hint.get(c)==b for cs in pieces[i]['rows'].values()for c in cs)))
     height=max((p['y']+p['height']for p in pieces),default=0)
     for y in range(height):
-        live=[(i,b)for i,p in enumerate(pieces)if p['y']<=y<p['y']+p['height']for b in domains[i]]
-        model.add(sum(masks[i,b]*(pieces[i]['width']//8)for i,b in live)<=maximum_tile_slivers)
+        live=[(i,b)for i,p in enumerate(pieces)if active_on_line(p,y)for b in domains[i]]
+        model.add(sum(masks[i,b]*tile_slivers(pieces[i])for i,b in live)<=maximum_tile_slivers)
     active_rows=sorted({y for y,key in users});window=residency_window_lines or 1
     anchor=set()
     indices={}
@@ -264,7 +265,7 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
         for y,colors in p['rows'].items():
             recovered=[c for q in expanded if q['source_piece']==i for c in q['rows'].get(int(y),[])]
             if sorted(recovered)!=sorted(colors):raise AssertionError('JOINT_GLOBAL_BANK_CLASS_PIXEL_WORDS')
-    peak_tiles=max((sum(p['width']//8 for p in expanded if p['y']<=y<p['y']+p['height'])for y in range(height)),default=0)
+    peak_tiles=max((sum(tile_slivers(p)for p in expanded if active_on_line(p,y))for y in range(height)),default=0)
     if peak_tiles>maximum_tile_slivers:raise AssertionError('JOINT_GLOBAL_BANK_CLASS_TILE_CEILING')
     if maximum_oam_entries is not None and len(expanded)>maximum_oam_entries:raise AssertionError('JOINT_GLOBAL_BANK_CLASS_OAM_CEILING')
     for y in active_rows:
@@ -273,7 +274,7 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
             if len(colors)>15:raise AssertionError('JOINT_GLOBAL_BANK_CLASS_WINDOW_CAPACITY')
     result.update(status='JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN',pieces=expanded,assignment=assignment,
         objective=float(solver.objective_value),lower_bound=float(solver.best_objective_bound),peak_tile_slivers=peak_tiles,
-        oam_entries=len(expanded),peak_sprites=max((sum(p['y']<=y<p['y']+p['height']for p in expanded)for y in range(height)),default=0),
+        oam_entries=len(expanded),peak_sprites=max((sum(active_on_line(p,y)for p in expanded)for y in range(height)),default=0),
         pixel_word_identities_replayed=True)
     if peak_transfer_cost is not None:
         from raster_bank_residency import favorable_span
