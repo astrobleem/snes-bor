@@ -253,3 +253,35 @@ that the production static path coexists with raster effects. No native or
 production admission, alpha adaptation or color reduction follows.
 
 The focused joint/backend/constructor suite passes 118 tests.
+
+The shared bank-mask solver now accepts explicitly selected mode-6 shapes and
+can change exact word bank ownership by scanline epoch while retaining fixed
+OAM bank masks. Tests cover clipped rectangular slivers and top-line wrapping.
+The selected full player/effect operands fail joint geometry even when each
+row may choose fresh word bank ownership. This rejects those operands on that
+grid, not alternative exact operands.
+
+Allowing fresh exact operands finds a full source-context geometry witness
+in 4.810 seconds: 54 mode-6 entries, seventeen sprites and 34 slivers at peak.
+All viewport pixels are independently replayed; CHR packing uses 14,208 bytes
+and legal rectangular sizes. CHR SHA-256 is
+`ad10704698ed3a0a2ee91f21f05cf0f5c485f552b695e020ba304cac1d90f312`;
+OAM SHA-256 is
+`5312e2ca77b24a1d11cccecfb3d794b86e65459e1bacbd9fbbbc29ffec4f5703`.
+This has sixty peak row palette writes and grants unrestricted transfer
+bandwidth. It reencodes 244 ordinary player pixels into math-eligible banks;
+their source outputs remain exact for this context, but the ordinary static
+path is not preserved by this witness. Neither native timing nor gameplay
+is admitted. Evidence is retained in the full player/effect receipt.
+
+Source-exact overflowing constructors may now supply geometry search hints.
+The input is independently replayed and explicitly labeled a hint; the returned
+solution must still pass every hardware geometry constraint. It grants no
+initial geometry admission. The focused suite passes 132 tests.
+
+A fractional exact-operand cache bound for this fixed pixel/bank assignment
+is optimal at 46.667 writes per line (primal residual 1.42e-14). Even before
+transfer setup, integer schedules need at least 47 words, far beyond HBlank.
+This rejects the selected assignment/control family for timing; it is not
+a broad infeasibility result because changing pixel bank ownership, controls
+or geometry can change the bound.

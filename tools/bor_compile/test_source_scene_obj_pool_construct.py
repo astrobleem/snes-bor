@@ -38,6 +38,10 @@ class PoolConstructionTests(unittest.TestCase):
             selected_palette_residency={str(y):{'0':[6],'1':[]}for y in range(16)})
         with patch('source_scene_obj_pool_construct.prepare',return_value=([dict(pixels=words,left=0,top=0)],{},expected)),patch('source_scene_obj_pool_construct.compose_rgb8',return_value=(background,{})):
             result=construct(None,None,{},candidate,time_limit=5,obj_size_mode=6,row_word_masks=True)
+            joint_result=construct(None,None,{},candidate,time_limit=5,obj_size_mode=6,joint_bank_geometry=True,word_epoch_lines=1)
+        self.assertTrue(joint_result['compiled_pixel_identity_verified'])
+        self.assertEqual(joint_result['obsel_mode'],6)
+        self.assertEqual(joint_result['geometry'],result['geometry'])
         self.assertEqual(result['obsel_mode'],6)
         self.assertEqual(result['geometry'],dict(oam_entries=1,peak_sprites=1,peak_tile_slivers=2))
         self.assertEqual((result['pieces'][0]['width'],result['pieces'][0]['height']),(16,32))

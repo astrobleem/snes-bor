@@ -122,8 +122,10 @@ def permutation_bound(schedule):
         math_bank_eligibility_preserved=True,physical_slots_relaxed=True,native_timing_admitted=False,universal_raster_rejected=False)
 
 
-def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_slivers=34,persistent_word_indices=False,maximum_oam_entries=None,prepared_dma_window=None,write_budget=21,word_epoch_lines=None,word_bank_hint=None,search_strategy='portfolio'):
+def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_slivers=34,persistent_word_indices=False,maximum_oam_entries=None,prepared_dma_window=None,write_budget=21,word_epoch_lines=None,word_bank_hint=None,search_strategy='portfolio',obj_size_mode=None):
     from ortools.sat.python import cp_model
+    if obj_size_mode is not None and(type(obj_size_mode)is not int or obj_size_mode!=6):raise ValueError('JOINT_GLOBAL_BANK_CLASS_OBJ_SIZE_MODE')
+    legal_shapes=((16,32),(32,64))if obj_size_mode==6 else((8,8),(16,16),(32,32))
     if search_strategy not in ('portfolio','sat'):raise ValueError('JOINT_GLOBAL_BANK_CLASS_SEARCH_STRATEGY')
     if time_limit<=0 or not 1<=maximum_tile_slivers<=34 or(residency_window_lines is not None and(type(residency_window_lines)is not int or residency_window_lines<1)):
         raise ValueError('JOINT_GLOBAL_BANK_CLASS_DOMAIN')
@@ -135,7 +137,7 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
     for i,p in enumerate(pieces):
         allowed=tuple(sorted(set(p.get('allowed_banks',range(8)))))
         if not allowed or any(type(b)is not int or not 0<=b<8 for b in allowed):raise ValueError('JOINT_GLOBAL_BANK_CLASS_ELIGIBILITY')
-        if p['width']not in(8,16,32)or p['height']!=p['width']:raise ValueError('JOINT_GLOBAL_BANK_CLASS_GEOMETRY')
+        if (p['width'],p['height'])not in legal_shapes:raise ValueError('JOINT_GLOBAL_BANK_CLASS_GEOMETRY')
         domains[i]=allowed
         for b in allowed:masks[i,b]=model.new_bool_var(f'mask{i}_{b}')
         for y,colors in p['rows'].items():
@@ -161,7 +163,7 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
             if target not in variables:raise ValueError('JOINT_GLOBAL_BANK_CLASS_HINT_ELIGIBILITY')
             for b,v in variables.items():model.add_hint(v,int(b==target))
         for(i,b),v in masks.items():model.add_hint(v,int(any(word_bank_hint.get(c)==b for cs in pieces[i]['rows'].values()for c in cs)))
-    height=max((p['y']+p['height']for p in pieces),default=0)
+    height=224 if obj_size_mode==6 else max((p['y']+p['height']for p in pieces),default=0)
     for y in range(height):
         live=[(i,b)for i,p in enumerate(pieces)if active_on_line(p,y)for b in domains[i]]
         model.add(sum(masks[i,b]*tile_slivers(pieces[i])for i,b in live)<=maximum_tile_slivers)
@@ -246,7 +248,7 @@ def assign_masks(pieces,time_limit=30,residency_window_lines=None,maximum_tile_s
     result=dict(schema='BYOR_JOINT_GLOBAL_WORD_BANK_CLASSES_V1',status='BOUNDED_JOINT_GLOBAL_BANK_CLASSES_NO_CANDIDATE',
         solver_status=solver.status_name(status),solver_seconds=solver.wall_time,solver_variables=len(model.proto.variables),
         solver_constraints=len(model.proto.constraints),solver_branches=solver.num_branches,solver_conflicts=solver.num_conflicts,
-        maximum_tile_slivers=maximum_tile_slivers,residency_window_lines=residency_window_lines,
+        maximum_tile_slivers=maximum_tile_slivers,obj_size_mode=obj_size_mode,legal_obj_shapes=[list(shape)for shape in legal_shapes],residency_window_lines=residency_window_lines,
         maximum_oam_entries=maximum_oam_entries,
         prepared_dma_window=prepared_dma_window,aggregate_bank_transfer_interval_cuts=interval_transfer_cuts,palette_residency_and_physical_slots_relaxed=prepared_dma_window is not None,
         global_word_bank_identity_restricted=word_epoch_lines is None,word_epoch_lines=word_epoch_lines,oam_and_sprite_admission_deferred=True,

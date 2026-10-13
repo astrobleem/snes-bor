@@ -155,12 +155,12 @@ def probe(source, stage, scene, size=16, write_budget=20, lookahead=16, time_lim
     if literal_actor_bank is not None:
         if type(literal_actor_bank)is not int or not 0<=literal_actor_bank<4 or color_math!='additive' or fixed_geometry or fixed_rectangles or schedule_hint is not None:raise ValueError('JOINT_LITERAL_ACTOR_BANK_POLICY')
         if any('metadata'not in actor for actor in actors):raise ValueError('JOINT_LITERAL_ACTOR_SOURCE_ALPHA_REQUIRED')
-    input_geometry_search_hint=schedule_hint is not None and schedule_hint.get('status')=='SOURCE_EXACT_GEOMETRY_SEARCH_HINT'
+    input_geometry_search_hint=schedule_hint is not None and schedule_hint.get('status')in('SOURCE_EXACT_GEOMETRY_SEARCH_HINT','POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW')
     if input_geometry_search_hint:
         if not(fixed_geometry or fixed_rectangles):raise ValueError('JOINT_GEOMETRY_SEARCH_HINT_REQUIRES_FIXED_RECTANGLES')
         from raster_slot_greedy import demand as replay_hint
         replay_hint(schedule_hint,allow_geometry_hint=True)
-    if schedule_hint is not None and ((solver_backend!='cp-sat' and not(fixed_geometry or fixed_rectangles)) or schedule_hint.get('status')not in('JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN','SOURCE_EXACT_GEOMETRY_SEARCH_HINT') or not schedule_hint.get('compiled_pixel_identity_verified') or schedule_hint.get('metadata')!=metadata or schedule_hint.get('source_rgb555_sha256')!=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()):
+    if schedule_hint is not None and ((solver_backend!='cp-sat' and not(fixed_geometry or fixed_rectangles)) or schedule_hint.get('status')not in('JOINT_ENCODING_FIXED_OAM_SLOT_SCHEDULE_PROVEN','SOURCE_EXACT_GEOMETRY_SEARCH_HINT','POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW') or not schedule_hint.get('compiled_pixel_identity_verified') or schedule_hint.get('metadata')!=metadata or schedule_hint.get('source_rgb555_sha256')!=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest()):
         raise ValueError('JOINT_SCHEDULE_HINT_IDENTITY')
     if schedule_hint is not None and schedule_hint.get('color_math','additive')!=color_math:raise ValueError('JOINT_SCHEDULE_HINT_COLOR_MATH')
     pool=set();pool_first=0

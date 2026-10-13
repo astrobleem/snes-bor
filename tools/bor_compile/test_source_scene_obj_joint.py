@@ -20,6 +20,10 @@ class JointSceneSolverTests(unittest.TestCase):
                 flat=padded.flatten();mask['pixels_hex']=(flat[::2]|flat[1::2]<<4).tobytes().hex()
             result=probe(None,None,{},size=32,obj_size_mode=6,write_budget=0,time_limit=5,
                 solver_backend='cp-sat',clip_horizontal=True,fixed_rectangles=True,schedule_hint=hint,feasibility_only=True)
+            overflow_hint=copy.deepcopy(hint);overflow_hint.update(status='POOL_CONSTRUCTION_FIXED_SMALL_GEOMETRY_OVERFLOW',hardware_geometry_admitted=False,native_presentation_proven=False)
+            repaired=probe(None,None,{},size=32,obj_size_mode=6,write_budget=0,time_limit=5,solver_backend='cp-sat',clip_horizontal=True,fixed_rectangles=True,schedule_hint=overflow_hint)
+            self.assertTrue(repaired['input_geometry_is_search_hint'])
+            self.assertTrue(repaired['compiled_pixel_identity_verified'])
             illegal=copy.deepcopy(hint);illegal['pieces'][0]['height']=32
             with self.assertRaisesRegex(ValueError,'HINT_LEGAL_SIZE'):
                 probe(None,None,{},size=32,obj_size_mode=6,fixed_rectangles=True,schedule_hint=illegal)

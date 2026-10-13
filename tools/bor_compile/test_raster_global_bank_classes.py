@@ -4,6 +4,19 @@ from test_raster_slot_greedy import source_schedule
 
 
 class GlobalBankClassTests(unittest.TestCase):
+    def test_rectangular_masks_use_production_shapes_and_wrapped_geometry(self):
+        pieces=[dict(x=248,y=220,width=32,height=64,rows={220:[1]},allowed_banks=[0])]
+        result=assign_masks(pieces,time_limit=5,obj_size_mode=6,maximum_tile_slivers=1)
+        self.assertEqual(result['status'],'JOINT_GLOBAL_BANK_MASK_WORD_IDENTITIES_PROVEN')
+        self.assertEqual(result['legal_obj_shapes'],[[16,32],[32,64]])
+        self.assertEqual(result['peak_tile_slivers'],1)
+        wrapped=pieces+[dict(x=0,y=0,width=16,height=32,rows={0:[2]},allowed_banks=[4])]
+        rejected=assign_masks(wrapped,time_limit=5,obj_size_mode=6,maximum_tile_slivers=2)
+        self.assertEqual(rejected['solver_status'],'INFEASIBLE')
+        self.assertFalse(rejected['universal_raster_rejected'])
+        with self.assertRaisesRegex(ValueError,'GEOMETRY'):
+            assign_masks([dict(pieces[0],height=32)],obj_size_mode=6)
+
     def test_clipped_global_masks_count_only_visible_hardware_slivers(self):
         pieces=[dict(x=248,y=0,width=32,height=32,rows={0:[0]},allowed_banks=[0])]
         result=assign_masks(pieces,time_limit=5,maximum_tile_slivers=1)

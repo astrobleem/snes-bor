@@ -170979,6 +170979,221 @@
       },
       "native_admitted": false
     },
+    "byor-motu-authored-hbreath-peak-source400-minloads-mode6-joint-mask-geometry": {
+      "input_sha256": "7599f88bd8be213fe6944eac48ca681e1a3f6718400086009a6d5e5efa051c25",
+      "search": {
+        "schema": "BYOR_SOURCE_POOL_FIXED_BANK_CONSTRUCTION_V1",
+        "status": "BOUNDED_POOL_CONSTRUCTION_NO_BANK_ASSIGNMENT",
+        "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+        "metadata": {
+          "stage": "DATA/LEVELS/GUILE2.TXT",
+          "stage_sha256": "8db368cc63acd04f99e9479218fff2a9b37e59746273bf99a8e96b02c87e0f32",
+          "scene": {
+            "viewport": [
+              256,
+              224
+            ],
+            "piece_size": [
+              16,
+              32
+            ],
+            "provenance": "Isolated source peak effect over authored stage underlay; no concurrent-actor or reachability claim.",
+            "actors": [
+              {
+                "model": "HBreath",
+                "animation": "idle",
+                "frame": 11,
+                "position": [
+                  98,
+                  220,
+                  93
+                ],
+                "order": 2
+              }
+            ]
+          },
+          "layers": [
+            {
+              "kind": "background",
+              "path": "DATA\\BGS\\JUNGLE\\BG.GIF",
+              "sha256": "3fd8b4bd97066bde80c02d61c92efab5d4f878a4bbac57c4331d19935223ad30",
+              "source_dimensions": [
+                800,
+                400
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 57344,
+              "source_flip": false
+            },
+            {
+              "kind": "panel",
+              "path": "DATA\\BGS\\JUNGLE\\NG-02.GIF",
+              "sha256": "446ff434295cd94d514fd4dcc5d12dede46dd165fcb49b665e8ab2c62f0fd4d3",
+              "source_dimensions": [
+                2544,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 44246,
+              "source_flip": false
+            },
+            {
+              "kind": "actor:HBreath",
+              "path": "DATA\\CHARS\\HE-MAN\\FX\\BR12.PNG",
+              "sha256": "03641355e8c352b47593d481e81f66573766bf0c9d9c1f60c00f9663c02123e7",
+              "source_dimensions": [
+                110,
+                90
+              ],
+              "position": [
+                84,
+                92
+              ],
+              "alpha": 1,
+              "visible_source_pixels": 2751,
+              "source_flip": false,
+              "requested_map": 0,
+              "selected_map": 0,
+              "source_model_type": "none",
+              "palette_source_path": "DATA\\CHARS\\HE-MAN\\FX\\BR01.PNG",
+              "palette_asset_sha256": "ffed9f03c28b69a23c911b74eb62acad1ae84cfcc06ee5ce5d66c1dec2725e55",
+              "pre_occlusion_pixels": 2751,
+              "final_visible_pixels": 2751
+            },
+            {
+              "kind": "frontpanel",
+              "path": "DATA\\BGS\\JUNGLE\\FG-01.GIF",
+              "sha256": "85fc451526327f1b95a07fb0faab79cf119309ecd7ec62295ce24c225dfbf679",
+              "source_dimensions": [
+                350,
+                245
+              ],
+              "position": [
+                0,
+                0
+              ],
+              "alpha": 0,
+              "visible_source_pixels": 2749,
+              "source_flip": false
+            }
+          ],
+          "alpha": "BOR4086_SCREEN_RGB8_THEN_RGB555_HIGH_BITS",
+          "alpha_source_dimensions": [
+            [
+              110,
+              90
+            ]
+          ],
+          "camera": [
+            0.0,
+            0.0
+          ],
+          "layer_position_authority": "Pinned load_layer/load_level/draw_scrolled_bg and screenx/screeny, horizontal stage",
+          "scope": "Explicit source scene pose/tie order and horizontal camera, no HUD/shadows/quake. No runtime reachability claim.",
+          "all_actor_models_preserved": true
+        },
+        "no_color_reduction": true,
+        "universal_raster_rejected": false,
+        "native_presentation_proven": false,
+        "operand_selection_policy": "GREEDY_EXACT_ROW_SET_COVER_PREFER_RESIDENT",
+        "outside_control_rows_math_policy": "FULL_ADD_NO_WINDOW_MINIMAL_OPERAND_OR_LITERAL",
+        "peak_selected_colors_by_class": [
+          31,
+          33
+        ],
+        "global_color_bank_identity_restricted": true,
+        "bank_search": [
+          {
+            "joint_math_classes": true,
+            "schema": "BYOR_JOINT_GLOBAL_WORD_BANK_CLASSES_V1",
+            "status": "BOUNDED_JOINT_GLOBAL_BANK_CLASSES_NO_CANDIDATE",
+            "solver_status": "INFEASIBLE",
+            "solver_seconds": 0.24592840000000002,
+            "solver_variables": 1581,
+            "solver_constraints": 8025,
+            "solver_branches": 3480,
+            "solver_conflicts": 1760,
+            "maximum_tile_slivers": 34,
+            "obj_size_mode": 6,
+            "legal_obj_shapes": [
+              [
+                16,
+                32
+              ],
+              [
+                32,
+                64
+              ]
+            ],
+            "residency_window_lines": null,
+            "maximum_oam_entries": null,
+            "prepared_dma_window": null,
+            "aggregate_bank_transfer_interval_cuts": 0,
+            "palette_residency_and_physical_slots_relaxed": false,
+            "global_word_bank_identity_restricted": true,
+            "word_epoch_lines": null,
+            "oam_and_sprite_admission_deferred": true,
+            "soft_word_bank_hint_colors": 0,
+            "search_strategy": "portfolio",
+            "persistent_word_indices": false,
+            "persistent_slot_symmetry_anchor_words": 0,
+            "persistent_slot_symmetry_excludes_transfer_constraints": true,
+            "physical_transfer_admitted": false,
+            "native_timing_admitted": false,
+            "universal_raster_rejected": false,
+            "no_color_reduction": true
+          }
+        ],
+        "exact_underlay_bypass": true,
+        "underlay_bypassed_pixels": 83,
+        "eligible_banks_by_math_class": {
+          "0": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "1": [
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        "prefer_exact_math_outside_control_rows": false
+      },
+      "native_admitted": false
+    },
+    "byor-motu-authored-hbreath-peak-source400-minloads-mode6-joint-row-word-geometry": {
+      "input_sha256": "0c5f09155e57ea5abdd6cdbaab7233270d495c606006dea7c74d1101344df147",
+      "complete_viewport_pixels_verified": 57344,
+      "encoded_visible_pixels": 2668,
+      "source_rgb555_sha256": "4d1f01dece9f9a50ecde25d1efc3d9e3da2bc0ee3974fc2702650ee0d9cf2934",
+      "compiled_schedule_sha256": "a78f9f5f385468cb23cf61a4c40d6afbbd1008d2a46606b4f2f6f7aefa4256be",
+      "physical_slot_layout": null,
+      "physical_slot_refinement": null,
+      "bank_residency": null,
+      "native_admitted": false,
+      "geometry": {
+        "oam_entries": 28,
+        "peak_sprites": 16,
+        "peak_tile_slivers": 32
+      },
+      "independently_replayed_combined_geometry": {
+        "oam_entries": 28,
+        "peak_sprites": 16,
+        "peak_tile_slivers": 32
+      },
+      "reservation_palette_and_layer_demand_included": false
+    },
     "byor-motu-authored-hbreath-peak-player-cover-global-joint-chr": {
       "chr_oam": {
         "schema": "BYOR_RASTER_OBJ_CHR_V1",
@@ -171044,8 +171259,8 @@
   },
   "compressed_evidence": {
     "path": "docs\\receipts\\byor-motu-authored-kempe.json.gz",
-    "bytes": 29471116,
-    "sha256": "571e445a4c4e93d2a7a18e4ade4635f4c26396715ff24114ffdcbb6df4598f35"
+    "bytes": 29495598,
+    "sha256": "7aa08f9d0beec061d56e4dc2e0648e2eea2c76e0d16dfee2878ebc0050f75667"
   },
   "source_alpha_policy": "EXACT_BOR4086_SCREEN_RGB8_THEN_RGB555",
   "universal_raster_rejected": false,
