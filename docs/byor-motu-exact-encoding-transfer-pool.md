@@ -366,3 +366,18 @@ fixtures pass eighteen cases. No alpha adaptation or color reduction is used.
 The source-bound fractional control guide still returns UNKNOWN in the full
 integer class cache after 94.975 seconds. No palette residency was imported
 from the LP, and no infeasibility follows from the timeout.
+
+Shared controls can now be fixed to a source-bound guide before solving
+fractional cache residency. A missing/stale source digest, incomplete mode
+or gate coverage, or an illegal transition count fails explicitly. The fixed
+guide's LP is optimal at 27.75 writes (primal residual 1.42e-14, dual residual
+2.22e-16); this guide cannot meet the transfer budget. It does not reject
+other shared controls.
+
+A separate staged search chooses integer shared scanline controls while
+leaving palette residency fractional. It emits only a control guide, never
+a palette schedule or pixel admission. Its 122,750-variable / 88,896-constraint
+90.204-second run reaches no primal candidate. The ordinary 31-word source
+reservation remains enforced. Both fixed-control and integer-control-only
+paths are covered by focused tests; 44 window/liveness/static-demand cases
+pass. Raster feasibility remains open and no BG fallback is selected.

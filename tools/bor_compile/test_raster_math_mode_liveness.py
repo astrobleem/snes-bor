@@ -3,6 +3,18 @@ from raster_math_mode_liveness import lower_bound,verify_integer_pool
 
 
 class ModeLivenessTests(unittest.TestCase):
+    def test_fixed_controls_keep_shared_modes_and_window_without_palette_admission(self):
+        rows=[{'add':{(2,(1,))},'half-add':{(2,(3,))}}]
+        pixels=[[dict(x=0,output=2,modes={'add':(1,),'half-add':(3,)})]]
+        controls=dict(selected_modes={'0':'half-add'},selected_window_eligibility={'0':{'0':1}})
+        result=lower_bound(rows,window_pixels=pixels,fixed_controls=controls,time_limit=5)
+        self.assertTrue(result['fixed_source_control_family'])
+        self.assertFalse(result['fixed_controls_grant_palette_or_native_admission'])
+        self.assertEqual(result['fixed_controls']['selected_modes'][0],'half-add')
+        self.assertEqual(result['fixed_controls']['selected_window_eligibility'][0][0],1)
+        with self.assertRaisesRegex(ValueError,'FIXED_CONTROLS_DOMAIN'):
+            lower_bound(rows,window_pixels=pixels,fixed_controls=dict(selected_modes={},selected_window_eligibility={}))
+
     def test_resident_line_objective_avoids_unused_initial_preloads(self):
         rows=[{'add':{(1,())}},{'add':{(2,())}}]
         result=lower_bound(rows,capacities=(2,0),integer_modes=True,

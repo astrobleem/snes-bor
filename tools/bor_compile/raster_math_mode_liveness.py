@@ -53,7 +53,8 @@ def verify_integer_pool(report,rows,capacities=(60,60),window_pixels=None,maximu
     return report
 
 
-def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None,controls_hint=None,minimum_transfer_window=None,integer_cache_objective='peak'):
+def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_budget=None,solver_method='highs-ipm',union_rows=None,window_pixels=None,integer_windows=False,maximum_window_transitions=4,pin_lp_controls=False,positive_windows_only=False,subset_mode_cuts=False,integer_palette=False,integer_backend='highs',lp_hint=False,residency_hint=None,reserved_normal_colors=(),scanline_write_limits=None,required_normal_rows=None,initial_state=None,controls_hint=None,minimum_transfer_window=None,integer_cache_objective='peak',fixed_controls=None):
+    if fixed_controls is not None and(controls_hint is not None or residency_hint is not None or lp_hint or pin_lp_controls or window_pixels is None):raise ValueError('MODE_LIVENESS_FIXED_CONTROLS_POLICY')
     if integer_cache_objective not in('peak','loads','resident-lines')or(integer_cache_objective!='peak'and not integer_palette):raise ValueError('MODE_INTEGER_CACHE_OBJECTIVE')
     reserved_normal_colors=tuple(sorted(set(reserved_normal_colors)))
     if any(type(c)is not int or not 0<=c<32768 for c in reserved_normal_colors):raise ValueError('MODE_LIVENESS_STATIC_RESERVATION_DOMAIN')
@@ -220,6 +221,15 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
             if y==first:lower[v]=upper[v]=int(c in initial_state[kind])
         if not set(reserved_normal_colors).issubset(initial_state[0])or not required_normal_rows.get(first,set()).issubset(initial_state[0]):
             return dict(status='FIXED_INITIAL_PALETTE_REQUIRED_NORMAL_MISSING',schedule_proven=False,universal_raster_rejected=False,no_color_reduction=True)
+    if fixed_controls is not None:
+        fixed_modes={int(y):m for y,m in fixed_controls['selected_modes'].items()}
+        fixed_masks={int(y):{int(x):v for x,v in mask.items()}for y,mask in fixed_controls['selected_window_eligibility'].items()}
+        if set(fixed_modes)!=set(active)or set(fixed_masks)!=set(active)or any((y,m)not in modes for y,m in fixed_modes.items()):raise ValueError('MODE_LIVENESS_FIXED_CONTROLS_DOMAIN')
+        for y in active:
+            expected_x={x for yy,x in enabled if yy==y};mask=fixed_masks[y];xs=sorted(mask)
+            if set(mask)!=expected_x or any(type(v)is not int or v not in(0,1)for v in mask.values())or sum(mask[a]!=mask[b]for a,b in zip(xs,xs[1:]))>maximum_window_transitions:raise ValueError('MODE_LIVENESS_FIXED_CONTROLS_DOMAIN')
+        for(y,m),v in modes.items():lower[v]=upper[v]=int(fixed_modes[y]==m)
+        for(y,x),v in enabled.items():lower[v]=upper[v]=fixed_masks[y][x]
     started=time.perf_counter()
     mixed_integer=integer_modes or integer_windows
     pinned_control_report=None
@@ -285,6 +295,9 @@ def lower_bound(rows,capacities=(60,60),time_limit=60,integer_modes=False,write_
                 variables=peak+1,constraints=len(limits),mode_variables=len(modes),integer_modes=integer_modes,write_budget=write_budget,
         palette_residency_integrality_relaxed=not integer_palette,geometry_and_bank_assignment_relaxed=True,
                 optimal_initial_residency_allowed=initial_state is None,fixed_initial_palette_state=None if initial_state is None else{k:sorted(cs)for k,cs in initial_state.items()},unbounded_preloading_allowed=True,schedule_proven=False,no_color_reduction=True)
+    report['fixed_source_control_family']=fixed_controls is not None
+    if fixed_controls is not None:report['fixed_controls']=dict(selected_modes=fixed_modes,selected_window_eligibility=fixed_masks)
+    report['fixed_controls_grant_palette_or_native_admission']=False
     report['forced_opaque_modes_pruned']=pruned
     report['necessary_minimum_transfer_window']=minimum_transfer_window
     report['minimum_transfer_bound_is_complete_partition_proof']=False
