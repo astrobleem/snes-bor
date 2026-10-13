@@ -221,3 +221,35 @@ remains UNKNOWN after 120.180 seconds. The prior ten-minute run likewise returns
 UNKNOWN. Its zero response-level branch count does not mean workers did no
 search: the retained bounded log includes millions of feasibility-jump moves.
 There is still no broad infeasibility certificate or native peak-frame witness.
+
+The joint exact-operand scheduler now accepts fixed source-bound mode-6
+rectangles (16x32 / 32x64). It uses hardware Y wrapping for mandatory
+geometry, constraints and independent result replay. A fixture at X=248,
+Y=220 verifies wrapped transparent padding, clipped tile slivers and emitted
+CHR/OAM data; an illegal rectangular hint fails explicitly. The authored
+mode-6 search has 225,095 variables and 559,453 constraints and returns
+UNKNOWN after 90.744 seconds. This neither admits timing nor rejects raster.
+
+The exact pool constructor can also require at most fifteen whole-frame
+words per bank and initialize every word during VBlank. This keeps ordinary
+actor palette demand distinct from dynamic effect palettes. The isolated
+He_Man pose preserves all 31 RGB555 words in three banks (15/3/13), with zero
+scanline writes, 23 mode-6 OAM entries, eight sprites and sixteen tile slivers
+at peak. All 57,344 viewport pixels and emitted CHR/OAM data are independently
+replayed in [the static player receipt](receipts/byor-motu-player-static-mode6.json).
+The earlier 17-entry layout reused one bank dynamically and is not a static
+player admission.
+
+Combining those selected static player pieces with the current 28-entry
+effect family requires 51 OAM entries and 24 sprites, but reaches 48 slivers
+on 32 lines. That selected combination fails geometry. Its isolated effect
+encoding is not a concurrent alpha witness, and other geometry/encoding
+families remain open. A new full player/effect source-context integer class
+proposal preserves the 31 ordinary words, replays every viewport pixel and
+requires 32 peak pool loads. Its selected mode-6 row-mask construction
+requires 53 OAM entries, 22 sprites and 44 slivers, so it also fails selected
+geometry. That construction may reencode ordinary pixels; it is not a proof
+that the production static path coexists with raster effects. No native or
+production admission, alpha adaptation or color reduction follows.
+
+The focused joint/backend/constructor suite passes 118 tests.

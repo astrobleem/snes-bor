@@ -8,6 +8,25 @@ from raster_palette import split_color_masks
 
 
 class PoolConstructionTests(unittest.TestCase):
+    def test_static_frame_capacity_preserves_words_and_preloads_all_banks(self):
+        background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy()
+        words=np.arange(1,17,dtype=np.int32).reshape(16,1);expected[:16,0,0]=words[:,0]*8
+        candidate=dict(status='INTEGER_POOL_SOURCE_REPLAY_PROVEN',metadata={},
+            source_rgb555_sha256=hashlib.sha256(rgb555(expected).astype('<u2').tobytes()).hexdigest(),
+            full_interval_source_pixels_verified=True,zero_main_clipping_palette_demand_relaxed=False,
+            selected_modes={str(y):'add'for y in range(224)},
+            compiled_color_window_descriptors={str(y):compile_mask([True]*256)for y in range(224)},
+            selected_palette_residency={str(y):{'0':list(range(1,17)),'1':[]}for y in range(224)})
+        with patch('source_scene_obj_pool_construct.prepare',return_value=([dict(pixels=words,left=0,top=0)],{},expected)),patch('source_scene_obj_pool_construct.compose_rgb8',return_value=(background,{})):
+            result=construct(None,None,{},candidate,time_limit=5,obj_size_mode=6,maximum_frame_colors_per_bank=15)
+        self.assertTrue(result['static_palette_words_proven'])
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertEqual(result['peak_scheduled_writes'],0)
+        self.assertEqual(len({p['bank']for p in result['pieces']}),2)
+        self.assertEqual(len(result['trace'][0]['updates']),16)
+        with self.assertRaisesRegex(ValueError,'STATIC_FRAME_CAPACITY_POLICY'):
+            construct(None,None,{},candidate,maximum_frame_colors_per_bank=16)
+
     def test_production_rectangular_mode_retains_bank_masks_and_source_pixels(self):
         background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy();expected[:16,:16,0]=48
         words=np.full((16,16),6,dtype=np.int32)

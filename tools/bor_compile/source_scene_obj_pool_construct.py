@@ -35,7 +35,8 @@ def select_words(requirements,preferences=None):
     return owners,selected
 
 
-def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False,persistent_word_indices=False,banks_by_kind=None,prefer_math_outside_controls=False,local_piece_banks=False,composite_visible_geometry=False,piece_size=8,obj_size_mode=None,row_word_masks=False):
+def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_resident_words=False,frame_word_cover=False,bank_residency_window_lines=None,joint_bank_geometry=False,persistent_word_indices=False,banks_by_kind=None,prefer_math_outside_controls=False,local_piece_banks=False,composite_visible_geometry=False,piece_size=8,obj_size_mode=None,row_word_masks=False,maximum_frame_colors_per_bank=None):
+    if maximum_frame_colors_per_bank is not None and(type(maximum_frame_colors_per_bank)is not int or not 1<=maximum_frame_colors_per_bank<=15 or local_piece_banks or joint_bank_geometry or row_word_masks):raise ValueError('POOL_CONSTRUCT_STATIC_FRAME_CAPACITY_POLICY')
     if type(row_word_masks)is not bool or row_word_masks and(local_piece_banks or joint_bank_geometry or bank_residency_window_lines is not None):raise ValueError('POOL_CONSTRUCT_ROW_WORD_MASK_POLICY')
     if obj_size_mode is not None and(type(obj_size_mode)is not int or obj_size_mode!=6 or joint_bank_geometry):raise ValueError('POOL_CONSTRUCT_RECTANGULAR_MODE_POLICY')
     shape=(16,32)if obj_size_mode==6 else(piece_size,piece_size)
@@ -123,7 +124,7 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
             report['bank_search'].append(dict(kind=k,**search))
             if search['status']!='FIXED_BANK_ASSIGNMENT_PROVEN':return report
             pieces.extend(cells);assignment.extend(search['assignment']);continue
-        search=split_color_masks(cells,tuple(class_banks[k]),time_limit=time_limit,global_color_banks=not row_word_masks,solver_backend='cp-sat',defer_geometry_admission=True,residency_window_lines=bank_residency_window_lines)
+        search=split_color_masks(cells,tuple(class_banks[k]),time_limit=time_limit,global_color_banks=not row_word_masks,solver_backend='cp-sat',defer_geometry_admission=True,residency_window_lines=bank_residency_window_lines,maximum_frame_colors_per_bank=maximum_frame_colors_per_bank)
         expanded=search.pop('pieces',None);report['bank_search'].append(dict(kind=k,**search))
         if expanded is None:return report
         pieces.extend(expanded);assignment.extend(search['assignment'])
@@ -137,7 +138,10 @@ def construct(source,stage,scene,candidate,time_limit=30,lookahead=17,prefer_res
         from raster_global_bank_classes import fixed_slot_schedule
         trace,palette_states=fixed_slot_schedule(pieces,assignment,search['word_slot_indices'],len(background))
         report['persistent_word_slot_template']=True
-    else:trace,palette_states=schedule(pieces,assignment,len(background),lookahead)
+    else:trace,palette_states=schedule(pieces,assignment,len(background),max(lookahead,len(background))if maximum_frame_colors_per_bank is not None else lookahead,prefetch_write_budget=120 if maximum_frame_colors_per_bank is not None else 16)
+    if maximum_frame_colors_per_bank is not None:
+        if any(row['updates']for row in trace[1:]):raise AssertionError('POOL_CONSTRUCT_STATIC_PALETTE_WRITE')
+        report.update(static_palette_words_proven=True,maximum_frame_colors_per_bank=maximum_frame_colors_per_bank,all_palette_words_initialized_in_vblank=True)
     for row in trace:row['resident_before']={b:row['resident_before'].get(b,[None]*15)for b in range(8)}
     replay=background.copy();ownership=np.zeros(background.shape,dtype=np.uint8);images=[]
     compiled=[]
@@ -187,8 +191,9 @@ def main():
     p.add_argument('--composite-visible-geometry',action='store_true',help='Fuse already occluded source pixels for fixed-context geometry, retaining source owner provenance. No live compositor admission.')
     p.add_argument('--piece-size',type=int,choices=(8,16,32),default=8,help='Largest legal OBJ piece; rows exceeding fifteen words subdivide source-exactly into eight-pixel pieces.')
     p.add_argument('--obj-size-mode',type=int,choices=(6,),help='Production rectangular 16x32/32x64 size family; bank masks retain legal full rectangles.')
+    p.add_argument('--maximum-frame-colors-per-bank',type=int,help='Require each fixed bank to retain at most fifteen words for the whole frame; initialize every word in VBlank.')
     p.add_argument('--row-word-masks',action='store_true',help='Allow per-row word bank masks, retaining each legal rectangle and actual hardware counts.')
-    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry,persistent_word_indices=a.persistent_word_indices,banks_by_kind={0:a.opaque_banks,1:a.math_banks},prefer_math_outside_controls=a.prefer_math_outside_controls,local_piece_banks=a.local_piece_banks,composite_visible_geometry=a.composite_visible_geometry,piece_size=a.piece_size,obj_size_mode=a.obj_size_mode,row_word_masks=a.row_word_masks)
+    a=p.parse_args();r=construct(Source(a.source),a.stage,json.loads(Path(a.scene).read_text()),json.loads(Path(a.candidate).read_text()),a.time_limit,prefer_resident_words=a.prefer_resident_words,frame_word_cover=a.frame_word_cover,bank_residency_window_lines=a.bank_residency_window_lines,joint_bank_geometry=a.joint_bank_geometry,persistent_word_indices=a.persistent_word_indices,banks_by_kind={0:a.opaque_banks,1:a.math_banks},prefer_math_outside_controls=a.prefer_math_outside_controls,local_piece_banks=a.local_piece_banks,composite_visible_geometry=a.composite_visible_geometry,piece_size=a.piece_size,obj_size_mode=a.obj_size_mode,row_word_masks=a.row_word_masks,maximum_frame_colors_per_bank=a.maximum_frame_colors_per_bank)
     Path(a.output).write_text(json.dumps(r,indent=2)+'\n')
     summary={k:r[k]for k in ('status','peak_selected_colors_by_class','geometry','hardware_geometry_admitted','peak_scheduled_writes')if k in r}
     summary['bank_search']=[{k:v for k,v in search.items()if k not in('assignment','word_slot_indices')}for search in r['bank_search']]

@@ -1,0 +1,257 @@
+{
+  "schema": "BYOR_SOURCE_PLAYER_STATIC_RECTANGULAR_PROOF_V1",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "source_asset": [
+    {
+      "kind": "actor:He_ManB",
+      "path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\BREATH7.PNG",
+      "sha256": "dfecdb034985414154eecdb8a592069955555fd041c70954983999777fdacec3",
+      "source_dimensions": [
+        200,
+        200
+      ],
+      "position": [
+        -16,
+        44
+      ],
+      "alpha": 0,
+      "visible_source_pixels": 3327,
+      "source_flip": false,
+      "requested_map": 0,
+      "selected_map": 0,
+      "source_model_type": "none",
+      "palette_source_path": "DATA\\CHARS\\HE-MAN\\BAREHAND\\IDLE1.PNG",
+      "palette_asset_sha256": "4b0d307ede1846e2da003e0b30f82f3eada3a1e33252d24c8b36fa3c28570814",
+      "pre_occlusion_pixels": 3327,
+      "final_visible_pixels": 2904
+    }
+  ],
+  "source_viewport_sha256": "9d73ef8011db9d3b4b50c55f17c18cf3996a852390adfe29f1cec5d713cab1bb",
+  "source_pixels_verified": 57344,
+  "encoded_player_pixels": 2904,
+  "full_frame_rgb555_words": 31,
+  "bank_word_counts": {
+    "0": 0,
+    "1": 15,
+    "2": 3,
+    "3": 13,
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0
+  },
+  "initial_palette_word_count": 31,
+  "peak_scanline_palette_writes": 0,
+  "geometry": {
+    "oam_entries": 23,
+    "peak_sprites": 8,
+    "peak_tile_slivers": 16
+  },
+  "chr_report": {
+    "schema": "BYOR_RASTER_OBJ_CHR_V1",
+    "status": "LEGAL_MODE6_CHR_OAM_CONSTRUCTIVE_PROOF",
+    "obj_size_mode": 6,
+    "obj_size_pair": [
+      [
+        16,
+        32
+      ],
+      [
+        32,
+        64
+      ]
+    ],
+    "oam_entries": 23,
+    "obj_chr_bytes": 6080,
+    "occupied_tile_cells": 184,
+    "unique_tiles": 94,
+    "reserved_tile_cells": [],
+    "chr_sha256": "f39a37a2ca391a2b705c2796ebbcfe936091d6e68efa783821d5f88628c7cf0a",
+    "oam_sha256": "bf99ad6d03ede86253c5e7a1686f530d0486c1e0ad7500136372219592ca1e3c",
+    "emitted_oam_chr_pixel_indices_verified": true,
+    "native_render_proven": false,
+    "no_color_reduction": true,
+    "emitted_oam_geometry_replayed": true,
+    "peak_sprites_per_line": 8,
+    "peak_tile_slivers_per_line": 16,
+    "unused_oam_hidden_x": -64,
+    "hardware_scanline_geometry_admitted": true
+  },
+  "selected_combined_geometry": {
+    "oam_entries": 51,
+    "peak_sprites": 24,
+    "peak_tile_slivers": 48,
+    "overflow_lines": [
+      {
+        "scanline": 124,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 125,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 126,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 127,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 128,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 129,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 130,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 131,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 132,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 133,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 134,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 135,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 136,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 137,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 138,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 139,
+        "sprites": 24,
+        "tiles": 48
+      },
+      {
+        "scanline": 140,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 141,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 142,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 143,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 144,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 145,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 146,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 147,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 148,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 149,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 150,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 151,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 152,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 153,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 154,
+        "sprites": 23,
+        "tiles": 46
+      },
+      {
+        "scanline": 155,
+        "sprites": 23,
+        "tiles": 46
+      }
+    ]
+  },
+  "combined_effect_alpha_replayed": false,
+  "concurrent_palette_admitted": false,
+  "native_admitted": false,
+  "universal_raster_rejected": false,
+  "no_color_reduction": true,
+  "compressed_evidence": {
+    "path": "docs\\receipts\\byor-motu-player-static-mode6.json.gz",
+    "bytes": 13135,
+    "sha256": "ffd649935c4990cb5c487198b14f4ed899d6e3f26199c0d7a49afefdc3a90b5d"
+  }
+}

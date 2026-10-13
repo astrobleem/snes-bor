@@ -6,6 +6,34 @@ from source_scene_obj_joint import probe,saturated_corners
 
 
 class JointSceneSolverTests(unittest.TestCase):
+    def test_rectangular_mode6_joint_replay_counts_wrapped_padding(self):
+        import copy
+        from raster_obj_compact import unpack
+        from raster_obj_chr import compile as compile_chr
+        background=np.zeros((224,256,3),dtype=np.uint8);expected=background.copy();expected[220,248,0]=16
+        actor=dict(pixels=np.array([[2]],dtype=np.int32),left=248,top=220)
+        with patch('source_scene_obj_joint.prepare',return_value=([actor],{},expected)),patch('source_scene_obj_joint.compose_rgb8',return_value=(background,{})):
+            hint=probe(None,None,{},size=32,write_budget=0,time_limit=5,solver_backend='cp-sat',clip_horizontal=True)
+            for piece,mask in zip(hint['pieces'],hint['piece_pixel_masks']):
+                image=unpack(mask);padded=np.zeros((64,32),dtype=np.uint8);padded[:32]=image
+                piece['height']=64;mask['height']=64
+                flat=padded.flatten();mask['pixels_hex']=(flat[::2]|flat[1::2]<<4).tobytes().hex()
+            result=probe(None,None,{},size=32,obj_size_mode=6,write_budget=0,time_limit=5,
+                solver_backend='cp-sat',clip_horizontal=True,fixed_rectangles=True,schedule_hint=hint,feasibility_only=True)
+            illegal=copy.deepcopy(hint);illegal['pieces'][0]['height']=32
+            with self.assertRaisesRegex(ValueError,'HINT_LEGAL_SIZE'):
+                probe(None,None,{},size=32,obj_size_mode=6,fixed_rectangles=True,schedule_hint=illegal)
+        self.assertTrue(result['compiled_pixel_identity_verified'])
+        self.assertEqual(result['legal_obj_shapes'],[[16,32],[32,64]])
+        self.assertEqual(result['geometry']['sprites_per_line'][0],1)
+        self.assertEqual(result['geometry']['tile_slivers_per_line'][0],1)
+        self.assertEqual(result['geometry']['sprites_per_line'][28],0)
+        chr_report,_,_=compile_chr(result)
+        self.assertEqual(chr_report['obj_size_mode'],6)
+        self.assertTrue(chr_report['hardware_scanline_geometry_admitted'])
+        with self.assertRaisesRegex(ValueError,'RECTANGULAR_MODE'):
+            probe(None,None,{},obj_size_mode=6)
+
     def test_pixel_repair_keeps_outside_words_and_banks(self):
         from raster_slot_greedy import demand
         background=np.zeros((224,256,3),dtype=np.uint8);background[:8,:8,0]=8
