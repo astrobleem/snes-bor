@@ -1,6 +1,6 @@
 {
   "branch": "feat/byor-motu",
-  "tip": "45c43b77d84046872ce340cc97692fd6a37ea14e",
+  "tip": "01c8167d8fe1b25275a1c5677a624199a1c9b5c2",
   "no_color_reduction": true,
   "no_tm_nt": true,
   "native_peak_proven": false,
@@ -16,10 +16,10 @@
   "protected_17_fingerprints_verified": true,
   "active_jobs": [],
   "stop_gate_met": true,
-  "resumed_from": "45c43b77d84046872ce340cc97692fd6a37ea14e",
-  "continuation_receipt": "docs/receipts/byor-motu-nonblank-presentation.json",
-  "continuation_document": "docs/byor-motu-nonblank-presentation.md",
-  "focused_continuation_tests_passed": 90,
+  "resumed_from": "01c8167d8fe1b25275a1c5677a624199a1c9b5c2",
+  "continuation_receipt": "docs/receipts/byor-motu-nonblank-batch-rescue.json",
+  "continuation_document": "docs/byor-motu-nonblank-batch-rescue.md",
+  "focused_continuation_tests_passed": 110,
   "latest_raster_family": "Delete subset of existing noninitial events; fixed times, slots, indices, banks, initial palette and math/window controls",
   "fixed_color_component_native_proven": true,
   "authored_fixed_color_palette_witness_proven": false,
@@ -3069,5 +3069,17 @@
     "pixel_mismatches": 0,
     "transition_fields": 120,
     "opt_in": true
+  },
+  "nonblank_batching_proven": true,
+  "native_capacity_rescue_admitted": false,
+  "nonblank_batch_rescue": {
+    "classification": "NONBLANK_BATCH_PASS_CAPACITY_PENDING",
+    "candidate": "out\\byor-motu-batch-rescue-v1\\native\\bor.sfc",
+    "rom_sha256": "e710074d80cd6ad2354664956c7d0be867008c13a98006042f51d6fc9bd091ec",
+    "transition_fields": 30,
+    "min_batch_margin_clocks": 34246,
+    "actual_exact_slots": 122,
+    "required_restoration_records": 34,
+    "available_restoration_records": 32
   }
 }

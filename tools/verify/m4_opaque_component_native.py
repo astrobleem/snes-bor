@@ -17,7 +17,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--output',type=Path,required=True);p.add_argument('--phases',type=Path,default=Path('out/astra-opaque-assets-v1'))
     p.add_argument('--source',type=Path,default=Path('Masters of the Universe [v.3.0 Build 4086].pak'))
-    p.add_argument('--occupancy',type=Path);p.add_argument('--tile-fusion',action='store_true');p.add_argument('--direct-pair-dma',action='store_true');p.add_argument('--rect-map-diff',action='store_true');p.add_argument('--nonblank-slice',action='store_true');p.add_argument('--run-existing',action='store_true');p.add_argument('--build-only',action='store_true');p.add_argument('--warm',action='store_true');a=p.parse_args()
+    p.add_argument('--occupancy',type=Path);p.add_argument('--tile-fusion',action='store_true');p.add_argument('--direct-pair-dma',action='store_true');p.add_argument('--rect-map-diff',action='store_true');p.add_argument('--nonblank-slice',action='store_true');p.add_argument('--nonblank-batch-rescue',action='store_true');p.add_argument('--batch-fault-mode',type=int,choices=(1,2,3),default=1);p.add_argument('--run-existing',action='store_true');p.add_argument('--build-only',action='store_true');p.add_argument('--warm',action='store_true');a=p.parse_args()
     folder=a.output.resolve();native=folder/'native';native.mkdir(parents=True,exist_ok=True)
     sy=symbols(Path('src/main.sym'));baseline=Path('out/byor-motu-online-v3');original=(baseline/'native/bor.sfc').read_bytes()
     if sha(original)!='d58ea3f89e2130ee00723823e02bc04e3312fea4ce15c15884eb292f9faf332e':raise ValueError('OPAQUE_SCALAR_ORACLE_ROM_IDENTITY')
@@ -33,16 +33,24 @@ def main():
                      (0x260000,68200),(0x280000,68200),(0x2a0000,512)):
             rom[at:at+n]=bytes(n)
         nmi=offset(sy['nmi_handler']);base=(baseline/'base/bor.sfc').read_bytes();rom[nmi:nmi+8]=base[nmi:nmi+8]
-        rom,contract=build(rom,sy,native,baseline/'assets',transform(a.phases,a.warm,baseline/'assets',a.occupancy,a.tile_fusion,a.direct_pair_dma,a.rect_map_diff,a.nonblank_slice))
+        rom,contract=build(rom,sy,native,baseline/'assets',transform(a.phases,a.warm,baseline/'assets',a.occupancy,a.tile_fusion,a.direct_pair_dma,a.rect_map_diff,a.nonblank_slice,a.nonblank_batch_rescue))
         contract.update(opaque_phase_rows=True,capacity_proof=capacity_bound(a.phases),scalar_reference_sha256=sha(original),phase_manifest=json.loads((a.phases/'manifest.json').read_text()),
-            visual_key_excludes_fraction_and_epoch=True,immutable_authority_generations=dict(palette=1,layer_underlay=1,camera=0),dp_lease=[0x3400,0x3480 if a.warm else 0x3460],persistent_key_lease=[0x42d6d0,0x42d6f2],warm_residency=a.warm,occupancy_preflight=a.occupancy is not None,tile_fusion=a.tile_fusion,direct_pair_dma=a.direct_pair_dma,rect_map_diff=a.rect_map_diff,nonblank_slice=a.nonblank_slice)
+            visual_key_excludes_fraction_and_epoch=True,immutable_authority_generations=dict(palette=1,layer_underlay=1,camera=0),dp_lease=[0x3400,0x3480 if a.warm else 0x3460],persistent_key_lease=[0x42d6d0,0x42d6f2],warm_residency=a.warm,occupancy_preflight=a.occupancy is not None,tile_fusion=a.tile_fusion,direct_pair_dma=a.direct_pair_dma,rect_map_diff=a.rect_map_diff,nonblank_slice=a.nonblank_slice,nonblank_batch_rescue=a.nonblank_batch_rescue)
         if a.occupancy:
             contract['occupancy_manifest']=json.loads((a.occupancy/'occupancy-manifest.json').read_text())
             contract['occupancy_rom_lease']=[0xf43600,0xf4d700]
         if a.tile_fusion:
             from m4_tile_fusion_evidence import audit_rom
             contract['tile_fusion_layout']=audit_rom(rom,contract)
-        if a.nonblank_slice:
+        if a.nonblank_batch_rescue:
+            from m4_nonblank_batch_native import audit_rom
+            lease=json.loads(Path('out/byor-motu-batch-lease-v1/result.json').read_text())
+            if lease['classification']!='IRAM_LEASE_AUDIT_PASS':raise ValueError('BATCH_IRAM_LEASE_UNCERTIFIED')
+            contract['batch_layout']=audit_rom(rom,native)
+            contract['shared_iram_lease']=[0x3480,0x36e0]
+            contract['resources']['runtime_publication']='Cold bootstrap only blank; six I-RAM pairs per fresh VBlank; paired maps in a separate VBlank.'
+            contract['publication']='Pending source snapshot, protected displayed refs, bank-00 queued HIGH/LOW fences, empty queue before READY, atomic VBlank map commit.'
+        elif a.nonblank_slice:
             from m4_nonblank_component_native import audit_rom
             contract["nonblank_layout"]=audit_rom(rom,native)
             contract['resources']['runtime_publication']='Cold forced blank; warm preparation visible, free-tail CHR pairs in fresh VBlanks; paired maps in one VBlank.'
@@ -60,6 +68,10 @@ def main():
         if not(native/'bor.msu').exists():os.link(baseline/'native/bor.msu',native/'bor.msu')
     else:contract=json.loads((folder/'contract.json').read_text())
     if not a.build_only:
+        if contract.get('nonblank_batch_rescue'):
+            from m4_nonblank_batch_native import run as run_batch
+            run_batch(folder,Source(a.source),sy,contract,fault_mode=a.batch_fault_mode)
+            return
         if contract.get('nonblank_slice'):
             from m4_nonblank_component_native import run as run_slice
             run_slice(folder,Source(a.source),sy,contract)
