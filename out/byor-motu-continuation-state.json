@@ -1,6 +1,6 @@
 {
   "branch": "feat/byor-motu",
-  "tip": "1fb3def032e0449345c5607e821014ad29558b39",
+  "tip": "395b74daf08976f23c052702948809009b4003fe",
   "no_color_reduction": true,
   "no_tm_nt": true,
   "native_peak_proven": false,
@@ -16,16 +16,16 @@
   "protected_17_fingerprints_verified": true,
   "active_jobs": [],
   "stop_gate_met": true,
-  "resumed_from": "1fb3def032e0449345c5607e821014ad29558b39",
-  "continuation_receipt": "docs/receipts/byor-motu-tile-fusion.json",
-  "continuation_document": "docs/byor-motu-tile-fusion.md",
-  "focused_continuation_tests_passed": 56,
+  "resumed_from": "395b74daf08976f23c052702948809009b4003fe",
+  "continuation_receipt": "docs/receipts/byor-motu-native-cost-attribution.json",
+  "continuation_document": "docs/byor-motu-native-cost-attribution.md",
+  "focused_continuation_tests_passed": 61,
   "latest_raster_family": "Delete subset of existing noninitial events; fixed times, slots, indices, banks, initial palette and math/window controls",
   "fixed_color_component_native_proven": true,
   "authored_fixed_color_palette_witness_proven": false,
-  "continuation_status": "BYOR_MOTU_FUSED_TILE_NATIVE_PASS",
+  "continuation_status": "BYOR_MOTU_NATIVE_COST_ATTRIBUTION_PASS",
   "continuation_limit": null,
-  "next_experiment": "Further architecture or cadence-aware non-blank publication requires a separate assignment; stop after native tile fusion.",
+  "next_experiment": "Astra review and a separately authorized WarmStage replacement; profiling assignment is complete.",
   "raster_feasibility": "OPEN",
   "research_slice_completed": false,
   "stop_after_this_experiment": true,
@@ -48,13 +48,13 @@
     "expensive_solver_runs": 1
   },
   "previous_400_clock_cost_kind": "Complete ideal bank-partition span; physical slots and native timing not admitted",
-  "next_unresolved_question": "Fused composition 108.448 ms, other production 75.257 ms, preflight/allocation 52.139 ms; worst publication 240.665 ms remains far above 33.333 ms.",
+  "next_unresolved_question": "WarmStage costs 30.174 ms exclusively at peak-other epoch 17, including 25.128 ms of MVN staging copies. No optimization implemented.",
   "resume_instructions": [
-    "Read docs/byor-motu-tile-fusion.md and its receipt.",
-    "Use the opt-in --tile-fusion flag; the default row control remains certified and byte-identical.",
-    "Use out/byor-motu-tile-fusion-v2/result.json, paired timing and actual DMA/directory captures.",
-    "Preserve all 29 fingerprints in out/byor-motu-fusion-dirty-before.json.",
-    "Do not start SA-1 scheduling, non-blank, dynamic alpha, breath, HUD, combat, OBJ research or full Demo within this assignment."
+    "Read docs/byor-motu-native-cost-attribution.md and its receipt.",
+    "Use out/byor-motu-cost-profile-v3/cost-attribution.json and resolved raw read-only callback events.",
+    "Keep fused ROM SHA 01b757d34ec1ad568758d325678b63bb96ad2f5b87badedae4ee65e1ac711977 unchanged for profiling comparisons.",
+    "Preserve the 29 fingerprints in out/byor-motu-cost-dirty-before.json.",
+    "Astra will design the next fix; do not optimize within this profiling assignment."
   ],
   "tip_semantics": "Implementation parent for this certified milestone; locate the implementation commit through git log.",
   "renderer_direction": "AUTHORIZED_LOSSLESS_COMPONENT_BG_WITH_EXPLICITLY_BUDGETED_HYBRID_OPTION",
@@ -2533,5 +2533,103 @@
         "sha256": "9b866d5de5ed93fb81616554bb81aa0704fbcaacf4d3c5bad286f6ac28c297c3"
       }
     ]
+  },
+  "native_cost_attribution_complete": true,
+  "native_cost_summary": {
+    "status": "PASS",
+    "master_clock_hz": 21477270,
+    "epochs": 18,
+    "peak_other_epoch": 17,
+    "peak_other_clocks": 1616306,
+    "peak_other_ms": 75.25658521776744,
+    "peak_reconciliation_residual_clocks": 0,
+    "ranked_formerly_other_warm_max": [
+      {
+        "name": "WarmStage",
+        "clocks": 648060,
+        "ms": 30.174226053869976
+      },
+      {
+        "name": "WarmSparseMaps",
+        "clocks": 274408,
+        "ms": 12.77667040550312
+      },
+      {
+        "name": "WarmCopyBackdrop",
+        "clocks": 143060,
+        "ms": 6.660995554835415
+      },
+      {
+        "name": "RestoreLoopGlue",
+        "clocks": 131380,
+        "ms": 6.117164797946852
+      },
+      {
+        "name": "MapCommitMVN_398AA0",
+        "clocks": 109736,
+        "ms": 5.109401707013974
+      },
+      {
+        "name": "TileIterationTransferGlue",
+        "clocks": 107908,
+        "ms": 5.024288468692715
+      },
+      {
+        "name": "WarmCompare",
+        "clocks": 79806,
+        "ms": 3.7158353924870338
+      },
+      {
+        "name": "WarmAdvance",
+        "clocks": 76274,
+        "ms": 3.551382461551212
+      },
+      {
+        "name": "WarmFlush",
+        "clocks": 45314,
+        "ms": 2.109858468976737
+      },
+      {
+        "name": "WarmMapDmaHigh",
+        "clocks": 30488,
+        "ms": 1.4195472702070608
+      },
+      {
+        "name": "SnapshotValidationProjection",
+        "clocks": 5774,
+        "ms": 0.2688423621810407
+      },
+      {
+        "name": "BlankSetup",
+        "clocks": 868,
+        "ms": 0.040414819946855446
+      },
+      {
+        "name": "PostBootstrapSetup",
+        "clocks": 328,
+        "ms": 0.01527195961125413
+      },
+      {
+        "name": "MapCommitGlue",
+        "clocks": 208,
+        "ms": 0.009684657314453839
+      }
+    ],
+    "peak_other_attribution": {
+      "SnapshotValidationProjection": 0.2502180211917064,
+      "BlankSetup": 0.03855238584792201,
+      "PostBootstrapSetup": 0.01527195961125413,
+      "WarmSparseMaps": 12.77667040550312,
+      "WarmMapDmaHigh": 1.4195472702070608,
+      "RestoreLoopGlue": 6.117164797946852,
+      "WarmAdvance": 3.5402078569576116,
+      "WarmCopyBackdrop": 6.660995554835415,
+      "WarmStage": 30.174226053869976,
+      "WarmFlush": 2.109858468976737,
+      "TileIterationTransferGlue": 5.024288468692715,
+      "WarmCompare": 2.0123600438975715,
+      "MapCommitGlue": 0.009684657314453839,
+      "MapCommitMVN_398AA0": 5.10753927291504
+    }
   }
 }

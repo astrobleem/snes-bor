@@ -1,0 +1,235 @@
+{
+  "schema": "BYOR_MOTU_NATIVE_COST_ATTRIBUTION_V1",
+  "classification": "BYOR_MOTU_NATIVE_COST_ATTRIBUTION_PASS",
+  "status": "PASS",
+  "starting_commit": "395b74daf08976f23c052702948809009b4003fe",
+  "rom": {
+    "path": "out/byor-motu-cost-profile-v3/native/bor.sfc",
+    "sha256": "01b757d34ec1ad568758d325678b63bb96ad2f5b87badedae4ee65e1ac711977",
+    "bytes": 4194304
+  },
+  "baseline_rom": {
+    "path": "out/byor-motu-tile-fusion-v2/native/bor.sfc",
+    "sha256": "01b757d34ec1ad568758d325678b63bb96ad2f5b87badedae4ee65e1ac711977",
+    "bytes": 4194304
+  },
+  "rom_program_bytes_changed": 0,
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "verified_epochs": 18,
+  "verified_pixels": 1032192,
+  "pixel_mismatches": 0,
+  "unsafe_register_writes": 0,
+  "resource_faults": 0,
+  "negative": {
+    "rejected": true,
+    "vram_unchanged": true,
+    "previous_display_retained": true,
+    "world_snapshot_sha256": "9864e6a7f657991f2851511dc68de18505a35f427e43762f5a2d454e1fb1ddb9",
+    "raw_controller": 512
+  },
+  "baseline_macro_costs_identical": true,
+  "baseline_helper_costs_identical": true,
+  "snapshots_cgram_directory_expected_and_dma_packets_identical": true,
+  "summary": {
+    "status": "PASS",
+    "master_clock_hz": 21477270,
+    "epochs": 18,
+    "peak_other_epoch": 17,
+    "peak_other_clocks": 1616306,
+    "peak_other_ms": 75.25658521776744,
+    "peak_reconciliation_residual_clocks": 0,
+    "ranked_formerly_other_warm_max": [
+      {
+        "name": "WarmStage",
+        "clocks": 648060,
+        "ms": 30.174226053869976
+      },
+      {
+        "name": "WarmSparseMaps",
+        "clocks": 274408,
+        "ms": 12.77667040550312
+      },
+      {
+        "name": "WarmCopyBackdrop",
+        "clocks": 143060,
+        "ms": 6.660995554835415
+      },
+      {
+        "name": "RestoreLoopGlue",
+        "clocks": 131380,
+        "ms": 6.117164797946852
+      },
+      {
+        "name": "MapCommitMVN_398AA0",
+        "clocks": 109736,
+        "ms": 5.109401707013974
+      },
+      {
+        "name": "TileIterationTransferGlue",
+        "clocks": 107908,
+        "ms": 5.024288468692715
+      },
+      {
+        "name": "WarmCompare",
+        "clocks": 79806,
+        "ms": 3.7158353924870338
+      },
+      {
+        "name": "WarmAdvance",
+        "clocks": 76274,
+        "ms": 3.551382461551212
+      },
+      {
+        "name": "WarmFlush",
+        "clocks": 45314,
+        "ms": 2.109858468976737
+      },
+      {
+        "name": "WarmMapDmaHigh",
+        "clocks": 30488,
+        "ms": 1.4195472702070608
+      },
+      {
+        "name": "SnapshotValidationProjection",
+        "clocks": 5774,
+        "ms": 0.2688423621810407
+      },
+      {
+        "name": "BlankSetup",
+        "clocks": 868,
+        "ms": 0.040414819946855446
+      },
+      {
+        "name": "PostBootstrapSetup",
+        "clocks": 328,
+        "ms": 0.01527195961125413
+      },
+      {
+        "name": "MapCommitGlue",
+        "clocks": 208,
+        "ms": 0.009684657314453839
+      }
+    ],
+    "peak_other_attribution": {
+      "SnapshotValidationProjection": 0.2502180211917064,
+      "BlankSetup": 0.03855238584792201,
+      "PostBootstrapSetup": 0.01527195961125413,
+      "WarmSparseMaps": 12.77667040550312,
+      "WarmMapDmaHigh": 1.4195472702070608,
+      "RestoreLoopGlue": 6.117164797946852,
+      "WarmAdvance": 3.5402078569576116,
+      "WarmCopyBackdrop": 6.660995554835415,
+      "WarmStage": 30.174226053869976,
+      "WarmFlush": 2.109858468976737,
+      "TileIterationTransferGlue": 5.024288468692715,
+      "WarmCompare": 2.0123600438975715,
+      "MapCommitGlue": 0.009684657314453839,
+      "MapCommitMVN_398AA0": 5.10753927291504
+    }
+  },
+  "boundaries": "Routine entry to actual caller return fetch; inclusive elapsed includes children/DMA/interrupts. Exclusive active subtracts child routines, DMA and OnlineNmi service, while retaining inline MVN CPU/bus cost. Non-DMA non-interrupt activity includes SNES bus waits and DRAM refresh, not nominal instruction-only cycles. NMI hardware/vector dispatch before OnlineNmi is not independently isolated and stays within its scoped caller interval. DMA completion at first post-DMA instruction as in certified control. Inline/MVN and fused regions are diagnostic subsets, not extra terms in the production sum.",
+  "formerly_other_accounted_percent": 100.0,
+  "named_routines_and_copies_percent": 84.77850110065792,
+  "scoped_caller_glue_clocks": 246026,
+  "scoped_caller_glue_ms": 11.455180290604904,
+  "measurement_uncertainty": [
+    "Exclusive active master clocks include CPU bus waits and DRAM refresh; no nominal instruction-only CPU-cycle claim.",
+    "NMI service is observed at OnlineNmi entry to restored caller PC/SP, after hardware/vector dispatch. Dispatch before that entry is not separately isolated; it remains inside the scoped preflight interval. Warm NMIs are all inside preflight and do not explain the formerly-other residual.",
+    "DMA intervals use the established write-to-first-post-DMA-instruction boundaries and include the first post-DMA instruction, rather than claiming an exact DMA-only electrical interval.",
+    "Caller glue is localized to explicit assembly regions but not individually attributed by opcode; maximum individual loop-iteration costs are not claimed."
+  ],
+  "recommended_next_target": {
+    "label": "WarmStage",
+    "source": "tools/verify/m4_opaque_warm_publisher.py:95",
+    "native_address": "39:D050",
+    "exclusive_clocks": 648060,
+    "exclusive_ms": 30.174226053869976,
+    "epoch": 17,
+    "calls": 126,
+    "staged_bytes": 10080,
+    "mvn_copy_ms": 25.127960862809847,
+    "proposal": "Design a producer/staging ABI that avoids or replaces the two scratch-to-upload MVN copies per changed pair, preserving exact VRAM comparisons, coalescing, residency and publication fences.",
+    "optimization_implemented": false
+  },
+  "focused_tests": 61,
+  "preservation": {
+    "inherited_files": 29,
+    "protected_17_preserved": true,
+    "byte_identical": true,
+    "baseline": {
+      "path": "out/byor-motu-cost-dirty-before.json",
+      "sha256": "8ad0519d2cfffb589227371801efc1a84146d4b0076aeb14d81bcfc938725072",
+      "bytes": 4050
+    }
+  },
+  "profiling_step_retries": {
+    "path": "out/byor-motu-cost-profile-v3/profile-step-retries.json",
+    "sha256": "1b7d2747444d54d58bb23e595e443d4f8a9cbb47b1c1df3631b38165ed29f5d9",
+    "bytes": 21014
+  },
+  "step_retry_count": 141,
+  "earlier_attempts": [
+    {
+      "path": "out/byor-motu-cost-profile-v1",
+      "reason": "Frame-step wall-clock cap and incorrectly classified legacy INIDISP release during cold preflight; retained partial evidence."
+    },
+    {
+      "path": "out/byor-motu-cost-profile-v2",
+      "reason": "18 epochs pixel/DMA pass; timing ledger rejected unresolved NMI return into an already registered MVN point. No uncertain timing attributed from this attempt."
+    }
+  ],
+  "external_limit": false,
+  "artifacts": [
+    {
+      "path": "out/byor-motu-cost-profile-v3/result.json",
+      "sha256": "a86f271e1405a4d08aa3c3630af16f8abec0efde4fe52220aa0caac8d6943603",
+      "bytes": 140533
+    },
+    {
+      "path": "out/byor-motu-cost-profile-v3/cost-attribution.json",
+      "sha256": "abbd30a8e68fc46f725523ae282e26509a1213ce6ed690610aa832728c0c2fbc",
+      "bytes": 280190
+    },
+    {
+      "path": "out/byor-motu-cost-profile-v3/profile-plan.json",
+      "sha256": "5868ce7999e27715e7ded80f5331d51c2fe417aaf556b68bb31c0bfba9c4eb15",
+      "bytes": 9904
+    },
+    {
+      "path": "out/byor-motu-cost-profile-v3/profile-events.json",
+      "sha256": "ba49ccb8651c0762faff3123a57a5bb61c3cec864b99c57b71653a518b9ce181",
+      "bytes": 12534003
+    },
+    {
+      "path": "out/byor-motu-cost-profile-v3/native/mesen.log",
+      "sha256": "f1448c0733aa0bd7376b22856a9ec89d42e029cf22446f2efcd89c0db654bb73",
+      "bytes": 4898275
+    },
+    {
+      "path": "out/byor-motu-cost-profile-v3/native/callback_owner.lua",
+      "sha256": "1f26c601969dafb59e42692beb793b23783984d68fbeefd5577f6e0cd1215ae3",
+      "bytes": 558177
+    },
+    {
+      "path": "out/byor-motu-cost-profile-v3/native/publisher.pasm",
+      "sha256": "38fa0c01dbd0c6465d37630c776a5ba101ed3e5c9d567f2dc7d598717cc34ef4",
+      "bytes": 26773
+    },
+    {
+      "path": "out/byor-motu-cost-profile-v3/native/publisher.sym",
+      "sha256": "be835215e52aeba4446a04a12db204e90805be39a1b6621107e6b525ea30297d",
+      "bytes": 3793
+    },
+    {
+      "path": "out/byor-motu-cost-profile-v3/native/timing-events.json",
+      "sha256": "00c9323b987e6600350b803fcbd412bc0d645035871305b7f1cff3e2bf0f00c2",
+      "bytes": 751974
+    },
+    {
+      "path": "out/byor-motu-cost-profile-v3/native/dma-packets.json",
+      "sha256": "24e4d3f570e3020bc82ebfb513d397b1016e570ce8d28b8b65da679cc5d9eb3d",
+      "bytes": 379998
+    }
+  ],
+  "receipt": "docs/receipts/byor-motu-native-cost-attribution.json"
+}
