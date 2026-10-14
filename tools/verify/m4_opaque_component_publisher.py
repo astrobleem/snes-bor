@@ -33,7 +33,7 @@ def capacity_bound(phases):
     return dict(source_coverage_tile_bounds=bounds,maximum_required_pairs=maximum,capacity=768)
 
 
-def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False):
+def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,direct_pair_dma=False):
     manifest=json.loads((phases/'manifest.json').read_text())
     capacity_bound(phases)
     def apply(lines,rom,authority,sy):
@@ -142,5 +142,9 @@ def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False):
             from assemble_sanity import audit_asm
             audit_asm()
             lines=fuse(lines)
+        if direct_pair_dma:
+            if not warm or occupancy is None or not tile_fusion:raise ValueError('DIRECT_PAIR_REQUIRES_OCCUPANCY_WARM_FUSION')
+            from direct_pair_dma import transform as direct
+            lines=direct(lines)
         return lines
     return apply

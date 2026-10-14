@@ -1,6 +1,6 @@
 {
   "branch": "feat/byor-motu",
-  "tip": "395b74daf08976f23c052702948809009b4003fe",
+  "tip": "7e5823470f67794fb51ca1c03dc969a9306e2ece",
   "no_color_reduction": true,
   "no_tm_nt": true,
   "native_peak_proven": false,
@@ -16,16 +16,16 @@
   "protected_17_fingerprints_verified": true,
   "active_jobs": [],
   "stop_gate_met": true,
-  "resumed_from": "395b74daf08976f23c052702948809009b4003fe",
-  "continuation_receipt": "docs/receipts/byor-motu-native-cost-attribution.json",
-  "continuation_document": "docs/byor-motu-native-cost-attribution.md",
-  "focused_continuation_tests_passed": 61,
+  "resumed_from": "7e5823470f67794fb51ca1c03dc969a9306e2ece",
+  "continuation_receipt": "docs/receipts/byor-motu-direct-pair-dma.json",
+  "continuation_document": "docs/byor-motu-direct-pair-dma.md",
+  "focused_continuation_tests_passed": 71,
   "latest_raster_family": "Delete subset of existing noninitial events; fixed times, slots, indices, banks, initial palette and math/window controls",
   "fixed_color_component_native_proven": true,
   "authored_fixed_color_palette_witness_proven": false,
-  "continuation_status": "BYOR_MOTU_NATIVE_COST_ATTRIBUTION_PASS",
+  "continuation_status": "BYOR_MOTU_DIRECT_PAIR_DMA_PASS",
   "continuation_limit": null,
-  "next_experiment": "Astra review and a separately authorized WarmStage replacement; profiling assignment is complete.",
+  "next_experiment": "Further performance or publication work requires a separate assignment; stop after direct-pair DMA.",
   "raster_feasibility": "OPEN",
   "research_slice_completed": false,
   "stop_after_this_experiment": true,
@@ -48,13 +48,13 @@
     "expensive_solver_runs": 1
   },
   "previous_400_clock_cost_kind": "Complete ideal bank-partition span; physical slots and native timing not admitted",
-  "next_unresolved_question": "WarmStage costs 30.174 ms exclusively at peak-other epoch 17, including 25.128 ms of MVN staging copies. No optimization implemented.",
+  "next_unresolved_question": "Composition 108.437 ms, preflight/allocation 52.139 ms and other production 50.029 ms; worst publication 208.204 ms. No non-blank/30-Hz admission.",
   "resume_instructions": [
-    "Read docs/byor-motu-native-cost-attribution.md and its receipt.",
-    "Use out/byor-motu-cost-profile-v3/cost-attribution.json and resolved raw read-only callback events.",
-    "Keep fused ROM SHA 01b757d34ec1ad568758d325678b63bb96ad2f5b87badedae4ee65e1ac711977 unchanged for profiling comparisons.",
-    "Preserve the 29 fingerprints in out/byor-motu-cost-dirty-before.json.",
-    "Astra will design the next fix; do not optimize within this profiling assignment."
+    "Read docs/byor-motu-direct-pair-dma.md and its receipt.",
+    "Use --direct-pair-dma with --warm --occupancy --tile-fusion; omission retains certified staging control.",
+    "Use out/byor-motu-direct-pair-v1/result.json and actual DMA/fence/VRAM captures.",
+    "Preserve the 29 fingerprints in out/byor-motu-direct-dirty-before.json.",
+    "Do not begin non-blank, SA-1 migration, general alpha, breath, HUD, combat or Demo in this assignment."
   ],
   "tip_semantics": "Implementation parent for this certified milestone; locate the implementation commit through git log.",
   "renderer_direction": "AUTHORIZED_LOSSLESS_COMPONENT_BG_WITH_EXPLICITLY_BUDGETED_HYBRID_OPTION",
@@ -2631,5 +2631,421 @@
       "MapCommitGlue": 0.009684657314453839,
       "MapCommitMVN_398AA0": 5.10753927291504
     }
+  },
+  "direct_pair_dma_native_proven": true,
+  "direct_pair_dma_opt_in": true,
+  "direct_pair_dma_summary": {
+    "schema": "BYOR_MOTU_DIRECT_PAIR_DMA_V1",
+    "classification": "BYOR_MOTU_DIRECT_PAIR_DMA_PASS",
+    "status": "PASS",
+    "starting_commit": "7e5823470f67794fb51ca1c03dc969a9306e2ece",
+    "candidate": {
+      "path": "out/byor-motu-direct-pair-v1/native/bor.sfc",
+      "sha256": "00622aaba27c82f20ed1ec6546de7a0ebce94f142b8b85f3de97a88f941b349a",
+      "bytes": 4194304
+    },
+    "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+    "package": {
+      "path": "motu_direct_dma_fix.zip",
+      "sha256": "97d49ab5f8095063ade9574ce24be494f19c83501e81052a9b9d6ddd2124e577",
+      "bytes": 7914
+    },
+    "verified_epochs": 18,
+    "verified_pixels": 1032192,
+    "pixel_mismatches": 0,
+    "unsafe_register_writes": 0,
+    "resource_faults": 0,
+    "negative": {
+      "rejected": true,
+      "vram_unchanged": true,
+      "previous_display_retained": true,
+      "world_snapshot_sha256": "9864e6a7f657991f2851511dc68de18505a35f427e43762f5a2d454e1fb1ddb9",
+      "raw_controller": 512
+    },
+    "independent_evidence": {
+      "status": "PASS",
+      "source_and_actual_vram_and_screenshots_equal": true,
+      "verified_pixels": 1032192,
+      "newly_generated_integer_positions": [
+        [
+          83,
+          220
+        ],
+        [
+          84,
+          219
+        ],
+        [
+          84,
+          220
+        ],
+        [
+          85,
+          219
+        ]
+      ],
+      "subpixel_same_pixels": [
+        [
+          2,
+          3
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          12
+        ],
+        [
+          12,
+          13
+        ]
+      ],
+      "movement_changes_coverage": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          15,
+          16
+        ]
+      ],
+      "vertical_movement_pixel_pairs": [
+        [
+          8,
+          10
+        ],
+        [
+          8,
+          11
+        ],
+        [
+          8,
+          12
+        ],
+        [
+          8,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          8,
+          15
+        ]
+      ],
+      "complete_actor_canvases_in_rom": 0,
+      "finite_position_selector": false,
+      "negative_context_retention_verified": true
+    },
+    "direct_measurements": [
+      {
+        "epoch": 0,
+        "calls": 80,
+        "inclusive_clocks": 156728,
+        "dma_clocks": 60408,
+        "exclusive_clocks": 96320,
+        "stage_calls": 0,
+        "flush_calls": 2
+      },
+      {
+        "epoch": 1,
+        "calls": 111,
+        "inclusive_clocks": 217088,
+        "dma_clocks": 84204,
+        "exclusive_clocks": 132884,
+        "stage_calls": 0,
+        "flush_calls": 2
+      },
+      {
+        "epoch": 2,
+        "calls": 103,
+        "inclusive_clocks": 201728,
+        "dma_clocks": 77796,
+        "exclusive_clocks": 123932,
+        "stage_calls": 0,
+        "flush_calls": 2
+      },
+      {
+        "epoch": 3,
+        "calls": 0,
+        "inclusive_clocks": 0,
+        "dma_clocks": 0,
+        "exclusive_clocks": 0,
+        "stage_calls": 0,
+        "flush_calls": 0
+      },
+      {
+        "epoch": 4,
+        "calls": 104,
+        "inclusive_clocks": 203616,
+        "dma_clocks": 78800,
+        "exclusive_clocks": 124816,
+        "stage_calls": 0,
+        "flush_calls": 2
+      },
+      {
+        "epoch": 5,
+        "calls": 0,
+        "inclusive_clocks": 0,
+        "dma_clocks": 0,
+        "exclusive_clocks": 0,
+        "stage_calls": 0,
+        "flush_calls": 0
+      },
+      {
+        "epoch": 6,
+        "calls": 104,
+        "inclusive_clocks": 204048,
+        "dma_clocks": 78912,
+        "exclusive_clocks": 125136,
+        "stage_calls": 0,
+        "flush_calls": 2
+      },
+      {
+        "epoch": 7,
+        "calls": 0,
+        "inclusive_clocks": 0,
+        "dma_clocks": 0,
+        "exclusive_clocks": 0,
+        "stage_calls": 0,
+        "flush_calls": 0
+      },
+      {
+        "epoch": 8,
+        "calls": 99,
+        "inclusive_clocks": 193960,
+        "dma_clocks": 75204,
+        "exclusive_clocks": 118756,
+        "stage_calls": 0,
+        "flush_calls": 2
+      },
+      {
+        "epoch": 9,
+        "calls": 122,
+        "inclusive_clocks": 238560,
+        "dma_clocks": 92232,
+        "exclusive_clocks": 146328,
+        "stage_calls": 0,
+        "flush_calls": 2
+      },
+      {
+        "epoch": 10,
+        "calls": 124,
+        "inclusive_clocks": 243016,
+        "dma_clocks": 94160,
+        "exclusive_clocks": 148856,
+        "stage_calls": 0,
+        "flush_calls": 2
+      },
+      {
+        "epoch": 11,
+        "calls": 0,
+        "inclusive_clocks": 0,
+        "dma_clocks": 0,
+        "exclusive_clocks": 0,
+        "stage_calls": 0,
+        "flush_calls": 0
+      },
+      {
+        "epoch": 12,
+        "calls": 0,
+        "inclusive_clocks": 0,
+        "dma_clocks": 0,
+        "exclusive_clocks": 0,
+        "stage_calls": 0,
+        "flush_calls": 0
+      },
+      {
+        "epoch": 13,
+        "calls": 0,
+        "inclusive_clocks": 0,
+        "dma_clocks": 0,
+        "exclusive_clocks": 0,
+        "stage_calls": 0,
+        "flush_calls": 0
+      },
+      {
+        "epoch": 14,
+        "calls": 122,
+        "inclusive_clocks": 239392,
+        "dma_clocks": 92264,
+        "exclusive_clocks": 147128,
+        "stage_calls": 0,
+        "flush_calls": 2
+      },
+      {
+        "epoch": 15,
+        "calls": 122,
+        "inclusive_clocks": 238520,
+        "dma_clocks": 92472,
+        "exclusive_clocks": 146048,
+        "stage_calls": 0,
+        "flush_calls": 2
+      },
+      {
+        "epoch": 16,
+        "calls": 108,
+        "inclusive_clocks": 211496,
+        "dma_clocks": 81544,
+        "exclusive_clocks": 129952,
+        "stage_calls": 0,
+        "flush_calls": 2
+      },
+      {
+        "epoch": 17,
+        "calls": 126,
+        "inclusive_clocks": 247096,
+        "dma_clocks": 94792,
+        "exclusive_clocks": 152304,
+        "stage_calls": 0,
+        "flush_calls": 2
+      }
+    ],
+    "code_lease": {
+      "start": 3789824,
+      "end": 3789943,
+      "bytes": 119,
+      "baseline_lease_zero": true,
+      "changed_calls": [
+        1870334,
+        1870418
+      ],
+      "all_other_rom_bytes_identical": true,
+      "reference_row_kernel_unchanged": true,
+      "fused_tile_kernel_unchanged": true,
+      "sha256": "ed46b662cff7da68cd8509200c73691715e9ca2a2b7d2bff9e1cda5752df2304"
+    },
+    "slot_capacity": 768,
+    "source_occupancy_bound": 707,
+    "default_direct_pair_enabled": false,
+    "control_rebuild": {
+      "path": "out/byor-motu-direct-control-rebuild-v1/native/bor.sfc",
+      "sha256": "01b757d34ec1ad568758d325678b63bb96ad2f5b87badedae4ee65e1ac711977",
+      "bytes": 4194304
+    },
+    "candidate_rebuild": {
+      "path": "out/byor-motu-direct-rebuild-v1/native/bor.sfc",
+      "sha256": "00622aaba27c82f20ed1ec6546de7a0ebce94f142b8b85f3de97a88f941b349a",
+      "bytes": 4194304
+    },
+    "focused_tests": 71,
+    "supplied_tests": 5,
+    "preservation": {
+      "inherited_29_byte_identical": true,
+      "protected_17_preserved": true,
+      "baseline": {
+        "path": "out/byor-motu-direct-dirty-before.json",
+        "sha256": "8ad0519d2cfffb589227371801efc1a84146d4b0076aeb14d81bcfc938725072",
+        "bytes": 4050
+      }
+    },
+    "external_limit": false,
+    "nonclaims": [
+      "No seamless/non-blank publication or 30-Hz admission",
+      "No SA-1 migration, dynamic SCREEN alpha, breath, HUD, combat, audio timing or MOTU Demo completion",
+      "No natural 200-Hz world traversal"
+    ],
+    "artifacts": [
+      {
+        "path": "out/byor-motu-direct-pair-v1/result.json",
+        "sha256": "6bdf9b2b959627acccdf560c1ae62f73326dd1da8583e360413dc883e93d9ac4",
+        "bytes": 146453
+      },
+      {
+        "path": "out/byor-motu-direct-pair-v1/contract.json",
+        "sha256": "1866eaaa30a7818f95296c2b14a29aeb7ac1355d71be2cfe05f486af35448410",
+        "bytes": 45155
+      },
+      {
+        "path": "out/byor-motu-direct-pair-v1/asset-validation.json",
+        "sha256": "d386aa0cf2f73870d49e60775902dd373b0ad67c55d5c3f2748ddb5c8df9f8f3",
+        "bytes": 9990
+      },
+      {
+        "path": "out/byor-motu-direct-pair-v1/native/publisher.pasm",
+        "sha256": "1fa46453cbf691fa20bb6baac5c3a76a53234776c6f36756008c24fc1881ad4b",
+        "bytes": 27441
+      },
+      {
+        "path": "out/byor-motu-direct-pair-v1/native/publisher.sym",
+        "sha256": "48c6e6ead69d0607d081fa4dc9ba3977eeefc4c5976c937372a11d5ce95dd90c",
+        "bytes": 3865
+      },
+      {
+        "path": "out/byor-motu-direct-pair-v1/native/callback_owner.lua",
+        "sha256": "4c201a8b92ab22d25f0aed163a21a51875c3cc8e8159ee6240e8f64318293dca",
+        "bytes": 538711
+      },
+      {
+        "path": "out/byor-motu-direct-pair-v1/native/mesen.log",
+        "sha256": "415641a268d5fad30f398bb44656a93e3530c29fbfbaf776dfe1dfd1681a3aaa",
+        "bytes": 1089268
+      },
+      {
+        "path": "out/byor-motu-direct-pair-v1/native/timing-events.json",
+        "sha256": "87de04bb68627c027820e6a0d49f703c4bf6ca1816b2111aaf751b7db2b5830c",
+        "bytes": 1182621
+      },
+      {
+        "path": "out/byor-motu-direct-pair-v1/native/dma-packets.json",
+        "sha256": "2fbaabc0c4c59fcd219e1ffb2342085c35a34d8a0832f6321939d59ac39b4c2e",
+        "bytes": 655813
+      },
+      {
+        "path": "out/byor-motu-direct-pair-v1/native/dma-replay.json",
+        "sha256": "ff3cfdf5bc363e95af345187a50cd67a6f64a9086265777567c7f5657776b290",
+        "bytes": 2891
+      },
+      {
+        "path": "out/byor-motu-direct-pair-v1/native/observations.json",
+        "sha256": "56965dbd2573c1daa26a9baf0ca40b8ebf254b7452f2877bc78a7917ac78e1ef",
+        "bytes": 25341
+      }
+    ],
+    "warm_worst_before_ms": {
+      "composition": 108.44776826849967,
+      "production": 231.01381134566915,
+      "publication": 240.66485172463726,
+      "dma": 4.328855576150973,
+      "preflight_and_allocation": 52.13874947793644,
+      "other_production": 75.25658521776744,
+      "forced_blank": 190.47793318238305
+    },
+    "warm_worst_after_ms": {
+      "composition": 108.43659366390608,
+      "production": 207.13666122370302,
+      "publication": 208.20439469262155,
+      "dma": 4.7402672686053675,
+      "preflight_and_allocation": 52.13865635623149,
+      "other_production": 50.029077252369596,
+      "forced_blank": 157.20256811037902
+    },
+    "publication_reduction_percent": 13.48782624442233,
+    "receipt": "docs/receipts/byor-motu-direct-pair-dma.json"
   }
 }

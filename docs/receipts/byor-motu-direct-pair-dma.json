@@ -1,0 +1,1597 @@
+{
+  "schema": "BYOR_MOTU_DIRECT_PAIR_DMA_V1",
+  "classification": "BYOR_MOTU_DIRECT_PAIR_DMA_PASS",
+  "status": "PASS",
+  "starting_commit": "7e5823470f67794fb51ca1c03dc969a9306e2ece",
+  "candidate": {
+    "path": "out/byor-motu-direct-pair-v1/native/bor.sfc",
+    "sha256": "00622aaba27c82f20ed1ec6546de7a0ebce94f142b8b85f3de97a88f941b349a",
+    "bytes": 4194304
+  },
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "package": {
+    "path": "motu_direct_dma_fix.zip",
+    "sha256": "97d49ab5f8095063ade9574ce24be494f19c83501e81052a9b9d6ddd2124e577",
+    "bytes": 7914
+  },
+  "verified_epochs": 18,
+  "verified_pixels": 1032192,
+  "pixel_mismatches": 0,
+  "unsafe_register_writes": 0,
+  "resource_faults": 0,
+  "negative": {
+    "rejected": true,
+    "vram_unchanged": true,
+    "previous_display_retained": true,
+    "world_snapshot_sha256": "9864e6a7f657991f2851511dc68de18505a35f427e43762f5a2d454e1fb1ddb9",
+    "raw_controller": 512
+  },
+  "actual_dma_replay": {
+    "status": "PASS",
+    "epochs": [
+      {
+        "epoch": 0,
+        "bytes": 58904,
+        "descriptors": 198,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 1,
+        "bytes": 9332,
+        "descriptors": 278,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 2,
+        "bytes": 8400,
+        "descriptors": 232,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 3,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 4,
+        "bytes": 8740,
+        "descriptors": 266,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 5,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 6,
+        "bytes": 8564,
+        "descriptors": 244,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 7,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 8,
+        "bytes": 8260,
+        "descriptors": 250,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 9,
+        "bytes": 10204,
+        "descriptors": 304,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 10,
+        "bytes": 10372,
+        "descriptors": 308,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 11,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 12,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 13,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 14,
+        "bytes": 10228,
+        "descriptors": 304,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 15,
+        "bytes": 10228,
+        "descriptors": 304,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 16,
+        "bytes": 8924,
+        "descriptors": 260,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 17,
+        "bytes": 10544,
+        "descriptors": 316,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      }
+    ],
+    "verified_vram_bytes": 1179648
+  },
+  "independent_evidence": {
+    "status": "PASS",
+    "source_and_actual_vram_and_screenshots_equal": true,
+    "verified_pixels": 1032192,
+    "newly_generated_integer_positions": [
+      [
+        83,
+        220
+      ],
+      [
+        84,
+        219
+      ],
+      [
+        84,
+        220
+      ],
+      [
+        85,
+        219
+      ]
+    ],
+    "subpixel_same_pixels": [
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        6,
+        7
+      ],
+      [
+        10,
+        11
+      ],
+      [
+        11,
+        12
+      ],
+      [
+        12,
+        13
+      ]
+    ],
+    "movement_changes_coverage": [
+      [
+        1,
+        2
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        15,
+        16
+      ]
+    ],
+    "vertical_movement_pixel_pairs": [
+      [
+        8,
+        10
+      ],
+      [
+        8,
+        11
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        9,
+        14
+      ],
+      [
+        8,
+        15
+      ]
+    ],
+    "complete_actor_canvases_in_rom": 0,
+    "finite_position_selector": false,
+    "negative_context_retention_verified": true
+  },
+  "direct_pair_dma": {
+    "status": "PASS",
+    "classification": "BYOR_MOTU_DIRECT_PAIR_DMA_PASS",
+    "paired_epochs": [
+      {
+        "epoch": 0,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 1696124,
+            "production": 4206374,
+            "publication": 4410492,
+            "dma": 488712,
+            "preflight_and_allocation": 971868,
+            "other_production": 1049670,
+            "forced_blank": 3433392
+          },
+          "ms": {
+            "composition": 78.97297934048414,
+            "production": 195.85235926167525,
+            "publication": 205.3562673468276,
+            "dma": 22.754847333948867,
+            "preflight_and_allocation": 45.25100257155588,
+            "other_production": 48.87353001568635,
+            "forced_blank": 159.86165839513123
+          },
+          "dma_bytes": 58904,
+          "dma_descriptors": 70
+        },
+        "after": {
+          "clocks": {
+            "composition": 1696164,
+            "production": 3874082,
+            "publication": 4053084,
+            "dma": 494928,
+            "preflight_and_allocation": 971868,
+            "other_production": 711122,
+            "forced_blank": 3075984
+          },
+          "ms": {
+            "composition": 78.97484177458308,
+            "production": 180.38056047160555,
+            "publication": 188.7150461860376,
+            "dma": 23.044269592923122,
+            "preflight_and_allocation": 45.25100257155588,
+            "other_production": 33.11044653254348,
+            "forced_blank": 143.22043723434123
+          },
+          "dma_bytes": 58904,
+          "dma_descriptors": 198
+        },
+        "direct": {
+          "epoch": 0,
+          "calls": 80,
+          "inclusive_clocks": 156728,
+          "dma_clocks": 60408,
+          "exclusive_clocks": 96320,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 10571
+      },
+      {
+        "epoch": 1,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 2228194,
+            "production": 4603950,
+            "publication": 4811912,
+            "dma": 81848,
+            "preflight_and_allocation": 941798,
+            "other_production": 1352110,
+            "forced_blank": 3864508
+          },
+          "ms": {
+            "composition": 103.74661211597191,
+            "production": 214.3638367446142,
+            "publication": 224.04672474667404,
+            "dma": 3.8109126532375854,
+            "preflight_and_allocation": 43.85091773768268,
+            "other_production": 62.95539423772202,
+            "forced_blank": 179.93478687002585
+          },
+          "dma_bytes": 9332,
+          "dma_descriptors": 104
+        },
+        "after": {
+          "clocks": {
+            "composition": 2228034,
+            "production": 4139974,
+            "publication": 4141712,
+            "dma": 90620,
+            "preflight_and_allocation": 941798,
+            "other_production": 879522,
+            "forced_blank": 3194308
+          },
+          "ms": {
+            "composition": 103.73916237957617,
+            "production": 192.76071865744575,
+            "publication": 192.8416414190444,
+            "dma": 4.219344451133687,
+            "preflight_and_allocation": 43.85091773768268,
+            "other_production": 40.95129408905322,
+            "forced_blank": 148.7297035423962
+          },
+          "dma_bytes": 9332,
+          "dma_descriptors": 278
+        },
+        "direct": {
+          "epoch": 1,
+          "calls": 111,
+          "inclusive_clocks": 217088,
+          "dma_clocks": 84204,
+          "exclusive_clocks": 132884,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 10028
+      },
+      {
+        "epoch": 2,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 2198802,
+            "production": 4410062,
+            "publication": 4601356,
+            "dma": 72660,
+            "preflight_and_allocation": 870006,
+            "other_production": 1268594,
+            "forced_blank": 3725408
+          },
+          "ms": {
+            "composition": 102.37809554007562,
+            "production": 205.33624618026406,
+            "publication": 214.24305789329836,
+            "dma": 3.3831115407125765,
+            "preflight_and_allocation": 40.508221016916956,
+            "other_production": 59.06681808255891,
+            "forced_blank": 173.45817229098483
+          },
+          "dma_bytes": 8400,
+          "dma_descriptors": 70
+        },
+        "after": {
+          "clocks": {
+            "composition": 2198682,
+            "production": 3980106,
+            "publication": 4244048,
+            "dma": 80496,
+            "preflight_and_allocation": 870006,
+            "other_production": 830922,
+            "forced_blank": 3368100
+          },
+          "ms": {
+            "composition": 102.37250823777882,
+            "production": 185.3171282942385,
+            "publication": 197.6064928177557,
+            "dma": 3.7479623806936355,
+            "preflight_and_allocation": 40.508221016916956,
+            "other_production": 38.6884366588491,
+            "forced_blank": 156.82160721544219
+          },
+          "dma_bytes": 8400,
+          "dma_descriptors": 232
+        },
+        "direct": {
+          "epoch": 2,
+          "calls": 103,
+          "inclusive_clocks": 201728,
+          "dma_clocks": 77796,
+          "exclusive_clocks": 123932,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 10028
+      },
+      {
+        "epoch": 3,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "composition": 0,
+            "production": 5920,
+            "publication": 5920,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5920,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2756402466421477,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "composition": 0,
+            "production": 5920,
+            "publication": 5920,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5920,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2756402466421477,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "direct": {
+          "epoch": 3,
+          "calls": 0,
+          "inclusive_clocks": 0,
+          "dma_clocks": 0,
+          "exclusive_clocks": 0,
+          "stage_calls": 0,
+          "flush_calls": 0
+        },
+        "untouched_unreferenced_boot_bytes": 10028
+      },
+      {
+        "epoch": 4,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 2231758,
+            "production": 4429542,
+            "publication": 4601352,
+            "dma": 76668,
+            "preflight_and_allocation": 870414,
+            "other_production": 1250702,
+            "forced_blank": 3724996
+          },
+          "ms": {
+            "composition": 103.91255499418688,
+            "production": 206.24325158644464,
+            "publication": 214.24287164988846,
+            "dma": 3.569727437425706,
+            "preflight_and_allocation": 40.527217844726074,
+            "other_production": 58.23375131010599,
+            "forced_blank": 173.43898921976583
+          },
+          "dma_bytes": 8740,
+          "dma_descriptors": 98
+        },
+        "after": {
+          "clocks": {
+            "composition": 2231878,
+            "production": 3999006,
+            "publication": 4244072,
+            "dma": 85116,
+            "preflight_and_allocation": 870414,
+            "other_production": 811598,
+            "forced_blank": 3367716
+          },
+          "ms": {
+            "composition": 103.91814229648368,
+            "production": 186.19712840598456,
+            "publication": 197.60761027821505,
+            "dma": 3.9630735191204467,
+            "preflight_and_allocation": 40.527217844726074,
+            "other_production": 37.78869474565436,
+            "forced_blank": 156.80372784809242
+          },
+          "dma_bytes": 8740,
+          "dma_descriptors": 266
+        },
+        "direct": {
+          "epoch": 4,
+          "calls": 104,
+          "inclusive_clocks": 203616,
+          "dma_clocks": 78800,
+          "exclusive_clocks": 124816,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 5,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "composition": 0,
+            "production": 5920,
+            "publication": 5920,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5920,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2756402466421477,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "composition": 0,
+            "production": 5920,
+            "publication": 5920,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5920,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2756402466421477,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "direct": {
+          "epoch": 5,
+          "calls": 0,
+          "inclusive_clocks": 0,
+          "dma_clocks": 0,
+          "exclusive_clocks": 0,
+          "stage_calls": 0,
+          "flush_calls": 0
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 6,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 2211930,
+            "production": 4361644,
+            "publication": 4601422,
+            "dma": 74460,
+            "preflight_and_allocation": 841342,
+            "other_production": 1233912,
+            "forced_blank": 3754138
+          },
+          "ms": {
+            "composition": 102.98934641134558,
+            "production": 203.0818628252101,
+            "publication": 214.2461309095616,
+            "dma": 3.466921075164581,
+            "preflight_and_allocation": 39.17360074162126,
+            "other_production": 57.45199459707868,
+            "forced_blank": 174.79586558254377
+          },
+          "dma_bytes": 8564,
+          "dma_descriptors": 78
+        },
+        "after": {
+          "clocks": {
+            "composition": 2211970,
+            "production": 3929626,
+            "publication": 3931364,
+            "dma": 82776,
+            "preflight_and_allocation": 841342,
+            "other_production": 793538,
+            "forced_blank": 3084080
+          },
+          "ms": {
+            "composition": 102.9912088454445,
+            "production": 182.96673646138453,
+            "publication": 183.04765922298319,
+            "dma": 3.854121124332841,
+            "preflight_and_allocation": 39.17360074162126,
+            "other_production": 36.94780574998592,
+            "forced_blank": 143.59739389596535
+          },
+          "dma_bytes": 8564,
+          "dma_descriptors": 244
+        },
+        "direct": {
+          "epoch": 6,
+          "calls": 104,
+          "inclusive_clocks": 204048,
+          "dma_clocks": 78912,
+          "exclusive_clocks": 125136,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 7,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "composition": 0,
+            "production": 5920,
+            "publication": 5920,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5920,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2756402466421477,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "composition": 0,
+            "production": 5920,
+            "publication": 5920,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5920,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2756402466421477,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "direct": {
+          "epoch": 7,
+          "calls": 0,
+          "inclusive_clocks": 0,
+          "dma_clocks": 0,
+          "exclusive_clocks": 0,
+          "stage_calls": 0,
+          "flush_calls": 0
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 8,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 2199870,
+            "production": 4409058,
+            "publication": 4601456,
+            "dma": 72864,
+            "preflight_and_allocation": 870006,
+            "other_production": 1266318,
+            "forced_blank": 3725508
+          },
+          "ms": {
+            "composition": 102.42782253051715,
+            "production": 205.28949908438085,
+            "publication": 214.2477139785457,
+            "dma": 3.392609954617137,
+            "preflight_and_allocation": 40.508221016916956,
+            "other_production": 58.9608455823296,
+            "forced_blank": 173.46282837623218
+          },
+          "dma_bytes": 8260,
+          "dma_descriptors": 96
+        },
+        "after": {
+          "clocks": {
+            "composition": 2199950,
+            "production": 3994406,
+            "publication": 4244040,
+            "dma": 80436,
+            "preflight_and_allocation": 870006,
+            "other_production": 844014,
+            "forced_blank": 3368092
+          },
+          "ms": {
+            "composition": 102.43154739871501,
+            "production": 185.98294848460722,
+            "publication": 197.6061203309359,
+            "dma": 3.7451687295452354,
+            "preflight_and_allocation": 40.508221016916956,
+            "other_production": 39.29801133943001,
+            "forced_blank": 156.8212347286224
+          },
+          "dma_bytes": 8260,
+          "dma_descriptors": 250
+        },
+        "direct": {
+          "epoch": 8,
+          "calls": 99,
+          "inclusive_clocks": 193960,
+          "dma_clocks": 75204,
+          "exclusive_clocks": 118756,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 9,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 1999756,
+            "production": 4786694,
+            "publication": 4828924,
+            "dma": 89748,
+            "preflight_and_allocation": 1119654,
+            "other_production": 1577536,
+            "forced_blank": 3703710
+          },
+          "ms": {
+            "composition": 93.11034409866804,
+            "production": 222.87255316900146,
+            "publication": 224.83881796895042,
+            "dma": 4.178743387776938,
+            "preflight_and_allocation": 52.13204471518028,
+            "other_production": 73.45142096737621,
+            "forced_blank": 172.4478949140184
+          },
+          "dma_bytes": 10204,
+          "dma_descriptors": 118
+        },
+        "after": {
+          "clocks": {
+            "composition": 1999716,
+            "production": 4272300,
+            "publication": 4471662,
+            "dma": 98784,
+            "preflight_and_allocation": 1119654,
+            "other_production": 1054146,
+            "forced_blank": 3346448
+          },
+          "ms": {
+            "composition": 93.1084816645691,
+            "production": 198.9219300218324,
+            "publication": 208.20439469262155,
+            "dma": 4.599467250726,
+            "preflight_and_allocation": 52.13204471518028,
+            "other_production": 49.081936391357004,
+            "forced_blank": 155.81347163768953
+          },
+          "dma_bytes": 10204,
+          "dma_descriptors": 304
+        },
+        "direct": {
+          "epoch": 9,
+          "calls": 122,
+          "inclusive_clocks": 238560,
+          "dma_clocks": 92232,
+          "exclusive_clocks": 146328,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 10,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 2241882,
+            "production": 4958376,
+            "publication": 5151002,
+            "dma": 91376,
+            "preflight_and_allocation": 1072292,
+            "other_production": 1552826,
+            "forced_blank": 4073122
+          },
+          "ms": {
+            "composition": 104.38393706462693,
+            "production": 230.8662134433287,
+            "publication": 239.83504421185748,
+            "dma": 4.254544455603528,
+            "preflight_and_allocation": 49.926829620338154,
+            "other_production": 72.30090230276008,
+            "forced_blank": 189.6480325478983
+          },
+          "dma_bytes": 10372,
+          "dma_descriptors": 116
+        },
+        "after": {
+          "clocks": {
+            "composition": 2241682,
+            "production": 4438144,
+            "publication": 4439882,
+            "dma": 100768,
+            "preflight_and_allocation": 1072292,
+            "other_production": 1023402,
+            "forced_blank": 3362002
+          },
+          "ms": {
+            "composition": 104.37462489413227,
+            "production": 206.64376803942028,
+            "publication": 206.72469080101894,
+            "dma": 4.691843982033098,
+            "preflight_and_allocation": 49.926829620338154,
+            "other_production": 47.65046954291677,
+            "forced_blank": 156.5376791370598
+          },
+          "dma_bytes": 10372,
+          "dma_descriptors": 308
+        },
+        "direct": {
+          "epoch": 10,
+          "calls": 124,
+          "inclusive_clocks": 243016,
+          "dma_clocks": 94160,
+          "exclusive_clocks": 148856,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 11,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "composition": 0,
+            "production": 5902,
+            "publication": 5902,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5902,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2748021512976277,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "composition": 0,
+            "production": 5902,
+            "publication": 5902,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5902,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2748021512976277,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "direct": {
+          "epoch": 11,
+          "calls": 0,
+          "inclusive_clocks": 0,
+          "dma_clocks": 0,
+          "exclusive_clocks": 0,
+          "stage_calls": 0,
+          "flush_calls": 0
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 12,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "composition": 0,
+            "production": 5902,
+            "publication": 5902,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5902,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2748021512976277,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "composition": 0,
+            "production": 5902,
+            "publication": 5902,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5902,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2748021512976277,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "direct": {
+          "epoch": 12,
+          "calls": 0,
+          "inclusive_clocks": 0,
+          "dma_clocks": 0,
+          "exclusive_clocks": 0,
+          "stage_calls": 0,
+          "flush_calls": 0
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 13,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "composition": 0,
+            "production": 5902,
+            "publication": 5902,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5902,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2748021512976277,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "composition": 0,
+            "production": 5902,
+            "publication": 5902,
+            "dma": 0,
+            "preflight_and_allocation": 0,
+            "other_production": 5902,
+            "forced_blank": 0
+          },
+          "ms": {
+            "composition": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "dma": 0.0,
+            "preflight_and_allocation": 0.0,
+            "other_production": 0.2748021512976277,
+            "forced_blank": 0.0
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "direct": {
+          "epoch": 13,
+          "calls": 0,
+          "inclusive_clocks": 0,
+          "dma_clocks": 0,
+          "exclusive_clocks": 0,
+          "stage_calls": 0,
+          "flush_calls": 0
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 14,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 1964722,
+            "production": 4759362,
+            "publication": 4828916,
+            "dma": 90092,
+            "preflight_and_allocation": 1118798,
+            "other_production": 1585750,
+            "forced_blank": 3704576
+          },
+          "ms": {
+            "composition": 91.47913119311718,
+            "production": 221.59995194920026,
+            "publication": 224.83844548213065,
+            "dma": 4.194760321027766,
+            "preflight_and_allocation": 52.09218862546311,
+            "other_production": 73.83387180959218,
+            "forced_blank": 172.48821661226032
+          },
+          "dma_bytes": 10228,
+          "dma_descriptors": 118
+        },
+        "after": {
+          "clocks": {
+            "composition": 1964762,
+            "production": 4245114,
+            "publication": 4471572,
+            "dma": 99072,
+            "preflight_and_allocation": 1118800,
+            "other_production": 1062480,
+            "forced_blank": 3347230
+          },
+          "ms": {
+            "composition": 91.48099362721612,
+            "production": 197.65612668649229,
+            "publication": 208.20020421589894,
+            "dma": 4.612876776238321,
+            "preflight_and_allocation": 52.09228174716805,
+            "other_production": 49.46997453586978,
+            "forced_blank": 155.84988222432366
+          },
+          "dma_bytes": 10228,
+          "dma_descriptors": 304
+        },
+        "direct": {
+          "epoch": 14,
+          "calls": 122,
+          "inclusive_clocks": 239392,
+          "dma_clocks": 92264,
+          "exclusive_clocks": 147128,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 15,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 2241962,
+            "production": 4961546,
+            "publication": 5168824,
+            "dma": 90216,
+            "preflight_and_allocation": 1072290,
+            "other_production": 1557078,
+            "forced_blank": 4090946
+          },
+          "ms": {
+            "composition": 104.3876619328248,
+            "production": 231.01381134566915,
+            "publication": 240.66485172463726,
+            "dma": 4.200533866734459,
+            "preflight_and_allocation": 49.926736498633204,
+            "other_production": 72.4988790474767,
+            "forced_blank": 190.47793318238305
+          },
+          "dma_bytes": 10228,
+          "dma_descriptors": 116
+        },
+        "after": {
+          "clocks": {
+            "composition": 2241882,
+            "production": 4448730,
+            "publication": 4454160,
+            "dma": 99400,
+            "preflight_and_allocation": 1072290,
+            "other_production": 1035158,
+            "forced_blank": 3376282
+          },
+          "ms": {
+            "composition": 104.38393706462693,
+            "production": 207.13666122370302,
+            "publication": 207.38948665263322,
+            "dma": 4.6281487358495745,
+            "preflight_and_allocation": 49.926736498633204,
+            "other_production": 48.197838924593306,
+            "forced_blank": 157.20256811037902
+          },
+          "dma_bytes": 10228,
+          "dma_descriptors": 304
+        },
+        "direct": {
+          "epoch": 15,
+          "calls": 122,
+          "inclusive_clocks": 238520,
+          "dma_clocks": 92472,
+          "exclusive_clocks": 146048,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 9948
+      },
+      {
+        "epoch": 16,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 2329162,
+            "production": 4554842,
+            "publication": 4601600,
+            "dma": 77688,
+            "preflight_and_allocation": 871430,
+            "other_production": 1276562,
+            "forced_blank": 3724246
+          },
+          "ms": {
+            "composition": 108.44776826849967,
+            "production": 212.07732640135362,
+            "publication": 214.25441874130186,
+            "dma": 3.617219506948509,
+            "preflight_and_allocation": 40.574523670838985,
+            "other_production": 59.43781495506645,
+            "forced_blank": 173.40406858041084
+          },
+          "dma_bytes": 8924,
+          "dma_descriptors": 84
+        },
+        "after": {
+          "clocks": {
+            "composition": 2328922,
+            "production": 4108882,
+            "publication": 4243968,
+            "dma": 86240,
+            "preflight_and_allocation": 871430,
+            "other_production": 822290,
+            "forced_blank": 3366614
+          },
+          "ms": {
+            "composition": 108.43659366390608,
+            "production": 191.3130486323448,
+            "publication": 197.60276794955783,
+            "dma": 4.015407917300476,
+            "preflight_and_allocation": 40.574523670838985,
+            "other_production": 38.286523380299265,
+            "forced_blank": 156.7524177886668
+          },
+          "dma_bytes": 8924,
+          "dma_descriptors": 260
+        },
+        "direct": {
+          "epoch": 16,
+          "calls": 108,
+          "inclusive_clocks": 211496,
+          "dma_clocks": 81544,
+          "exclusive_clocks": 129952,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 9869
+      },
+      {
+        "epoch": 17,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "composition": 2030132,
+            "production": 4859208,
+            "publication": 4860986,
+            "dma": 92972,
+            "preflight_and_allocation": 1119798,
+            "other_production": 1616306,
+            "forced_blank": 3735646
+          },
+          "ms": {
+            "composition": 94.52467655339808,
+            "production": 226.24886682525292,
+            "publication": 226.33165202095051,
+            "dma": 4.328855576150973,
+            "preflight_and_allocation": 52.13874947793644,
+            "other_production": 75.25658521776744,
+            "forced_blank": 173.93486229860684
+          },
+          "dma_bytes": 10544,
+          "dma_descriptors": 126
+        },
+        "after": {
+          "clocks": {
+            "composition": 2030212,
+            "production": 4326304,
+            "publication": 4471550,
+            "dma": 101808,
+            "preflight_and_allocation": 1119796,
+            "other_production": 1074488,
+            "forced_blank": 3346212
+          },
+          "ms": {
+            "composition": 94.52840142159594,
+            "production": 201.43640229880242,
+            "publication": 208.19917987714453,
+            "dma": 4.7402672686053675,
+            "preflight_and_allocation": 52.13865635623149,
+            "other_production": 50.029077252369596,
+            "forced_blank": 155.80248327650582
+          },
+          "dma_bytes": 10544,
+          "dma_descriptors": 316
+        },
+        "direct": {
+          "epoch": 17,
+          "calls": 126,
+          "inclusive_clocks": 247096,
+          "dma_clocks": 94792,
+          "exclusive_clocks": 152304,
+          "stage_calls": 0,
+          "flush_calls": 2
+        },
+        "untouched_unreferenced_boot_bytes": 9869
+      }
+    ],
+    "warm_worst_before_ms": {
+      "composition": 108.44776826849967,
+      "production": 231.01381134566915,
+      "publication": 240.66485172463726,
+      "dma": 4.328855576150973,
+      "preflight_and_allocation": 52.13874947793644,
+      "other_production": 75.25658521776744,
+      "forced_blank": 190.47793318238305
+    },
+    "warm_worst_after_ms": {
+      "composition": 108.43659366390608,
+      "production": 207.13666122370302,
+      "publication": 208.20439469262155,
+      "dma": 4.7402672686053675,
+      "preflight_and_allocation": 52.13865635623149,
+      "other_production": 50.029077252369596,
+      "forced_blank": 157.20256811037902
+    },
+    "publication_reduction_percent": 13.48782624442233,
+    "meaningful_gate": "At least 5% lower worst warm production, lower worst publication, and faster production in every changing warm epoch",
+    "boundaries": "Direct routine entry through actual caller return fetch. Exclusive CPU/bus-active = inclusive minus its two DMA fence intervals; no nested callees, NMI disabled. DMA fence includes first post-DMA instruction, consistent with the retained control."
+  },
+  "direct_measurements": [
+    {
+      "epoch": 0,
+      "calls": 80,
+      "inclusive_clocks": 156728,
+      "dma_clocks": 60408,
+      "exclusive_clocks": 96320,
+      "stage_calls": 0,
+      "flush_calls": 2
+    },
+    {
+      "epoch": 1,
+      "calls": 111,
+      "inclusive_clocks": 217088,
+      "dma_clocks": 84204,
+      "exclusive_clocks": 132884,
+      "stage_calls": 0,
+      "flush_calls": 2
+    },
+    {
+      "epoch": 2,
+      "calls": 103,
+      "inclusive_clocks": 201728,
+      "dma_clocks": 77796,
+      "exclusive_clocks": 123932,
+      "stage_calls": 0,
+      "flush_calls": 2
+    },
+    {
+      "epoch": 3,
+      "calls": 0,
+      "inclusive_clocks": 0,
+      "dma_clocks": 0,
+      "exclusive_clocks": 0,
+      "stage_calls": 0,
+      "flush_calls": 0
+    },
+    {
+      "epoch": 4,
+      "calls": 104,
+      "inclusive_clocks": 203616,
+      "dma_clocks": 78800,
+      "exclusive_clocks": 124816,
+      "stage_calls": 0,
+      "flush_calls": 2
+    },
+    {
+      "epoch": 5,
+      "calls": 0,
+      "inclusive_clocks": 0,
+      "dma_clocks": 0,
+      "exclusive_clocks": 0,
+      "stage_calls": 0,
+      "flush_calls": 0
+    },
+    {
+      "epoch": 6,
+      "calls": 104,
+      "inclusive_clocks": 204048,
+      "dma_clocks": 78912,
+      "exclusive_clocks": 125136,
+      "stage_calls": 0,
+      "flush_calls": 2
+    },
+    {
+      "epoch": 7,
+      "calls": 0,
+      "inclusive_clocks": 0,
+      "dma_clocks": 0,
+      "exclusive_clocks": 0,
+      "stage_calls": 0,
+      "flush_calls": 0
+    },
+    {
+      "epoch": 8,
+      "calls": 99,
+      "inclusive_clocks": 193960,
+      "dma_clocks": 75204,
+      "exclusive_clocks": 118756,
+      "stage_calls": 0,
+      "flush_calls": 2
+    },
+    {
+      "epoch": 9,
+      "calls": 122,
+      "inclusive_clocks": 238560,
+      "dma_clocks": 92232,
+      "exclusive_clocks": 146328,
+      "stage_calls": 0,
+      "flush_calls": 2
+    },
+    {
+      "epoch": 10,
+      "calls": 124,
+      "inclusive_clocks": 243016,
+      "dma_clocks": 94160,
+      "exclusive_clocks": 148856,
+      "stage_calls": 0,
+      "flush_calls": 2
+    },
+    {
+      "epoch": 11,
+      "calls": 0,
+      "inclusive_clocks": 0,
+      "dma_clocks": 0,
+      "exclusive_clocks": 0,
+      "stage_calls": 0,
+      "flush_calls": 0
+    },
+    {
+      "epoch": 12,
+      "calls": 0,
+      "inclusive_clocks": 0,
+      "dma_clocks": 0,
+      "exclusive_clocks": 0,
+      "stage_calls": 0,
+      "flush_calls": 0
+    },
+    {
+      "epoch": 13,
+      "calls": 0,
+      "inclusive_clocks": 0,
+      "dma_clocks": 0,
+      "exclusive_clocks": 0,
+      "stage_calls": 0,
+      "flush_calls": 0
+    },
+    {
+      "epoch": 14,
+      "calls": 122,
+      "inclusive_clocks": 239392,
+      "dma_clocks": 92264,
+      "exclusive_clocks": 147128,
+      "stage_calls": 0,
+      "flush_calls": 2
+    },
+    {
+      "epoch": 15,
+      "calls": 122,
+      "inclusive_clocks": 238520,
+      "dma_clocks": 92472,
+      "exclusive_clocks": 146048,
+      "stage_calls": 0,
+      "flush_calls": 2
+    },
+    {
+      "epoch": 16,
+      "calls": 108,
+      "inclusive_clocks": 211496,
+      "dma_clocks": 81544,
+      "exclusive_clocks": 129952,
+      "stage_calls": 0,
+      "flush_calls": 2
+    },
+    {
+      "epoch": 17,
+      "calls": 126,
+      "inclusive_clocks": 247096,
+      "dma_clocks": 94792,
+      "exclusive_clocks": 152304,
+      "stage_calls": 0,
+      "flush_calls": 2
+    }
+  ],
+  "code_lease": {
+    "start": 3789824,
+    "end": 3789943,
+    "bytes": 119,
+    "baseline_lease_zero": true,
+    "changed_calls": [
+      1870334,
+      1870418
+    ],
+    "all_other_rom_bytes_identical": true,
+    "reference_row_kernel_unchanged": true,
+    "fused_tile_kernel_unchanged": true,
+    "sha256": "ed46b662cff7da68cd8509200c73691715e9ca2a2b7d2bff9e1cda5752df2304"
+  },
+  "slot_capacity": 768,
+  "source_occupancy_bound": 707,
+  "default_direct_pair_enabled": false,
+  "control_rebuild": {
+    "path": "out/byor-motu-direct-control-rebuild-v1/native/bor.sfc",
+    "sha256": "01b757d34ec1ad568758d325678b63bb96ad2f5b87badedae4ee65e1ac711977",
+    "bytes": 4194304
+  },
+  "candidate_rebuild": {
+    "path": "out/byor-motu-direct-rebuild-v1/native/bor.sfc",
+    "sha256": "00622aaba27c82f20ed1ec6546de7a0ebce94f142b8b85f3de97a88f941b349a",
+    "bytes": 4194304
+  },
+  "focused_tests": 71,
+  "supplied_tests": 5,
+  "preservation": {
+    "inherited_29_byte_identical": true,
+    "protected_17_preserved": true,
+    "baseline": {
+      "path": "out/byor-motu-direct-dirty-before.json",
+      "sha256": "8ad0519d2cfffb589227371801efc1a84146d4b0076aeb14d81bcfc938725072",
+      "bytes": 4050
+    }
+  },
+  "external_limit": false,
+  "nonclaims": [
+    "No seamless/non-blank publication or 30-Hz admission",
+    "No SA-1 migration, dynamic SCREEN alpha, breath, HUD, combat, audio timing or MOTU Demo completion",
+    "No natural 200-Hz world traversal"
+  ],
+  "artifacts": [
+    {
+      "path": "out/byor-motu-direct-pair-v1/result.json",
+      "sha256": "6bdf9b2b959627acccdf560c1ae62f73326dd1da8583e360413dc883e93d9ac4",
+      "bytes": 146453
+    },
+    {
+      "path": "out/byor-motu-direct-pair-v1/contract.json",
+      "sha256": "1866eaaa30a7818f95296c2b14a29aeb7ac1355d71be2cfe05f486af35448410",
+      "bytes": 45155
+    },
+    {
+      "path": "out/byor-motu-direct-pair-v1/asset-validation.json",
+      "sha256": "d386aa0cf2f73870d49e60775902dd373b0ad67c55d5c3f2748ddb5c8df9f8f3",
+      "bytes": 9990
+    },
+    {
+      "path": "out/byor-motu-direct-pair-v1/native/publisher.pasm",
+      "sha256": "1fa46453cbf691fa20bb6baac5c3a76a53234776c6f36756008c24fc1881ad4b",
+      "bytes": 27441
+    },
+    {
+      "path": "out/byor-motu-direct-pair-v1/native/publisher.sym",
+      "sha256": "48c6e6ead69d0607d081fa4dc9ba3977eeefc4c5976c937372a11d5ce95dd90c",
+      "bytes": 3865
+    },
+    {
+      "path": "out/byor-motu-direct-pair-v1/native/callback_owner.lua",
+      "sha256": "4c201a8b92ab22d25f0aed163a21a51875c3cc8e8159ee6240e8f64318293dca",
+      "bytes": 538711
+    },
+    {
+      "path": "out/byor-motu-direct-pair-v1/native/mesen.log",
+      "sha256": "415641a268d5fad30f398bb44656a93e3530c29fbfbaf776dfe1dfd1681a3aaa",
+      "bytes": 1089268
+    },
+    {
+      "path": "out/byor-motu-direct-pair-v1/native/timing-events.json",
+      "sha256": "87de04bb68627c027820e6a0d49f703c4bf6ca1816b2111aaf751b7db2b5830c",
+      "bytes": 1182621
+    },
+    {
+      "path": "out/byor-motu-direct-pair-v1/native/dma-packets.json",
+      "sha256": "2fbaabc0c4c59fcd219e1ffb2342085c35a34d8a0832f6321939d59ac39b4c2e",
+      "bytes": 655813
+    },
+    {
+      "path": "out/byor-motu-direct-pair-v1/native/dma-replay.json",
+      "sha256": "ff3cfdf5bc363e95af345187a50cd67a6f64a9086265777567c7f5657776b290",
+      "bytes": 2891
+    },
+    {
+      "path": "out/byor-motu-direct-pair-v1/native/observations.json",
+      "sha256": "56965dbd2573c1daa26a9baf0ca40b8ebf254b7452f2877bc78a7917ac78e1ef",
+      "bytes": 25341
+    }
+  ]
+}

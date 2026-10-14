@@ -84,6 +84,9 @@ local function clock()return emu.getState()['masterClock']end
                 if label not in fs:continue
                 at=fs[label]
                 f.write(f"emu.addMemoryCallback(function()emu.log('ONLINE_HELPERS|'..coverageCalls..'|'..coverageClocks..'|'..kernelCalls..'|'..kernelClocks{extra});coverageCalls=0;coverageClocks=0;kernelCalls=0;kernelClocks=0{reset} end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,emu.memType.snesMemory)\n")
+            if contract.get('direct_pair_dma'):
+                from m4_direct_pair_evidence import append_observer
+                append_observer(f,fs,rom)
         f.write('''
 emu.addMemoryCallback(function(a,v)
  if not online then return end
@@ -211,9 +214,12 @@ def run(folder,source,sy,contract):
             pieces=line.split('ONLINE|',1)[1].split('|')
             if len(pieces)>=4:events.append(dict(phase=pieces[0],clock=int(pieces[1]),field=int(pieces[2]),line=int(pieces[3])))
     (native/'timing-events.json').write_text(json.dumps(events,indent=2)+'\n')
-    helpers=[];packets=[];epoch=-1
+    helpers=[];packets=[];direct=[];epoch=-1
     for line in log.splitlines():
         if 'ONLINE|OnlinePublish|' in line:epoch+=1
+        if 'ONLINE_DIRECT|' in line:
+            values=list(map(int,line.split('ONLINE_DIRECT|',1)[1].split('|')))
+            direct.append(dict(epoch=epoch,calls=values[0],inclusive_clocks=values[1],dma_clocks=values[2],exclusive_clocks=values[1]-values[2],stage_calls=values[3],flush_calls=values[4]))
         if 'ONLINE_HELPERS|' in line:
             values=list(map(int,line.split('ONLINE_HELPERS|',1)[1].split('|')))
             helpers.append(dict(epoch=epoch,coverage_kind='source_occupancy' if contract.get('occupancy_preflight') else 'foreground_row_scan',coverage_calls=values[0],coverage_clocks=values[1],kernel_calls=values[2],kernel_clocks=values[3]))
@@ -231,6 +237,7 @@ def run(folder,source,sy,contract):
         negative=dict(rejected=rejected,vram_unchanged=unchanged,previous_display_retained=retained,world_snapshot_sha256=sha(rejected_world),raw_controller=rejected_controller),
         independent_movement_checks=motion,unsafe_register_writes=log.count('ONLINE_UNSAFE|'),contract=contract,
         measured_costs=costs(events),helper_measurements=helpers,resource_faults=log.count('ONLINE_RESOURCE_FAULT|'))
+    if contract.get('direct_pair_dma'):result['direct_measurements']=direct
     if not rejected or not unchanged or not retained or result['unsafe_register_writes'] or result['resource_faults']:raise ValueError('ONLINE_RETENTION_OR_UNSAFE_PPU_WRITE')
     (folder/'result.json').write_text(json.dumps(result,indent=2)+'\n')
     result['independent_evidence']=verify(folder,source)
