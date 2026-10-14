@@ -1,6 +1,6 @@
 {
   "branch": "feat/byor-motu",
-  "tip": "4746507dee8dcdc91af76fbdb440c9f5ba6630b6",
+  "tip": "1fb3def032e0449345c5607e821014ad29558b39",
   "no_color_reduction": true,
   "no_tm_nt": true,
   "native_peak_proven": false,
@@ -16,16 +16,16 @@
   "protected_17_fingerprints_verified": true,
   "active_jobs": [],
   "stop_gate_met": true,
-  "resumed_from": "4746507dee8dcdc91af76fbdb440c9f5ba6630b6",
-  "continuation_receipt": "docs/receipts/byor-motu-occupancy-component.json",
-  "continuation_document": "docs/byor-motu-occupancy-component.md",
-  "focused_continuation_tests_passed": 45,
+  "resumed_from": "1fb3def032e0449345c5607e821014ad29558b39",
+  "continuation_receipt": "docs/receipts/byor-motu-tile-fusion.json",
+  "continuation_document": "docs/byor-motu-tile-fusion.md",
+  "focused_continuation_tests_passed": 56,
   "latest_raster_family": "Delete subset of existing noninitial events; fixed times, slots, indices, banks, initial palette and math/window controls",
   "fixed_color_component_native_proven": true,
   "authored_fixed_color_palette_witness_proven": false,
-  "continuation_status": "BYOR_MOTU_OCCUPANCY_PREFLIGHT_PASS",
+  "continuation_status": "BYOR_MOTU_FUSED_TILE_NATIVE_PASS",
   "continuation_limit": null,
-  "next_experiment": "Cadence-aware non-blank publication is a separate milestone; do not begin it in this assignment.",
+  "next_experiment": "Further architecture or cadence-aware non-blank publication requires a separate assignment; stop after native tile fusion.",
   "raster_feasibility": "OPEN",
   "research_slice_completed": false,
   "stop_after_this_experiment": true,
@@ -48,13 +48,13 @@
     "expensive_solver_runs": 1
   },
   "previous_400_clock_cost_kind": "Complete ideal bank-partition span; physical slots and native timing not admitted",
-  "next_unresolved_question": "Row composition now dominates the measured warm phases: 123.568 ms. Preflight/allocation 52.139 ms, allocation subset 17.225 ms, warm DMA 4.342 ms; publication still 257.298 ms.",
+  "next_unresolved_question": "Fused composition 108.448 ms, other production 75.257 ms, preflight/allocation 52.139 ms; worst publication 240.665 ms remains far above 33.333 ms.",
   "resume_instructions": [
-    "Read docs/byor-motu-occupancy-component.md and its receipt.",
-    "Use out/byor-motu-occupancy-v1/result.json and actual native DMA/directory/timing captures.",
-    "Retain opaque-warm-v4, scalar online-v3 and 75-field controls by verified identity; no unchanged broad reruns.",
-    "Preserve the 29 fingerprints in out/byor-motu-coverage-dirty-before.json.",
-    "Do not start breath/HUD/full Demo, general alpha or OBJ research; no 30-Hz admission."
+    "Read docs/byor-motu-tile-fusion.md and its receipt.",
+    "Use the opt-in --tile-fusion flag; the default row control remains certified and byte-identical.",
+    "Use out/byor-motu-tile-fusion-v2/result.json, paired timing and actual DMA/directory captures.",
+    "Preserve all 29 fingerprints in out/byor-motu-fusion-dirty-before.json.",
+    "Do not start SA-1 scheduling, non-blank, dynamic alpha, breath, HUD, combat, OBJ research or full Demo within this assignment."
   ],
   "tip_semantics": "Implementation parent for this certified milestone; locate the implementation commit through git log.",
   "renderer_direction": "AUTHORIZED_LOSSLESS_COMPONENT_BG_WITH_EXPLICITLY_BUDGETED_HYBRID_OPTION",
@@ -772,5 +772,1766 @@
       }
     ]
   },
-  "external_limit": false
+  "external_limit": false,
+  "tile_fusion_native_proven": true,
+  "tile_fusion_opt_in": true,
+  "tile_fusion_result": {
+    "schema": "BYOR_MOTU_FUSED_TILE_NATIVE_V1",
+    "classification": "BYOR_MOTU_FUSED_TILE_NATIVE_PASS",
+    "status": "PASS",
+    "starting_commit": "1fb3def032e0449345c5607e821014ad29558b39",
+    "candidate": "E:\\gh\\snes-bor\\out\\byor-motu-tile-fusion-v2\\native\\bor.sfc",
+    "rom_sha256": "01b757d34ec1ad568758d325678b63bb96ad2f5b87badedae4ee65e1ac711977",
+    "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+    "verified_epochs": 18,
+    "verified_pixels": 1032192,
+    "pixel_mismatches": 0,
+    "unsafe_register_writes": 0,
+    "resource_faults": 0,
+    "negative": {
+      "rejected": true,
+      "vram_unchanged": true,
+      "previous_display_retained": true,
+      "world_snapshot_sha256": "9864e6a7f657991f2851511dc68de18505a35f427e43762f5a2d454e1fb1ddb9",
+      "raw_controller": 512
+    },
+    "independent_evidence": {
+      "status": "PASS",
+      "source_and_actual_vram_and_screenshots_equal": true,
+      "verified_pixels": 1032192,
+      "newly_generated_integer_positions": [
+        [
+          83,
+          220
+        ],
+        [
+          84,
+          219
+        ],
+        [
+          84,
+          220
+        ],
+        [
+          85,
+          219
+        ]
+      ],
+      "subpixel_same_pixels": [
+        [
+          2,
+          3
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          11,
+          12
+        ],
+        [
+          12,
+          13
+        ]
+      ],
+      "movement_changes_coverage": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          15,
+          16
+        ]
+      ],
+      "vertical_movement_pixel_pairs": [
+        [
+          8,
+          10
+        ],
+        [
+          8,
+          11
+        ],
+        [
+          8,
+          12
+        ],
+        [
+          8,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          8,
+          15
+        ]
+      ],
+      "complete_actor_canvases_in_rom": 0,
+      "finite_position_selector": false,
+      "negative_context_retention_verified": true
+    },
+    "actual_dma_replay": {
+      "status": "PASS",
+      "epochs": [
+        {
+          "epoch": 0,
+          "bytes": 58904,
+          "descriptors": 70,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 1,
+          "bytes": 9332,
+          "descriptors": 104,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 2,
+          "bytes": 8400,
+          "descriptors": 70,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 3,
+          "bytes": 0,
+          "descriptors": 0,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 4,
+          "bytes": 8740,
+          "descriptors": 98,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 5,
+          "bytes": 0,
+          "descriptors": 0,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 6,
+          "bytes": 8564,
+          "descriptors": 78,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 7,
+          "bytes": 0,
+          "descriptors": 0,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 8,
+          "bytes": 8260,
+          "descriptors": 96,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 9,
+          "bytes": 10204,
+          "descriptors": 118,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 10,
+          "bytes": 10372,
+          "descriptors": 116,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 11,
+          "bytes": 0,
+          "descriptors": 0,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 12,
+          "bytes": 0,
+          "descriptors": 0,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 13,
+          "bytes": 0,
+          "descriptors": 0,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 14,
+          "bytes": 10228,
+          "descriptors": 118,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 15,
+          "bytes": 10228,
+          "descriptors": 116,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 16,
+          "bytes": 8924,
+          "descriptors": 84,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        },
+        {
+          "epoch": 17,
+          "bytes": 10544,
+          "descriptors": 126,
+          "full_vram_matches": true,
+          "home_identities_verified": true
+        }
+      ],
+      "verified_vram_bytes": 1179648
+    },
+    "tile_fusion": {
+      "status": "PASS",
+      "classification": "BYOR_MOTU_FUSED_TILE_NATIVE_PASS",
+      "meaningful_gate": "At least 5% lower worst warm composition, lower worst publication, every changing warm epoch composes faster",
+      "paired_epochs": [
+        {
+          "epoch": 0,
+          "render_noop": false,
+          "tiles": 80,
+          "rows": 640,
+          "before": {
+            "clocks": {
+              "composition": 1936684,
+              "preflight_allocation": 971868,
+              "dma": 488816,
+              "other_production": 1049550,
+              "production": 4446918,
+              "publication": 4448656,
+              "forced_blank": 3471724,
+              "forced_blank_register": 3471556
+            },
+            "ms": {
+              "composition": 90.1736580114698,
+              "preflight_allocation": 45.25100257155588,
+              "dma": 22.759689662606096,
+              "other_production": 48.86794271338955,
+              "production": 207.05229295902132,
+              "publication": 207.13321572061997,
+              "forced_blank": 161.64642899213914,
+              "forced_blank_register": 161.6386067689236
+            },
+            "dma_bytes": 58904,
+            "dma_descriptors": 70
+          },
+          "after": {
+            "clocks": {
+              "composition": 1696124,
+              "preflight_allocation": 971868,
+              "dma": 488712,
+              "other_production": 1049670,
+              "production": 4206374,
+              "publication": 4410492,
+              "forced_blank": 3433560,
+              "forced_blank_register": 3433392
+            },
+            "ms": {
+              "composition": 78.97297934048414,
+              "preflight_allocation": 45.25100257155588,
+              "dma": 22.754847333948867,
+              "other_production": 48.87353001568635,
+              "production": 195.85235926167525,
+              "publication": 205.3562673468276,
+              "forced_blank": 159.86948061834676,
+              "forced_blank_register": 159.86165839513123
+            },
+            "dma_bytes": 58904,
+            "dma_descriptors": 70
+          },
+          "fused_mask_blend_step_ms": 71.3437974193182,
+          "fused_blend_body_ms": 30.49614778787062
+        },
+        {
+          "epoch": 1,
+          "render_noop": false,
+          "tiles": 103,
+          "rows": 824,
+          "before": {
+            "clocks": {
+              "composition": 2537708,
+              "preflight_allocation": 941798,
+              "dma": 81928,
+              "other_production": 1352150,
+              "production": 4913584,
+              "publication": 5169306,
+              "forced_blank": 4222070,
+              "forced_blank_register": 4221902
+            },
+            "ms": {
+              "composition": 118.15784780840396,
+              "preflight_allocation": 43.85091773768268,
+              "dma": 3.8146375214354524,
+              "other_production": 62.95725667182095,
+              "production": 228.78065973934304,
+              "publication": 240.6872940555294,
+              "forced_blank": 196.58317840209673,
+              "forced_blank_register": 196.5753561788812
+            },
+            "dma_bytes": 9332,
+            "dma_descriptors": 104
+          },
+          "after": {
+            "clocks": {
+              "composition": 2228194,
+              "preflight_allocation": 941798,
+              "dma": 81848,
+              "other_production": 1352110,
+              "production": 4603950,
+              "publication": 4811912,
+              "forced_blank": 3864676,
+              "forced_blank_register": 3864508
+            },
+            "ms": {
+              "composition": 103.74661211597191,
+              "preflight_allocation": 43.85091773768268,
+              "dma": 3.8109126532375854,
+              "other_production": 62.95539423772202,
+              "production": 214.3638367446142,
+              "publication": 224.04672474667404,
+              "forced_blank": 179.94260909324137,
+              "forced_blank_register": 179.93478687002585
+            },
+            "dma_bytes": 9332,
+            "dma_descriptors": 104
+          },
+          "fused_mask_blend_step_ms": 93.91938547124471,
+          "fused_blend_body_ms": 41.27666132613689
+        },
+        {
+          "epoch": 2,
+          "render_noop": false,
+          "tiles": 102,
+          "rows": 816,
+          "before": {
+            "clocks": {
+              "composition": 2505598,
+              "preflight_allocation": 870006,
+              "dma": 72860,
+              "other_production": 1268354,
+              "production": 4716818,
+              "publication": 4958688,
+              "forced_blank": 4082908,
+              "forced_blank_register": 4082740
+            },
+            "ms": {
+              "composition": 116.66277883548514,
+              "preflight_allocation": 40.508221016916956,
+              "dma": 3.3924237112072437,
+              "other_production": 59.05564347796531,
+              "production": 219.61906704157465,
+              "publication": 230.88074042930037,
+              "forced_blank": 190.10367705020238,
+              "forced_blank_register": 190.09585482698685
+            },
+            "dma_bytes": 8400,
+            "dma_descriptors": 70
+          },
+          "after": {
+            "clocks": {
+              "composition": 2198802,
+              "preflight_allocation": 870006,
+              "dma": 72660,
+              "other_production": 1268594,
+              "production": 4410062,
+              "publication": 4601356,
+              "forced_blank": 3725576,
+              "forced_blank_register": 3725408
+            },
+            "ms": {
+              "composition": 102.37809554007562,
+              "preflight_allocation": 40.508221016916956,
+              "dma": 3.3831115407125765,
+              "other_production": 59.06681808255891,
+              "production": 205.33624618026406,
+              "publication": 214.24305789329836,
+              "forced_blank": 173.46599451420036,
+              "forced_blank_register": 173.45817229098483
+            },
+            "dma_bytes": 8400,
+            "dma_descriptors": 70
+          },
+          "fused_mask_blend_step_ms": 92.64529430416435,
+          "fused_blend_body_ms": 40.52041996026497
+        },
+        {
+          "epoch": 3,
+          "render_noop": true,
+          "tiles": 0,
+          "rows": 0,
+          "before": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5920,
+              "production": 5920,
+              "publication": 5920,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2756402466421477,
+              "production": 0.2756402466421477,
+              "publication": 0.2756402466421477,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "after": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5920,
+              "production": 5920,
+              "publication": 5920,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2756402466421477,
+              "production": 0.2756402466421477,
+              "publication": 0.2756402466421477,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "fused_mask_blend_step_ms": 0.0,
+          "fused_blend_body_ms": 0.0
+        },
+        {
+          "epoch": 4,
+          "render_noop": false,
+          "tiles": 103,
+          "rows": 824,
+          "before": {
+            "clocks": {
+              "composition": 2542112,
+              "preflight_allocation": 870414,
+              "dma": 76708,
+              "other_production": 1249982,
+              "production": 4739216,
+              "publication": 4958710,
+              "forced_blank": 4082522,
+              "forced_blank_register": 4082354
+            },
+            "ms": {
+              "composition": 118.36290180269653,
+              "preflight_allocation": 40.527217844726074,
+              "dma": 3.57158987152464,
+              "other_production": 58.20022749632518,
+              "production": 220.66193701527243,
+              "publication": 230.88176476805478,
+              "forced_blank": 190.08570456114768,
+              "forced_blank_register": 190.07788233793215
+            },
+            "dma_bytes": 8740,
+            "dma_descriptors": 98
+          },
+          "after": {
+            "clocks": {
+              "composition": 2231758,
+              "preflight_allocation": 870414,
+              "dma": 76668,
+              "other_production": 1250702,
+              "production": 4429542,
+              "publication": 4601352,
+              "forced_blank": 3725164,
+              "forced_blank_register": 3724996
+            },
+            "ms": {
+              "composition": 103.91255499418688,
+              "preflight_allocation": 40.527217844726074,
+              "dma": 3.569727437425706,
+              "other_production": 58.23375131010599,
+              "production": 206.24325158644464,
+              "publication": 214.24287164988846,
+              "forced_blank": 173.44681144298136,
+              "forced_blank_register": 173.43898921976583
+            },
+            "dma_bytes": 8740,
+            "dma_descriptors": 98
+          },
+          "fused_mask_blend_step_ms": 94.10395269044902,
+          "fused_blend_body_ms": 41.463090979440125
+        },
+        {
+          "epoch": 5,
+          "render_noop": true,
+          "tiles": 0,
+          "rows": 0,
+          "before": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5920,
+              "production": 5920,
+              "publication": 5920,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2756402466421477,
+              "production": 0.2756402466421477,
+              "publication": 0.2756402466421477,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "after": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5920,
+              "production": 5920,
+              "publication": 5920,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2756402466421477,
+              "production": 0.2756402466421477,
+              "publication": 0.2756402466421477,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "fused_mask_blend_step_ms": 0.0,
+          "fused_blend_body_ms": 0.0
+        },
+        {
+          "epoch": 6,
+          "render_noop": false,
+          "tiles": 102,
+          "rows": 816,
+          "before": {
+            "clocks": {
+              "composition": 2518406,
+              "preflight_allocation": 841342,
+              "dma": 74372,
+              "other_production": 1234192,
+              "production": 4668312,
+              "publication": 4958666,
+              "forced_blank": 4111550,
+              "forced_blank_register": 4111382
+            },
+            "ms": {
+              "composition": 117.25913023396363,
+              "preflight_allocation": 39.17360074162126,
+              "dma": 3.4628237201469276,
+              "other_production": 57.46503163577121,
+              "production": 217.36058633150301,
+              "publication": 230.87971609054597,
+              "forced_blank": 191.43727298674366,
+              "forced_blank_register": 191.42945076352814
+            },
+            "dma_bytes": 8564,
+            "dma_descriptors": 78
+          },
+          "after": {
+            "clocks": {
+              "composition": 2211930,
+              "preflight_allocation": 841342,
+              "dma": 74460,
+              "other_production": 1233912,
+              "production": 4361644,
+              "publication": 4601422,
+              "forced_blank": 3754306,
+              "forced_blank_register": 3754138
+            },
+            "ms": {
+              "composition": 102.98934641134558,
+              "preflight_allocation": 39.17360074162126,
+              "dma": 3.466921075164581,
+              "other_production": 57.45199459707868,
+              "production": 203.0818628252101,
+              "publication": 214.2461309095616,
+              "forced_blank": 174.8036878057593,
+              "forced_blank_register": 174.79586558254377
+            },
+            "dma_bytes": 8564,
+            "dma_descriptors": 78
+          },
+          "fused_mask_blend_step_ms": 93.25095787313751,
+          "fused_blend_body_ms": 41.13725813383172
+        },
+        {
+          "epoch": 7,
+          "render_noop": true,
+          "tiles": 0,
+          "rows": 0,
+          "before": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5920,
+              "production": 5920,
+              "publication": 5920,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2756402466421477,
+              "production": 0.2756402466421477,
+              "publication": 0.2756402466421477,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "after": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5920,
+              "production": 5920,
+              "publication": 5920,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2756402466421477,
+              "production": 0.2756402466421477,
+              "publication": 0.2756402466421477,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "fused_mask_blend_step_ms": 0.0,
+          "fused_blend_body_ms": 0.0
+        },
+        {
+          "epoch": 8,
+          "render_noop": false,
+          "tiles": 102,
+          "rows": 816,
+          "before": {
+            "clocks": {
+              "composition": 2506586,
+              "preflight_allocation": 870006,
+              "dma": 72856,
+              "other_production": 1266278,
+              "production": 4715726,
+              "publication": 4958776,
+              "forced_blank": 4082996,
+              "forced_blank_register": 4082828
+            },
+            "ms": {
+              "composition": 116.7087809577288,
+              "preflight_allocation": 40.508221016916956,
+              "dma": 3.3922374677973504,
+              "other_production": 58.958983148230665,
+              "production": 219.56822259067377,
+              "publication": 230.88483778431802,
+              "forced_blank": 190.10777440522003,
+              "forced_blank_register": 190.0999521820045
+            },
+            "dma_bytes": 8260,
+            "dma_descriptors": 96
+          },
+          "after": {
+            "clocks": {
+              "composition": 2199870,
+              "preflight_allocation": 870006,
+              "dma": 72864,
+              "other_production": 1266318,
+              "production": 4409058,
+              "publication": 4601456,
+              "forced_blank": 3725676,
+              "forced_blank_register": 3725508
+            },
+            "ms": {
+              "composition": 102.42782253051715,
+              "preflight_allocation": 40.508221016916956,
+              "dma": 3.392609954617137,
+              "other_production": 58.9608455823296,
+              "production": 205.28949908438085,
+              "publication": 214.2477139785457,
+              "forced_blank": 173.4706505994477,
+              "forced_blank_register": 173.46282837623218
+            },
+            "dma_bytes": 8260,
+            "dma_descriptors": 96
+          },
+          "fused_mask_blend_step_ms": 92.68673346286562,
+          "fused_blend_body_ms": 40.758532159813605
+        },
+        {
+          "epoch": 9,
+          "render_noop": false,
+          "tiles": 95,
+          "rows": 760,
+          "before": {
+            "clocks": {
+              "composition": 2285246,
+              "preflight_allocation": 1119658,
+              "dma": 90084,
+              "other_production": 1577416,
+              "production": 5072404,
+              "publication": 5186254,
+              "forced_blank": 4061204,
+              "forced_blank_register": 4061036
+            },
+            "ms": {
+              "composition": 106.40300187128067,
+              "preflight_allocation": 52.13223095859018,
+              "dma": 4.194387834207979,
+              "other_production": 73.4458336650794,
+              "production": 236.1754543291582,
+              "publication": 241.4764073832475,
+              "forced_blank": 189.0931203081211,
+              "forced_blank_register": 189.0852980849056
+            },
+            "dma_bytes": 10204,
+            "dma_descriptors": 118
+          },
+          "after": {
+            "clocks": {
+              "composition": 1999756,
+              "preflight_allocation": 1119654,
+              "dma": 89748,
+              "other_production": 1577536,
+              "production": 4786694,
+              "publication": 4828924,
+              "forced_blank": 3703878,
+              "forced_blank_register": 3703710
+            },
+            "ms": {
+              "composition": 93.11034409866804,
+              "preflight_allocation": 52.13204471518028,
+              "dma": 4.178743387776938,
+              "other_production": 73.45142096737621,
+              "production": 222.87255316900146,
+              "publication": 224.83881796895042,
+              "forced_blank": 172.45571713723393,
+              "forced_blank_register": 172.4478949140184
+            },
+            "dma_bytes": 10204,
+            "dma_descriptors": 118
+          },
+          "fused_mask_blend_step_ms": 84.03768262912372,
+          "fused_blend_body_ms": 35.6278987040718
+        },
+        {
+          "epoch": 10,
+          "render_noop": false,
+          "tiles": 104,
+          "rows": 832,
+          "before": {
+            "clocks": {
+              "composition": 2554234,
+              "preflight_allocation": 1072292,
+              "dma": 91448,
+              "other_production": 1552986,
+              "production": 5270960,
+              "publication": 5508302,
+              "forced_blank": 4430590,
+              "forced_blank_register": 4430422
+            },
+            "ms": {
+              "composition": 118.9273124563783,
+              "preflight_allocation": 49.926829620338154,
+              "dma": 4.257896836981609,
+              "other_production": 72.30835203915582,
+              "production": 245.42039095285386,
+              "publication": 256.47123680058036,
+              "forced_blank": 206.29204735983672,
+              "forced_blank_register": 206.2842251366212
+            },
+            "dma_bytes": 10372,
+            "dma_descriptors": 116
+          },
+          "after": {
+            "clocks": {
+              "composition": 2241882,
+              "preflight_allocation": 1072292,
+              "dma": 91376,
+              "other_production": 1552826,
+              "production": 4958376,
+              "publication": 5151002,
+              "forced_blank": 4073290,
+              "forced_blank_register": 4073122
+            },
+            "ms": {
+              "composition": 104.38393706462693,
+              "preflight_allocation": 49.926829620338154,
+              "dma": 4.254544455603528,
+              "other_production": 72.30090230276008,
+              "production": 230.8662134433287,
+              "publication": 239.83504421185748,
+              "forced_blank": 189.65585477111384,
+              "forced_blank_register": 189.6480325478983
+            },
+            "dma_bytes": 10372,
+            "dma_descriptors": 116
+          },
+          "fused_mask_blend_step_ms": 94.46330934983823,
+          "fused_blend_body_ms": 41.411501554899665
+        },
+        {
+          "epoch": 11,
+          "render_noop": true,
+          "tiles": 0,
+          "rows": 0,
+          "before": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5902,
+              "production": 5902,
+              "publication": 5902,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2748021512976277,
+              "production": 0.2748021512976277,
+              "publication": 0.2748021512976277,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "after": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5902,
+              "production": 5902,
+              "publication": 5902,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2748021512976277,
+              "production": 0.2748021512976277,
+              "publication": 0.2748021512976277,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "fused_mask_blend_step_ms": 0.0,
+          "fused_blend_body_ms": 0.0
+        },
+        {
+          "epoch": 12,
+          "render_noop": true,
+          "tiles": 0,
+          "rows": 0,
+          "before": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5902,
+              "production": 5902,
+              "publication": 5902,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2748021512976277,
+              "production": 0.2748021512976277,
+              "publication": 0.2748021512976277,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "after": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5902,
+              "production": 5902,
+              "publication": 5902,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2748021512976277,
+              "production": 0.2748021512976277,
+              "publication": 0.2748021512976277,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "fused_mask_blend_step_ms": 0.0,
+          "fused_blend_body_ms": 0.0
+        },
+        {
+          "epoch": 13,
+          "render_noop": true,
+          "tiles": 0,
+          "rows": 0,
+          "before": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5902,
+              "production": 5902,
+              "publication": 5902,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2748021512976277,
+              "production": 0.2748021512976277,
+              "publication": 0.2748021512976277,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "after": {
+            "clocks": {
+              "composition": 0,
+              "preflight_allocation": 0,
+              "dma": 0,
+              "other_production": 5902,
+              "production": 5902,
+              "publication": 5902,
+              "forced_blank": 0,
+              "forced_blank_register": 0
+            },
+            "ms": {
+              "composition": 0.0,
+              "preflight_allocation": 0.0,
+              "dma": 0.0,
+              "other_production": 0.2748021512976277,
+              "production": 0.2748021512976277,
+              "publication": 0.2748021512976277,
+              "forced_blank": 0.0,
+              "forced_blank_register": 0.0
+            },
+            "dma_bytes": 0,
+            "dma_descriptors": 0
+          },
+          "fused_mask_blend_step_ms": 0.0,
+          "fused_blend_body_ms": 0.0
+        },
+        {
+          "epoch": 14,
+          "render_noop": false,
+          "tiles": 93,
+          "rows": 744,
+          "before": {
+            "clocks": {
+              "composition": 2244416,
+              "preflight_allocation": 1118798,
+              "dma": 90212,
+              "other_production": 1585590,
+              "production": 5039016,
+              "publication": 5186166,
+              "forced_blank": 4061994,
+              "forced_blank_register": 4061826
+            },
+            "ms": {
+              "composition": 104.50192226479436,
+              "preflight_allocation": 52.09218862546311,
+              "dma": 4.200347623324566,
+              "other_production": 73.82642207319645,
+              "production": 234.6208805867785,
+              "publication": 241.47231002822986,
+              "forced_blank": 189.12990338157502,
+              "forced_blank_register": 189.12208115835952
+            },
+            "dma_bytes": 10228,
+            "dma_descriptors": 118
+          },
+          "after": {
+            "clocks": {
+              "composition": 1964722,
+              "preflight_allocation": 1118798,
+              "dma": 90092,
+              "other_production": 1585750,
+              "production": 4759362,
+              "publication": 4828916,
+              "forced_blank": 3704744,
+              "forced_blank_register": 3704576
+            },
+            "ms": {
+              "composition": 91.47913119311718,
+              "preflight_allocation": 52.09218862546311,
+              "dma": 4.194760321027766,
+              "other_production": 73.83387180959218,
+              "production": 221.59995194920026,
+              "publication": 224.83844548213065,
+              "forced_blank": 172.49603883547584,
+              "forced_blank_register": 172.48821661226032
+            },
+            "dma_bytes": 10228,
+            "dma_descriptors": 118
+          },
+          "fused_mask_blend_step_ms": 82.6046327116994,
+          "fused_blend_body_ms": 35.13332932910002
+        },
+        {
+          "epoch": 15,
+          "render_noop": false,
+          "tiles": 104,
+          "rows": 832,
+          "before": {
+            "clocks": {
+              "composition": 2554234,
+              "preflight_allocation": 1072292,
+              "dma": 90104,
+              "other_production": 1557518,
+              "production": 5274148,
+              "publication": 5526066,
+              "forced_blank": 4448354,
+              "forced_blank_register": 4448186
+            },
+            "ms": {
+              "composition": 118.9273124563783,
+              "preflight_allocation": 49.926829620338154,
+              "dma": 4.195319051257446,
+              "other_production": 72.51936582256498,
+              "production": 245.56882695053886,
+              "publication": 257.29834378391666,
+              "forced_blank": 207.11915434317305,
+              "forced_blank_register": 207.11133211995752
+            },
+            "dma_bytes": 10228,
+            "dma_descriptors": 116
+          },
+          "after": {
+            "clocks": {
+              "composition": 2241962,
+              "preflight_allocation": 1072290,
+              "dma": 90216,
+              "other_production": 1557078,
+              "production": 4961546,
+              "publication": 5168824,
+              "forced_blank": 4091114,
+              "forced_blank_register": 4090946
+            },
+            "ms": {
+              "composition": 104.3876619328248,
+              "preflight_allocation": 49.926736498633204,
+              "dma": 4.200533866734459,
+              "other_production": 72.4988790474767,
+              "production": 231.01381134566915,
+              "publication": 240.66485172463726,
+              "forced_blank": 190.48575540559858,
+              "forced_blank_register": 190.47793318238305
+            },
+            "dma_bytes": 10228,
+            "dma_descriptors": 116
+          },
+          "fused_mask_blend_step_ms": 94.47075908623395,
+          "fused_blend_body_ms": 41.415226423097536
+        },
+        {
+          "epoch": 16,
+          "render_noop": false,
+          "tiles": 108,
+          "rows": 864,
+          "before": {
+            "clocks": {
+              "composition": 2653906,
+              "preflight_allocation": 871430,
+              "dma": 77768,
+              "other_production": 1276402,
+              "production": 4879506,
+              "publication": 4958764,
+              "forced_blank": 4081578,
+              "forced_blank_register": 4081410
+            },
+            "ms": {
+              "composition": 123.56812574410063,
+              "preflight_allocation": 40.574523670838985,
+              "dma": 3.6209443751463755,
+              "other_production": 59.430365218670715,
+              "production": 227.1939590087567,
+              "publication": 230.88427905408835,
+              "forced_blank": 190.04175111641285,
+              "forced_blank_register": 190.03392889319733
+            },
+            "dma_bytes": 8924,
+            "dma_descriptors": 84
+          },
+          "after": {
+            "clocks": {
+              "composition": 2329162,
+              "preflight_allocation": 871430,
+              "dma": 77688,
+              "other_production": 1276562,
+              "production": 4554842,
+              "publication": 4601600,
+              "forced_blank": 3724414,
+              "forced_blank_register": 3724246
+            },
+            "ms": {
+              "composition": 108.44776826849967,
+              "preflight_allocation": 40.574523670838985,
+              "dma": 3.617219506948509,
+              "other_production": 59.43781495506645,
+              "production": 212.07732640135362,
+              "publication": 214.25441874130186,
+              "forced_blank": 173.41189080362633,
+              "forced_blank_register": 173.40406858041084
+            },
+            "dma_bytes": 8924,
+            "dma_descriptors": 84
+          },
+          "fused_mask_blend_step_ms": 98.14198918205153,
+          "fused_blend_body_ms": 43.03368165507069
+        },
+        {
+          "epoch": 17,
+          "render_noop": false,
+          "tiles": 96,
+          "rows": 768,
+          "before": {
+            "clocks": {
+              "composition": 2318460,
+              "preflight_allocation": 1119796,
+              "dma": 93260,
+              "other_production": 1616266,
+              "production": 5147782,
+              "publication": 5186320,
+              "forced_blank": 4061150,
+              "forced_blank_register": 4060982
+            },
+            "ms": {
+              "composition": 107.94947402533003,
+              "preflight_allocation": 52.13865635623149,
+              "dma": 4.342265101663293,
+              "other_production": 75.2547227836685,
+              "production": 239.6851182668933,
+              "publication": 241.47948039951075,
+              "forced_blank": 189.09060602208754,
+              "forced_blank_register": 189.08278379887201
+            },
+            "dma_bytes": 10544,
+            "dma_descriptors": 126
+          },
+          "after": {
+            "clocks": {
+              "composition": 2030132,
+              "preflight_allocation": 1119798,
+              "dma": 92972,
+              "other_production": 1616306,
+              "production": 4859208,
+              "publication": 4860986,
+              "forced_blank": 3735814,
+              "forced_blank_register": 3735646
+            },
+            "ms": {
+              "composition": 94.52467655339808,
+              "preflight_allocation": 52.13874947793644,
+              "dma": 4.328855576150973,
+              "other_production": 75.25658521776744,
+              "production": 226.24886682525292,
+              "publication": 226.33165202095051,
+              "forced_blank": 173.94268452182237,
+              "forced_blank_register": 173.93486229860684
+            },
+            "dma_bytes": 10544,
+            "dma_descriptors": 126
+          },
+          "fused_mask_blend_step_ms": 85.35386480683998,
+          "fused_blend_body_ms": 36.362535834396084
+        }
+      ],
+      "warm_worst_before_ms": {
+        "composition": 123.56812574410063,
+        "preflight_allocation": 52.13865635623149,
+        "dma": 4.342265101663293,
+        "other_production": 75.2547227836685,
+        "production": 245.56882695053886,
+        "publication": 257.29834378391666,
+        "forced_blank": 207.11915434317305,
+        "forced_blank_register": 207.11133211995752
+      },
+      "warm_worst_after_ms": {
+        "composition": 108.44776826849967,
+        "preflight_allocation": 52.13874947793644,
+        "dma": 4.328855576150973,
+        "other_production": 75.25658521776744,
+        "production": 231.01381134566915,
+        "publication": 240.66485172463726,
+        "forced_blank": 190.48575540559858,
+        "forced_blank_register": 190.47793318238305
+      },
+      "composition_reduction_percent": 12.236454493866777,
+      "publication_reduction_percent": 6.464671250759579,
+      "byte_identical_source_snapshots": 18,
+      "byte_identical_resident_vram_cgram_directory": 18,
+      "byte_identical_dma_packets": true,
+      "unreferenced_boot_differences": [
+        {
+          "epoch": 0,
+          "unreferenced_untouched_boot_bytes": 10588
+        },
+        {
+          "epoch": 1,
+          "unreferenced_untouched_boot_bytes": 10045
+        },
+        {
+          "epoch": 2,
+          "unreferenced_untouched_boot_bytes": 10045
+        },
+        {
+          "epoch": 3,
+          "unreferenced_untouched_boot_bytes": 10045
+        },
+        {
+          "epoch": 4,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 5,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 6,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 7,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 8,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 9,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 10,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 11,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 12,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 13,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 14,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 15,
+          "unreferenced_untouched_boot_bytes": 9965
+        },
+        {
+          "epoch": 16,
+          "unreferenced_untouched_boot_bytes": 9885
+        },
+        {
+          "epoch": 17,
+          "unreferenced_untouched_boot_bytes": 9885
+        }
+      ],
+      "helper_boundary": "Fused tile entry to AstraTileDone fetch includes mask, blend, pointers and loop; excludes final register restoration/RTL. Blend-only AstraTileRow to AstraTilePixelDone differs from old kernel entry to AstraDone; use composition boundaries for A/B."
+    },
+    "helper_measurements": [
+      {
+        "epoch": 0,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 165,
+        "coverage_clocks": 132540,
+        "kernel_calls": 640,
+        "kernel_clocks": 654974,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 80,
+        "fused_tile_clocks": 1532270,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 1,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 207,
+        "coverage_clocks": 167264,
+        "kernel_calls": 824,
+        "kernel_clocks": 886510,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 103,
+        "fused_tile_clocks": 2017132,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 2,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 207,
+        "coverage_clocks": 166380,
+        "kernel_calls": 816,
+        "kernel_clocks": 870268,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 102,
+        "fused_tile_clocks": 1989768,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 3,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 0,
+        "coverage_clocks": 0,
+        "kernel_calls": 0,
+        "kernel_clocks": 0,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 0,
+        "fused_tile_clocks": 0,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 4,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 207,
+        "coverage_clocks": 166220,
+        "kernel_calls": 824,
+        "kernel_clocks": 890514,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 103,
+        "fused_tile_clocks": 2021096,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 5,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 0,
+        "coverage_clocks": 0,
+        "kernel_calls": 0,
+        "kernel_clocks": 0,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 0,
+        "fused_tile_clocks": 0,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 6,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 184,
+        "coverage_clocks": 148080,
+        "kernel_calls": 816,
+        "kernel_clocks": 883516,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 102,
+        "fused_tile_clocks": 2002776,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 7,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 0,
+        "coverage_clocks": 0,
+        "kernel_calls": 0,
+        "kernel_clocks": 0,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 0,
+        "fused_tile_clocks": 0,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 8,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 207,
+        "coverage_clocks": 166300,
+        "kernel_calls": 816,
+        "kernel_clocks": 875382,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 102,
+        "fused_tile_clocks": 1990658,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 9,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 225,
+        "coverage_clocks": 180980,
+        "kernel_calls": 760,
+        "kernel_clocks": 765190,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 95,
+        "fused_tile_clocks": 1804900,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 10,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 207,
+        "coverage_clocks": 166620,
+        "kernel_calls": 832,
+        "kernel_clocks": 889406,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 104,
+        "fused_tile_clocks": 2028814,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 11,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 0,
+        "coverage_clocks": 0,
+        "kernel_calls": 0,
+        "kernel_clocks": 0,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 0,
+        "fused_tile_clocks": 0,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 12,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 0,
+        "coverage_clocks": 0,
+        "kernel_calls": 0,
+        "kernel_clocks": 0,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 0,
+        "fused_tile_clocks": 0,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 13,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 0,
+        "coverage_clocks": 0,
+        "kernel_calls": 0,
+        "kernel_clocks": 0,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 0,
+        "fused_tile_clocks": 0,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 14,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 225,
+        "coverage_clocks": 180580,
+        "kernel_calls": 744,
+        "kernel_clocks": 754568,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 93,
+        "fused_tile_clocks": 1774122,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 15,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 207,
+        "coverage_clocks": 166962,
+        "kernel_calls": 832,
+        "kernel_clocks": 889486,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 104,
+        "fused_tile_clocks": 2028974,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 16,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 207,
+        "coverage_clocks": 166220,
+        "kernel_calls": 864,
+        "kernel_clocks": 924246,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 108,
+        "fused_tile_clocks": 2107822,
+        "legacy_row_calls": 0
+      },
+      {
+        "epoch": 17,
+        "coverage_kind": "source_occupancy",
+        "coverage_calls": 225,
+        "coverage_clocks": 180860,
+        "kernel_calls": 768,
+        "kernel_clocks": 780968,
+        "kernel_kind": "fused_blend_body",
+        "tile_calls": 96,
+        "fused_tile_clocks": 1833168,
+        "legacy_row_calls": 0
+      }
+    ],
+    "assembled_layout": {
+      "bank": 57,
+      "start": 3793408,
+      "end": 3793697,
+      "bytes": 289,
+      "nmi_start": 3796992,
+      "remaining_to_nmi": 3295,
+      "baseline_lease_zero": true,
+      "old_kernel_byte_identical": true,
+      "all_bytes_outside_code_bank_identical": true,
+      "sha256": "8849b30bc9edf9016db4551a7be1aaabc9d2b477e2bebace1a0a3b11a01c072b",
+      "inferred_branch_audit": {
+        "start": 57856,
+        "end": 58145,
+        "bytes": 289,
+        "instructions": 138,
+        "branches": 10,
+        "labels": 11,
+        "unused_to_f000": 3295
+      }
+    },
+    "source_occupancy_bound": 707,
+    "paired_slot_capacity": 768,
+    "resource_plan": {
+      "rom_occupancy_payload": [
+        "F43600",
+        "F4D0C0"
+      ],
+      "rom_geometry_table": [
+        "F4D100",
+        "F4D700"
+      ],
+      "refcounts_preserved": [
+        "F43000",
+        "F43600"
+      ],
+      "prior_candidate_lease_zero_checked": true,
+      "table_bytes": 39616,
+      "geometry_bytes": 1536,
+      "dp_additions": [
+        "3466",
+        "3470"
+      ],
+      "dp_total": [
+        "3400",
+        "3480"
+      ],
+      "bw_ram_unchanged": [
+        "42C000",
+        "42D700"
+      ],
+      "physics_protected_from": "42D800",
+      "vram_high": [
+        "0000",
+        "C000"
+      ],
+      "vram_low": [
+        "C000",
+        "F000"
+      ],
+      "vram_maps": [
+        "F000",
+        "10000"
+      ],
+      "obj_arena": false,
+      "code_bank_decimal": 57,
+      "row_kernel_bytes": 175,
+      "row_kernel_sha256": "e03d9b34b5cee39ec6d2d49297bc318220f8f8887b8b12d7888ad589f2aa6178"
+    },
+    "default_fusion_enabled": false,
+    "baseline_rom": {
+      "path": "out/byor-motu-occupancy-v1/native/bor.sfc",
+      "bytes": 4194304,
+      "sha256": "edbc7c2e1013cfddb602c29bb2691b2d3cbf79a284e5d1c1f2650b74d713c648"
+    },
+    "baseline_result": {
+      "path": "out/byor-motu-occupancy-v1/result.json",
+      "bytes": 104255,
+      "sha256": "3adb13d05719f5c3f7d502954ba5edb85ddaaf4bf3c4eb36467a866aafa71ae8"
+    },
+    "package": {
+      "path": "motu_tile_fusion_fix.zip",
+      "bytes": 15183,
+      "sha256": "8e3f5188abc64f8f23a26e2f85ceff226037a776605158b4a9e8710319081633"
+    },
+    "package_supplied_tests": 6,
+    "focused_tests": 56,
+    "inherited_dirty_preserved": 29,
+    "preservation_baseline": {
+      "path": "out/byor-motu-fusion-dirty-before.json",
+      "bytes": 4050,
+      "sha256": "8ad0519d2cfffb589227371801efc1a84146d4b0076aeb14d81bcfc938725072"
+    },
+    "same_rom_rebuild": {
+      "path": "out/byor-motu-fusion-rebuild-v1/native/bor.sfc",
+      "bytes": 4194304,
+      "sha256": "01b757d34ec1ad568758d325678b63bb96ad2f5b87badedae4ee65e1ac711977"
+    },
+    "unchanged_control_rebuild": {
+      "path": "out/byor-motu-fusion-control-rebuild-v1/native/bor.sfc",
+      "bytes": 4194304,
+      "sha256": "edbc7c2e1013cfddb602c29bb2691b2d3cbf79a284e5d1c1f2650b74d713c648"
+    },
+    "retry": {
+      "first_attempt": "out/byor-motu-tile-fusion-v1",
+      "verified_epochs_before_stop": 14,
+      "reason": "Mesen run_frames(1) returned framesAdvanced=0 and timedOut=True at epoch 14; a fresh run of the identical ROM completed all 18 epochs.",
+      "native_code_changed_between_attempts": false,
+      "external_limit": false
+    },
+    "nonclaims": [
+      "No seamless/non-blank presentation",
+      "No 30-Hz rendering or SA-1 scheduling",
+      "No dynamic SCREEN alpha, breath, HUD, combat, audio timing or full MOTU Demo",
+      "No natural 200-Hz full-world traversal"
+    ],
+    "artifacts": [
+      {
+        "path": "out/byor-motu-tile-fusion-v2/result.json",
+        "bytes": 144747,
+        "sha256": "b67ff90edd5590a1270ef8ebb10e6be9f286afedeed8e14eac24df5f7341e0f5"
+      },
+      {
+        "path": "out/byor-motu-tile-fusion-v2/contract.json",
+        "bytes": 44625,
+        "sha256": "18c9e609e05a86aa632ec4861ca9b50e652f98a4efd03afd3126ca5b1d44b5d8"
+      },
+      {
+        "path": "out/byor-motu-tile-fusion-v2/asset-validation.json",
+        "bytes": 9990,
+        "sha256": "d386aa0cf2f73870d49e60775902dd373b0ad67c55d5c3f2748ddb5c8df9f8f3"
+      },
+      {
+        "path": "out/byor-motu-tile-fusion-v2/native/mesen.log",
+        "bytes": 851953,
+        "sha256": "04b4bed2f30493b94ba0bc9a7cbdb1daa58c545618803fcee7f5ae63b98f8da9"
+      },
+      {
+        "path": "out/byor-motu-tile-fusion-v2/native/timing-events.json",
+        "bytes": 751974,
+        "sha256": "00c9323b987e6600350b803fcbd412bc0d645035871305b7f1cff3e2bf0f00c2"
+      },
+      {
+        "path": "out/byor-motu-tile-fusion-v2/native/dma-packets.json",
+        "bytes": 379998,
+        "sha256": "24e4d3f570e3020bc82ebfb513d397b1016e570ce8d28b8b65da679cc5d9eb3d"
+      },
+      {
+        "path": "out/byor-motu-tile-fusion-v2/native/dma-replay.json",
+        "bytes": 2885,
+        "sha256": "f1cbb266067c33c25a5896e79b0c5c180ee024eb50fb85802f084a869df55caa"
+      },
+      {
+        "path": "out/byor-motu-tile-fusion-v2/native/publisher.pasm",
+        "bytes": 26773,
+        "sha256": "38fa0c01dbd0c6465d37630c776a5ba101ed3e5c9d567f2dc7d598717cc34ef4"
+      },
+      {
+        "path": "out/byor-motu-tile-fusion-v2/native/publisher.sym",
+        "bytes": 3793,
+        "sha256": "be835215e52aeba4446a04a12db204e90805be39a1b6621107e6b525ea30297d"
+      },
+      {
+        "path": "out/byor-motu-tile-fusion-v2/native/callback_owner.lua",
+        "bytes": 536179,
+        "sha256": "2b738bfbfe19af6c6ae506d9761cc1bb6a84b5c28ec59b94ece909048bfae82a"
+      },
+      {
+        "path": "out/byor-motu-tile-fusion-v2/native/observations.json",
+        "bytes": 25341,
+        "sha256": "9b866d5de5ed93fb81616554bb81aa0704fbcaacf4d3c5bad286f6ac28c297c3"
+      }
+    ]
+  }
 }

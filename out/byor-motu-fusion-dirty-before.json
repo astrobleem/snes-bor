@@ -1,0 +1,118 @@
+[
+  {
+    "path": "docs/byor-motu-attack-chain.md",
+    "sha256": "45ADD68C8BC7418A79102FA81CFF7F85DF78D7FD07741B321D19241DF2A48120"
+  },
+  {
+    "path": "docs/byor-motu-find-here-empty.md",
+    "sha256": "FF5147D6527419777434F4F126703E99A4B23A36C1BB65100FE5D3D3E0453C9B"
+  },
+  {
+    "path": "docs/byor-motu-foreign-workspace.md",
+    "sha256": "E5B06A63795C68CACEF9EE697C4C0180131327E5DC9D802C4B01D2322BC5E456"
+  },
+  {
+    "path": "docs/byor-motu-ground-binding.md",
+    "sha256": "649416DCB75643D90837FB5AA814E1D686DA7C9E7DF8601C8E64D21A59867D1A"
+  },
+  {
+    "path": "docs/byor-motu-ground-services.md",
+    "sha256": "9C58C2F0F105188B746671989CCCA8095C4C4FE755F725D6F1C0CB9ECB4F80AD"
+  },
+  {
+    "path": "docs/byor-motu-player-ground.md",
+    "sha256": "C5BB760F7C9FC8C8DE35E96CF6DAFA8444B94384EC498C0FF66747D3737BBBD5"
+  },
+  {
+    "path": "docs/byor-motu-player-running.md",
+    "sha256": "BA978E95A5F7FD4FD54D3B0855F635263E8D84D91834B777384C4583055B0825"
+  },
+  {
+    "path": "docs/byor-motu-player-state.md",
+    "sha256": "1DB244C3C8EF101EEB7507C7E12B14FADEB7ACDF14571382D31265CBE1429C78"
+  },
+  {
+    "path": "docs/byor-motu-run-binding.md",
+    "sha256": "165159D0CFCE6037A4DC1577C980BCE3672BCB770003D28680383D5B9CAFA9D9"
+  },
+  {
+    "path": "out/g13_camera_pause.json",
+    "sha256": "B63FF397D64C1D3135ABAF2E0D15068DE7C03A78A8912E83C119663947348863"
+  },
+  {
+    "path": "out/g13_combat_ai.json",
+    "sha256": "A88014733356EAAE1BB9BFE3A6F1D3D80DD2B26CADD8BEB703BE7D3CF8ED5337"
+  },
+  {
+    "path": "out/g13_jump_isolation.json",
+    "sha256": "438FA6368F48639B4970F0B6F240F0D14AAC1A45B53987E2053A83A6778BFE2F"
+  },
+  {
+    "path": "out/g13_score_pickup.json",
+    "sha256": "31AB9EF13B8B758EAE08B2CB5E0FCE11336902718CFD5F87530F10332A1C5822"
+  },
+  {
+    "path": "out/g13_semantic_boundary.json",
+    "sha256": "0E7BA2E958D87E31896FEBD8EC7F263EA88FF20EE3BBB563469C6B5C027DEE2A"
+  },
+  {
+    "path": "out/spawn_3ceasy/spawn_table.bin",
+    "sha256": "8571F31E281B702BD78B97E44AA23E02B5E1C7CE0A5D5C0639E4B86F93D6220C"
+  },
+  {
+    "path": "out/spawn_5beasy/spawn_table.bin",
+    "sha256": "6E4729351F41CE01C259A2FC71DFC481045DBB496F38FD8C40A7470CD4B19BC5"
+  },
+  {
+    "path": "out/spawn_normal1a/spawn_table.bin",
+    "sha256": "E1FA9DE399023D0C666D83E1BE4CFD9920068ADFA1625EAB70CB2B399185CC17"
+  },
+  {
+    "path": "out/spawn_normal1b/spawn_table.bin",
+    "sha256": "9947064A157C58964902D9560458787936E962744B2ABE878A1FD8179B218E39"
+  },
+  {
+    "path": "out/spawn_normal1c/spawn_table.bin",
+    "sha256": "E2F262696A8EC107D08F90E59DD168554876597AF05FAC0BB097C45F139B20F9"
+  },
+  {
+    "path": "out/spawn_normal2/spawn_table.bin",
+    "sha256": "F9A7F0E9458C9FBA8DECE2C283B09466C3D1EECAA0CA19F7DFBDC022D88FE7AF"
+  },
+  {
+    "path": "out/spawn_normal3a/spawn_table.bin",
+    "sha256": "F6766D5B9C3B58B4C923F471EE2FFC3D3D2A0960579229F6EB02967DE08E13B6"
+  },
+  {
+    "path": "out/spawn_normal3b/spawn_table.bin",
+    "sha256": "D388C30BCF4B5CB866629ED9783F88E2615CE2110CC3B7FAF47467E4E84F537F"
+  },
+  {
+    "path": "out/spawn_normal3c/spawn_table.bin",
+    "sha256": "B1E19FA71CA8808650659AA272FB70EB701CD895CA2A264CAAA1155F000C71BD"
+  },
+  {
+    "path": "out/spawn_normal4a/spawn_table.bin",
+    "sha256": "4202441E6FE88D243E0D14AF936845917C7772E37EB49C567F875197BB9E3E9B"
+  },
+  {
+    "path": "out/spawn_normal4b/spawn_table.bin",
+    "sha256": "1259A23FCA1743D85A7B9E6C255999C5ED2E2D7D29D82A8BE0498D178FDBBE00"
+  },
+  {
+    "path": "out/spawn_normal5a/spawn_table.bin",
+    "sha256": "0AAF0AF2416E53C9462C6A5DC2C61CAB7026506E8408F89DA2FD6F4B8A593027"
+  },
+  {
+    "path": "src/main.bin",
+    "sha256": "01E29185C9BE320306BA46A5399EE16D72675EF9026FDB2A7FD19F3D6F3393EA"
+  },
+  {
+    "path": "src/main.pansy",
+    "sha256": "E32247FD1C33A971AC07914D7C72B4762F1A75DA083D449958117C410A204235"
+  },
+  {
+    "path": "src/main.sym",
+    "sha256": "7A77F0252356EE2C559CC02C721A826AEF9ED4929B3BB4864814BF0421E51D86"
+  }
+]

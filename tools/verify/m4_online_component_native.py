@@ -61,19 +61,29 @@ end
             start=fs['OnlineCoverage'];body=rom[offset(start):offset(start)+256]
             end=start+body.index(bytes.fromhex('a55a60'))+2
             if 'WarmSourcePresence' in fs:start,end=fs['WarmSourcePresence'],fs['WarmPresenceDone']
+            fused=contract.get('tile_fusion',False)
             f.write('''
 local coverageStart=0;local coverageClocks=0;local coverageCalls=0
 local kernelStart=0;local kernelClocks=0;local kernelCalls=0
 local function clock()return emu.getState()['masterClock']end
 ''')
-            for label,at in (('coverage_entry',start),('coverage_exit',end),('kernel_entry',fs['AstraOpaqueRow']),('kernel_exit',fs['AstraDone'])):
+            for label,at in (('coverage_entry',start),('coverage_exit',end),('kernel_entry',fs['AstraTileRow'] if fused else fs['AstraOpaqueRow']),('kernel_exit',fs['AstraTilePixelDone'] if fused else fs['AstraDone'])):
                 prefix='coverage' if label.startswith('coverage') else 'kernel'
                 body=f'{prefix}Start=clock()' if label.endswith('entry') else f'{prefix}Clocks={prefix}Clocks+clock()-{prefix}Start;{prefix}Calls={prefix}Calls+1'
                 f.write(f'emu.addMemoryCallback(function(){body} end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,emu.memType.snesMemory)\n')
+            extra=''
+            reset=''
+            if fused:
+                f.write('local tileStart=0;local tileClocks=0;local tileCalls=0;local legacyCalls=0\n')
+                for name,body in (('AstraOpaqueTile','tileStart=clock()'),('AstraTileDone','tileClocks=tileClocks+clock()-tileStart;tileCalls=tileCalls+1'),('AstraOpaqueRow','legacyCalls=legacyCalls+1')):
+                    at=fs[name]
+                    f.write(f'emu.addMemoryCallback(function(){body} end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,emu.memType.snesMemory)\n')
+                extra="..'|'..tileCalls..'|'..tileClocks..'|'..legacyCalls"
+                reset=';tileCalls=0;tileClocks=0;legacyCalls=0'
             for label in ('OnlineComplete','OnlineNoopComplete'):
                 if label not in fs:continue
                 at=fs[label]
-                f.write(f"emu.addMemoryCallback(function()emu.log('ONLINE_HELPERS|'..coverageCalls..'|'..coverageClocks..'|'..kernelCalls..'|'..kernelClocks);coverageCalls=0;coverageClocks=0;kernelCalls=0;kernelClocks=0 end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,emu.memType.snesMemory)\n")
+                f.write(f"emu.addMemoryCallback(function()emu.log('ONLINE_HELPERS|'..coverageCalls..'|'..coverageClocks..'|'..kernelCalls..'|'..kernelClocks{extra});coverageCalls=0;coverageClocks=0;kernelCalls=0;kernelClocks=0{reset} end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,emu.memType.snesMemory)\n")
         f.write('''
 emu.addMemoryCallback(function(a,v)
  if not online then return end
@@ -207,6 +217,9 @@ def run(folder,source,sy,contract):
         if 'ONLINE_HELPERS|' in line:
             values=list(map(int,line.split('ONLINE_HELPERS|',1)[1].split('|')))
             helpers.append(dict(epoch=epoch,coverage_kind='source_occupancy' if contract.get('occupancy_preflight') else 'foreground_row_scan',coverage_calls=values[0],coverage_clocks=values[1],kernel_calls=values[2],kernel_clocks=values[3]))
+            if contract.get('tile_fusion'):
+                if len(values)!=7:raise ValueError('FUSED_TILE_HELPER_LOG')
+                helpers[-1].update(kernel_kind='fused_blend_body',tile_calls=values[4],fused_tile_clocks=values[5],legacy_row_calls=values[6])
         if 'ONLINE_PACKET|' in line:
             values=line.split('ONLINE_PACKET|',1)[1].split('|')
             packets.append(dict(epoch=epoch,target=int(values[0]),vram_word=int(values[1]),source=int(values[2]),bytes=int(values[3]),payload=values[4] if len(values)>4 else ''))
