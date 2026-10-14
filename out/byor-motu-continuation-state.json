@@ -1,6 +1,6 @@
 {
   "branch": "feat/byor-motu",
-  "tip": "b40172b68db17dd0229a0bfdf210e46261d65278",
+  "tip": "4b6433c972efa325f44de73348cd218a12b9c43e",
   "no_color_reduction": true,
   "no_tm_nt": true,
   "native_peak_proven": false,
@@ -16,16 +16,16 @@
   "protected_17_fingerprints_verified": true,
   "active_jobs": [],
   "stop_gate_met": true,
-  "resumed_from": "b40172b68db17dd0229a0bfdf210e46261d65278",
-  "continuation_receipt": "docs/receipts/byor-motu-restoration-spill.json",
-  "continuation_document": "docs/byor-motu-restoration-spill.md",
-  "focused_continuation_tests_passed": 124,
+  "resumed_from": "4b6433c972efa325f44de73348cd218a12b9c43e",
+  "continuation_receipt": "docs/receipts/byor-motu-early-capacity.json",
+  "continuation_document": "docs/byor-motu-early-capacity.md",
+  "focused_continuation_tests_passed": 138,
   "latest_raster_family": "Delete subset of existing noninitial events; fixed times, slots, indices, banks, initial palette and math/window controls",
   "fixed_color_component_native_proven": true,
   "authored_fixed_color_palette_witness_proven": false,
-  "continuation_status": "BYOR_MOTU_NONBLANK_BATCH_CAPACITY_RESCUE_PASS",
+  "continuation_status": "EARLY_CAPACITY_MEASURED_TRADEOFF",
   "continuation_limit": null,
-  "next_experiment": "None authorized; stop after restoration capacity rescue.",
+  "next_experiment": "No additional work authorized; retain certified spill backend and stop after measured early-capacity experiment.",
   "raster_feasibility": "OPEN",
   "research_slice_completed": false,
   "stop_after_this_experiment": true,
@@ -3119,6 +3119,70 @@
       "breath",
       "HUD",
       "combat",
+      "MOTU Demo"
+    ]
+  },
+  "early_capacity_admission_accepted": false,
+  "certified_continuation_status": "BYOR_MOTU_NONBLANK_BATCH_CAPACITY_RESCUE_PASS",
+  "certified_continuation_receipt": "docs/receipts/byor-motu-restoration-spill.json",
+  "early_capacity_result": {
+    "schema": 1,
+    "classification": "EARLY_CAPACITY_MEASURED_TRADEOFF",
+    "optimization_accepted": false,
+    "reason": "Rescue is faster, but ordinary publication grows from 30 to 32 fields (+6.55%); retain certified backend.",
+    "starting_commit": "4b6433c972efa325f44de73348cd218a12b9c43e",
+    "master_clock_hz": 21477270,
+    "comparison": [
+      {
+        "name": "rescue",
+        "baseline_master_clocks": 34017790,
+        "candidate_master_clocks": 24726260,
+        "baseline_ms": 1583.8973016589166,
+        "candidate_ms": 1151.2757440773432,
+        "delta_ms": -432.6215575815734,
+        "delta_percent": -27.313737900081104,
+        "baseline_fields": 95,
+        "candidate_fields": 69
+      },
+      {
+        "name": "ordinary",
+        "baseline_master_clocks": 10917850,
+        "candidate_master_clocks": 11632598,
+        "baseline_ms": 508.3444031760089,
+        "candidate_ms": 541.6236793596206,
+        "delta_ms": 33.27927618361179,
+        "delta_percent": 6.5466002921820685,
+        "baseline_fields": 30,
+        "candidate_fields": 32
+      }
+    ],
+    "controls": {
+      "spill_batch": "05c3cef5f282113867b8dbc235e3bc72a7a718064023cbf58ff9bfc7410aa45d",
+      "spill_rescue": "cef4b429ff23d86d2daa352f7b73355b961dd7e5f5814d56e0857aa7d4d42034"
+    },
+    "focused_tests": 138,
+    "visible_fields": 439,
+    "verified_pixels": 25174016,
+    "pixel_mismatches": 0,
+    "resource_faults": 0,
+    "unsafe_ppu_operations": 0,
+    "temporary_bitmap": [
+      13440,
+      13516
+    ],
+    "new_memory_allocations": 0,
+    "inherited_29_byte_identical": true,
+    "protected_17_byte_identical": true,
+    "default_renderer_unchanged": true,
+    "nonclaims": [
+      "optimization PASS",
+      "general capacity",
+      "30 FPS",
+      "200-Hz scheduling",
+      "SA-1 coexecution",
+      "authored audio",
+      "breath",
+      "HUD",
       "MOTU Demo"
     ]
   }
