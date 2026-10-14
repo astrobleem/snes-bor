@@ -38,14 +38,17 @@ def observer(script,contract):
     script.write_text(original+'\n-- ONLINE_OBSERVER_BEGIN\n')
     with script.open('a') as f:
         f.write('''
-local online=false;local blank=false;local unsafe=0;local dmas=0;local vramword=0
+local online=false;local blank=false;local unsafe=0;local dmas=0;local vramword=0;local dmaActive=false
 local function stamp(name)
  local s=emu.getState();emu.log('ONLINE|'..name..'|'..s['masterClock']..'|'..s['ppu.frameCount']..'|'..s['ppu.scanline'])
 end
 ''')
-        for name in ('OnlinePublish','OnlineBlank','OnlineTile','OnlineEncode','OnlineTransfer','OnlineMapsTransfer','OnlineComplete','OnlineReject',*[n for n in fs if n.startswith('OnlineDmaDone')]):
+        for name in ('OnlinePublish','OnlinePreflight','OnlineAllocationStart','WarmAllocationDone','OnlineBlank','OnlineTile','OnlineEncode','OnlineTransfer','OnlineMapsTransfer','OnlineComplete','OnlineReject',*[n for n in fs if n.startswith(('OnlineDmaDone','OnlineNoopComplete'))]):
+            if name not in fs:continue
             address=fs[name]+(2 if name.startswith('OnlineDmaDone') else 0)
-            f.write(f"emu.addMemoryCallback(function(){'online=true;' if name=='OnlineBlank' else ''}stamp('{name}')end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,emu.memType.snesMemory)\n")
+            body=f"stamp('{name}')"
+            if name.startswith('OnlineDmaDone'):body=f"if dmaActive then {body};dmaActive=false end"
+            f.write(f"emu.addMemoryCallback(function(){'online=true;' if name=='OnlineBlank' else ''}{body} end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,emu.memType.snesMemory)\n")
         from m4_input_controller_native import offset
         rom=(script.parent/'bor.sfc').read_bytes();first=fs['OnlineBlank'];section=rom[offset(first):offset(fs['OnlineTile'])]
         cursor=0;index=0
@@ -53,7 +56,23 @@ end
             at=section.find(bytes.fromhex('a9808d0b42'),cursor)
             if at<0:break
             index+=1;address=first+at+7;cursor=at+5
-            f.write(f"emu.addMemoryCallback(function()stamp('OnlineBootDmaDone{index}')end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,emu.memType.snesMemory)\n")
+            f.write(f"emu.addMemoryCallback(function()if dmaActive then stamp('OnlineBootDmaDone{index}');dmaActive=false end end,emu.callbackType.exec,{address},{address},emu.cpuType.snes,emu.memType.snesMemory)\n")
+        if 'OnlineCoverage' in fs:
+            start=fs['OnlineCoverage'];body=rom[offset(start):offset(start)+256]
+            end=start+body.index(bytes.fromhex('a55a60'))+2
+            f.write('''
+local coverageStart=0;local coverageClocks=0;local coverageCalls=0
+local kernelStart=0;local kernelClocks=0;local kernelCalls=0
+local function clock()return emu.getState()['masterClock']end
+''')
+            for label,at in (('coverage_entry',start),('coverage_exit',end),('kernel_entry',fs['AstraOpaqueRow']),('kernel_exit',fs['AstraDone'])):
+                prefix='coverage' if label.startswith('coverage') else 'kernel'
+                body=f'{prefix}Start=clock()' if label.endswith('entry') else f'{prefix}Clocks={prefix}Clocks+clock()-{prefix}Start;{prefix}Calls={prefix}Calls+1'
+                f.write(f'emu.addMemoryCallback(function(){body} end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,emu.memType.snesMemory)\n')
+            for label in ('OnlineComplete','OnlineNoopComplete'):
+                if label not in fs:continue
+                at=fs[label]
+                f.write(f"emu.addMemoryCallback(function()emu.log('ONLINE_HELPERS|'..coverageCalls..'|'..coverageClocks..'|'..kernelCalls..'|'..kernelClocks);coverageCalls=0;coverageClocks=0;kernelCalls=0;kernelClocks=0 end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,emu.memType.snesMemory)\n")
         f.write('''
 emu.addMemoryCallback(function(a,v)
  if not online then return end
@@ -66,9 +85,16 @@ end,emu.callbackType.write,0x2100,0x2133,emu.cpuType.snes,emu.memType.snesMemory
 emu.addMemoryCallback(function(a,v)
  if online then
   dmas=dmas+1;local mt=emu.memType.snesMemory
+  dmaActive=true
   local n=emu.read(0x4375,mt)+256*emu.read(0x4376,mt)
   local target=emu.read(0x4371,mt)
   stamp('DMA:'..n..':'..target..':'..vramword)
+  local source=emu.read(0x4372,mt)+256*emu.read(0x4373,mt)+65536*emu.read(0x4374,mt)
+  local bytes={}
+  if source<0xc00000 then
+   for j=0,n-1 do bytes[#bytes+1]=string.format('%02x',emu.read(source+j,mt)) end
+  end
+  emu.log('ONLINE_PACKET|'..target..'|'..vramword..'|'..source..'|'..n..'|'..table.concat(bytes))
   if target==0x18 then
    if 2*vramword+n>65536 then emu.log('ONLINE_RESOURCE_FAULT|VRAM_RANGE') end
    vramword=(vramword+n//2)&0xffff
@@ -105,6 +131,7 @@ def run(folder,source,sy,contract):
             # survive every composition, including large IDLE bounding boxes.
             fence_regions=(('physics','SnesSaveRam',0x2d800,2048),('worker_code','Sa1InternalRam',0x200,512),('graphics_end','SnesSaveRam',0x2d700,256))
             fences={name:m.read_memory(kind,at,n) for name,kind,at,n in fence_regions}
+            if i==0:(native/'initial-vram.bin').write_bytes(m.read_memory('SnesVideoRam',0,65536))
             m.write_u16(REQUEST,0xb4e7 if i==0 else 0xb4e8)
             for fields in range(1,501):
                 run_frames_exact(m,1)
@@ -131,6 +158,13 @@ def run(folder,source,sy,contract):
             if not all(fence_checks.values()):raise ValueError('ONLINE_RESOURCE_FENCE:'+str(fence_checks))
             (native/f'vram-{i:02d}.bin').write_bytes(vram)
             (native/f'cgram-{i:02d}.bin').write_bytes(cgram)
+            if contract.get('warm_residency'):
+                directory=m.read_memory('SnesSaveRam',0x2d000,1536);(native/f'directory-{i:02d}.bin').write_bytes(directory)
+                words=np.frombuffer(directory,dtype='<u2');maps=np.frombuffer(vram[0xf000:0xf800],dtype='<u2')
+                if not np.array_equal(words&0x3fff,np.bincount(maps,minlength=768)):raise ValueError('WARM_DIRECTORY_REFERENCE_FAULT')
+                authority=Path('out/byor-motu-online-v3/assets');high=(authority/'high.chr').read_bytes();low=(authority/'low.chr').read_bytes()
+                for slot in range(len(high)//64):
+                    if not words[slot]&0x8000 and (vram[slot*64:slot*64+64]!=high[slot*64:slot*64+64] or vram[0xc000+slot*16:0xc000+slot*16+16]!=low[slot*16:slot*16+16]):raise ValueError('WARM_HOME_IDENTITY_FAULT')
             sample=dict(label=label,epoch=i,snapshot=str(path),sha256=sha(snapshot),raw_controller=startup.u16(m,sy['SourceInputController_Raw1']),
                 x_q16=struct.unpack_from('<i',snapshot,52)[0],z_q16=struct.unpack_from('<i',snapshot,60)[0])
             samples.append(sample)
@@ -166,13 +200,23 @@ def run(folder,source,sy,contract):
             pieces=line.split('ONLINE|',1)[1].split('|')
             if len(pieces)>=4:events.append(dict(phase=pieces[0],clock=int(pieces[1]),field=int(pieces[2]),line=int(pieces[3])))
     (native/'timing-events.json').write_text(json.dumps(events,indent=2)+'\n')
+    helpers=[];packets=[];epoch=-1
+    for line in log.splitlines():
+        if 'ONLINE|OnlinePublish|' in line:epoch+=1
+        if 'ONLINE_HELPERS|' in line:
+            values=list(map(int,line.split('ONLINE_HELPERS|',1)[1].split('|')))
+            helpers.append(dict(epoch=epoch,coverage_calls=values[0],coverage_clocks=values[1],kernel_calls=values[2],kernel_clocks=values[3]))
+        if 'ONLINE_PACKET|' in line:
+            values=line.split('ONLINE_PACKET|',1)[1].split('|')
+            packets.append(dict(epoch=epoch,target=int(values[0]),vram_word=int(values[1]),source=int(values[2]),bytes=int(values[3]),payload=values[4] if len(values)>4 else ''))
+    (native/'dma-packets.json').write_text(json.dumps(packets,indent=2)+'\n')
     from m4_online_component_evidence import costs,verify
     result=dict(schema='BYOR_MOTU_ONLINE_COMPONENT_NATIVE_V1',status='PASS',classification='BYOR_MOTU_ONLINE_COMPONENT_PASS',
         source_pak_sha256=sha(source.path.read_bytes()),candidate=str(native/'bor.sfc'),rom_sha256=sha((native/'bor.sfc').read_bytes()),
         observations=observations,verified_epochs=len(observations),verified_pixels=sum(r['pixels'] for r in observations),pixel_mismatches=0,
         negative=dict(rejected=rejected,vram_unchanged=unchanged,previous_display_retained=retained,world_snapshot_sha256=sha(rejected_world),raw_controller=rejected_controller),
         independent_movement_checks=motion,unsafe_register_writes=log.count('ONLINE_UNSAFE|'),contract=contract,
-        measured_costs=costs(events),resource_faults=log.count('ONLINE_RESOURCE_FAULT|'))
+        measured_costs=costs(events),helper_measurements=helpers,resource_faults=log.count('ONLINE_RESOURCE_FAULT|'))
     if not rejected or not unchanged or not retained or result['unsafe_register_writes'] or result['resource_faults']:raise ValueError('ONLINE_RETENTION_OR_UNSAFE_PPU_WRITE')
     (folder/'result.json').write_text(json.dumps(result,indent=2)+'\n')
     result['independent_evidence']=verify(folder,source)

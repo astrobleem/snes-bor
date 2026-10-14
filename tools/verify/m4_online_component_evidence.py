@@ -24,6 +24,12 @@ def costs(events):
             if current is not None:raise ValueError('ONLINE_UNFINISHED_PRODUCTION_TRACE')
             current=dict(start=t,gather_clocks=0,encode_clocks=0,dma_clocks=0,dma_bytes=0,dma_transfers=0)
         elif current is None:continue
+        elif p=='OnlinePreflight':current['preflight_start']=t
+        elif p=='OnlineAllocationStart':current['allocation_start']=t
+        elif p=='WarmAllocationDone':current['allocation_clocks']=t-current['allocation_start']
+        elif p=='OnlineBlank':
+            current['preflight_and_allocation_clocks']=t-current.get('preflight_start',current['start'])
+            current['admission_to_blank_clocks']=t-current['start']
         elif p=='OnlineTile':tile=t
         elif p=='OnlineEncode':
             if tile is None:raise ValueError('ONLINE_GATHER_TRACE')
@@ -40,6 +46,16 @@ def costs(events):
         elif p=='OnlineComplete':
             if dma is not None:raise ValueError('ONLINE_PUBLICATION_BEFORE_DMA')
             current['complete']=t
+        elif p=='OnlineNoopComplete':
+            if current['dma_transfers'] or current['gather_clocks'] or current['encode_clocks']:raise ValueError('ONLINE_NOOP_DID_GRAPHICS_WORK')
+            current['complete']=t
+            current['render_noop']=True
+            # Same completed picture; world snapshot consumption has its own
+            # epoch and does not require a forced-blank/unblank transition.
+            current['production_clocks']=t-current['start'];current['publication_clocks']=t-current['start']
+            current['composition_clocks']=0;current['non_dma_production_clocks']=t-current['start']
+            for k in ('composition','production','publication','dma','non_dma_production'):current[k+'_ms']=current[k+'_clocks']*1000/MASTER_HZ
+            epochs.append(current);current=None
         elif p=='INIDISP:15':
             if 'complete' not in current:raise ValueError('ONLINE_PARTIAL_PUBLICATION')
             current['production_clocks']=current['complete']-current['start']

@@ -1,0 +1,955 @@
+{
+  "schema": "BYOR_MOTU_OPAQUE_OPTIMIZATION_V1",
+  "status": "PASS",
+  "starting_commit": "93ac77898cdc7c544e53b63be9e686821b3a7846",
+  "classification": "BYOR_MOTU_OPAQUE_OPTIMIZATION_PASS",
+  "candidate": "out\\byor-motu-opaque-warm-v4\\native\\bor.sfc",
+  "rom_sha256": "8b2350b578d926c024ed55490c2d85b8ab88062ec756f098234649af942af637",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "package": {
+    "path": "motu_astra_no_coffee_break.zip",
+    "sha256": "9abf48840ac72e916421990e7d360906066931853ed6a2480ea249a58318ba34",
+    "tests": 13
+  },
+  "offline_actual_assets": {
+    "path": "out/astra-opaque-assets-v1/actual-asset-analysis.json",
+    "sha256": "8f8294a7efc28908e838ce9df5c0c17420c7c8087443bba8f239dca30c13484e",
+    "pixels": 1032192,
+    "kernel_row_checks": 8752,
+    "pixel_mismatches": 0,
+    "native_performance_claim": false
+  },
+  "native_row_before_residency": {
+    "path": "out/byor-motu-opaque-row-v1/result.json",
+    "rom_sha256": "fb038dc68e6b9f2c35c4cc73c908c035ea4590875ca6ee300911f36e42c225d5",
+    "epochs": 18,
+    "verified_pixels": 1032192,
+    "pixel_mismatches": 0,
+    "worst": {
+      "composition_clocks": 3646474,
+      "production_clocks": 9760170,
+      "publication_clocks": 9832086,
+      "dma_clocks": 539892,
+      "dma_bytes": 64224,
+      "dma_transfers": 204,
+      "non_dma_production_clocks": 9228630,
+      "composition_ms": 169.78293796185454,
+      "production_ms": 454.44183548467754,
+      "publication_ms": 457.79030575114996,
+      "dma_ms": 25.13783176353419,
+      "non_dma_production_ms": 429.69287996100064
+    }
+  },
+  "native_final": {
+    "epochs": 18,
+    "verified_pixels": 1032192,
+    "pixel_mismatches": 0,
+    "source_snapshots_byte_identical_to_scalar": true,
+    "physical_vram_replay_bytes": 1179648,
+    "unsafe_register_writes": 0,
+    "resource_faults": 0,
+    "negative": {
+      "rejected": true,
+      "vram_unchanged": true,
+      "previous_display_retained": true,
+      "world_snapshot_sha256": "9864e6a7f657991f2851511dc68de18505a35f427e43762f5a2d454e1fb1ddb9",
+      "raw_controller": 512
+    }
+  },
+  "before": {
+    "composition_clocks": 58081580,
+    "production_clocks": 60372424,
+    "publication_clocks": 60578050,
+    "dma_clocks": 636040,
+    "dma_bytes": 74384,
+    "dma_transfers": 458,
+    "non_dma_production_clocks": 59737032,
+    "composition_ms": 2704.327877798249,
+    "production_ms": 2810.991527321675,
+    "publication_ms": 2820.5656491723576,
+    "dma_ms": 29.61456460714048,
+    "non_dma_production_ms": 2781.4071341469376,
+    "gather_clocks": 30515080,
+    "encode_clocks": 27567460,
+    "admission_and_allocation_clocks": 1321760,
+    "admission_and_allocation_ms": 61.54227236515628
+  },
+  "cold": {
+    "start": 182084082,
+    "gather_clocks": 1715684,
+    "encode_clocks": 0,
+    "dma_clocks": 481452,
+    "dma_bytes": 58064,
+    "dma_transfers": 56,
+    "preflight_start": 182088438,
+    "allocation_start": 184763320,
+    "allocation_clocks": 271808,
+    "preflight_and_allocation_clocks": 2946690,
+    "admission_to_blank_clocks": 2951046,
+    "complete": 188210298,
+    "production_clocks": 6126216,
+    "publication_clocks": 6197482,
+    "composition_clocks": 1715684,
+    "non_dma_production_clocks": 5644764,
+    "composition_ms": 79.8837096148626,
+    "production_ms": 285.24183939578916,
+    "publication_ms": 288.5600451081539,
+    "dma_ms": 22.41681554499245,
+    "non_dma_production_ms": 262.8250238507967
+  },
+  "warm": {
+    "composition_clocks": 2432746,
+    "production_clocks": 7526740,
+    "publication_clocks": 7687816,
+    "dma_clocks": 87212,
+    "dma_bytes": 9864,
+    "dma_transfers": 122,
+    "allocation_clocks": 366270,
+    "preflight_and_allocation_clocks": 3729216,
+    "composition_ms": 113.27072761109768,
+    "production_ms": 350.4514307451552,
+    "publication_ms": 357.95126661815027,
+    "dma_ms": 4.0606650659045584,
+    "allocation_ms": 17.05384343540869,
+    "preflight_and_allocation_ms": 173.6354760172033
+  },
+  "helper_profile": {
+    "coverage_calls": 225,
+    "coverage_clocks": 2792456,
+    "kernel_calls": 784,
+    "kernel_clocks": 922942,
+    "coverage_ms": 130.01913185428128,
+    "kernel_ms": 42.97296630344545
+  },
+  "repeated_projected_epochs": [
+    3,
+    5,
+    7,
+    11,
+    12,
+    13
+  ],
+  "render_noop_graphics": {
+    "composed_tiles": 0,
+    "coverage_calls": 0,
+    "kernel_calls": 0,
+    "dma_bytes": 0,
+    "descriptors": 0,
+    "forced_blank": false
+  },
+  "noop_key_and_ack_master_clocks": [
+    5920,
+    5920,
+    5920,
+    5902,
+    5902,
+    5902
+  ],
+  "native_epoch_costs": [
+    {
+      "start": 182084082,
+      "gather_clocks": 1715684,
+      "encode_clocks": 0,
+      "dma_clocks": 481452,
+      "dma_bytes": 58064,
+      "dma_transfers": 56,
+      "preflight_start": 182088438,
+      "allocation_start": 184763320,
+      "allocation_clocks": 271808,
+      "preflight_and_allocation_clocks": 2946690,
+      "admission_to_blank_clocks": 2951046,
+      "complete": 188210298,
+      "production_clocks": 6126216,
+      "publication_clocks": 6197482,
+      "composition_clocks": 1715684,
+      "non_dma_production_clocks": 5644764,
+      "composition_ms": 79.8837096148626,
+      "production_ms": 285.24183939578916,
+      "publication_ms": 288.5600451081539,
+      "dma_ms": 22.41681554499245,
+      "non_dma_production_ms": 262.8250238507967
+    },
+    {
+      "start": 190259638,
+      "gather_clocks": 2405140,
+      "encode_clocks": 0,
+      "dma_clocks": 75024,
+      "dma_bytes": 8568,
+      "dma_transfers": 92,
+      "preflight_start": 190264368,
+      "allocation_start": 193282816,
+      "allocation_clocks": 324482,
+      "preflight_and_allocation_clocks": 3342930,
+      "admission_to_blank_clocks": 3347660,
+      "complete": 197361460,
+      "production_clocks": 7101822,
+      "publication_clocks": 7313400,
+      "composition_clocks": 2405140,
+      "non_dma_production_clocks": 7026798,
+      "composition_ms": 111.98536871771879,
+      "production_ms": 330.66688643389034,
+      "publication_ms": 340.51813847849377,
+      "dma_ms": 3.4931813959595424,
+      "non_dma_production_ms": 327.1737050379308
+    },
+    {
+      "start": 199404130,
+      "gather_clocks": 2350842,
+      "encode_clocks": 0,
+      "dma_clocks": 71508,
+      "dma_bytes": 8196,
+      "dma_transfers": 82,
+      "preflight_start": 199409156,
+      "allocation_start": 202375454,
+      "allocation_clocks": 302124,
+      "preflight_and_allocation_clocks": 3268422,
+      "admission_to_blank_clocks": 3273448,
+      "complete": 206326052,
+      "production_clocks": 6921922,
+      "publication_clocks": 7103056,
+      "composition_clocks": 2350842,
+      "non_dma_production_clocks": 6850414,
+      "composition_ms": 109.4572075501216,
+      "production_ms": 322.2905890739372,
+      "publication_ms": 330.7243425258424,
+      "dma_ms": 3.329473438663294,
+      "non_dma_production_ms": 318.9611156352739
+    },
+    {
+      "start": 208338278,
+      "gather_clocks": 0,
+      "encode_clocks": 0,
+      "dma_clocks": 0,
+      "dma_bytes": 0,
+      "dma_transfers": 0,
+      "complete": 208344198,
+      "render_noop": true,
+      "production_clocks": 5920,
+      "publication_clocks": 5920,
+      "composition_clocks": 0,
+      "non_dma_production_clocks": 5920,
+      "composition_ms": 0.0,
+      "production_ms": 0.2756402466421477,
+      "publication_ms": 0.2756402466421477,
+      "dma_ms": 0.0,
+      "non_dma_production_ms": 0.2756402466421477
+    },
+    {
+      "start": 210482530,
+      "gather_clocks": 2387316,
+      "encode_clocks": 0,
+      "dma_clocks": 71848,
+      "dma_bytes": 8152,
+      "dma_transfers": 92,
+      "preflight_start": 210487556,
+      "allocation_start": 213453744,
+      "allocation_clocks": 302642,
+      "preflight_and_allocation_clocks": 3268830,
+      "admission_to_blank_clocks": 3273856,
+      "complete": 217416184,
+      "production_clocks": 6933654,
+      "publication_clocks": 7103028,
+      "composition_clocks": 2387316,
+      "non_dma_production_clocks": 6861806,
+      "composition_ms": 111.15546808323404,
+      "production_ms": 322.83684099515443,
+      "publication_ms": 330.7230388219732,
+      "dma_ms": 3.3453041285042278,
+      "non_dma_production_ms": 319.49153686665016
+    },
+    {
+      "start": 219416732,
+      "gather_clocks": 0,
+      "encode_clocks": 0,
+      "dma_clocks": 0,
+      "dma_bytes": 0,
+      "dma_transfers": 0,
+      "complete": 219422652,
+      "render_noop": true,
+      "production_clocks": 5920,
+      "publication_clocks": 5920,
+      "composition_clocks": 0,
+      "non_dma_production_clocks": 5920,
+      "composition_ms": 0.0,
+      "production_ms": 0.2756402466421477,
+      "publication_ms": 0.2756402466421477,
+      "dma_ms": 0.0,
+      "non_dma_production_ms": 0.2756402466421477
+    },
+    {
+      "start": 221560972,
+      "gather_clocks": 2341822,
+      "encode_clocks": 0,
+      "dma_clocks": 67520,
+      "dma_bytes": 7796,
+      "dma_transfers": 68,
+      "preflight_start": 221565998,
+      "allocation_start": 224237336,
+      "allocation_clocks": 301566,
+      "preflight_and_allocation_clocks": 2972904,
+      "admission_to_blank_clocks": 2977930,
+      "complete": 228114924,
+      "production_clocks": 6553952,
+      "publication_clocks": 6745550,
+      "composition_clocks": 2341822,
+      "non_dma_production_clocks": 6486432,
+      "composition_ms": 109.0372286608121,
+      "production_ms": 305.15759218932385,
+      "publication_ms": 314.07855840151007,
+      "dma_ms": 3.143788758999631,
+      "non_dma_production_ms": 302.01380343032423
+    },
+    {
+      "start": 230137696,
+      "gather_clocks": 0,
+      "encode_clocks": 0,
+      "dma_clocks": 0,
+      "dma_bytes": 0,
+      "dma_transfers": 0,
+      "complete": 230143616,
+      "render_noop": true,
+      "production_clocks": 5920,
+      "publication_clocks": 5920,
+      "composition_clocks": 0,
+      "non_dma_production_clocks": 5920,
+      "composition_ms": 0.0,
+      "production_ms": 0.2756402466421477,
+      "publication_ms": 0.2756402466421477,
+      "dma_ms": 0.0,
+      "non_dma_production_ms": 0.2756402466421477
+    },
+    {
+      "start": 232282018,
+      "gather_clocks": 2308134,
+      "encode_clocks": 0,
+      "dma_clocks": 70160,
+      "dma_bytes": 7948,
+      "dma_transfers": 92,
+      "preflight_start": 232287044,
+      "allocation_start": 235253562,
+      "allocation_clocks": 301048,
+      "preflight_and_allocation_clocks": 3267566,
+      "admission_to_blank_clocks": 3272592,
+      "complete": 239128254,
+      "production_clocks": 6846236,
+      "publication_clocks": 7102834,
+      "composition_clocks": 2308134,
+      "non_dma_production_clocks": 6776076,
+      "composition_ms": 107.46868666269037,
+      "production_ms": 318.76658439364036,
+      "publication_ms": 330.7140060165934,
+      "dma_ms": 3.2667094095292373,
+      "non_dma_production_ms": 315.4998749841111
+    },
+    {
+      "start": 241345984,
+      "gather_clocks": 2108702,
+      "encode_clocks": 0,
+      "dma_clocks": 83936,
+      "dma_bytes": 9516,
+      "dma_transfers": 108,
+      "preflight_start": 241350628,
+      "allocation_start": 244707464,
+      "allocation_clocks": 364480,
+      "preflight_and_allocation_clocks": 3721316,
+      "admission_to_blank_clocks": 3725960,
+      "complete": 248783938,
+      "production_clocks": 7437954,
+      "publication_clocks": 7687816,
+      "composition_clocks": 2108702,
+      "non_dma_production_clocks": 7354018,
+      "composition_ms": 98.18296273222808,
+      "production_ms": 346.31747889745765,
+      "publication_ms": 357.95126661815027,
+      "dma_ms": 3.908131713201911,
+      "non_dma_production_ms": 342.40934718425575
+    },
+    {
+      "start": 251030000,
+      "gather_clocks": 2355982,
+      "encode_clocks": 0,
+      "dma_clocks": 84224,
+      "dma_bytes": 9604,
+      "dma_transfers": 104,
+      "preflight_start": 251034672,
+      "allocation_start": 254145982,
+      "allocation_clocks": 366270,
+      "preflight_and_allocation_clocks": 3477580,
+      "admission_to_blank_clocks": 3482252,
+      "complete": 258428070,
+      "production_clocks": 7398070,
+      "publication_clocks": 7652612,
+      "composition_clocks": 2355982,
+      "non_dma_production_clocks": 7313846,
+      "composition_ms": 109.69653033183454,
+      "production_ms": 344.4604458574111,
+      "publication_ms": 356.3121383676789,
+      "dma_ms": 3.9215412387142314,
+      "non_dma_production_ms": 340.5389046186969
+    },
+    {
+      "start": 260531518,
+      "gather_clocks": 0,
+      "encode_clocks": 0,
+      "dma_clocks": 0,
+      "dma_bytes": 0,
+      "dma_transfers": 0,
+      "complete": 260537420,
+      "render_noop": true,
+      "production_clocks": 5902,
+      "publication_clocks": 5902,
+      "composition_clocks": 0,
+      "non_dma_production_clocks": 5902,
+      "composition_ms": 0.0,
+      "production_ms": 0.2748021512976277,
+      "publication_ms": 0.2748021512976277,
+      "dma_ms": 0.0,
+      "non_dma_production_ms": 0.2748021512976277
+    },
+    {
+      "start": 262675820,
+      "gather_clocks": 0,
+      "encode_clocks": 0,
+      "dma_clocks": 0,
+      "dma_bytes": 0,
+      "dma_transfers": 0,
+      "complete": 262681722,
+      "render_noop": true,
+      "production_clocks": 5902,
+      "publication_clocks": 5902,
+      "composition_clocks": 0,
+      "non_dma_production_clocks": 5902,
+      "composition_ms": 0.0,
+      "production_ms": 0.2748021512976277,
+      "publication_ms": 0.2748021512976277,
+      "dma_ms": 0.0,
+      "non_dma_production_ms": 0.2748021512976277
+    },
+    {
+      "start": 264820028,
+      "gather_clocks": 0,
+      "encode_clocks": 0,
+      "dma_clocks": 0,
+      "dma_bytes": 0,
+      "dma_transfers": 0,
+      "complete": 264825930,
+      "render_noop": true,
+      "production_clocks": 5902,
+      "publication_clocks": 5902,
+      "composition_clocks": 0,
+      "non_dma_production_clocks": 5902,
+      "composition_ms": 0.0,
+      "production_ms": 0.2748021512976277,
+      "publication_ms": 0.2748021512976277,
+      "dma_ms": 0.0,
+      "non_dma_production_ms": 0.2748021512976277
+    },
+    {
+      "start": 267076352,
+      "gather_clocks": 2089620,
+      "encode_clocks": 0,
+      "dma_clocks": 85048,
+      "dma_bytes": 9628,
+      "dma_transfers": 112,
+      "preflight_start": 267080978,
+      "allocation_start": 270445724,
+      "allocation_clocks": 363656,
+      "preflight_and_allocation_clocks": 3728402,
+      "admission_to_blank_clocks": 3733028,
+      "complete": 274521116,
+      "production_clocks": 7444764,
+      "publication_clocks": 7687738,
+      "composition_clocks": 2089620,
+      "non_dma_production_clocks": 7359716,
+      "composition_ms": 97.29448854533187,
+      "production_ms": 346.63455830280105,
+      "publication_ms": 357.9476348716573,
+      "dma_ms": 3.95990738115226,
+      "non_dma_production_ms": 342.6746509216488
+    },
+    {
+      "start": 276742734,
+      "gather_clocks": 2355782,
+      "encode_clocks": 0,
+      "dma_clocks": 84968,
+      "dma_bytes": 9628,
+      "dma_transfers": 108,
+      "preflight_start": 276747406,
+      "allocation_start": 279858718,
+      "allocation_clocks": 366270,
+      "preflight_and_allocation_clocks": 3477582,
+      "admission_to_blank_clocks": 3482254,
+      "complete": 284157022,
+      "production_clocks": 7414288,
+      "publication_clocks": 7670238,
+      "composition_clocks": 2355782,
+      "non_dma_production_clocks": 7329320,
+      "composition_ms": 109.68721816133987,
+      "production_ms": 345.2155697628237,
+      "publication_ms": 357.13281995337394,
+      "dma_ms": 3.9561825129543933,
+      "non_dma_production_ms": 341.2593872498693
+    },
+    {
+      "start": 286244228,
+      "gather_clocks": 2432746,
+      "encode_clocks": 0,
+      "dma_clocks": 72104,
+      "dma_bytes": 8264,
+      "dma_transfers": 80,
+      "preflight_start": 286249236,
+      "allocation_start": 289219860,
+      "allocation_clocks": 302880,
+      "preflight_and_allocation_clocks": 3273504,
+      "admission_to_blank_clocks": 3278512,
+      "complete": 293248122,
+      "production_clocks": 7003894,
+      "publication_clocks": 7102940,
+      "composition_clocks": 2432746,
+      "non_dma_production_clocks": 6931790,
+      "composition_ms": 113.27072761109768,
+      "production_ms": 326.1072752728815,
+      "publication_ms": 330.7189414669555,
+      "dma_ms": 3.357223706737402,
+      "non_dma_production_ms": 322.7500515661441
+    },
+    {
+      "start": 295308260,
+      "gather_clocks": 2141796,
+      "encode_clocks": 0,
+      "dma_clocks": 87212,
+      "dma_bytes": 9864,
+      "dma_transfers": 122,
+      "preflight_start": 295312886,
+      "allocation_start": 298677410,
+      "allocation_clocks": 364692,
+      "preflight_and_allocation_clocks": 3729216,
+      "admission_to_blank_clocks": 3733842,
+      "complete": 302835000,
+      "production_clocks": 7526740,
+      "publication_clocks": 7687742,
+      "composition_clocks": 2141796,
+      "non_dma_production_clocks": 7439528,
+      "composition_ms": 99.72384758398064,
+      "production_ms": 350.4514307451552,
+      "publication_ms": 357.94782111506726,
+      "dma_ms": 4.0606650659045584,
+      "non_dma_production_ms": 346.39076567925065
+    }
+  ],
+  "native_epoch_helpers": [
+    {
+      "epoch": 0,
+      "coverage_calls": 165,
+      "coverage_clocks": 2120452,
+      "kernel_calls": 560,
+      "kernel_clocks": 637734
+    },
+    {
+      "epoch": 1,
+      "coverage_calls": 207,
+      "coverage_clocks": 2569042,
+      "kernel_calls": 776,
+      "kernel_clocks": 909534
+    },
+    {
+      "epoch": 2,
+      "coverage_calls": 207,
+      "coverage_clocks": 2566628,
+      "kernel_calls": 760,
+      "kernel_clocks": 886428
+    },
+    {
+      "epoch": 3,
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 4,
+      "coverage_calls": 207,
+      "coverage_clocks": 2566548,
+      "kernel_calls": 768,
+      "kernel_clocks": 906586
+    },
+    {
+      "epoch": 5,
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 6,
+      "coverage_calls": 184,
+      "coverage_clocks": 2281376,
+      "kernel_calls": 752,
+      "kernel_clocks": 892764
+    },
+    {
+      "epoch": 7,
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 8,
+      "coverage_calls": 207,
+      "coverage_clocks": 2566868,
+      "kernel_calls": 744,
+      "kernel_clocks": 877198
+    },
+    {
+      "epoch": 9,
+      "coverage_calls": 225,
+      "coverage_clocks": 2784416,
+      "kernel_calls": 696,
+      "kernel_clocks": 769254
+    },
+    {
+      "epoch": 10,
+      "coverage_calls": 207,
+      "coverage_clocks": 2574580,
+      "kernel_calls": 760,
+      "kernel_clocks": 893446
+    },
+    {
+      "epoch": 11,
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 12,
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 13,
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 14,
+      "coverage_calls": 225,
+      "coverage_clocks": 2792456,
+      "kernel_calls": 688,
+      "kernel_clocks": 764840
+    },
+    {
+      "epoch": 15,
+      "coverage_calls": 207,
+      "coverage_clocks": 2574942,
+      "kernel_calls": 760,
+      "kernel_clocks": 893686
+    },
+    {
+      "epoch": 16,
+      "coverage_calls": 207,
+      "coverage_clocks": 2571044,
+      "kernel_calls": 784,
+      "kernel_clocks": 922942
+    },
+    {
+      "epoch": 17,
+      "coverage_calls": 225,
+      "coverage_clocks": 2792254,
+      "kernel_calls": 704,
+      "kernel_clocks": 786184
+    }
+  ],
+  "composed_tiles": [
+    70,
+    97,
+    95,
+    0,
+    96,
+    0,
+    94,
+    0,
+    93,
+    87,
+    95,
+    0,
+    0,
+    0,
+    86,
+    95,
+    98,
+    88
+  ],
+  "dma_epochs": [
+    {
+      "epoch": 0,
+      "bytes": 58064,
+      "descriptors": 56,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 1,
+      "bytes": 8568,
+      "descriptors": 92,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 2,
+      "bytes": 8196,
+      "descriptors": 82,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 3,
+      "bytes": 0,
+      "descriptors": 0,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 4,
+      "bytes": 8152,
+      "descriptors": 92,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 5,
+      "bytes": 0,
+      "descriptors": 0,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 6,
+      "bytes": 7796,
+      "descriptors": 68,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 7,
+      "bytes": 0,
+      "descriptors": 0,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 8,
+      "bytes": 7948,
+      "descriptors": 92,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 9,
+      "bytes": 9516,
+      "descriptors": 108,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 10,
+      "bytes": 9604,
+      "descriptors": 104,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 11,
+      "bytes": 0,
+      "descriptors": 0,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 12,
+      "bytes": 0,
+      "descriptors": 0,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 13,
+      "bytes": 0,
+      "descriptors": 0,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 14,
+      "bytes": 9628,
+      "descriptors": 112,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 15,
+      "bytes": 9628,
+      "descriptors": 108,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 16,
+      "bytes": 8264,
+      "descriptors": 80,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    },
+    {
+      "epoch": 17,
+      "bytes": 9864,
+      "descriptors": 122,
+      "full_vram_matches": true,
+      "home_identities_verified": true
+    }
+  ],
+  "resource_plan": {
+    "vram": {
+      "bg_mode": 4,
+      "high_chr_bytes": 38144,
+      "high_chr_base": 0,
+      "high_chr_start": 0,
+      "high_tile_offset": 0,
+      "obj_obsel": null,
+      "low_chr_bytes": 9536,
+      "low_chr_base": 49152,
+      "offset_tilemap_base": 61440,
+      "offset_map_aliases_bg1": true,
+      "offset_map_aliases_bg2": false,
+      "hdma_channels": [],
+      "irq_enabled": false,
+      "timer_dots": null,
+      "irq_entry_prg_offset": null,
+      "irq_exit_prg_offset": null,
+      "code_bank": 57,
+      "oam_entries": 0,
+      "obj_chr_bytes": 0,
+      "per_field_palette_restore_bytes": 0,
+      "peak_palette_updates": 0,
+      "source_color_bits_preserved": 15,
+      "spc_protocol_proven": false,
+      "low_palette_sha256": "b3439c74bbf0e7c7b84b817c97ae92a5319e3189f8d4a86bed7e00ba7d4d02b2",
+      "hud_palette_sha256": "0ea35e5baa6cbb4003dc904a28c71611a95b95d28c47fd86e913f2c12ff0c6bd",
+      "runtime_publication": "Forced blank; all DMA channel 7; static palette; no HDMA/IRQ."
+    },
+    "bwram": [
+      4374528,
+      4380416
+    ],
+    "pending_map": [
+      4374528,
+      4376576
+    ],
+    "committed_map": [
+      4376576,
+      4378624
+    ],
+    "staging": "After sparse map transfer, borrow committed-map storage: HIGH C800..CBFF, LOW CC00..CCFF; restore committed map before unblank.",
+    "slot_state_directory": [
+      4378624,
+      4380160
+    ],
+    "row_outputs": [
+      4380288,
+      4380368
+    ],
+    "persistent_key_and_bounds": [
+      4380368,
+      4380402
+    ],
+    "dp": [
+      13312,
+      13440
+    ],
+    "protected_returning_code": [
+      12800,
+      13312
+    ],
+    "protected_physics_start": 4380672,
+    "capacity_proof": {
+      "source_coverage_tile_bounds": {
+        "select": 85,
+        "idle": 103,
+        "walk": 111
+      },
+      "maximum_required_pairs": 707,
+      "capacity": 768
+    },
+    "producer_bank": 57,
+    "actor_phase_rom": "EB..F1",
+    "background_rows_bank": "F3",
+    "foreground_and_tables_bank": "F4"
+  },
+  "key": "Model, source handle/frame, direction, projected Q16 integer position, remap, source-world ownership and stage; explicit immutable palette/layer/camera generations 1/1/0. Fractions and snapshot epoch excluded.",
+  "residency": "Persistent incremental map/refcount worklist for union of old/new coverage. Home overwrite flags bind actual backdrop identities; exact 80-byte physical VRAM comparisons reuse actor pairs; sparse map ranges; coalesced paired CHR up to sixteen tiles. No global content hash scan.",
+  "focused_tests": 34,
+  "package_tests": 13,
+  "preservation": {
+    "inherited_files": 29,
+    "byte_identical": true,
+    "baseline": "out/byor-motu-opaque-dirty-before.json",
+    "pcm_copied": false,
+    "pak_rebuilt": false
+  },
+  "evidence": {
+    "out\\byor-motu-opaque-warm-v4\\result.json": {
+      "sha256": "7489110f86180ba66efcae97b295df7ecf7eb5eb7c67399495944ba8c5f7e89a",
+      "bytes": 89187
+    },
+    "out\\byor-motu-opaque-warm-v4\\native\\dma-replay.json": {
+      "sha256": "12c4339121cdd96a98db97a87e43171a2b154696bc4ce2e754d3f3042fe345d6",
+      "bytes": 2879
+    },
+    "out\\byor-motu-opaque-warm-v4\\native\\dma-packets.json": {
+      "sha256": "02f12541842afb14f09e05aaab5233e5f2f7531823b00ae2e327f62f12c48dcf",
+      "bytes": 354655
+    },
+    "out\\byor-motu-opaque-warm-v4\\native\\timing-events.json": {
+      "sha256": "a13b403c8605563afb9d997ceabdfe0acdacdd9805759dd642e6466524139765",
+      "bytes": 715801
+    },
+    "out\\byor-motu-opaque-warm-v4\\native\\mesen.log": {
+      "sha256": "45877528b482b980017469755d7419d6cf745107dad0c1c1659d802d1babe56b",
+      "bytes": 866333
+    },
+    "out\\byor-motu-opaque-warm-v4\\native\\publisher.pasm": {
+      "sha256": "174c99372bc9cd478b5c598ef6ae1b50af27d1e0211f537505932e98011b1219",
+      "bytes": 23602
+    },
+    "out\\byor-motu-opaque-warm-v4\\native\\publisher.sym": {
+      "sha256": "12fd23bc63435b99e61c350097a27da49555ce34565e180d5f437e463b72176f",
+      "bytes": 3442
+    },
+    "out\\byor-motu-opaque-warm-v4\\native\\callback_owner.lua": {
+      "sha256": "6cb570052481f072fe09e3376120ca5f7dc4c6e5c9508d4802610365d41b2ce9",
+      "bytes": 535469
+    },
+    "out\\astra-opaque-assets-v1\\actual-asset-analysis.json": {
+      "sha256": "8f8294a7efc28908e838ce9df5c0c17420c7c8087443bba8f239dca30c13484e",
+      "bytes": 11488
+    },
+    "out\\astra-opaque-assets-v1\\manifest.json": {
+      "sha256": "e0294ba1e8e3c35e32a0bb47778ae9a1534043ffcb5e0850ed8e34800c8ba682",
+      "bytes": 8108
+    }
+  },
+  "remaining_dominant_cost": "Effective-coverage preflight (130.019 ms helper subset of 173.635 ms total preflight/allocation), then fused row composition (113.271 ms; row kernel body subset 42.973 ms). Native allocation alone 17.054 ms.",
+  "thirty_hz_admitted": false,
+  "next": "Cadence-aware non-blank publication remains future work; further CPU work is needed before the eventual 33.333-ms target.",
+  "nonclaims": [
+    "30-Hz/playable or non-blank deadline admission",
+    "Full controller/world traversal or 200-Hz cadence",
+    "Dynamic RGB8 SCREEN/alpha",
+    "Breath/HUD/combat/audio timing/multiple enemies/full MOTU Demo"
+  ]
+}

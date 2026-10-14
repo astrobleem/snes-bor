@@ -21,7 +21,7 @@ HIGH=0x42d680
 LOW=0x42d6c0
 
 
-def build(original,sy,folder,assets):
+def build(original,sy,folder,assets,transform=None):
     rom=bytearray(original);report=json.loads((assets/'report.json').read_text())
     authority=json.loads((assets/'source-assets.json').read_text())
     if rom[57*32768:58*32768]!=bytes(32768):raise ValueError('ONLINE_CODE_LEASE')
@@ -173,6 +173,7 @@ def build(original,sy,folder,assets):
     add('.org $F000','OnlineNmi:','.a16','.i16',' php',' rep #$30',' pha',f' lda.l {READY}',f' cmp #{0xb4b8}',
         ' beq OnlineNmiOwned',' pla',' plp',f' jsl ${stage:06X}',f' pea ${entry+6:04X}',f' jml ${core:06X}',
         'OnlineNmiOwned:','.a16','.i16',' lda.l $004210',' pla',' plp',' rti')
+    if transform is not None:lines=transform(lines,rom,authority,sy)
     path=folder/'publisher.pasm';path.write_text('\n'.join(lines)+'\n')
     proc=subprocess.run(['C:/Users/chad/.dotnet/dotnet.exe','E:/gh/poppy-astrobleem/src/Poppy.CLI/bin/Release/net10.0/poppy.dll',
         str(path),'--output',str(folder/'publisher.bin'),'--symbols',str(folder/'publisher.sym'),'--no-pansy'],capture_output=True,text=True)
@@ -184,6 +185,6 @@ def build(original,sy,folder,assets):
     return bytes(rom),dict(resources=resources,source_assets=authority,complete_actor_contexts=0,
         code_bank=57,code_bytes=fs['OnlineReject']-fs['OnlinePublish'],source_asset_rom=[0xe0,palette_address>>16],
         bwram_lease=[MAP,0x42d700],dp_lease=[0x3400,0x3440],paired_slots=768,
-        native_symbols={k:v for k,v in fs.items() if k.startswith('Online')},
+        native_symbols={k:v for k,v in fs.items() if k.startswith(('Online','Astra','Warm'))},
         publication='Preflight residency; forced blank retires old references; restore immutable backdrop; native dirty source tiles; coherent paired maps; DMA complete then visible epoch.',
         finite_position_selector=False,host_graphics_injection=False)
