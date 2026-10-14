@@ -60,6 +60,7 @@ end
         if 'OnlineCoverage' in fs:
             start=fs['OnlineCoverage'];body=rom[offset(start):offset(start)+256]
             end=start+body.index(bytes.fromhex('a55a60'))+2
+            if 'WarmSourcePresence' in fs:start,end=fs['WarmSourcePresence'],fs['WarmPresenceDone']
             f.write('''
 local coverageStart=0;local coverageClocks=0;local coverageCalls=0
 local kernelStart=0;local kernelClocks=0;local kernelCalls=0
@@ -205,7 +206,7 @@ def run(folder,source,sy,contract):
         if 'ONLINE|OnlinePublish|' in line:epoch+=1
         if 'ONLINE_HELPERS|' in line:
             values=list(map(int,line.split('ONLINE_HELPERS|',1)[1].split('|')))
-            helpers.append(dict(epoch=epoch,coverage_calls=values[0],coverage_clocks=values[1],kernel_calls=values[2],kernel_clocks=values[3]))
+            helpers.append(dict(epoch=epoch,coverage_kind='source_occupancy' if contract.get('occupancy_preflight') else 'foreground_row_scan',coverage_calls=values[0],coverage_clocks=values[1],kernel_calls=values[2],kernel_clocks=values[3]))
         if 'ONLINE_PACKET|' in line:
             values=line.split('ONLINE_PACKET|',1)[1].split('|')
             packets.append(dict(epoch=epoch,target=int(values[0]),vram_word=int(values[1]),source=int(values[2]),bytes=int(values[3]),payload=values[4] if len(values)>4 else ''))

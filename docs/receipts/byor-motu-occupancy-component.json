@@ -1,0 +1,695 @@
+{
+  "schema": "BYOR_MOTU_OCCUPANCY_PREFLIGHT_V1",
+  "classification": "BYOR_MOTU_OCCUPANCY_PREFLIGHT_PASS",
+  "status": "PASS",
+  "starting_commit": "4746507dee8dcdc91af76fbdb440c9f5ba6630b6",
+  "candidate": "E:\\gh\\snes-bor\\out\\byor-motu-occupancy-v1\\native\\bor.sfc",
+  "rom_sha256": "edbc7c2e1013cfddb602c29bb2691b2d3cbf79a284e5d1c1f2650b74d713c648",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "verified_epochs": 18,
+  "verified_pixels": 1032192,
+  "pixel_mismatches": 0,
+  "unsafe_register_writes": 0,
+  "resource_faults": 0,
+  "source_snapshots_byte_identical": 18,
+  "subpixel_noop_epochs": [
+    3,
+    5,
+    7,
+    11,
+    12,
+    13
+  ],
+  "negative": {
+    "rejected": true,
+    "vram_unchanged": true,
+    "previous_display_retained": true,
+    "world_snapshot_sha256": "9864e6a7f657991f2851511dc68de18505a35f427e43762f5a2d454e1fb1ddb9",
+    "raw_controller": 512
+  },
+  "independent_evidence": {
+    "status": "PASS",
+    "source_and_actual_vram_and_screenshots_equal": true,
+    "verified_pixels": 1032192,
+    "newly_generated_integer_positions": [
+      [
+        83,
+        220
+      ],
+      [
+        84,
+        219
+      ],
+      [
+        84,
+        220
+      ],
+      [
+        85,
+        219
+      ]
+    ],
+    "subpixel_same_pixels": [
+      [
+        2,
+        3
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        6,
+        7
+      ],
+      [
+        10,
+        11
+      ],
+      [
+        11,
+        12
+      ],
+      [
+        12,
+        13
+      ]
+    ],
+    "movement_changes_coverage": [
+      [
+        1,
+        2
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        15,
+        16
+      ]
+    ],
+    "vertical_movement_pixel_pairs": [
+      [
+        8,
+        10
+      ],
+      [
+        8,
+        11
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        9,
+        14
+      ],
+      [
+        8,
+        15
+      ]
+    ],
+    "complete_actor_canvases_in_rom": 0,
+    "finite_position_selector": false,
+    "negative_context_retention_verified": true
+  },
+  "actual_dma_replay": {
+    "status": "PASS",
+    "epochs": [
+      {
+        "epoch": 0,
+        "bytes": 58904,
+        "descriptors": 70,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 1,
+        "bytes": 9332,
+        "descriptors": 104,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 2,
+        "bytes": 8400,
+        "descriptors": 70,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 3,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 4,
+        "bytes": 8740,
+        "descriptors": 98,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 5,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 6,
+        "bytes": 8564,
+        "descriptors": 78,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 7,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 8,
+        "bytes": 8260,
+        "descriptors": 96,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 9,
+        "bytes": 10204,
+        "descriptors": 118,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 10,
+        "bytes": 10372,
+        "descriptors": 116,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 11,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 12,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 13,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 14,
+        "bytes": 10228,
+        "descriptors": 118,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 15,
+        "bytes": 10228,
+        "descriptors": 116,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 16,
+        "bytes": 8924,
+        "descriptors": 84,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 17,
+        "bytes": 10544,
+        "descriptors": 126,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      }
+    ],
+    "verified_vram_bytes": 1179648
+  },
+  "measurements": {
+    "status": "PASS",
+    "source_snapshots_byte_identical": 18,
+    "capacity": 707,
+    "maximum_extra_admissions": 10,
+    "admission_comparison": [
+      {
+        "epoch": 0,
+        "legacy_visible_tiles": 70,
+        "source_occupied_tiles": 80,
+        "extra_admissions": 10
+      },
+      {
+        "epoch": 1,
+        "legacy_visible_tiles": 97,
+        "source_occupied_tiles": 103,
+        "extra_admissions": 6
+      },
+      {
+        "epoch": 2,
+        "legacy_visible_tiles": 95,
+        "source_occupied_tiles": 102,
+        "extra_admissions": 7
+      },
+      {
+        "epoch": 3,
+        "legacy_visible_tiles": 95,
+        "source_occupied_tiles": 102,
+        "extra_admissions": 7
+      },
+      {
+        "epoch": 4,
+        "legacy_visible_tiles": 96,
+        "source_occupied_tiles": 103,
+        "extra_admissions": 7
+      },
+      {
+        "epoch": 5,
+        "legacy_visible_tiles": 96,
+        "source_occupied_tiles": 103,
+        "extra_admissions": 7
+      },
+      {
+        "epoch": 6,
+        "legacy_visible_tiles": 94,
+        "source_occupied_tiles": 102,
+        "extra_admissions": 8
+      },
+      {
+        "epoch": 7,
+        "legacy_visible_tiles": 94,
+        "source_occupied_tiles": 102,
+        "extra_admissions": 8
+      },
+      {
+        "epoch": 8,
+        "legacy_visible_tiles": 93,
+        "source_occupied_tiles": 102,
+        "extra_admissions": 9
+      },
+      {
+        "epoch": 9,
+        "legacy_visible_tiles": 87,
+        "source_occupied_tiles": 95,
+        "extra_admissions": 8
+      },
+      {
+        "epoch": 10,
+        "legacy_visible_tiles": 95,
+        "source_occupied_tiles": 104,
+        "extra_admissions": 9
+      },
+      {
+        "epoch": 11,
+        "legacy_visible_tiles": 95,
+        "source_occupied_tiles": 104,
+        "extra_admissions": 9
+      },
+      {
+        "epoch": 12,
+        "legacy_visible_tiles": 95,
+        "source_occupied_tiles": 104,
+        "extra_admissions": 9
+      },
+      {
+        "epoch": 13,
+        "legacy_visible_tiles": 95,
+        "source_occupied_tiles": 104,
+        "extra_admissions": 9
+      },
+      {
+        "epoch": 14,
+        "legacy_visible_tiles": 86,
+        "source_occupied_tiles": 93,
+        "extra_admissions": 7
+      },
+      {
+        "epoch": 15,
+        "legacy_visible_tiles": 95,
+        "source_occupied_tiles": 104,
+        "extra_admissions": 9
+      },
+      {
+        "epoch": 16,
+        "legacy_visible_tiles": 98,
+        "source_occupied_tiles": 108,
+        "extra_admissions": 10
+      },
+      {
+        "epoch": 17,
+        "legacy_visible_tiles": 88,
+        "source_occupied_tiles": 96,
+        "extra_admissions": 8
+      }
+    ],
+    "before": {
+      "coverage_lookup_clocks": 2792456,
+      "preflight_and_allocation_clocks": 3729216,
+      "allocation_clocks": 366270,
+      "composition_clocks": 2432746,
+      "production_clocks": 7526740,
+      "publication_clocks": 7687816,
+      "dma_clocks": 87212,
+      "dma_bytes": 9864
+    },
+    "after": {
+      "coverage_lookup_clocks": 181322,
+      "preflight_and_allocation_clocks": 1119796,
+      "allocation_clocks": 369948,
+      "composition_clocks": 2653906,
+      "production_clocks": 5274148,
+      "publication_clocks": 5526066,
+      "dma_clocks": 93260,
+      "dma_bytes": 10544
+    },
+    "before_ms": {
+      "coverage_lookup_ms": 130.01913185428128,
+      "preflight_and_allocation_ms": 173.6354760172033,
+      "allocation_ms": 17.05384343540869,
+      "composition_ms": 113.27072761109768,
+      "production_ms": 350.4514307451552,
+      "publication_ms": 357.95126661815027,
+      "dma_ms": 4.0606650659045584
+    },
+    "after_ms": {
+      "coverage_lookup_ms": 8.442506892170188,
+      "preflight_and_allocation_ms": 52.13865635623149,
+      "allocation_ms": 17.22509425080562,
+      "composition_ms": 123.56812574410063,
+      "production_ms": 245.56882695053886,
+      "publication_ms": 257.29834378391666,
+      "dma_ms": 4.342265101663293
+    },
+    "coverage_reduction_percent": 93.50671953291297
+  },
+  "helper_measurements": [
+    {
+      "epoch": 0,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 165,
+      "coverage_clocks": 132540,
+      "kernel_calls": 640,
+      "kernel_clocks": 703894
+    },
+    {
+      "epoch": 1,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 207,
+      "coverage_clocks": 167024,
+      "kernel_calls": 824,
+      "kernel_clocks": 949646
+    },
+    {
+      "epoch": 2,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 207,
+      "coverage_clocks": 166380,
+      "kernel_calls": 816,
+      "kernel_clocks": 933052
+    },
+    {
+      "epoch": 3,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 4,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 207,
+      "coverage_clocks": 166220,
+      "kernel_calls": 824,
+      "kernel_clocks": 954050
+    },
+    {
+      "epoch": 5,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 6,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 184,
+      "coverage_clocks": 147680,
+      "kernel_calls": 816,
+      "kernel_clocks": 945100
+    },
+    {
+      "epoch": 7,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 8,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 207,
+      "coverage_clocks": 166420,
+      "kernel_calls": 816,
+      "kernel_clocks": 937006
+    },
+    {
+      "epoch": 9,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 225,
+      "coverage_clocks": 180820,
+      "kernel_calls": 760,
+      "kernel_clocks": 822430
+    },
+    {
+      "epoch": 10,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 207,
+      "coverage_clocks": 166500,
+      "kernel_calls": 832,
+      "kernel_clocks": 953134
+    },
+    {
+      "epoch": 11,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 12,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 13,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 0,
+      "coverage_clocks": 0,
+      "kernel_calls": 0,
+      "kernel_clocks": 0
+    },
+    {
+      "epoch": 14,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 225,
+      "coverage_clocks": 180620,
+      "kernel_calls": 744,
+      "kernel_clocks": 811504
+    },
+    {
+      "epoch": 15,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 207,
+      "coverage_clocks": 167124,
+      "kernel_calls": 832,
+      "kernel_clocks": 953054
+    },
+    {
+      "epoch": 16,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 207,
+      "coverage_clocks": 166140,
+      "kernel_calls": 864,
+      "kernel_clocks": 990222
+    },
+    {
+      "epoch": 17,
+      "coverage_kind": "source_occupancy",
+      "coverage_calls": 225,
+      "coverage_clocks": 181322,
+      "kernel_calls": 768,
+      "kernel_clocks": 838800
+    }
+  ],
+  "warm_forced_blank_worst_ms": 207.11915434317305,
+  "worst_publication_epoch_other_production_ms": 72.51936582256498,
+  "resource_plan": {
+    "rom_occupancy_payload": [
+      "F43600",
+      "F4D0C0"
+    ],
+    "rom_geometry_table": [
+      "F4D100",
+      "F4D700"
+    ],
+    "refcounts_preserved": [
+      "F43000",
+      "F43600"
+    ],
+    "prior_candidate_lease_zero_checked": true,
+    "table_bytes": 39616,
+    "geometry_bytes": 1536,
+    "dp_additions": [
+      "3466",
+      "3470"
+    ],
+    "dp_total": [
+      "3400",
+      "3480"
+    ],
+    "bw_ram_unchanged": [
+      "42C000",
+      "42D700"
+    ],
+    "physics_protected_from": "42D800",
+    "vram_high": [
+      "0000",
+      "C000"
+    ],
+    "vram_low": [
+      "C000",
+      "F000"
+    ],
+    "vram_maps": [
+      "F000",
+      "10000"
+    ],
+    "obj_arena": false,
+    "code_bank_decimal": 57,
+    "row_kernel_bytes": 175,
+    "row_kernel_sha256": "e03d9b34b5cee39ec6d2d49297bc318220f8f8887b8b12d7888ad589f2aa6178"
+  },
+  "package": {
+    "path": "motu_coverage_preflight_fix.zip",
+    "sha256": "c3137161c0cd248586f87b6956e610e352678aeca66955ce508cce61b6610226",
+    "bytes": 11302
+  },
+  "offline_validation": {
+    "path": "out/byor-motu-occupancy-v1/asset-validation.json",
+    "sha256": "d386aa0cf2f73870d49e60775902dd373b0ad67c55d5c3f2748ddb5c8df9f8f3",
+    "bytes": 9990
+  },
+  "occupancy_manifest": {
+    "path": "out/astra-occupancy-assets-v1/occupancy-manifest.json",
+    "sha256": "2aecb7ad2c5776e0649e252abfe7174d0dcf3ccdcea246b42d7c34471ed4aca9",
+    "bytes": 9458
+  },
+  "focused_tests": 45,
+  "supplied_tests": 5,
+  "supplied_synthetic_comparisons": 76800,
+  "real_source_comparisons": 860160,
+  "inherited_dirty_preserved": 29,
+  "preservation_baseline": {
+    "path": "out/byor-motu-coverage-dirty-before.json",
+    "sha256": "8ad0519d2cfffb589227371801efc1a84146d4b0076aeb14d81bcfc938725072",
+    "bytes": 4050
+  },
+  "same_rom_rebuild": {
+    "path": "out/byor-motu-occupancy-rebuild-v1/native/bor.sfc",
+    "sha256": "edbc7c2e1013cfddb602c29bb2691b2d3cbf79a284e5d1c1f2650b74d713c648",
+    "bytes": 4194304
+  },
+  "nonclaims": [
+    "No seamless or non-blank publication",
+    "No 30-Hz rendering or gameplay-rate admission",
+    "No dynamic SCREEN alpha/general renderer expansion",
+    "No breath, HUD, combat, audio timing or complete MOTU Demo",
+    "No natural 200-Hz full-world traversal"
+  ],
+  "artifacts": [
+    {
+      "path": "out/byor-motu-occupancy-v1/result.json",
+      "sha256": "3adb13d05719f5c3f7d502954ba5edb85ddaaf4bf3c4eb36467a866aafa71ae8",
+      "bytes": 104255
+    },
+    {
+      "path": "out/byor-motu-occupancy-v1/contract.json",
+      "sha256": "8650e72e1b6cb97d4b48a7463ba1a3b93563a8907f660682cb2e5097400b8cef",
+      "bytes": 43666
+    },
+    {
+      "path": "out/byor-motu-occupancy-v1/native/timing-events.json",
+      "sha256": "37eb274caa676272dda8c6060bb78563069b5bfde2a24ba5ed0ca5ef35ec295e",
+      "bytes": 751955
+    },
+    {
+      "path": "out/byor-motu-occupancy-v1/native/dma-packets.json",
+      "sha256": "24e4d3f570e3020bc82ebfb513d397b1016e570ce8d28b8b65da679cc5d9eb3d",
+      "bytes": 379998
+    },
+    {
+      "path": "out/byor-motu-occupancy-v1/native/dma-replay.json",
+      "sha256": "f1cbb266067c33c25a5896e79b0c5c180ee024eb50fb85802f084a869df55caa",
+      "bytes": 2885
+    },
+    {
+      "path": "out/byor-motu-occupancy-v1/native/publisher.pasm",
+      "sha256": "9b21b66f5959a0306629f11e0526df43beeb7ececa06a23d4acc5dd82f2fee88",
+      "bytes": 25018
+    },
+    {
+      "path": "out/byor-motu-occupancy-v1/native/publisher.sym",
+      "sha256": "cc089ef495b442866f147dd1ff5d1b062e89eea761a06547cd6351445c7b265c",
+      "bytes": 3524
+    },
+    {
+      "path": "out/byor-motu-occupancy-v1/native/callback_owner.lua",
+      "sha256": "becc82f973672b5f5606cbe87013f121540d2e8ad95d38ff23ad95ce19b6aa31",
+      "bytes": 535469
+    },
+    {
+      "path": "out/byor-motu-occupancy-v1/native/observations.json",
+      "sha256": "3f11d755af232de0195c37e055719cfcc8f311e40ad0b2b6e201c34771558b01",
+      "bytes": 25305
+    }
+  ]
+}

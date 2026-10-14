@@ -33,7 +33,7 @@ def capacity_bound(phases):
     return dict(source_coverage_tile_bounds=bounds,maximum_required_pairs=maximum,capacity=768)
 
 
-def transform(phases,warm=False,assets=None):
+def transform(phases,warm=False,assets=None,occupancy=None):
     manifest=json.loads((phases/'manifest.json').read_text())
     capacity_bound(phases)
     def apply(lines,rom,authority,sy):
@@ -132,5 +132,9 @@ def transform(phases,warm=False,assets=None):
         if warm:
             from m4_opaque_warm_publisher import apply as retain
             lines=retain(lines,rom,authority,sy,assets)
+        if occupancy is not None:
+            if not warm:raise ValueError('OCCUPANCY_REQUIRES_WARM_RESIDENCY')
+            from m4_occupancy_publisher import apply as presence
+            lines=presence(lines,rom,authority,phases,occupancy)
         return lines
     return apply
