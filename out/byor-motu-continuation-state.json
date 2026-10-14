@@ -1,6 +1,6 @@
 {
   "branch": "feat/byor-motu",
-  "tip": "f548981de16b47a2d31a914d5fb05b5958416e5f",
+  "tip": "45c43b77d84046872ce340cc97692fd6a37ea14e",
   "no_color_reduction": true,
   "no_tm_nt": true,
   "native_peak_proven": false,
@@ -16,10 +16,10 @@
   "protected_17_fingerprints_verified": true,
   "active_jobs": [],
   "stop_gate_met": true,
-  "resumed_from": "f548981de16b47a2d31a914d5fb05b5958416e5f",
-  "continuation_receipt": "docs/receipts/byor-motu-rect-map.json",
-  "continuation_document": "docs/byor-motu-rect-map.md",
-  "focused_continuation_tests_passed": 84,
+  "resumed_from": "45c43b77d84046872ce340cc97692fd6a37ea14e",
+  "continuation_receipt": "docs/receipts/byor-motu-nonblank-presentation.json",
+  "continuation_document": "docs/byor-motu-nonblank-presentation.md",
+  "focused_continuation_tests_passed": 90,
   "latest_raster_family": "Delete subset of existing noninitial events; fixed times, slots, indices, banks, initial palette and math/window controls",
   "fixed_color_component_native_proven": true,
   "authored_fixed_color_palette_witness_proven": false,
@@ -3058,5 +3058,16 @@
     "production_reduction_percent": 4.786219887473497,
     "opt_in": true
   },
-  "inherited_dirty_preserved": 29
+  "inherited_dirty_preserved": 29,
+  "nonblank_presentation_slice_proven": true,
+  "nonblank_presentation": {
+    "status": "BYOR_MOTU_NONBLANK_PRESENTATION_SLICE_PASS",
+    "candidate": "out\\byor-motu-nonblank-v5\\native\\bor.sfc",
+    "rom_sha256": "9f85b14626405c06295536e65b6f73a229849a6b6bebf0b99862792035f6130f",
+    "observed_fields": 261,
+    "verified_pixels": 14966784,
+    "pixel_mismatches": 0,
+    "transition_fields": 120,
+    "opt_in": true
+  }
 }

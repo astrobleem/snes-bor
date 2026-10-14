@@ -1,0 +1,133 @@
+{
+  "status": "PASS",
+  "classification": "BYOR_MOTU_NONBLANK_PRESENTATION_SLICE_PASS",
+  "candidate": "out\\byor-motu-nonblank-v5\\native\\bor.sfc",
+  "rom_sha256": "9f85b14626405c06295536e65b6f73a229849a6b6bebf0b99862792035f6130f",
+  "audit": {
+    "status": "PASS",
+    "start": 3776512,
+    "end": 3777335,
+    "code_bytes": 823,
+    "preserved_statements": 1745,
+    "relocations": 42,
+    "all_assets_kernels_and_other_banks_unchanged": true,
+    "chunk_header_lease": [
+      4380160,
+      4380288
+    ],
+    "no_additional_vram_or_bwram": true
+  },
+  "observed_fields": 261,
+  "verified_pixels": 14966784,
+  "pixel_mismatches": 0,
+  "changed_pixels": 4260,
+  "transition_fields": 120,
+  "transaction_costs": [
+    {
+      "transaction": 1,
+      "planning_clocks": 3864436,
+      "composition_clocks": 2015652,
+      "preparing_through_ready_clocks": 43889518,
+      "wait_clocks": 36768458,
+      "chr_dma_clocks": 81716,
+      "cpu_preparation_clocks": 7039344,
+      "total_clocks": 43889606
+    },
+    {
+      "transaction": 2,
+      "planning_clocks": 3241012,
+      "composition_clocks": 1990808,
+      "preparing_through_ready_clocks": 42248742,
+      "wait_clocks": 35797720,
+      "chr_dma_clocks": 81184,
+      "cpu_preparation_clocks": 6369838,
+      "total_clocks": 43080862
+    }
+  ],
+  "commit": {
+    "start": 275836278,
+    "end": 275871434,
+    "clocks": 35156,
+    "vblank_start": 275836088,
+    "vblank_end": 275886552,
+    "budget_clocks": 50274,
+    "margin_clocks": 15118
+  },
+  "warm_transfers": [
+    {
+      "transaction": 1,
+      "pairs": 111,
+      "chr_bytes": 8880,
+      "map_bytes": 0,
+      "descriptors": 222
+    },
+    {
+      "transaction": 2,
+      "pairs": 108,
+      "chr_bytes": 8640,
+      "map_bytes": 4096,
+      "descriptors": 218
+    },
+    {
+      "transaction": 3,
+      "pairs": 0,
+      "chr_bytes": 0,
+      "map_bytes": 0,
+      "descriptors": 0
+    }
+  ],
+  "full_dma_replay": [
+    {
+      "transaction": 0,
+      "checkpoint": "cold",
+      "bytes": 58904,
+      "full_vram_bytes": 65536,
+      "complete_replay": true
+    },
+    {
+      "transaction": 1,
+      "checkpoint": "deferred",
+      "bytes": 8880,
+      "full_vram_bytes": 65536,
+      "complete_replay": true
+    },
+    {
+      "transaction": 2,
+      "checkpoint": "moved",
+      "bytes": 12736,
+      "full_vram_bytes": 65536,
+      "complete_replay": true
+    },
+    {
+      "transaction": 3,
+      "checkpoint": "left",
+      "bytes": 0,
+      "full_vram_bytes": 65536,
+      "complete_replay": true
+    }
+  ],
+  "per_field_vram_replay": true,
+  "ready_residency_source_oracle": true,
+  "unsafe_ppu_operations": 0,
+  "resource_faults": 0,
+  "deferred_at_ready_retained": true,
+  "left_rejected_retained": true,
+  "source_snapshots_identical": true,
+  "fields_receipt": "out\\byor-motu-nonblank-v5\\fields.json",
+  "services": "Legacy NMI/audio/video service is withdrawn by the retained isolated source fixture. Minimal owned NMI services only $4210; NMI disabled during native preparation/preload/commit, auto-JOY restored when idle. No audio timing claim.",
+  "nonclaims": [
+    "30 FPS",
+    "general consecutive-frame capacity",
+    "full-world traversal",
+    "authored audio scheduling",
+    "MOTU Demo"
+  ],
+  "master_clock_hz": 21477270,
+  "focused_tests": 90,
+  "inherited_dirty_tracked_files_preserved": 29,
+  "dirty_fingerprint": "out/byor-motu-nonblank-v5/dirty-before.json",
+  "starting_commit": "45c43b77d84046872ce340cc97692fd6a37ea14e",
+  "forced_control_rebuild_sha256": "52872d1546c26d2d9a0be438aaae32bb4ac764c74dc2a6b5a3632f90d4a179c0",
+  "verified_physical_vram_capture_bytes": 17367040,
+  "full_receipt": "docs/receipts/byor-motu-nonblank-presentation.json"
+}

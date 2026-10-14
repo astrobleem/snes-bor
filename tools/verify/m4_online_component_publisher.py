@@ -185,6 +185,6 @@ def build(original,sy,folder,assets,transform=None):
     return bytes(rom),dict(resources=resources,source_assets=authority,complete_actor_contexts=0,
         code_bank=57,code_bytes=fs['OnlineReject']-fs['OnlinePublish'],source_asset_rom=[0xe0,palette_address>>16],
         bwram_lease=[MAP,0x42d700],dp_lease=[0x3400,0x3440],paired_slots=768,
-        native_symbols={k:v for k,v in fs.items() if k.startswith(('Online','Astra','Warm'))},
+        native_symbols={k:v for k,v in fs.items() if k.startswith(('Online','Astra','Warm','Nb'))},
         publication='Preflight residency; forced blank retires old references; restore immutable backdrop; native dirty source tiles; coherent paired maps; DMA complete then visible epoch.',
         finite_position_selector=False,host_graphics_injection=False)

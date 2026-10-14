@@ -33,10 +33,12 @@ def capacity_bound(phases):
     return dict(source_coverage_tile_bounds=bounds,maximum_required_pairs=maximum,capacity=768)
 
 
-def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,direct_pair_dma=False,rect_map_diff=False):
+def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,direct_pair_dma=False,rect_map_diff=False,nonblank_slice=False):
+    if nonblank_slice and not rect_map_diff:raise ValueError("NONBLANK_REQUIRES_RECT_BACKEND")
     if rect_map_diff and not (warm and occupancy is not None and tile_fusion and direct_pair_dma):raise ValueError("RECT_MAP_CAPABILITY_DEPENDENCIES")
     manifest=json.loads((phases/'manifest.json').read_text())
     capacity_bound(phases)
+    if nonblank_slice and manifest['backdrop_tiles']!=596:raise ValueError('NONBLANK_BACKDROP_AUTHORITY')
     def apply(lines,rom,authority,sy):
         def put(at,data):
             if any(rom[at:at+len(data)]):raise ValueError('OPAQUE_ASSET_ROM_LEASE')
@@ -150,5 +152,8 @@ def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,dir
         if rect_map_diff:
             from rect_map_opt import transform as rectangle
             lines=rectangle(lines)
+        if nonblank_slice:
+            from nonblank_slice import transform as nonblank
+            lines=nonblank(lines)
         return lines
     return apply
