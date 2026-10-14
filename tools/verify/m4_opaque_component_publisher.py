@@ -33,7 +33,8 @@ def capacity_bound(phases):
     return dict(source_coverage_tile_bounds=bounds,maximum_required_pairs=maximum,capacity=768)
 
 
-def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,direct_pair_dma=False):
+def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,direct_pair_dma=False,rect_map_diff=False):
+    if rect_map_diff and not (warm and occupancy is not None and tile_fusion and direct_pair_dma):raise ValueError("RECT_MAP_CAPABILITY_DEPENDENCIES")
     manifest=json.loads((phases/'manifest.json').read_text())
     capacity_bound(phases)
     def apply(lines,rom,authority,sy):
@@ -146,5 +147,8 @@ def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,dir
             if not warm or occupancy is None or not tile_fusion:raise ValueError('DIRECT_PAIR_REQUIRES_OCCUPANCY_WARM_FUSION')
             from direct_pair_dma import transform as direct
             lines=direct(lines)
+        if rect_map_diff:
+            from rect_map_opt import transform as rectangle
+            lines=rectangle(lines)
         return lines
     return apply

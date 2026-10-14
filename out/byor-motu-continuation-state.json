@@ -1,6 +1,6 @@
 {
   "branch": "feat/byor-motu",
-  "tip": "7e5823470f67794fb51ca1c03dc969a9306e2ece",
+  "tip": "f548981de16b47a2d31a914d5fb05b5958416e5f",
   "no_color_reduction": true,
   "no_tm_nt": true,
   "native_peak_proven": false,
@@ -16,10 +16,10 @@
   "protected_17_fingerprints_verified": true,
   "active_jobs": [],
   "stop_gate_met": true,
-  "resumed_from": "7e5823470f67794fb51ca1c03dc969a9306e2ece",
-  "continuation_receipt": "docs/receipts/byor-motu-direct-pair-dma.json",
-  "continuation_document": "docs/byor-motu-direct-pair-dma.md",
-  "focused_continuation_tests_passed": 71,
+  "resumed_from": "f548981de16b47a2d31a914d5fb05b5958416e5f",
+  "continuation_receipt": "docs/receipts/byor-motu-rect-map.json",
+  "continuation_document": "docs/byor-motu-rect-map.md",
+  "focused_continuation_tests_passed": 84,
   "latest_raster_family": "Delete subset of existing noninitial events; fixed times, slots, indices, banks, initial palette and math/window controls",
   "fixed_color_component_native_proven": true,
   "authored_fixed_color_palette_witness_proven": false,
@@ -3047,5 +3047,16 @@
     },
     "publication_reduction_percent": 13.48782624442233,
     "receipt": "docs/receipts/byor-motu-direct-pair-dma.json"
-  }
+  },
+  "rect_map_diff_native_proven": true,
+  "rect_map_diff": {
+    "status": "BYOR_MOTU_RECT_MAP_DIFF_PASS",
+    "candidate": "E:\\gh\\snes-bor\\out\\byor-motu-rect-map-v1\\native\\bor.sfc",
+    "rom_sha256": "52872d1546c26d2d9a0be438aaae32bb4ac764c74dc2a6b5a3632f90d4a179c0",
+    "verified_pixels": 1032192,
+    "pixel_mismatches": 0,
+    "production_reduction_percent": 4.786219887473497,
+    "opt_in": true
+  },
+  "inherited_dirty_preserved": 29
 }

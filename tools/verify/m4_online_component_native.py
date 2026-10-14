@@ -87,6 +87,9 @@ local function clock()return emu.getState()['masterClock']end
             if contract.get('direct_pair_dma'):
                 from m4_direct_pair_evidence import append_observer
                 append_observer(f,fs,rom)
+            if contract.get('rect_map_diff') or contract.get('map_profile'):
+                from m4_rect_map_evidence import append_observer as append_maps
+                append_maps(f,fs,rom,contract.get('rect_map_diff',False))
         f.write('''
 emu.addMemoryCallback(function(a,v)
  if not online then return end
@@ -172,6 +175,9 @@ def run(folder,source,sy,contract):
             if not all(fence_checks.values()):raise ValueError('ONLINE_RESOURCE_FENCE:'+str(fence_checks))
             (native/f'vram-{i:02d}.bin').write_bytes(vram)
             (native/f'cgram-{i:02d}.bin').write_bytes(cgram)
+            if contract.get('rect_map_diff') or contract.get('map_profile'):
+                for name,at in (('pending-map',0x42c000),('committed-map',0x42c800)):
+                    (native/f'{name}-{i:02d}.bin').write_bytes(m.read_memory('SnesMemory',at,2048))
             if contract.get('warm_residency'):
                 directory=m.read_memory('SnesSaveRam',0x2d000,1536);(native/f'directory-{i:02d}.bin').write_bytes(directory)
                 words=np.frombuffer(directory,dtype='<u2');maps=np.frombuffer(vram[0xf000:0xf800],dtype='<u2')
@@ -202,6 +208,8 @@ def run(folder,source,sy,contract):
         rejected_world=m.read_memory('SnesMemory',SNAPSHOT,146);(native/'rejected-world.bin').write_bytes(rejected_world)
         unchanged=before==m.read_memory('SnesVideoRam',0,65536)
         (native/'rejected-vram.bin').write_bytes(m.read_memory('SnesVideoRam',0,65536))
+        if contract.get('rect_map_diff') or contract.get('map_profile'):
+            (native/'rejected-committed-map.bin').write_bytes(m.read_memory('SnesMemory',0x42c800,2048))
         rejected_controller=startup.u16(m,sy['SourceInputController_Raw1'])
         shot=m.tool('take_screenshot',{'format':'path'});shutil.copyfile(shot['path'],native/'rejected.png')
         retained=np.array_equal(rgb555(np.asarray(Image.open(native/'rejected.png').convert('RGB'))),last)

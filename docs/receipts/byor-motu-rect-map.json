@@ -1,0 +1,1854 @@
+{
+  "schema": 1,
+  "status": "BYOR_MOTU_RECT_MAP_DIFF_PASS",
+  "starting_commit": "f548981de16b47a2d31a914d5fb05b5958416e5f",
+  "candidate": "E:\\gh\\snes-bor\\out\\byor-motu-rect-map-v1\\native\\bor.sfc",
+  "rom_sha256": "52872d1546c26d2d9a0be438aaae32bb4ac764c74dc2a6b5a3632f90d4a179c0",
+  "control_rom": "out/byor-motu-direct-pair-v1/native/bor.sfc",
+  "control_sha256": "00622aaba27c82f20ed1ec6546de7a0ebce94f142b8b85f3de97a88f941b349a",
+  "control_profile": "out/byor-motu-rect-control-v1",
+  "control_macro_clocks_identical_to_retained_baseline": true,
+  "verified_epochs": 18,
+  "verified_pixels": 1032192,
+  "pixel_mismatches": 0,
+  "unsafe_register_writes": 0,
+  "resource_faults": 0,
+  "source_world_snapshots_byte_identical": true,
+  "palette_directory_expected_and_resident_vram_verified": true,
+  "noops": [
+    3,
+    5,
+    7,
+    11,
+    12,
+    13
+  ],
+  "negative": {
+    "rejected": true,
+    "vram_unchanged": true,
+    "previous_display_retained": true,
+    "world_snapshot_sha256": "9864e6a7f657991f2851511dc68de18505a35f427e43762f5a2d454e1fb1ddb9",
+    "raw_controller": 512
+  },
+  "full_dma_replay": {
+    "status": "PASS",
+    "epochs": [
+      {
+        "epoch": 0,
+        "bytes": 58904,
+        "descriptors": 198,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 1,
+        "bytes": 9332,
+        "descriptors": 278,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 2,
+        "bytes": 8400,
+        "descriptors": 232,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 3,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 4,
+        "bytes": 8740,
+        "descriptors": 266,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 5,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 6,
+        "bytes": 8564,
+        "descriptors": 244,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 7,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 8,
+        "bytes": 8260,
+        "descriptors": 250,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 9,
+        "bytes": 10204,
+        "descriptors": 304,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 10,
+        "bytes": 10372,
+        "descriptors": 308,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 11,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 12,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 13,
+        "bytes": 0,
+        "descriptors": 0,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 14,
+        "bytes": 10228,
+        "descriptors": 304,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 15,
+        "bytes": 10228,
+        "descriptors": 304,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 16,
+        "bytes": 8924,
+        "descriptors": 260,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      },
+      {
+        "epoch": 17,
+        "bytes": 10544,
+        "descriptors": 316,
+        "full_vram_matches": true,
+        "home_identities_verified": true
+      }
+    ],
+    "verified_vram_bytes": 1179648
+  },
+  "rom_mutation_audit": {
+    "status": "PASS",
+    "exact_source_transform": true,
+    "unchanged_instruction_checks": 1624,
+    "relocated_instructions": [
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768349,
+        "to_pc": 3768349
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768361,
+        "to_pc": 3768361
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768373,
+        "to_pc": 3768373
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768385,
+        "to_pc": 3768385
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768397,
+        "to_pc": 3768397
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768409,
+        "to_pc": 3768409
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768421,
+        "to_pc": 3768421
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768433,
+        "to_pc": 3768433
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768445,
+        "to_pc": 3768445
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768457,
+        "to_pc": 3768457
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768469,
+        "to_pc": 3768469
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768481,
+        "to_pc": 3768481
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768493,
+        "to_pc": 3768493
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768505,
+        "to_pc": 3768505
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768517,
+        "to_pc": 3768517
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768529,
+        "to_pc": 3768529
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768541,
+        "to_pc": 3768541
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768553,
+        "to_pc": 3768553
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3768584,
+        "to_pc": 3768584
+      },
+      {
+        "instruction": "jmp OnlineNoop",
+        "from_pc": 3768909,
+        "to_pc": 3768909
+      },
+      {
+        "instruction": "jmp OnlineNoop",
+        "from_pc": 3769295,
+        "to_pc": 3769295
+      },
+      {
+        "instruction": "jmp OnlineNoop",
+        "from_pc": 3769681,
+        "to_pc": 3769681
+      },
+      {
+        "instruction": "jsr WarmSourcePresence",
+        "from_pc": 3769965,
+        "to_pc": 3769965
+      },
+      {
+        "instruction": "jmp OnlineReject",
+        "from_pc": 3770063,
+        "to_pc": 3770063
+      }
+    ],
+    "inserted_instructions": 121,
+    "scan_start": 3789169,
+    "commit_start": 3789320,
+    "map_dma_start": 3789391,
+    "d000_end": 3789505,
+    "d400_start": 3789824,
+    "gap_before_direct_bytes": 319,
+    "full_preflight_clone_unchanged": true,
+    "direct_dma_and_both_kernels_unchanged": true,
+    "all_asset_and_non_code_rom_bytes_unchanged": true
+  },
+  "measurements": {
+    "status": "PASS",
+    "classification": "BYOR_MOTU_RECT_MAP_DIFF_PASS",
+    "paired_epochs": [
+      {
+        "epoch": 0,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 971868,
+            "composition": 1696164,
+            "dma": 494928,
+            "production": 3874082,
+            "publication": 4053084,
+            "forced_blank": 3075984,
+            "other_production": 711122
+          },
+          "ms": {
+            "preflight_and_allocation": 45.25100257155588,
+            "composition": 78.97484177458308,
+            "dma": 23.044269592923122,
+            "production": 180.38056047160555,
+            "publication": 188.7150461860376,
+            "forced_blank": 143.22043723434123,
+            "other_production": 33.11044653254348
+          },
+          "dma_bytes": 58904,
+          "dma_descriptors": 198
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 971868,
+            "composition": 1696204,
+            "dma": 494984,
+            "production": 3586054,
+            "publication": 3695756,
+            "forced_blank": 2718656,
+            "other_production": 422998
+          },
+          "ms": {
+            "preflight_and_allocation": 45.25100257155588,
+            "composition": 78.97670420868202,
+            "dma": 23.04687700066163,
+            "production": 166.9697312554156,
+            "publication": 172.07754989344548,
+            "forced_blank": 126.58294094174911,
+            "other_production": 19.69514747451608
+          },
+          "dma_bytes": 58904,
+          "dma_descriptors": 198
+        },
+        "map_before": [
+          {
+            "epoch": 0,
+            "routine": "scan",
+            "inclusive_clocks": 283608,
+            "dma_clocks": 3280,
+            "exclusive_clocks": 280328
+          },
+          {
+            "epoch": 0,
+            "routine": "commit",
+            "inclusive_clocks": 109858,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109858
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 0,
+            "routine": "scan",
+            "inclusive_clocks": 80386,
+            "dma_clocks": 3352,
+            "exclusive_clocks": 77034
+          },
+          {
+            "epoch": 0,
+            "routine": "commit",
+            "inclusive_clocks": 24902,
+            "dma_clocks": 0,
+            "exclusive_clocks": 24902
+          }
+        ],
+        "map_dma_bytes": 216,
+        "map_dma_descriptors": 32,
+        "map_dma_before_bytes": 216,
+        "map_dma_before_descriptors": 32,
+        "map_equality": true
+      },
+      {
+        "epoch": 1,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 941798,
+            "composition": 2228034,
+            "dma": 90620,
+            "production": 4139974,
+            "publication": 4141712,
+            "forced_blank": 3194308,
+            "other_production": 879522
+          },
+          "ms": {
+            "preflight_and_allocation": 43.85091773768268,
+            "composition": 103.73916237957617,
+            "dma": 4.219344451133687,
+            "production": 192.76071865744575,
+            "publication": 192.8416414190444,
+            "forced_blank": 148.7297035423962,
+            "other_production": 40.95129408905322
+          },
+          "dma_bytes": 9332,
+          "dma_descriptors": 278
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 941798,
+            "composition": 2228034,
+            "dma": 90372,
+            "production": 3891922,
+            "publication": 4097220,
+            "forced_blank": 3149816,
+            "other_production": 631718
+          },
+          "ms": {
+            "preflight_and_allocation": 43.85091773768268,
+            "composition": 103.73916237957617,
+            "dma": 4.2077973597203,
+            "production": 181.21120607972986,
+            "publication": 190.77005597080077,
+            "forced_blank": 146.65811809415257,
+            "other_production": 29.41332860275072
+          },
+          "dma_bytes": 9332,
+          "dma_descriptors": 278
+        },
+        "map_before": [
+          {
+            "epoch": 1,
+            "routine": "scan",
+            "inclusive_clocks": 304860,
+            "dma_clocks": 6416,
+            "exclusive_clocks": 298444
+          },
+          {
+            "epoch": 1,
+            "routine": "commit",
+            "inclusive_clocks": 109858,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109858
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 1,
+            "routine": "scan",
+            "inclusive_clocks": 128638,
+            "dma_clocks": 6488,
+            "exclusive_clocks": 122150
+          },
+          {
+            "epoch": 1,
+            "routine": "commit",
+            "inclusive_clocks": 38022,
+            "dma_clocks": 0,
+            "exclusive_clocks": 38022
+          }
+        ],
+        "map_dma_bytes": 452,
+        "map_dma_descriptors": 56,
+        "map_dma_before_bytes": 452,
+        "map_dma_before_descriptors": 56,
+        "map_equality": true
+      },
+      {
+        "epoch": 2,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 870006,
+            "composition": 2198682,
+            "dma": 80496,
+            "production": 3980106,
+            "publication": 4244048,
+            "forced_blank": 3368100,
+            "other_production": 830922
+          },
+          "ms": {
+            "preflight_and_allocation": 40.508221016916956,
+            "composition": 102.37250823777882,
+            "dma": 3.7479623806936355,
+            "production": 185.3171282942385,
+            "publication": 197.6064928177557,
+            "forced_blank": 156.82160721544219,
+            "other_production": 38.6884366588491
+          },
+          "dma_bytes": 8400,
+          "dma_descriptors": 232
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 870006,
+            "composition": 2198682,
+            "dma": 80792,
+            "production": 3716212,
+            "publication": 3886690,
+            "forced_blank": 3010742,
+            "other_production": 566732
+          },
+          "ms": {
+            "preflight_and_allocation": 40.508221016916956,
+            "composition": 102.37250823777882,
+            "dma": 3.761744393025743,
+            "production": 173.02999869164003,
+            "publication": 180.96759969958939,
+            "forced_blank": 140.18271409727586,
+            "other_production": 26.387525043918526
+          },
+          "dma_bytes": 8400,
+          "dma_descriptors": 232
+        },
+        "map_before": [
+          {
+            "epoch": 2,
+            "routine": "scan",
+            "inclusive_clocks": 278328,
+            "dma_clocks": 2700,
+            "exclusive_clocks": 275628
+          },
+          {
+            "epoch": 2,
+            "routine": "commit",
+            "inclusive_clocks": 109858,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109858
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 2,
+            "routine": "scan",
+            "inclusive_clocks": 91168,
+            "dma_clocks": 2636,
+            "exclusive_clocks": 88532
+          },
+          {
+            "epoch": 2,
+            "routine": "commit",
+            "inclusive_clocks": 33078,
+            "dma_clocks": 0,
+            "exclusive_clocks": 33078
+          }
+        ],
+        "map_dma_bytes": 160,
+        "map_dma_descriptors": 26,
+        "map_dma_before_bytes": 160,
+        "map_dma_before_descriptors": 26,
+        "map_equality": true
+      },
+      {
+        "epoch": 3,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5920,
+            "publication": 5920,
+            "forced_blank": 0,
+            "other_production": 5920
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "forced_blank": 0.0,
+            "other_production": 0.2756402466421477
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5920,
+            "publication": 5920,
+            "forced_blank": 0,
+            "other_production": 5920
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "forced_blank": 0.0,
+            "other_production": 0.2756402466421477
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "map_before": [],
+        "map_after": [],
+        "map_dma_bytes": 0,
+        "map_dma_descriptors": 0,
+        "map_dma_before_bytes": 0,
+        "map_dma_before_descriptors": 0,
+        "map_equality": true
+      },
+      {
+        "epoch": 4,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 870414,
+            "composition": 2231878,
+            "dma": 85116,
+            "production": 3999006,
+            "publication": 4244072,
+            "forced_blank": 3367716,
+            "other_production": 811598
+          },
+          "ms": {
+            "preflight_and_allocation": 40.527217844726074,
+            "composition": 103.91814229648368,
+            "dma": 3.9630735191204467,
+            "production": 186.19712840598456,
+            "publication": 197.60761027821505,
+            "forced_blank": 156.80372784809242,
+            "other_production": 37.78869474565436
+          },
+          "dma_bytes": 8740,
+          "dma_descriptors": 266
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 870414,
+            "composition": 2231838,
+            "dma": 85172,
+            "production": 3733406,
+            "publication": 3886720,
+            "forced_blank": 3010364,
+            "other_production": 545982
+          },
+          "ms": {
+            "preflight_and_allocation": 40.527217844726074,
+            "composition": 103.91627986238474,
+            "dma": 3.9656809268589535,
+            "production": 173.83056598906657,
+            "publication": 180.9689965251636,
+            "forced_blank": 140.16511409504093,
+            "other_production": 25.421387355096808
+          },
+          "dma_bytes": 8740,
+          "dma_descriptors": 266
+        },
+        "map_before": [
+          {
+            "epoch": 4,
+            "routine": "scan",
+            "inclusive_clocks": 306628,
+            "dma_clocks": 6316,
+            "exclusive_clocks": 300312
+          },
+          {
+            "epoch": 4,
+            "routine": "commit",
+            "inclusive_clocks": 109858,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109858
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 4,
+            "routine": "scan",
+            "inclusive_clocks": 117722,
+            "dma_clocks": 6372,
+            "exclusive_clocks": 111350
+          },
+          {
+            "epoch": 4,
+            "routine": "commit",
+            "inclusive_clocks": 33078,
+            "dma_clocks": 0,
+            "exclusive_clocks": 33078
+          }
+        ],
+        "map_dma_bytes": 420,
+        "map_dma_descriptors": 58,
+        "map_dma_before_bytes": 420,
+        "map_dma_before_descriptors": 58,
+        "map_equality": true
+      },
+      {
+        "epoch": 5,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5920,
+            "publication": 5920,
+            "forced_blank": 0,
+            "other_production": 5920
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "forced_blank": 0.0,
+            "other_production": 0.2756402466421477
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5920,
+            "publication": 5920,
+            "forced_blank": 0,
+            "other_production": 5920
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "forced_blank": 0.0,
+            "other_production": 0.2756402466421477
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "map_before": [],
+        "map_after": [],
+        "map_dma_bytes": 0,
+        "map_dma_descriptors": 0,
+        "map_dma_before_bytes": 0,
+        "map_dma_before_descriptors": 0,
+        "map_equality": true
+      },
+      {
+        "epoch": 6,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 841342,
+            "composition": 2211970,
+            "dma": 82776,
+            "production": 3929626,
+            "publication": 3931364,
+            "forced_blank": 3084080,
+            "other_production": 793538
+          },
+          "ms": {
+            "preflight_and_allocation": 39.17360074162126,
+            "composition": 102.9912088454445,
+            "dma": 3.854121124332841,
+            "production": 182.96673646138453,
+            "publication": 183.04765922298319,
+            "forced_blank": 143.59739389596535,
+            "other_production": 36.94780574998592
+          },
+          "dma_bytes": 8564,
+          "dma_descriptors": 244
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 841342,
+            "composition": 2211890,
+            "dma": 82760,
+            "production": 3664772,
+            "publication": 3886778,
+            "forced_blank": 3039494,
+            "other_production": 528780
+          },
+          "ms": {
+            "preflight_and_allocation": 39.17360074162126,
+            "composition": 102.98748397724664,
+            "dma": 3.853376150693268,
+            "production": 170.63490844041166,
+            "publication": 180.97169705460703,
+            "forced_blank": 141.5214317275892,
+            "other_production": 24.620447570850484
+          },
+          "dma_bytes": 8564,
+          "dma_descriptors": 244
+        },
+        "map_before": [
+          {
+            "epoch": 6,
+            "routine": "scan",
+            "inclusive_clocks": 287204,
+            "dma_clocks": 3864,
+            "exclusive_clocks": 283340
+          },
+          {
+            "epoch": 6,
+            "routine": "commit",
+            "inclusive_clocks": 109858,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109858
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 6,
+            "routine": "scan",
+            "inclusive_clocks": 99084,
+            "dma_clocks": 3808,
+            "exclusive_clocks": 95276
+          },
+          {
+            "epoch": 6,
+            "routine": "commit",
+            "inclusive_clocks": 33078,
+            "dma_clocks": 0,
+            "exclusive_clocks": 33078
+          }
+        ],
+        "map_dma_bytes": 244,
+        "map_dma_descriptors": 36,
+        "map_dma_before_bytes": 244,
+        "map_dma_before_descriptors": 36,
+        "map_equality": true
+      },
+      {
+        "epoch": 7,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5920,
+            "publication": 5920,
+            "forced_blank": 0,
+            "other_production": 5920
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "forced_blank": 0.0,
+            "other_production": 0.2756402466421477
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5920,
+            "publication": 5920,
+            "forced_blank": 0,
+            "other_production": 5920
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2756402466421477,
+            "publication": 0.2756402466421477,
+            "forced_blank": 0.0,
+            "other_production": 0.2756402466421477
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "map_before": [],
+        "map_after": [],
+        "map_dma_bytes": 0,
+        "map_dma_descriptors": 0,
+        "map_dma_before_bytes": 0,
+        "map_dma_before_descriptors": 0,
+        "map_equality": true
+      },
+      {
+        "epoch": 8,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 870006,
+            "composition": 2199950,
+            "dma": 80436,
+            "production": 3994406,
+            "publication": 4244040,
+            "forced_blank": 3368092,
+            "other_production": 844014
+          },
+          "ms": {
+            "preflight_and_allocation": 40.508221016916956,
+            "composition": 102.43154739871501,
+            "dma": 3.7451687295452354,
+            "production": 185.98294848460722,
+            "publication": 197.6061203309359,
+            "forced_blank": 156.8212347286224,
+            "other_production": 39.29801133943001
+          },
+          "dma_bytes": 8260,
+          "dma_descriptors": 250
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 870006,
+            "composition": 2199950,
+            "dma": 80180,
+            "production": 3729174,
+            "publication": 3886788,
+            "forced_blank": 3010840,
+            "other_production": 579038
+          },
+          "ms": {
+            "preflight_and_allocation": 40.508221016916956,
+            "composition": 102.43154739871501,
+            "dma": 3.7332491513120614,
+            "production": 173.63352046139943,
+            "publication": 180.97216266313177,
+            "forced_blank": 140.18727706081825,
+            "other_production": 26.960502894455395
+          },
+          "dma_bytes": 8260,
+          "dma_descriptors": 250
+        },
+        "map_before": [
+          {
+            "epoch": 8,
+            "routine": "scan",
+            "inclusive_clocks": 301252,
+            "dma_clocks": 5232,
+            "exclusive_clocks": 296020
+          },
+          {
+            "epoch": 8,
+            "routine": "commit",
+            "inclusive_clocks": 109818,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109818
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 8,
+            "routine": "scan",
+            "inclusive_clocks": 112914,
+            "dma_clocks": 5296,
+            "exclusive_clocks": 107618
+          },
+          {
+            "epoch": 8,
+            "routine": "commit",
+            "inclusive_clocks": 33118,
+            "dma_clocks": 0,
+            "exclusive_clocks": 33118
+          }
+        ],
+        "map_dma_bytes": 340,
+        "map_dma_descriptors": 52,
+        "map_dma_before_bytes": 340,
+        "map_dma_before_descriptors": 52,
+        "map_equality": true
+      },
+      {
+        "epoch": 9,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 1119654,
+            "composition": 1999716,
+            "dma": 98784,
+            "production": 4272300,
+            "publication": 4471662,
+            "forced_blank": 3346448,
+            "other_production": 1054146
+          },
+          "ms": {
+            "preflight_and_allocation": 52.13204471518028,
+            "composition": 93.1084816645691,
+            "dma": 4.599467250726,
+            "production": 198.9219300218324,
+            "publication": 208.20439469262155,
+            "forced_blank": 155.81347163768953,
+            "other_production": 49.081936391357004
+          },
+          "dma_bytes": 10204,
+          "dma_descriptors": 304
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 1119654,
+            "composition": 1999676,
+            "dma": 98968,
+            "production": 4059804,
+            "publication": 4114098,
+            "forced_blank": 2988884,
+            "other_production": 841506
+          },
+          "ms": {
+            "preflight_and_allocation": 52.13204471518028,
+            "composition": 93.10661923047017,
+            "dma": 4.608034447581094,
+            "production": 189.02793511465842,
+            "publication": 191.55591003884572,
+            "forced_blank": 139.16498698391368,
+            "other_production": 39.181236721426885
+          },
+          "dma_bytes": 10204,
+          "dma_descriptors": 304
+        },
+        "map_before": [
+          {
+            "epoch": 9,
+            "routine": "scan",
+            "inclusive_clocks": 308380,
+            "dma_clocks": 6552,
+            "exclusive_clocks": 301828
+          },
+          {
+            "epoch": 9,
+            "routine": "commit",
+            "inclusive_clocks": 109818,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109818
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 9,
+            "routine": "scan",
+            "inclusive_clocks": 157586,
+            "dma_clocks": 6736,
+            "exclusive_clocks": 150850
+          },
+          {
+            "epoch": 9,
+            "routine": "commit",
+            "inclusive_clocks": 47870,
+            "dma_clocks": 0,
+            "exclusive_clocks": 47870
+          }
+        ],
+        "map_dma_bytes": 444,
+        "map_dma_descriptors": 60,
+        "map_dma_before_bytes": 444,
+        "map_dma_before_descriptors": 60,
+        "map_equality": true
+      },
+      {
+        "epoch": 10,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 1072292,
+            "composition": 2241682,
+            "dma": 100768,
+            "production": 4438144,
+            "publication": 4439882,
+            "forced_blank": 3362002,
+            "other_production": 1023402
+          },
+          "ms": {
+            "preflight_and_allocation": 49.926829620338154,
+            "composition": 104.37462489413227,
+            "dma": 4.691843982033098,
+            "production": 206.64376803942028,
+            "publication": 206.72469080101894,
+            "forced_blank": 156.5376791370598,
+            "other_production": 47.65046954291677
+          },
+          "dma_bytes": 10372,
+          "dma_descriptors": 308
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 1072294,
+            "composition": 2242082,
+            "dma": 100768,
+            "production": 4225298,
+            "publication": 4436152,
+            "forced_blank": 3358270,
+            "other_production": 810154
+          },
+          "ms": {
+            "preflight_and_allocation": 49.9269227420431,
+            "composition": 104.3932492351216,
+            "dma": 4.691843982033098,
+            "production": 196.73347683388064,
+            "publication": 206.55101882129338,
+            "forced_blank": 156.3639140356293,
+            "other_production": 37.72146087468286
+          },
+          "dma_bytes": 10372,
+          "dma_descriptors": 308
+        },
+        "map_before": [
+          {
+            "epoch": 10,
+            "routine": "scan",
+            "inclusive_clocks": 308420,
+            "dma_clocks": 6608,
+            "exclusive_clocks": 301812
+          },
+          {
+            "epoch": 10,
+            "routine": "commit",
+            "inclusive_clocks": 109858,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109858
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 10,
+            "routine": "scan",
+            "inclusive_clocks": 157474,
+            "dma_clocks": 6688,
+            "exclusive_clocks": 150786
+          },
+          {
+            "epoch": 10,
+            "routine": "commit",
+            "inclusive_clocks": 47870,
+            "dma_clocks": 0,
+            "exclusive_clocks": 47870
+          }
+        ],
+        "map_dma_bytes": 452,
+        "map_dma_descriptors": 60,
+        "map_dma_before_bytes": 452,
+        "map_dma_before_descriptors": 60,
+        "map_equality": true
+      },
+      {
+        "epoch": 11,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5902,
+            "publication": 5902,
+            "forced_blank": 0,
+            "other_production": 5902
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "forced_blank": 0.0,
+            "other_production": 0.2748021512976277
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5902,
+            "publication": 5902,
+            "forced_blank": 0,
+            "other_production": 5902
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "forced_blank": 0.0,
+            "other_production": 0.2748021512976277
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "map_before": [],
+        "map_after": [],
+        "map_dma_bytes": 0,
+        "map_dma_descriptors": 0,
+        "map_dma_before_bytes": 0,
+        "map_dma_before_descriptors": 0,
+        "map_equality": true
+      },
+      {
+        "epoch": 12,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5902,
+            "publication": 5902,
+            "forced_blank": 0,
+            "other_production": 5902
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "forced_blank": 0.0,
+            "other_production": 0.2748021512976277
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5902,
+            "publication": 5902,
+            "forced_blank": 0,
+            "other_production": 5902
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "forced_blank": 0.0,
+            "other_production": 0.2748021512976277
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "map_before": [],
+        "map_after": [],
+        "map_dma_bytes": 0,
+        "map_dma_descriptors": 0,
+        "map_dma_before_bytes": 0,
+        "map_dma_before_descriptors": 0,
+        "map_equality": true
+      },
+      {
+        "epoch": 13,
+        "render_noop": true,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5902,
+            "publication": 5902,
+            "forced_blank": 0,
+            "other_production": 5902
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "forced_blank": 0.0,
+            "other_production": 0.2748021512976277
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 0,
+            "composition": 0,
+            "dma": 0,
+            "production": 5902,
+            "publication": 5902,
+            "forced_blank": 0,
+            "other_production": 5902
+          },
+          "ms": {
+            "preflight_and_allocation": 0.0,
+            "composition": 0.0,
+            "dma": 0.0,
+            "production": 0.2748021512976277,
+            "publication": 0.2748021512976277,
+            "forced_blank": 0.0,
+            "other_production": 0.2748021512976277
+          },
+          "dma_bytes": 0,
+          "dma_descriptors": 0
+        },
+        "map_before": [],
+        "map_after": [],
+        "map_dma_bytes": 0,
+        "map_dma_descriptors": 0,
+        "map_dma_before_bytes": 0,
+        "map_dma_before_descriptors": 0,
+        "map_equality": true
+      },
+      {
+        "epoch": 14,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 1118800,
+            "composition": 1964762,
+            "dma": 99072,
+            "production": 4245114,
+            "publication": 4471572,
+            "forced_blank": 3347230,
+            "other_production": 1062480
+          },
+          "ms": {
+            "preflight_and_allocation": 52.09228174716805,
+            "composition": 91.48099362721612,
+            "dma": 4.612876776238321,
+            "production": 197.65612668649229,
+            "publication": 208.20020421589894,
+            "forced_blank": 155.84988222432366,
+            "other_production": 49.46997453586978
+          },
+          "dma_bytes": 10228,
+          "dma_descriptors": 304
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 1118800,
+            "composition": 1964722,
+            "dma": 98824,
+            "production": 4032042,
+            "publication": 4114344,
+            "forced_blank": 2990002,
+            "other_production": 849696
+          },
+          "ms": {
+            "preflight_and_allocation": 52.09228174716805,
+            "composition": 91.47913119311718,
+            "dma": 4.601329684824933,
+            "production": 187.73531272829368,
+            "publication": 191.56736400855416,
+            "forced_blank": 139.2170420169789,
+            "other_production": 39.5625701031835
+          },
+          "dma_bytes": 10228,
+          "dma_descriptors": 304
+        },
+        "map_before": [
+          {
+            "epoch": 14,
+            "routine": "scan",
+            "inclusive_clocks": 308428,
+            "dma_clocks": 6808,
+            "exclusive_clocks": 301620
+          },
+          {
+            "epoch": 14,
+            "routine": "commit",
+            "inclusive_clocks": 109818,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109818
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 14,
+            "routine": "scan",
+            "inclusive_clocks": 157402,
+            "dma_clocks": 6704,
+            "exclusive_clocks": 150698
+          },
+          {
+            "epoch": 14,
+            "routine": "commit",
+            "inclusive_clocks": 47870,
+            "dma_clocks": 0,
+            "exclusive_clocks": 47870
+          }
+        ],
+        "map_dma_bytes": 468,
+        "map_dma_descriptors": 60,
+        "map_dma_before_bytes": 468,
+        "map_dma_before_descriptors": 60,
+        "map_equality": true
+      },
+      {
+        "epoch": 15,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 1072290,
+            "composition": 2241882,
+            "dma": 99400,
+            "production": 4448730,
+            "publication": 4454160,
+            "forced_blank": 3376282,
+            "other_production": 1035158
+          },
+          "ms": {
+            "preflight_and_allocation": 49.926736498633204,
+            "composition": 104.38393706462693,
+            "dma": 4.6281487358495745,
+            "production": 207.13666122370302,
+            "publication": 207.38948665263322,
+            "forced_blank": 157.20256811037902,
+            "other_production": 48.197838924593306
+          },
+          "dma_bytes": 10228,
+          "dma_descriptors": 304
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 1072292,
+            "composition": 2241642,
+            "dma": 99376,
+            "production": 4235804,
+            "publication": 4454042,
+            "forced_blank": 3376162,
+            "other_production": 822494
+          },
+          "ms": {
+            "preflight_and_allocation": 49.926829620338154,
+            "composition": 104.37276246003333,
+            "dma": 4.627031275390215,
+            "production": 197.22264514996553,
+            "publication": 207.38399247204137,
+            "forced_blank": 157.19698080808223,
+            "other_production": 38.296021794203824
+          },
+          "dma_bytes": 10228,
+          "dma_descriptors": 304
+        },
+        "map_before": [
+          {
+            "epoch": 15,
+            "routine": "scan",
+            "inclusive_clocks": 308468,
+            "dma_clocks": 6928,
+            "exclusive_clocks": 301540
+          },
+          {
+            "epoch": 15,
+            "routine": "commit",
+            "inclusive_clocks": 109818,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109818
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 15,
+            "routine": "scan",
+            "inclusive_clocks": 157402,
+            "dma_clocks": 6784,
+            "exclusive_clocks": 150618
+          },
+          {
+            "epoch": 15,
+            "routine": "commit",
+            "inclusive_clocks": 47870,
+            "dma_clocks": 0,
+            "exclusive_clocks": 47870
+          }
+        ],
+        "map_dma_bytes": 468,
+        "map_dma_descriptors": 60,
+        "map_dma_before_bytes": 468,
+        "map_dma_before_descriptors": 60,
+        "map_equality": true
+      },
+      {
+        "epoch": 16,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 871430,
+            "composition": 2328922,
+            "dma": 86240,
+            "production": 4108882,
+            "publication": 4243968,
+            "forced_blank": 3366614,
+            "other_production": 822290
+          },
+          "ms": {
+            "preflight_and_allocation": 40.574523670838985,
+            "composition": 108.43659366390608,
+            "dma": 4.015407917300476,
+            "production": 191.3130486323448,
+            "publication": 197.60276794955783,
+            "forced_blank": 156.7524177886668,
+            "other_production": 38.286523380299265
+          },
+          "dma_bytes": 8924,
+          "dma_descriptors": 260
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 871430,
+            "composition": 2329122,
+            "dma": 86408,
+            "production": 3844170,
+            "publication": 3886704,
+            "forced_blank": 3009350,
+            "other_production": 557210
+          },
+          "ms": {
+            "preflight_and_allocation": 40.574523670838985,
+            "composition": 108.44590583440075,
+            "dma": 4.023230140515997,
+            "production": 178.98783225242315,
+            "publication": 180.96825155152402,
+            "forced_blank": 140.117901390633,
+            "other_production": 25.944172606667422
+          },
+          "dma_bytes": 8924,
+          "dma_descriptors": 260
+        },
+        "map_before": [
+          {
+            "epoch": 16,
+            "routine": "scan",
+            "inclusive_clocks": 294172,
+            "dma_clocks": 4696,
+            "exclusive_clocks": 289476
+          },
+          {
+            "epoch": 16,
+            "routine": "commit",
+            "inclusive_clocks": 109818,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109818
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 16,
+            "routine": "scan",
+            "inclusive_clocks": 106194,
+            "dma_clocks": 4624,
+            "exclusive_clocks": 101570
+          },
+          {
+            "epoch": 16,
+            "routine": "commit",
+            "inclusive_clocks": 33078,
+            "dma_clocks": 0,
+            "exclusive_clocks": 33078
+          }
+        ],
+        "map_dma_bytes": 284,
+        "map_dma_descriptors": 44,
+        "map_dma_before_bytes": 284,
+        "map_dma_before_descriptors": 44,
+        "map_equality": true
+      },
+      {
+        "epoch": 17,
+        "render_noop": false,
+        "before": {
+          "clocks": {
+            "preflight_and_allocation": 1119796,
+            "composition": 2030212,
+            "dma": 101808,
+            "production": 4326304,
+            "publication": 4471550,
+            "forced_blank": 3346212,
+            "other_production": 1074488
+          },
+          "ms": {
+            "preflight_and_allocation": 52.13865635623149,
+            "composition": 94.52840142159594,
+            "dma": 4.7402672686053675,
+            "production": 201.43640229880242,
+            "publication": 208.19917987714453,
+            "forced_blank": 155.80248327650582,
+            "other_production": 50.029077252369596
+          },
+          "dma_bytes": 10544,
+          "dma_descriptors": 316
+        },
+        "after": {
+          "clocks": {
+            "preflight_and_allocation": 1119796,
+            "composition": 2029852,
+            "dma": 102208,
+            "production": 4113318,
+            "publication": 4115096,
+            "forced_blank": 2989758,
+            "other_production": 861462
+          },
+          "ms": {
+            "preflight_and_allocation": 52.13865635623149,
+            "composition": 94.51163951470555,
+            "dma": 4.758891609594702,
+            "production": 191.51959257391653,
+            "publication": 191.60237776961412,
+            "forced_blank": 139.2056811689754,
+            "other_production": 40.11040509338477
+          },
+          "dma_bytes": 10544,
+          "dma_descriptors": 316
+        },
+        "map_before": [
+          {
+            "epoch": 17,
+            "routine": "scan",
+            "inclusive_clocks": 311912,
+            "dma_clocks": 7016,
+            "exclusive_clocks": 304896
+          },
+          {
+            "epoch": 17,
+            "routine": "commit",
+            "inclusive_clocks": 109858,
+            "dma_clocks": 0,
+            "exclusive_clocks": 109858
+          }
+        ],
+        "map_after": [
+          {
+            "epoch": 17,
+            "routine": "scan",
+            "inclusive_clocks": 160860,
+            "dma_clocks": 7088,
+            "exclusive_clocks": 153772
+          },
+          {
+            "epoch": 17,
+            "routine": "commit",
+            "inclusive_clocks": 47870,
+            "dma_clocks": 0,
+            "exclusive_clocks": 47870
+          }
+        ],
+        "map_dma_bytes": 464,
+        "map_dma_descriptors": 64,
+        "map_dma_before_bytes": 464,
+        "map_dma_before_descriptors": 64,
+        "map_equality": true
+      }
+    ],
+    "warm_worst_before_ms": {
+      "preflight_and_allocation": 52.13865635623149,
+      "composition": 108.43659366390608,
+      "dma": 4.7402672686053675,
+      "production": 207.13666122370302,
+      "publication": 208.20439469262155,
+      "forced_blank": 157.20256811037902,
+      "other_production": 50.029077252369596
+    },
+    "warm_worst_after_ms": {
+      "preflight_and_allocation": 52.13865635623149,
+      "composition": 108.44590583440075,
+      "dma": 4.758891609594702,
+      "production": 197.22264514996553,
+      "publication": 207.38399247204137,
+      "forced_blank": 157.19698080808223,
+      "other_production": 40.11040509338477
+    },
+    "production_reduction_percent": 4.786219887473497,
+    "independent_map_and_transaction_checks": true
+  },
+  "master_clock_hz": 21477270,
+  "focused_tests": 84,
+  "inherited_dirty_preserved": 29,
+  "dirty_fingerprint_file": "out/byor-motu-rect-dirty-before.json",
+  "native_evidence_sha256": {
+    "out\\byor-motu-rect-map-v1\\native\\bor.sfc": "52872d1546c26d2d9a0be438aaae32bb4ac764c74dc2a6b5a3632f90d4a179c0",
+    "out\\byor-motu-rect-map-v1\\native\\callback_owner.lua": "b89d6ef0621759bcf8b73568395edd770530491abc52d2be55744c4bfae396df",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-00.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-01.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-02.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-03.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-04.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-05.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-06.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-07.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-08.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-09.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-10.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-11.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-12.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-13.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-14.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-15.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-16.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\cgram-17.bin": "a444f2d5db1307c18f4283635e3c726f483c8b0b37d1c89caf25a70df01b8608",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-00.bin": "a6719fe0e98677448e67ae69db76f09b5971a3f85644933b7bee478362129b68",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-01.bin": "2001079caadfbc1126222b58340ed83906eb0ec195c3ed8c6a6a314865307181",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-02.bin": "0bee12e30c042c2e3ea2af3559f0bab1b1e98125d691ecad32b20b05379405e7",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-03.bin": "0bee12e30c042c2e3ea2af3559f0bab1b1e98125d691ecad32b20b05379405e7",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-04.bin": "6774b494770ef85e8518bdf04b7a04c365c85f5ac2dce7e3b1837b3699ad12ae",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-05.bin": "6774b494770ef85e8518bdf04b7a04c365c85f5ac2dce7e3b1837b3699ad12ae",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-06.bin": "34a7e3dbd25c2f9a3deb7400a46127a6fbc3ea67264976a88130d2d0b243525a",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-07.bin": "34a7e3dbd25c2f9a3deb7400a46127a6fbc3ea67264976a88130d2d0b243525a",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-08.bin": "7963b1dc89b93f3f07d5949c0d912762076b62f4c74a2888987cd0f49ecc335c",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-09.bin": "af887a865ad8553a789738f5346d6a69f2c080892e6db539462c72fb1941d569",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-10.bin": "5bc20ba3f3e606e86048fd6c4b43a09ada2403aea8fd446cfbb7cdfe15a8f4e8",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-11.bin": "5bc20ba3f3e606e86048fd6c4b43a09ada2403aea8fd446cfbb7cdfe15a8f4e8",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-12.bin": "5bc20ba3f3e606e86048fd6c4b43a09ada2403aea8fd446cfbb7cdfe15a8f4e8",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-13.bin": "5bc20ba3f3e606e86048fd6c4b43a09ada2403aea8fd446cfbb7cdfe15a8f4e8",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-14.bin": "3a200a4354cd9d01bfbb099b83707b5abfe6720327fd65f238b65556b495941b",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-15.bin": "5bc20ba3f3e606e86048fd6c4b43a09ada2403aea8fd446cfbb7cdfe15a8f4e8",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-16.bin": "8ad56616b2de3a07cd7d36bf620438320b5036f566e4cb69ddbfe657f64327ae",
+    "out\\byor-motu-rect-map-v1\\native\\committed-map-17.bin": "571312493ae044ebcecf1df70cbcc32518f4eafc10f1b473d53f14cbad4e2d18",
+    "out\\byor-motu-rect-map-v1\\native\\directory-00.bin": "0c1d204955f22665e9dedecb1db184ffd361dd137d013a37b25abfd5bbfd0362",
+    "out\\byor-motu-rect-map-v1\\native\\directory-01.bin": "dfbb6112f8845273739190cb81c31b684e0907114ad4b097fac5b6d08c268c6b",
+    "out\\byor-motu-rect-map-v1\\native\\directory-02.bin": "4fab3bd4b604f691243a90abae715a85a1d4f58779bcc80b9ebe09a3ad1de4db",
+    "out\\byor-motu-rect-map-v1\\native\\directory-03.bin": "4fab3bd4b604f691243a90abae715a85a1d4f58779bcc80b9ebe09a3ad1de4db",
+    "out\\byor-motu-rect-map-v1\\native\\directory-04.bin": "42bc9ef86f956327800497c94578bd8202963b698b03ab9d09632acd0c68ff01",
+    "out\\byor-motu-rect-map-v1\\native\\directory-05.bin": "42bc9ef86f956327800497c94578bd8202963b698b03ab9d09632acd0c68ff01",
+    "out\\byor-motu-rect-map-v1\\native\\directory-06.bin": "91c358212d682b29dfbab0d84cc7df1c328efcdc50ffedf76384da0544c9a64b",
+    "out\\byor-motu-rect-map-v1\\native\\directory-07.bin": "91c358212d682b29dfbab0d84cc7df1c328efcdc50ffedf76384da0544c9a64b",
+    "out\\byor-motu-rect-map-v1\\native\\directory-08.bin": "388f39a5847befbfaedbe2bcee64b2723ce8fefff812bdd98e4e2741f5b9dd7b",
+    "out\\byor-motu-rect-map-v1\\native\\directory-09.bin": "977b9487d2ab900291717e71ef61f27df90b1b6114ca2d55d34f58dd595f4529",
+    "out\\byor-motu-rect-map-v1\\native\\directory-10.bin": "f70097d241a281c5d48d13660231a9abca0bdf8c8156e52baa958d77a6c2cb51",
+    "out\\byor-motu-rect-map-v1\\native\\directory-11.bin": "f70097d241a281c5d48d13660231a9abca0bdf8c8156e52baa958d77a6c2cb51",
+    "out\\byor-motu-rect-map-v1\\native\\directory-12.bin": "f70097d241a281c5d48d13660231a9abca0bdf8c8156e52baa958d77a6c2cb51",
+    "out\\byor-motu-rect-map-v1\\native\\directory-13.bin": "f70097d241a281c5d48d13660231a9abca0bdf8c8156e52baa958d77a6c2cb51",
+    "out\\byor-motu-rect-map-v1\\native\\directory-14.bin": "082245b09bce556cf1a82d5a85e785b713e74889e7d0ae5530b9d889d3edae4c",
+    "out\\byor-motu-rect-map-v1\\native\\directory-15.bin": "f70097d241a281c5d48d13660231a9abca0bdf8c8156e52baa958d77a6c2cb51",
+    "out\\byor-motu-rect-map-v1\\native\\directory-16.bin": "d658ddce1edb9864e69cd7bb4ec33a4771a207788975e6e8db97550dea5a7fb4",
+    "out\\byor-motu-rect-map-v1\\native\\directory-17.bin": "6f8d69a628b172c0e04530a9fbedd9d62df2e06eef43c2c7d71b8e439fd71199",
+    "out\\byor-motu-rect-map-v1\\native\\display-00.png": "446563805f77fa6efd1af9a20f2b0e32c8fc51b2adb365743bbdc9b3f28ff89b",
+    "out\\byor-motu-rect-map-v1\\native\\display-01.png": "3c396b3433f14e561e43dfb80d8ded0ccd4cb4427d6b7d236bdabbd8b624fceb",
+    "out\\byor-motu-rect-map-v1\\native\\display-02.png": "3d11a9d67c8b44a68ac6742b147752af8974965768b24bf68dba7f9743a69986",
+    "out\\byor-motu-rect-map-v1\\native\\display-03.png": "3d11a9d67c8b44a68ac6742b147752af8974965768b24bf68dba7f9743a69986",
+    "out\\byor-motu-rect-map-v1\\native\\display-04.png": "8e2bd76c8411cd4a0204ceaf621acf4a8019729ad6c74312c8e1706c27ffdaa8",
+    "out\\byor-motu-rect-map-v1\\native\\display-05.png": "8e2bd76c8411cd4a0204ceaf621acf4a8019729ad6c74312c8e1706c27ffdaa8",
+    "out\\byor-motu-rect-map-v1\\native\\display-06.png": "d59e939855d12ac52e81907a3db668212bea866f4c719cc6123d41864f971373",
+    "out\\byor-motu-rect-map-v1\\native\\display-07.png": "d59e939855d12ac52e81907a3db668212bea866f4c719cc6123d41864f971373",
+    "out\\byor-motu-rect-map-v1\\native\\display-08.png": "7568d4404a35c6d8684a51583dd651b1010c62000f13598c2acb1dad29d6a892",
+    "out\\byor-motu-rect-map-v1\\native\\display-09.png": "104e37f37378f4913d9fb9078b8b01460471004de094d49a3034d11a50fd37c1",
+    "out\\byor-motu-rect-map-v1\\native\\display-10.png": "a3cf6815a122dfd925c4836e9c26f7bea4c22fe448e822715d2e50d498212fe3",
+    "out\\byor-motu-rect-map-v1\\native\\display-11.png": "a3cf6815a122dfd925c4836e9c26f7bea4c22fe448e822715d2e50d498212fe3",
+    "out\\byor-motu-rect-map-v1\\native\\display-12.png": "a3cf6815a122dfd925c4836e9c26f7bea4c22fe448e822715d2e50d498212fe3",
+    "out\\byor-motu-rect-map-v1\\native\\display-13.png": "a3cf6815a122dfd925c4836e9c26f7bea4c22fe448e822715d2e50d498212fe3",
+    "out\\byor-motu-rect-map-v1\\native\\display-14.png": "e93c0fce7b3036cb6b99685650600fa636e033560ec272d46662744e81364dba",
+    "out\\byor-motu-rect-map-v1\\native\\display-15.png": "a3cf6815a122dfd925c4836e9c26f7bea4c22fe448e822715d2e50d498212fe3",
+    "out\\byor-motu-rect-map-v1\\native\\display-16.png": "d3d72a1661ed1ad7a1b4193eb0721509ff0985518cb8820147b3cf7a0e7da324",
+    "out\\byor-motu-rect-map-v1\\native\\display-17.png": "a0f4469cf41c0675532cef22494d9496e894bc4f015a26bd850d0f6f9bc36ea5",
+    "out\\byor-motu-rect-map-v1\\native\\dma-packets.json": "2fbaabc0c4c59fcd219e1ffb2342085c35a34d8a0832f6321939d59ac39b4c2e",
+    "out\\byor-motu-rect-map-v1\\native\\dma-replay.json": "ff3cfdf5bc363e95af345187a50cd67a6f64a9086265777567c7f5657776b290",
+    "out\\byor-motu-rect-map-v1\\native\\expected-00.rgb555": "78fa27e9a8c051c27f9bfd96ed1821cc964a5f0d6792e88ed97ac58eacacbf17",
+    "out\\byor-motu-rect-map-v1\\native\\expected-01.rgb555": "9e7f0865d8a0f807650e9dca68961e3793196613d9539d5de99dbdbc3b66b378",
+    "out\\byor-motu-rect-map-v1\\native\\expected-02.rgb555": "66b9758e9bc9f003e3e021d077edd519830369bb4d6dbcb2a4c22fd38b752ffc",
+    "out\\byor-motu-rect-map-v1\\native\\expected-03.rgb555": "66b9758e9bc9f003e3e021d077edd519830369bb4d6dbcb2a4c22fd38b752ffc",
+    "out\\byor-motu-rect-map-v1\\native\\expected-04.rgb555": "b6dbdf9087c8ded9eb1ff69fd645e981239c9bf62e639eb4818943018e12f047",
+    "out\\byor-motu-rect-map-v1\\native\\expected-05.rgb555": "b6dbdf9087c8ded9eb1ff69fd645e981239c9bf62e639eb4818943018e12f047",
+    "out\\byor-motu-rect-map-v1\\native\\expected-06.rgb555": "200a6e0ffa6f639a81b5d2773bc426f7164263d50ae550fe73ec94d1edcd6e1e",
+    "out\\byor-motu-rect-map-v1\\native\\expected-07.rgb555": "200a6e0ffa6f639a81b5d2773bc426f7164263d50ae550fe73ec94d1edcd6e1e",
+    "out\\byor-motu-rect-map-v1\\native\\expected-08.rgb555": "50389116822300d97a246a6b816e038cb4116952f3b0ad7faf7041499a2f7357",
+    "out\\byor-motu-rect-map-v1\\native\\expected-09.rgb555": "7d5ee8bb33bd9b1c375af79a1b8b19d361afdaa4e121bad73bba15412148dddb",
+    "out\\byor-motu-rect-map-v1\\native\\expected-10.rgb555": "6fe3a3edae09620867ab6559b7a30617e960851ccf9091b1bf79887339a73621",
+    "out\\byor-motu-rect-map-v1\\native\\expected-11.rgb555": "6fe3a3edae09620867ab6559b7a30617e960851ccf9091b1bf79887339a73621",
+    "out\\byor-motu-rect-map-v1\\native\\expected-12.rgb555": "6fe3a3edae09620867ab6559b7a30617e960851ccf9091b1bf79887339a73621",
+    "out\\byor-motu-rect-map-v1\\native\\expected-13.rgb555": "6fe3a3edae09620867ab6559b7a30617e960851ccf9091b1bf79887339a73621",
+    "out\\byor-motu-rect-map-v1\\native\\expected-14.rgb555": "8a2333fc94d66355565c1261510dc0782d7dc556d46c441e41ca4e828db6604b",
+    "out\\byor-motu-rect-map-v1\\native\\expected-15.rgb555": "6fe3a3edae09620867ab6559b7a30617e960851ccf9091b1bf79887339a73621",
+    "out\\byor-motu-rect-map-v1\\native\\expected-16.rgb555": "c212bb2c394a1a5948b52527d31d6628de26d0d7eb2fcc5c99ec7a344b23ce6c",
+    "out\\byor-motu-rect-map-v1\\native\\expected-17.rgb555": "381211971cd27dff291bc2f3923626fb92c107e688d5f8a8ee2ac534aa86cef6",
+    "out\\byor-motu-rect-map-v1\\native\\initial-vram.bin": "9d01e677277cf4d671cd166edeb039dad309363b3d9a235e97c3ccbb9d2c71c5",
+    "out\\byor-motu-rect-map-v1\\native\\mesen.log": "ba643226224e88881361be5ae36e4e30cbe3ad75949112711b51ea0560760369",
+    "out\\byor-motu-rect-map-v1\\native\\observations.json": "4aa96b4ad2e4a1fd3f3fae68d7a6b5826f8570bd5adef2155865593999963ee0",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-00.bin": "a6719fe0e98677448e67ae69db76f09b5971a3f85644933b7bee478362129b68",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-01.bin": "2001079caadfbc1126222b58340ed83906eb0ec195c3ed8c6a6a314865307181",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-02.bin": "0bee12e30c042c2e3ea2af3559f0bab1b1e98125d691ecad32b20b05379405e7",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-03.bin": "0bee12e30c042c2e3ea2af3559f0bab1b1e98125d691ecad32b20b05379405e7",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-04.bin": "6774b494770ef85e8518bdf04b7a04c365c85f5ac2dce7e3b1837b3699ad12ae",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-05.bin": "6774b494770ef85e8518bdf04b7a04c365c85f5ac2dce7e3b1837b3699ad12ae",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-06.bin": "34a7e3dbd25c2f9a3deb7400a46127a6fbc3ea67264976a88130d2d0b243525a",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-07.bin": "34a7e3dbd25c2f9a3deb7400a46127a6fbc3ea67264976a88130d2d0b243525a",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-08.bin": "7963b1dc89b93f3f07d5949c0d912762076b62f4c74a2888987cd0f49ecc335c",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-09.bin": "af887a865ad8553a789738f5346d6a69f2c080892e6db539462c72fb1941d569",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-10.bin": "5bc20ba3f3e606e86048fd6c4b43a09ada2403aea8fd446cfbb7cdfe15a8f4e8",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-11.bin": "5bc20ba3f3e606e86048fd6c4b43a09ada2403aea8fd446cfbb7cdfe15a8f4e8",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-12.bin": "5bc20ba3f3e606e86048fd6c4b43a09ada2403aea8fd446cfbb7cdfe15a8f4e8",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-13.bin": "5bc20ba3f3e606e86048fd6c4b43a09ada2403aea8fd446cfbb7cdfe15a8f4e8",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-14.bin": "3a200a4354cd9d01bfbb099b83707b5abfe6720327fd65f238b65556b495941b",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-15.bin": "5bc20ba3f3e606e86048fd6c4b43a09ada2403aea8fd446cfbb7cdfe15a8f4e8",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-16.bin": "8ad56616b2de3a07cd7d36bf620438320b5036f566e4cb69ddbfe657f64327ae",
+    "out\\byor-motu-rect-map-v1\\native\\pending-map-17.bin": "571312493ae044ebcecf1df70cbcc32518f4eafc10f1b473d53f14cbad4e2d18",
+    "out\\byor-motu-rect-map-v1\\native\\publisher-build.log": "8ccab1f99e96e1f21afb2efed495b1e5b08e9f18e44d44173fef02983d8e3847",
+    "out\\byor-motu-rect-map-v1\\native\\publisher.bin": "df353d6c7817b4ef4e20bd235c356b901eb1ee69e8ccdde93a4796924f3d52d7",
+    "out\\byor-motu-rect-map-v1\\native\\publisher.pasm": "c125a541f4fedac988e09caf3a29fa73dde6a3a7d2a739743240ff97480eb062",
+    "out\\byor-motu-rect-map-v1\\native\\publisher.sym": "887f3ad1a3467800bf802ae8ff809999f462e12869d8774f6fc6640a4e7d63b9",
+    "out\\byor-motu-rect-map-v1\\native\\rejected-committed-map.bin": "571312493ae044ebcecf1df70cbcc32518f4eafc10f1b473d53f14cbad4e2d18",
+    "out\\byor-motu-rect-map-v1\\native\\rejected-vram.bin": "5e72b5d4b785293d07403c8d9d3a8fd867894a32a7aa0637c097b5b288372ea3",
+    "out\\byor-motu-rect-map-v1\\native\\rejected-world.bin": "9864e6a7f657991f2851511dc68de18505a35f427e43762f5a2d454e1fb1ddb9",
+    "out\\byor-motu-rect-map-v1\\native\\rejected.png": "a0f4469cf41c0675532cef22494d9496e894bc4f015a26bd850d0f6f9bc36ea5",
+    "out\\byor-motu-rect-map-v1\\native\\timing-events.json": "b38ef81547259a8bc65e202e86c07e2df9c10a3923bdea46b5d1274ae9055532",
+    "out\\byor-motu-rect-map-v1\\native\\vram-00.bin": "1f659bf9f9c22b1e571bb14ec1def77344cad85e51f0649404e5efcb70f6602a",
+    "out\\byor-motu-rect-map-v1\\native\\vram-01.bin": "df4ef374dfd485edf03e21143a77574265785865a6b279e6c2bb03408a6dc180",
+    "out\\byor-motu-rect-map-v1\\native\\vram-02.bin": "433d6bdcc493f915ae71fd825c3b9f251ba5707ae3c8d946ccf10ac106e82583",
+    "out\\byor-motu-rect-map-v1\\native\\vram-03.bin": "433d6bdcc493f915ae71fd825c3b9f251ba5707ae3c8d946ccf10ac106e82583",
+    "out\\byor-motu-rect-map-v1\\native\\vram-04.bin": "880c4b9928543b8f9a14f73abf1808c478132abb16ccec04d34a8b1dcee5738e",
+    "out\\byor-motu-rect-map-v1\\native\\vram-05.bin": "880c4b9928543b8f9a14f73abf1808c478132abb16ccec04d34a8b1dcee5738e",
+    "out\\byor-motu-rect-map-v1\\native\\vram-06.bin": "d2033cde7567ddc9e0aef0ac623abb85f5578d9d830923719505fc274f0a714d",
+    "out\\byor-motu-rect-map-v1\\native\\vram-07.bin": "d2033cde7567ddc9e0aef0ac623abb85f5578d9d830923719505fc274f0a714d",
+    "out\\byor-motu-rect-map-v1\\native\\vram-08.bin": "a3ed8bc0a43deb254214355c732d81c33723ff2bca7ae6683d00b60e14072e27",
+    "out\\byor-motu-rect-map-v1\\native\\vram-09.bin": "05c11438c488f8058ff13e57edc83430fa384447ddbc6498973e5ea7bca4f5fc",
+    "out\\byor-motu-rect-map-v1\\native\\vram-10.bin": "56b84d8116cbe6ef9fee6533d2985608782c646694a5a4311131fc58ed0fabbd",
+    "out\\byor-motu-rect-map-v1\\native\\vram-11.bin": "56b84d8116cbe6ef9fee6533d2985608782c646694a5a4311131fc58ed0fabbd",
+    "out\\byor-motu-rect-map-v1\\native\\vram-12.bin": "56b84d8116cbe6ef9fee6533d2985608782c646694a5a4311131fc58ed0fabbd",
+    "out\\byor-motu-rect-map-v1\\native\\vram-13.bin": "56b84d8116cbe6ef9fee6533d2985608782c646694a5a4311131fc58ed0fabbd",
+    "out\\byor-motu-rect-map-v1\\native\\vram-14.bin": "619f4184065331fd036ca7ea5b862948bd5a827721338535be7fed3c25383752",
+    "out\\byor-motu-rect-map-v1\\native\\vram-15.bin": "56b84d8116cbe6ef9fee6533d2985608782c646694a5a4311131fc58ed0fabbd",
+    "out\\byor-motu-rect-map-v1\\native\\vram-16.bin": "fa94dbb277547097000783dd3e71eef1f657e34e4cf0c2ecbb3183ab53734ba1",
+    "out\\byor-motu-rect-map-v1\\native\\vram-17.bin": "5e72b5d4b785293d07403c8d9d3a8fd867894a32a7aa0637c097b5b288372ea3",
+    "out\\byor-motu-rect-map-v1\\native\\world-00.bin": "35df29b2ab85325e348bca2b23076497a3cd6e17a87129117925bca6bfca068d",
+    "out\\byor-motu-rect-map-v1\\native\\world-01.bin": "0c12a00db999352e51e0361ba2544a308f32dfe8f29a7c0bb9e730368e60e660",
+    "out\\byor-motu-rect-map-v1\\native\\world-02.bin": "9c590346903387b0f96080d9f0625f2fc04f2ca8f61780ce4b085223d9afc3c8",
+    "out\\byor-motu-rect-map-v1\\native\\world-03.bin": "81604bbc1c8f677bca4eb2ab9b567f6843d3a654abae9a2271005ed28eb996e1",
+    "out\\byor-motu-rect-map-v1\\native\\world-04.bin": "a5911c50887abebb14a157b295c324b6043a79fb7cb411556a3ec9bcfdc83823",
+    "out\\byor-motu-rect-map-v1\\native\\world-05.bin": "d00f64ed84377419364746bae9b928051d61d221e3bf26b4d8aad4fda5108fa7",
+    "out\\byor-motu-rect-map-v1\\native\\world-06.bin": "c77d76860b65f9a94ca58fd97a2d803eb1839b5dd06b494a902a34d2b8915228",
+    "out\\byor-motu-rect-map-v1\\native\\world-07.bin": "3f1e9ab91df5a070370176009c2716210ef0108630e057158ef0d2bea48a7e4c",
+    "out\\byor-motu-rect-map-v1\\native\\world-08.bin": "3e0a88f132ca0009915e1e36ad1f7fc6cfa44302c8c3593912b6d5f895b14f2b",
+    "out\\byor-motu-rect-map-v1\\native\\world-09.bin": "14c2a0750aac0d59f7027984833d2899cc1d7ba66a01a8b033cbe93a10bdb454",
+    "out\\byor-motu-rect-map-v1\\native\\world-10.bin": "1e221e69e2312d2e3dce88fd9d6e7862fec49ad26ed2f8cc55338230c733f19f",
+    "out\\byor-motu-rect-map-v1\\native\\world-11.bin": "cafba57fde72c0171c6ce59abccd1ca4a3b9a233fa72432a88fbc6fdab2b4343",
+    "out\\byor-motu-rect-map-v1\\native\\world-12.bin": "c344162db94648c03e77b1423e9b33cc826727a0c8186213e4d2036e0f0e30c1",
+    "out\\byor-motu-rect-map-v1\\native\\world-13.bin": "9b91d1112ba97a589d07aca9cc3e62cc9221c9337b43108824589f127dbd36ec",
+    "out\\byor-motu-rect-map-v1\\native\\world-14.bin": "fac4932b4243a416f529a223c2f62e72447dae2d5a7cc6c4163ef5b06deffa1d",
+    "out\\byor-motu-rect-map-v1\\native\\world-15.bin": "8b138203769a1a08788afc1300a59343377e6f01ca825f8faeed5e4bf5e1643d",
+    "out\\byor-motu-rect-map-v1\\native\\world-16.bin": "4bbdd28cfe66bba49237660e54547fdca17f28683b13b87351d8ce57a59783dd",
+    "out\\byor-motu-rect-map-v1\\native\\world-17.bin": "9b390dceef0a297e355d807d1f2754c2a9fb5e909eac81c12f30ef30bca59714"
+  },
+  "nonclaims": [
+    "nonblank or seamless presentation",
+    "30-Hz publication",
+    "SA-1 migration",
+    "general alpha",
+    "breath",
+    "HUD",
+    "combat",
+    "complete MOTU Demo"
+  ]
+}
