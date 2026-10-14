@@ -33,7 +33,8 @@ def capacity_bound(phases):
     return dict(source_coverage_tile_bounds=bounds,maximum_required_pairs=maximum,capacity=768)
 
 
-def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,direct_pair_dma=False,rect_map_diff=False,nonblank_slice=False,nonblank_batch_rescue=False,nonblank_restore_spill=False,early_capacity_admission=False):
+def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,direct_pair_dma=False,rect_map_diff=False,nonblank_slice=False,nonblank_batch_rescue=False,nonblank_restore_spill=False,early_capacity_admission=False,source_safepoint=False):
+    if source_safepoint and not early_capacity_admission:raise ValueError("SAFEPOINT_REQUIRES_CONDITIONAL_BACKEND")
     if early_capacity_admission and not nonblank_restore_spill:raise ValueError("EARLY_CAPACITY_REQUIRES_RESTORE_SPILL")
     if nonblank_restore_spill and not nonblank_batch_rescue:raise ValueError("SPILL_REQUIRES_BATCH_RESCUE")
     if nonblank_batch_rescue and not nonblank_slice:raise ValueError("BATCH_REQUIRES_NONBLANK_SLICE")
@@ -168,5 +169,8 @@ def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,dir
                 if early_capacity_admission:
                     from early_capacity import transform as early
                     lines=early(lines)
+                    if source_safepoint:
+                        from source_safepoint import transform as safepoint
+                        lines=safepoint(lines)
         return lines
     return apply

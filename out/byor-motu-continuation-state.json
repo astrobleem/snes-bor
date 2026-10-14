@@ -1,6 +1,6 @@
 {
   "branch": "feat/byor-motu",
-  "tip": "e3ce8a9d5257e371deff80e5fa181d7665bfd7ba",
+  "tip": "6f2339ee45f5b3070eefcc9cd80ad61d3cfb78dc",
   "no_color_reduction": true,
   "no_tm_nt": true,
   "native_peak_proven": false,
@@ -16,16 +16,16 @@
   "protected_17_fingerprints_verified": true,
   "active_jobs": [],
   "stop_gate_met": true,
-  "resumed_from": "e3ce8a9d5257e371deff80e5fa181d7665bfd7ba",
-  "continuation_receipt": "docs/receipts/byor-motu-conditional-capacity.json",
-  "continuation_document": "docs/byor-motu-conditional-capacity.md",
-  "focused_continuation_tests_passed": 147,
+  "resumed_from": "6f2339ee45f5b3070eefcc9cd80ad61d3cfb78dc",
+  "continuation_receipt": "docs/receipts/byor-motu-source-safepoint.json",
+  "continuation_document": "docs/byor-motu-source-safepoint.md",
+  "focused_continuation_tests_passed": 153,
   "latest_raster_family": "Delete subset of existing noninitial events; fixed times, slots, indices, banks, initial palette and math/window controls",
   "fixed_color_component_native_proven": true,
   "authored_fixed_color_palette_witness_proven": false,
-  "continuation_status": "BYOR_MOTU_CONDITIONAL_EARLY_CAPACITY_ADMISSION_PASS",
+  "continuation_status": "BYOR_MOTU_SOURCE_SAFEPOINT_PASS",
   "continuation_limit": null,
-  "next_experiment": "None authorized; stop after conditional admission acceptance.",
+  "next_experiment": "None authorized; stop after the bounded source-world READY safe-point proof.",
   "raster_feasibility": "OPEN",
   "research_slice_completed": false,
   "stop_after_this_experiment": true,
@@ -3254,5 +3254,14 @@
       "HUD",
       "MOTU Demo"
     ]
-  }
+  },
+  "source_safepoint_native_proven": true,
+  "source_safepoint_rom": "out/byor-motu-source-safepoint-candidate-v5/native/bor.sfc",
+  "source_safepoint_rom_sha256": "7cf213a9aaa467c7c1248dc0e40d35027f8dbd56a6ac3e9f81d373d216cc431b",
+  "source_safepoint_verified_fields": 419,
+  "source_safepoint_verified_pixels": 24027136,
+  "source_safepoint_pixel_mismatches": 0,
+  "source_safepoint_latch_bytes": 20,
+  "source_safepoint_added_publication_fields": 2,
+  "source_safepoint_next_view_is_projected_noop": true
 }
