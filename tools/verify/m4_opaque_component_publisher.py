@@ -33,7 +33,8 @@ def capacity_bound(phases):
     return dict(source_coverage_tile_bounds=bounds,maximum_required_pairs=maximum,capacity=768)
 
 
-def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,direct_pair_dma=False,rect_map_diff=False,nonblank_slice=False,nonblank_batch_rescue=False):
+def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,direct_pair_dma=False,rect_map_diff=False,nonblank_slice=False,nonblank_batch_rescue=False,nonblank_restore_spill=False):
+    if nonblank_restore_spill and not nonblank_batch_rescue:raise ValueError("SPILL_REQUIRES_BATCH_RESCUE")
     if nonblank_batch_rescue and not nonblank_slice:raise ValueError("BATCH_REQUIRES_NONBLANK_SLICE")
     if nonblank_slice and not rect_map_diff:raise ValueError("NONBLANK_REQUIRES_RECT_BACKEND")
     if rect_map_diff and not (warm and occupancy is not None and tile_fusion and direct_pair_dma):raise ValueError("RECT_MAP_CAPABILITY_DEPENDENCIES")
@@ -160,5 +161,8 @@ def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,dir
             from nonblank_batch_rescue import transform as batch
             from batch_failure_fixture import transform as faults
             lines=faults(batch(lines))
+            if nonblank_restore_spill:
+                from restore_spill import transform as spill
+                lines=spill(lines)
         return lines
     return apply

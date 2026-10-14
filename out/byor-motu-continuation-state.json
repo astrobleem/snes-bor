@@ -1,6 +1,6 @@
 {
   "branch": "feat/byor-motu",
-  "tip": "01c8167d8fe1b25275a1c5677a624199a1c9b5c2",
+  "tip": "b40172b68db17dd0229a0bfdf210e46261d65278",
   "no_color_reduction": true,
   "no_tm_nt": true,
   "native_peak_proven": false,
@@ -16,16 +16,16 @@
   "protected_17_fingerprints_verified": true,
   "active_jobs": [],
   "stop_gate_met": true,
-  "resumed_from": "01c8167d8fe1b25275a1c5677a624199a1c9b5c2",
-  "continuation_receipt": "docs/receipts/byor-motu-nonblank-batch-rescue.json",
-  "continuation_document": "docs/byor-motu-nonblank-batch-rescue.md",
-  "focused_continuation_tests_passed": 110,
+  "resumed_from": "b40172b68db17dd0229a0bfdf210e46261d65278",
+  "continuation_receipt": "docs/receipts/byor-motu-restoration-spill.json",
+  "continuation_document": "docs/byor-motu-restoration-spill.md",
+  "focused_continuation_tests_passed": 124,
   "latest_raster_family": "Delete subset of existing noninitial events; fixed times, slots, indices, banks, initial palette and math/window controls",
   "fixed_color_component_native_proven": true,
   "authored_fixed_color_palette_witness_proven": false,
-  "continuation_status": "BYOR_MOTU_DIRECT_PAIR_DMA_PASS",
+  "continuation_status": "BYOR_MOTU_NONBLANK_BATCH_CAPACITY_RESCUE_PASS",
   "continuation_limit": null,
-  "next_experiment": "Further performance or publication work requires a separate assignment; stop after direct-pair DMA.",
+  "next_experiment": "None authorized; stop after restoration capacity rescue.",
   "raster_feasibility": "OPEN",
   "research_slice_completed": false,
   "stop_after_this_experiment": true,
@@ -3071,7 +3071,7 @@
     "opt_in": true
   },
   "nonblank_batching_proven": true,
-  "native_capacity_rescue_admitted": false,
+  "native_capacity_rescue_admitted": true,
   "nonblank_batch_rescue": {
     "classification": "NONBLANK_BATCH_PASS_CAPACITY_PENDING",
     "candidate": "out\\byor-motu-batch-rescue-v1\\native\\bor.sfc",
@@ -3081,5 +3081,45 @@
     "actual_exact_slots": 122,
     "required_restoration_records": 34,
     "available_restoration_records": 32
+  },
+  "restore_spill_result": {
+    "schema": 1,
+    "classification": "BYOR_MOTU_NONBLANK_BATCH_CAPACITY_RESCUE_PASS",
+    "starting_commit": "b40172b68db17dd0229a0bfdf210e46261d65278",
+    "master_clock_hz": 21477270,
+    "controls": {
+      "batch": "e710074d80cd6ad2354664956c7d0be867008c13a98006042f51d6fc9bd091ec",
+      "one_pair": "9f85b14626405c06295536e65b6f73a229849a6b6bebf0b99862792035f6130f",
+      "rect": "52872d1546c26d2d9a0be438aaae32bb4ac764c74dc2a6b5a3632f90d4a179c0",
+      "capacity_rejection": "46c60b596123d4f486282c990fd29836a1159bcc486a62950dea108302a74d0f"
+    },
+    "visible_fields": 565,
+    "verified_pixels": 32399360,
+    "pixel_mismatches": 0,
+    "focused_tests": 124,
+    "inherited_29_byte_identical": true,
+    "protected_17_byte_identical": true,
+    "spill_lease": [
+      4380192,
+      4380256
+    ],
+    "queue_lease_unchanged": [
+      13568,
+      14048
+    ],
+    "restoration_capacity": 48,
+    "isolated_services": "Returning worker held; legacy NMI/audio/video writers withdrawn; NMI disabled during producer; automatic JOY restored while idle.",
+    "nonclaims": [
+      "general scene/animation capacity",
+      "SA-1 coexecution",
+      "30 FPS",
+      "200-Hz scheduling",
+      "dynamic alpha",
+      "authored audio",
+      "breath",
+      "HUD",
+      "combat",
+      "MOTU Demo"
+    ]
   }
 }
