@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import patch
 from actor_s5_entity_fixture import symbols
 from m4_input_controller_native import offset
-from early_capacity import transform
+from early_capacity import legacy_transform as transform
 from m4_early_capacity_native import CAP,audit_capacity,observer,predictor_evidence
 import m4_restore_spill_capacity_native as control
 

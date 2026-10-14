@@ -1,7 +1,7 @@
 """Actual retained source contract, predictor binary and immutable leases."""
 import unittest
 from pathlib import Path
-from early_capacity import transform,EarlyCapacityContractError
+from early_capacity import legacy_transform as transform,EarlyCapacityContractError
 from m4_early_capacity_native import audit_rom,audit_capacity
 from m4_input_controller_native import offset
 from m4_opaque_component_publisher import transform as producer

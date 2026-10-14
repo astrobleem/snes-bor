@@ -49,7 +49,9 @@ def main():
             if a.nonblank_restore_spill:
                 from m4_restore_spill_native import audit_rom
             if a.early_capacity_admission:
-                from m4_early_capacity_native import audit_rom
+                from m4_conditional_capacity_native import audit_rom
+                contract['pressure_gate_scratch']=[0x3470,0x3472]
+                contract['pressure_gate_ref_reads']=[0x42d4a8,0x42d600]
                 contract['temporary_bitmap_lease']=[0x3480,0x34cc]
                 contract['temporary_bitmap_lifetime']='Before restoration records exist, during conservative prediction only.'
             contract['batch_layout']=audit_rom(rom,native)
@@ -82,7 +84,7 @@ def main():
             if contract.get('nonblank_restore_spill'):
                 from m4_restore_spill_native import regression as run_batch
             if contract.get('early_capacity_admission'):
-                from m4_early_capacity_native import regression as run_batch
+                from m4_conditional_capacity_native import regression as run_batch
             run_batch(folder,Source(a.source),sy,contract,fault_mode=a.batch_fault_mode)
             return
         if contract.get('nonblank_slice'):

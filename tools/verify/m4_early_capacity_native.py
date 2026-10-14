@@ -7,7 +7,7 @@ from m4_input_controller_native import offset
 from m4_nonblank_component_native import sha
 from m4_restore_spill_native import audit_branches,observer as spill_observer
 import m4_nonblank_batch_native as batch
-from early_capacity import transform
+from early_capacity import legacy_transform as transform
 REG=Path('out/byor-motu-restore-spill-regression-v1/native')
 REG_SHA='05c3cef5f282113867b8dbc235e3bc72a7a718064023cbf58ff9bfc7410aa45d'
 CAP=Path('out/byor-motu-restore-spill-capacity-v2/native')

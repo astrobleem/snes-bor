@@ -99,7 +99,7 @@ def _predictor() -> list[str]:
     ]
 
 
-def transform(source:Sequence[str]) -> list[str]:
+def legacy_transform(source:Sequence[str]) -> list[str]:
     """Only two source splices. No fixture flags, source authority, or ROM writes.
 
     The predictor is appended before NbCodeEnd (after NbQueueDirectPair's RTS).
@@ -147,6 +147,38 @@ def transform(source:Sequence[str]) -> list[str]:
         raise EarlyCapacityContractError('EARLY_DUPLICATE_ROUTINE')
     return a
 
+
+
+def _pressure_gate() -> list[str]:
+    """C=0: skip prediction after 129 free words; C=1: run prediction.
+    A/X and existing transient DP $70 are clobbered. No record/bitmap writes.
+    """
+    return ['NbCapacityPressureGate:','.a16','.i16',
+        ' lda #0',' sta $70',f' ldx #{FIRST_TAIL_SLOT*2}',
+        'NbCapacityPressureLoop:','.a16','.i16',
+        ' lda.l $42D000,x',' and #$3FFF',' bne NbCapacityPressureNext',
+        ' inc $70',' lda $70',' cmp #129',' bcs NbCapacityPressureSkip',
+        'NbCapacityPressureNext:','.a16','.i16',
+        ' inx',' inx',f' cpx #{SLOT_CAPACITY*2}',' bcc NbCapacityPressureLoop',
+        'NbCapacityPressureRun:','.a16','.i16',' sec',' rts',
+        'NbCapacityPressureSkip:','.a16','.i16',' clc',' rts']
+
+
+def transform(source:Sequence[str]) -> list[str]:
+    """Retain the exact predictor/planner and gate only conservative prediction.
+    Threshold 129 is a workload heuristic, never allocator admission authority.
+    The original bounds/record guards and exact fallback remain mandatory.
+    """
+    a=legacy_transform(source)
+    old=[' jsr NbCapacityPredict',' bcc NbCapacityPredictSkip']
+    positions=[i for i in range(len(a)-len(old)+1) if a[i:i+len(old)]==old]
+    if len(positions)!=1:raise EarlyCapacityContractError('PRESSURE_DISPATCH_DRIFT')
+    at=positions[0];a[at:at+len(old)]=[
+        ' jsr NbCapacityPressureGate','NbCapacityPressureReturned:','.a16','.i16',
+        ' bcc NbCapacityPredictSkip',' jsr NbCapacityPredict',
+        'NbCapacityPredictionReturned:','.a16','.i16',' bcc NbCapacityPredictSkip']
+    at=a.index('NbCodeEnd:');a[at:at]=_pressure_gate()
+    return a
 
 def reference(pending_map,refs):
     """Independent exact conservative-plan footprint (for tests & host oracle).
