@@ -33,7 +33,8 @@ def capacity_bound(phases):
     return dict(source_coverage_tile_bounds=bounds,maximum_required_pairs=maximum,capacity=768)
 
 
-def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,direct_pair_dma=False,rect_map_diff=False,nonblank_slice=False,nonblank_batch_rescue=False,nonblank_restore_spill=False,early_capacity_admission=False,source_safepoint=False):
+def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,direct_pair_dma=False,rect_map_diff=False,nonblank_slice=False,nonblank_batch_rescue=False,nonblank_restore_spill=False,early_capacity_admission=False,source_safepoint=False,nonblank_home_borrow=False):
+    if nonblank_home_borrow and not source_safepoint:raise ValueError("HOME_BORROW_REQUIRES_SAFEPOINT")
     if source_safepoint and not early_capacity_admission:raise ValueError("SAFEPOINT_REQUIRES_CONDITIONAL_BACKEND")
     if early_capacity_admission and not nonblank_restore_spill:raise ValueError("EARLY_CAPACITY_REQUIRES_RESTORE_SPILL")
     if nonblank_restore_spill and not nonblank_batch_rescue:raise ValueError("SPILL_REQUIRES_BATCH_RESCUE")
@@ -172,5 +173,8 @@ def transform(phases,warm=False,assets=None,occupancy=None,tile_fusion=False,dir
                     if source_safepoint:
                         from source_safepoint import transform as safepoint
                         lines=safepoint(lines)
+                        if nonblank_home_borrow:
+                            from home_borrow import transform as borrowing
+                            lines=borrowing(lines)
         return lines
     return apply
