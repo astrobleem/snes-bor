@@ -1,0 +1,2180 @@
+{
+  "classification": "BYOR_MOTU_FUSED_COVERAGE_PASS",
+  "starting_commit": "a7a240b110df678a9968ed4d4be8ac1973d9fa3a",
+  "local_review_only": true,
+  "baseline_exact_sha256": "0ad890b7390e83e593596e456469fece2ab37ab9378ac733c80b581a56841edd",
+  "candidate_rom_sha256": "695e623a3eb5dab69feada4a3a72ff6d233227214cacbcfb570eb385dfec36f0",
+  "disabled_rebuild_sha256": "0ad890b7390e83e593596e456469fece2ab37ab9378ac733c80b581a56841edd",
+  "baseline_epoch2": {
+    "transaction": 2,
+    "committed": true,
+    "start": 196193356,
+    "finish": 204609738,
+    "fields": 23,
+    "master_clocks": 8416382,
+    "ms": 391.87392066123857
+  },
+  "candidate_epoch2": {
+    "transaction": 2,
+    "committed": true,
+    "start": 196193356,
+    "finish": 204609738,
+    "fields": 23,
+    "master_clocks": 8416382,
+    "ms": 391.87392066123857
+  },
+  "baseline_epoch3": {
+    "transaction": 3,
+    "committed": true,
+    "start": 205441710,
+    "finish": 217475802,
+    "fields": 33,
+    "master_clocks": 12034092,
+    "ms": 560.3175822625501
+  },
+  "candidate_epoch3": {
+    "transaction": 3,
+    "committed": true,
+    "start": 205441710,
+    "finish": 217118430,
+    "fields": 32,
+    "master_clocks": 11676720,
+    "ms": 543.6780372924492
+  },
+  "function_attribution": {
+    "classification": "FUNCTION_COST_PROFILE_PASS",
+    "rom_sha256": "0ad890b7390e83e593596e456469fece2ab37ab9378ac733c80b581a56841edd",
+    "total_clocks": 12034092,
+    "disjoint": {
+      "tile": 1874122,
+      "preparing": 5683806,
+      "wait": 1712658,
+      "dma": 112168,
+      "residual": 2651338
+    },
+    "residual": [
+      {
+        "name": "ready_validate:@root",
+        "clocks": 479820,
+        "ms": 22.340828233755964
+      },
+      {
+        "name": "actor_produce:NbPreloadPair",
+        "clocks": 469458,
+        "ms": 21.85836468042726
+      },
+      {
+        "name": "publish_refs:@root",
+        "clocks": 304248,
+        "ms": 14.16604624330746
+      },
+      {
+        "name": "actor_produce:BhInvalidate",
+        "clocks": 285378,
+        "ms": 13.287442957135614
+      },
+      {
+        "name": "actor_produce:@root",
+        "clocks": 275686,
+        "ms": 12.836175174964042
+      },
+      {
+        "name": "clear_refs:@root",
+        "clocks": 153490,
+        "ms": 7.146625246132306
+      },
+      {
+        "name": "actor_produce:OnlineRowPointers",
+        "clocks": 139218,
+        "ms": 6.482108759632858
+      },
+      {
+        "name": "committed_map_copy:@root",
+        "clocks": 109882,
+        "ms": 5.11619959147508
+      },
+      {
+        "name": "actor_produce:NbQueueDirectPair",
+        "clocks": 104240,
+        "ms": 4.85350326182052
+      },
+      {
+        "name": "actor_produce:Q7SourceFromIndex",
+        "clocks": 66032,
+        "ms": 3.0745062105193073
+      },
+      {
+        "name": "actor_produce:NbFlushQueue",
+        "clocks": 56314,
+        "ms": 2.62202784618343
+      },
+      {
+        "name": "restoration_produce:NbPreloadPair",
+        "clocks": 50544,
+        "ms": 2.353371727412283
+      },
+      {
+        "name": "restoration_produce:WarmCopyBackdrop",
+        "clocks": 48502,
+        "ms": 2.2582944666617313
+      },
+      {
+        "name": "actor_produce:BhShouldAbort",
+        "clocks": 30420,
+        "ms": 1.416381132238874
+      },
+      {
+        "name": "actor_produce:AstraOpaqueTile",
+        "clocks": 20050,
+        "ms": 0.9335450920903821
+      },
+      {
+        "name": "actor_produce:WarmDirectPair",
+        "clocks": 15480,
+        "ms": 0.7207619962872376
+      },
+      {
+        "name": "ready_validate:BhVerifyReady",
+        "clocks": 10754,
+        "ms": 0.5007154074982528
+      },
+      {
+        "name": "restoration_produce:NbQueueDirectPair",
+        "clocks": 8592,
+        "ms": 0.4000508444509009
+      },
+      {
+        "name": "restoration_produce:Q7SourceFromIndex",
+        "clocks": 6316,
+        "ms": 0.2940783442215887
+      },
+      {
+        "name": "restoration_produce:@root",
+        "clocks": 4998,
+        "ms": 0.23271114066173215
+      },
+      {
+        "name": "restoration_produce:NbFlushQueue",
+        "clocks": 4606,
+        "ms": 0.21445928649218451
+      },
+      {
+        "name": "publish_key:@root",
+        "clocks": 1704,
+        "ms": 0.07933969261456414
+      },
+      {
+        "name": "actor_produce:NbFreshVblank",
+        "clocks": 1464,
+        "ms": 0.06816508802096356
+      },
+      {
+        "name": "restoration_produce:WarmDirectPair",
+        "clocks": 1290,
+        "ms": 0.06006349969060314
+      },
+      {
+        "name": "safe_point:SpReadyBoundary",
+        "clocks": 1136,
+        "ms": 0.052893128409709424
+      },
+      {
+        "name": "map_commit:WarmMapDmaLow",
+        "clocks": 508,
+        "ms": 0.023652913056454568
+      },
+      {
+        "name": "map_commit:WarmMapDmaHigh",
+        "clocks": 508,
+        "ms": 0.023652913056454568
+      },
+      {
+        "name": "map_commit:@root",
+        "clocks": 280,
+        "ms": 0.013037038692534014
+      },
+      {
+        "name": "safe_point:NbFreshVblank",
+        "clocks": 168,
+        "ms": 0.007822223215520408
+      },
+      {
+        "name": "restoration_produce:NbFreshVblank",
+        "clocks": 128,
+        "ms": 0.005959789116586978
+      },
+      {
+        "name": "safe_point:@root",
+        "clocks": 72,
+        "ms": 0.003352381378080175
+      },
+      {
+        "name": "actor_slot_plan:@root",
+        "clocks": 52,
+        "ms": 0.0024211643286134597
+      }
+    ],
+    "exact_mark": [
+      {
+        "name": "mark_exact:OnlineRowMask",
+        "clocks": 573098,
+        "ms": 26.683931430763778
+      },
+      {
+        "name": "mark_exact:OnlineStepRow",
+        "clocks": 551412,
+        "ms": 25.67421278402702
+      },
+      {
+        "name": "mark_exact:@root",
+        "clocks": 353162,
+        "ms": 16.443523781188205
+      },
+      {
+        "name": "mark_exact:OnlineRowPointers",
+        "clocks": 303850,
+        "ms": 14.147515024023072
+      },
+      {
+        "name": "mark_exact:EcCoverage",
+        "clocks": 200964,
+        "ms": 9.357055156451448
+      },
+      {
+        "name": "mark_setup_exact:@root",
+        "clocks": 110370,
+        "ms": 5.138921287482068
+      }
+    ],
+    "functions": [
+      {
+        "name": "actor_produce:AstraOpaqueTile",
+        "calls": 95,
+        "inclusive": 1894172,
+        "exclusive": 1894172
+      },
+      {
+        "name": "actor_produce:NbFreshVblank",
+        "calls": 13,
+        "inclusive": 1194706,
+        "exclusive": 1194706
+      },
+      {
+        "name": "home_prepare:BhBitmapBuild",
+        "calls": 1,
+        "inclusive": 1013108,
+        "exclusive": 679358
+      },
+      {
+        "name": "mark_exact:OnlineRowMask",
+        "calls": 1037,
+        "inclusive": 573098,
+        "exclusive": 573098
+      },
+      {
+        "name": "prediction:NbCapacityPredict",
+        "calls": 1,
+        "inclusive": 559142,
+        "exclusive": 559142
+      },
+      {
+        "name": "mark_exact:OnlineStepRow",
+        "calls": 942,
+        "inclusive": 551412,
+        "exclusive": 551412
+      },
+      {
+        "name": "home_prepare:BhPrepare",
+        "calls": 1,
+        "inclusive": 1532108,
+        "exclusive": 479542
+      },
+      {
+        "name": "actor_produce:NbPreloadPair",
+        "calls": 95,
+        "inclusive": 1694200,
+        "exclusive": 469458
+      },
+      {
+        "name": "home_prepare:BhBitmapAddress",
+        "calls": 960,
+        "inclusive": 348542,
+        "exclusive": 348542
+      },
+      {
+        "name": "mark_exact:OnlineRowPointers",
+        "calls": 207,
+        "inclusive": 303850,
+        "exclusive": 303850
+      },
+      {
+        "name": "restoration_produce:NbFreshVblank",
+        "calls": 1,
+        "inclusive": 300042,
+        "exclusive": 300042
+      },
+      {
+        "name": "actor_produce:BhInvalidate",
+        "calls": 95,
+        "inclusive": 285378,
+        "exclusive": 285378
+      },
+      {
+        "name": "safe_point:NbFreshVblank",
+        "calls": 1,
+        "inclusive": 219670,
+        "exclusive": 219670
+      },
+      {
+        "name": "mark_exact:EcCoverage",
+        "calls": 207,
+        "inclusive": 1629324,
+        "exclusive": 200964
+      },
+      {
+        "name": "mark_source:WarmSourcePresence",
+        "calls": 207,
+        "inclusive": 185116,
+        "exclusive": 185116
+      },
+      {
+        "name": "actor_produce:NbQueueDirectPair",
+        "calls": 85,
+        "inclusive": 167796,
+        "exclusive": 167796
+      },
+      {
+        "name": "actor_produce:OnlineRowPointers",
+        "calls": 95,
+        "inclusive": 139218,
+        "exclusive": 139218
+      },
+      {
+        "name": "actor_produce:Q7SourceFromIndex",
+        "calls": 168,
+        "inclusive": 66032,
+        "exclusive": 66032
+      },
+      {
+        "name": "actor_slot_plan:NbFree",
+        "calls": 95,
+        "inclusive": 80602,
+        "exclusive": 61304
+      },
+      {
+        "name": "actor_produce:NbFlushQueue",
+        "calls": 13,
+        "inclusive": 1476530,
+        "exclusive": 56314
+      },
+      {
+        "name": "restoration_produce:NbPreloadPair",
+        "calls": 10,
+        "inclusive": 377366,
+        "exclusive": 50544
+      },
+      {
+        "name": "restoration_produce:WarmCopyBackdrop",
+        "calls": 10,
+        "inclusive": 48502,
+        "exclusive": 48502
+      },
+      {
+        "name": "prediction:NbCapacityPressureGate",
+        "calls": 1,
+        "inclusive": 37060,
+        "exclusive": 37060
+      },
+      {
+        "name": "actor_produce:BhShouldAbort",
+        "calls": 95,
+        "inclusive": 30420,
+        "exclusive": 30420
+      },
+      {
+        "name": "home_prepare:BhEligible",
+        "calls": 41,
+        "inclusive": 39458,
+        "exclusive": 24666
+      },
+      {
+        "name": "actor_produce:WarmDirectPair",
+        "calls": 12,
+        "inclusive": 24288,
+        "exclusive": 24288
+      },
+      {
+        "name": "actor_slot_plan:BhTake",
+        "calls": 41,
+        "inclusive": 19298,
+        "exclusive": 19298
+      },
+      {
+        "name": "map_commit:WarmMapDmaHigh",
+        "calls": 1,
+        "inclusive": 17426,
+        "exclusive": 17426
+      },
+      {
+        "name": "map_commit:WarmMapDmaLow",
+        "calls": 1,
+        "inclusive": 17418,
+        "exclusive": 17418
+      },
+      {
+        "name": "restoration_produce:NbQueueDirectPair",
+        "calls": 7,
+        "inclusive": 13828,
+        "exclusive": 13828
+      },
+      {
+        "name": "ready_validate:BhVerifyReady",
+        "calls": 1,
+        "inclusive": 10754,
+        "exclusive": 10754
+      },
+      {
+        "name": "restoration_produce:Q7SourceFromIndex",
+        "calls": 16,
+        "inclusive": 6316,
+        "exclusive": 6316
+      },
+      {
+        "name": "restoration_produce:NbFlushQueue",
+        "calls": 1,
+        "inclusive": 323254,
+        "exclusive": 4606
+      },
+      {
+        "name": "restoration_plan:NbFree",
+        "calls": 10,
+        "inclusive": 4020,
+        "exclusive": 4020
+      },
+      {
+        "name": "restoration_produce:WarmDirectPair",
+        "calls": 1,
+        "inclusive": 2030,
+        "exclusive": 2030
+      },
+      {
+        "name": "safe_point:SpReadyBoundary",
+        "calls": 1,
+        "inclusive": 1136,
+        "exclusive": 1136
+      },
+      {
+        "name": "begin:BhBegin",
+        "calls": 1,
+        "inclusive": 304,
+        "exclusive": 304
+      }
+    ],
+    "boundaries": "Callsite before JSR/JSL to after return; inclusive includes child time. Exclusive is measured between instrumented call boundaries. Ledger separately removes exact original TILE/WAIT/DMA spans.",
+    "profile_path": "out/byor-motu-function-profile-v2/success/function-cost-profile.json",
+    "profile_sha256": "6362794a0c9545b16cb0b9f0accb891bc477990f6a4b4589e699dd6e190741ba",
+    "raw_log_sha256": "1195866b0a75bd626b6c9e0d730398b58ac2adca0243d1c824ddf8bdfe14b571",
+    "drift_correction": {
+      "clocks": 72,
+      "old_probe": 3776825,
+      "accepted_and_corrected_probe": 3776832,
+      "cause": "Probe before LDA/STA versus accepted observer after state store",
+      "strict_totals_unchanged": true,
+      "failed_attempt": "out/byor-motu-function-profile-v1"
+    }
+  },
+  "coverage": {
+    "3": {
+      "calls": 207,
+      "covered": 95,
+      "before_helper_clocks": 1610508,
+      "after_helper_clocks": 1267152,
+      "before_mark_clocks": [
+        2092856
+      ],
+      "after_mark_clocks": [
+        1749038
+      ],
+      "rows_visited": 1037,
+      "baseline_rows_visited": 1037
+    }
+  },
+  "case_coverage": {
+    "success": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267152,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "valid": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267152,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "early": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267152,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "ready": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267312,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "partial": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267152,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "stale": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267152,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "insufficient": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267152,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "right": {}
+  },
+  "rom_audit": {
+    "status": "PASS",
+    "branch_sites": 302,
+    "accepted_rom_sha": "c2b429e86171f68cdab639511da61fb5d1679d34fc6c2b9ae6cc23f41e7d2604",
+    "old_A000_end": 3778160,
+    "new_A000_end": 3778183,
+    "new_A000_bytes": 23,
+    "helper_operand_only_fixups": [
+      {
+        "at": 3782111,
+        "instruction": "jsr NbFlushQueue",
+        "old_target": 3777567,
+        "new_target": 3777577
+      }
+    ],
+    "packet_source_index7": [
+      4380288,
+      4380352
+    ],
+    "eighth_physical_slot_word": 4380272,
+    "limit_word": 4380278,
+    "limit_write_callback_pcs": [
+      3776757,
+      3776782
+    ],
+    "full_other_rom_identity": true,
+    "additional_header_bytes": 2,
+    "no_new_RAM_region": true,
+    "no_additional_VRAM": true,
+    "exact_coverage": {
+      "status": "PASS",
+      "callsite": 3776621,
+      "accepted_q8_rom_sha256": "4a696c9bc6d94e153188c6226744b3daf8ccfdb5301e943bf280f2697de129e9",
+      "original_target": 3784891,
+      "new_target": 3778304,
+      "code_start": 3778304,
+      "code_end": 3778335,
+      "code_bytes": 31,
+      "branch_sites": 304,
+      "all_original_symbols_identical": true,
+      "only_original_rom_changes": "Two JSR operand bytes; 31 zero-gap bytes",
+      "original_row_masks_and_full_coverage_identical": true,
+      "no_new_memory_or_queue_capacity": true
+    },
+    "fused_coverage": {
+      "status": "PASS",
+      "baseline_sha256": "0ad890b7390e83e593596e456469fece2ab37ab9378ac733c80b581a56841edd",
+      "callsite": 3776621,
+      "old_target": 3778304,
+      "new_target": 3778368,
+      "code_start": 3778368,
+      "code_end": 3778459,
+      "code_bytes": 91,
+      "branch_sites": 309,
+      "all_original_symbols_identical": true,
+      "old_helpers_identical": true,
+      "no_new_memory_or_queue_capacity": true
+    }
+  },
+  "accepted_profile_sha256": "c5d7de2871711ada9a59798c97661136b424cd31a0d1a7c272a4a4cd47b8fc68",
+  "accepted_right_profile_sha256": "0fe1c74c7d330a2b703d3ce27647de0714c111d3136b9d0aa054bb217cdb17ff",
+  "allowed_rom_byte_ranges": [
+    [
+      1876078,
+      1876080
+    ],
+    [
+      1877824,
+      1877915
+    ]
+  ],
+  "actual_changed_rom_bytes": 75,
+  "observed_fields": 679,
+  "verified_rgb555_pixels": 38936576,
+  "min_complete_batch_margin_clocks": 27306,
+  "min_map_margin_clocks": 14650,
+  "pixel_mismatches": 0,
+  "resource_faults": 0,
+  "unsafe_ppu_operations": 0,
+  "cases": {
+    "success": {
+      "observed_fields": 88,
+      "verified_pixels": 5046272,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": true,
+          "start": 205441710,
+          "finish": 217118430,
+          "fields": 32,
+          "master_clocks": 11676720,
+          "ms": 543.6780372924492
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 14690
+    },
+    "valid": {
+      "observed_fields": 116,
+      "verified_pixels": 6651904,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": true,
+          "start": 205441710,
+          "finish": 217118462,
+          "fields": 32,
+          "master_clocks": 11676752,
+          "ms": 543.6795272397284
+        },
+        {
+          "transaction": 4,
+          "committed": true,
+          "start": 219194658,
+          "finish": 227482088,
+          "fields": 23,
+          "master_clocks": 8287430,
+          "ms": 385.869805613097
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27318,
+      "min_map_margin_clocks": 14650
+    },
+    "early": {
+      "observed_fields": 81,
+      "verified_pixels": 4644864,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "start": 205441710,
+          "finish": 214497698,
+          "fields": 25,
+          "master_clocks": 9055988,
+          "ms": 421.654521268299
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27314,
+      "min_map_margin_clocks": 15112
+    },
+    "ready": {
+      "observed_fields": 87,
+      "verified_pixels": 4988928,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193322,
+          "finish": 204609712,
+          "fields": 23,
+          "master_clocks": 8416390,
+          "ms": 391.87429314805837
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "start": 205441684,
+          "finish": 216641972,
+          "fields": 31,
+          "master_clocks": 11200288,
+          "ms": 521.4949572268729
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27306,
+      "min_map_margin_clocks": 15138
+    },
+    "partial": {
+      "observed_fields": 89,
+      "verified_pixels": 5103616,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "start": 205441710,
+          "finish": 217356672,
+          "fields": 33,
+          "master_clocks": 11914962,
+          "ms": 554.7707879074017
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 15112
+    },
+    "stale": {
+      "observed_fields": 87,
+      "verified_pixels": 4988928,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "start": 205441710,
+          "finish": 216641932,
+          "fields": 31,
+          "master_clocks": 11200222,
+          "ms": 521.4918842106097
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27318,
+      "min_map_margin_clocks": 15112
+    },
+    "insufficient": {
+      "observed_fields": 70,
+      "verified_pixels": 4014080,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "start": 205441710,
+          "finish": 210574956,
+          "fields": 14,
+          "master_clocks": 5133246,
+          "ms": 239.0083097153409
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 15112
+    },
+    "right": {
+      "observed_fields": 61,
+      "verified_pixels": 3497984,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 1,
+          "planning_clocks": 1468712,
+          "composition_clocks": 2016892,
+          "preparing_through_ready_clocks": 6736604,
+          "wait_clocks": 1318908,
+          "chr_dma_clocks": 82836,
+          "cpu_preparation_clocks": 5334860,
+          "total_clocks": 6736692
+        },
+        {
+          "transaction": 2,
+          "planning_clocks": 1459214,
+          "composition_clocks": 1989368,
+          "preparing_through_ready_clocks": 6874348,
+          "wait_clocks": 1532760,
+          "chr_dma_clocks": 82592,
+          "cpu_preparation_clocks": 5258996,
+          "total_clocks": 8416404
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 15090
+    }
+  },
+  "focused_tests": {
+    "command": [
+      "E:\\gh\\_snes-bor-eight-pair-task-20261018\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "test_restore_single_pass",
+      "test_restore_single_pass_adapter",
+      "test_home_borrow_bitmap",
+      "test_home_borrow_bitmap_adapter",
+      "test_m4_home_borrow",
+      "test_m4_source_safepoint",
+      "test_m4_conditional_capacity",
+      "test_early_capacity",
+      "test_m4_early_capacity_component",
+      "test_restore_spill",
+      "test_m4_restore_spill_component",
+      "test_batch_rescue",
+      "test_generated_splice",
+      "test_m4_nonblank_batch_component",
+      "test_m4_nonblank_component",
+      "test_rect_map_opt",
+      "test_m4_rect_map_component",
+      "test_direct_pair_dma",
+      "test_m4_direct_pair_component",
+      "test_m4_native_cost_accounting",
+      "test_tile_fusion",
+      "test_m4_tile_fusion_component",
+      "test_phase_occupancy",
+      "test_m4_occupancy_component",
+      "test_m4_opaque_component",
+      "test_m4_online_component",
+      "test_m4_live_ground_component",
+      "test_component_live_bundle",
+      "test_m4_component_publication",
+      "test_bg_component_residency",
+      "test_bg_component_deadlines",
+      "test_bg_components",
+      "test_home_bitmap_shared_cells",
+      "test_m4_bitmap_shared_adapter",
+      "test_seven_pair_spill",
+      "test_seven_pair_adapter",
+      "test_eight_pair_direct",
+      "test_m4_eight_pair_adapter",
+      "test_exact_coverage",
+      "test_exact_coverage_adapter",
+      "test_coverage_fused",
+      "test_fused_coverage_adapter",
+      "test_function_cost_profile",
+      "test_fused_timing_baseline",
+      "test_fused_capture_evidence",
+      "-q"
+    ],
+    "returncode": 0,
+    "tests": 355,
+    "wall_seconds": 92.90599999995902,
+    "isolated_temp": "E:\\gh\\snes-bor\\out\\byor-motu-fused-hardening-v1\\focused-temp-v1",
+    "log": "E:\\gh\\snes-bor\\out\\byor-motu-fused-hardening-v1\\focused-tests-v1.log",
+    "sha256": "51429c3b70bbf778605248d54f9e5b4e2bf0250bc91f91f56ca8b560fa29aa9f"
+  },
+  "preservation": {
+    "classification": "PRESERVATION_PASS",
+    "starting_commit": "a7a240b110df678a9968ed4d4be8ac1973d9fa3a",
+    "checks": [
+      {
+        "group": "accepted",
+        "path": "tools/bor_compile/exact_coverage.py",
+        "expected": "d9231417d8a6a46bb55a729cf3351ec1e97a0f3b7be59e55c0008f9f99fa5661",
+        "actual": "d9231417d8a6a46bb55a729cf3351ec1e97a0f3b7be59e55c0008f9f99fa5661"
+      },
+      {
+        "group": "accepted",
+        "path": "tools/verify/m4_exact_coverage_native.py",
+        "expected": "0687fe527d7a6f900afccbdb047385f1173a645e62757b4f6d1a560e2a4a5202",
+        "actual": "0687fe527d7a6f900afccbdb047385f1173a645e62757b4f6d1a560e2a4a5202"
+      },
+      {
+        "group": "accepted",
+        "path": "tools/verify/test_exact_coverage.py",
+        "expected": "71d4783920a48862dd3e88f07b0114b932338c4319175a0c19569e8c630cc59c",
+        "actual": "71d4783920a48862dd3e88f07b0114b932338c4319175a0c19569e8c630cc59c"
+      },
+      {
+        "group": "accepted",
+        "path": "tools/verify/test_exact_coverage_adapter.py",
+        "expected": "5fa175fcf5208117a0525254abffdf5f518f87043bca1fab36c22691dfe84487",
+        "actual": "5fa175fcf5208117a0525254abffdf5f518f87043bca1fab36c22691dfe84487"
+      },
+      {
+        "group": "accepted",
+        "path": "docs/byor-motu-exact-coverage.md",
+        "expected": "0ba8076ac3a65a0fa42858eacf673cc0d2f4797118229b139ea2fafd3cff726f",
+        "actual": "0ba8076ac3a65a0fa42858eacf673cc0d2f4797118229b139ea2fafd3cff726f"
+      },
+      {
+        "group": "accepted",
+        "path": "docs/receipts/byor-motu-exact-coverage.json",
+        "expected": "fc1a9f5a77ceba0e8d945addb044306d1327308b547a0f4c54d87c89564b2221",
+        "actual": "fc1a9f5a77ceba0e8d945addb044306d1327308b547a0f4c54d87c89564b2221"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-attack-chain.md",
+        "expected": "45add68c8bc7418a79102fa81cff7f85df78d7fd07741b321d19241df2a48120",
+        "actual": "45add68c8bc7418a79102fa81cff7f85df78d7fd07741b321d19241df2a48120"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-find-here-empty.md",
+        "expected": "ff5147d6527419777434f4f126703e99a4b23a36c1bb65100fe5d3d3e0453c9b",
+        "actual": "ff5147d6527419777434f4f126703e99a4b23a36c1bb65100fe5d3d3e0453c9b"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-foreign-workspace.md",
+        "expected": "e5b06a63795c68cacef9ee697c4c0180131327e5dc9d802c4b01d2322bc5e456",
+        "actual": "e5b06a63795c68cacef9ee697c4c0180131327e5dc9d802c4b01d2322bc5e456"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-ground-binding.md",
+        "expected": "649416dcb75643d90837fb5aa814e1d686da7c9e7df8601c8e64d21a59867d1a",
+        "actual": "649416dcb75643d90837fb5aa814e1d686da7c9e7df8601c8e64d21a59867d1a"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-ground-services.md",
+        "expected": "9c58c2f0f105188b746671989ccca8095c4c4fe755f725d6f1c0cb9ecb4f80ad",
+        "actual": "9c58c2f0f105188b746671989ccca8095c4c4fe755f725d6f1c0cb9ecb4f80ad"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-player-ground.md",
+        "expected": "c5bb760f7c9fc8c8de35e96cf6dafa8444b94384ec498c0ff66747d3737bbbd5",
+        "actual": "c5bb760f7c9fc8c8de35e96cf6dafa8444b94384ec498c0ff66747d3737bbbd5"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-player-running.md",
+        "expected": "ba978e95a5f7fd4fd54d3b0855f635263e8d84d91834b777384c4583055b0825",
+        "actual": "ba978e95a5f7fd4fd54d3b0855f635263e8d84d91834b777384c4583055b0825"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-player-state.md",
+        "expected": "1db244c3c8ef101eeb7507c7e12b14fadeb7acdf14571382d31265cbe1429c78",
+        "actual": "1db244c3c8ef101eeb7507c7e12b14fadeb7acdf14571382d31265cbe1429c78"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-run-binding.md",
+        "expected": "165159d0cfce6037a4dc1577c980bce3672bcb770003d28680383d5b9cafa9d9",
+        "actual": "165159d0cfce6037a4dc1577c980bce3672bcb770003d28680383d5b9cafa9d9"
+      },
+      {
+        "group": "inherited",
+        "path": "out/g13_camera_pause.json",
+        "expected": "b63ff397d64c1d3135abaf2e0d15068de7c03a78a8912e83c119663947348863",
+        "actual": "b63ff397d64c1d3135abaf2e0d15068de7c03a78a8912e83c119663947348863"
+      },
+      {
+        "group": "inherited",
+        "path": "out/g13_combat_ai.json",
+        "expected": "a88014733356eaae1bb9bfe3a6f1d3d80dd2b26cadd8beb703be7d3cf8ed5337",
+        "actual": "a88014733356eaae1bb9bfe3a6f1d3d80dd2b26cadd8beb703be7d3cf8ed5337"
+      },
+      {
+        "group": "inherited",
+        "path": "out/g13_jump_isolation.json",
+        "expected": "438fa6368f48639b4970f0b6f240f0d14aac1a45b53987e2053a83a6778bfe2f",
+        "actual": "438fa6368f48639b4970f0b6f240f0d14aac1a45b53987e2053a83a6778bfe2f"
+      },
+      {
+        "group": "inherited",
+        "path": "out/g13_score_pickup.json",
+        "expected": "31ab9ef13b8b758eae08b2cb5e0fce11336902718cfd5f87530f10332a1c5822",
+        "actual": "31ab9ef13b8b758eae08b2cb5e0fce11336902718cfd5f87530f10332a1c5822"
+      },
+      {
+        "group": "inherited",
+        "path": "out/g13_semantic_boundary.json",
+        "expected": "0e7ba2e958d87e31896febd8ec7f263ea88ff20ee3bbb563469c6b5c027dee2a",
+        "actual": "0e7ba2e958d87e31896febd8ec7f263ea88ff20ee3bbb563469c6b5c027dee2a"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_3ceasy/spawn_table.bin",
+        "expected": "8571f31e281b702bd78b97e44aa23e02b5e1c7ce0a5d5c0639e4b86f93d6220c",
+        "actual": "8571f31e281b702bd78b97e44aa23e02b5e1c7ce0a5d5c0639e4b86f93d6220c"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_5beasy/spawn_table.bin",
+        "expected": "6e4729351f41ce01c259a2fc71dfc481045dbb496f38fd8c40a7470cd4b19bc5",
+        "actual": "6e4729351f41ce01c259a2fc71dfc481045dbb496f38fd8c40a7470cd4b19bc5"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal1a/spawn_table.bin",
+        "expected": "e1fa9de399023d0c666d83e1be4cfd9920068adfa1625eab70cb2b399185cc17",
+        "actual": "e1fa9de399023d0c666d83e1be4cfd9920068adfa1625eab70cb2b399185cc17"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal1b/spawn_table.bin",
+        "expected": "9947064a157c58964902d9560458787936e962744b2abe878a1fd8179b218e39",
+        "actual": "9947064a157c58964902d9560458787936e962744b2abe878a1fd8179b218e39"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal1c/spawn_table.bin",
+        "expected": "e2f262696a8ec107d08f90e59dd168554876597af05fac0bb097c45f139b20f9",
+        "actual": "e2f262696a8ec107d08f90e59dd168554876597af05fac0bb097c45f139b20f9"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal2/spawn_table.bin",
+        "expected": "f9a7f0e9458c9fba8dece2c283b09466c3d1eecaa0ca19f7dfbdc022d88fe7af",
+        "actual": "f9a7f0e9458c9fba8dece2c283b09466c3d1eecaa0ca19f7dfbdc022d88fe7af"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal3a/spawn_table.bin",
+        "expected": "f6766d5b9c3b58b4c923f471ee2ffc3d3d2a0960579229f6eb02967de08e13b6",
+        "actual": "f6766d5b9c3b58b4c923f471ee2ffc3d3d2a0960579229f6eb02967de08e13b6"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal3b/spawn_table.bin",
+        "expected": "d388c30bcf4b5cb866629ed9783f88e2615ce2110cc3b7faf47467e4e84f537f",
+        "actual": "d388c30bcf4b5cb866629ed9783f88e2615ce2110cc3b7faf47467e4e84f537f"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal3c/spawn_table.bin",
+        "expected": "b1e19fa71ca8808650659aa272fb70eb701cd895ca2a264caaa1155f000c71bd",
+        "actual": "b1e19fa71ca8808650659aa272fb70eb701cd895ca2a264caaa1155f000c71bd"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal4a/spawn_table.bin",
+        "expected": "4202441e6fe88d243e0d14af936845917c7772e37eb49c567f875197bb9e3e9b",
+        "actual": "4202441e6fe88d243e0d14af936845917c7772e37eb49c567f875197bb9e3e9b"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal4b/spawn_table.bin",
+        "expected": "1259a23fca1743d85a7b9e6c255999c5ed2e2d7d29d82a8be0498d178fdbbe00",
+        "actual": "1259a23fca1743d85a7b9e6c255999c5ed2e2d7d29d82a8be0498d178fdbbe00"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal5a/spawn_table.bin",
+        "expected": "0aaf0af2416e53c9462c6a5dc2c61cab7026506e8408f89da2fd6f4b8a593027",
+        "actual": "0aaf0af2416e53c9462c6a5dc2c61cab7026506e8408f89da2fd6f4b8a593027"
+      },
+      {
+        "group": "inherited",
+        "path": "src/main.bin",
+        "expected": "01e29185c9be320306ba46a5399ee16d72675ef9026fdb2a7fd19f3d6f3393ea",
+        "actual": "01e29185c9be320306ba46a5399ee16d72675ef9026fdb2a7fd19f3d6f3393ea"
+      },
+      {
+        "group": "inherited",
+        "path": "src/main.pansy",
+        "expected": "e32247fd1c33a971ac07914d7c72b4762f1a75da083d449958117c410a204235",
+        "actual": "e32247fd1c33a971ac07914d7c72b4762f1a75da083d449958117c410a204235"
+      },
+      {
+        "group": "inherited",
+        "path": "src/main.sym",
+        "expected": "7a77f0252356ee2c559cc02c721a826aef9ed4929b3bb4864814bf0421e51d86",
+        "actual": "7a77f0252356ee2c559cc02c721a826aef9ed4929b3bb4864814bf0421e51d86"
+      },
+      {
+        "group": "takeover",
+        "path": "SNES-BOR-Engine-Prompt.md",
+        "expected": null,
+        "actual": null
+      },
+      {
+        "group": "takeover",
+        "path": "out/g13_camera_pause.json",
+        "expected": "b63ff397d64c1d3135abaf2e0d15068de7c03a78a8912e83c119663947348863",
+        "actual": "b63ff397d64c1d3135abaf2e0d15068de7c03a78a8912e83c119663947348863"
+      },
+      {
+        "group": "takeover",
+        "path": "out/g13_combat_ai.json",
+        "expected": "a88014733356eaae1bb9bfe3a6f1d3d80dd2b26cadd8beb703be7d3cf8ed5337",
+        "actual": "a88014733356eaae1bb9bfe3a6f1d3d80dd2b26cadd8beb703be7d3cf8ed5337"
+      },
+      {
+        "group": "takeover",
+        "path": "out/g13_jump_isolation.json",
+        "expected": "438fa6368f48639b4970f0b6f240f0d14aac1a45b53987e2053a83a6778bfe2f",
+        "actual": "438fa6368f48639b4970f0b6f240f0d14aac1a45b53987e2053a83a6778bfe2f"
+      },
+      {
+        "group": "takeover",
+        "path": "out/g13_score_pickup.json",
+        "expected": "31ab9ef13b8b758eae08b2cb5e0fce11336902718cfd5f87530f10332a1c5822",
+        "actual": "31ab9ef13b8b758eae08b2cb5e0fce11336902718cfd5f87530f10332a1c5822"
+      },
+      {
+        "group": "takeover",
+        "path": "out/g13_semantic_boundary.json",
+        "expected": "0e7ba2e958d87e31896febd8ec7f263ea88ff20ee3bbb563469c6b5c027dee2a",
+        "actual": "0e7ba2e958d87e31896febd8ec7f263ea88ff20ee3bbb563469c6b5c027dee2a"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_3ceasy/spawn_table.bin",
+        "expected": "8571f31e281b702bd78b97e44aa23e02b5e1c7ce0a5d5c0639e4b86f93d6220c",
+        "actual": "8571f31e281b702bd78b97e44aa23e02b5e1c7ce0a5d5c0639e4b86f93d6220c"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_5beasy/spawn_table.bin",
+        "expected": "6e4729351f41ce01c259a2fc71dfc481045dbb496f38fd8c40a7470cd4b19bc5",
+        "actual": "6e4729351f41ce01c259a2fc71dfc481045dbb496f38fd8c40a7470cd4b19bc5"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal1a/spawn_table.bin",
+        "expected": "e1fa9de399023d0c666d83e1be4cfd9920068adfa1625eab70cb2b399185cc17",
+        "actual": "e1fa9de399023d0c666d83e1be4cfd9920068adfa1625eab70cb2b399185cc17"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal1b/spawn_table.bin",
+        "expected": "9947064a157c58964902d9560458787936e962744b2abe878a1fd8179b218e39",
+        "actual": "9947064a157c58964902d9560458787936e962744b2abe878a1fd8179b218e39"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal1c/spawn_table.bin",
+        "expected": "e2f262696a8ec107d08f90e59dd168554876597af05fac0bb097c45f139b20f9",
+        "actual": "e2f262696a8ec107d08f90e59dd168554876597af05fac0bb097c45f139b20f9"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal2/spawn_table.bin",
+        "expected": "f9a7f0e9458c9fba8dece2c283b09466c3d1eecaa0ca19f7dfbdc022d88fe7af",
+        "actual": "f9a7f0e9458c9fba8dece2c283b09466c3d1eecaa0ca19f7dfbdc022d88fe7af"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal3a/spawn_table.bin",
+        "expected": "f6766d5b9c3b58b4c923f471ee2ffc3d3d2a0960579229f6eb02967de08e13b6",
+        "actual": "f6766d5b9c3b58b4c923f471ee2ffc3d3d2a0960579229f6eb02967de08e13b6"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal3b/spawn_table.bin",
+        "expected": "d388c30bcf4b5cb866629ed9783f88e2615ce2110cc3b7faf47467e4e84f537f",
+        "actual": "d388c30bcf4b5cb866629ed9783f88e2615ce2110cc3b7faf47467e4e84f537f"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal3c/spawn_table.bin",
+        "expected": "b1e19fa71ca8808650659aa272fb70eb701cd895ca2a264caaa1155f000c71bd",
+        "actual": "b1e19fa71ca8808650659aa272fb70eb701cd895ca2a264caaa1155f000c71bd"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal4a/spawn_table.bin",
+        "expected": "4202441e6fe88d243e0d14af936845917c7772e37eb49c567f875197bb9e3e9b",
+        "actual": "4202441e6fe88d243e0d14af936845917c7772e37eb49c567f875197bb9e3e9b"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal4b/spawn_table.bin",
+        "expected": "1259a23fca1743d85a7b9e6c255999c5ed2e2d7d29d82a8be0498d178fdbbe00",
+        "actual": "1259a23fca1743d85a7b9e6c255999c5ed2e2d7d29d82a8be0498d178fdbbe00"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal5a/spawn_table.bin",
+        "expected": "0aaf0af2416e53c9462c6a5dc2c61cab7026506e8408f89da2fd6f4b8a593027",
+        "actual": "0aaf0af2416e53c9462c6a5dc2c61cab7026506e8408f89da2fd6f4b8a593027"
+      },
+      {
+        "group": "takeover",
+        "path": "src/main.bin",
+        "expected": "01e29185c9be320306ba46a5399ee16d72675ef9026fdb2a7fd19f3d6f3393ea",
+        "actual": "01e29185c9be320306ba46a5399ee16d72675ef9026fdb2a7fd19f3d6f3393ea"
+      },
+      {
+        "group": "takeover",
+        "path": "src/main.pansy",
+        "expected": "e32247fd1c33a971ac07914d7c72b4762f1a75da083d449958117c410a204235",
+        "actual": "e32247fd1c33a971ac07914d7c72b4762f1a75da083d449958117c410a204235"
+      },
+      {
+        "group": "takeover",
+        "path": "src/main.sym",
+        "expected": "7a77f0252356ee2c559cc02c721a826aef9ed4929b3bb4864814bf0421e51d86",
+        "actual": "7a77f0252356ee2c559cc02c721a826aef9ed4929b3bb4864814bf0421e51d86"
+      },
+      {
+        "group": "emulator-input",
+        "path": "C:/Users/chad/Documents/Mesen2/settings.json",
+        "expected": "b5038ac1c899c38f0039fdf45814fe97dcbc8d46dbc8fdff009e41bc3d036f49",
+        "actual": "b5038ac1c899c38f0039fdf45814fe97dcbc8d46dbc8fdff009e41bc3d036f49"
+      },
+      {
+        "group": "emulator-input",
+        "path": "C:/Users/chad/Documents/Mesen2/Saves/bor.srm",
+        "expected": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1",
+        "actual": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1"
+      }
+    ],
+    "original_native_inputs": {
+      "count": 1055,
+      "all_sha256_identical": true,
+      "snapshot": "out\\byor-motu-exact-coverage-integration-v1\\review-gaps-before.json",
+      "snapshot_sha256": "efaa561ff4499e059218281bfcd695999abc2cb3ec2b637797fc0058041048c3"
+    },
+    "unchanged_scanner_and_profiler": {
+      "tools/bor_compile/coverage_fused.py": {
+        "expected": "34c8787c213041bbff538c54f54a23586b4717dba2bb2162698eb5e477a4b37b",
+        "actual": "34c8787c213041bbff538c54f54a23586b4717dba2bb2162698eb5e477a4b37b"
+      },
+      "tools/verify/test_coverage_fused.py": {
+        "expected": "5cd7794aa418f2393918df2a214b49e8017aa0d3cb79f12faac4a6fca1d79905",
+        "actual": "5cd7794aa418f2393918df2a214b49e8017aa0d3cb79f12faac4a6fca1d79905"
+      },
+      "tools/verify/m4_function_cost_native.py": {
+        "expected": "5abc26943e638a8c6016dadd2a215303109954682ed125dcdfda1a45f0106e51",
+        "actual": "5abc26943e638a8c6016dadd2a215303109954682ed125dcdfda1a45f0106e51"
+      },
+      "tools/verify/test_function_cost_profile.py": {
+        "expected": "a0d817ae3d258ea8d91a3fe7eee9d246a2442d9e1795b73367ee8d04901ab92e",
+        "actual": "a0d817ae3d258ea8d91a3fe7eee9d246a2442d9e1795b73367ee8d04901ab92e"
+      }
+    },
+    "byte_identical_fresh_build": {
+      "bor.sfc": {
+        "expected": "695e623a3eb5dab69feada4a3a72ff6d233227214cacbcfb570eb385dfec36f0",
+        "actual": "695e623a3eb5dab69feada4a3a72ff6d233227214cacbcfb570eb385dfec36f0"
+      },
+      "publisher.bin": {
+        "expected": "d91d7da46fe35c7de613be3471d2aa7e6d852005494b55adaac5bcd3929941fc",
+        "actual": "d91d7da46fe35c7de613be3471d2aa7e6d852005494b55adaac5bcd3929941fc"
+      },
+      "publisher.pasm": {
+        "expected": "8653d20eda516f3af0704339a97b8d19c65fa2d4f02b90195a925f1eec15b6f4",
+        "actual": "8653d20eda516f3af0704339a97b8d19c65fa2d4f02b90195a925f1eec15b6f4"
+      },
+      "publisher.sym": {
+        "expected": "a22d62a44f4322ec7e8c647b5f7d25a83e8a595617869575070ae4b33d543408",
+        "actual": "a22d62a44f4322ec7e8c647b5f7d25a83e8a595617869575070ae4b33d543408"
+      }
+    },
+    "sealed_native_inputs": {
+      "provenance_sha256": "604e91dd9e2400b717134507fe36852b227fada66bb4c72b7571452f9c8edb5d",
+      "raw_manifest_sha256": "edef6a159feea7efa141e66b7869c654aa78053d0a16262fc58200fc3ca7beef",
+      "immutable_msu_sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+      "raw_inputs": 1769,
+      "verified_origins": 1842,
+      "cases": {
+        "success": {
+          "fields": 88,
+          "first_frame": 523,
+          "last_frame": 610,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "valid": {
+          "fields": 116,
+          "first_frame": 523,
+          "last_frame": 638,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "early": {
+          "fields": 81,
+          "first_frame": 523,
+          "last_frame": 603,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "ready": {
+          "fields": 87,
+          "first_frame": 523,
+          "last_frame": 609,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "partial": {
+          "fields": 89,
+          "first_frame": 523,
+          "last_frame": 611,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "stale": {
+          "fields": 87,
+          "first_frame": 523,
+          "last_frame": 609,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "insufficient": {
+          "fields": 70,
+          "first_frame": 523,
+          "last_frame": 592,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "right": {
+          "fields": 61,
+          "first_frame": 523,
+          "last_frame": 583,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        }
+      },
+      "observed_fields": 679
+    }
+  },
+  "checkpoint_inventories": {
+    "success": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "valid": {
+      "candidate": [
+        "after-restoration-cgram.bin",
+        "after-restoration-committed.bin",
+        "after-restoration-pending.bin",
+        "after-restoration-refs.bin",
+        "after-restoration-vram.bin",
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin",
+        "restoration-world.bin"
+      ],
+      "q8": [
+        "after-restoration-cgram.bin",
+        "after-restoration-committed.bin",
+        "after-restoration-pending.bin",
+        "after-restoration-refs.bin",
+        "after-restoration-vram.bin",
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin",
+        "restoration-world.bin"
+      ]
+    },
+    "early": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "ready": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "partial": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "stale": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "insufficient": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "right": {
+      "candidate": [
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "handoff-vram.bin",
+        "initial-vram.bin",
+        "left-cgram.bin",
+        "left-committed.bin",
+        "left-pending.bin",
+        "left-refs.bin",
+        "left-vram.bin",
+        "left-world.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "noop-cgram.bin",
+        "noop-committed.bin",
+        "noop-pending.bin",
+        "noop-refs.bin",
+        "noop-vram.bin",
+        "noop-world.bin"
+      ],
+      "q8": [
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "handoff-vram.bin",
+        "initial-vram.bin",
+        "left-cgram.bin",
+        "left-committed.bin",
+        "left-pending.bin",
+        "left-refs.bin",
+        "left-vram.bin",
+        "left-world.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "noop-cgram.bin",
+        "noop-committed.bin",
+        "noop-pending.bin",
+        "noop-refs.bin",
+        "noop-vram.bin",
+        "noop-world.bin"
+      ]
+    }
+  },
+  "capture_provenance": {
+    "path": "out/byor-motu-fused-coverage-certified-v1/capture-provenance.json",
+    "sha256": "604e91dd9e2400b717134507fe36852b227fada66bb4c72b7571452f9c8edb5d",
+    "raw_inputs_before_certification_sha256": "edef6a159feea7efa141e66b7869c654aa78053d0a16262fc58200fc3ca7beef",
+    "right_startup_timeout_attempt": "out/byor-motu-fused-coverage-v1/right",
+    "successful_fresh_right": "out/byor-motu-fused-coverage-right-v2/right"
+  },
+  "native_file_manifest": {
+    "path": "out/byor-motu-fused-hardening-v1/native-file-manifest.json",
+    "sha256": "180ddae15f382c5e179646c21537025e5894d5596fcac8abdcc25d429e73c361",
+    "files": 1842
+  },
+  "retained_full_native_receipt": {
+    "path": "out/byor-motu-fused-coverage-certified-v1/fused-coverage-receipt.json",
+    "sha256": "22a2f70c1857cdd6ccd2c74a27aa9a8b638847df457944ee1cceb75e42146740"
+  },
+  "implementation_files": {
+    "tools/bor_compile/coverage_fused.py": "34c8787c213041bbff538c54f54a23586b4717dba2bb2162698eb5e477a4b37b",
+    "tools/verify/test_coverage_fused.py": "5cd7794aa418f2393918df2a214b49e8017aa0d3cb79f12faac4a6fca1d79905",
+    "tools/verify/m4_fused_coverage_native.py": "fbc317ada105dc8b8632e61392304d50a74b4ffc4f37067e830e345dfba6f609",
+    "tools/verify/test_fused_coverage_adapter.py": "ad445a0a9126b0dcc48a3b61ce7cb4c53d1d68b5a649004c2eed28026902af3e",
+    "tools/verify/m4_function_cost_native.py": "5abc26943e638a8c6016dadd2a215303109954682ed125dcdfda1a45f0106e51",
+    "tools/verify/test_function_cost_profile.py": "a0d817ae3d258ea8d91a3fe7eee9d246a2442d9e1795b73367ee8d04901ab92e",
+    "docs/byor-motu-fused-coverage.md": "103949e1c7b10729e2787b3aac83cb09b94ccf4df48107054cbb15096cf51ff3",
+    "tools/verify/fused_capture_evidence.py": "cda82e6582f06620b0153c9f090a11a61b1765fa9029175898fdf4631d99e759",
+    "tools/verify/test_fused_capture_evidence.py": "8064b24bc03bff576c5baf64a4f5a52726616cbc2dca8564d22e6492e9d59de5",
+    "tools/verify/fused_timing_baseline.py": "fdec693c4de7aea55a110888c91360d4ee5de5a9e6db6c57a5dd1a31ccbe26c2",
+    "tools/verify/test_fused_timing_baseline.py": "6ce638c9183bea747359e6ad4b8e1696482c81ebb45200b1f3534052eb3a748a"
+  },
+  "nonclaims": [
+    "30 FPS",
+    "200 Hz",
+    "SA-1 concurrency",
+    "audio",
+    "HUD",
+    "combat",
+    "Demo completion"
+  ],
+  "accepted_timing_receipt_sha256": "fc1a9f5a77ceba0e8d945addb044306d1327308b547a0f4c54d87c89564b2221",
+  "capture_evidence": {
+    "provenance_sha256": "604e91dd9e2400b717134507fe36852b227fada66bb4c72b7571452f9c8edb5d",
+    "raw_manifest_sha256": "edef6a159feea7efa141e66b7869c654aa78053d0a16262fc58200fc3ca7beef",
+    "immutable_msu_sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+    "raw_inputs": 1769,
+    "verified_origins": 1842,
+    "cases": {
+      "success": {
+        "fields": 88,
+        "first_frame": 523,
+        "last_frame": 610,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "valid": {
+        "fields": 116,
+        "first_frame": 523,
+        "last_frame": 638,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "early": {
+        "fields": 81,
+        "first_frame": 523,
+        "last_frame": 603,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "ready": {
+        "fields": 87,
+        "first_frame": 523,
+        "last_frame": 609,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "partial": {
+        "fields": 89,
+        "first_frame": 523,
+        "last_frame": 611,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "stale": {
+        "fields": 87,
+        "first_frame": 523,
+        "last_frame": 609,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "insufficient": {
+        "fields": 70,
+        "first_frame": 523,
+        "last_frame": 592,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "right": {
+        "fields": 61,
+        "first_frame": 523,
+        "last_frame": 583,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      }
+    },
+    "observed_fields": 679
+  },
+  "raw_capture_unchanged_after_certification": true,
+  "validation_hardening": {
+    "timing_digest_before_parse": true,
+    "consecutive_unique_field_records": true,
+    "exact_png_vram_inventories": true,
+    "pinned_provenance_and_raw_manifests": true,
+    "exact_raw_inventory_and_origin_destination_hashes": true,
+    "shared_msu_independently_pinned": true,
+    "collection_never_reseals": true,
+    "raw_preservation_checked_before_and_after_certification": true,
+    "added_test_methods": 36,
+    "independent_review": {
+      "classification": "INDEPENDENT_REVIEW_NO_FINDINGS",
+      "reviewer": "/root/exact_coverage_tests",
+      "scope": "Read-only independent review of root-owned capture guards, collector integration and negative tests; root separately reviewed the agent-owned timing loader.",
+      "first_review": "No concrete verifier or integration findings. Digest checks happen before JSON parsing; capture verification enforces field indices, consecutive frames, exact PNG/VRAM inventories, provenance mapping, and raw hashes before and after certification. The index-10 deletion regression fails before certification, and collection does not reseal captures.",
+      "first_review_limitations": [
+        "CLI pin combinations lacked focused tests.",
+        "The original raw manifest excludes shared bor.msu."
+      ],
+      "incremental_resolution_review": "No concrete findings in the incremental changes. MSU files are checked against a separate digest on both origin and destination, including during the post-certification verification. The new tests cover MSU tampering and the CLI pin cases. I made no changes and ran no tests or emulators.",
+      "resolved_limitations": [
+        "Added CLI tests for partial pins, pins outside collection, retained defaults and explicit trusted pins without resealing.",
+        "Added a separate accepted MSU SHA256 binding, checked for every declared origin and destination before and after certification, plus independent mutation tests."
+      ],
+      "files_reviewed": [
+        "tools/verify/fused_capture_evidence.py",
+        "tools/verify/test_fused_capture_evidence.py",
+        "tools/verify/m4_fused_coverage_native.py",
+        "tools/verify/test_fused_coverage_adapter.py"
+      ],
+      "timing_loader_review": "Root read fused_timing_baseline.py and its tests: the receipt is read once, SHA256 checked before JSON parsing, and those same bytes are parsed before the accepted ROM marker is checked. Consumed candidate epoch fields and clocks each have same-ROM tampering rejection subtests.",
+      "runtime_limitation": "Independent reviewer did not execute tests or emulators; root owns the separately retained execution evidence."
+    },
+    "independent_review_record": {
+      "path": "out/byor-motu-fused-hardening-v1/independent-review.json",
+      "sha256": "b68e430c39a91b6346a932cc735d82038e2168aab61c4c5da8b423b578c3644c"
+    },
+    "retained_negative_probes": {
+      "path": "out/byor-motu-fused-hardening-v1/retained-negative-probes.json",
+      "sha256": "88d6ee159a7acf9ca27ae5a0c81b918ea8b548fbe16cc50f987d32bc9beea42d",
+      "count": 4
+    },
+    "native_recertification_log": "out/byor-motu-fused-hardening-v1/native-recertification-v2.log",
+    "native_recertification_log_sha256": "bef6a058a7c7efc93faa577b249daac5f123ae65b70a6aa1e3dbe569f44b0708",
+    "fresh_build_byte_identical": {
+      "bor.sfc": {
+        "expected": "695e623a3eb5dab69feada4a3a72ff6d233227214cacbcfb570eb385dfec36f0",
+        "actual": "695e623a3eb5dab69feada4a3a72ff6d233227214cacbcfb570eb385dfec36f0"
+      },
+      "publisher.bin": {
+        "expected": "d91d7da46fe35c7de613be3471d2aa7e6d852005494b55adaac5bcd3929941fc",
+        "actual": "d91d7da46fe35c7de613be3471d2aa7e6d852005494b55adaac5bcd3929941fc"
+      },
+      "publisher.pasm": {
+        "expected": "8653d20eda516f3af0704339a97b8d19c65fa2d4f02b90195a925f1eec15b6f4",
+        "actual": "8653d20eda516f3af0704339a97b8d19c65fa2d4f02b90195a925f1eec15b6f4"
+      },
+      "publisher.sym": {
+        "expected": "a22d62a44f4322ec7e8c647b5f7d25a83e8a595617869575070ae4b33d543408",
+        "actual": "a22d62a44f4322ec7e8c647b5f7d25a83e8a595617869575070ae4b33d543408"
+      }
+    },
+    "no_emulator_rerun": true,
+    "pre_hardening_receipt_sha256": "d0d9d64f95f6cb30a7298e8b88efa3fe01557b4cd7db5697eef7dcd5e4cbfa9e"
+  }
+}
