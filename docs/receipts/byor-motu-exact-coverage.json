@@ -1,0 +1,1289 @@
+{
+  "classification": "BYOR_MOTU_EXACT_COVERAGE_PASS",
+  "starting_commit": "e00e1c720f03833e792df17088a37edcc9dbb4af",
+  "validation_hardening": {
+    "zero_only_branch": "beq NbMarkNext",
+    "baseline_profile_sha256": "d9f35a7b5e5597a543bdcaf178f874012297f4a1c74f462d3941b6f2186cad5e",
+    "checkpoint_inventories": {
+      "success": {
+        "candidate": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ],
+        "q8": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ]
+      },
+      "valid": {
+        "candidate": [
+          "after-restoration-cgram.bin",
+          "after-restoration-committed.bin",
+          "after-restoration-pending.bin",
+          "after-restoration-refs.bin",
+          "after-restoration-vram.bin",
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin",
+          "restoration-world.bin"
+        ],
+        "q8": [
+          "after-restoration-cgram.bin",
+          "after-restoration-committed.bin",
+          "after-restoration-pending.bin",
+          "after-restoration-refs.bin",
+          "after-restoration-vram.bin",
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin",
+          "restoration-world.bin"
+        ]
+      },
+      "early": {
+        "candidate": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ],
+        "q8": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ]
+      },
+      "ready": {
+        "candidate": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ],
+        "q8": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ]
+      },
+      "partial": {
+        "candidate": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ],
+        "q8": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ]
+      },
+      "stale": {
+        "candidate": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ],
+        "q8": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ]
+      },
+      "insufficient": {
+        "candidate": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ],
+        "q8": [
+          "after-second-cgram.bin",
+          "after-second-committed.bin",
+          "after-second-pending.bin",
+          "after-second-refs.bin",
+          "after-second-vram.bin",
+          "before-second-cgram.bin",
+          "before-second-committed.bin",
+          "before-second-pending.bin",
+          "before-second-refs.bin",
+          "before-second-vram.bin",
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "initial-vram.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "newer-world.bin"
+        ]
+      },
+      "right": {
+        "candidate": [
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "handoff-vram.bin",
+          "initial-vram.bin",
+          "left-cgram.bin",
+          "left-committed.bin",
+          "left-pending.bin",
+          "left-refs.bin",
+          "left-vram.bin",
+          "left-world.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "noop-cgram.bin",
+          "noop-committed.bin",
+          "noop-pending.bin",
+          "noop-refs.bin",
+          "noop-vram.bin",
+          "noop-world.bin"
+        ],
+        "q8": [
+          "cold-cgram.bin",
+          "cold-committed.bin",
+          "cold-pending.bin",
+          "cold-refs.bin",
+          "cold-vram.bin",
+          "cold-world.bin",
+          "deferred-cgram.bin",
+          "deferred-committed.bin",
+          "deferred-pending.bin",
+          "deferred-refs.bin",
+          "deferred-vram.bin",
+          "deferred-world.bin",
+          "handoff-vram.bin",
+          "initial-vram.bin",
+          "left-cgram.bin",
+          "left-committed.bin",
+          "left-pending.bin",
+          "left-refs.bin",
+          "left-vram.bin",
+          "left-world.bin",
+          "moved-cgram.bin",
+          "moved-committed.bin",
+          "moved-pending.bin",
+          "moved-refs.bin",
+          "moved-vram.bin",
+          "moved-world.bin",
+          "noop-cgram.bin",
+          "noop-committed.bin",
+          "noop-pending.bin",
+          "noop-refs.bin",
+          "noop-vram.bin",
+          "noop-world.bin"
+        ]
+      }
+    },
+    "additional_test_methods": 12,
+    "additional_negative_test_methods": 9,
+    "targeted_tests": 27,
+    "executable_identity": {
+      "bor.sfc": {
+        "identical": true,
+        "sha256": "0ad890b7390e83e593596e456469fece2ab37ab9378ac733c80b581a56841edd"
+      },
+      "publisher.bin": {
+        "identical": true,
+        "sha256": "861112165f04404236d82b355d4e5dfe35d14db969173bc8717a6f342998d5cf"
+      },
+      "publisher.pasm": {
+        "identical": true,
+        "sha256": "937d3a5e12374d6c7b7b53ae47ea46b6bf8b5ec583fdb7afc6d6000ed66a1f02"
+      }
+    },
+    "targeted_test_log": {
+      "path": "E:\\gh\\snes-bor\\out\\byor-motu-exact-coverage-integration-v1\\review-gap-tests-v2.log",
+      "sha256": "1b44c341bb8849aa6148b360afd204a2f2f62c426a5243e56f6e728b0957834d"
+    },
+    "retained_native_inputs": {
+      "count": 1055,
+      "all_hashes_match": true,
+      "snapshot_manifest": "E:\\gh\\snes-bor\\out\\byor-motu-exact-coverage-integration-v1\\review-gaps-before.json",
+      "snapshot_sha256": "efaa561ff4499e059218281bfcd695999abc2cb3ec2b637797fc0058041048c3"
+    }
+  },
+  "implementation_files": {
+    "tools/bor_compile/exact_coverage.py": "d9231417d8a6a46bb55a729cf3351ec1e97a0f3b7be59e55c0008f9f99fa5661",
+    "tools/verify/m4_exact_coverage_native.py": "0687fe527d7a6f900afccbdb047385f1173a645e62757b4f6d1a560e2a4a5202",
+    "tools/verify/test_exact_coverage.py": "71d4783920a48862dd3e88f07b0114b932338c4319175a0c19569e8c630cc59c",
+    "tools/verify/test_exact_coverage_adapter.py": "5fa175fcf5208117a0525254abffdf5f518f87043bca1fab36c22691dfe84487"
+  },
+  "profile_control": {
+    "path": "out\\byor-motu-exact-coverage-profile-v4\\success",
+    "rom_sha256": "4a696c9bc6d94e153188c6226744b3daf8ccfdb5301e943bf280f2697de129e9",
+    "profile_sha256": "d9f35a7b5e5597a543bdcaf178f874012297f4a1c74f462d3941b6f2186cad5e"
+  },
+  "baseline_q8_sha256": "4a696c9bc6d94e153188c6226744b3daf8ccfdb5301e943bf280f2697de129e9",
+  "candidate_rom_sha256": "0ad890b7390e83e593596e456469fece2ab37ab9378ac733c80b581a56841edd",
+  "disabled_rebuild_sha256": "4a696c9bc6d94e153188c6226744b3daf8ccfdb5301e943bf280f2697de129e9",
+  "baseline_epoch2": {
+    "transaction": 2,
+    "committed": true,
+    "start": 196193356,
+    "finish": 204609738,
+    "fields": 23,
+    "master_clocks": 8416382,
+    "ms": 391.87392066123857
+  },
+  "candidate_epoch2": {
+    "transaction": 2,
+    "committed": true,
+    "start": 196193356,
+    "finish": 204609738,
+    "fields": 23,
+    "master_clocks": 8416382,
+    "ms": 391.87392066123857
+  },
+  "baseline_epoch3": {
+    "transaction": 3,
+    "committed": true,
+    "start": 205441710,
+    "finish": 218190572,
+    "fields": 35,
+    "master_clocks": 12748862,
+    "ms": 593.5978827849164
+  },
+  "candidate_epoch3": {
+    "transaction": 3,
+    "committed": true,
+    "start": 205441710,
+    "finish": 217475802,
+    "fields": 33,
+    "master_clocks": 12034092,
+    "ms": 560.3175822625501
+  },
+  "coverage": {
+    "3": {
+      "calls": 207,
+      "covered": 95,
+      "before_helper_clocks": 2574580,
+      "after_helper_clocks": 1610508,
+      "before_mark_clocks": [
+        3056666
+      ],
+      "after_mark_clocks": [
+        2092856
+      ],
+      "rows_visited": 1037,
+      "baseline_rows_visited": 1656
+    }
+  },
+  "baseline_ledger": {
+    "publication_clocks": 12748862,
+    "preparing_clocks": 6647616,
+    "explicit_wait_clocks": 1464318,
+    "fresh_vblank_calls": 15,
+    "fresh_window_fields": [
+      594,
+      595,
+      596,
+      597,
+      598,
+      599,
+      600,
+      601,
+      602,
+      603,
+      604,
+      605,
+      606,
+      607,
+      609
+    ],
+    "post_map_bookkeeping_clocks": 569326,
+    "interpretation": "Elapsed intervals include bus/interrupt time. Preparation contains exact coverage. Fresh-window scheduling floor overlaps compute/wait; do not add it."
+  },
+  "candidate_ledger": {
+    "publication_clocks": 12034092,
+    "preparing_clocks": 5683806,
+    "explicit_wait_clocks": 1712658,
+    "fresh_vblank_calls": 15,
+    "fresh_window_fields": [
+      592,
+      593,
+      594,
+      595,
+      596,
+      597,
+      598,
+      599,
+      600,
+      601,
+      602,
+      603,
+      604,
+      605,
+      607
+    ],
+    "post_map_bookkeeping_clocks": 569324,
+    "interpretation": "Elapsed intervals include bus/interrupt time. Preparation contains exact coverage. Fresh-window scheduling floor overlaps compute/wait; do not add it."
+  },
+  "rom_audit": {
+    "status": "PASS",
+    "branch_sites": 302,
+    "accepted_rom_sha": "c2b429e86171f68cdab639511da61fb5d1679d34fc6c2b9ae6cc23f41e7d2604",
+    "old_A000_end": 3778160,
+    "new_A000_end": 3778183,
+    "new_A000_bytes": 23,
+    "helper_operand_only_fixups": [
+      {
+        "at": 3782111,
+        "instruction": "jsr NbFlushQueue",
+        "old_target": 3777567,
+        "new_target": 3777577
+      }
+    ],
+    "packet_source_index7": [
+      4380288,
+      4380352
+    ],
+    "eighth_physical_slot_word": 4380272,
+    "limit_word": 4380278,
+    "limit_write_callback_pcs": [
+      3776757,
+      3776782
+    ],
+    "full_other_rom_identity": true,
+    "additional_header_bytes": 2,
+    "no_new_RAM_region": true,
+    "no_additional_VRAM": true,
+    "exact_coverage": {
+      "status": "PASS",
+      "callsite": 3776621,
+      "accepted_q8_rom_sha256": "4a696c9bc6d94e153188c6226744b3daf8ccfdb5301e943bf280f2697de129e9",
+      "original_target": 3784891,
+      "new_target": 3778304,
+      "code_start": 3778304,
+      "code_end": 3778335,
+      "code_bytes": 31,
+      "branch_sites": 304,
+      "all_original_symbols_identical": true,
+      "only_original_rom_changes": "Two JSR operand bytes; 31 zero-gap bytes",
+      "original_row_masks_and_full_coverage_identical": true,
+      "no_new_memory_or_queue_capacity": true
+    }
+  },
+  "rom_mutation_rejections": [
+    {
+      "rom_offset": 1876077,
+      "rejected": "EXACT_COVERAGE:UNAUTHORIZED_ROM_BYTE"
+    },
+    {
+      "rom_offset": 1876078,
+      "rejected": "EXACT_COVERAGE:UNAUTHORIZED_ROM_BYTE"
+    },
+    {
+      "rom_offset": 1877760,
+      "rejected": "EXACT_COVERAGE:UNAUTHORIZED_ROM_BYTE"
+    },
+    {
+      "rom_offset": 4194303,
+      "rejected": "EXACT_COVERAGE:UNAUTHORIZED_ROM_BYTE"
+    }
+  ],
+  "observed_fields": 686,
+  "verified_rgb555_pixels": 39337984,
+  "pixel_mismatches": 0,
+  "resource_faults": 0,
+  "unsafe_ppu_operations": 0,
+  "cases": {
+    "success": {
+      "observed_fields": 89,
+      "verified_pixels": 5103616,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": true,
+          "start": 205441710,
+          "finish": 217475802,
+          "fields": 33,
+          "master_clocks": 12034092,
+          "ms": 560.3175822625501
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 14686
+    },
+    "valid": {
+      "observed_fields": 117,
+      "verified_pixels": 6709248,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": true,
+          "start": 205441710,
+          "finish": 217475842,
+          "fields": 33,
+          "master_clocks": 12034132,
+          "ms": 560.319444696649
+        },
+        {
+          "transaction": 4,
+          "committed": true,
+          "start": 219552042,
+          "finish": 227839426,
+          "fields": 23,
+          "master_clocks": 8287384,
+          "ms": 385.8676638138832
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27318,
+      "min_map_margin_clocks": 14648
+    },
+    "early": {
+      "observed_fields": 82,
+      "verified_pixels": 4702208,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "start": 205441710,
+          "finish": 214855120,
+          "fields": 26,
+          "master_clocks": 9413410,
+          "ms": 438.2963942810236
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 15112
+    },
+    "ready": {
+      "observed_fields": 88,
+      "verified_pixels": 5046272,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "start": 205441710,
+          "finish": 216999264,
+          "fields": 32,
+          "master_clocks": 11557554,
+          "ms": 538.1295667466117
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27318,
+      "min_map_margin_clocks": 15112
+    },
+    "partial": {
+      "observed_fields": 90,
+      "verified_pixels": 5160960,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "start": 205441710,
+          "finish": 217714032,
+          "fields": 34,
+          "master_clocks": 12272322,
+          "ms": 571.4097741472729
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 15112
+    },
+    "stale": {
+      "observed_fields": 88,
+      "verified_pixels": 5046272,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "start": 205441710,
+          "finish": 216999310,
+          "fields": 32,
+          "master_clocks": 11557600,
+          "ms": 538.1317085458254
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27318,
+      "min_map_margin_clocks": 15112
+    },
+    "insufficient": {
+      "observed_fields": 71,
+      "verified_pixels": 4071424,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "start": 196193356,
+          "finish": 204609738,
+          "fields": 23,
+          "master_clocks": 8416382,
+          "ms": 391.87392066123857
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "start": 205441710,
+          "finish": 210918812,
+          "fields": 15,
+          "master_clocks": 5477102,
+          "ms": 255.01853820341225
+        }
+      ],
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 15112
+    },
+    "right": {
+      "observed_fields": 61,
+      "verified_pixels": 3497984,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [],
+      "min_complete_batch_margin_clocks": 27642,
+      "min_map_margin_clocks": 15090
+    }
+  },
+  "focused_tests": {
+    "command": [
+      "E:\\gh\\_snes-bor-eight-pair-task-20261018\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "test_restore_single_pass",
+      "test_restore_single_pass_adapter",
+      "test_home_borrow_bitmap",
+      "test_home_borrow_bitmap_adapter",
+      "test_m4_home_borrow",
+      "test_m4_source_safepoint",
+      "test_m4_conditional_capacity",
+      "test_early_capacity",
+      "test_m4_early_capacity_component",
+      "test_restore_spill",
+      "test_m4_restore_spill_component",
+      "test_batch_rescue",
+      "test_generated_splice",
+      "test_m4_nonblank_batch_component",
+      "test_m4_nonblank_component",
+      "test_rect_map_opt",
+      "test_m4_rect_map_component",
+      "test_direct_pair_dma",
+      "test_m4_direct_pair_component",
+      "test_m4_native_cost_accounting",
+      "test_tile_fusion",
+      "test_m4_tile_fusion_component",
+      "test_phase_occupancy",
+      "test_m4_occupancy_component",
+      "test_m4_opaque_component",
+      "test_m4_online_component",
+      "test_m4_live_ground_component",
+      "test_component_live_bundle",
+      "test_m4_component_publication",
+      "test_bg_component_residency",
+      "test_bg_component_deadlines",
+      "test_bg_components",
+      "test_home_bitmap_shared_cells",
+      "test_m4_bitmap_shared_adapter",
+      "test_seven_pair_spill",
+      "test_seven_pair_adapter",
+      "test_eight_pair_direct",
+      "test_m4_eight_pair_adapter",
+      "test_exact_coverage",
+      "test_exact_coverage_adapter",
+      "-q"
+    ],
+    "returncode": 0,
+    "tests": 304,
+    "wall_seconds": 82.5,
+    "isolated_temp": "E:\\gh\\snes-bor\\out\\byor-motu-exact-coverage-integration-v1\\focused-tmp-v2",
+    "log": "E:\\gh\\snes-bor\\out\\byor-motu-exact-coverage-integration-v1\\focused-tests-v2.log",
+    "sha256": "c82534523f822cd011fa4dadc3c2769c141dab770d0621718232ea506a4f1e1c"
+  },
+  "preservation": {
+    "inherited_files": [
+      {
+        "path": "docs/byor-motu-attack-chain.md",
+        "sha256": "45add68c8bc7418a79102fa81cff7f85df78d7fd07741b321d19241df2a48120"
+      },
+      {
+        "path": "docs/byor-motu-find-here-empty.md",
+        "sha256": "ff5147d6527419777434f4f126703e99a4b23a36c1bb65100fe5d3d3e0453c9b"
+      },
+      {
+        "path": "docs/byor-motu-foreign-workspace.md",
+        "sha256": "e5b06a63795c68cacef9ee697c4c0180131327e5dc9d802c4b01d2322bc5e456"
+      },
+      {
+        "path": "docs/byor-motu-ground-binding.md",
+        "sha256": "649416dcb75643d90837fb5aa814e1d686da7c9e7df8601c8e64d21a59867d1a"
+      },
+      {
+        "path": "docs/byor-motu-ground-services.md",
+        "sha256": "9c58c2f0f105188b746671989ccca8095c4c4fe755f725d6f1c0cb9ecb4f80ad"
+      },
+      {
+        "path": "docs/byor-motu-player-ground.md",
+        "sha256": "c5bb760f7c9fc8c8de35e96cf6dafa8444b94384ec498c0ff66747d3737bbbd5"
+      },
+      {
+        "path": "docs/byor-motu-player-running.md",
+        "sha256": "ba978e95a5f7fd4fd54d3b0855f635263e8d84d91834b777384c4583055b0825"
+      },
+      {
+        "path": "docs/byor-motu-player-state.md",
+        "sha256": "1db244c3c8ef101eeb7507c7e12b14fadeb7acdf14571382d31265cbe1429c78"
+      },
+      {
+        "path": "docs/byor-motu-run-binding.md",
+        "sha256": "165159d0cfce6037a4dc1577c980bce3672bcb770003d28680383d5b9cafa9d9"
+      },
+      {
+        "path": "out/g13_camera_pause.json",
+        "sha256": "b63ff397d64c1d3135abaf2e0d15068de7c03a78a8912e83c119663947348863"
+      },
+      {
+        "path": "out/g13_combat_ai.json",
+        "sha256": "a88014733356eaae1bb9bfe3a6f1d3d80dd2b26cadd8beb703be7d3cf8ed5337"
+      },
+      {
+        "path": "out/g13_jump_isolation.json",
+        "sha256": "438fa6368f48639b4970f0b6f240f0d14aac1a45b53987e2053a83a6778bfe2f"
+      },
+      {
+        "path": "out/g13_score_pickup.json",
+        "sha256": "31ab9ef13b8b758eae08b2cb5e0fce11336902718cfd5f87530f10332a1c5822"
+      },
+      {
+        "path": "out/g13_semantic_boundary.json",
+        "sha256": "0e7ba2e958d87e31896febd8ec7f263ea88ff20ee3bbb563469c6b5c027dee2a"
+      },
+      {
+        "path": "out/spawn_3ceasy/spawn_table.bin",
+        "sha256": "8571f31e281b702bd78b97e44aa23e02b5e1c7ce0a5d5c0639e4b86f93d6220c"
+      },
+      {
+        "path": "out/spawn_5beasy/spawn_table.bin",
+        "sha256": "6e4729351f41ce01c259a2fc71dfc481045dbb496f38fd8c40a7470cd4b19bc5"
+      },
+      {
+        "path": "out/spawn_normal1a/spawn_table.bin",
+        "sha256": "e1fa9de399023d0c666d83e1be4cfd9920068adfa1625eab70cb2b399185cc17"
+      },
+      {
+        "path": "out/spawn_normal1b/spawn_table.bin",
+        "sha256": "9947064a157c58964902d9560458787936e962744b2abe878a1fd8179b218e39"
+      },
+      {
+        "path": "out/spawn_normal1c/spawn_table.bin",
+        "sha256": "e2f262696a8ec107d08f90e59dd168554876597af05fac0bb097c45f139b20f9"
+      },
+      {
+        "path": "out/spawn_normal2/spawn_table.bin",
+        "sha256": "f9a7f0e9458c9fba8dece2c283b09466c3d1eecaa0ca19f7dfbdc022d88fe7af"
+      },
+      {
+        "path": "out/spawn_normal3a/spawn_table.bin",
+        "sha256": "f6766d5b9c3b58b4c923f471ee2ffc3d3d2a0960579229f6eb02967de08e13b6"
+      },
+      {
+        "path": "out/spawn_normal3b/spawn_table.bin",
+        "sha256": "d388c30bcf4b5cb866629ed9783f88e2615ce2110cc3b7faf47467e4e84f537f"
+      },
+      {
+        "path": "out/spawn_normal3c/spawn_table.bin",
+        "sha256": "b1e19fa71ca8808650659aa272fb70eb701cd895ca2a264caaa1155f000c71bd"
+      },
+      {
+        "path": "out/spawn_normal4a/spawn_table.bin",
+        "sha256": "4202441e6fe88d243e0d14af936845917c7772e37eb49c567f875197bb9e3e9b"
+      },
+      {
+        "path": "out/spawn_normal4b/spawn_table.bin",
+        "sha256": "1259a23fca1743d85a7b9e6c255999c5ed2e2d7d29d82a8be0498d178fdbbe00"
+      },
+      {
+        "path": "out/spawn_normal5a/spawn_table.bin",
+        "sha256": "0aaf0af2416e53c9462c6a5dc2c61cab7026506e8408f89da2fd6f4b8a593027"
+      },
+      {
+        "path": "src/main.bin",
+        "sha256": "01e29185c9be320306ba46a5399ee16d72675ef9026fdb2a7fd19f3d6f3393ea"
+      },
+      {
+        "path": "src/main.pansy",
+        "sha256": "e32247fd1c33a971ac07914d7c72b4762f1a75da083d449958117c410a204235"
+      },
+      {
+        "path": "src/main.sym",
+        "sha256": "7a77f0252356ee2c559cc02c721a826aef9ed4929b3bb4864814bf0421e51d86"
+      }
+    ],
+    "takeover_snapshot": {
+      "head": "e00e1c720f03833e792df17088a37edcc9dbb4af",
+      "files": [
+        {
+          "path": "SNES-BOR-Engine-Prompt.md",
+          "sha256": null
+        },
+        {
+          "path": "out/g13_camera_pause.json",
+          "sha256": "b63ff397d64c1d3135abaf2e0d15068de7c03a78a8912e83c119663947348863"
+        },
+        {
+          "path": "out/g13_combat_ai.json",
+          "sha256": "a88014733356eaae1bb9bfe3a6f1d3d80dd2b26cadd8beb703be7d3cf8ed5337"
+        },
+        {
+          "path": "out/g13_jump_isolation.json",
+          "sha256": "438fa6368f48639b4970f0b6f240f0d14aac1a45b53987e2053a83a6778bfe2f"
+        },
+        {
+          "path": "out/g13_score_pickup.json",
+          "sha256": "31ab9ef13b8b758eae08b2cb5e0fce11336902718cfd5f87530f10332a1c5822"
+        },
+        {
+          "path": "out/g13_semantic_boundary.json",
+          "sha256": "0e7ba2e958d87e31896febd8ec7f263ea88ff20ee3bbb563469c6b5c027dee2a"
+        },
+        {
+          "path": "out/spawn_3ceasy/spawn_table.bin",
+          "sha256": "8571f31e281b702bd78b97e44aa23e02b5e1c7ce0a5d5c0639e4b86f93d6220c"
+        },
+        {
+          "path": "out/spawn_5beasy/spawn_table.bin",
+          "sha256": "6e4729351f41ce01c259a2fc71dfc481045dbb496f38fd8c40a7470cd4b19bc5"
+        },
+        {
+          "path": "out/spawn_normal1a/spawn_table.bin",
+          "sha256": "e1fa9de399023d0c666d83e1be4cfd9920068adfa1625eab70cb2b399185cc17"
+        },
+        {
+          "path": "out/spawn_normal1b/spawn_table.bin",
+          "sha256": "9947064a157c58964902d9560458787936e962744b2abe878a1fd8179b218e39"
+        },
+        {
+          "path": "out/spawn_normal1c/spawn_table.bin",
+          "sha256": "e2f262696a8ec107d08f90e59dd168554876597af05fac0bb097c45f139b20f9"
+        },
+        {
+          "path": "out/spawn_normal2/spawn_table.bin",
+          "sha256": "f9a7f0e9458c9fba8dece2c283b09466c3d1eecaa0ca19f7dfbdc022d88fe7af"
+        },
+        {
+          "path": "out/spawn_normal3a/spawn_table.bin",
+          "sha256": "f6766d5b9c3b58b4c923f471ee2ffc3d3d2a0960579229f6eb02967de08e13b6"
+        },
+        {
+          "path": "out/spawn_normal3b/spawn_table.bin",
+          "sha256": "d388c30bcf4b5cb866629ed9783f88e2615ce2110cc3b7faf47467e4e84f537f"
+        },
+        {
+          "path": "out/spawn_normal3c/spawn_table.bin",
+          "sha256": "b1e19fa71ca8808650659aa272fb70eb701cd895ca2a264caaa1155f000c71bd"
+        },
+        {
+          "path": "out/spawn_normal4a/spawn_table.bin",
+          "sha256": "4202441e6fe88d243e0d14af936845917c7772e37eb49c567f875197bb9e3e9b"
+        },
+        {
+          "path": "out/spawn_normal4b/spawn_table.bin",
+          "sha256": "1259a23fca1743d85a7b9e6c255999c5ed2e2d7d29d82a8be0498d178fdbbe00"
+        },
+        {
+          "path": "out/spawn_normal5a/spawn_table.bin",
+          "sha256": "0aaf0af2416e53c9462c6a5dc2c61cab7026506e8408f89da2fd6f4b8a593027"
+        },
+        {
+          "path": "src/main.bin",
+          "sha256": "01e29185c9be320306ba46a5399ee16d72675ef9026fdb2a7fd19f3d6f3393ea"
+        },
+        {
+          "path": "src/main.pansy",
+          "sha256": "e32247fd1c33a971ac07914d7c72b4762f1a75da083d449958117c410a204235"
+        },
+        {
+          "path": "src/main.sym",
+          "sha256": "7a77f0252356ee2c559cc02c721a826aef9ed4929b3bb4864814bf0421e51d86"
+        }
+      ]
+    },
+    "original_q8_files_matching_HEAD_content": [
+      "tools/bor_compile/eight_pair_direct.py",
+      "tools/verify/m4_eight_pair_native.py",
+      "tools/verify/test_eight_pair_direct.py",
+      "tools/verify/test_m4_eight_pair_adapter.py",
+      "docs/byor-motu-eight-pair-direct.md",
+      "docs/receipts/byor-motu-eight-pair-direct.json"
+    ],
+    "q8_existing_CRLF_checkout_paths": [
+      "docs/byor-motu-eight-pair-direct.md",
+      "docs/receipts/byor-motu-eight-pair-direct.json"
+    ],
+    "q8_python_files_byte_identical_to_HEAD": 4,
+    "original_settings_and_sram_unchanged": true,
+    "original_tools_python_files_matching_HEAD_content": 1583,
+    "original_tools_existing_CRLF_checkouts": 651,
+    "source_settings_sha256": "b5038ac1c899c38f0039fdf45814fe97dcbc8d46dbc8fdff009e41bc3d036f49",
+    "initial_sram": {
+      "source": "C:\\Users\\chad\\Documents\\Mesen2\\Saves\\bor.srm",
+      "sha256": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1",
+      "bytes": 262144
+    }
+  },
+  "retained_full_native_receipt": {
+    "path": "E:\\gh\\snes-bor\\out\\byor-motu-exact-coverage-v1\\exact-coverage-receipt.json",
+    "sha256": "3c2fe8b92be646261bea9247ba26a3a2853120dd6ad115353ec02bd56875517a"
+  },
+  "local_review_only": true,
+  "nonclaims": [
+    "30 FPS",
+    "200 Hz",
+    "SA-1 concurrency",
+    "audio",
+    "HUD",
+    "combat",
+    "Demo completion"
+  ]
+}
