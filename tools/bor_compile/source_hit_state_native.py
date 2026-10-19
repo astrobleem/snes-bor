@@ -7,7 +7,10 @@ from source_hit_state_layout import layout
 
 
 def emit(plan,symbols):
-    expected=layout(plan['entities'])
+    if plan.get('storage_profile')=='RETIRED_SCENE_VIDEO_STAGING':
+        from source_hit_state_layout import rehost
+        expected=rehost(plan['entities'],plan['base'])
+    else:expected=layout(plan['entities'])
     if plan!=expected:raise ValueError('HIT_STATE_NATIVE_PLAN')
     work=plan['controls'];base=plan['base'];count=plan['entities']
     lines=[];serial=0
@@ -36,7 +39,7 @@ def emit(plan,symbols):
         else:put(f' lda #0\n sta.l {base},x\n sta.l {base}+2,x')
         put(' jmp HitState_Good')
     label('Bind');put(f' lda.l {work}\n cmp #$B6A0');branch('bne','LeaseBad')
-    for off,value in ((16,base&65535),(18,0x42),(22,count)):
+    for off,value in ((16,base&65535),(18,base>>16),(22,count)):
         put(f' lda.l {work}+{off}\n cmp #{value}');branch('bne','LeaseBad')
     # A caller may carve more persistent state below these fixed rows.
     # Positive staging capacity must remain within the identity boundary.

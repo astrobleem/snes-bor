@@ -7,7 +7,11 @@ It does not publish a production graphics lease or run tryjump/dojump.
 
 def emit(plan,work,symbols):
     base=plan['base'];end=plan['end'];count=plan['entities']
-    if plan['stride']!=24 or end!=0x42d800 or base!=end-count*24 or not 1<=count<=128:raise ValueError('PENDING_JUMP_NATIVE_PLAN')
+    rehosted=plan.get('storage_profile')=='RETIRED_SCENE_VIDEO_STAGING'
+    if rehosted:
+        from source_pending_jump_layout import rehost
+        if plan!=rehost(count,base):raise ValueError('PENDING_JUMP_NATIVE_REHOST_PLAN')
+    elif plan['stride']!=24 or end!=0x42d800 or base!=end-count*24 or not 1<=count<=128:raise ValueError('PENDING_JUMP_NATIVE_PLAN')
     if not 0<=work<=0xffffff-63 or work<end and base<work+64:raise ValueError('PENDING_JUMP_NATIVE_CONTROLS')
     lines=[];serial=0
     def put(s):lines.extend(s.strip().splitlines())
@@ -47,9 +51,9 @@ def emit(plan,work,symbols):
     put(f' lda.l {work}+8\n cmp.l {work}+12');branch('bne','BindBad')
     put(f' lda.l {work}+10\n cmp.l {work}+14');branch('bne','BindBad')
     put(f' lda.l {work}+16\n cmp #{base&65535}');branch('bne','BindBad')
-    put(f' lda.l {work}+18\n cmp #$42');branch('bne','BindBad')
+    put(f' lda.l {work}+18\n cmp #${base>>16:02X}');branch('bne','BindBad')
     put(f' lda.l {work}+20');branch('beq','BindBad')
-    put(f' cmp #{base-0x420000+1}');branch('bcs','BindBad')
+    put(f' cmp #{plan["chr_capacity"]+1 if rehosted else base-0x420000+1}');branch('bcs','BindBad')
     put(f' lda.l {symbols["VmSourceWorld_Ready"]}\n cmp #$B4A3');branch('bne','BindBad')
     for key,value in(('VmSourceWorld_PoolBase',0x4000),('VmSourceWorld_SideBase',0x6800)):
         put(f' lda.l {symbols[key]}\n cmp #{value}');branch('bne','BindBad')

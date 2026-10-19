@@ -111,6 +111,15 @@ The resulting world snapshots can subsequently feed presentation: that join
 also needs an immutable render snapshot while later world ticks proceed, since
 the current fixture serializes preparation and permits movement only at READY.
 
+The opt-in [live-world bootstrap](byor-motu-live-world.md) now drains the old
+DMA queue, acquires a private native owner, and reaches the source constructor's
+required SELECT sound. Its former fixture-only sound acknowledgment has been
+replaced by a retained pending ticket. Native execution has not yet completed
+the constructor or reached the clock/input/world traversal; the next concrete
+gap is the actual source sound backend and its ownership alongside graphics.
+The dispatcher and provider plumbing therefore remain an uncompleted join,
+with no complete-tick or presentation-cadence measurement.
+
 The forced owner-zero abort probe covers a guarded copy branch. The untested
 natural cold-preflight failure chain is separate from the measured warm
 presentation critical path; it must be closed when admitting a live bootstrap

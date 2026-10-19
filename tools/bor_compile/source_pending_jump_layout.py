@@ -19,3 +19,23 @@ def layout(entities=128):
         physics_neighbor=[0x42d800,0x42e000],requires_serialized_source_chr_owner=True,
         required_lease='all CHR producers use the reduced capacity, previous conversion and DMA disabled before enabling persistent rows, nonzero matching generation and birth/model-copy hooks before exists publication',
         native_storage_bound=False,production_memory_lease=False,motu_gameplay_proven=False,no_color_reduction=True)
+
+
+def rehost(entities=128, base=0x7e6200):
+    """Plan rows in the explicitly retired original scene-video staging area.
+
+    This is not a lease. The caller must retire its foreground video producer,
+    drain its DMA, and suppress legacy visual NMI commits before installation.
+    The accepted BG renderer retains its complete BW-RAM maps/ref/queue arena.
+    """
+    if not 1 <= entities <= 128 or base & 1:
+        raise ValueError('PENDING_JUMP_REHOST_GEOMETRY')
+    end = base + 24 * entities
+    if not 0x7e6200 <= base < end <= 0x7e9a60:
+        raise ValueError('PENDING_JUMP_REHOST_EXTENT')
+    result = layout(entities)
+    result.update(base=base, end=end, storage_profile='RETIRED_SCENE_VIDEO_STAGING',
+                  chr_workspace=None, chr_capacity=0xd800, conversion_descriptors=[],
+                  requires_serialized_source_chr_owner=False,
+                  required_lease='retired original scene-video foreground; drained legacy DMA; legacy visual NMI commits suppressed; exclusive generation-bound WRAM rows; existing source CHR producer remains retired')
+    return result

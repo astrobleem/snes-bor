@@ -10,7 +10,11 @@ DO_ATTACK=0x8108
 
 
 def emit(plan,symbols):
-    if plan!=layout(plan['entities']):raise ValueError('CHECK_ATTACK_NATIVE_PLAN')
+    if plan.get('storage_profile')=='RETIRED_SCENE_VIDEO_STAGING':
+        from source_hit_state_layout import rehost
+        expected=rehost(plan['entities'],plan['base'])
+    else:expected=layout(plan['entities'])
+    if plan!=expected:raise ValueError('CHECK_ATTACK_NATIVE_PLAN')
     w=plan['controls'];lines=[];serial=0
     def put(s):lines.extend(s.strip().splitlines())
     def label(n):put('CheckAttack_'+n+':\n.a16\n.i16')

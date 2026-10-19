@@ -23,3 +23,23 @@ def layout(entities=128):
         requires_serialized_source_chr_owner=True,
         required_lease='all CHR producers use the reduced capacity; retire previous conversions/DMA before enabling persistent rows; bind nonzero independent generation; clear actual birth before exists publication',
         native_storage_bound=False,production_memory_lease=False,native_combat_bound=False,motu_gameplay_proven=False,no_color_reduction=True)
+
+
+def rehost(entities=128, base=0x7e6e00):
+    """Generation-bound identities beside rehosted pending-jump rows.
+
+    The independent scene-video retirement lease is mandatory. This plan does
+    not lend renderer maps, references, queues, or CHR staging to gameplay.
+    """
+    from source_pending_jump_layout import rehost as rehost_jump
+    jump = rehost_jump(entities)
+    end = base + entities * 16
+    if base & 1 or not jump['end'] <= base < end + 64 <= 0x7e9a60:
+        raise ValueError('HIT_STATE_REHOST_EXTENT')
+    result = layout(entities)
+    result.update(base=base, end=end, controls=end, storage_profile='RETIRED_SCENE_VIDEO_STAGING',
+                  chr_workspace=None, chr_capacity=0xd800, conversion_descriptors=[],
+                  pending_jump_neighbor=[jump['base'],jump['end']],
+                  requires_serialized_source_chr_owner=False,
+                  required_lease=jump['required_lease'])
+    return result

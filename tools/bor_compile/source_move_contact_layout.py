@@ -13,3 +13,17 @@ def layout(entities=128):
         birth_policy='source calloc clears unsigned pathblocked and signed grabwalking',model_switch_policy='retain both entity fields',
         required_lease='all CHR, pending jump and contact descriptors use the same smaller capacity; matching independent generation and actual hit birth; retire old conversions before enabling rows',
         native_storage_bound=False,production_memory_lease=False,motu_gameplay_proven=False,no_color_reduction=True)
+
+
+def rehost(entities=128, base=0x7e7c00):
+    from source_hit_state_layout import rehost as hit_rehost
+    hit = hit_rehost(entities)
+    end = base + 8 * entities
+    if base & 1 or not hit['controls'] + 64 <= base < end + 64 <= 0x7e9a60:
+        raise ValueError('MOVE_CONTACT_REHOST_EXTENT')
+    result = layout(entities)
+    result.update(base=base, end=end, controls=end,
+                  storage_profile='RETIRED_SCENE_VIDEO_STAGING',
+                  chr_workspace=None, chr_capacity=0xd800,
+                  conversion_descriptors=[], required_lease=hit['required_lease'])
+    return result

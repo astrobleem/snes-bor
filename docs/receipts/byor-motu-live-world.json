@@ -1,0 +1,797 @@
+{
+  "schema": "BYOR_MOTU_LIVE_WORLD_CHECKPOINT_V1",
+  "classification": "PRIVATE_BOOTSTRAP_PENDING_REQUIRED_SOURCE_AUDIO",
+  "starting_commit": "a9a03286a6825ed73bef7b35d333b8eb55e16202",
+  "accepted_runtime_changed": false,
+  "production_selection_changed": false,
+  "full_tick_accepted": false,
+  "presentation_joined": false,
+  "accepted_rom_sha256": "2ae50b27ac69986a07925e37fd99f5f5506044dec6195662ea54524a8ac4166f",
+  "candidate_rom_sha256": "f8d7d4d64629e76c6d6f797dd41cdb6ee733d2da61117f509b5f56e2e9a2e702",
+  "full_and_iterative_build_identical": true,
+  "accepted_publisher_bank_unchanged": true,
+  "engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "focused_tests": {
+    "command": [
+      "python",
+      "-B",
+      "-m",
+      "unittest",
+      "test_restore_single_pass",
+      "test_restore_single_pass_adapter",
+      "test_home_borrow_bitmap",
+      "test_home_borrow_bitmap_adapter",
+      "test_m4_home_borrow",
+      "test_m4_source_safepoint",
+      "test_m4_conditional_capacity",
+      "test_early_capacity",
+      "test_m4_early_capacity_component",
+      "test_restore_spill",
+      "test_m4_restore_spill_component",
+      "test_batch_rescue",
+      "test_generated_splice",
+      "test_m4_nonblank_batch_component",
+      "test_m4_nonblank_component",
+      "test_rect_map_opt",
+      "test_m4_rect_map_component",
+      "test_direct_pair_dma",
+      "test_m4_direct_pair_component",
+      "test_m4_native_cost_accounting",
+      "test_tile_fusion",
+      "test_m4_tile_fusion_component",
+      "test_phase_occupancy",
+      "test_m4_occupancy_component",
+      "test_m4_opaque_component",
+      "test_m4_online_component",
+      "test_m4_live_ground_component",
+      "test_component_live_bundle",
+      "test_m4_component_publication",
+      "test_bg_component_residency",
+      "test_bg_component_deadlines",
+      "test_bg_components",
+      "test_home_bitmap_shared_cells",
+      "test_m4_bitmap_shared_adapter",
+      "test_seven_pair_spill",
+      "test_seven_pair_adapter",
+      "test_eight_pair_direct",
+      "test_m4_eight_pair_adapter",
+      "test_exact_coverage",
+      "test_exact_coverage_adapter",
+      "test_coverage_fused",
+      "test_fused_coverage_adapter",
+      "test_function_cost_profile",
+      "test_fused_timing_baseline",
+      "test_fused_capture_evidence",
+      "test_ready_validate",
+      "test_ready_validate_adapter",
+      "test_ref_rebuild",
+      "test_ref_rebuild_adapter",
+      "test_borrow_invalidate",
+      "test_borrow_invalidate_adapter",
+      "test_borrow_timing_alignment",
+      "test_preload_pair",
+      "test_preload_pair_adapter",
+      "test_ready_unroll",
+      "test_ready_unroll_adapter",
+      "test_commit_rebuild_fuse",
+      "test_commit_rebuild_fuse_adapter",
+      "test_abort_copy",
+      "test_abort_copy_adapter",
+      "test_live_world_dispatch",
+      "test_live_health",
+      "test_live_ground_post",
+      "test_live_player_controls",
+      "test_live_world_rehost",
+      "test_source_hit_state_layout",
+      "test_source_move_contact_layout",
+      "test_source_check_move",
+      "-q"
+    ],
+    "returncode": 0,
+    "tests": 552,
+    "wall_seconds": 182.32800000021234,
+    "isolated_temp": "out/byor-motu-live-world-v1/checkpoint-test-temp-v1",
+    "log": "out/byor-motu-live-world-v1/checkpoint-tests-v1.log",
+    "sha256": "a9c2692da093faa091d62a34b061d9fd16f77f9dad2a83ef7ed4931bdc4be587"
+  },
+  "default_emissions_byte_identical": {
+    "status": "PASS",
+    "rows": [
+      {
+        "module": "source_pending_jump_native",
+        "identical": true,
+        "before_sha256": "850b8abf1df6516bce67196eacb4e45fcbaaccfaf40eceaf27f7f1c6ceb76622",
+        "after_sha256": "850b8abf1df6516bce67196eacb4e45fcbaaccfaf40eceaf27f7f1c6ceb76622"
+      },
+      {
+        "module": "source_hit_state_native",
+        "identical": true,
+        "before_sha256": "7eb4a8e91f59189eccc5071635c44efab9d24bc4546b138fccbdc88bee7c81b4",
+        "after_sha256": "7eb4a8e91f59189eccc5071635c44efab9d24bc4546b138fccbdc88bee7c81b4"
+      },
+      {
+        "module": "source_move_contact_native",
+        "identical": true,
+        "before_sha256": "4d018baabf1731893717e77fea2b057fcbb252eb96769a8fe9c4fdd17fba0913",
+        "after_sha256": "4d018baabf1731893717e77fea2b057fcbb252eb96769a8fe9c4fdd17fba0913"
+      },
+      {
+        "module": "source_check_attack_native",
+        "identical": true,
+        "before_sha256": "af298c710e55259270cc81d792fd8e21c4c54a21321b5a364057e5e322ea076f",
+        "after_sha256": "af298c710e55259270cc81d792fd8e21c4c54a21321b5a364057e5e322ea076f"
+      },
+      {
+        "module": "source_check_move_callback_native",
+        "identical": true,
+        "before_sha256": "76bc39e0e194681341118107ace93b5bb9bf92185ea2d07ba2eeecc9a0f544f8",
+        "after_sha256": "76bc39e0e194681341118107ace93b5bb9bf92185ea2d07ba2eeecc9a0f544f8"
+      }
+    ]
+  },
+  "native_captures": [
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8",
+      "fields": 70,
+      "complete_ticks": 0,
+      "sealed_snapshots": 0,
+      "visible_fields": 0,
+      "protected_renderer_write_faults": 0,
+      "lease_released": true,
+      "active_processes_after_cleanup": 0
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9",
+      "fields": 30,
+      "complete_ticks": 0,
+      "sealed_snapshots": 0,
+      "visible_fields": 0,
+      "protected_renderer_write_faults": 0,
+      "lease_released": true,
+      "active_processes_after_cleanup": 0
+    }
+  ],
+  "stopping_ticket": {
+    "schema": "BYOR_LIVE_WORLD_PENDING_AUDIO_TICKET_V1",
+    "classification": "SOURCE_AUDIO_TICKET_RETAINED_NOT_ACKNOWLEDGED",
+    "rom_sha256": "f8d7d4d64629e76c6d6f797dd41cdb6ee733d2da61117f509b5f56e2e9a2e702",
+    "source_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+    "captured_frame_sha256": "59b49b902bd3ee0faa5ef0f97932992a9982f6f5ea90e4a95084f4d1f125ec07",
+    "captured_plan_sha256": "635baf6f728a7801147c03f92f06c4dfd44938a0ddb39edd40149f683a40fb64",
+    "source_table_sha256": "b02003ab0b0bde907ac928795e9767f723563aa02c3986d75a033ef0f38f4608",
+    "native_table_exact": true,
+    "source_frame": {
+      "slot": 0,
+      "handle": 5,
+      "frame": 0,
+      "state": 1,
+      "pending": 2,
+      "fault": 0
+    },
+    "effect_plan": {
+      "state": 1,
+      "service": 9,
+      "acknowledged": 0,
+      "cursor": 1,
+      "count": 3
+    },
+    "source_model": "He_Man",
+    "source_model_path": "DATA\\CHARS\\HE-MAN\\HE-MAN.TXT",
+    "source_model_sha256": "885daaaba0f4941ce18ac1adb1b06b048dce2371b9d58ca65ec36b298695da40",
+    "source_role": "select",
+    "source_frame_line": 34,
+    "sound_namespace_index": 0,
+    "sound_path": "data/chars/he-man/entry/entry.wav",
+    "sound_sha256": "aa6bb567ad386b1958c4f0475af952cfe59d0aea3cf396fb4fd850af0ae5abae",
+    "stable_captured_fields": 21,
+    "first_field": 514,
+    "last_field": 534,
+    "full_frame_and_effect_state_unchanged": true,
+    "complete_ticks": 0,
+    "audio_delivered": false,
+    "audio_acknowledged": false,
+    "presentation_joined": false,
+    "captures": {
+      "progress.json": "8fc932ef3eedfa114f2cb34b2ec763234abd5d24dcaf0e66d1dc3155e1ce22de",
+      "frame-owner.bin": "59b49b902bd3ee0faa5ef0f97932992a9982f6f5ea90e4a95084f4d1f125ec07",
+      "effect-plan.bin": "635baf6f728a7801147c03f92f06c4dfd44938a0ddb39edd40149f683a40fb64",
+      "result.json": "62d0abf5a80ffd5b56028a173dfd2e0cdf47fdf2ed3268f75480c5e15ceced94",
+      "mesen.log": "f5c491a00fe58f830ce9926e0b7512c2519c4d06fb845e0cc3ea5930b1e0a1ae"
+    },
+    "acquisition_capture": "native-v9",
+    "lease_released": true,
+    "active_processes_after_cleanup": 0,
+    "limits": [
+      "Constructor sound backend is unbound; no audio delivery or completed constructor is claimed.",
+      "Clock/input/world code after constructor and warm presentation are not natively reached.",
+      "No gameplay cadence or complete game is certified."
+    ]
+  },
+  "independent_review": "out/byor-motu-live-world-v1/independent-live-world-review-v12.json",
+  "inherited_tracked_fingerprints_unchanged": 30,
+  "prompt_deletion_preserved": true,
+  "private_assets_unstaged": true,
+  "user_settings_and_sram": [
+    {
+      "capture": "native-v8",
+      "original_settings_unchanged": true,
+      "original_sram_unchanged": true,
+      "seed_sha256": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1"
+    },
+    {
+      "capture": "native-v9",
+      "original_settings_unchanged": true,
+      "original_sram_unchanged": true,
+      "seed_sha256": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1"
+    }
+  ],
+  "supported_changes": [
+    "Guarded early DMA drain before bootstrap writes; all eight queue slots inspected.",
+    "Private retired-video and foreign-work ownership instead of aliased renderer metadata.",
+    "Real nested source VM re-entry bypasses outer fixture return only while privately owned.",
+    "Required authored constructor SOUND retains its actual unacknowledged frame/effect cursor."
+  ],
+  "unproved_code": [
+    "Physical clock/input/world traversal after constructor.",
+    "Complete live tick and all twelve real provider completions.",
+    "Natural latest snapshots and concurrent immutable presentation."
+  ],
+  "next_required_work": [
+    "Bind source frame SOUND to actual admission/delivery with a proved graphics/audio lease.",
+    "Complete actual constructor, then measure full native ticks without synthetic provider acknowledgments.",
+    "Resolve naturally requested capabilities and join lossless natural presentation."
+  ],
+  "safety_requirements": {
+    "batch_margin_clocks": 10000,
+    "map_margin_clocks": 10000,
+    "exact_rgb555_required": true,
+    "requirements_relaxed": false,
+    "new_live_rgb555_fields_certified": 0
+  },
+  "publication": {
+    "push_performed": false,
+    "private_assets_included": false
+  },
+  "nonclaims": [
+    "Complete game",
+    "200 Hz",
+    "30 FPS",
+    "Authored audio delivery",
+    "Combat",
+    "HUD",
+    "Production concurrency"
+  ],
+  "manifest": [
+    {
+      "path": "tools/bor_compile/source_check_attack_native.py",
+      "sha256": "ac3d63363e5b87324da584b24a3cc65d38984915680d0438896adf0c5d1efed1",
+      "bytes": 4993
+    },
+    {
+      "path": "tools/bor_compile/source_check_move_callback_native.py",
+      "sha256": "496190be6f8b1ae6582c6ca755e9a4e200eaf58e524d8662eaf778224285ff7a",
+      "bytes": 5759
+    },
+    {
+      "path": "tools/bor_compile/source_hit_state_layout.py",
+      "sha256": "6ba266901c07fd121dfc391fdb0a2554a4664323393b824435d576a2e202a49c",
+      "bytes": 2900
+    },
+    {
+      "path": "tools/bor_compile/source_hit_state_native.py",
+      "sha256": "28daf77e6e781346656fc68e23b95066209ff8c1fcb347872615342e271ae02e",
+      "bytes": 3493
+    },
+    {
+      "path": "tools/bor_compile/source_move_contact_layout.py",
+      "sha256": "7445a94dc005faee2f462a2626854378753386111541ac42ffe7f53fff47dea8",
+      "bytes": 2109
+    },
+    {
+      "path": "tools/bor_compile/source_move_contact_native.py",
+      "sha256": "60b1b6aa28bbd19252f3748c4856d2adc6243b4e7a548e7f1d785ed201221f98",
+      "bytes": 2878
+    },
+    {
+      "path": "tools/bor_compile/source_pending_jump_layout.py",
+      "sha256": "82db4cb6904027c085c3e21b3dedd8d40536740bfaecfc7b36d89ffc9894d547",
+      "bytes": 2660
+    },
+    {
+      "path": "tools/bor_compile/source_pending_jump_native.py",
+      "sha256": "69f2fa5a7d3042bb41b99f0cd139e295639d90866e2956acd6a0d5360a606dbc",
+      "bytes": 5387
+    },
+    {
+      "path": "tools/bor_compile/source_live_world_native.py",
+      "sha256": "a2d316aca7567791ddbf51ae54f71dbfa6c6935a9f3bf157f102c2b42fd3abb9",
+      "bytes": 26539
+    },
+    {
+      "path": "tools/bor_compile/source_live_world_dispatch_native.py",
+      "sha256": "9eb6b27ee8e12c8f2d8f3da6a4b8eb195978afe2ed0ee8f5833706341a6f703b",
+      "bytes": 3935
+    },
+    {
+      "path": "tools/bor_compile/source_live_health_native.py",
+      "sha256": "297839105e0e6117d12f4eb96b676ddb9e25b4fe20a6bbfe4cdca019b4171e4b",
+      "bytes": 18112
+    },
+    {
+      "path": "tools/bor_compile/source_live_ground_post_native.py",
+      "sha256": "c6787660f25abac35adc68906e59407ad456a79a2e55ff35ae9a095ccfd97aef",
+      "bytes": 13538
+    },
+    {
+      "path": "tools/bor_compile/source_live_player_controls_native.py",
+      "sha256": "83410d27544b8f01dc45a2898baa329ed6eacff2c13e0fb16ac92dacc3e4dfdd",
+      "bytes": 6786
+    },
+    {
+      "path": "tools/verify/m4_live_world_native.py",
+      "sha256": "881b03c4873977b4a377478da0a803b1b4cf8aa8c856b2ee47ead5a7c2aeb89d",
+      "bytes": 12541
+    },
+    {
+      "path": "tools/verify/m4_live_world_capture.py",
+      "sha256": "c870781b2d1502cf569c24b2daac9dd245b2cecc83e9804555cf78db4b234583",
+      "bytes": 15776
+    },
+    {
+      "path": "tools/verify/test_live_world_dispatch.py",
+      "sha256": "a3fae1e61cfaea00c96de1adf60cf85cec7a083396b5cdedb79c995e7f9793f0",
+      "bytes": 12684
+    },
+    {
+      "path": "tools/verify/test_live_health.py",
+      "sha256": "b6111d88718aca1f00eb08f84bf65d8d5b0e7d24b547ced306534ba82fbd55c4",
+      "bytes": 19913
+    },
+    {
+      "path": "tools/verify/test_live_ground_post.py",
+      "sha256": "d0d0cfbde93216943c5a668039be25d2646d2cdd81f2e589cf20ff3df2a1ec0a",
+      "bytes": 7257
+    },
+    {
+      "path": "tools/verify/test_live_player_controls.py",
+      "sha256": "b9ec9a72e8b49af6f48ba65b5d1873dce43910a0f535babeed82a12f7bbb07cc",
+      "bytes": 10282
+    },
+    {
+      "path": "tools/verify/test_live_world_rehost.py",
+      "sha256": "b30d62e85f1bf8383ecd14d9d0a188f785040d449997bac6d1047f2bab6fcc43",
+      "bytes": 2514
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/checkpoint-tests-result-v1.json",
+      "sha256": "f4362d2f850d523243d6f2b81f7ccf88629d3beea866774fea4163f3801570a8",
+      "bytes": 2746
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/checkpoint-tests-v1.log",
+      "sha256": "a9c2692da093faa091d62a34b061d9fd16f77f9dad2a83ef7ed4931bdc4be587",
+      "bytes": 134
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/default-emission-equivalence.json",
+      "sha256": "d850f8ccb264ab78bc610ec2f0100a0ab8d0e6ba90d56908416ac4138d9ae225",
+      "bytes": 1398
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/source-ticket-audit.json",
+      "sha256": "7bbb33b643be1f5ace7ae7cb26c295f7d89872692c2a94d0249ab5ae55c5fcfb",
+      "bytes": 2379
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/independent-live-world-review-v9.json",
+      "sha256": "ab91ad20f03919e32522d05caad93d05fad45323f4b6860fc558281106734b38",
+      "bytes": 3576
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/independent-live-world-review-v10.json",
+      "sha256": "ff42da4561a7790e0ecdc6b79d276a73fdee0b4994f4b93ab9b09e629046890f",
+      "bytes": 3786
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/independent-live-world-review-v11.json",
+      "sha256": "ff3ccf7aac4a105aa0a6c2d96009fd7a4b60ed37306284870def2c8a4f552955",
+      "bytes": 3997
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/constructor-audio-luna-audit-v2.json",
+      "sha256": "ab978975c232595441287b6600f244a7a5469c75638ac89418d2dfc74d71e61e",
+      "bytes": 16611
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/acquisition-escalation-luna.json",
+      "sha256": "ba917415e563f68b3d6caa1cdbe53ae8b427fc906df6e209b61948d07a45b11b",
+      "bytes": 11658
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/player-controls-luna-result.json",
+      "sha256": "7896048256ce2f9eaa33c6353633b9737727710bc98fb5f5bdac803d85353b08",
+      "bytes": 1715
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/health-luna-result.json",
+      "sha256": "a8ca184d92fea28e7b70941149244e1beaa6296d4506740f610145fd90e4f120",
+      "bytes": 6908
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/health-dot-audit.json",
+      "sha256": "e316ec2e532b30b140c10c36f0ebfa30606c802d1a45ff8af94760b1d95d0e51",
+      "bytes": 11318
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/ground-post-luna-result.json",
+      "sha256": "f4f2a665cdf2931635b70e7a7bb7319885a0ac6c6d2cafc2a0d90f3035f1194e",
+      "bytes": 6294
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/independent-memory-relocation-review-v1.json",
+      "sha256": "07b0732bd8eb11fac68eaa8cac4a83c8f1978ce802e3090b664b981fe5b887ab",
+      "bytes": 2724
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/independent-dispatch-review-v2.json",
+      "sha256": "e502b75ccab7fc390032e77bde61e924a20c421420142e72882af4640efc4d01",
+      "bytes": 1894
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/static-v17/contract.json",
+      "sha256": "7c05fd9dfe300d6bd1ad9d5aa76bc5d498f4394a731413d6630e2b2a5d169ab5",
+      "bytes": 802991
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/static-v17/live-world.pasm",
+      "sha256": "cbc1625baedf80849307b2fbdfe7f65a04f506b3515625b7000b156038011ded",
+      "bytes": 198871
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/static-v17/live-world.log",
+      "sha256": "8ff6030fc835a419ae3d6741bdc657895634b46adde97b096901262133beca6e",
+      "bytes": 169
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/static-v17/player-library.pasm",
+      "sha256": "732f545bc748f729d0e9c975db2709e336581eeda9d4de38657a5547dd114bb5",
+      "bytes": 314669
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/static-v17/player-library.log",
+      "sha256": "20f38c96f0560bda71721333c9fc48dd65d5cc7b76d9b4d4ed9de6c4ddf2b413",
+      "bytes": 177
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/pinned-openbor.c",
+      "sha256": "fa319b01a0cd47dea0921e31eaa3532f614716c72ae3a780c5e2675bdcb0703a",
+      "bytes": 1003935
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/validate_pending_audio.py",
+      "sha256": "05d9db479e509b4fd3d5ed2178e6b3d79b4df3e3a93efcda7e307adf5d9ae7a9",
+      "bytes": 4223
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/run_checkpoint_tests.py",
+      "sha256": "04c7bdfa03720597f39df79e610777b73f15ee4989ec3fd94963ce0708da4182",
+      "bytes": 1590
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/record_checkpoint.py",
+      "sha256": "ccc4dbfbbb4830bd22cf606e3c31aceab1ded85e38b7216d1f45d62c581eb108",
+      "bytes": 8202
+    },
+    {
+      "path": "docs/byor-motu-live-world.md",
+      "sha256": "cd3b93ac8c9e17a2937414b38c242541cc46f001697ee2500466c41dc080bc84",
+      "bytes": 6275
+    },
+    {
+      "path": "docs/byor-motu-current-budget.md",
+      "sha256": "94feb2face90581e7b770354ea1fd095b5e3e8bd9166c4e8306f33440b063801",
+      "bytes": 8569
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/result.json",
+      "sha256": "2074ec74ecffaca9ec33c852da850dede06c1ade7a4f8a4a0e5ecc201b857e41",
+      "bytes": 7073
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/progress.json",
+      "sha256": "0bed203a67ee9c884b7b661fedd006305bc08dab7b002b797c63c60bc82977ef",
+      "bytes": 48225
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/mesen.log",
+      "sha256": "f3f648b058bceb77819f59a6caf1927c63bbaee145c6219ef74e8c0c4a1fca10",
+      "bytes": 143211
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/live-world-observer.lua",
+      "sha256": "d485ddff7d1fc26911948beb54bc05ab1ee79abc42377b4627accbb26bcb1527",
+      "bytes": 460897
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/actual-launches.json",
+      "sha256": "4e72060dbc76465ae93611b713d0f4968ac8543305a6b57af7083ddc19c4aaf0",
+      "bytes": 511
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/actor.bin",
+      "sha256": "830f08a8e9aac42e6799570c09fd97e1cfa29ad018f67d1b235c76468bdbd116",
+      "bytes": 80
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/side.bin",
+      "sha256": "63922bae028f2e3368df96443ea3e54c1a5bfd3c4d83e94d38bae998ded51785",
+      "bytes": 64
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/clock.bin",
+      "sha256": "c7c559a71e051ca597c5c65df090807b2bb90dd7a6025bff9eef114526bf7659",
+      "bytes": 64
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/world.bin",
+      "sha256": "c5e04828f746dcce7f70c12f2f84066682c2f539c58b8b7945ec7c1fee820c16",
+      "bytes": 64
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/latest.bin",
+      "sha256": "56002d2b987d93ad5b10207328ab93ee1544d3799b054dc385cc950c57802d8d",
+      "bytes": 146
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/pinned.bin",
+      "sha256": "4bae16167fad140dfabdae46994a34320bca077f209d355d44aaf30ccd7e20c6",
+      "bytes": 146
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/last.png",
+      "sha256": "7305e791ef9e47818b5ec5963812795ada2f7d02ca6556cd3e106f412505f428",
+      "bytes": 17022
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v8/capture-runtime/capture-runtime.json",
+      "sha256": "ed01932e7a55f3637967ba901e8d7a3f53a0b27ab65f08ebffd1c36d606b2da9",
+      "bytes": 7293
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-lease-v8.json",
+      "sha256": "3a3d88bca895b0965c0675e28854373f29fe5b3447b6b141d6400e8d6ef6be9f",
+      "bytes": 1277
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/result.json",
+      "sha256": "62d0abf5a80ffd5b56028a173dfd2e0cdf47fdf2ed3268f75480c5e15ceced94",
+      "bytes": 7062
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/progress.json",
+      "sha256": "8fc932ef3eedfa114f2cb34b2ec763234abd5d24dcaf0e66d1dc3155e1ce22de",
+      "bytes": 27865
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/mesen.log",
+      "sha256": "f5c491a00fe58f830ce9926e0b7512c2519c4d06fb845e0cc3ea5930b1e0a1ae",
+      "bytes": 130652
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/live-world-observer.lua",
+      "sha256": "d485ddff7d1fc26911948beb54bc05ab1ee79abc42377b4627accbb26bcb1527",
+      "bytes": 460897
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/actual-launches.json",
+      "sha256": "eb7e576a7e8bca4180dcb3d36c097d4b4903cd968284fb24bea6943f20040f53",
+      "bytes": 511
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/actor.bin",
+      "sha256": "830f08a8e9aac42e6799570c09fd97e1cfa29ad018f67d1b235c76468bdbd116",
+      "bytes": 80
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/side.bin",
+      "sha256": "63922bae028f2e3368df96443ea3e54c1a5bfd3c4d83e94d38bae998ded51785",
+      "bytes": 64
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/clock.bin",
+      "sha256": "5fb17f8dbae30c641fd3de4cdcae09e3e3df8029c119628c2dee51df000134af",
+      "bytes": 64
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/world.bin",
+      "sha256": "618ce4aaa0203960cd977cca103b3a0793617db24ef24f32c9db9b969b40d7b1",
+      "bytes": 64
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/latest.bin",
+      "sha256": "56002d2b987d93ad5b10207328ab93ee1544d3799b054dc385cc950c57802d8d",
+      "bytes": 146
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/pinned.bin",
+      "sha256": "6c82d7ccdb4f8dd0e87f684547c6099fa96f3f356da94e31d5e25eefc1b1e478",
+      "bytes": 146
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/last.png",
+      "sha256": "0a794409c7e46a431e3143864274f98125528071b04cafeb034003ffb4431f39",
+      "bytes": 16950
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/capture-runtime/capture-runtime.json",
+      "sha256": "9ecda05a308de815ca384af86ac24549f814cd642380e0a234a2d4913037154f",
+      "bytes": 7293
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-lease-v9.json",
+      "sha256": "b5bbb07a8a8d48952e0b35e4d8e380a077a1db2b8ca0abbe8bd97c8a8e1a4426",
+      "bytes": 1281
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/frame-owner.bin",
+      "sha256": "59b49b902bd3ee0faa5ef0f97932992a9982f6f5ea90e4a95084f4d1f125ec07",
+      "bytes": 64
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v9/effect-plan.bin",
+      "sha256": "635baf6f728a7801147c03f92f06c4dfd44938a0ddb39edd40149f683a40fb64",
+      "bytes": 32
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/eof-formatting-audit.json",
+      "sha256": "72b0b0df8b9162b68a90703980d8724d8782a30aa528d45fa86c15e8f97ba766",
+      "bytes": 675
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/independent-live-world-review-v12.json",
+      "sha256": "3ac737ad86c6e3cd115ff2df52e42150fa116102301e1200e191d1816001bcfd",
+      "bytes": 4722
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/amend_checkpoint.py",
+      "sha256": "a24ad718ef2f883330c79b765236a407cf5d34e4b4b00326ebd29327ea0c710b",
+      "bytes": 1952
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/receipt-before-public-hygiene.json",
+      "sha256": "014ec3c348ddf10d72edbaa35c3fa94250b966877df36d65cb0650edd44b54f1",
+      "bytes": 28024
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/public_hygiene_receipt.py",
+      "sha256": "51b627e863c7012cdc6bccc321b0e0184aee83b520a0bef8399ed7c02c688ccb",
+      "bytes": 3517
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/static-v18/contract.json",
+      "sha256": "7c05fd9dfe300d6bd1ad9d5aa76bc5d498f4394a731413d6630e2b2a5d169ab5",
+      "bytes": 802991
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/static-v18/live-world.pasm",
+      "sha256": "cbc1625baedf80849307b2fbdfe7f65a04f506b3515625b7000b156038011ded",
+      "bytes": 198871
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/public-hygiene-pytest-v1.json",
+      "sha256": "979cab41f9539d6a293b43254681dd4b206aeb8198c7588e97faf7809e7d0613",
+      "bytes": 267
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/public-hygiene-pytest-v1.log",
+      "sha256": "1d6200df1090a406242cf7807e19d330334624bf3177c6b401e0ccfcf108038d",
+      "bytes": 100
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-lease-v10.json",
+      "sha256": "8bdf8c476bd1149d749240d6f73609ccea5771937fbf94cd8c19d4f26fb7262f",
+      "bytes": 1279
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v10/result.json",
+      "sha256": "a4ef954ad0e50c4696067564d31630c86e7587c1d2114d7f845ddfff9f6bbe41",
+      "bytes": 7079
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v10/progress.json",
+      "sha256": "844e09e96e9a64848828d0d4c6c60ae81c23015f2a96f9400fdebff6530aa1bd",
+      "bytes": 27865
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v10/mesen.log",
+      "sha256": "852ed4f5863f446b4fc90aaef552f62ef1e2cd026f9d084fda1d22898f8e57a6",
+      "bytes": 130667
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v10/frame-owner.bin",
+      "sha256": "2f703b77a4e56275cd3f66a534a7aaddbcb73dd5e6e4b24ebd45f462e1c16b3e",
+      "bytes": 64
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v10/effect-plan.bin",
+      "sha256": "635baf6f728a7801147c03f92f06c4dfd44938a0ddb39edd40149f683a40fb64",
+      "bytes": 32
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v10/live-world-observer.lua",
+      "sha256": "d485ddff7d1fc26911948beb54bc05ab1ee79abc42377b4627accbb26bcb1527",
+      "bytes": 460897
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/native-v10/actual-launches.json",
+      "sha256": "b75cb55a15dc54a6a2bb258d58a9a814a97109f0459162f35e6864d51aaf11ae",
+      "bytes": 513
+    }
+  ],
+  "formatting_only_after_tests": [
+    {
+      "path": "tools/bor_compile/source_live_ground_post_native.py",
+      "before_sha256": "495a16d008d02a4f7e58cfba62d29b6a6862f042f530cd774a9fe13429b81bdd",
+      "after_sha256": "c6787660f25abac35adc68906e59407ad456a79a2e55ff35ae9a095ccfd97aef",
+      "python_ast_unchanged": true
+    },
+    {
+      "path": "tools/verify/test_live_player_controls.py",
+      "before_sha256": "72b2f817e1cd3746a33b7e0b2c9ecefc2659658c7e8e4c6c66c804c74b091f5b",
+      "after_sha256": "4652623e9b92a19268c1b66157c4f3524ea133577cba4498dc1f2c02d6c689e5",
+      "python_ast_unchanged": true
+    }
+  ],
+  "secondary_audit_version_loss": {
+    "original_pin": {
+      "path": "out/byor-motu-live-world-v1/constructor-audio-luna-audit.json",
+      "sha256": "9ee82e93a63de53c865b5c938ef0bec89cc3968d929367388d04dbbe581e6891",
+      "bytes": 12967
+    },
+    "original_bytes_available": false,
+    "cause": "A delegated audit updated its untracked report in place before the version-freeze message arrived.",
+    "attempted_reconstruction_exact": false,
+    "replacement_path": "out/byor-motu-live-world-v1/constructor-audio-luna-audit-v2.json",
+    "replacement_sha256": "ab978975c232595441287b6600f244a7a5469c75638ac89418d2dfc74d71e61e",
+    "raw_native_capture_and_primary_source_audit_unchanged": true,
+    "independent_conclusions_reproduced": true,
+    "followup_review": "out/byor-motu-live-world-v1/independent-live-world-review-v12.json"
+  },
+  "public_path_cleanup": {
+    "assembler": "DOTNET/PATH plus POPPY_DLL",
+    "capture": "MESEN_EXE plus MESEN_PYTHON_PATH",
+    "changed_source_and_doc_pins": [
+      {
+        "path": "tools/verify/m4_live_world_native.py",
+        "before_sha256": "4f38be49880e71cec629ecd722eabc13e1a26f64f62d8224d652d58d2a0cea13",
+        "after_sha256": "881b03c4873977b4a377478da0a803b1b4cf8aa8c856b2ee47ead5a7c2aeb89d"
+      },
+      {
+        "path": "tools/verify/m4_live_world_capture.py",
+        "before_sha256": "ebd08abd3296fdf37e6b3426c0611673a9b9eb06abeb2367b81b1eac1323df7c",
+        "after_sha256": "c870781b2d1502cf569c24b2daac9dd245b2cecc83e9804555cf78db4b234583"
+      },
+      {
+        "path": "tools/verify/test_live_player_controls.py",
+        "before_sha256": "4652623e9b92a19268c1b66157c4f3524ea133577cba4498dc1f2c02d6c689e5",
+        "after_sha256": "b9ec9a72e8b49af6f48ba65b5d1873dce43910a0f535babeed82a12f7bbb07cc"
+      },
+      {
+        "path": "docs/byor-motu-live-world.md",
+        "before_sha256": "015986cb0c62f51a3fde6d4db01c8c129d0ca3d31d93d5f05b3b394bf45193d5",
+        "after_sha256": "cd3b93ac8c9e17a2937414b38c242541cc46f001697ee2500466c41dc080bc84"
+      }
+    ],
+    "generated_rom_identical": true,
+    "post_cleanup_capture": "out/byor-motu-live-world-v1/native-v10",
+    "original_receipt_sha256": "014ec3c348ddf10d72edbaa35c3fa94250b966877df36d65cb0650edd44b54f1",
+    "focused_test_command_display_normalized": true
+  },
+  "separate_pytest_checks": {
+    "tests": 5,
+    "returncode": 0,
+    "actual_assembler_executed": true,
+    "log": "out/byor-motu-live-world-v1/public-hygiene-pytest-v1.log"
+  }
+}

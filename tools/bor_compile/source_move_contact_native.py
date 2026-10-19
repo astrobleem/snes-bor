@@ -4,8 +4,13 @@ from source_hit_state_layout import layout as hit_layout
 
 
 def emit(plan,sy):
-    if plan!=layout(plan['entities']):raise ValueError('MOVE_CONTACT_NATIVE_PLAN')
-    h=hit_layout(plan['entities'])['controls'];w=plan['controls'];base=plan['base'];lines=[];serial=0
+    if plan.get('storage_profile')=='RETIRED_SCENE_VIDEO_STAGING':
+        from source_move_contact_layout import rehost
+        from source_hit_state_layout import rehost as hit_rehost
+        expected=rehost(plan['entities'],plan['base']);hp=hit_rehost(plan['entities'])
+    else:expected=layout(plan['entities']);hp=hit_layout(plan['entities'])
+    if plan!=expected:raise ValueError('MOVE_CONTACT_NATIVE_PLAN')
+    h=hp['controls'];w=plan['controls'];base=plan['base'];lines=[];serial=0
     def put(s):lines.extend(s.strip().splitlines())
     def label(n):put('MoveContact_'+n+':\n.a16\n.i16')
     def fault(op):
@@ -17,7 +22,7 @@ def emit(plan,sy):
         put(f' jsl {sy["SourceForeignWork_Check"]}');fault('bcs')
         for op,off in (('txa',8),('tya',10)):
             put(f' {op}\n cmp.l {w}+{off}');fault('bne');put(f' cmp.l {h}+{off}');fault('bne')
-        for at,value in ((w+16,base&65535),(w+18,0x42),(w+22,plan['entities']),(h,0xb6a0),(h+22,plan['entities'])):
+        for at,value in ((w+16,base&65535),(w+18,base>>16),(w+22,plan['entities']),(h,0xb6a0),(h+22,plan['entities'])):
             put(f' lda.l {at}\n cmp #{value}');fault('bne')
         put(f' lda.l {w}+20');fault('beq');put(f' cmp #{plan["chr_capacity"]+1}');fault('bcs')
         put(f' cmp.l {h}+20');fault('bne')

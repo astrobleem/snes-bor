@@ -13,10 +13,20 @@ from source_move_contact_native import emit as movement
 from source_hit_state_native import emit as identities
 
 
-def emit(req,plan,sy):
-    if plan!=layout(plan['entities']):raise ValueError('CHECK_MOVE_CALLBACK_PLAN')
+def emit(req,plan,sy,*,flat_work=None,include_identities=True):
+    if plan.get('storage_profile')=='RETIRED_SCENE_VIDEO_STAGING':
+        from source_move_contact_layout import rehost
+        from source_hit_state_layout import rehost as hit_rehost
+        expected=rehost(plan['entities'],plan['base']);hp=hit_rehost(plan['entities'])
+    else:expected=layout(plan['entities']);hp=hits(plan['entities'])
+    if plan!=expected:raise ValueError('CHECK_MOVE_CALLBACK_PLAN')
     region=next(r for r in arena(sy['SOURCE_FOREIGN_WORK_BASE'],sy['SOURCE_FOREIGN_WORK_BYTES'])['regions'] if r['name']=='attack_chain_controls')
-    w=region['address'];m=plan['controls'];h=hits(plan['entities'])['controls']
+    w=region['address'] if flat_work is None else flat_work
+    if type(w) is not int or w&1 or not 0<=w<=0x1000000-96:raise ValueError('CHECK_MOVE_CALLBACK_WORK')
+    if flat_work is not None:
+        for base,size in ((plan['base'],plan['bytes']),(plan['controls'],64),(hp['base'],hp['bytes']),(hp['controls'],64)):
+            if w<base+size and base<w+96:raise ValueError('CHECK_MOVE_CALLBACK_WORK_OVERLAP')
+    m=plan['controls'];h=hp['controls']
     source=Path('src/core/vm/vm_source_check_move.pasm').read_text(encoding='cp1252')
     code=source[source.index('SourceCheckMove4086_Execute:'):]
     old=' phx\n phy\n lda.l SourceCheckMove4086_Ready'
@@ -65,4 +75,4 @@ def emit(req,plan,sy):
     for n in sorted(sy,key=len,reverse=True):
         if n.startswith(('Source','VmSourceWorld_','SOURCE_','BOR_')):code=re.sub(r'\b'+n+r'\b',str(sy[n]),code)
     # Shared helpers retain source addresses; only this capability's local labels move.
-    return code+identities(hits(plan['entities']),sy)+movement(plan,sy)+flat(req,w,sy)
+    return code+(identities(hp,sy) if include_identities else '')+movement(plan,sy)+flat(req,w,sy)
