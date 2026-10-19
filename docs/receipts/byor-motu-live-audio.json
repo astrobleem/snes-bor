@@ -1,0 +1,234 @@
+{
+  "schema": "BYOR_MOTU_LIVE_AUDIO_WORLD_CHECKPOINT_V1",
+  "classification": "BOUNDED_NATIVE_AUDIO_AND_WORLD_CHECKPOINT",
+  "starting_commit": "493e9ffa65b0a5c0b04a40d34fc2dae0da76e5b7",
+  "production_selected": false,
+  "source_engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "accepted_renderer_input_sha256": "2ae50b27ac69986a07925e37fd99f5f5506044dec6195662ea54524a8ac4166f",
+  "accepted_renderer_bank_unchanged": true,
+  "build": {
+    "path": "out/byor-motu-live-world-v1/audio-full-v13/contract.json",
+    "sha256": "dbe8e46cda1e2da6ca08ad615acb3a51531deca252130134a934c4e4c9f2763b",
+    "bytes": 815688
+  },
+  "rom": {
+    "path": "out/byor-motu-live-world-v1/audio-full-v13/bor.sfc",
+    "sha256": "481fdd5eb9e12467eae7536b8f973a2f45a96dba792b03b98715db37cce8b93a",
+    "bytes": 4194304
+  },
+  "raw_manifest": {
+    "path": "out/byor-motu-live-world-v1/audio-native-raw-manifest-v1.json",
+    "sha256": "44d3b24b862487ffa63dafccaf7690feaaa9e7df4292eca922dca2411a2a9f75",
+    "bytes": 192025
+  },
+  "raw_capture": {
+    "path": "out/byor-motu-live-world-v1/audio-native-v12/result.json",
+    "sha256": "33475f0a08cc4bf630328f63acc9072ed98f1718f006d9d44a5f1a64b28ffa99",
+    "bytes": 1731281
+  },
+  "code": [
+    {
+      "path": "tools/bor_compile/source_single_voice_audio.py",
+      "sha256": "2405194c94d324f87b0c542e39944bd800f26545c76511d4cd2577f09d21f80f",
+      "bytes": 27365
+    },
+    {
+      "path": "tools/bor_compile/source_live_audio_transport.py",
+      "sha256": "5bfb97f2bb6435011ba520ab09bfb1cef0f63d2070fb3a4a61b368ab317bec79",
+      "bytes": 13768
+    },
+    {
+      "path": "tools/bor_compile/source_live_frame_audio_native.py",
+      "sha256": "33e07f633b41293510d335326005be024c4fc4772bb1af866de31ba794b4ca14",
+      "bytes": 13185
+    },
+    {
+      "path": "tools/bor_compile/source_live_world_native.py",
+      "sha256": "ba456cd67f1ade63cb50e0ede1d332a753af5b07bde29d3ff5e6f6753233d2b0",
+      "bytes": 32803
+    },
+    {
+      "path": "tools/bor_compile/source_live_ground_post_native.py",
+      "sha256": "215e4c90f9f82f5766a6489809eca55bcf2073b479ada041de3982f2371152df",
+      "bytes": 13543
+    },
+    {
+      "path": "tools/verify/m4_live_world_native.py",
+      "sha256": "f442eced348b7d1e66026e93460878c55893891a81bc4fc3d9372996c4e78a61",
+      "bytes": 15791
+    },
+    {
+      "path": "tools/verify/m4_live_world_capture.py",
+      "sha256": "dff0f5f5bf8e36ed104859c047911a3745dab7cae5aac3a68d644bb561996f69",
+      "bytes": 24226
+    },
+    {
+      "path": "tools/verify/test_single_voice_audio.py",
+      "sha256": "4c879a9fe2e8d94407af3df19c9eeba13753f02ad2b9f717a500a6d75bc694b0",
+      "bytes": 5148
+    },
+    {
+      "path": "tools/verify/test_live_audio_transport.py",
+      "sha256": "082978deed0a2c822fa26b23d4cb4763b062e611d35651394e43732310bb267f",
+      "bytes": 12678
+    },
+    {
+      "path": "tools/verify/test_live_frame_audio.py",
+      "sha256": "81055ae4d64730a79ad53075733daf0b5d21ee5f70a36d1efc86bf44bc3aafc8",
+      "bytes": 20408
+    },
+    {
+      "path": "tools/verify/test_live_ground_post.py",
+      "sha256": "a6ef112e878f8bb1a7d969ea8b4a4d19db570574eb1955c694340e90a21c620a",
+      "bytes": 13884
+    }
+  ],
+  "reviews": [
+    {
+      "path": "out/byor-motu-live-world-v1/audio-waveform-native-audit-v2.json",
+      "sha256": "4069706583b0c65c2c19e80556b3a2476704895a0d20fc196ba296638f20519d",
+      "bytes": 344039
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/audio-world-final-review-v2.json",
+      "sha256": "74a3ba4b20745b56d7325b1b3d20a6de46789434a32bc84f85fd83c5655288cf",
+      "bytes": 13823
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/audio-world-capability-review-v1.json",
+      "sha256": "2ef4090ac2c345efb391768c2c7c0cd785165b9526179ed9fd6cf5ee28e0a0d2",
+      "bytes": 4243
+    },
+    {
+      "path": "out/byor-motu-live-world-v1/audio-capture-frame-barrier-review-v3.json",
+      "sha256": "04f77dedee4ced2cc2aad566da485b463708fb2241afa7d59958bf91ea29b2db",
+      "bytes": 3381
+    }
+  ],
+  "tests": {
+    "main_suite": {
+      "path": "out/byor-motu-live-world-v1/audio-focused-v3.json",
+      "sha256": "0c249e4fe7402b9c0eb6e443adff8444bb665aee95cf4263376217493bb976a1",
+      "bytes": 2797
+    },
+    "log": {
+      "path": "out/byor-motu-live-world-v1/audio-focused-v3.log",
+      "sha256": "e914824d8654ec34336c16f782395327a7d27eacc382b0f095265e551c07b461",
+      "bytes": 146
+    },
+    "tests_run": 580,
+    "passed": 579,
+    "skipped": 1,
+    "skip_reason": "Poppy assembly environment variables absent in main-suite process",
+    "configured_transport_rerun": {
+      "path": "out/byor-motu-live-world-v1/audio-transport-final.log",
+      "sha256": "42481689152966931c2d6a0f59d4b3709b435fbcf3cc020eeb26b2784e8a1628",
+      "bytes": 902
+    },
+    "rerun_tests": 7,
+    "rerun_passed": 7,
+    "rerun_skipped": 0,
+    "unique_tests_covered_without_remaining_skip": 580
+  },
+  "native": {
+    "strict_fields": 900,
+    "event_log_truncated": false,
+    "complete_ticks": 285,
+    "source_times": [
+      48,
+      332
+    ],
+    "last_committed_time": 333,
+    "coherent_seals": 285,
+    "snapshot_epochs": [
+      1,
+      285
+    ],
+    "first_birth_tick_phases": [
+      11,
+      12
+    ],
+    "trailing_uncommitted_begin_excluded": true,
+    "world_faults": 0,
+    "provider_faults": 0,
+    "master_clocks_min": 447548,
+    "master_clocks_max": 1103164,
+    "master_clocks_median": 976804,
+    "physical_fields_per_tick": [
+      1,
+      4
+    ],
+    "exact_completed_cold_fields": 880,
+    "exact_rgb555_pixels": 50462720,
+    "cold_transition": {
+      "index": 19,
+      "frame": 524,
+      "exact": false,
+      "blank": true
+    },
+    "protected_renderer_write_faults": 0,
+    "protected_renderer_trace_faults": 0,
+    "writer_scope": "trace opcode PC with sampled full-state bank cross-check; not exhaustive full-PC proof"
+  },
+  "audio": {
+    "sample_index": 0,
+    "source_wav_sha256": "aa6bb567ad386b1958c4f0475af952cfe59d0aea3cf396fb4fd850af0ae5abae",
+    "prepared_brr_sha256": "4f3598e4e343fb3749c5b9f5c9aae2e0a62c3db627d7db0aeafd064430c8a283",
+    "source_channel": 11,
+    "source_admission_and_mixer": "pinned C sound_play_sample/clearmixbuffer/mixaudio/update_sample",
+    "physical_adaptation": "source-mixed PCM16 stereo44100 -> mono11025 -> BRR; not original-PCM-exact",
+    "packets": 532,
+    "packet_bytes": 144,
+    "prepared_bytes": 76491,
+    "padding_bytes": 117,
+    "dsp_brr_blocks": 8499,
+    "missing_or_repeated_or_mismatched_blocks": 0,
+    "voice_pcm_frames": 394675,
+    "voice_pcm_rate_hz": 32000,
+    "seconds": 12.33359375,
+    "endx_sample": 394675,
+    "service9_ack_count": 1,
+    "ack_precedes_physical_enable": true,
+    "first_physical_field": {
+      "index": 20,
+      "frame": 525
+    },
+    "retirement": {
+      "index": 776,
+      "frame": 1281,
+      "source_status": 4,
+      "accepted_packets": 532,
+      "native_channel_matches_source_final": true,
+      "compact_slot_zero": true
+    },
+    "logical_phase_progress_while_active_bound": false,
+    "polyphony_bound": false
+  },
+  "preservation": {
+    "path": "out/byor-motu-live-world-v1/audio-final-preservation-v1.json",
+    "sha256": "c2afd9ed48a0c90c624127a9369a054bdff3d9ca77468d47fa486e0b7bbc2c5f",
+    "bytes": 38885
+  },
+  "preserved": {
+    "inherited_items": 30,
+    "prior_controls": 77,
+    "prompt_absent": true,
+    "shared_settings_and_sram_unchanged": true,
+    "gate_bypassed": false,
+    "lease_released": true,
+    "surviving_contained_processes": 0,
+    "renderer_batch_map_margin_floor": 10000
+  },
+  "remaining_gaps": [
+    "Warm immutable-snapshot presentation is not joined; only the original cold image is checked.",
+    "Observed world tick cost does not meet 200 Hz; no 30 FPS or production concurrency claim.",
+    "Single neutral-input source-created player remains in SELECT frame11; other actions and actors are not certified.",
+    "General audio samples, overlapping voices/polyphony, mutable gain and active logical phase progression are unbound.",
+    "Unsupported sound/attack/damage/provider requests retain pending state; combat/HUD/progression/full game are unfinished.",
+    "First cold-ready flagged field is blank/inexact; only the following 880 completed fields are exact.",
+    "Writer attribution uses sampled bank cross-checks; it is not exhaustive full-PC proof."
+  ],
+  "review_scope": "Local independent review; private native evidence is referenced by hash",
+  "publication_scope": "Source, tests and compact receipts only; remote verification recorded separately"
+}

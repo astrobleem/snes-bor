@@ -119,7 +119,31 @@ def player_library(source, folder, baseline, sy):
     return compiled, ps, emitted, flags
 
 
-def build(source, folder):
+def audio_library(source, assets, folder):
+    """Compile a sparse source-C waveform capability into checked ROM gaps."""
+    from compiler import Source
+    from source_live_frame_audio_native import prepare, emit, TABLE, CONTROL, TRANSPORT, END
+    from source_live_audio_transport import emit as transport
+    sy=symbols(Path('src/main.sym'))
+    table,payload,config=prepare(Source(source),assets)
+    # The original $00FFB0 RTI is copied here before its vector stub is patched.
+    audio_sy={**sy,'irq_handler':0x2cfff0}
+    text='.snes\n.bank 44\n.org $8000\n'+emit(sy,table=TABLE,samples=config['samples'])
+    text+='\nLiveFrameAudio_CodeEnd:\n.bank 44\n.org $9000\n'
+    text+=transport(audio_sy,TRANSPORT,include_pump=True,metadata_samples=config['samples'])
+    text+='\nLiveAudio_CodeEnd:\n.bank 44\n.org $FFF0\nLiveAudio_OriginalIrq:\n rti\n'
+    compiled,rs=assemble(text,folder,'live-audio')
+    require(rs['LiveFrameAudio_Admit']==0x2c8000 and rs['LiveFrameAudio_CodeEnd']<=0x2c9000,
+            'FRAME_AUDIO_CODE_EXTENT')
+    require(rs['LiveAudio_NmiService']==0x2c9000 and rs['LiveAudio_CodeEnd']<0x2cfff0,
+            'AUDIO_TRANSPORT_CODE_EXTENT')
+    config.update(control=CONTROL,transport=TRANSPORT,ram_end=END,
+                  admit=rs['LiveFrameAudio_Admit'],nmi=rs['LiveAudio_NmiService'],
+                  volume=config['source_call']['raw_left_volume'])
+    return compiled,rs,table,payload,config
+
+
+def build(source, folder, *, audio_assets=None):
     folder = folder.resolve(); require(not folder.exists(), 'FRESH_OUTPUT_REQUIRED')
     folder.mkdir(parents=True)
     baseline = (BASE / 'bor.sfc').read_bytes()
@@ -131,12 +155,30 @@ def build(source, folder):
     player['_accepted_nmi'] = publisher['OnlineNmi']
     raw = bytearray(baseline)
     ranges = []
+    audio=None
 
     def write(at, data, reason, empty=False):
         require(at + len(data) <= len(raw), 'ROM_RANGE')
         if empty: require(not any(raw[at:at + len(data)]), 'ROM_NONEMPTY:' + reason)
         raw[at:at + len(data)] = data
         ranges.append(dict(offset=at, bytes=len(data), reason=reason))
+
+    audio_symbols={}
+    if audio_assets is not None:
+        binary,audio_symbols,table,payload,audio=audio_library(source,audio_assets,folder)
+        for begin,end in ((0x2c8000,audio_symbols['LiveFrameAudio_CodeEnd']),
+                          (0x2c9000,audio_symbols['LiveAudio_CodeEnd']),
+                          (0x2cfff0,0x2cfff1)):
+            at=offset(begin);stop=offset(end)
+            write(at,binary[at:stop],'private source audio runtime',empty=True)
+        write(offset(audio['table_cpu']),table,'source audio metadata',empty=True)
+        write(audio['payload_cpu']-0xc00000,payload,'source-C mixed prepared BRR',empty=True)
+        at=offset(sy['irq_handler'])
+        require(raw[at:at+4]==bytes.fromhex('40000000'),'ORIGINAL_IRQ_RTI')
+        require(raw[0x7fee:0x7ff0]==b'\0\0','UNUSED_NATIVE_IRQ_VECTOR')
+        write(0x7fee,(sy['irq_handler']&65535).to_bytes(2,'little'),'native IRQ vector to guarded owner')
+        write(at,b'\x5c'+audio_symbols['LiveAudio_Irq'].to_bytes(3,'little'),
+              'IRQ owner with preserved original RTI delegate')
 
     for bank, end in ((40, offset(player['CallbackFixture_MainEnd'])),
                       (56, len(code))):
@@ -161,7 +203,7 @@ def build(source, folder):
         write(at, b'\x5c' + player[bridge].to_bytes(3, 'little') + b'\xea',
               'real constructor birth bridge to relocated generic player owner')
     from source_live_world_native import emit
-    assembly, config = emit(sy, old, player, source)
+    assembly, config = emit(sy, old, player, source, audio=audio)
     runtime, rs = assemble(assembly, folder, 'live-world')
     require(rs['LiveWorld_HitBirth']==0x308000,'FIXED_BIRTH_ENTRY')
     start = 48 * 32768; end = offset(rs['LiveWorld_CodeEnd'])
@@ -186,6 +228,15 @@ def build(source, folder):
     require(raw[at:at+4]==bytes.fromhex('eaa90900'),'CONSTRUCTOR_AUDIO_STUB_ENTRY')
     write(at,b'\x5c'+rs['LiveWorld_ConstructorAudio'].to_bytes(3,'little'),
           'required authored constructor audio remains pending until a real backend is bound')
+    if audio is not None:
+        # The old unit fixture commits its preloaded synthetic clock after
+        # real constructor Continue returns Done. This live owner starts a
+        # fresh physical clock only after constructor Result/cold publication.
+        at=offset(old['CallbackFixture_Branch_17'])
+        require(raw[at:at+4]==b'\x22'+sy['SourceClock4086_Commit'].to_bytes(3,'little'),
+                'LEGACY_FIXTURE_CLOCK_COMMIT')
+        write(at,b'\x5c'+old['CallbackFixture_Result'].to_bytes(3,'little'),
+              'constructor Result without legacy fixture clock commit')
     at = offset(old['CallbackFixture_GroundPrepare'])
     require(raw[at:at+2] == b'\xea\x4c' and
             int.from_bytes(raw[at+2:at+4], 'little') == (old['LiveGroundBoot'] & 65535),
@@ -215,7 +266,7 @@ def build(source, folder):
     report = dict(schema='BYOR_LIVE_WORLD_BUILD_V1', status='STATIC_CANDIDATE',
                   accepted_rom_sha256=BASE_SHA, rom_sha256=sha(raw), ranges=ranges,
                   source_sha256=sha(source.read_bytes()), config=config,
-                  symbols={**sy, **old, **player, **rs}, reproduce_flags=flags,
+                  symbols={**sy, **old, **player, **audio_symbols, **rs}, reproduce_flags=flags,
                   renderer_bank_unchanged=raw[57*32768:58*32768] == baseline[57*32768:58*32768])
     require(report['renderer_bank_unchanged'], 'ACCEPTED_RENDERER_CHANGED')
     (folder / 'contract.json').write_text(json.dumps(report, indent=2) + '\n')
@@ -226,6 +277,7 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--source', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
+    p.add_argument('--audio-assets',type=Path)
     args = p.parse_args()
-    result = build(args.source, args.output)
+    result = build(args.source, args.output,audio_assets=args.audio_assets)
     print(json.dumps({k: result[k] for k in ('status', 'rom_sha256', 'renderer_bank_unchanged')}))

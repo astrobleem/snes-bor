@@ -328,6 +328,7 @@ LiveGroundPost_ActiveCandidate:
  bcc LiveGroundPost_ActivePending
  beq LiveGroundPost_ActivePending
 LiveGroundPost_ActiveCandidateDone:
+ clc
  .a16
  .i16
 """

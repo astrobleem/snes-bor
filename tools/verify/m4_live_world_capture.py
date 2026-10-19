@@ -43,8 +43,12 @@ def observer(folder, contract):
               'SourceWorldTick4086_Fault', 'SourceWorldTick4086_Slot')
     source = bootstrap + '''
 local liveEvents=0
+local liveTruncated=false
 local function liveLog(name)
- if liveEvents>=4000 then return end
+ if liveEvents>=20000 then
+  if not liveTruncated then emu.log('LIVETRUNCATED|20000');liveTruncated=true end
+  return
+ end
  liveEvents=liveEvents+1
  local s=emu.getState()
  local v={name,s['masterClock'],s['ppu.frameCount']}
@@ -62,15 +66,58 @@ local function liveLog(name)
              'LiveGroundPost_Pending', 'LiveGroundPost_Bad', 'CallbackFixture_Bad',
              'LiveWork_Bad','LiveWork_OwnerBad']
     names += [n for n in sy if n.startswith('LiveWorldDispatch_Ack_')]
+    names += [n for n in sy if n in ('SourceCtorOwner4086_Continue',
+              'SourceCtorOwner4086_Done','SourceCtorOwner4086_Result','SourceClock4086_Commit')]
+    names += [n for n in sy if n in ('LiveFrameAudio_Admit','LiveFrameAudio_Complete',
+              'LiveFrameAudio_Fault','LiveAudio_HdmaMaskFault','LiveAudio_PumpRetire',
+              'SourceFrameEffectPlan4086_Ack','LiveWorld_ColdFailed')]
+    names += [n for n in sy if n.startswith('LiveGroundPost_') and
+              (n.endswith('_Bad') or n.endswith('_RestoreBad'))]
     # A real rejected guard identifies its exact provider. These observers do
     # not execute, bypass, repair or acknowledge any source operation.
-    names += [n for n in sy if n.endswith('_Bad') and n.startswith(('Source', 'Foreign', 'Player', 'Ground', 'Flat'))]
+    names += [n for n in sy if n.endswith('_Bad') and n.startswith(('Source', 'Foreign', 'Player', 'Ground', 'Flat', 'TimedWorldGeometry_'))]
     for name in dict.fromkeys(names):
         if name not in sy:
             continue
         at = sy[name]
         source += f"emu.addMemoryCallback(function()liveLog('{name}')end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,mt)\n"
+        if name.startswith('TimedWorldGeometry_') and name.endswith('_Bad'):
+            source += f'''emu.addMemoryCallback(function()
+ local trace=emu.getTraceLog(16,emu.cpuType.snes)
+ for _,row in ipairs(trace) do
+  emu.log('LIVEBADTRACE|{name}|'..row.pc..'|'..row.text)
+ end
+end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,mt)
+'''
+    if contract['config'].get('audio'):
+        source+='local liveColdFinished=false\nlocal audioEvents=0\n'
+        for name in ('LiveFrameAudio_Admit','LiveFrameAudio_Complete','LiveFrameAudio_Fault',
+                     'SourceFrameEffectPlan4086_Ack','LiveWorld_Boot',
+                     'LiveWorld_ColdPublished','LiveWorld_Start','LiveAudio_PumpChannelActive'):
+            if name not in sy:continue
+            at=sy[name]
+            source+='emu.addMemoryCallback(function()\n'
+            if name=='LiveWorld_ColdPublished':source+='liveColdFinished=true\n'
+            source+=f'''if audioEvents<200 then
+ audioEvents=audioEvents+1
+ local s=emu.getState()
+ emu.log('LIVEAUDIO|{name}|'..s['masterClock']..'|'..s['ppu.frameCount']..'|'..s['cpu.a']..'|'..word({sy['SourceFrameEffectPlan4086_Service']})..'|'..word({sy['SourceFrameEffectPlan4086_Acknowledged']})..'|'..word({sy['SourceAudio_Status']})..'|'..word(0x7e8102)..'|'..word(0x7e82f8))
+end
+end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,mt)
+'''
+        source+='''emu.addMemoryCallback(function(a,v)
+ if word(0x7ffb88)==0xb6d0 and not liveColdFinished then
+  local s=emu.getState()
+  emu.log('LIVEAUDIOEARLYFAULT|'..a..'|'..v..'|'..s['masterClock'])
+ end
+end,emu.callbackType.write,0x2140,0x2143,emu.cpuType.snes,mt)
+'''
     original=symbols(Path('out/byor-motu-online-v3/native/callback_fixture.sym'))
+    publisher=symbols(Path('out/byor-motu-abort-copy-v1/success/native/publisher.sym'))
+    for name in ('OnlineReject','OnlinePublish','OnlinePublished'):
+        if name in publisher:
+            at=publisher[name]
+            source+=f"emu.addMemoryCallback(function()liveLog('Publisher_{name}')end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,mt)\n"
     for name,at in original.items():
         if name.startswith('CallbackFixture_') and ('Branch' not in name):
             source+=f"emu.addMemoryCallback(function()liveLog('Original_{name}')end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,mt)\n"
@@ -97,20 +144,56 @@ end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,mt)
     source+=f"emu.log('LIVEACQ|'..table.concat(v,'|'))end,emu.callbackType.exec,{at},{at},emu.cpuType.snes,mt)\n"
     # Observe physical BW-RAM, including alternate CPU aliases. Only the
     # unchanged accepted publisher may write its protected maps/ref/queue.
+    # A full emu.getState serializes the whole console. Doing that per copied
+    # byte exceeded the unchanged exact-frame wall cap. The instruction trace
+    # supplies the executing PC; independently cross-check its bank on the
+    # first 64 and every 1024th write, and for every unexpected/absent PC.
+    source+='local liveWriteCount=0;local liveWriteChecks=0;local liveTraceEmpty=0\n'
+    source+='emu.getTraceLog(1,emu.cpuType.snes)\n'
     for cpu in ('snes','sa1'):
         source+=f'''emu.addMemoryCallback(function(a,v)
  if word(0x7ffb88)~=0xb6d0 then return end
- local s=emu.getState();local pc=s['cpu.pc']+65536*s['cpu.k']
+ liveWriteCount=liveWriteCount+1
+ local trace=emu.getTraceLog(1,emu.cpuType.{cpu})
+ local pc=trace[1] and trace[1].pc or nil
+ if not pc then liveTraceEmpty=liveTraceEmpty+1 end
+ if not pc or liveWriteCount<=64 or liveWriteCount%1024==0 or (pc>>16)~=0x39 or '{cpu}'~='snes' then
+  local s=emu.getState();local actual=s['cpu.pc']+65536*s['cpu.k']
+  liveWriteChecks=liveWriteChecks+1
+  if pc and '{cpu}'=='snes' and (pc>>16)~=(actual>>16) then
+   emu.log('LIVEOWNTRACEFAULT|'..pc..'|'..actual)
+  end
+  pc=actual
+ end
  if '{cpu}'~='snes' or (pc>>16)~=0x39 then
   emu.log('LIVEOWNFAULT|renderer|{cpu}|'..a..'|'..pc)
  end
 end,emu.callbackType.write,0x2c000,0x2d7ff,emu.cpuType.{cpu},emu.memType.snesSaveRam)
 '''
+    source+='''emu.addEventCallback(function()
+ if word(0x7ffb88)==0xb6d0 then
+  emu.log('LIVEOWNCOUNTS|'..liveWriteCount..'|'..liveWriteChecks..'|'..liveTraceEmpty)
+ end
+'''
+    if contract['config'].get('audio'):
+        # Pause on the emulation thread after each completed live field. The
+        # host's 2-ms poll cannot advance a second field before Pause arrives.
+        # This changes no emulated memory, input, source time or instructions.
+        # Restrict it to the physical owner, whose WAI has real NMI/IRQ wakes.
+        source+=''' if word(0x7ffb88)==0xb6d0 and word(0x7e8100)==0xb6d8 and emu.read(0x7e8102,mt)==1 then
+  emu.breakExecution()
+ end
+'''
+    source+='''
+end,emu.eventType.endFrame)
+'''
     target = folder / 'live-world-observer.lua'
     target.write_text(source)
     return target, dict(preconstructor_callback_count=1,
                         retained_bootstrap_sha256=hashlib.sha256(bootstrap.encode()).hexdigest(),
-                        observer_sha256=digest(target), later_debugger_writes=False)
+                        observer_sha256=digest(target), later_debugger_writes=False,
+                        physical_end_frame_pause=bool(contract['config'].get('audio')),
+                        writer_pc='opcode trace; full-state bank cross-check first64/every1024/absent-or-unexpected')
 
 
 def capture(build, folder, fields):
@@ -163,6 +246,15 @@ def capture(build, folder, fields):
             return result
 
     progress = []; visible=[]; expected=None; pinned_initial=None
+    audio_config=contract['config'].get('audio')
+    audio_progress=[];packets=[];previous_chunks=0
+    if audio_config:
+        raw=(build/'bor.sfc').read_bytes()
+        audio_payload=raw[audio_config['payload_cpu']-0xc00000:
+                          audio_config['payload_cpu']-0xc00000+audio_config['payload_bytes']]
+        os.environ.update(MESEN_VOICE_CAPTURE_PATH=str(folder/'voice0.raw'),
+                          MESEN_VOICE_CAPTURE_VOICE='0',
+                          MESEN_VOICE_CAPTURE_ARM_FILE=str(folder/'voice0.raw.arm'))
     sy = contract['symbols']
     with Observed(rom=build/'bor.sfc', mesen=exe, port=_free_tcp_port(),
                   stderr_log=folder/'mesen.log') as m:
@@ -184,17 +276,58 @@ def capture(build, folder, fields):
             m.write_u8(sy[name], 0)
         m.hold_input(0, port=0)
         run_frames_exact(m, 2)
+        if audio_config:
+            (folder/'voice0.raw.arm').touch()
+            m.record_audio(folder/'source-audio.wav')
         m.write_u16(0x7ffb80, 0xb4e7)
         for index in range(fields):
-            run_frames_exact(m, 1)
+            try:
+                run_frames_exact(m, 1)
+            except BaseException as error:
+                cpu=m.get_cpu_state()
+                pc=cpu.get('pc',0)+65536*cpu.get('k',0)
+                diagnostic=dict(error=str(error),cpu=cpu,state=m.get_state(),
+                    code=m.read_memory('SnesMemory',pc,32).hex(),
+                    runtime=m.read_memory('SnesMemory',0x7e7700,128).hex(),
+                    pinned=m.read_memory('SnesMemory',0x7fba00,146).hex())
+                (folder/'stalled-field.json').write_text(json.dumps(diagnostic,indent=2)+'\n')
+                raise
             work = m.read_memory('SnesMemory', 0x7e7680, 0x140)
             state = m.get_state()
             progress.append(dict(index=index, state=state, health_work=work[:128].hex(),
                                  runtime_work=work[128:256].hex(),
+                                 clock_control=m.read_memory('SnesMemory',sy['SourceClock4086_Ready'],64).hex(),
+                                 world_control=m.read_memory('SnesMemory',sy['SourceWorldTick4086_Ready'],64).hex(),
                                  frame_owner=m.read_memory('SnesMemory',
                                      sy['SourceUpdateFrame4086_Ready'],64).hex(),
                                  effect_plan=m.read_memory('SnesMemory',
                                      sy['SourceFrameEffectPlan4086_Ready'],32).hex()))
+            if audio_config:
+                transport=m.read_memory('SnesMemory',sy['TadPrivate_stream_frame'],64)
+                accepted=int.from_bytes(m.read_memory('SnesMemory',sy['TadPrivate_stream_chunks_accepted'],2),'little')
+                for chunk in range(previous_chunks,accepted):
+                    aram=sy['TAD_STREAM_RING_ADDR']+(chunk%8)*144
+                    actual_packet=m.read_memory('SpcRam',aram,144)
+                    expected_packet=bytearray(audio_payload[chunk*144:chunk*144+144])
+                    if chunk%8==7 and chunk+1<audio_config['payload_bytes']//144:
+                        expected_packet[135]|=3
+                    packets.append(dict(chunk=chunk,index=index,aram=aram,
+                        observer_gap=accepted-previous_chunks,
+                        mismatched_bytes=sum(a!=b for a,b in zip(actual_packet,expected_packet)),
+                        actual_sha256=hashlib.sha256(actual_packet).hexdigest(),
+                        expected_sha256=hashlib.sha256(expected_packet).hexdigest()))
+                previous_chunks=accepted
+                audio_progress.append(dict(index=index,frame=state['frameCount'],
+                    transport=transport.hex(),chunks_accepted=accepted,
+                    control=m.read_memory('SnesMemory',0x7e8100,64).hex(),
+                    channel11=m.read_memory('SnesMemory',0x7e8140+440,40).hex(),
+                    compact11=m.read_memory('SnesMemory',0x7eff88+88,8).hex(),
+                    source_status=int.from_bytes(m.read_memory('SnesMemory',sy['SourceAudio_Status'],2),'little'),
+                    channel0_registers=m.read_memory('SnesMemory',0x4300,16).hex(),
+                    dma=m.read_dma_state(),
+                    voice0=next(v for v in m.get_audio_state()['voices'] if v['voice']==0)))
+                (folder/'audio-progress.json').write_text(json.dumps(audio_progress,indent=2)+'\n')
+                (folder/'audio-packets.json').write_text(json.dumps(packets,indent=2)+'\n')
             ready=int.from_bytes(m.read_memory('SnesMemory',0x7ffb96,32)[:2],'little')
             if ready==0xb4b8:
                 import numpy as np
@@ -220,11 +353,13 @@ def capture(build, folder, fields):
                      png_sha256=digest(image_path)))
                 (folder/'visible-fields.json').write_text(json.dumps(visible,indent=2)+'\n')
             (folder/'progress.json').write_text(json.dumps(progress, indent=2)+'\n')
-            if work[130:132] == b'\x03\x00':
+            if work[130:132] == b'\x03\x00' and (not audio_config or
+                    m.read_memory('SnesMemory',0x7e8102,1)==b'\0'):
                 break
         for name, at, size in [('latest',0x7e7800,146),('pinned',0x7fba00,146),
                               ('clock',sy['SourceClock4086_Ready'],64),
                               ('world',sy['SourceWorldTick4086_Ready'],64),
+                              ('post-control',0x40bfe0,32),('physics-query',0x41ff00,104),
                               ('frame-owner',sy['SourceUpdateFrame4086_Ready'],64),
                               ('effect-plan',sy['SourceFrameEffectPlan4086_Ready'],32),
                               ('actor',0x414000,80),('side',0x416800,64)]:
@@ -258,12 +393,16 @@ def capture(build, folder, fields):
                                sha256=hashlib.sha256(bytes.fromhex(snapshot)).hexdigest()))
     ownership_faults=[line.split('LIVEOWNFAULT|',1)[1] for line in
                      (folder/'mesen.log').read_text().splitlines() if 'LIVEOWNFAULT|' in line]
+    trace_faults=[line.split('LIVEOWNTRACEFAULT|',1)[1] for line in
+                  (folder/'mesen.log').read_text().splitlines() if 'LIVEOWNTRACEFAULT|' in line]
     report=dict(schema='BYOR_LIVE_WORLD_NATIVE_DIAGNOSTIC_V1',
         status='COMPLETE_TICK_OBSERVED' if commits else 'NO_COMPLETE_TICK',
         rom_sha256=contract['rom_sha256'], accepted_renderer_bank_unchanged=contract['renderer_bank_unchanged'],
         observer=observer_report, launches=launches, events=events,
+        event_log_truncated='LIVETRUNCATED|' in (folder/'mesen.log').read_text(),
         ticks=ticks,sealed_snapshots=sealed,visible_fields=visible,
         protected_renderer_write_faults=ownership_faults,
+        protected_renderer_trace_faults=trace_faults,
         complete_ticks_observed=len(commits),fields_requested=fields,fields_captured=len(progress),
         unsupported_providers_remain_pending=True, presentation_joined=False,
         game_or_200hz_cadence_or_30fps_not_claimed=True)

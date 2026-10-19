@@ -18,7 +18,7 @@ GENERATION = 1
 MAGIC = 0xb6d0
 
 
-def emit(sy, old, player, source_path):
+def emit(sy, old, player, source_path, *, audio=None):
     from compiler import Source, key
     from source_foreign_state_layout import layout
     from source_foreign_slot_tail import derive_plan
@@ -34,6 +34,9 @@ def emit(sy, old, player, source_path):
     from source_update_animation_inputs import derive as prefix_inputs, pack as prefix_pack
     from source_animation_physics_4086 import derive as physics_inputs, pack as physics_pack
     from source_animation_ids import configure, role_id
+    from source_animation_ids import derive as animation_identities
+    from source_model_core_4086 import derive as model_core_inputs
+    from source_idle_4086 import default_idle_capability
     from source_profile import discover, document
     from source_timed_world_geometry_native import emit as timed_geometry
     from source_live_world_dispatch_native import emit as dispatcher
@@ -43,6 +46,7 @@ def emit(sy, old, player, source_path):
     from source_damage_inputs_4086 import derive as damage_inputs, pack as damage_pack
     from source_animation_energy_4086 import derive as energy_inputs, pack as energy_pack
     from source_attack_body_profile import derive as body_inputs, pack_runtime as body_pack
+    from source_frame_state_4086 import derive as collision_inputs, pack as collision_pack, unpack as collision_unpack
     from source_live_player_controls_native import emit as player_controls
 
     source = Source(source_path)
@@ -61,14 +65,19 @@ def emit(sy, old, player, source_path):
     structure = discover(source,docs)
     config = configure(docs[key(structure['models_path'])]['directives'])
     health_profile = authored_model_inputs(source)
+    idle_profile = default_idle_capability(animation_identities(source), model_core_inputs(source))
     timing = timing_pack(timing_inputs(source))
     prefix = prefix_pack(prefix_inputs(source))
     physics = physics_pack(physics_inputs(source))
     damage = damage_pack(damage_inputs(source))
     energy = energy_pack(energy_inputs(source))
     body = body_pack(body_inputs(source))
+    collision = collision_pack(collision_inputs(source))
+    collision_unpack(collision)
+    if not 24 <= len(collision) <= 32768:
+        raise ValueError('LIVE_WORLD_COLLISION_BANK_EXTENT')
     body_offset = (len(energy)+1)&~1
-    table_rows = [(49,'timing',timing),(50,'prefix',prefix),(52,'physics',physics),
+    table_rows = [(49,'timing',timing),(50,'prefix',prefix),(45,'collision',collision),(52,'physics',physics),
                   (53,'damage',damage)]
     lines = ['.snes','.bank 48','.org $8000']
 
@@ -179,6 +188,9 @@ LiveWorld_VmGateOwned:
                  'StreamScrollFp_ColPending','StageWater_Pending','StageWater_Held',
                  'Msu1_StreamBusy'):
         put(f' lda.l {sy[name]}\n and #255\n bne LiveWorld_AcquireRejected')
+    if audio is not None:
+        for name in ('AudioSemantic_FootDieStreamActive','TadPrivate_stream_pending'):
+            put(f' lda.l {sy[name]}\n and #255\n bne LiveWorld_AcquireRejected')
     put(' ldx #0')
     label('LiveWorld_DrainCheck')
     put(f' lda.l {sy["DmaQueue"]}+4,x\n and #{sy["DMA_OPT_ACTIVE"]}\n bne LiveWorld_AcquireRejected\n txa\n clc\n adc #8\n tax\n cpx #64\n bcc LiveWorld_DrainCheck')
@@ -199,7 +211,8 @@ LiveWorld_VmGateOwned:
     store(0x7ffb88,MAGIC)
     put(' lda #0\n ldx #0')
     label('LiveWorld_ClearRetiredVideo')
-    put(' sta.l $7E6200,x\n inx\n inx\n cpx #$1F00\n bcc LiveWorld_ClearRetiredVideo')
+    extent = 0x1f00 if audio is None else audio['ram_end']-0x7e6200
+    put(f' sta.l $7E6200,x\n inx\n inx\n cpx #{extent}\n bcc LiveWorld_ClearRetiredVideo')
     store(WORK,MAGIC);store32(WORK+4,1)
     # The accepted BG owner is not the Mode-4 canvas. A distinct private lease
     # retains the existing nonzero generation, complete clear and DMA checks,
@@ -237,6 +250,22 @@ LiveWorld_VmGateOwned:
                   SourceEmptyInitEnvironment4086_Stage=stage['stage_id'],
                   SourceEmptyInitEnvironment4086_Status=0,SourceEnvironment4086_Ready=0xb4d1,
                   SourceEnvironment4086_Stage=stage['stage_id'],SourceEnvironment4086_WallCount=0))
+    if audio is not None:
+        # A fresh source cache/channel owner. The prepared stream only queues
+        # a voice here; physical transport stays disabled through cold setup.
+        put(' lda #0\n ldx #0')
+        label('LiveWorld_ClearSoundChannels')
+        put(' sta.l $7EFF88,x\n inx\n inx\n cpx #120\n bcc LiveWorld_ClearSoundChannels')
+        settings(dict(SourceSoundChannels4086_Ready=0xb63a,
+                      SourceSoundChannels4086_Count=12,
+                      SourceSoundChannels4086_BackendReady=0xb63c))
+        store(audio['control'],0xb6d9)
+        store(audio['control']+28,audio['volume'])
+        store(audio['transport'],0xb6d8)
+        put(f' sep #$20\n.a8\n lda #0\n sta.l {sy["AudioStream_Enable"]}\n rep #$20\n.a16')
+        # The displaced initializer succeeded above. Its retained BCC at
+        # Init+5 consumes C, so restore that success after the clear-loop CPX.
+        put(' clc')
     put(f' jml {old["CallbackFixture_Init"]+5}')
 
     # A failed constructor must never re-enter the retired foreground writer.
@@ -265,7 +294,10 @@ LiveWorld_VmGateOwned:
     store(sy['SourcePhysicsState4086_Ready'],0)
     put(' jsl $398000\n bcs LiveWorld_ColdFailed')
     store(sy['SourcePhysicsState4086_Ready'],0xb61c)
-    label('LiveWorld_ColdPublished');put(' nop\n jmp LiveWorld_Start')
+    label('LiveWorld_ColdPublished');put(' nop')
+    if audio is not None:
+        put(f' sep #$20\n.a8\n lda #2\n sta.l {sy["AudioStream_TransportOnly"]}\n lda #1\n sta.l {sy["AudioStream_SerialPermit"]}\n sta.l {sy["AudioStream_Enable"]}\n sta.l {audio["transport"]+2}\n rep #$20\n.a16')
+    put(' jmp LiveWorld_Start')
     label('LiveWorld_ColdFailed')
     store(sy['SourcePhysicsState4086_Ready'],0xb61c)
     put(' jmp LiveWorld_Fault')
@@ -276,7 +308,18 @@ LiveWorld_VmGateOwned:
     # until an actual source audio backend can service the requested sample.
     label('LiveWorld_ConstructorAudio')
     store(WORK+12,9);store(WORK+2,2)
-    label('LiveWorld_ConstructorAudioPending');put(' wai\n jmp LiveWorld_ConstructorAudioPending')
+    if audio is not None:
+        generation();put(f' jsl {audio["admit"]}\n bcs LiveWorld_Fault\n cmp #0\n bne LiveWorld_ConstructorAudioPending\n lda #9\n sta.l {sy["SourceFrameEffectPlan4086_Acknowledged"]}\n jsl {sy["SourceFrameEffectPlan4086_Ack"]}\n bcs LiveWorld_Fault')
+        # Retire the retry token only after the real effect cursor advances.
+        # A later occurrence of the same authored frame is a fresh sound.
+        store(audio['control']+2,0)
+        put(f' lda #9\n jml {old["CallbackFixture_Effects"]}')
+        # No physical transport exists until constructor/cold completion.
+        # Unsupported or busy constructor input is an explicit capability
+        # stop, never a recoverable audio wait or an acknowledged event.
+        label('LiveWorld_ConstructorAudioPending');put(' wai\n jmp LiveWorld_ConstructorAudioPending')
+    else:
+        label('LiveWorld_ConstructorAudioPending');put(' wai\n jmp LiveWorld_ConstructorAudioPending')
 
     label('LiveWorld_Start')
     guard(WORK,MAGIC)
@@ -295,6 +338,12 @@ LiveWorld_VmGateOwned:
                   SourceLost4086_Ready=0xb5e0,SourceLost4086_Status=0,
                   SourceLost4086_HRes=placement['source_width'],SourceLost4086_VRes=240,
                   SourceLost4086_Direction=2,SourceVelocity4086_Ready=0xb5de,
+                  # Actual constructor birth supplied the canonical 32-byte
+                  # idle-flags row. The complete source registry above proves
+                  # the existing DEFAULT_IDLE_ONLY native provider is legal.
+                  SourceIdle4086_Ready=0xb4f3,SourceIdle4086_Status=0,
+                  SourceCollisionFrame4086_Ready=0xb5ee,SourceCollisionFrame4086_Status=0,
+                  SourceCollisionFrame4086_Bank=45,SourceCollisionFrame4086_Bytes=len(collision),
                   SourceUpdateAnimation4086_Ready=0xb60f,SourceUpdateAnimation4086_State=0,
                   SourceUpdateAnimation4086_Base=0x8000,SourceUpdateAnimation4086_Bank=49,
                   SourceUpdateAnimation4086_Bytes=len(timing),
@@ -302,7 +351,8 @@ LiveWorld_VmGateOwned:
                   SourceUpdateAnimationPrefix4086_Base=0x8000,SourceUpdateAnimationPrefix4086_Bank=50,
                   SourceUpdateAnimationPrefix4086_Bytes=len(prefix),SourceUpdateAnimationPrefix4086_Models=16,
                   SourceUpdateAnimationPrefix4086_SleepID=role_id(config,'sleep'),
-                  SourceAnimationPhysics4086_Ready=0xb61b,SourceAnimationPhysics4086_Base=0x8000,
+                  SourceAnimationPhysics4086_Ready=0xb61f,SourceAnimationPhysics4086_Status=0,
+                  SourceAnimationPhysics4086_Base=0x8000,
                   SourceAnimationPhysics4086_Bank=52,SourceAnimationPhysics4086_Bytes=len(physics),
                   SourceAnimationPhysics4086_Animations=80,SourceAdjustBaseEmpty4086_Ready=0xb620,
                   SourceCheckMove4086_Ready=0xb617,SourcePostStationary4086_Ready=0xb61a,
@@ -323,7 +373,10 @@ LiveWorld_VmGateOwned:
         store(HEALTH+off,value)
     store(0x7ffb88,MAGIC)
     store(WORK+2,1)
-    put(' sep #$20\n.a8\n lda #$81\n sta.l $004200\n rep #$20\n.a16')
+    if audio is not None:
+        put(f' sep #$20\n.a8\n lda #$A1\n sta.l {sy["Nmi_InterruptFlags"]}\n sta.l $004200\n rep #$20\n.a16\n cli')
+    else:
+        put(' sep #$20\n.a8\n lda #$81\n sta.l $004200\n rep #$20\n.a16')
     label('LiveWorld_Outer')
     store(WORK+6,0)
     put(' lda #1');native_call('SourceClock4086_Observe')
@@ -375,6 +428,7 @@ LiveWorld_VmGateOwned:
 LiveWorld_NmiOwned:
 .a16
 .i16
+{f' jsl {audio["nmi"]}' if audio is not None else ''}
  lda.l {sy['SourceClock4086_Ready']}
  cmp #$B4C5
  bne LiveWorld_NmiAck
@@ -408,8 +462,24 @@ LiveWorld_NmiAck:
     put(f' lda.l {sy["SourceUpdateAnimation4086_State"]}\n cmp #2\n beq LiveWorld_ProviderComplete\n cmp #1\n beq LiveWorld_AnimationFrame\n jsl TimedWorldGeometry_Begin\n bcs LiveWorld_ProviderFault\n cmp #0\n beq LiveWorld_ProviderComplete\n cmp #1\n bne LiveWorld_ProviderFault')
     label('LiveWorld_AnimationFrame')
     put(f' jsl {sy["SourceFrameOwner4086_Run"]}\n bcs LiveWorld_ProviderFault\n cmp #$8001\n beq LiveWorld_AnimationFrame\n cmp #0\n bne LiveWorld_ExternalFrame\n jsl TimedWorldGeometry_Continue\n bcs LiveWorld_ProviderFault\n jmp LiveWorld_ProviderComplete')
-    label('LiveWorld_ExternalFrame');put(f' sta.l {WORK+12}\n jmp LiveWorld_ProviderPending')
-    label('LiveWorld_Attack');put(' jsl CheckAttack_Run\n bcs LiveWorld_ProviderFault')
+    label('LiveWorld_ExternalFrame');put(f' sta.l {WORK+12}')
+    if audio is not None:
+        put(f' cmp #9\n bne LiveWorld_ProviderPending')
+        generation();put(f' jsl {audio["admit"]}\n bcs LiveWorld_ProviderFault\n cmp #0\n bne LiveWorld_ProviderPending\n lda #9\n sta.l {sy["SourceFrameEffectPlan4086_Acknowledged"]}\n jsl {sy["SourceFrameEffectPlan4086_Ack"]}\n bcs LiveWorld_ProviderFault')
+        store(audio['control']+2,0)
+    put(' jmp LiveWorld_ProviderPending')
+    # The source stationary-post operator publishes/returns status 2. Keep
+    # that real status for CheckAck, and normalize only the dispatcher ABI.
+    label('LiveWorld_Post')
+    put(' jsl LiveGroundPost_Run\n bcs LiveWorld_ProviderFault\n cmp #2\n beq LiveWorld_ProviderComplete\n cmp #1\n beq LiveWorld_ProviderPending\n jmp LiveWorld_ProviderFault')
+    label('LiveWorld_Attack')
+    # The immutable query is synchronous and returns status 2. Reissue only a
+    # previously idle/completed query; never erase a busy or faulted producer.
+    generation();put(f' jsl {sy["SourceForeignWork_Check"]}\n bcs LiveWorld_ProviderFault')
+    put(f' lda.l {sy["SourceCollisionFrame4086_Ready"]}\n cmp #$B5EE\n bne LiveWorld_ProviderFault\n lda.l {sy["SourceCollisionFrame4086_Status"]}\n beq LiveWorld_AttackFresh\n cmp #2\n bne LiveWorld_ProviderFault')
+    label('LiveWorld_AttackFresh')
+    store(sy['SourceCollisionFrame4086_Status'],0)
+    put(' jsl CheckAttack_Run\n bcs LiveWorld_ProviderFault')
     put(f' lda.l {hp["controls"]+24}\n beq LiveWorld_ProviderComplete\n sta.l {WORK+12}\n jmp LiveWorld_ProviderPending')
     # Native fresh-birth fields are canonical extensions, not inferred from
     # scratch clearing. This closed single-actor chain admits no damage/DOT
@@ -429,7 +499,7 @@ LiveWorld_NmiAck:
     text=re.sub(r'^ (bne|beq|bcs|bcc) (LiveWorld_\w+)$',relax,text,flags=re.M)
     text+=dispatcher(sy,{1:'LiveWorld_Freeze',2:'LiveWorld_Lost',3:'LiveWorld_Freeze',4:'LiveWorld_Freeze',
                         5:'LiveWorld_Script',6:'LiveWorld_AI',7:'LiveWorld_Animation',8:'LiveWorld_Attack',
-                        9:'LiveWorld_Health',10:'LiveWorld_Velocity',11:'LiveGroundPost_Run',12:'LiveWorld_ClearMove'})
+                        9:'LiveWorld_Health',10:'LiveWorld_Velocity',11:'LiveWorld_Post',12:'LiveWorld_ClearMove'})
     text+=timed_geometry(sy)
     text+=attack_native(hp,sy)
     text+=move_native(tr,mp,sy,flat_work=FLAT,include_identities=False)
@@ -491,6 +561,45 @@ LiveWork_OwnerBad:
  sec
  rtl
 '''
+    if audio is not None:
+        old_guard=''' lda.l Nmi_HdmaEnableCurrent
+ and #255
+ bne LiveWork_OwnerBad'''
+        audio_guard=f''' lda.l Nmi_HdmaEnableCurrent
+ ora.l Nmi_HdmaEnable
+ and #255
+ beq LiveWork_AudioIdle
+ cmp #1
+ bne LiveWork_OwnerBad
+ lda.l {audio['transport']}
+ cmp #$B6D8
+ bne LiveWork_OwnerBad
+ lda.l {audio['transport']+2}
+ and #255
+ cmp #1
+ bne LiveWork_OwnerBad
+ lda.l $004300
+ cmp #$4004
+ bne LiveWork_OwnerBad
+ lda.l $004302
+ cmp #$3C00
+ bne LiveWork_OwnerBad
+ lda.l $004304
+ and #255
+ cmp #$7E
+ bne LiveWork_OwnerBad
+LiveWork_AudioIdle:
+.a16
+.i16'''
+        if foreign.count(old_guard)!=1:raise ValueError('LIVE_AUDIO_OWNER_GUARD_DRIFT')
+        foreign=foreign.replace(old_guard,audio_guard)
+        # Added hardware predicates can exceed a short branch. Keep their
+        # failure destination and complete queue checks intact.
+        counter=[0]
+        def owner_branch(match):
+            counter[0]+=1;name='LiveWork_OwnerBranch'+str(counter[0])
+            return f' beq {name}\n jmp LiveWork_OwnerBad\n{name}:\n.a16\n.i16'
+        foreign=re.sub(r'^ bne LiveWork_OwnerBad$',owner_branch,foreign,flags=re.M)
     for name in sorted(sy,key=len,reverse=True):
         if name.startswith(('SourceForeignWork_','SOURCE_FOREIGN_WORK_','Nmi_','DmaQueue','DMA_')):
             foreign=re.sub(r'\b'+name+r'\b',str(sy[name]),foreign)
@@ -500,11 +609,12 @@ LiveWork_OwnerBad:
         text+=f'.bank {bank}\n.org $8000\nLiveWorld_Table_{name}:\n'
         text+='\n'.join(' .db '+','.join(f'${b:02X}' for b in data[i:i+24]) for i in range(0,len(data),24))+'\n'
     return text,dict(work=WORK,health=HEALTH,latest_snapshot=LATEST,binding=BINDING,flat_work=FLAT,
-                     generation=GENERATION,retired_scene_video=[0x7e6200,0x7e8100],
+                     generation=GENERATION,retired_scene_video=[0x7e6200,0x7e8100 if audio is None else audio['ram_end']],
                      pending_jump=jp,hit_identity=hp,movement_contact=mp,
                      table_rows=[dict(bank=b,name=n,bytes=len(d))for b,n,d in table_rows],
-                     source_stage=placement,health_profile=health_profile,
+                     source_stage=placement,health_profile=health_profile,idle_profile=idle_profile,
                      health_birth_marker=0xb6d2,
                      health_scope='fresh native slot-0 birth; one He_Man; oldhealth/oldmp/DOT absence canonical extension; phase-8 damage remains unadmitted; no DOT-capable source callback',
-                     constructor_audio_bound=False,
+                     constructor_audio_bound=audio is not None,
+                     audio=audio,
                      complete_engine_update_not_claimed=True,renderer_selected=False)

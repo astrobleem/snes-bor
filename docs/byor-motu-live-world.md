@@ -1,5 +1,11 @@
 # Private MOTU live-world bootstrap checkpoint
 
+The original audio-disabled checkpoint below is retained as its historical
+receipt. The newer opt-in [entry-sound join](byor-motu-live-audio.md) completes
+the real constructor, delivers its prepared entry waveform and commits 285
+consecutive source ticks. Full gameplay, cadence and warm presentation remain
+unfinished.
+
 **Status: required constructor audio remains pending; no complete world tick.**
 The opt-in builder now joins a guarded native foreground owner to the real
 source constructor. Native execution drains the original DMA queue, acquires
