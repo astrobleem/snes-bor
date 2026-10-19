@@ -1,1 +1,14 @@
 src/generated/production_source_visual.json filter=lfs diff=lfs merge=lfs -text
+
+# Retained BOR receipts bind exact bytes, including original line endings.
+/docs/byor-motu-borrow-invalidate.md -text
+/docs/receipts/byor-motu-borrow-invalidate.json -text
+/tools/bor_compile/borrow_invalidate.py -text
+/tools/verify/borrow_invalidate_evidence.py -text
+/tools/verify/m4_borrow_invalidate_native.py -text
+/tools/verify/test_borrow_invalidate.py -text
+/tools/verify/test_borrow_invalidate_adapter.py -text
+/tools/verify/borrow_timing_alignment.py -text
+/tools/verify/test_borrow_timing_alignment.py -text
+/docs/byor-motu-timing-alignment.md -text
+/docs/receipts/byor-motu-timing-alignment.json -text

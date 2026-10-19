@@ -1,0 +1,507 @@
+{
+  "classification": "BYOR_MOTU_TIMING_ALIGNMENT_DIAGNOSTIC_PASS",
+  "accepted_checkpoint": "438b519ff32879298d97e050ca25a3f119a7401a",
+  "exact_remote_branch_sha_verified": "438b519ff32879298d97e050ca25a3f119a7401a",
+  "rejected_lookup_remains_rejected": true,
+  "candidate_acceptance_gate_pass": false,
+  "original_rejection": {
+    "path": "docs/receipts/byor-motu-borrow-invalidate.json",
+    "sha256": "6608f65c40df4c5dd5bbefa17ceb7bc82012c631c3fa32fc2321aaa258c423ae"
+  },
+  "accepted_reference": {
+    "path": "docs/receipts/byor-motu-ref-rebuild.json",
+    "sha256": "4907309e52e6e47f8e0d60536051c63a8a93b836a56eafde6e008448c830b39f"
+  },
+  "timing_report": {
+    "path": "out/byor-motu-timing-repeat-v1/timing-report.json",
+    "sha256": "1b59a6d58d08cef1b2977d1c5a9c103bd28095ba63fe8bf9a70a98a8ca9973d8"
+  },
+  "raw_manifest": {
+    "path": "out/byor-motu-timing-repeat-v1/raw-inputs.json",
+    "sha256": "c78ec8d465ea8415969f7b1f2881a6ea64cb3f27e146ae1dcc107a62a7ef295a",
+    "files": 1002
+  },
+  "comparisons": {
+    "valid": {
+      "2": {
+        "transaction": 2,
+        "committed": true,
+        "before": {
+          "transaction": 2,
+          "committed": true,
+          "total_clocks": 7943412,
+          "fields": 22,
+          "wait_calls": 16,
+          "wait_body_clocks": 1846024,
+          "non_poll_residual_clocks": 6097388,
+          "wait_callers": [
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3780741,
+            3777094
+          ]
+        },
+        "after": {
+          "transaction": 2,
+          "committed": true,
+          "total_clocks": 7943412,
+          "fields": 22,
+          "wait_calls": 16,
+          "wait_body_clocks": 1846024,
+          "non_poll_residual_clocks": 6097388,
+          "wait_callers": [
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3780741,
+            3777094
+          ]
+        },
+        "field_delta": 0,
+        "total_clocks_delta": 0,
+        "wait_body_clocks_delta": 0,
+        "non_poll_residual_clocks_delta": 0,
+        "strict_transaction_gate_pass": true
+      },
+      "3": {
+        "transaction": 3,
+        "committed": true,
+        "before": {
+          "transaction": 3,
+          "committed": true,
+          "total_clocks": 11203622,
+          "fields": 31,
+          "wait_calls": 15,
+          "wait_body_clocks": 1395886,
+          "non_poll_residual_clocks": 9807736,
+          "wait_callers": [
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777094
+          ]
+        },
+        "after": {
+          "transaction": 3,
+          "committed": true,
+          "total_clocks": 11203584,
+          "fields": 31,
+          "wait_calls": 15,
+          "wait_body_clocks": 1464614,
+          "non_poll_residual_clocks": 9738970,
+          "wait_callers": [
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777094
+          ]
+        },
+        "field_delta": 0,
+        "total_clocks_delta": -38,
+        "wait_body_clocks_delta": 68728,
+        "non_poll_residual_clocks_delta": -68766,
+        "strict_transaction_gate_pass": true
+      },
+      "4": {
+        "transaction": 4,
+        "committed": true,
+        "before": {
+          "transaction": 4,
+          "committed": true,
+          "total_clocks": 7814280,
+          "fields": 22,
+          "wait_calls": 15,
+          "wait_body_clocks": 1719822,
+          "non_poll_residual_clocks": 6094458,
+          "wait_callers": [
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777094
+          ]
+        },
+        "after": {
+          "transaction": 4,
+          "committed": true,
+          "total_clocks": 7814376,
+          "fields": 22,
+          "wait_calls": 15,
+          "wait_body_clocks": 1720094,
+          "non_poll_residual_clocks": 6094282,
+          "wait_callers": [
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777094
+          ]
+        },
+        "field_delta": 0,
+        "total_clocks_delta": 96,
+        "wait_body_clocks_delta": 272,
+        "non_poll_residual_clocks_delta": -176,
+        "strict_transaction_gate_pass": false
+      }
+    },
+    "early": {
+      "2": {
+        "transaction": 2,
+        "committed": true,
+        "before": {
+          "transaction": 2,
+          "committed": true,
+          "total_clocks": 7943412,
+          "fields": 22,
+          "wait_calls": 16,
+          "wait_body_clocks": 1846024,
+          "non_poll_residual_clocks": 6097388,
+          "wait_callers": [
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3780741,
+            3777094
+          ]
+        },
+        "after": {
+          "transaction": 2,
+          "committed": true,
+          "total_clocks": 7943412,
+          "fields": 22,
+          "wait_calls": 16,
+          "wait_body_clocks": 1846024,
+          "non_poll_residual_clocks": 6097388,
+          "wait_callers": [
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3780741,
+            3777094
+          ]
+        },
+        "field_delta": 0,
+        "total_clocks_delta": 0,
+        "wait_body_clocks_delta": 0,
+        "non_poll_residual_clocks_delta": 0,
+        "strict_transaction_gate_pass": true
+      },
+      "3": {
+        "transaction": 3,
+        "committed": false,
+        "before": {
+          "transaction": 3,
+          "committed": false,
+          "total_clocks": 9055908,
+          "fields": 25,
+          "wait_calls": 10,
+          "wait_body_clocks": 1194052,
+          "non_poll_residual_clocks": 7861856,
+          "wait_callers": [
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611
+          ]
+        },
+        "after": {
+          "transaction": 3,
+          "committed": false,
+          "total_clocks": 9055984,
+          "fields": 25,
+          "wait_calls": 10,
+          "wait_body_clocks": 1194776,
+          "non_poll_residual_clocks": 7861208,
+          "wait_callers": [
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611,
+            3777611
+          ]
+        },
+        "field_delta": 0,
+        "total_clocks_delta": 76,
+        "wait_body_clocks_delta": 724,
+        "non_poll_residual_clocks_delta": -648,
+        "strict_transaction_gate_pass": false
+      }
+    }
+  },
+  "leaf_comparisons": {
+    "valid": {
+      "1": {
+        "calls": 103,
+        "before_clocks": 15684,
+        "after_clocks": 15684,
+        "clock_delta": 0
+      },
+      "2": {
+        "calls": 102,
+        "before_clocks": 15776,
+        "after_clocks": 15776,
+        "clock_delta": 0
+      },
+      "3": {
+        "calls": 95,
+        "before_clocks": 280928,
+        "after_clocks": 212100,
+        "clock_delta": -68828
+      },
+      "4": {
+        "calls": 96,
+        "before_clocks": 14408,
+        "after_clocks": 14528,
+        "clock_delta": 120
+      }
+    },
+    "early": {
+      "1": {
+        "calls": 103,
+        "before_clocks": 15684,
+        "after_clocks": 15684,
+        "clock_delta": 0
+      },
+      "2": {
+        "calls": 102,
+        "before_clocks": 15776,
+        "after_clocks": 15776,
+        "clock_delta": 0
+      },
+      "3": {
+        "calls": 62,
+        "before_clocks": 24456,
+        "after_clocks": 23760,
+        "clock_delta": -696
+      }
+    }
+  },
+  "observed_fields": 386,
+  "verified_rgb555_pixels": 22134784,
+  "master_clock_hz": 21477272,
+  "elapsed_regression_milliseconds": {
+    "valid4": 0.004469841421200979,
+    "early3": 0.0035386244584507754
+  },
+  "minimum_batch_margin_clocks": 27318,
+  "minimum_map_margin_clocks": 14640,
+  "required_margin_clocks": 10000,
+  "frozen_preservation_controls": 91,
+  "raw_inputs": 1002,
+  "implementation_files": {
+    "tools/verify/borrow_timing_alignment.py": "17953ff85cee3d2d5e4dabddb3515662ef34c562ad6c1f5bb2f8a7364e080940",
+    "tools/verify/test_borrow_timing_alignment.py": "72322f280192c20d6bef9bffe391cc7e6e44671c708d5699a7646063944edaca",
+    "docs/byor-motu-timing-alignment.md": "129d0342b2ad22df22c550de2be889040f96bf9a6698edb5820f5b0adda340e8"
+  },
+  "targeted_tests": {
+    "tests": 5,
+    "returncode": 0,
+    "path": "E:/gh/snes-bor/out/byor-motu-timing-alignment-v1/accounting-tests-v3.log",
+    "sha256": "bbe343cbf58eebd159af90d10373b085e34c8a9f698afed8666e47fb167fd99a"
+  },
+  "supporting_evidence": {
+    "repeat-revalidation": {
+      "path": "E:/gh/snes-bor/out/byor-motu-timing-alignment-v1/repeat-revalidation.json",
+      "sha256": "b88194215f47c20d19e416d6d03f7a42a9d01f066e9bfbc696d59dbfd2b0bcf2"
+    },
+    "independent-bounded-assessment": {
+      "path": "E:/gh/snes-bor/out/byor-motu-timing-alignment-v1/independent-bounded-assessment.json",
+      "sha256": "b0ee2b143bb857c7cf73412dbcb0f8b0cb04822389afaeacc9870f2578236cfa"
+    },
+    "native-lease-v1": {
+      "path": "E:/gh/snes-bor/out/byor-motu-timing-alignment-v1/native-lease-v1.json",
+      "sha256": "cf11d0737064689df23b5905a91dc48a045dc7e40e6692dbca5465724df5e552"
+    },
+    "snapshot": {
+      "path": "E:/gh/snes-bor/out/byor-motu-timing-alignment-v1/snapshot.json",
+      "sha256": "fbc6755cf2e9149929ff14a6f3a984e49550a2d0d389572c662aa7d073842df7"
+    },
+    "stats-tests-v2": {
+      "path": "E:/gh/snes-bor/out/byor-motu-timing-alignment-v1/stats-tests-v2.log",
+      "sha256": "7cb27927cad77aa5c9fc8b984eafaeb5434ab243fd3dfd8e0e4557218a9acb74"
+    },
+    "repeat": {
+      "path": "E:/gh/snes-bor/out/byor-motu-timing-alignment-v1/repeat.py",
+      "sha256": "ff605453c2ce863abeee4ea2e640336c590bb34860dc84d472296df1fd6e1971"
+    },
+    "native_lease": {
+      "path": "E:/gh/snes-bor/out/byor-motu-timing-alignment-v1/native_lease.py",
+      "sha256": "99ae02220b73cd7ebb91d5e3e2467a69118fd14823365d6fadef991a3e6d592c"
+    },
+    "validate_repeat": {
+      "path": "E:/gh/snes-bor/out/byor-motu-timing-alignment-v1/validate_repeat.py",
+      "sha256": "aeea0fd2598ca42cff38668855cbaba4570f4c17eb07a6765cca9b158e00ab6d"
+    },
+    "final_focused_tests": {
+      "path": "out/byor-motu-timing-alignment-v1/focused-tests-result-final-v1.json",
+      "sha256": "13f47a1edadc6358ffe21630ee06559ca3543713952aa353a46ee380441d287a"
+    }
+  },
+  "explanation": "Unchanged VBlank poll arrival phase absorbs savings. Five unchanged early-exit calls differ by +/-40 elapsed master clocks, consistent with the local emulator DRAM refresh stall; exact refresh events were not logged.",
+  "strict_acceptance_rules_unchanged": true,
+  "scope": "Four diagnostic captures; no ROM promotion or replacement of original eight-case negative receipt.",
+  "focused_tests": {
+    "command": [
+      "E:\\gh\\_snes-bor-eight-pair-task-20261018\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "test_restore_single_pass",
+      "test_restore_single_pass_adapter",
+      "test_home_borrow_bitmap",
+      "test_home_borrow_bitmap_adapter",
+      "test_m4_home_borrow",
+      "test_m4_source_safepoint",
+      "test_m4_conditional_capacity",
+      "test_early_capacity",
+      "test_m4_early_capacity_component",
+      "test_restore_spill",
+      "test_m4_restore_spill_component",
+      "test_batch_rescue",
+      "test_generated_splice",
+      "test_m4_nonblank_batch_component",
+      "test_m4_nonblank_component",
+      "test_rect_map_opt",
+      "test_m4_rect_map_component",
+      "test_direct_pair_dma",
+      "test_m4_direct_pair_component",
+      "test_m4_native_cost_accounting",
+      "test_tile_fusion",
+      "test_m4_tile_fusion_component",
+      "test_phase_occupancy",
+      "test_m4_occupancy_component",
+      "test_m4_opaque_component",
+      "test_m4_online_component",
+      "test_m4_live_ground_component",
+      "test_component_live_bundle",
+      "test_m4_component_publication",
+      "test_bg_component_residency",
+      "test_bg_component_deadlines",
+      "test_bg_components",
+      "test_home_bitmap_shared_cells",
+      "test_m4_bitmap_shared_adapter",
+      "test_seven_pair_spill",
+      "test_seven_pair_adapter",
+      "test_eight_pair_direct",
+      "test_m4_eight_pair_adapter",
+      "test_exact_coverage",
+      "test_exact_coverage_adapter",
+      "test_coverage_fused",
+      "test_fused_coverage_adapter",
+      "test_function_cost_profile",
+      "test_fused_timing_baseline",
+      "test_fused_capture_evidence",
+      "test_ready_validate",
+      "test_ready_validate_adapter",
+      "test_ref_rebuild",
+      "test_ref_rebuild_adapter",
+      "test_borrow_invalidate",
+      "test_borrow_invalidate_adapter",
+      "test_borrow_timing_alignment",
+      "-q"
+    ],
+    "returncode": 0,
+    "tests": 444,
+    "wall_seconds": 157.84400000004098,
+    "log": "E:/gh/snes-bor/out/byor-motu-timing-alignment-v1/focused-tests-final-v1.log",
+    "sha256": "2e75dce52277a7bfb276e1c353a58ea8685f7c81973cc7bb7b5e97619f26fe0e"
+  }
+}
