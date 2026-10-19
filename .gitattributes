@@ -42,3 +42,12 @@ src/generated/production_source_visual.json filter=lfs diff=lfs merge=lfs -text
 /tools/verify/test_abort_copy_adapter.py -text
 /docs/byor-motu-abort-copy.md -text
 /docs/receipts/byor-motu-abort-copy.json -text
+
+# Frozen capacity-scan experiment source and evidence bytes.
+tools/bor_compile/capacity_scan.py -text
+tools/verify/m4_capacity_scan_native.py -text
+tools/verify/test_capacity_scan.py -text
+tools/verify/test_capacity_scan_adapter.py -text
+docs/byor-motu-current-budget.md -text
+docs/byor-motu-capacity-scan.md -text
+docs/receipts/byor-motu-capacity-scan.json -text

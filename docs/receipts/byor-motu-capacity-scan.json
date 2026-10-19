@@ -1,0 +1,285 @@
+{
+  "schema": "BYOR_MOTU_CAPACITY_SCAN_EXPERIMENT_V1",
+  "classification": "REJECTED_STRICT_RECOVERY_CLOCK_GATE",
+  "accepted_runtime_changed": false,
+  "starting_commit": "a5ecc1f01a401cc5f77e9df8a57bd4197706be02",
+  "accepted_rom_sha256": "2ae50b27ac69986a07925e37fd99f5f5506044dec6195662ea54524a8ac4166f",
+  "measured_candidate": {
+    "rom_sha256": "267d1f14cdb5d2e2b82135789695be9f28b870448f8243160d126ee574490454",
+    "helper_bytes": 179,
+    "dispatch": [
+      3777798,
+      3777804
+    ],
+    "helper": [
+      3782656,
+      3782835
+    ],
+    "new_ram_bytes": 0,
+    "new_vram_bytes": 0
+  },
+  "prediction": {
+    "before_clocks": 559096,
+    "after_clocks": 417668,
+    "gain_percent": 25.29583470459456,
+    "boundary": "Original NbCapacityPredict entry through caller NbCapacityPredictionReturned, includes RTS, excludes caller JSR."
+  },
+  "completed_native_cases": {
+    "success": {
+      "classification": "EIGHT_PAIR_DIRECT_NATIVE_CORRECT",
+      "fields": 85,
+      "verified_pixels": 4874240,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "before_clocks": 7829932,
+          "after_clocks": 7829932,
+          "before_fields": 22,
+          "after_fields": 22
+        },
+        {
+          "transaction": 3,
+          "before_clocks": 11090114,
+          "after_clocks": 10732786,
+          "before_fields": 31,
+          "after_fields": 30
+        }
+      ],
+      "min_batch_margin": 27322,
+      "min_map_margin": 14668
+    },
+    "valid": {
+      "classification": "EIGHT_PAIR_DIRECT_NATIVE_CORRECT",
+      "fields": 113,
+      "verified_pixels": 6479872,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "transactions": [
+        {
+          "transaction": 2,
+          "before_clocks": 7829932,
+          "after_clocks": 7829932,
+          "before_fields": 22,
+          "after_fields": 22
+        },
+        {
+          "transaction": 3,
+          "before_clocks": 11090118,
+          "after_clocks": 11090118,
+          "before_fields": 31,
+          "after_fields": 31
+        },
+        {
+          "transaction": 4,
+          "before_clocks": 7700938,
+          "after_clocks": 7700970,
+          "before_fields": 22,
+          "after_fields": 22
+        }
+      ],
+      "min_batch_margin": 27316,
+      "min_map_margin": 14664
+    }
+  },
+  "verified_fields": 198,
+  "verified_rgb555_pixels": 11354112,
+  "min_batch_margin_clocks": 27316,
+  "min_map_margin_clocks": 14664,
+  "required_margin_clocks": 10000,
+  "strict_performance_gate": {
+    "unchanged": true,
+    "rule": "Every recorded transaction master-clock total and field count must be <= the accepted baseline, plus >=20% prediction improvement and an ordinary epoch3 field advance.",
+    "rejected_case": "valid",
+    "rejected_transaction": 4,
+    "increase_master_clocks": 32,
+    "increase_ms": 0.0014899472791467445,
+    "field_regression": false,
+    "threatens_measured_correctness_ownership_or_10000_margin": false,
+    "gate_is_stronger_than_those_hardware_correctness_requirements": true,
+    "causal_limit": "Offsets +22 at READY, +8 in map phase, +2 in final bookkeeping are consistent with scheduling/bus alignment; exact cause of each added clock not proven."
+  },
+  "corrected_prototype": {
+    "rom_sha256": "436c735d908b0e6bfbb140a2a4bd87f08e83ad3940e6c0fc60c8385e9174b020",
+    "helper_bytes": 175,
+    "changes": [
+      "Removed repeated LDA whose value remains in A",
+      "Removed dead initial DP18 store; DP18 written1024beforeitsnextread"
+    ],
+    "native_measured": false,
+    "native_pilot_v5_launched": false,
+    "selected_by_production": false,
+    "disabled_control_rom_sha256": "2ae50b27ac69986a07925e37fd99f5f5506044dec6195662ea54524a8ac4166f"
+  },
+  "capture_scope": {
+    "completed_case_manifest": {
+      "path": "out/byor-motu-capacity-scan-integration-v1/completed-two-case-manifest.json",
+      "sha256": "2b9170efdf1dde138dca92df6213f9b04f7822c65cc06d2e974f79b165405360",
+      "files": 507
+    },
+    "full_eight_case_seal_created": false,
+    "private_runtime_save_after_interruption_not_a_completed_case_oracle": true,
+    "prior_failed_attempts_retained": true,
+    "observer_faults_never_filtered": true,
+    "timing_total_scope": [
+      "success",
+      "valid"
+    ],
+    "interrupted_ready_excluded": true,
+    "additional_completed_early_case": {
+      "classification": "EIGHT_PAIR_DIRECT_NATIVE_CORRECT",
+      "expected_abort": true,
+      "fields": 80,
+      "verified_rgb555_pixels": 4587520,
+      "included_in_two_featured_case_totals": false,
+      "evidence": [
+        {
+          "path": "out/byor-motu-capacity-scan-pilot-v4/early/eight-result.json",
+          "sha256": "094c99b0a86003058f2e0ea018d050a3e6b83dde0d164ab16bdb053431897c15"
+        },
+        {
+          "path": "out/byor-motu-capacity-scan-pilot-v4/early/fields.json",
+          "sha256": "2b4c47f4481521c05769f10ac0770e7264d24a776f51bcedfe0dad41543973b9"
+        },
+        {
+          "path": "out/byor-motu-capacity-scan-pilot-v4/early/certified.json",
+          "sha256": "81bebb3204fa06db7a821ba923970fbd81b8ebaca068c1e0164a7ba4ceccccec"
+        }
+      ]
+    }
+  },
+  "lease_proofs": {
+    "native-lease-pilot-v1.json": {
+      "path": "out/byor-motu-capacity-scan-integration-v1/native-lease-pilot-v1.json",
+      "sha256": "1805c4ae0e67fd9a92f6bf7e7ef3e36db7df08b82f321982fe96ebeaf5d2f870",
+      "released": true,
+      "active_processes_after_cleanup": 0,
+      "returncode": 1
+    },
+    "native-lease-pilot-v2.json": {
+      "path": "out/byor-motu-capacity-scan-integration-v1/native-lease-pilot-v2.json",
+      "sha256": "ba81d5fca2b081b4ea03d8a6decd495a9a186b11768418e8ff9627ffb1f65982",
+      "released": true,
+      "active_processes_after_cleanup": 0,
+      "returncode": 1
+    },
+    "native-lease-pilot-v3.json": {
+      "path": "out/byor-motu-capacity-scan-integration-v1/native-lease-pilot-v3.json",
+      "sha256": "d2442373b522fab7dd5fd6ef46e8b4c13ca42f513e9f68359197888ff8bb38b3",
+      "released": true,
+      "active_processes_after_cleanup": 0,
+      "returncode": 1
+    },
+    "native-lease-pilot-v4.json": {
+      "path": "out/byor-motu-capacity-scan-integration-v1/native-lease-pilot-v4.json",
+      "sha256": "6dc4926d2d3c5afeabdcb234f37ae968141e91c18e3da863b78b17cc3807af0b",
+      "released": true,
+      "active_processes_after_cleanup": 0,
+      "returncode": 0
+    },
+    "native-lease-suite-v1.json": {
+      "path": "out/byor-motu-capacity-scan-integration-v1/native-lease-suite-v1.json",
+      "sha256": "3374b361b75d1c7811f5a7ab3beb9a7139e217482f83a7ab55276c39a328025c",
+      "released": true,
+      "active_processes_after_cleanup": 0,
+      "returncode": 4294967295
+    }
+  },
+  "code_and_doc_pins": [
+    {
+      "path": "tools/bor_compile/capacity_scan.py",
+      "sha256": "69492f219c051e4eadbd95e538065a36a22590896fdbc1aec08ab5b8e9484e26"
+    },
+    {
+      "path": "tools/verify/m4_capacity_scan_native.py",
+      "sha256": "19b494a699cdabf753ca39afced195a98a186c4cb590a02e04c51e0deea71df7"
+    },
+    {
+      "path": "tools/verify/test_capacity_scan.py",
+      "sha256": "a8c2c438c86602439741f45ff58afc05ff5274a3e0a8abb0520da6f696b386a8"
+    },
+    {
+      "path": "tools/verify/test_capacity_scan_adapter.py",
+      "sha256": "75c66ddf73da9ae794706e328cc6696a9e201285ae71c0e387798009458ba03f"
+    },
+    {
+      "path": "docs/byor-motu-current-budget.md",
+      "sha256": "eace533570ac8bb968b9f38fb54be0a123d5191eacc50d1969adbbd7cdb52379"
+    },
+    {
+      "path": "docs/byor-motu-capacity-scan.md",
+      "sha256": "80f01f2db8603fc1ec836d0cbb392ee127bbe9248f6200870ae65d27ad283bbd"
+    }
+  ],
+  "inherited_preservation": {
+    "tracked_states": 30,
+    "prompt_deletion_preserved": true,
+    "snapshot": {
+      "path": "out/byor-motu-capacity-scan-integration-v1/inherited-snapshot.json",
+      "sha256": "e6994ce30c59e2283ca07f5505848def6f4822e4a87278ccd0b40c01f7b1d247"
+    }
+  },
+  "budget_reconciliation": {
+    "path": "out/byor-motu-milestone-budget-v1/luna-requirements-audit-v2.json",
+    "sha256": "d1b668bc4cf2d0c0ca63bfac4e1f8489fd65dde6e1f68cfcd0b359c2dca46f4e",
+    "next_priority": "Real physical-clock/input/world traversal join with actual per-phase completion; no fabricated acknowledgments, then immutable render snapshots and natural-frame capabilities.",
+    "closed_ground_operation": {
+      "clocks": 417168,
+      "milliseconds": 19.423697704596535,
+      "boundary": "NB_SP_START 202983942 -> NB_SP_DONE 203401110",
+      "not_complete_world_tick": true,
+      "not_exclusive_cpu_cost": true,
+      "raw_log": {
+        "path": "out/byor-motu-abort-copy-v1/success/native/mesen.log",
+        "sha256": "aa8380033e37a26e25bb8a74703ff93b16f1e95373d24252ea7310425b4190f6"
+      }
+    }
+  },
+  "nonclaims": [
+    "accepted optimization",
+    "complete eight-case suite",
+    "30 FPS",
+    "200-Hz live-world scheduling",
+    "authored audio",
+    "combat",
+    "HUD",
+    "production concurrency",
+    "complete MOTU Demo"
+  ],
+  "focused_python_tests": {
+    "tests": 515,
+    "returncode": 0,
+    "result": {
+      "path": "out/byor-motu-capacity-scan-integration-v1/focused-tests-result-final-v2.json",
+      "sha256": "2c972731c75566c28533cb60bc438047d409adc870b6165b969cbf6a973dc002"
+    },
+    "log": {
+      "path": "out/byor-motu-capacity-scan-integration-v1/focused-tests-final-v2.log",
+      "sha256": "7a6424e4792df0751d980f7ecd39fba791677bcd6f3b89fc8561b323886f0ba9"
+    },
+    "not_native_acceptance": true
+  },
+  "independent_reviews": [
+    {
+      "path": "out/byor-motu-capacity-scan-integration-v1/independent-pilot-review-v1.json",
+      "sha256": "04e2b366cc951894362a9c44519aab48ddb0c30c21766fcfdd2cd24b6f920594"
+    },
+    {
+      "path": "out/byor-motu-capacity-scan-integration-v1/independent-budget-review-v2.json",
+      "sha256": "eaa3c44196fa57d0358d8c108a32a25df3c66859b908e0837b539609f0a71779"
+    },
+    {
+      "path": "out/byor-motu-capacity-scan-integration-v1/implementation-review-v2.json",
+      "sha256": "da0b4bc257217337bc1949c16ed2d4adb978a8867add7f68c8e059b31e769433"
+    },
+    {
+      "path": "out/byor-motu-capacity-scan-integration-v1/independent-final-review-v2.json",
+      "sha256": "0d904748e9e777222fcfb7b60857505d3b2d032f19df3ec282bc462ac80e1d79",
+      "scope": "Final corrected docs and pre-review receipt; the only subsequent receipt change is this review pin."
+    }
+  ],
+  "prior_scalar_online_profile_not_used_as_current_budget": true
+}
