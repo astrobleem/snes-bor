@@ -1,0 +1,137 @@
+{
+  "classification": "READY_UNROLL_NATIVE_PILOT_NOT_ACCEPTED",
+  "acceptance_gate_pass": false,
+  "candidate_not_promoted": true,
+  "full_eight_case_certification": false,
+  "reason": "Epoch3 publication adds36 master clocks; strict all-case nonregression is unchanged.",
+  "raw_manifest": {
+    "path": "out/byor-motu-ready-unroll-pilot-v1/pilot-raw-inputs.json",
+    "sha256": "f238575c026e79d4e8b5924f684907516e608547c2742e45a883a27865352c62",
+    "files": 225
+  },
+  "candidate_rom_sha256": "8691732677d5c864871706ee95a9c3d6010910053c86dd6ea358e3641f671399",
+  "fields": 85,
+  "verified_rgb555_pixels": 4874240,
+  "ready_comparison": {
+    "1": {
+      "before_clocks": 277554,
+      "after_clocks": 176552,
+      "saved_clocks": 101002
+    },
+    "2": {
+      "before_clocks": 277514,
+      "after_clocks": 176512,
+      "saved_clocks": 101002
+    },
+    "3": {
+      "before_clocks": 288078,
+      "after_clocks": 187076,
+      "saved_clocks": 101002
+    }
+  },
+  "publication_comparison": [
+    {
+      "transaction": 2,
+      "before_clocks": 7943412,
+      "after_clocks": 7943082,
+      "before_fields": 22,
+      "after_fields": 22,
+      "strict_pass": true
+    },
+    {
+      "transaction": 3,
+      "before_clocks": 11203624,
+      "after_clocks": 11203660,
+      "before_fields": 31,
+      "after_fields": 31,
+      "strict_pass": false
+    }
+  ],
+  "source_files": {
+    "tools/bor_compile/ready_unroll.py": "d49ef4411d3a7157500271e0fb5549b3411db17e51d6af9c545f4d7b36ca6674",
+    "tools/verify/test_ready_unroll.py": "7f3d5a6adf73d4acd8ab6e97a69756fc1b20bbaa3467c1d87b4df71dad7cd596",
+    "tools/verify/m4_ready_unroll_native.py": "568f9e584663d03702e9add60210a1213014f33175a5b9a40864fec8da0d7618",
+    "tools/verify/ready_unroll_evidence.py": "c4085c252a323b44ba3b4d2ca0eb240fe7330b719a5c1954e95352dce78b9e34",
+    "tools/verify/test_ready_unroll_adapter.py": "4043e49f6618a7a86e80d31d1894282ddeda712aba1dba0ebaf9ef89979c88a7"
+  },
+  "targeted_tests": {
+    "count": 14,
+    "log": "out/byor-motu-ready-unroll-integration-v1/targeted-final-v1.log",
+    "sha256": "13ccb9066e6ee8011f26820f51f88c0e0d9e37562d9e0c057c320e930e979a02"
+  },
+  "independent_review": {
+    "path": "E:/gh/snes-bor/out/byor-motu-ready-unroll-integration-v1/independent-native-review-v1.json",
+    "sha256": "2043c4503a0ad1cc8b888323bec000ea7fb0819266897a5dea00df1abfe2e930"
+  },
+  "original_controls_checked": 102,
+  "original_controls_unchanged": true,
+  "accepted_reference_capture": {
+    "provenance_sha256": "f1597aefea2a14cdf684185cdf099d4807cff4927fb6a9c50f3ccba4ac4bbb6f",
+    "raw_manifest_sha256": "c946fd6639cbcf95cea495bd7bfbbab92bec33629086c4f4dadb0e016bd279fa",
+    "immutable_msu_sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+    "raw_inputs": 1759,
+    "verified_origins": 1759,
+    "cases": {
+      "success": {
+        "fields": 86,
+        "first_frame": 523,
+        "last_frame": 608,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "valid": {
+        "fields": 113,
+        "first_frame": 523,
+        "last_frame": 635,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "early": {
+        "fields": 80,
+        "first_frame": 523,
+        "last_frame": 602,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "ready": {
+        "fields": 85,
+        "first_frame": 523,
+        "last_frame": 607,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "partial": {
+        "fields": 88,
+        "first_frame": 523,
+        "last_frame": 610,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "stale": {
+        "fields": 85,
+        "first_frame": 523,
+        "last_frame": 607,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "insufficient": {
+        "fields": 69,
+        "first_frame": 523,
+        "last_frame": 591,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "right": {
+        "fields": 60,
+        "first_frame": 523,
+        "last_frame": 582,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      }
+    },
+    "observed_fields": 666
+  },
+  "dma_margin_floor_clocks": 10000,
+  "strict_acceptance_rules_unchanged": true,
+  "boundary": "READY precedes map DMA and is separate from the post-map reference rebuild interval."
+}

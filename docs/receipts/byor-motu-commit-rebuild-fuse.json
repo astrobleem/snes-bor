@@ -1,0 +1,318 @@
+{
+  "classification": "COMMIT_REBUILD_FUSE_NATIVE_NOT_ACCEPTED",
+  "acceptance_gate_pass": false,
+  "candidate_not_promoted": true,
+  "all_eight_cases_captured": true,
+  "full_new_acceptance_certification": false,
+  "capture_evidence": {
+    "provenance_sha256": "5d0e4784ce23c52d276bc6e3cda077abeb42342d8492a51198e1cccd42a32193",
+    "raw_manifest_sha256": "9d97c9722aad01d20b05d227988c6919366e1265d1016838969512a360621cbb",
+    "immutable_msu_sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+    "raw_inputs": 1775,
+    "verified_origins": 1775,
+    "cases": {
+      "success": {
+        "fields": 86,
+        "first_frame": 523,
+        "last_frame": 608,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "valid": {
+        "fields": 113,
+        "first_frame": 523,
+        "last_frame": 635,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "early": {
+        "fields": 80,
+        "first_frame": 523,
+        "last_frame": 602,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "ready": {
+        "fields": 85,
+        "first_frame": 523,
+        "last_frame": 607,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "partial": {
+        "fields": 88,
+        "first_frame": 523,
+        "last_frame": 610,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "stale": {
+        "fields": 85,
+        "first_frame": 523,
+        "last_frame": 607,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "insufficient": {
+        "fields": 69,
+        "first_frame": 523,
+        "last_frame": 591,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "right": {
+        "fields": 60,
+        "first_frame": 523,
+        "last_frame": 582,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      }
+    },
+    "observed_fields": 666
+  },
+  "exact_fields": 666,
+  "verified_rgb555_pixels": 38191104,
+  "postmap_epoch3": {
+    "before_clocks": 453628,
+    "after_clocks": 340216,
+    "saved_clocks": 113412,
+    "gain_percent": 25.001102224730396
+  },
+  "all_case_timings": {
+    "success": [
+      {
+        "transaction": 2,
+        "committed": true,
+        "before_clocks": 7943412,
+        "after_clocks": 7830002,
+        "before_fields": 22,
+        "after_fields": 22,
+        "clock_delta": -113410
+      },
+      {
+        "transaction": 3,
+        "committed": true,
+        "before_clocks": 11203624,
+        "after_clocks": 11090232,
+        "before_fields": 31,
+        "after_fields": 31,
+        "clock_delta": -113392
+      }
+    ],
+    "valid": [
+      {
+        "transaction": 2,
+        "committed": true,
+        "before_clocks": 7943412,
+        "after_clocks": 7830002,
+        "before_fields": 22,
+        "after_fields": 22,
+        "clock_delta": -113410
+      },
+      {
+        "transaction": 3,
+        "committed": true,
+        "before_clocks": 11203622,
+        "after_clocks": 11090240,
+        "before_fields": 31,
+        "after_fields": 31,
+        "clock_delta": -113382
+      },
+      {
+        "transaction": 4,
+        "committed": true,
+        "before_clocks": 7814280,
+        "after_clocks": 7700922,
+        "before_fields": 22,
+        "after_fields": 22,
+        "clock_delta": -113358
+      }
+    ],
+    "early": [
+      {
+        "transaction": 2,
+        "committed": true,
+        "before_clocks": 7943412,
+        "after_clocks": 7830002,
+        "before_fields": 22,
+        "after_fields": 22,
+        "clock_delta": -113410
+      },
+      {
+        "transaction": 3,
+        "committed": false,
+        "before_clocks": 9055908,
+        "after_clocks": 9056042,
+        "before_fields": 25,
+        "after_fields": 25,
+        "clock_delta": 134
+      }
+    ],
+    "ready": [
+      {
+        "transaction": 2,
+        "committed": true,
+        "before_clocks": 7943412,
+        "after_clocks": 7830002,
+        "before_fields": 22,
+        "after_fields": 22,
+        "clock_delta": -113410
+      },
+      {
+        "transaction": 3,
+        "committed": false,
+        "before_clocks": 10842810,
+        "after_clocks": 10842848,
+        "before_fields": 30,
+        "after_fields": 30,
+        "clock_delta": 38
+      }
+    ],
+    "partial": [
+      {
+        "transaction": 2,
+        "committed": true,
+        "before_clocks": 7943412,
+        "after_clocks": 7830002,
+        "before_fields": 22,
+        "after_fields": 22,
+        "clock_delta": -113410
+      },
+      {
+        "transaction": 3,
+        "committed": false,
+        "before_clocks": 11914888,
+        "after_clocks": 11914970,
+        "before_fields": 33,
+        "after_fields": 33,
+        "clock_delta": 82
+      }
+    ],
+    "stale": [
+      {
+        "transaction": 2,
+        "committed": true,
+        "before_clocks": 7943412,
+        "after_clocks": 7830002,
+        "before_fields": 22,
+        "after_fields": 22,
+        "clock_delta": -113410
+      },
+      {
+        "transaction": 3,
+        "committed": false,
+        "before_clocks": 10842772,
+        "after_clocks": 10842818,
+        "before_fields": 30,
+        "after_fields": 30,
+        "clock_delta": 46
+      }
+    ],
+    "insufficient": [
+      {
+        "transaction": 2,
+        "committed": true,
+        "before_clocks": 7943412,
+        "after_clocks": 7830002,
+        "before_fields": 22,
+        "after_fields": 22,
+        "clock_delta": -113410
+      },
+      {
+        "transaction": 3,
+        "committed": false,
+        "before_clocks": 5133244,
+        "after_clocks": 5133248,
+        "before_fields": 14,
+        "after_fields": 14,
+        "clock_delta": 4
+      }
+    ],
+    "right": []
+  },
+  "strict_gate_regressions": [
+    {
+      "case": "early",
+      "transaction": 3,
+      "committed": false,
+      "before_clocks": 9055908,
+      "after_clocks": 9056042,
+      "before_fields": 25,
+      "after_fields": 25,
+      "clock_delta": 134
+    },
+    {
+      "case": "ready",
+      "transaction": 3,
+      "committed": false,
+      "before_clocks": 10842810,
+      "after_clocks": 10842848,
+      "before_fields": 30,
+      "after_fields": 30,
+      "clock_delta": 38
+    },
+    {
+      "case": "partial",
+      "transaction": 3,
+      "committed": false,
+      "before_clocks": 11914888,
+      "after_clocks": 11914970,
+      "before_fields": 33,
+      "after_fields": 33,
+      "clock_delta": 82
+    },
+    {
+      "case": "stale",
+      "transaction": 3,
+      "committed": false,
+      "before_clocks": 10842772,
+      "after_clocks": 10842818,
+      "before_fields": 30,
+      "after_fields": 30,
+      "clock_delta": 46
+    },
+    {
+      "case": "insufficient",
+      "transaction": 3,
+      "committed": false,
+      "before_clocks": 5133244,
+      "after_clocks": 5133248,
+      "before_fields": 14,
+      "after_fields": 14,
+      "clock_delta": 4
+    }
+  ],
+  "source_files": {
+    "tools/bor_compile/commit_rebuild_fuse.py": "f9b0f4d8ba402349b40645b24cde9366b027a797fc78efd0b9850f9b03ffb16d",
+    "tools/verify/test_commit_rebuild_fuse.py": "0cb1a71ec40a8428038fe2dc09562b4b234f24f5cf4573da993efb0f24c49f48",
+    "tools/verify/m4_commit_rebuild_fuse_native.py": "87e2ae667926296f4f3d416cef4ae01751126283909d5bdc0949130a64215677",
+    "tools/verify/commit_rebuild_fuse_evidence.py": "a1058ec78579ad4f01b8cdc6aa873bdd48fd9694c113f04409d3f5dac30db2a9",
+    "tools/verify/test_commit_rebuild_fuse_adapter.py": "ca50193f551863ac0e3e561b09f355f63ab1ad77d2f7cc8b3a0007a9a78f2a31"
+  },
+  "targeted_tests": {
+    "count": 16,
+    "path": "E:/gh/snes-bor/out/byor-motu-commit-rebuild-fuse-integration-v1/targeted-tests-v8.log",
+    "sha256": "2e26cb466591454c4058b872424f440887f4aad08d0736f58331728279a6dd01"
+  },
+  "inherited_narrower_receipt": {
+    "path": "out/byor-motu-commit-rebuild-fuse-v1/ref-rebuild-receipt.json",
+    "sha256": "c3a19d0b7504df78b09c4f8a0c4b5e5c6f5257908266c3e568850e73d8efd1db",
+    "limitation": "Retains old correctness and older READY-relative threshold; not acceptance of current-REF all-case timing gates."
+  },
+  "owner_and_pixel_faults": 0,
+  "controls_checked": 108,
+  "all_prior_controls_unchanged": true,
+  "standard_lease": {
+    "acquired": true,
+    "released": true,
+    "shared_files_modified": false,
+    "unrelated_processes_modified": false,
+    "protocol": "msvcrt.LK_NBLCK byte0 length1 on read-only handle",
+    "purpose": "Serial eight-case committed clone/reference recount certification",
+    "start": 1792392636.3228285,
+    "state": "COMMIT_REBUILD_FUSE_SUITE_EXIT",
+    "returncode": 1,
+    "finished": 1792393512.5610037
+  },
+  "no_tolerance_or_padding_exception": true
+}

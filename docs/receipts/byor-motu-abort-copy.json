@@ -1,0 +1,699 @@
+{
+  "classification": "BYOR_MOTU_ABORT_COPY_PASS",
+  "starting_commit": "afd627bb7d49cf402df788066ea875356fb4c7ca",
+  "baseline_receipt": {
+    "path": "docs/receipts/byor-motu-ref-rebuild.json",
+    "sha256": "4907309e52e6e47f8e0d60536051c63a8a93b836a56eafde6e008448c830b39f"
+  },
+  "baseline_rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+  "candidate_rom_sha256": "2ae50b27ac69986a07925e37fd99f5f5506044dec6195662ea54524a8ac4166f",
+  "disabled_rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+  "retained_full_native_receipt": {
+    "path": "out/byor-motu-abort-copy-v1/abort-copy-receipt.json",
+    "sha256": "dcfc8339cdcb8d0564c870cabf799505b1e0ca5cbb876853b215ae6e4bc178b1"
+  },
+  "native_capture": {
+    "classification": "ABORT_COPY_SUITE_VALIDATION_PASS",
+    "fields": 666,
+    "verified_rgb555_pixels": 38191104,
+    "raw_inputs": 1783,
+    "capture_seal": {
+      "provenance_sha256": "d32f4c27ee4bf5ae5f6b5361091302365927ede33b9ab498b207eeec498b4282",
+      "raw_manifest_sha256": "f7a2d69a5db7b48f57f304b16b5c5a58e2e3da9a7b0d613e22abe24be52e4ba8"
+    },
+    "controls_checked": 120,
+    "all_controls_unchanged": true,
+    "private_runtime": {
+      "binary_count": 63,
+      "only_six_private_output_paths_changed": true,
+      "initial_sram": {
+        "source": "C:\\Users\\chad\\Documents\\Mesen2\\Saves\\bor.srm",
+        "sha256": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1",
+        "bytes": 262144,
+        "authority_receipt_sha256": "50e6675c7637e1574018222515893d4479deccc230cfbbffa6d3c2d64a5d7bb2",
+        "manifest_sha256": "6a683db6afed8eff99afd116d01ab3254f3ca5471e5725d7c7dba2a4fab9cce7"
+      }
+    },
+    "cases": {
+      "success": {
+        "fields": 86,
+        "pixels": 4931584,
+        "abort_copies": 1,
+        "progress": {
+          "exact_rpc_responses": 514,
+          "partial_responses": 113
+        }
+      },
+      "valid": {
+        "fields": 113,
+        "pixels": 6479872,
+        "abort_copies": 1,
+        "progress": {
+          "exact_rpc_responses": 604,
+          "partial_responses": 176
+        }
+      },
+      "early": {
+        "fields": 80,
+        "pixels": 4587520,
+        "abort_copies": 2,
+        "progress": {
+          "exact_rpc_responses": 495,
+          "partial_responses": 100
+        }
+      },
+      "ready": {
+        "fields": 85,
+        "pixels": 4874240,
+        "abort_copies": 2,
+        "progress": {
+          "exact_rpc_responses": 495,
+          "partial_responses": 95
+        }
+      },
+      "partial": {
+        "fields": 88,
+        "pixels": 5046272,
+        "abort_copies": 2,
+        "progress": {
+          "exact_rpc_responses": 499,
+          "partial_responses": 96
+        }
+      },
+      "stale": {
+        "fields": 85,
+        "pixels": 4874240,
+        "abort_copies": 2,
+        "progress": {
+          "exact_rpc_responses": 499,
+          "partial_responses": 99
+        }
+      },
+      "insufficient": {
+        "fields": 69,
+        "pixels": 3956736,
+        "abort_copies": 2,
+        "progress": {
+          "exact_rpc_responses": 459,
+          "partial_responses": 75
+        }
+      },
+      "right": {
+        "fields": 60,
+        "pixels": 3440640,
+        "abort_copies": 1,
+        "progress": {
+          "exact_rpc_responses": 152,
+          "partial_responses": 73
+        }
+      }
+    },
+    "standard_abort_copy_invocations": 13,
+    "minimum_batch_margin_clocks": 27314,
+    "minimum_map_margin_clocks": 14694,
+    "right_control_total_clocks_comparison": [
+      {
+        "transaction": 1,
+        "before_clocks": 6533914,
+        "after_clocks": 6533914
+      },
+      {
+        "transaction": 2,
+        "before_clocks": 7943358,
+        "after_clocks": 7829962
+      }
+    ],
+    "strict_all_case_timing_nonregression": true,
+    "minimum_postmap_gain_percent": 20,
+    "separate_forced_owner_zero_branch_probe": {
+      "runtime": {
+        "binary_count": 63,
+        "only_six_private_output_paths_changed": true,
+        "initial_sram": {
+          "source": "C:\\Users\\chad\\Documents\\Mesen2\\Saves\\bor.srm",
+          "sha256": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1",
+          "bytes": 262144,
+          "authority_receipt_sha256": "50e6675c7637e1574018222515893d4479deccc230cfbbffa6d3c2d64a5d7bb2",
+          "manifest_sha256": "577caf755f35d09f9f0bb98b679c4c6d8f290b6d0900b8d536e92b61c16a5b30"
+        }
+      },
+      "progress": {
+        "exact_rpc_responses": 483,
+        "partial_responses": 88
+      },
+      "raw_manifest": {
+        "path": "out/byor-motu-abort-copy-cold-probe-v2/probe-raw-inputs.json",
+        "sha256": "546ade5bc341e38c6066427d7ddfe505c6726c9d072f35d92d8e5c5e68605801",
+        "files": 223
+      },
+      "fields": 80,
+      "pixels": 4587520,
+      "natural_cold_failure_chain_not_exercised": true,
+      "actual_owned_launch": {
+        "pid": 31312,
+        "argv": [
+          "E:\\gh\\snes-bor\\out\\byor-motu-abort-copy-cold-probe-v2\\capture-runtime\\Mesen.exe",
+          "--mcp",
+          "--mcp-port=61816",
+          "E:\\gh\\snes-bor\\out\\byor-motu-abort-copy-cold-probe-v2\\early\\native\\bor.sfc",
+          "--donotsavesettings",
+          "E:\\gh\\snes-bor\\out\\byor-motu-abort-copy-cold-probe-v2\\early\\native\\callback_owner.lua"
+        ],
+        "actual_executable": "E:\\gh\\snes-bor\\out\\byor-motu-abort-copy-cold-probe-v2\\capture-runtime\\Mesen.exe",
+        "expected_executable": "E:\\gh\\snes-bor\\out\\byor-motu-abort-copy-cold-probe-v2\\capture-runtime\\Mesen.exe",
+        "driver_executable": "E:\\gh\\snes-bor\\out\\byor-motu-abort-copy-cold-probe-v2\\capture-runtime\\Mesen.exe",
+        "python_pid": 28676,
+        "python_executable": "c:\\users\\chad\\miniconda3\\python.exe",
+        "private_seed_sha256": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1",
+        "standard_save_before": "c9976244d8f03eceaf66b6e30d6f34e49d2f692edc88c30aad67f61ced076675",
+        "settings_sha256": "6f16a6a19a049c37958931fd70061b1f57c55d047a5faed63cda16769743886e"
+      },
+      "standard_private_save_unchanged": true,
+      "whole_private_save_before_after_bound": true,
+      "rejected_same_process_attempt": "out/byor-motu-abort-copy-integration-v1/attempt-shared-runtime-v1/rejection-receipt.json"
+    }
+  },
+  "baseline_epoch2": {
+    "transaction": 2,
+    "committed": true,
+    "start": 196193318,
+    "finish": 204136730,
+    "fields": 22,
+    "master_clocks": 7943412
+  },
+  "baseline_epoch3": {
+    "transaction": 3,
+    "committed": true,
+    "start": 205084422,
+    "finish": 216288046,
+    "fields": 31,
+    "master_clocks": 11203624
+  },
+  "candidate_epoch2": {
+    "transaction": 2,
+    "committed": true,
+    "start": 196193336,
+    "finish": 204023268,
+    "fields": 22,
+    "master_clocks": 7829932
+  },
+  "candidate_epoch3": {
+    "transaction": 3,
+    "committed": true,
+    "start": 205084462,
+    "finish": 216174576,
+    "fields": 31,
+    "master_clocks": 11090114
+  },
+  "postmap_interval_comparison": {
+    "success": {
+      "2": {
+        "before_clocks": 453164,
+        "after_clocks": 339754,
+        "saved_clocks": 113410
+      },
+      "3": {
+        "before_clocks": 453628,
+        "after_clocks": 340216,
+        "saved_clocks": 113412
+      }
+    },
+    "valid": {
+      "2": {
+        "before_clocks": 453164,
+        "after_clocks": 339754,
+        "saved_clocks": 113410
+      },
+      "3": {
+        "before_clocks": 453628,
+        "after_clocks": 340216,
+        "saved_clocks": 113412
+      },
+      "4": {
+        "before_clocks": 453626,
+        "after_clocks": 340216,
+        "saved_clocks": 113410
+      }
+    },
+    "early": {
+      "2": {
+        "before_clocks": 453164,
+        "after_clocks": 339754,
+        "saved_clocks": 113410
+      }
+    },
+    "ready": {
+      "2": {
+        "before_clocks": 453164,
+        "after_clocks": 339754,
+        "saved_clocks": 113410
+      }
+    },
+    "partial": {
+      "2": {
+        "before_clocks": 453164,
+        "after_clocks": 339754,
+        "saved_clocks": 113410
+      }
+    },
+    "stale": {
+      "2": {
+        "before_clocks": 453164,
+        "after_clocks": 339754,
+        "saved_clocks": 113410
+      }
+    },
+    "insufficient": {
+      "2": {
+        "before_clocks": 453164,
+        "after_clocks": 339754,
+        "saved_clocks": 113410
+      }
+    },
+    "right": {
+      "2": {
+        "before_clocks": 453164,
+        "after_clocks": 339754,
+        "saved_clocks": 113410
+      }
+    }
+  },
+  "all_case_timing_nonregression": {
+    "success": {
+      "before_observed_fields": 86,
+      "after_observed_fields": 86,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "before_clocks": 7943412,
+          "after_clocks": 7829932,
+          "before_fields": 22,
+          "after_fields": 22
+        },
+        {
+          "transaction": 3,
+          "committed": true,
+          "before_clocks": 11203624,
+          "after_clocks": 11090114,
+          "before_fields": 31,
+          "after_fields": 31
+        }
+      ]
+    },
+    "valid": {
+      "before_observed_fields": 113,
+      "after_observed_fields": 113,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "before_clocks": 7943412,
+          "after_clocks": 7829932,
+          "before_fields": 22,
+          "after_fields": 22
+        },
+        {
+          "transaction": 3,
+          "committed": true,
+          "before_clocks": 11203622,
+          "after_clocks": 11090118,
+          "before_fields": 31,
+          "after_fields": 31
+        },
+        {
+          "transaction": 4,
+          "committed": true,
+          "before_clocks": 7814280,
+          "after_clocks": 7700938,
+          "before_fields": 22,
+          "after_fields": 22
+        }
+      ]
+    },
+    "early": {
+      "before_observed_fields": 80,
+      "after_observed_fields": 80,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "before_clocks": 7943412,
+          "after_clocks": 7829932,
+          "before_fields": 22,
+          "after_fields": 22
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "before_clocks": 9055908,
+          "after_clocks": 9047862,
+          "before_fields": 25,
+          "after_fields": 25
+        }
+      ]
+    },
+    "ready": {
+      "before_observed_fields": 85,
+      "after_observed_fields": 85,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "before_clocks": 7943412,
+          "after_clocks": 7829932,
+          "before_fields": 22,
+          "after_fields": 22
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "before_clocks": 10842810,
+          "after_clocks": 10834672,
+          "before_fields": 30,
+          "after_fields": 30
+        }
+      ]
+    },
+    "partial": {
+      "before_observed_fields": 88,
+      "after_observed_fields": 88,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "before_clocks": 7943412,
+          "after_clocks": 7829932,
+          "before_fields": 22,
+          "after_fields": 22
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "before_clocks": 11914888,
+          "after_clocks": 11906742,
+          "before_fields": 33,
+          "after_fields": 33
+        }
+      ]
+    },
+    "stale": {
+      "before_observed_fields": 85,
+      "after_observed_fields": 85,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "before_clocks": 7943412,
+          "after_clocks": 7829932,
+          "before_fields": 22,
+          "after_fields": 22
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "before_clocks": 10842772,
+          "after_clocks": 10834742,
+          "before_fields": 30,
+          "after_fields": 30
+        }
+      ]
+    },
+    "insufficient": {
+      "before_observed_fields": 69,
+      "after_observed_fields": 69,
+      "transactions": [
+        {
+          "transaction": 2,
+          "committed": true,
+          "before_clocks": 7943412,
+          "after_clocks": 7829932,
+          "before_fields": 22,
+          "after_fields": 22
+        },
+        {
+          "transaction": 3,
+          "committed": false,
+          "before_clocks": 5133244,
+          "after_clocks": 5125222,
+          "before_fields": 14,
+          "after_fields": 14
+        }
+      ]
+    },
+    "right": {
+      "before_observed_fields": 60,
+      "after_observed_fields": 60,
+      "transactions": [],
+      "before_transition_fields": 22,
+      "after_transition_fields": 22
+    }
+  },
+  "right_control_total_clocks_comparison": [
+    {
+      "transaction": 1,
+      "before_clocks": 6533914,
+      "after_clocks": 6533914
+    },
+    {
+      "transaction": 2,
+      "before_clocks": 7943358,
+      "after_clocks": 7829962
+    }
+  ],
+  "epoch3_postmap_gain_percent": 25.001102224730396,
+  "minimum_required_postmap_gain_percent": 20,
+  "master_clocks_per_second": 21477272,
+  "strict_no_epoch_field_or_transaction_regression": true,
+  "dma_margin_floor_clocks": 10000,
+  "focused_tests": {
+    "command": [
+      "E:\\gh\\_snes-bor-eight-pair-task-20261018\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "test_restore_single_pass",
+      "test_restore_single_pass_adapter",
+      "test_home_borrow_bitmap",
+      "test_home_borrow_bitmap_adapter",
+      "test_m4_home_borrow",
+      "test_m4_source_safepoint",
+      "test_m4_conditional_capacity",
+      "test_early_capacity",
+      "test_m4_early_capacity_component",
+      "test_restore_spill",
+      "test_m4_restore_spill_component",
+      "test_batch_rescue",
+      "test_generated_splice",
+      "test_m4_nonblank_batch_component",
+      "test_m4_nonblank_component",
+      "test_rect_map_opt",
+      "test_m4_rect_map_component",
+      "test_direct_pair_dma",
+      "test_m4_direct_pair_component",
+      "test_m4_native_cost_accounting",
+      "test_tile_fusion",
+      "test_m4_tile_fusion_component",
+      "test_phase_occupancy",
+      "test_m4_occupancy_component",
+      "test_m4_opaque_component",
+      "test_m4_online_component",
+      "test_m4_live_ground_component",
+      "test_component_live_bundle",
+      "test_m4_component_publication",
+      "test_bg_component_residency",
+      "test_bg_component_deadlines",
+      "test_bg_components",
+      "test_home_bitmap_shared_cells",
+      "test_m4_bitmap_shared_adapter",
+      "test_seven_pair_spill",
+      "test_seven_pair_adapter",
+      "test_eight_pair_direct",
+      "test_m4_eight_pair_adapter",
+      "test_exact_coverage",
+      "test_exact_coverage_adapter",
+      "test_coverage_fused",
+      "test_fused_coverage_adapter",
+      "test_function_cost_profile",
+      "test_fused_timing_baseline",
+      "test_fused_capture_evidence",
+      "test_ready_validate",
+      "test_ready_validate_adapter",
+      "test_ref_rebuild",
+      "test_ref_rebuild_adapter",
+      "test_borrow_invalidate",
+      "test_borrow_invalidate_adapter",
+      "test_borrow_timing_alignment",
+      "test_preload_pair",
+      "test_preload_pair_adapter",
+      "test_ready_unroll",
+      "test_ready_unroll_adapter",
+      "test_commit_rebuild_fuse",
+      "test_commit_rebuild_fuse_adapter",
+      "test_abort_copy",
+      "test_abort_copy_adapter",
+      "-q"
+    ],
+    "returncode": 0,
+    "tests": 505,
+    "wall_seconds": 173.5,
+    "log": "E:/gh/snes-bor/out/byor-motu-abort-copy-integration-v1/focused-tests-final-v1.log",
+    "sha256": "7b984f92d2a5ca8efc4021b0d5e2328d2afe8f2b4ebce678330b3110848f1171"
+  },
+  "implementation_files": {
+    "tools/bor_compile/commit_rebuild_fuse.py": "f9b0f4d8ba402349b40645b24cde9366b027a797fc78efd0b9850f9b03ffb16d",
+    "tools/bor_compile/abort_copy.py": "307dd322b3568a6aeecc3890976cedfc4ac1ee269e34cd3fb7eb31ed8de93c21",
+    "tools/verify/test_commit_rebuild_fuse.py": "0cb1a71ec40a8428038fe2dc09562b4b234f24f5cf4573da993efb0f24c49f48",
+    "tools/verify/m4_commit_rebuild_fuse_native.py": "87e2ae667926296f4f3d416cef4ae01751126283909d5bdc0949130a64215677",
+    "tools/verify/commit_rebuild_fuse_evidence.py": "a1058ec78579ad4f01b8cdc6aa873bdd48fd9694c113f04409d3f5dac30db2a9",
+    "tools/verify/test_commit_rebuild_fuse_adapter.py": "ca50193f551863ac0e3e561b09f355f63ab1ad77d2f7cc8b3a0007a9a78f2a31",
+    "tools/verify/test_abort_copy.py": "e66d387f3f8b8f109c97a6082bacd9622a360f7f528267cccbc155138c8c00a0",
+    "tools/verify/m4_abort_copy_native.py": "9e12d3d4a8c5f0fd4f3729ba9496e0a10da611c532f29741ec9d53c9479939ef",
+    "tools/verify/abort_copy_evidence.py": "a030b0d0dfe429dfc9aa911dbe9d8e5950b2eb46799669ff7be551bd1d88551f",
+    "tools/verify/test_abort_copy_adapter.py": "d672151fec09feb22a99ff2fcedf5c27196d1bd87f65020083d517a74bd5691b"
+  },
+  "independent_reviews": [
+    {
+      "path": "E:/gh/snes-bor/out/byor-motu-abort-copy-integration-v1/independent-suite-review-v2.json",
+      "sha256": "8d64e4caaf1edc49b35b8ad634457c97eb2856ca9ffb8175d72697af3f105e9f"
+    },
+    {
+      "path": "E:/gh/snes-bor/out/byor-motu-abort-copy-integration-v1/independent-runtime-review-v2.json",
+      "sha256": "5ab7d90bf7f6cd9558a463c6bbaed44799645c5409ae9388bc95dfb97d3bc285"
+    },
+    {
+      "path": "E:/gh/snes-bor/out/byor-motu-abort-copy-integration-v1/independent-preflight-v2.json",
+      "sha256": "c935e6796d1ab5c8495de115bfefb1fbe35c7518892ee2f632f232b76eb450c7"
+    },
+    {
+      "path": "E:/gh/snes-bor/out/byor-motu-abort-copy-integration-v1/independent-probe-preflight-v3.json",
+      "sha256": "1222ba5a0547711068ea76be68952aff81ca4bcf8b4b0adef5602b8fbc3f7e3a"
+    },
+    {
+      "path": "E:/gh/snes-bor/out/byor-motu-abort-copy-integration-v1/independent-pilot-review-v1.json",
+      "sha256": "c31f86a668bff0f8d3a79594d780c2cf3ff600333332e23114dca1d84fac6cb3"
+    }
+  ],
+  "static_audits": {
+    "commit_rebuild_fuse": {
+      "status": "PASS",
+      "baseline_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+      "code_start": 3779328,
+      "code_end": 3780153,
+      "code_bytes": 825,
+      "patch_pc": 3777131,
+      "patch_bytes": 4,
+      "words_per_block": 32,
+      "branch_sites": 318,
+      "all_original_symbols_identical": true,
+      "allowed_rom_byte_ranges": [
+        [
+          1876587,
+          1876591
+        ],
+        [
+          1878784,
+          1879609
+        ]
+      ],
+      "original_ready_guard_retained": true,
+      "global_write_interleaving_changed_under_exclusive_publication_owner": true
+    },
+    "abort_copy": {
+      "status": "PASS",
+      "fusion_rom_sha256": "c926a1808dd809f54474788f08ef857a9977b786e17146248f15daaa926dae37",
+      "patch_pc": 3777353,
+      "patch_bytes": 4,
+      "continuation_pc": 3777370,
+      "code_start": 3780160,
+      "code_end": 3780416,
+      "code_bytes": 256,
+      "branch_sites": 321,
+      "all_original_symbols_identical": true,
+      "original_owner_close_store_retained": true,
+      "allowed_rom_byte_ranges": [
+        [
+          1876809,
+          1876813
+        ],
+        [
+          1879616,
+          1879872
+        ]
+      ],
+      "global_read_write_interleaving_changed_in_fixture_abort_section": true
+    }
+  },
+  "publication_fusion_and_guarded_abort_copy_both_required": true,
+  "preservation_snapshot": {
+    "path": "E:/gh/snes-bor/out/byor-motu-abort-copy-integration-v1/snapshot.json",
+    "sha256": "da8f09eb5d438dc85769dcc424c5ed529247c8147dcd72d4f0dbab7120d99622"
+  },
+  "separate_forced_owner_zero_branch_probe": {
+    "path": "out/byor-motu-abort-copy-cold-probe-v2/probe-result.json",
+    "sha256": "f5a4d3f53326ac97209310ae77a8d27f252a1f7d1179f747b5f9b999d29c5572"
+  },
+  "probe_limit": "Owner zero injected at the original abort dispatch in a separately sealed run of the identical ROM. This covers the guarded legacy branch and its bytewise native trace, not the natural cold-preflight failure chain.",
+  "capture_orchestration_files": {
+    "E:\\gh\\snes-bor\\out\\byor-motu-abort-copy-integration-v1\\run_cold_probe_v2.py": "a4868e11c70bca4883abf330f07fdbddab4dd1ecc39f1709f958e701826a381e",
+    "E:\\gh\\snes-bor\\out\\byor-motu-abort-copy-integration-v1\\native_lease_probe_v2.py": "6b4ced3eb31b8ce197ffc6db07dc3fddb7e578675c0ce3a266a2f4933763efe9",
+    "E:\\gh\\snes-bor\\out\\byor-motu-abort-copy-integration-v1\\probe_job_runner.py": "79d8ef12d5c642ca34bfcc9f267e9e0ad12dfb170065596c02b2ecb9a98394d3",
+    "E:\\gh\\snes-bor\\out\\byor-motu-abort-copy-integration-v1\\test_probe_job_runner.py": "b7b1f664d914d6648a307ba6748cbbdd28c60bfa9e2e5103104710aeb39cd982",
+    "E:\\gh\\snes-bor\\out\\byor-motu-abort-copy-integration-v1\\validate_suite_v2.py": "563f5f916ffadede68d51b8545eab7aa53e66e328302988d734e9e8f1224f1bd"
+  },
+  "job_timeout_tests": {
+    "path": "E:/gh/snes-bor/out/byor-motu-abort-copy-integration-v1/probe-job-runner-result-v8.json",
+    "sha256": "ef7fc0f51a2e4e88b0b93b2ee40d54efd63a083b1ac09fabd2582cefa47128fc"
+  },
+  "driver_import_order_proof": {
+    "path": "E:/gh/snes-bor/out/byor-motu-abort-copy-integration-v1/driver-import-order-proof.json",
+    "sha256": "cb36ceb7240765d179b6b22cf58541bbe62b06a88fafeaf3d75272be9ebaf5ea"
+  },
+  "rejected_probe_isolation_attempt": {
+    "path": "E:/gh/snes-bor/out/byor-motu-abort-copy-integration-v1/attempt-shared-runtime-v1/rejection-receipt.json",
+    "sha256": "4de21039af482c151cb7d213101de22bfe9bdc2657ee4e8486e64a93f0189e06"
+  },
+  "blocked_runtime_review_retained": {
+    "path": "E:/gh/snes-bor/out/byor-motu-abort-copy-integration-v1/independent-runtime-review-v1.json",
+    "sha256": "376bf9bf04d1d680f229d553da6d3562fe726061a94c883c35972086f6022b5c"
+  },
+  "disputed_private_sram_closure": {
+    "entire_file_identity": true,
+    "bytes": 262144,
+    "sha256": "c9976244d8f03eceaf66b6e30d6f34e49d2f692edc88c30aad67f61ced076675",
+    "conclusion": "The fresh correctly isolated EARLY probe reproduces the entire disputed standard-after-v1 save byte for byte. The cached-runtime probe had overwritten that private artifact; standard raw checkpoints/seal remain exact."
+  },
+  "standard_private_save_limit": "The standard runtime save was subsequently overwritten by the rejected same-process probe. It is retained, not treated as the standard final-state oracle. The standard native checkpoints and sealed eight-case evidence remain exact; replacement probe has a fresh runtime and whole-save before/after plus actual executable evidence.",
+  "rejected_experiments": [
+    {
+      "path": "docs/receipts/byor-motu-preload-pair.json",
+      "sha256": "0a9f10d2e8287916e2f74987b65a940ae06742ab38d93b038cd92b2a161cf46e"
+    },
+    {
+      "path": "docs/receipts/byor-motu-ready-unroll.json",
+      "sha256": "1cd611d588550d9b14bf2435b054b283177a85c40919db0cfd527595d4bfe3d8"
+    },
+    {
+      "path": "docs/receipts/byor-motu-commit-rebuild-fuse.json",
+      "sha256": "e1b3a3650fe2afc6866bbcb1daa3f67c05735550cbc9d92061cd384a9f4da35e"
+    },
+    {
+      "path": "docs/receipts/byor-motu-borrow-invalidate.json",
+      "sha256": "6608f65c40df4c5dd5bbefa17ceb7bc82012c631c3fa32fc2321aaa258c423ae"
+    }
+  ],
+  "scope": "Isolated MOTU fixture; changed global clone/reference interleaving requires exclusive publication owner4; changed abort word interleaving requires owner1..4. Owner0 or >=5 retains the original bytewise MVN.",
+  "host_frame_runner": "Candidate-only bounded host continuation with exact remaining counts, continuity, no overshoot, paused completion, flushed per-RPC records and restored owned socket timeout. ROM timing and exact frame/pixel thresholds unchanged.",
+  "incomplete_fusion_pilot_retained": {
+    "path": "out/byor-motu-commit-rebuild-fuse-integration-v1/attempt-stall-v1/failure-receipt.json",
+    "sha256": "f8801c4420e00fabf375007cd76477236c3b88c3eb95e7594da10961f29d2213"
+  },
+  "no_claims": [
+    "complete game",
+    "30 FPS",
+    "audio",
+    "combat",
+    "HUD",
+    "production concurrency"
+  ]
+}

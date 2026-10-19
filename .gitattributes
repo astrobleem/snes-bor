@@ -12,3 +12,33 @@ src/generated/production_source_visual.json filter=lfs diff=lfs merge=lfs -text
 /tools/verify/test_borrow_timing_alignment.py -text
 /docs/byor-motu-timing-alignment.md -text
 /docs/receipts/byor-motu-timing-alignment.json -text
+
+# Bound native experiment sources and receipts preserve original bytes.
+/tools/bor_compile/preload_pair.py -text
+/tools/verify/test_preload_pair.py -text
+/tools/verify/m4_preload_pair_native.py -text
+/tools/verify/preload_pair_evidence.py -text
+/tools/verify/test_preload_pair_adapter.py -text
+/docs/byor-motu-preload-pair.md -text
+/docs/receipts/byor-motu-preload-pair.json -text
+/tools/bor_compile/ready_unroll.py -text
+/tools/verify/test_ready_unroll.py -text
+/tools/verify/m4_ready_unroll_native.py -text
+/tools/verify/ready_unroll_evidence.py -text
+/tools/verify/test_ready_unroll_adapter.py -text
+/docs/byor-motu-ready-unroll.md -text
+/docs/receipts/byor-motu-ready-unroll.json -text
+/tools/bor_compile/commit_rebuild_fuse.py -text
+/tools/verify/test_commit_rebuild_fuse.py -text
+/tools/verify/m4_commit_rebuild_fuse_native.py -text
+/tools/verify/commit_rebuild_fuse_evidence.py -text
+/tools/verify/test_commit_rebuild_fuse_adapter.py -text
+/docs/byor-motu-commit-rebuild-fuse.md -text
+/docs/receipts/byor-motu-commit-rebuild-fuse.json -text
+/tools/bor_compile/abort_copy.py -text
+/tools/verify/test_abort_copy.py -text
+/tools/verify/m4_abort_copy_native.py -text
+/tools/verify/abort_copy_evidence.py -text
+/tools/verify/test_abort_copy_adapter.py -text
+/docs/byor-motu-abort-copy.md -text
+/docs/receipts/byor-motu-abort-copy.json -text

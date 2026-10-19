@@ -1,0 +1,58 @@
+{
+  "classification": "PRELOAD_PAIR_NATIVE_PILOT_NOT_ACCEPTED",
+  "acceptance_gate_pass": false,
+  "candidate_not_promoted": true,
+  "full_eight_case_certification": false,
+  "native_safety_monitor_faults": {
+    "QUEUE_OWNER": 22800,
+    "Q7_EXTRA_IRAM_WRITE_OWNER": 3200
+  },
+  "faults_retained_and_not_filtered": true,
+  "individual_copy_boundary_model_checks": 285,
+  "provisional_function_comparison": {
+    "1": {
+      "calls": 98,
+      "before_clocks": 475496,
+      "after_clocks": 457960,
+      "improvement_percent": 3.6879384894930767
+    },
+    "2": {
+      "calls": 95,
+      "before_clocks": 461364,
+      "after_clocks": 443780,
+      "improvement_percent": 3.8113073408415046
+    },
+    "3": {
+      "calls": 92,
+      "before_clocks": 446550,
+      "after_clocks": 429800,
+      "improvement_percent": 3.7509797335124846
+    }
+  },
+  "provisional_raw_publication_boundary_comparison": {
+    "2": {
+      "before_clocks": 7943412,
+      "after_clocks": 7943336
+    },
+    "3": {
+      "before_clocks": 11203624,
+      "after_clocks": 11203634
+    }
+  },
+  "ownership_observer_extension": "Developed and unit tested after this failed capture; no new capture or acceptance claim.",
+  "raw_manifest": {
+    "path": "E:/gh/snes-bor/out/byor-motu-preload-pair-integration-v1/failed-candidate-raw-inputs.json",
+    "sha256": "6b2f031f06fa12f92d80e0cadab45d8e0826b2e7f4b179551663ec7e5b37cb98",
+    "files": 227
+  },
+  "control_manifest_sha256": "3a1c50f341f1d5dc81309030a5255fff9bca16a64c1925800150d8d08799fa9d",
+  "source_files": {
+    "tools/bor_compile/preload_pair.py": "0a3f0b45fce5ab8603ac6ebff2dd800310fd4aa7dad2c5b52f18916357bf41e9",
+    "tools/verify/m4_preload_pair_native.py": "56089cce1db3617c658f34bdce3bec9620c1c99f9507699ee6f6806574f9c882",
+    "tools/verify/preload_pair_evidence.py": "070de8c99e189e20b7231a38023da1922e4b0b562cd78d9c56e969e2bdc49a0f",
+    "tools/verify/test_preload_pair.py": "5243cd1345db29885be5bcd5ad26f8b07181bc5caf19e1ad2b7196f4b776c34f",
+    "tools/verify/test_preload_pair_adapter.py": "075d8411e5c9f15b177da56d970be202b48fbfcbe941248a3325c731edecba03"
+  },
+  "reason": "Only 3.75% epoch-3 copy saving, epoch-3 publication +10 clocks, and inherited ownership-monitor faults. No acceptance rule relaxed.",
+  "next_target": "Separate bank-local unrolled READY scan over accepted reference baseline."
+}
