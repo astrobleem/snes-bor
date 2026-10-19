@@ -1,0 +1,46 @@
+{
+  "schema": "SNES_BOR_SCREENSHOT_PROVENANCE_V1",
+  "image": "motu-select-pose130-native-3x.png",
+  "derivation": {
+    "source_image": "out/byor-motu-bg8-native-v1/native-motion-v9/native-pixels-14770.png",
+    "operation": "Pillow RGB conversion (source is RGB), nearest-neighbor 3x scale, no crop or padding",
+    "source_size": [
+      256,
+      224
+    ],
+    "output_size": [
+      768,
+      672
+    ]
+  },
+  "image_sha256": "9d44efd6a1a9bc9b8e9f5dc1b81ecd77ff088f4ba0b81e55439f8bab6964787b",
+  "native_source_sha256": "1028baa3ed07f7a1e2af877f81ac93ffa9ca04d7067f54cb7a75fdf612a37005",
+  "mcp_calibration_sha256": "e492072e877624526f964d9eb690ef36d5b1620a8d00f381092a4eaf4b602e52",
+  "evidence_availability": {
+    "source_image": "The native source framebuffer and raw capture manifest are retained as local evidence artifacts and are not included in this docs-only change.",
+    "verification": "The SHA-256 values below identify those local artifacts; their workspace paths are not repository links and are not expected to resolve on the remote default branch."
+  },
+  "capture": {
+    "directory": "out/byor-motu-bg8-native-v1/native-motion-v9",
+    "raw_manifest": "out/byor-motu-bg8-native-v1/raw-manifest-v9.json",
+    "raw_manifest_sha256": "c5df9ca6f9f234883a2859d706aedad83d3115972fe5faf8510b6079d517a5a8",
+    "rom_sha256": "1921c033729ad3d77f60e977e33c249221e9a645229c960fe6b143f18fdd442d",
+    "rom_path": "out/byor-motu-bg8-native-v1/build-v9/native-bg8/bor.sfc",
+    "capture_status": "FAILED_PARTIAL_CAPTURE",
+    "fields_captured": 15262,
+    "fields_requested": 30000,
+    "capture_error": "MotionWitnessFault('FAST_MOTION_OWNER_FAULT:WARM_STATUS')",
+    "published_frame": 15275,
+    "published_epoch": 2544,
+    "model_id": 3,
+    "handle": 5,
+    "authored_pose_frame": 130,
+    "display_pin_hex": "0040410001000000020000000000000001000000190000000100000001000000010000009600000001000000000000000200000000005000020000000000dc00010000009600000000000000000000000300030005008200800a000030000000ffffff7f210a0000200a0000000000000000010000000000000000000000000000000000000000000000000000000100f0090000"
+  },
+  "pixel_calibration": {
+    "mcp_capture": "failure-calibration-15261.png",
+    "same_256x224_rgb_pixels_as_native_framebuffer": true,
+    "exact_rgb24": true
+  },
+  "scope": "A rendered authored SELECT pose in a partial diagnostic capture. Not a menu, gameplay handoff, complete capture, or full-port evidence."
+}
