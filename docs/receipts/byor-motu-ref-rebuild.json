@@ -1,0 +1,2363 @@
+{
+  "classification": "BYOR_MOTU_REF_REBUILD_PASS",
+  "starting_commit": "d5803ef7d9ede527a9eeb8f47a8779072fd92775",
+  "local_review_only": true,
+  "baseline_receipt_sha256": "f7b43163ab668751afeb40bfb0d16bb07e9ddf780dcb6f6407f26255e2910346",
+  "baseline_rom_sha256": "ad04ee314d72a45c5f8785ea749decf612ae974af0366c0eb9bf48e57f724c00",
+  "candidate_rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+  "disabled_rom_sha256": "ad04ee314d72a45c5f8785ea749decf612ae974af0366c0eb9bf48e57f724c00",
+  "baseline_epoch2": {
+    "transaction": 2,
+    "committed": true,
+    "start": 196193318,
+    "finish": 204252428,
+    "fields": 22,
+    "master_clocks": 8059110,
+    "ms": 375.239031776385
+  },
+  "baseline_epoch3": {
+    "transaction": 3,
+    "committed": true,
+    "start": 205084400,
+    "finish": 216403740,
+    "fields": 31,
+    "master_clocks": 11319340,
+    "ms": 527.0381198355284
+  },
+  "candidate_epoch2": {
+    "transaction": 2,
+    "committed": true,
+    "start": 196193318,
+    "finish": 204136730,
+    "fields": 22,
+    "master_clocks": 7943412,
+    "ms": 369.852034266925
+  },
+  "candidate_epoch3": {
+    "transaction": 3,
+    "committed": true,
+    "start": 205084422,
+    "finish": 216288046,
+    "fields": 31,
+    "master_clocks": 11203624,
+    "ms": 521.650284230724
+  },
+  "postmap_interval_comparison": {
+    "success": {
+      "2": {
+        "before_clocks": 568862,
+        "after_clocks": 453164,
+        "saved_clocks": 115698
+      },
+      "3": {
+        "before_clocks": 569326,
+        "after_clocks": 453628,
+        "saved_clocks": 115698
+      }
+    },
+    "valid": {
+      "2": {
+        "before_clocks": 568862,
+        "after_clocks": 453164,
+        "saved_clocks": 115698
+      },
+      "3": {
+        "before_clocks": 569324,
+        "after_clocks": 453628,
+        "saved_clocks": 115696
+      },
+      "4": {
+        "before_clocks": 569324,
+        "after_clocks": 453626,
+        "saved_clocks": 115698
+      }
+    },
+    "early": {
+      "2": {
+        "before_clocks": 568862,
+        "after_clocks": 453164,
+        "saved_clocks": 115698
+      }
+    },
+    "ready": {
+      "2": {
+        "before_clocks": 568862,
+        "after_clocks": 453164,
+        "saved_clocks": 115698
+      }
+    },
+    "partial": {
+      "2": {
+        "before_clocks": 568862,
+        "after_clocks": 453164,
+        "saved_clocks": 115698
+      }
+    },
+    "stale": {
+      "2": {
+        "before_clocks": 568862,
+        "after_clocks": 453164,
+        "saved_clocks": 115698
+      }
+    },
+    "insufficient": {
+      "2": {
+        "before_clocks": 568862,
+        "after_clocks": 453164,
+        "saved_clocks": 115698
+      }
+    },
+    "right": {
+      "2": {
+        "before_clocks": 568862,
+        "after_clocks": 453164,
+        "saved_clocks": 115698
+      }
+    }
+  },
+  "postmap_gain_percent": 20.321924521276035,
+  "ref_rebuild": {
+    "success": {
+      "classification": "REF_REBUILD_PROFILE_PASS",
+      "rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+      "scans": {
+        "2": {
+          "master_clocks": 341618,
+          "cleared_words": 768,
+          "map_words": 1024,
+          "byte_writes": 3584,
+          "exact_reference_transform": true,
+          "ordered_write_trace": true,
+          "context_preserved": true
+        },
+        "3": {
+          "master_clocks": 342082,
+          "cleared_words": 768,
+          "map_words": 1024,
+          "byte_writes": 3584,
+          "exact_reference_transform": true,
+          "ordered_write_trace": true,
+          "context_preserved": true
+        }
+      },
+      "postmap_intervals": {
+        "2": {
+          "master_clocks": 453164,
+          "start_clock": 203683566,
+          "finish_clock": 204136730,
+          "start_frame": 570,
+          "finish_frame": 571
+        },
+        "3": {
+          "master_clocks": 453628,
+          "start_clock": 215834418,
+          "finish_clock": 216288046,
+          "start_frame": 604,
+          "finish_frame": 605
+        }
+      },
+      "boundaries": "Original NbMapsComplete through original NbVisible; helper entry through original publish-key continuation."
+    },
+    "valid": {
+      "classification": "REF_REBUILD_PROFILE_PASS",
+      "rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+      "scans": {
+        "2": {
+          "master_clocks": 341618,
+          "cleared_words": 768,
+          "map_words": 1024,
+          "byte_writes": 3584,
+          "exact_reference_transform": true,
+          "ordered_write_trace": true,
+          "context_preserved": true
+        },
+        "3": {
+          "master_clocks": 342082,
+          "cleared_words": 768,
+          "map_words": 1024,
+          "byte_writes": 3584,
+          "exact_reference_transform": true,
+          "ordered_write_trace": true,
+          "context_preserved": true
+        },
+        "4": {
+          "master_clocks": 342080,
+          "cleared_words": 768,
+          "map_words": 1024,
+          "byte_writes": 3584,
+          "exact_reference_transform": true,
+          "ordered_write_trace": true,
+          "context_preserved": true
+        }
+      },
+      "postmap_intervals": {
+        "2": {
+          "master_clocks": 453164,
+          "start_clock": 203683566,
+          "finish_clock": 204136730,
+          "start_frame": 570,
+          "finish_frame": 571
+        },
+        "3": {
+          "master_clocks": 453628,
+          "start_clock": 215834416,
+          "finish_clock": 216288044,
+          "start_frame": 604,
+          "finish_frame": 605
+        },
+        "4": {
+          "master_clocks": 453626,
+          "start_clock": 225840618,
+          "finish_clock": 226294244,
+          "start_frame": 632,
+          "finish_frame": 633
+        }
+      },
+      "boundaries": "Original NbMapsComplete through original NbVisible; helper entry through original publish-key continuation."
+    },
+    "early": {
+      "classification": "REF_REBUILD_PROFILE_PASS",
+      "rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+      "scans": {
+        "2": {
+          "master_clocks": 341618,
+          "cleared_words": 768,
+          "map_words": 1024,
+          "byte_writes": 3584,
+          "exact_reference_transform": true,
+          "ordered_write_trace": true,
+          "context_preserved": true
+        }
+      },
+      "postmap_intervals": {
+        "2": {
+          "master_clocks": 453164,
+          "start_clock": 203683566,
+          "finish_clock": 204136730,
+          "start_frame": 570,
+          "finish_frame": 571
+        }
+      },
+      "boundaries": "Original NbMapsComplete through original NbVisible; helper entry through original publish-key continuation."
+    },
+    "ready": {
+      "classification": "REF_REBUILD_PROFILE_PASS",
+      "rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+      "scans": {
+        "2": {
+          "master_clocks": 341618,
+          "cleared_words": 768,
+          "map_words": 1024,
+          "byte_writes": 3584,
+          "exact_reference_transform": true,
+          "ordered_write_trace": true,
+          "context_preserved": true
+        }
+      },
+      "postmap_intervals": {
+        "2": {
+          "master_clocks": 453164,
+          "start_clock": 203683566,
+          "finish_clock": 204136730,
+          "start_frame": 570,
+          "finish_frame": 571
+        }
+      },
+      "boundaries": "Original NbMapsComplete through original NbVisible; helper entry through original publish-key continuation."
+    },
+    "partial": {
+      "classification": "REF_REBUILD_PROFILE_PASS",
+      "rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+      "scans": {
+        "2": {
+          "master_clocks": 341618,
+          "cleared_words": 768,
+          "map_words": 1024,
+          "byte_writes": 3584,
+          "exact_reference_transform": true,
+          "ordered_write_trace": true,
+          "context_preserved": true
+        }
+      },
+      "postmap_intervals": {
+        "2": {
+          "master_clocks": 453164,
+          "start_clock": 203683566,
+          "finish_clock": 204136730,
+          "start_frame": 570,
+          "finish_frame": 571
+        }
+      },
+      "boundaries": "Original NbMapsComplete through original NbVisible; helper entry through original publish-key continuation."
+    },
+    "stale": {
+      "classification": "REF_REBUILD_PROFILE_PASS",
+      "rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+      "scans": {
+        "2": {
+          "master_clocks": 341618,
+          "cleared_words": 768,
+          "map_words": 1024,
+          "byte_writes": 3584,
+          "exact_reference_transform": true,
+          "ordered_write_trace": true,
+          "context_preserved": true
+        }
+      },
+      "postmap_intervals": {
+        "2": {
+          "master_clocks": 453164,
+          "start_clock": 203683566,
+          "finish_clock": 204136730,
+          "start_frame": 570,
+          "finish_frame": 571
+        }
+      },
+      "boundaries": "Original NbMapsComplete through original NbVisible; helper entry through original publish-key continuation."
+    },
+    "insufficient": {
+      "classification": "REF_REBUILD_PROFILE_PASS",
+      "rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+      "scans": {
+        "2": {
+          "master_clocks": 341618,
+          "cleared_words": 768,
+          "map_words": 1024,
+          "byte_writes": 3584,
+          "exact_reference_transform": true,
+          "ordered_write_trace": true,
+          "context_preserved": true
+        }
+      },
+      "postmap_intervals": {
+        "2": {
+          "master_clocks": 453164,
+          "start_clock": 203683566,
+          "finish_clock": 204136730,
+          "start_frame": 570,
+          "finish_frame": 571
+        }
+      },
+      "boundaries": "Original NbMapsComplete through original NbVisible; helper entry through original publish-key continuation."
+    },
+    "right": {
+      "classification": "REF_REBUILD_PROFILE_PASS",
+      "rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+      "scans": {
+        "2": {
+          "master_clocks": 341618,
+          "cleared_words": 768,
+          "map_words": 1024,
+          "byte_writes": 3584,
+          "exact_reference_transform": true,
+          "ordered_write_trace": true,
+          "context_preserved": true
+        }
+      },
+      "postmap_intervals": {
+        "2": {
+          "master_clocks": 453164,
+          "start_clock": 203683512,
+          "finish_clock": 204136676,
+          "start_frame": 570,
+          "finish_frame": 571
+        }
+      },
+      "boundaries": "Original NbMapsComplete through original NbVisible; helper entry through original publish-key continuation."
+    }
+  },
+  "expected_rebuild_transactions": {
+    "success": [
+      "2",
+      "3"
+    ],
+    "valid": [
+      "2",
+      "3",
+      "4"
+    ],
+    "early": [
+      "2"
+    ],
+    "ready": [
+      "2"
+    ],
+    "partial": [
+      "2"
+    ],
+    "stale": [
+      "2"
+    ],
+    "insufficient": [
+      "2"
+    ],
+    "right": [
+      "2"
+    ]
+  },
+  "rom_audit": {
+    "status": "PASS",
+    "baseline_sha256": "ad04ee314d72a45c5f8785ea749decf612ae974af0366c0eb9bf48e57f724c00",
+    "patch_pc": 3777145,
+    "patch_bytes": 3,
+    "continuation_pc": 3777193,
+    "code_start": 3778816,
+    "code_end": 3779251,
+    "code_bytes": 435,
+    "branch_sites": 316,
+    "all_original_symbols_identical": true,
+    "all_original_guards_retained": true,
+    "no_new_memory_or_queue_capacity": true,
+    "allowed_rom_byte_ranges": [
+      [
+        1876601,
+        1876604
+      ],
+      [
+        1878272,
+        1878707
+      ]
+    ]
+  },
+  "actual_changed_rom_bytes": 334,
+  "inherited_rom_audits_pass": true,
+  "observed_fields": 666,
+  "verified_rgb555_pixels": 38191104,
+  "pixel_mismatches": 0,
+  "resource_faults": 0,
+  "unsafe_ppu_operations": 0,
+  "cases": {
+    "success": {
+      "observed_fields": 86,
+      "verified_pixels": 4931584,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "min_complete_batch_margin_clocks": 27318,
+      "min_map_margin_clocks": 14646
+    },
+    "valid": {
+      "observed_fields": 113,
+      "verified_pixels": 6479872,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "min_complete_batch_margin_clocks": 27320,
+      "min_map_margin_clocks": 14648
+    },
+    "early": {
+      "observed_fields": 80,
+      "verified_pixels": 4587520,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "min_complete_batch_margin_clocks": 27318,
+      "min_map_margin_clocks": 15054
+    },
+    "ready": {
+      "observed_fields": 85,
+      "verified_pixels": 4874240,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 15054
+    },
+    "partial": {
+      "observed_fields": 88,
+      "verified_pixels": 5046272,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 15054
+    },
+    "stale": {
+      "observed_fields": 85,
+      "verified_pixels": 4874240,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 15054
+    },
+    "insufficient": {
+      "observed_fields": 69,
+      "verified_pixels": 3956736,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 15054
+    },
+    "right": {
+      "observed_fields": 60,
+      "verified_pixels": 3440640,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0,
+      "min_complete_batch_margin_clocks": 27322,
+      "min_map_margin_clocks": 15108
+    }
+  },
+  "min_complete_batch_margin_clocks": 27318,
+  "min_map_margin_clocks": 14646,
+  "focused_tests": {
+    "command": [
+      "E:\\gh\\_snes-bor-eight-pair-task-20261018\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "test_restore_single_pass",
+      "test_restore_single_pass_adapter",
+      "test_home_borrow_bitmap",
+      "test_home_borrow_bitmap_adapter",
+      "test_m4_home_borrow",
+      "test_m4_source_safepoint",
+      "test_m4_conditional_capacity",
+      "test_early_capacity",
+      "test_m4_early_capacity_component",
+      "test_restore_spill",
+      "test_m4_restore_spill_component",
+      "test_batch_rescue",
+      "test_generated_splice",
+      "test_m4_nonblank_batch_component",
+      "test_m4_nonblank_component",
+      "test_rect_map_opt",
+      "test_m4_rect_map_component",
+      "test_direct_pair_dma",
+      "test_m4_direct_pair_component",
+      "test_m4_native_cost_accounting",
+      "test_tile_fusion",
+      "test_m4_tile_fusion_component",
+      "test_phase_occupancy",
+      "test_m4_occupancy_component",
+      "test_m4_opaque_component",
+      "test_m4_online_component",
+      "test_m4_live_ground_component",
+      "test_component_live_bundle",
+      "test_m4_component_publication",
+      "test_bg_component_residency",
+      "test_bg_component_deadlines",
+      "test_bg_components",
+      "test_home_bitmap_shared_cells",
+      "test_m4_bitmap_shared_adapter",
+      "test_seven_pair_spill",
+      "test_seven_pair_adapter",
+      "test_eight_pair_direct",
+      "test_m4_eight_pair_adapter",
+      "test_exact_coverage",
+      "test_exact_coverage_adapter",
+      "test_coverage_fused",
+      "test_fused_coverage_adapter",
+      "test_function_cost_profile",
+      "test_fused_timing_baseline",
+      "test_fused_capture_evidence",
+      "test_ready_validate",
+      "test_ready_validate_adapter",
+      "test_ref_rebuild",
+      "test_ref_rebuild_adapter",
+      "-q"
+    ],
+    "returncode": 0,
+    "tests": 408,
+    "wall_seconds": 158.03099999995902,
+    "isolated_temp": "E:\\gh\\snes-bor\\out\\byor-motu-ref-rebuild-integration-v1\\focused-temp-v2",
+    "log": "E:\\gh\\snes-bor\\out\\byor-motu-ref-rebuild-integration-v1\\focused-tests-v2.log",
+    "sha256": "50f90a1928f79e3b287fc191baf30806d42568e2dc7f4551da0cb6fc94a49c25"
+  },
+  "preservation": {
+    "classification": "REF_PRESERVATION_PASS",
+    "starting_commit": "d5803ef7d9ede527a9eeb8f47a8779072fd92775",
+    "checks": [
+      {
+        "group": "accepted",
+        "path": "tools/bor_compile/exact_coverage.py",
+        "expected": "d9231417d8a6a46bb55a729cf3351ec1e97a0f3b7be59e55c0008f9f99fa5661",
+        "actual": "d9231417d8a6a46bb55a729cf3351ec1e97a0f3b7be59e55c0008f9f99fa5661"
+      },
+      {
+        "group": "accepted",
+        "path": "tools/verify/m4_exact_coverage_native.py",
+        "expected": "0687fe527d7a6f900afccbdb047385f1173a645e62757b4f6d1a560e2a4a5202",
+        "actual": "0687fe527d7a6f900afccbdb047385f1173a645e62757b4f6d1a560e2a4a5202"
+      },
+      {
+        "group": "accepted",
+        "path": "tools/verify/test_exact_coverage.py",
+        "expected": "71d4783920a48862dd3e88f07b0114b932338c4319175a0c19569e8c630cc59c",
+        "actual": "71d4783920a48862dd3e88f07b0114b932338c4319175a0c19569e8c630cc59c"
+      },
+      {
+        "group": "accepted",
+        "path": "tools/verify/test_exact_coverage_adapter.py",
+        "expected": "5fa175fcf5208117a0525254abffdf5f518f87043bca1fab36c22691dfe84487",
+        "actual": "5fa175fcf5208117a0525254abffdf5f518f87043bca1fab36c22691dfe84487"
+      },
+      {
+        "group": "accepted",
+        "path": "docs/byor-motu-exact-coverage.md",
+        "expected": "0ba8076ac3a65a0fa42858eacf673cc0d2f4797118229b139ea2fafd3cff726f",
+        "actual": "0ba8076ac3a65a0fa42858eacf673cc0d2f4797118229b139ea2fafd3cff726f"
+      },
+      {
+        "group": "accepted",
+        "path": "docs/receipts/byor-motu-exact-coverage.json",
+        "expected": "fc1a9f5a77ceba0e8d945addb044306d1327308b547a0f4c54d87c89564b2221",
+        "actual": "fc1a9f5a77ceba0e8d945addb044306d1327308b547a0f4c54d87c89564b2221"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-attack-chain.md",
+        "expected": "45add68c8bc7418a79102fa81cff7f85df78d7fd07741b321d19241df2a48120",
+        "actual": "45add68c8bc7418a79102fa81cff7f85df78d7fd07741b321d19241df2a48120"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-find-here-empty.md",
+        "expected": "ff5147d6527419777434f4f126703e99a4b23a36c1bb65100fe5d3d3e0453c9b",
+        "actual": "ff5147d6527419777434f4f126703e99a4b23a36c1bb65100fe5d3d3e0453c9b"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-foreign-workspace.md",
+        "expected": "e5b06a63795c68cacef9ee697c4c0180131327e5dc9d802c4b01d2322bc5e456",
+        "actual": "e5b06a63795c68cacef9ee697c4c0180131327e5dc9d802c4b01d2322bc5e456"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-ground-binding.md",
+        "expected": "649416dcb75643d90837fb5aa814e1d686da7c9e7df8601c8e64d21a59867d1a",
+        "actual": "649416dcb75643d90837fb5aa814e1d686da7c9e7df8601c8e64d21a59867d1a"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-ground-services.md",
+        "expected": "9c58c2f0f105188b746671989ccca8095c4c4fe755f725d6f1c0cb9ecb4f80ad",
+        "actual": "9c58c2f0f105188b746671989ccca8095c4c4fe755f725d6f1c0cb9ecb4f80ad"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-player-ground.md",
+        "expected": "c5bb760f7c9fc8c8de35e96cf6dafa8444b94384ec498c0ff66747d3737bbbd5",
+        "actual": "c5bb760f7c9fc8c8de35e96cf6dafa8444b94384ec498c0ff66747d3737bbbd5"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-player-running.md",
+        "expected": "ba978e95a5f7fd4fd54d3b0855f635263e8d84d91834b777384c4583055b0825",
+        "actual": "ba978e95a5f7fd4fd54d3b0855f635263e8d84d91834b777384c4583055b0825"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-player-state.md",
+        "expected": "1db244c3c8ef101eeb7507c7e12b14fadeb7acdf14571382d31265cbe1429c78",
+        "actual": "1db244c3c8ef101eeb7507c7e12b14fadeb7acdf14571382d31265cbe1429c78"
+      },
+      {
+        "group": "inherited",
+        "path": "docs/byor-motu-run-binding.md",
+        "expected": "165159d0cfce6037a4dc1577c980bce3672bcb770003d28680383d5b9cafa9d9",
+        "actual": "165159d0cfce6037a4dc1577c980bce3672bcb770003d28680383d5b9cafa9d9"
+      },
+      {
+        "group": "inherited",
+        "path": "out/g13_camera_pause.json",
+        "expected": "b63ff397d64c1d3135abaf2e0d15068de7c03a78a8912e83c119663947348863",
+        "actual": "b63ff397d64c1d3135abaf2e0d15068de7c03a78a8912e83c119663947348863"
+      },
+      {
+        "group": "inherited",
+        "path": "out/g13_combat_ai.json",
+        "expected": "a88014733356eaae1bb9bfe3a6f1d3d80dd2b26cadd8beb703be7d3cf8ed5337",
+        "actual": "a88014733356eaae1bb9bfe3a6f1d3d80dd2b26cadd8beb703be7d3cf8ed5337"
+      },
+      {
+        "group": "inherited",
+        "path": "out/g13_jump_isolation.json",
+        "expected": "438fa6368f48639b4970f0b6f240f0d14aac1a45b53987e2053a83a6778bfe2f",
+        "actual": "438fa6368f48639b4970f0b6f240f0d14aac1a45b53987e2053a83a6778bfe2f"
+      },
+      {
+        "group": "inherited",
+        "path": "out/g13_score_pickup.json",
+        "expected": "31ab9ef13b8b758eae08b2cb5e0fce11336902718cfd5f87530f10332a1c5822",
+        "actual": "31ab9ef13b8b758eae08b2cb5e0fce11336902718cfd5f87530f10332a1c5822"
+      },
+      {
+        "group": "inherited",
+        "path": "out/g13_semantic_boundary.json",
+        "expected": "0e7ba2e958d87e31896febd8ec7f263ea88ff20ee3bbb563469c6b5c027dee2a",
+        "actual": "0e7ba2e958d87e31896febd8ec7f263ea88ff20ee3bbb563469c6b5c027dee2a"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_3ceasy/spawn_table.bin",
+        "expected": "8571f31e281b702bd78b97e44aa23e02b5e1c7ce0a5d5c0639e4b86f93d6220c",
+        "actual": "8571f31e281b702bd78b97e44aa23e02b5e1c7ce0a5d5c0639e4b86f93d6220c"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_5beasy/spawn_table.bin",
+        "expected": "6e4729351f41ce01c259a2fc71dfc481045dbb496f38fd8c40a7470cd4b19bc5",
+        "actual": "6e4729351f41ce01c259a2fc71dfc481045dbb496f38fd8c40a7470cd4b19bc5"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal1a/spawn_table.bin",
+        "expected": "e1fa9de399023d0c666d83e1be4cfd9920068adfa1625eab70cb2b399185cc17",
+        "actual": "e1fa9de399023d0c666d83e1be4cfd9920068adfa1625eab70cb2b399185cc17"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal1b/spawn_table.bin",
+        "expected": "9947064a157c58964902d9560458787936e962744b2abe878a1fd8179b218e39",
+        "actual": "9947064a157c58964902d9560458787936e962744b2abe878a1fd8179b218e39"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal1c/spawn_table.bin",
+        "expected": "e2f262696a8ec107d08f90e59dd168554876597af05fac0bb097c45f139b20f9",
+        "actual": "e2f262696a8ec107d08f90e59dd168554876597af05fac0bb097c45f139b20f9"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal2/spawn_table.bin",
+        "expected": "f9a7f0e9458c9fba8dece2c283b09466c3d1eecaa0ca19f7dfbdc022d88fe7af",
+        "actual": "f9a7f0e9458c9fba8dece2c283b09466c3d1eecaa0ca19f7dfbdc022d88fe7af"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal3a/spawn_table.bin",
+        "expected": "f6766d5b9c3b58b4c923f471ee2ffc3d3d2a0960579229f6eb02967de08e13b6",
+        "actual": "f6766d5b9c3b58b4c923f471ee2ffc3d3d2a0960579229f6eb02967de08e13b6"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal3b/spawn_table.bin",
+        "expected": "d388c30bcf4b5cb866629ed9783f88e2615ce2110cc3b7faf47467e4e84f537f",
+        "actual": "d388c30bcf4b5cb866629ed9783f88e2615ce2110cc3b7faf47467e4e84f537f"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal3c/spawn_table.bin",
+        "expected": "b1e19fa71ca8808650659aa272fb70eb701cd895ca2a264caaa1155f000c71bd",
+        "actual": "b1e19fa71ca8808650659aa272fb70eb701cd895ca2a264caaa1155f000c71bd"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal4a/spawn_table.bin",
+        "expected": "4202441e6fe88d243e0d14af936845917c7772e37eb49c567f875197bb9e3e9b",
+        "actual": "4202441e6fe88d243e0d14af936845917c7772e37eb49c567f875197bb9e3e9b"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal4b/spawn_table.bin",
+        "expected": "1259a23fca1743d85a7b9e6c255999c5ed2e2d7d29d82a8be0498d178fdbbe00",
+        "actual": "1259a23fca1743d85a7b9e6c255999c5ed2e2d7d29d82a8be0498d178fdbbe00"
+      },
+      {
+        "group": "inherited",
+        "path": "out/spawn_normal5a/spawn_table.bin",
+        "expected": "0aaf0af2416e53c9462c6a5dc2c61cab7026506e8408f89da2fd6f4b8a593027",
+        "actual": "0aaf0af2416e53c9462c6a5dc2c61cab7026506e8408f89da2fd6f4b8a593027"
+      },
+      {
+        "group": "inherited",
+        "path": "src/main.bin",
+        "expected": "01e29185c9be320306ba46a5399ee16d72675ef9026fdb2a7fd19f3d6f3393ea",
+        "actual": "01e29185c9be320306ba46a5399ee16d72675ef9026fdb2a7fd19f3d6f3393ea"
+      },
+      {
+        "group": "inherited",
+        "path": "src/main.pansy",
+        "expected": "e32247fd1c33a971ac07914d7c72b4762f1a75da083d449958117c410a204235",
+        "actual": "e32247fd1c33a971ac07914d7c72b4762f1a75da083d449958117c410a204235"
+      },
+      {
+        "group": "inherited",
+        "path": "src/main.sym",
+        "expected": "7a77f0252356ee2c559cc02c721a826aef9ed4929b3bb4864814bf0421e51d86",
+        "actual": "7a77f0252356ee2c559cc02c721a826aef9ed4929b3bb4864814bf0421e51d86"
+      },
+      {
+        "group": "takeover",
+        "path": "SNES-BOR-Engine-Prompt.md",
+        "expected": null,
+        "actual": null
+      },
+      {
+        "group": "takeover",
+        "path": "out/g13_camera_pause.json",
+        "expected": "b63ff397d64c1d3135abaf2e0d15068de7c03a78a8912e83c119663947348863",
+        "actual": "b63ff397d64c1d3135abaf2e0d15068de7c03a78a8912e83c119663947348863"
+      },
+      {
+        "group": "takeover",
+        "path": "out/g13_combat_ai.json",
+        "expected": "a88014733356eaae1bb9bfe3a6f1d3d80dd2b26cadd8beb703be7d3cf8ed5337",
+        "actual": "a88014733356eaae1bb9bfe3a6f1d3d80dd2b26cadd8beb703be7d3cf8ed5337"
+      },
+      {
+        "group": "takeover",
+        "path": "out/g13_jump_isolation.json",
+        "expected": "438fa6368f48639b4970f0b6f240f0d14aac1a45b53987e2053a83a6778bfe2f",
+        "actual": "438fa6368f48639b4970f0b6f240f0d14aac1a45b53987e2053a83a6778bfe2f"
+      },
+      {
+        "group": "takeover",
+        "path": "out/g13_score_pickup.json",
+        "expected": "31ab9ef13b8b758eae08b2cb5e0fce11336902718cfd5f87530f10332a1c5822",
+        "actual": "31ab9ef13b8b758eae08b2cb5e0fce11336902718cfd5f87530f10332a1c5822"
+      },
+      {
+        "group": "takeover",
+        "path": "out/g13_semantic_boundary.json",
+        "expected": "0e7ba2e958d87e31896febd8ec7f263ea88ff20ee3bbb563469c6b5c027dee2a",
+        "actual": "0e7ba2e958d87e31896febd8ec7f263ea88ff20ee3bbb563469c6b5c027dee2a"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_3ceasy/spawn_table.bin",
+        "expected": "8571f31e281b702bd78b97e44aa23e02b5e1c7ce0a5d5c0639e4b86f93d6220c",
+        "actual": "8571f31e281b702bd78b97e44aa23e02b5e1c7ce0a5d5c0639e4b86f93d6220c"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_5beasy/spawn_table.bin",
+        "expected": "6e4729351f41ce01c259a2fc71dfc481045dbb496f38fd8c40a7470cd4b19bc5",
+        "actual": "6e4729351f41ce01c259a2fc71dfc481045dbb496f38fd8c40a7470cd4b19bc5"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal1a/spawn_table.bin",
+        "expected": "e1fa9de399023d0c666d83e1be4cfd9920068adfa1625eab70cb2b399185cc17",
+        "actual": "e1fa9de399023d0c666d83e1be4cfd9920068adfa1625eab70cb2b399185cc17"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal1b/spawn_table.bin",
+        "expected": "9947064a157c58964902d9560458787936e962744b2abe878a1fd8179b218e39",
+        "actual": "9947064a157c58964902d9560458787936e962744b2abe878a1fd8179b218e39"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal1c/spawn_table.bin",
+        "expected": "e2f262696a8ec107d08f90e59dd168554876597af05fac0bb097c45f139b20f9",
+        "actual": "e2f262696a8ec107d08f90e59dd168554876597af05fac0bb097c45f139b20f9"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal2/spawn_table.bin",
+        "expected": "f9a7f0e9458c9fba8dece2c283b09466c3d1eecaa0ca19f7dfbdc022d88fe7af",
+        "actual": "f9a7f0e9458c9fba8dece2c283b09466c3d1eecaa0ca19f7dfbdc022d88fe7af"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal3a/spawn_table.bin",
+        "expected": "f6766d5b9c3b58b4c923f471ee2ffc3d3d2a0960579229f6eb02967de08e13b6",
+        "actual": "f6766d5b9c3b58b4c923f471ee2ffc3d3d2a0960579229f6eb02967de08e13b6"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal3b/spawn_table.bin",
+        "expected": "d388c30bcf4b5cb866629ed9783f88e2615ce2110cc3b7faf47467e4e84f537f",
+        "actual": "d388c30bcf4b5cb866629ed9783f88e2615ce2110cc3b7faf47467e4e84f537f"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal3c/spawn_table.bin",
+        "expected": "b1e19fa71ca8808650659aa272fb70eb701cd895ca2a264caaa1155f000c71bd",
+        "actual": "b1e19fa71ca8808650659aa272fb70eb701cd895ca2a264caaa1155f000c71bd"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal4a/spawn_table.bin",
+        "expected": "4202441e6fe88d243e0d14af936845917c7772e37eb49c567f875197bb9e3e9b",
+        "actual": "4202441e6fe88d243e0d14af936845917c7772e37eb49c567f875197bb9e3e9b"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal4b/spawn_table.bin",
+        "expected": "1259a23fca1743d85a7b9e6c255999c5ed2e2d7d29d82a8be0498d178fdbbe00",
+        "actual": "1259a23fca1743d85a7b9e6c255999c5ed2e2d7d29d82a8be0498d178fdbbe00"
+      },
+      {
+        "group": "takeover",
+        "path": "out/spawn_normal5a/spawn_table.bin",
+        "expected": "0aaf0af2416e53c9462c6a5dc2c61cab7026506e8408f89da2fd6f4b8a593027",
+        "actual": "0aaf0af2416e53c9462c6a5dc2c61cab7026506e8408f89da2fd6f4b8a593027"
+      },
+      {
+        "group": "takeover",
+        "path": "src/main.bin",
+        "expected": "01e29185c9be320306ba46a5399ee16d72675ef9026fdb2a7fd19f3d6f3393ea",
+        "actual": "01e29185c9be320306ba46a5399ee16d72675ef9026fdb2a7fd19f3d6f3393ea"
+      },
+      {
+        "group": "takeover",
+        "path": "src/main.pansy",
+        "expected": "e32247fd1c33a971ac07914d7c72b4762f1a75da083d449958117c410a204235",
+        "actual": "e32247fd1c33a971ac07914d7c72b4762f1a75da083d449958117c410a204235"
+      },
+      {
+        "group": "takeover",
+        "path": "src/main.sym",
+        "expected": "7a77f0252356ee2c559cc02c721a826aef9ed4929b3bb4864814bf0421e51d86",
+        "actual": "7a77f0252356ee2c559cc02c721a826aef9ed4929b3bb4864814bf0421e51d86"
+      },
+      {
+        "group": "emulator-input",
+        "path": "C:/Users/chad/Documents/Mesen2/settings.json",
+        "expected": "b5038ac1c899c38f0039fdf45814fe97dcbc8d46dbc8fdff009e41bc3d036f49",
+        "actual": "b5038ac1c899c38f0039fdf45814fe97dcbc8d46dbc8fdff009e41bc3d036f49"
+      },
+      {
+        "group": "emulator-input",
+        "path": "C:/Users/chad/Documents/Mesen2/Saves/bor.srm",
+        "expected": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1",
+        "actual": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "tools/bor_compile/coverage_fused.py",
+        "expected": "34c8787c213041bbff538c54f54a23586b4717dba2bb2162698eb5e477a4b37b",
+        "actual": "34c8787c213041bbff538c54f54a23586b4717dba2bb2162698eb5e477a4b37b"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "tools/verify/test_coverage_fused.py",
+        "expected": "5cd7794aa418f2393918df2a214b49e8017aa0d3cb79f12faac4a6fca1d79905",
+        "actual": "5cd7794aa418f2393918df2a214b49e8017aa0d3cb79f12faac4a6fca1d79905"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "tools/verify/m4_fused_coverage_native.py",
+        "expected": "fbc317ada105dc8b8632e61392304d50a74b4ffc4f37067e830e345dfba6f609",
+        "actual": "fbc317ada105dc8b8632e61392304d50a74b4ffc4f37067e830e345dfba6f609"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "tools/verify/test_fused_coverage_adapter.py",
+        "expected": "ad445a0a9126b0dcc48a3b61ce7cb4c53d1d68b5a649004c2eed28026902af3e",
+        "actual": "ad445a0a9126b0dcc48a3b61ce7cb4c53d1d68b5a649004c2eed28026902af3e"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "tools/verify/m4_function_cost_native.py",
+        "expected": "5abc26943e638a8c6016dadd2a215303109954682ed125dcdfda1a45f0106e51",
+        "actual": "5abc26943e638a8c6016dadd2a215303109954682ed125dcdfda1a45f0106e51"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "tools/verify/test_function_cost_profile.py",
+        "expected": "a0d817ae3d258ea8d91a3fe7eee9d246a2442d9e1795b73367ee8d04901ab92e",
+        "actual": "a0d817ae3d258ea8d91a3fe7eee9d246a2442d9e1795b73367ee8d04901ab92e"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "docs/byor-motu-fused-coverage.md",
+        "expected": "103949e1c7b10729e2787b3aac83cb09b94ccf4df48107054cbb15096cf51ff3",
+        "actual": "103949e1c7b10729e2787b3aac83cb09b94ccf4df48107054cbb15096cf51ff3"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "tools/verify/fused_capture_evidence.py",
+        "expected": "cda82e6582f06620b0153c9f090a11a61b1765fa9029175898fdf4631d99e759",
+        "actual": "cda82e6582f06620b0153c9f090a11a61b1765fa9029175898fdf4631d99e759"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "tools/verify/test_fused_capture_evidence.py",
+        "expected": "8064b24bc03bff576c5baf64a4f5a52726616cbc2dca8564d22e6492e9d59de5",
+        "actual": "8064b24bc03bff576c5baf64a4f5a52726616cbc2dca8564d22e6492e9d59de5"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "tools/verify/fused_timing_baseline.py",
+        "expected": "fdec693c4de7aea55a110888c91360d4ee5de5a9e6db6c57a5dd1a31ccbe26c2",
+        "actual": "fdec693c4de7aea55a110888c91360d4ee5de5a9e6db6c57a5dd1a31ccbe26c2"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "tools/verify/test_fused_timing_baseline.py",
+        "expected": "6ce638c9183bea747359e6ad4b8e1696482c81ebb45200b1f3534052eb3a748a",
+        "actual": "6ce638c9183bea747359e6ad4b8e1696482c81ebb45200b1f3534052eb3a748a"
+      },
+      {
+        "group": "accepted-fused",
+        "path": "E:\\gh\\snes-bor\\docs\\receipts\\byor-motu-fused-coverage.json",
+        "expected": "50e6675c7637e1574018222515893d4479deccc230cfbbffa6d3c2d64a5d7bb2",
+        "actual": "50e6675c7637e1574018222515893d4479deccc230cfbbffa6d3c2d64a5d7bb2"
+      },
+      {
+        "group": "accepted-ready",
+        "path": "tools/bor_compile/ready_validate.py",
+        "expected": "43330e51eda71edcbb3d97e42e94ad7e5a1646fc44beb584d92a391f8f91f874",
+        "actual": "43330e51eda71edcbb3d97e42e94ad7e5a1646fc44beb584d92a391f8f91f874"
+      },
+      {
+        "group": "accepted-ready",
+        "path": "tools/verify/test_ready_validate.py",
+        "expected": "d272e0dc4acae081479e12dfefc8a4be4647deaf5352be012bd3b18abea4929b",
+        "actual": "d272e0dc4acae081479e12dfefc8a4be4647deaf5352be012bd3b18abea4929b"
+      },
+      {
+        "group": "accepted-ready",
+        "path": "tools/verify/m4_ready_validate_native.py",
+        "expected": "6ae8e94260d3a8d12ad12d4e9096a1ec998d36148cc2b5f7b561bb2eb1c645e5",
+        "actual": "6ae8e94260d3a8d12ad12d4e9096a1ec998d36148cc2b5f7b561bb2eb1c645e5"
+      },
+      {
+        "group": "accepted-ready",
+        "path": "tools/verify/ready_validate_evidence.py",
+        "expected": "27714726cf5394ee8c352b4ff09375a664d21ea122f6e3e14e4255cc34fce738",
+        "actual": "27714726cf5394ee8c352b4ff09375a664d21ea122f6e3e14e4255cc34fce738"
+      },
+      {
+        "group": "accepted-ready",
+        "path": "tools/verify/test_ready_validate_adapter.py",
+        "expected": "bf5aa44f902d4fe36a433615aaaea79ab4522db76ebefd821b873ce9f0523d67",
+        "actual": "bf5aa44f902d4fe36a433615aaaea79ab4522db76ebefd821b873ce9f0523d67"
+      },
+      {
+        "group": "accepted-ready",
+        "path": "docs/byor-motu-ready-validate.md",
+        "expected": "a27cf8cf20c04645dab98d9785067193e25a141b76e9ba5e47de0faf6def12e6",
+        "actual": "a27cf8cf20c04645dab98d9785067193e25a141b76e9ba5e47de0faf6def12e6"
+      },
+      {
+        "group": "accepted-ready",
+        "path": "docs\\receipts\\byor-motu-ready-validate.json",
+        "expected": "f7b43163ab668751afeb40bfb0d16bb07e9ddf780dcb6f6407f26255e2910346",
+        "actual": "f7b43163ab668751afeb40bfb0d16bb07e9ddf780dcb6f6407f26255e2910346"
+      }
+    ],
+    "original_native_inputs": {
+      "count": 1055,
+      "snapshot": "out\\byor-motu-exact-coverage-integration-v1\\review-gaps-before.json",
+      "snapshot_sha256": "efaa561ff4499e059218281bfcd695999abc2cb3ec2b637797fc0058041048c3"
+    },
+    "original_native_inputs_unchanged": true,
+    "accepted_fused_capture": {
+      "provenance_sha256": "604e91dd9e2400b717134507fe36852b227fada66bb4c72b7571452f9c8edb5d",
+      "raw_manifest_sha256": "edef6a159feea7efa141e66b7869c654aa78053d0a16262fc58200fc3ca7beef",
+      "immutable_msu_sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+      "raw_inputs": 1769,
+      "verified_origins": 1842,
+      "cases": {
+        "success": {
+          "fields": 88,
+          "first_frame": 523,
+          "last_frame": 610,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "valid": {
+          "fields": 116,
+          "first_frame": 523,
+          "last_frame": 638,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "early": {
+          "fields": 81,
+          "first_frame": 523,
+          "last_frame": 603,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "ready": {
+          "fields": 87,
+          "first_frame": 523,
+          "last_frame": 609,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "partial": {
+          "fields": 89,
+          "first_frame": 523,
+          "last_frame": 611,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "stale": {
+          "fields": 87,
+          "first_frame": 523,
+          "last_frame": 609,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "insufficient": {
+          "fields": 70,
+          "first_frame": 523,
+          "last_frame": 592,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "right": {
+          "fields": 61,
+          "first_frame": 523,
+          "last_frame": 583,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        }
+      },
+      "observed_fields": 679
+    },
+    "accepted_ready_capture": {
+      "provenance_sha256": "bd889ec5ebcc8d68746c5fdf6e7975f3bdff0622077ef23352b9e3519e2f1e56",
+      "raw_manifest_sha256": "45add5d4518d6400db57b5b239199e2b6b6e71a3d76cee4815248cbae2fa6591",
+      "immutable_msu_sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+      "raw_inputs": 1751,
+      "verified_origins": 1751,
+      "cases": {
+        "success": {
+          "fields": 86,
+          "first_frame": 523,
+          "last_frame": 608,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "valid": {
+          "fields": 113,
+          "first_frame": 523,
+          "last_frame": 635,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "early": {
+          "fields": 80,
+          "first_frame": 523,
+          "last_frame": 602,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "ready": {
+          "fields": 85,
+          "first_frame": 523,
+          "last_frame": 607,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "partial": {
+          "fields": 88,
+          "first_frame": 523,
+          "last_frame": 610,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "stale": {
+          "fields": 85,
+          "first_frame": 523,
+          "last_frame": 607,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "insufficient": {
+          "fields": 69,
+          "first_frame": 523,
+          "last_frame": 591,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "right": {
+          "fields": 60,
+          "first_frame": 523,
+          "last_frame": 582,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        }
+      },
+      "observed_fields": 666
+    },
+    "candidate_capture": {
+      "provenance_sha256": "f1597aefea2a14cdf684185cdf099d4807cff4927fb6a9c50f3ccba4ac4bbb6f",
+      "raw_manifest_sha256": "c946fd6639cbcf95cea495bd7bfbbab92bec33629086c4f4dadb0e016bd279fa",
+      "immutable_msu_sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+      "raw_inputs": 1759,
+      "verified_origins": 1759,
+      "cases": {
+        "success": {
+          "fields": 86,
+          "first_frame": 523,
+          "last_frame": 608,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "valid": {
+          "fields": 113,
+          "first_frame": 523,
+          "last_frame": 635,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "early": {
+          "fields": 80,
+          "first_frame": 523,
+          "last_frame": 602,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "ready": {
+          "fields": 85,
+          "first_frame": 523,
+          "last_frame": 607,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "partial": {
+          "fields": 88,
+          "first_frame": 523,
+          "last_frame": 610,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "stale": {
+          "fields": 85,
+          "first_frame": 523,
+          "last_frame": 607,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "insufficient": {
+          "fields": 69,
+          "first_frame": 523,
+          "last_frame": 591,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        },
+        "right": {
+          "fields": 60,
+          "first_frame": 523,
+          "last_frame": 582,
+          "consecutive": true,
+          "exact_png_vram_inventory": true
+        }
+      },
+      "observed_fields": 666
+    },
+    "disabled_rom_sha256": "ad04ee314d72a45c5f8785ea749decf612ae974af0366c0eb9bf48e57f724c00",
+    "static_and_native_byte_identity": {
+      "bor.sfc": {
+        "build_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+        "native_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941"
+      },
+      "publisher.bin": {
+        "build_sha256": "2c2a37fc0568faf05d9a859a7385ff5eb3d34f23221efbd1572d4f9c8f4ce1e2",
+        "native_sha256": "2c2a37fc0568faf05d9a859a7385ff5eb3d34f23221efbd1572d4f9c8f4ce1e2"
+      },
+      "publisher.pasm": {
+        "build_sha256": "887bd8faf218b3f6e5f6fe800d6e05a37cba03ad37ccc1e7b85c36bc8da492c5",
+        "native_sha256": "887bd8faf218b3f6e5f6fe800d6e05a37cba03ad37ccc1e7b85c36bc8da492c5"
+      },
+      "publisher.sym": {
+        "build_sha256": "984b008a0a6ac025180ee944f9d7f6249f6d07b428e8bcf1331b387595307b44",
+        "native_sha256": "984b008a0a6ac025180ee944f9d7f6249f6d07b428e8bcf1331b387595307b44"
+      }
+    },
+    "no_new_media_or_global_emulator_inputs": true
+  },
+  "runtime_identity": {
+    "classification": "PRIVATE_RUNTIME_IDENTITY_PASS",
+    "binary_files": 63,
+    "all_binary_hashes_match": true,
+    "all_binary_source_hashes_match": true,
+    "settings_authority_receipt_sha256": "50e6675c7637e1574018222515893d4479deccc230cfbbffa6d3c2d64a5d7bb2",
+    "settings_change_only": [
+      "Preferences.OverrideScreenshotFolder",
+      "Preferences.ScreenshotFolder",
+      "Preferences.OverrideSaveDataFolder",
+      "Preferences.SaveDataFolder",
+      "Preferences.OverrideSaveStateFolder",
+      "Preferences.SaveStateFolder"
+    ],
+    "global_settings_unchanged": true,
+    "original_sram_seed_sha256": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1",
+    "initial_sram_authority": {
+      "source": "C:\\Users\\chad\\Documents\\Mesen2\\Saves\\bor.srm",
+      "sha256": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1",
+      "bytes": 262144,
+      "authority_receipt_sha256": "50e6675c7637e1574018222515893d4479deccc230cfbbffa6d3c2d64a5d7bb2",
+      "manifest_sha256": "b2364468a489c8630e4751c2f365ebf99ce2def5b783ece06ff0573cb6541352"
+    },
+    "private_sram_output_sha256": "24cb75a636221c8af2ae6716dc945cddbe58e953fe59f5ea6998985353a11cbc",
+    "private_sram_output_identical_to_accepted_fused_right": true,
+    "private_sram_pending_committed_and_refs_match_native_snapshots": true,
+    "manifest_sha256": "b2364468a489c8630e4751c2f365ebf99ce2def5b783ece06ff0573cb6541352"
+  },
+  "capture_initial_sram": {
+    "source": "C:\\Users\\chad\\Documents\\Mesen2\\Saves\\bor.srm",
+    "sha256": "a7574d35205ca9a5b724f78a6cc5d1a7f499b894892aae31dbfaa69902fa8fa1",
+    "bytes": 262144,
+    "authority_receipt_sha256": "50e6675c7637e1574018222515893d4479deccc230cfbbffa6d3c2d64a5d7bb2",
+    "manifest_sha256": "b2364468a489c8630e4751c2f365ebf99ce2def5b783ece06ff0573cb6541352"
+  },
+  "independent_review": {
+    "review": "independent read-only v2 native reference rebuild review",
+    "result": "PASS_WITHIN_BOUNDED_REVIEW_SCOPE",
+    "accepted_head": "d5803ef7d9ede527a9eeb8f47a8779072fd92775",
+    "candidate_rom_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+    "native_receipt": {
+      "path": "out/byor-motu-ref-rebuild-v2/ref-rebuild-receipt.json",
+      "classification": "BYOR_MOTU_REF_REBUILD_PASS",
+      "sha256_at_review": "a2c6a115f9b38fa1b11b3900b0a174c7823d308578b4fc5981be5de52784e3b4",
+      "observed_fields": 666,
+      "verified_rgb555_pixels": 38191104,
+      "pixel_mismatches": 0,
+      "resource_faults": 0,
+      "unsafe_ppu_operations": 0
+    },
+    "findings": [],
+    "unresolved_gaps": [],
+    "independent_checks": {
+      "capture_seal_and_inventory": {
+        "provenance_sha256": "f1597aefea2a14cdf684185cdf099d4807cff4927fb6a9c50f3ccba4ac4bbb6f",
+        "raw_manifest_sha256": "c946fd6639cbcf95cea495bd7bfbbab92bec33629086c4f4dadb0e016bd279fa",
+        "raw_input_files": 1759,
+        "source_destination_hash_mappings": 1759,
+        "case_roots_match_all_eight_cases": true,
+        "all_manifested_hashes_match": true,
+        "shared_msu_sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+        "all_case_msu_hashes_match": true,
+        "coverage": {
+          "success": {
+            "fields": 86,
+            "first_frame": 523,
+            "last_frame": 608
+          },
+          "valid": {
+            "fields": 113,
+            "first_frame": 523,
+            "last_frame": 635
+          },
+          "early": {
+            "fields": 80,
+            "first_frame": 523,
+            "last_frame": 602
+          },
+          "ready": {
+            "fields": 85,
+            "first_frame": 523,
+            "last_frame": 607
+          },
+          "partial": {
+            "fields": 88,
+            "first_frame": 523,
+            "last_frame": 610
+          },
+          "stale": {
+            "fields": 85,
+            "first_frame": 523,
+            "last_frame": 607
+          },
+          "insufficient": {
+            "fields": 69,
+            "first_frame": 523,
+            "last_frame": 591
+          },
+          "right": {
+            "fields": 60,
+            "first_frame": 523,
+            "last_frame": 582
+          }
+        },
+        "all_field_indices_and_physical_frames_consecutive": true,
+        "exact_png_and_vram_file_inventories_and_hashes_match": true
+      },
+      "rom_identity": {
+        "static_build_sha256": "41c505ad5f821bc7a6c458524cfd61f5212362f976d01a3f107a2d14381b9941",
+        "all_eight_captured_roms_match_static_build": true,
+        "ref_rebuild_audit_status": "PASS",
+        "helper_code_bytes": 435,
+        "audited_branch_sites": 316,
+        "original_symbols_identical": true,
+        "original_guards_retained": true,
+        "authorized_rom_ranges_only": true
+      },
+      "postmap_timing": {
+        "markers": "Original NbMapsComplete through original NbVisible callbacks, rederived directly from raw native logs.",
+        "all_case_transactions_strictly_improved": true,
+        "transactions_by_case": {
+          "success": 2,
+          "valid": 3,
+          "early": 1,
+          "ready": 1,
+          "partial": 1,
+          "stale": 1,
+          "insufficient": 1,
+          "right": 1
+        },
+        "success_epoch3": {
+          "baseline_master_clocks": 569326,
+          "candidate_master_clocks": 453628,
+          "saved_master_clocks": 115698,
+          "gain_percent": 20.321925
+        }
+      },
+      "ordinary_epoch_timing": {
+        "epoch2": {
+          "candidate_fields": 22,
+          "baseline_fields": 22,
+          "candidate_master_clocks": 7943412,
+          "baseline_master_clocks": 8059110
+        },
+        "epoch3": {
+          "candidate_fields": 31,
+          "baseline_fields": 31,
+          "candidate_master_clocks": 11203624,
+          "baseline_master_clocks": 11319340
+        },
+        "fields_do_not_regress_and_both_epoch_clocks_improve": true
+      },
+      "reference_rebuild_native_traces": {
+        "per_case_transactions": {
+          "success": 2,
+          "valid": 3,
+          "early": 1,
+          "ready": 1,
+          "partial": 1,
+          "stale": 1,
+          "insufficient": 1,
+          "right": 1
+        },
+        "each_transaction_checks": "All 768 input reference words, all 1,024 pending-map words, the complete clear-then-increment output table, all ordered low/high byte write events, entry/exit registers and flags, stack/DP/DBR/counter context, elapsed clocks, and placement inside the original post-map markers.",
+        "all_rebuilt_tables_traces_and_context_checks_pass": true
+      },
+      "safety_margins": {
+        "complete_batch_margin_clocks_minimum": 27318,
+        "map_or_other_commit_margin_clocks_minimum": 14646,
+        "other_reported_margin_minimum": 14688,
+        "low_dma_fence_margin_clocks_minimum": 30134,
+        "all_reported_margins_at_least_10000": true
+      },
+      "recorded_regression_suite": {
+        "tests": 408,
+        "return_code": 0,
+        "evidence_path": "out/byor-motu-ref-rebuild-integration-v1/focused-tests-result-v2.json",
+        "independently_rerun": false
+      }
+    },
+    "scope_limitations": [
+      "No emulator, collector, reseal operation, or source/capture mutation was performed during this review.",
+      "Runtime binary and SRAM preservation checks were assigned to the parent review and were not repeated here.",
+      "The retained v1 candidate below the 20 percent gate remains rejected; this review concerns the v2 ROM identity above."
+    ]
+  },
+  "capture_evidence": {
+    "provenance_sha256": "f1597aefea2a14cdf684185cdf099d4807cff4927fb6a9c50f3ccba4ac4bbb6f",
+    "raw_manifest_sha256": "c946fd6639cbcf95cea495bd7bfbbab92bec33629086c4f4dadb0e016bd279fa",
+    "immutable_msu_sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+    "raw_inputs": 1759,
+    "verified_origins": 1759,
+    "cases": {
+      "success": {
+        "fields": 86,
+        "first_frame": 523,
+        "last_frame": 608,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "valid": {
+        "fields": 113,
+        "first_frame": 523,
+        "last_frame": 635,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "early": {
+        "fields": 80,
+        "first_frame": 523,
+        "last_frame": 602,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "ready": {
+        "fields": 85,
+        "first_frame": 523,
+        "last_frame": 607,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "partial": {
+        "fields": 88,
+        "first_frame": 523,
+        "last_frame": 610,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "stale": {
+        "fields": 85,
+        "first_frame": 523,
+        "last_frame": 607,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "insufficient": {
+        "fields": 69,
+        "first_frame": 523,
+        "last_frame": 591,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "right": {
+        "fields": 60,
+        "first_frame": 523,
+        "last_frame": 582,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      }
+    },
+    "observed_fields": 666
+  },
+  "accepted_ready_capture_evidence": {
+    "provenance_sha256": "bd889ec5ebcc8d68746c5fdf6e7975f3bdff0622077ef23352b9e3519e2f1e56",
+    "raw_manifest_sha256": "45add5d4518d6400db57b5b239199e2b6b6e71a3d76cee4815248cbae2fa6591",
+    "immutable_msu_sha256": "eb781b14d4df082f574df8eb58cb90d5714969a5a91913fdcbd70902da77b1cf",
+    "raw_inputs": 1751,
+    "verified_origins": 1751,
+    "cases": {
+      "success": {
+        "fields": 86,
+        "first_frame": 523,
+        "last_frame": 608,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "valid": {
+        "fields": 113,
+        "first_frame": 523,
+        "last_frame": 635,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "early": {
+        "fields": 80,
+        "first_frame": 523,
+        "last_frame": 602,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "ready": {
+        "fields": 85,
+        "first_frame": 523,
+        "last_frame": 607,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "partial": {
+        "fields": 88,
+        "first_frame": 523,
+        "last_frame": 610,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "stale": {
+        "fields": 85,
+        "first_frame": 523,
+        "last_frame": 607,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "insufficient": {
+        "fields": 69,
+        "first_frame": 523,
+        "last_frame": 591,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      },
+      "right": {
+        "fields": 60,
+        "first_frame": 523,
+        "last_frame": 582,
+        "consecutive": true,
+        "exact_png_vram_inventory": true
+      }
+    },
+    "observed_fields": 666
+  },
+  "raw_and_ready_baseline_unchanged": true,
+  "checkpoint_inventories": {
+    "success": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "valid": {
+      "candidate": [
+        "after-restoration-cgram.bin",
+        "after-restoration-committed.bin",
+        "after-restoration-pending.bin",
+        "after-restoration-refs.bin",
+        "after-restoration-vram.bin",
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin",
+        "restoration-world.bin"
+      ],
+      "q8": [
+        "after-restoration-cgram.bin",
+        "after-restoration-committed.bin",
+        "after-restoration-pending.bin",
+        "after-restoration-refs.bin",
+        "after-restoration-vram.bin",
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin",
+        "restoration-world.bin"
+      ]
+    },
+    "early": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "ready": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "partial": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "stale": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "insufficient": {
+      "candidate": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ],
+      "q8": [
+        "after-second-cgram.bin",
+        "after-second-committed.bin",
+        "after-second-pending.bin",
+        "after-second-refs.bin",
+        "after-second-vram.bin",
+        "before-second-cgram.bin",
+        "before-second-committed.bin",
+        "before-second-pending.bin",
+        "before-second-refs.bin",
+        "before-second-vram.bin",
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "initial-vram.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "newer-world.bin"
+      ]
+    },
+    "right": {
+      "candidate": [
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "handoff-vram.bin",
+        "initial-vram.bin",
+        "left-cgram.bin",
+        "left-committed.bin",
+        "left-pending.bin",
+        "left-refs.bin",
+        "left-vram.bin",
+        "left-world.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "noop-cgram.bin",
+        "noop-committed.bin",
+        "noop-pending.bin",
+        "noop-refs.bin",
+        "noop-vram.bin",
+        "noop-world.bin"
+      ],
+      "q8": [
+        "cold-cgram.bin",
+        "cold-committed.bin",
+        "cold-pending.bin",
+        "cold-refs.bin",
+        "cold-vram.bin",
+        "cold-world.bin",
+        "deferred-cgram.bin",
+        "deferred-committed.bin",
+        "deferred-pending.bin",
+        "deferred-refs.bin",
+        "deferred-vram.bin",
+        "deferred-world.bin",
+        "handoff-vram.bin",
+        "initial-vram.bin",
+        "left-cgram.bin",
+        "left-committed.bin",
+        "left-pending.bin",
+        "left-refs.bin",
+        "left-vram.bin",
+        "left-world.bin",
+        "moved-cgram.bin",
+        "moved-committed.bin",
+        "moved-pending.bin",
+        "moved-refs.bin",
+        "moved-vram.bin",
+        "moved-world.bin",
+        "noop-cgram.bin",
+        "noop-committed.bin",
+        "noop-pending.bin",
+        "noop-refs.bin",
+        "noop-vram.bin",
+        "noop-world.bin"
+      ]
+    }
+  },
+  "exact_coverage": {
+    "success": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267632,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "valid": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267632,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "early": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267632,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "ready": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267632,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "partial": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267632,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "stale": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267632,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "insufficient": {
+      "3": {
+        "calls": 207,
+        "covered": 95,
+        "before_helper_clocks": 1610508,
+        "after_helper_clocks": 1267632,
+        "before_mark_clocks": [
+          2092856
+        ],
+        "after_mark_clocks": [
+          1749038
+        ],
+        "rows_visited": 1037,
+        "baseline_rows_visited": 1037
+      }
+    },
+    "right": {}
+  },
+  "native_file_manifest": {
+    "path": "out/byor-motu-ref-rebuild-integration-v1/native-file-manifest.json",
+    "sha256": "336b14d55cd4763b4518da14cc04f3655afdd31fa6eaf419272896b7dd05f397",
+    "files": 1848
+  },
+  "retained_full_native_receipt": {
+    "path": "out/byor-motu-ref-rebuild-v2/ref-rebuild-receipt.json",
+    "sha256": "a2c6a115f9b38fa1b11b3900b0a174c7823d308578b4fc5981be5de52784e3b4"
+  },
+  "implementation_files": {
+    "tools/bor_compile/ref_rebuild.py": "98d9010cf19e3803404f4c26b18982cb4b54367d9a1ef66f2cfb699aaf966394",
+    "tools/verify/m4_ref_rebuild_native.py": "869d9df43a75a7fc353bdae22732cf291e3aedccff4f504187787a9fa6f4ece4",
+    "tools/verify/ref_rebuild_evidence.py": "dc001da569f50cd4ae8f5407ffde0d1ea8025ef148964a0b7542c993ae3764d7",
+    "tools/verify/test_ref_rebuild.py": "4bed31fd4f3c65036ad6de581ba3999e54746ca843fc56929210971cfef9cf45",
+    "tools/verify/test_ref_rebuild_adapter.py": "c757dabd9c9228b04a6e0f40f43eec0b104cf86d0eaa6e9af72af4b7fc65763e",
+    "docs/byor-motu-ref-rebuild.md": "287ace0f9c0078525cc64592b992a99893eb370a545da9536cb95655eeb74b64"
+  },
+  "supporting_evidence": {
+    "snapshot.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/snapshot.json",
+      "sha256": "2b924415f7f34f30778d0ccd2c783a8860d4bc9669f3de505260201509bb5fa3"
+    },
+    "preservation-final.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/preservation-final.json",
+      "sha256": "95d2a97e6d05d4f6ad8573891df81d283f2ee326af038b734ee688f6b0682215"
+    },
+    "runtime-identity.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/runtime-identity.json",
+      "sha256": "e48a424f848264fb46893dac5fcc82a852ed9ecc9263384290839dec22e21f4a"
+    },
+    "independent-review-v2.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/independent-review-v2.json",
+      "sha256": "24746b82c0fd7955b505542b60c6e22e5cc0e1e92801d6f12dcc9f1050b1b10d"
+    },
+    "independent-review-v3.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/independent-review-v3.json",
+      "sha256": "f158ec8a31893577b65371e1427a27c96e29b6e55d9bf85f076e26f3697b188c"
+    },
+    "independent-review-v4.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/independent-review-v4.json",
+      "sha256": "89b5182a878cf0c3860d2817dae531fca5a8b0e95fbbf88948dc61403f1f3f48"
+    },
+    "retained-fault-probes.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/retained-fault-probes.json",
+      "sha256": "dd499702b2fe191d3eb9ec59d69b9c5d7fda3f826492cfe7b1097c97633c3630"
+    },
+    "focused-tests-result-v2.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/focused-tests-result-v2.json",
+      "sha256": "cd4e571d24dd85fb1705c5bd378f47a05126faf96852aef06edc6cbc627b5350"
+    },
+    "native-suite-v1.log": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/native-suite-v1.log",
+      "sha256": "7fce3ab1521c59688dd3c3f71e185b8e18a89a94bf5aa36344e89ff405d74769"
+    },
+    "native-suite-v2.log": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/native-suite-v2.log",
+      "sha256": "a639c2376abc265ecf14d66d63eaf17596f12f93792573473325549c39eb35d2"
+    },
+    "native-recertification-v2.log": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/native-recertification-v2.log",
+      "sha256": "c05c18b6f3c202b26f1aa39d5a0f2dacb71d177b83cce8c62f83c26c2891d8c4"
+    },
+    "rejected-v1.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/rejected-v1.json",
+      "sha256": "db39c4265b8a197be4fa5e2819be00621b4a9349621dffd2d696d371fcc6c6d2"
+    },
+    "attempt-v1-source/sha256.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/attempt-v1-source/sha256.json",
+      "sha256": "0dc836eeb6aa3b351c8f3a481a406350e895adae1cf34571675905c0cee95ffb"
+    },
+    "validate_runtime.py": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/validate_runtime.py",
+      "sha256": "7b857b742d4924de594902ac3c53e3fa789ab9271f106576e65afdfd6a02fa8c"
+    },
+    "validate_preservation_v2.py": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/validate_preservation_v2.py",
+      "sha256": "6036a00779c406b516244424aca9b8a918d9f28e8f5d161bb619c5d2b36c81ce"
+    },
+    "retained_fault_probes.py": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/retained_fault_probes.py",
+      "sha256": "baa0bf968593980ae39020cb3a52e5f2f03b1b84e1b58050489603787c31aa51"
+    },
+    "run_focused_v2.py": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/run_focused_v2.py",
+      "sha256": "016d03327d26b7066205219f2c58e49ab0ff4aa09a6d010b51f457c8ca2bf95e"
+    },
+    "validate_deliverable.py": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/validate_deliverable.py",
+      "sha256": "303dfdee0a4dd6f2eb6d222a41d2640933c86fa77688ff99c269ccef170a4f3b"
+    },
+    "coordination-final.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/coordination-final.json",
+      "sha256": "db20ca4ec96d9476eeb80ce900fbd30487493f8ab2f2ef082bd3ace781c245d3"
+    },
+    "gate-diagnosis-v1.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/gate-diagnosis-v1.json",
+      "sha256": "ff4995124c7acdd30534551e4a8f39dc40fbd942106e929ff823c404fce79d0e"
+    },
+    "native-lease-v3.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/native-lease-v3.json",
+      "sha256": "f0a986a2385b559d9514b9e746277300aab8c827902d4faa384fb4388a04b755"
+    },
+    "native-lease-v4.json": {
+      "path": "out/byor-motu-ref-rebuild-integration-v1/native-lease-v4.json",
+      "sha256": "5a6c21af1f4b9f376a8df505f540de815352cddbdd2d2efe9705c23855d38591"
+    }
+  },
+  "nonclaims": [
+    "30 FPS",
+    "200 Hz",
+    "SA-1 concurrency",
+    "audio",
+    "HUD",
+    "combat",
+    "Demo completion"
+  ],
+  "publication_authorization": {
+    "target_branch": "feat/byor-motu",
+    "routine_tested_checkpoints_authorized": true,
+    "no_private_assets_in_scope": true,
+    "validation_completed_before_publication": true
+  }
+}
