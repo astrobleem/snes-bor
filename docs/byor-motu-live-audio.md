@@ -1,5 +1,11 @@
 # Private MOTU entry-sound join
 
+The historical measurements below remain intact. The subsequent
+[warm checkpoint](byor-motu-warm-presentation.md) fixes an inherited inactive
+audio-completion width fault and verifies clock/stack health across a longer
+post-retirement interval. It also joins two coherent natural warm pictures;
+general audio and target cadence remain unfinished.
+
 Status: one persistent player completes **285 consecutive source ticks** while
 the native TAD/SPC path delivers and retires its authored entry sound. This is
 an opt-in diagnostic capability with neutral input, one active voice and one

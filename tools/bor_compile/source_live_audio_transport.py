@@ -403,6 +403,10 @@ LiveAudio_PumpStreamActive:
 .i16
     jsl LiveAudio_PrefillUpdate
 LiveAudio_PumpCheckCompletion:
+    ; The inactive-source branch arrives directly from the A8 active-byte
+    ; test. Establish the word ABI on every edge into this shared join.
+    rep #$20
+.a16
     ; Retirement requires the actual backend completion, inactive physical
     ; source, and no outstanding transfer. No status write occurs here.
     lda.l ${status:06X}

@@ -1,0 +1,146 @@
+{
+  "schema": "BYOR_MOTU_WARM_PRESENTATION_CHECKPOINT_V1",
+  "classification": "BOUNDED_NATIVE_WARM_CHECKPOINT",
+  "diagnostic_status": "DIAGNOSTIC_ONLY",
+  "production_selected": false,
+  "starting_commit": "9f81b35521bc46dec34114e3c9c583ff6eb1de2b",
+  "source_engine_commit": "af23dc9c2316bb7853bb266ccf40986aa9765aeb",
+  "source_pak_sha256": "2a35ebb9beea7388a6823205dad21e1a718da4b5f747ea09792c0a0e719aa2e0",
+  "build": {
+    "path": "out/byor-motu-warm-presentation-v1/native-v10/contract.json",
+    "sha256": "f735d806efb34b0b727e1243d550d91b96c46f9a12075ce8b1cfc74db2bf0ea1",
+    "bytes": 1013910
+  },
+  "rom": {
+    "path": "out/byor-motu-warm-presentation-v1/native-v10/bor.sfc",
+    "sha256": "a785450eca535b873435532ebdd3d03b55339e1ed7e5a46f7dc437796e3235d3",
+    "bytes": 4194304
+  },
+  "raw_inventory": {
+    "path": "out/byor-motu-warm-presentation-v1/raw-inventory-v1.json",
+    "sha256": "faa85984bdf027309ce641d0296617fa4d1e5b21d1185ec7e88e3bc18ab9352b",
+    "bytes": 3211
+  },
+  "native_result": {
+    "path": "out/byor-motu-warm-presentation-v1/fast-capture-v6/result.json",
+    "sha256": "ac867057ad25e2a6a7cd9b656bed73b49325c0db7c36a5d5ced633ad2ccfcca1",
+    "bytes": 17078118
+  },
+  "capture_source_directory": "out/byor-motu-warm-presentation-v1/capture-source-v9",
+  "full_snapshot_bytes": 148,
+  "epoch_bits": 32,
+  "accepted_renderer_bank_unchanged": true,
+  "native": {
+    "fields_requested": 1800,
+    "exact_one_field_steps": 1800,
+    "warm_owned_fields": 1779,
+    "exact_warm_owned_fields": 1779,
+    "exact_rgb555_pixels": 102014976,
+    "all_constructor_ready_fields_exact": false,
+    "retained_constructor_ready_mismatches": [
+      {
+        "index": 20,
+        "frame": 525,
+        "warm_main_ready": false
+      }
+    ],
+    "source_commits": 216,
+    "coherent_seals": 216,
+    "source_time_initial": 48,
+    "source_time_final": 264,
+    "published": [
+      {
+        "epoch": 25,
+        "ppu_frame": 1199,
+        "master_clock": 428484704,
+        "source_handle": 5,
+        "source_frame": 1
+      },
+      {
+        "epoch": 98,
+        "ppu_frame": 1717,
+        "master_clock": 613599974,
+        "source_handle": 5,
+        "source_frame": 4
+      }
+    ],
+    "physical_input_samples": 13,
+    "physical_input_samples_exact": true,
+    "physical_input_masks": [
+      0,
+      256,
+      512
+    ],
+    "movement_proven": false,
+    "unowned_port2_qualified": false,
+    "exact_aram_packets": 532,
+    "aram_mismatched_bytes": 0,
+    "post_initialization_physical_fields": 1778,
+    "source_clock_counted_fields": 1778,
+    "nmi_and_source_clock_gate_counts_equal": true
+  },
+  "timing": {
+    "batch_count": 23,
+    "map_count": 2,
+    "minimum_batch_margin_clocks": 24082,
+    "minimum_map_margin_clocks": 11616,
+    "required_floor_clocks": 10000,
+    "measurements": {
+      "path": "out/byor-motu-warm-presentation-v1/fast-capture-v6/presentation-windows.json",
+      "sha256": "751ae24aed180b8f8142396d624ae23c57ab9b0cf4e87438af304b1c9fec81c6",
+      "bytes": 345369
+    }
+  },
+  "audio_completion_fix": {
+    "shared_entry": "LiveAudio_PumpCheckCompletion",
+    "instruction": "REP #$20",
+    "historical_unfixed_native_capture": "out/byor-motu-warm-presentation-v1/fast-capture-v4",
+    "historical_fault": "inactive A8 edge executes the extra zero of an encoded A16 CMP as BRK",
+    "historical_capture_preserved": true
+  },
+  "tests": {
+    "full_suite_tests": 731,
+    "full_suite_subtests": 6432,
+    "skips": 0,
+    "full_suite": {
+      "path": "out/byor-motu-warm-presentation-v1/final-tests-v1.json",
+      "sha256": "e0a3c14d310d82ef9bb2f152afe3863b0e8e39bf79b7fc7a8ca0dc3ff0c23486",
+      "bytes": 7533
+    },
+    "affected_capture_tests": 39,
+    "affected_capture_rerun": {
+      "path": "out/byor-motu-warm-presentation-v1/epoch-capture-tests-v3.log",
+      "sha256": "8657bead7667dc98b037fd9a5f1400c2bbdb78f20a50dbbd5c1ad14bee5e84b1",
+      "bytes": 118
+    }
+  },
+  "preservation": {
+    "path": "out/byor-motu-warm-presentation-v1/preservation-final-v1.json",
+    "sha256": "e23b8a329c7773e351f4c5f4f74fcb27a04dc2586a1f79b1c3404f555dd29841",
+    "bytes": 29132
+  },
+  "lease_released": true,
+  "surviving_contained_processes": 0,
+  "gate_bypassed": false,
+  "publication": "LOCAL_SOURCE_ONLY; earlier push rejected by automatic approval review",
+  "remaining_gaps": [
+    "Natural SELECT completion and IDLE/WALK with movement are not captured.",
+    "Fresh-picture latency is hundreds of fields; 200 Hz and 30 FPS are unmet.",
+    "First constructor-ready field is blank before WarmMainReady and remains a mismatch.",
+    "Other poses/models, authored stage/camera, multiple actors, combat, HUD and progression remain unfinished.",
+    "General audio, polyphony and active logical phase progression are unbound.",
+    "Private single-foreground lease is not production concurrency.",
+    "Long captures must first close the uint32 Lua clock-wrap protocol.",
+    "Writer attribution has sampled-PC limitations; exhaustive full-PC attribution is not claimed."
+  ],
+  "independent_review": {
+    "path": "out/byor-motu-warm-presentation-v1/native-v10-independent-review-v2.json",
+    "sha256": "48651251853832462cdff3501e36da6322604ac493c29c584dee550a95e6a0bf",
+    "bytes": 9434
+  },
+  "reviewed_receipt_before_review_link": {
+    "path": "out/byor-motu-warm-presentation-v1/receipt-reviewed-v1.json",
+    "sha256": "635a21250f64597f2fca297f119a08be7abf7b4fc7c3f51282dc453b0e1beb0b",
+    "bytes": 5180
+  }
+}

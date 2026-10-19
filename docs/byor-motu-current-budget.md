@@ -118,9 +118,13 @@ completes the constructor and cold publication, delivers all prepared BRR
 blocks through the DSP, and retires the voice. The same 900-field capture
 commits 285 consecutive real ticks and seals 285 coherent snapshots. Its median
 tick costs 976,804 master clocks / three fields, so 200-Hz source cadence remains
-unmet. Full sample coverage/polyphony, other actions and the immutable warm
-presentation join remain open. The bounded waveform proof supplies no
-presentation-cadence or full audio claim.
+unmet. Full sample coverage/polyphony and other actions remain open. The
+subsequent [warm checkpoint](byor-motu-warm-presentation.md) joins coherent
+natural snapshots to two exact warm publications while source ticks and audio
+continue. All 1,779 fields after its warm-owner entry are exact, but fresh
+pictures still take hundreds of fields. The longer run also fixes an inherited
+audio completion width fault and verifies physical-field counting after voice
+retirement. Neither checkpoint establishes target cadence or full audio.
 
 The forced owner-zero abort probe covers a guarded copy branch. The untested
 natural cold-preflight failure chain is separate from the measured warm

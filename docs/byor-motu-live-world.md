@@ -4,7 +4,10 @@ The original audio-disabled checkpoint below is retained as its historical
 receipt. The newer opt-in [entry-sound join](byor-motu-live-audio.md) completes
 the real constructor, delivers its prepared entry waveform and commits 285
 consecutive source ticks. Full gameplay, cadence and warm presentation remain
-unfinished.
+unfinished. The subsequent [warm checkpoint](byor-motu-warm-presentation.md)
+publishes two coherent natural snapshots, verifies continued source ticks
+through entry-audio retirement, and corrects an inherited audio completion
+width fault. Its measured cadence and action coverage remain partial.
 
 **Status: required constructor audio remains pending; no complete world tick.**
 The opt-in builder now joins a guarded native foreground owner to the real
