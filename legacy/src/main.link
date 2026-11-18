@@ -1,0 +1,5 @@
+[objects]
+build/main.obj
+
+[output]
+build/bor.sfc

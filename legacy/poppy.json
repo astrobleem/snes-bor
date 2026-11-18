@@ -1,0 +1,25 @@
+{
+  "name": "snes-bor",
+  "version": "0.1.0",
+  "description": "SNES Beats of Rage Engine — PoC",
+  "target": "snes",
+  "cpu": "65816",
+  "output": {
+    "format": "sfc",
+    "filename": "bor.sfc"
+  },
+  "header": {
+    "title": "BEATS OF RAGE SNES  ",
+    "mapping": "hirom",
+    "romSpeed": "fast",
+    "chipset": "sa1",
+    "romSize": 12,
+    "ramSize": 8,
+    "region": "ntsc",
+    "version": 0
+  },
+  "sources": [
+    "src/main.pasm"
+  ],
+  "sa1_enabled": true
+}
