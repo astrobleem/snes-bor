@@ -88,6 +88,24 @@ Oam_HighWaterSlot = $7E53C8 ; .dw
 ; confirmed free via a project-wide grep for $7E53CA and up.
 Oam_NeedFullUpload = $7E53CA ; .dw
 
+; Source visual OAM fence. A u32 sequence plus u32 epoch is copied into the
+; queue's parallel owner record before ACTIVE is published. Sequence rollover
+; advances the epoch; full-token rollover waits for a drained queue and no
+; candidate still carrying a fence. The free packet-cache arena holds this.
+Oam_VisualFenceSequenceCounter = $7F9CAE ; .dd next sequence
+Oam_VisualFenceSubmitted  = $7F9CB2 ; .dd sequence on the current OAM request
+Oam_VisualFenceCompleted  = $7F9CB6 ; .dd exact sequence completed by DMA
+Oam_VisualFenceCompletedValid = $7F9CBA ; .db set only by a tagged main-OAM completion
+Oam_VisualFenceEpochCounter = $7F9CE0 ; .dd epoch for sequence counter
+Oam_VisualFenceSubmittedEpoch = $7F9CE4 ; .dd epoch on current OAM request
+Oam_VisualFenceCompletedEpoch = $7F9CE8 ; .dd epoch completed by DMA
+Oam_VisualFenceCompletionVersion = $7F9CEC ; .db changes after atomic completion publication
+Oam_VisualFencePublishScratch = $7F9CEE ; .dw NMI-only nonzero-token check
+Oam_VisualCommitMask      = $7E53D0 ; .dw actors with ready candidates in this frame
+Oam_VisualPacketScratch   = $7E53D2 ; .dw bounded NMI packet-copy scratch
+Oam_VisualPacketIndex     = $7E53D4 ; .dw bounded NMI packet-copy scratch
+Oam_VisualPacketCount     = $7E53D6 ; .dw bounded NMI packet-copy scratch
+
 ; Mode 6 SMALL is 16x32: rows 224..255 do not wrap into visible rows 0..223.
 ; X=-64 additionally excludes hidden entries from scanline evaluation (unlike
 ; the PPU's special X=-256). High=1 means SMALL and X-high=1, X-low=$C0.
@@ -110,6 +128,33 @@ Core_Oam_Init__clear_loop:
     bcc Core_Oam_Init__clear_loop
 
     sta.l Oam_HighWaterSlot
+    sep #$20
+.a8
+	lda #0
+	sta.l Oam_VisualFenceCompletedValid
+	rep #$20
+.a16
+	lda #0
+	sta.l Oam_VisualFenceSequenceCounter
+	sta.l Oam_VisualFenceSequenceCounter+2
+	sta.l Oam_VisualFenceSubmitted
+	sta.l Oam_VisualFenceSubmitted+2
+	sta.l Oam_VisualFenceCompleted
+	sta.l Oam_VisualFenceCompleted+2
+	sta.l Oam_VisualFenceSubmittedEpoch
+	sta.l Oam_VisualFenceSubmittedEpoch+2
+	sta.l Oam_VisualFenceCompletedEpoch
+	sta.l Oam_VisualFenceCompletedEpoch+2
+	sta.l Oam_VisualFenceCompletionVersion
+	lda #1
+	sta.l Oam_VisualFenceEpochCounter
+	lda #0
+	sta.l Oam_VisualFenceEpochCounter+2
+    rep #$31
+.a16
+    lda #0
+    sta.l Oam_VisualCommitMask
+    jsl SourceVisual_InitPackets
 
     jsr Core_Oam_ClearAll
 
@@ -388,6 +433,93 @@ Core_Oam_Play__main_len_done:
     sta DmaRequest_SourceBank
     lda #DMA_TYPE_OAM
     sta DmaRequest_TypeFlags
+	; Keep at most one OAM descriptor outstanding. A single completion record
+	; can then preserve the exact main-table fence until the next source pass.
+	jsr Core_Oam_NoPendingOam
+	bcs Core_Oam_Play__no_pending_oam
+	jmp Core_Oam_Play__done
+Core_Oam_Play__no_pending_oam:
+    ; Do not consume a generation when the queue has no slot.
+	jsr Core_Dma_HasFreeSlot
+	bcs Core_Oam_Play__sequence_slot_ready
+	jmp Core_Oam_Play__done
+Core_Oam_Play__sequence_slot_ready:
+	; Allocate a nonzero 64-bit (epoch, sequence) token. A full-token wrap is
+	; allowed only after the DMA queue drains and no candidate retains a fence.
+	rep #$31
+.a16
+	lda.l Oam_VisualFenceSequenceCounter
+	clc
+	adc #1
+	sta.l Oam_VisualFenceSequenceCounter
+	lda.l Oam_VisualFenceSequenceCounter+2
+	adc #0
+	sta.l Oam_VisualFenceSequenceCounter+2
+	ora.l Oam_VisualFenceSequenceCounter
+	bne Core_Oam_Play__sequence_ready
+	; Low 32-bit sequence wrapped. Advance the epoch before reusing sequence 1.
+	lda.l Oam_VisualFenceEpochCounter
+	clc
+	adc #1
+	sta.l Oam_VisualFenceEpochCounter
+	lda.l Oam_VisualFenceEpochCounter+2
+	adc #0
+	sta.l Oam_VisualFenceEpochCounter+2
+	ora.l Oam_VisualFenceEpochCounter
+	bne Core_Oam_Play__sequence_wrap_ready
+	jsr Core_Oam_FenceEpochResetReady
+	bcs Core_Oam_Play__epoch_reset_ready
+	; Preserve the terminal token while waiting so a later frame retries the
+	; same quiescent rollover instead of aliasing epoch/sequence zero.
+	lda #$FFFF
+	sta.l Oam_VisualFenceSequenceCounter
+	sta.l Oam_VisualFenceSequenceCounter+2
+	sta.l Oam_VisualFenceEpochCounter
+	sta.l Oam_VisualFenceEpochCounter+2
+	jmp Core_Oam_Play__done
+Core_Oam_Play__epoch_reset_ready:
+	; The full epoch wrapped. At this quiescent boundary, invalidate any old
+	; completion before sequence 1 / epoch 1 can be reused.
+	lda #1
+	sta.l Oam_VisualFenceEpochCounter
+	lda #0
+	sta.l Oam_VisualFenceEpochCounter+2
+	sta.l Oam_VisualFenceCompleted
+	sta.l Oam_VisualFenceCompleted+2
+	sta.l Oam_VisualFenceCompletedEpoch
+	sta.l Oam_VisualFenceCompletedEpoch+2
+	sep #$20
+.a8
+	lda #0
+	sta.l Oam_VisualFenceCompletedValid
+	lda.l Oam_VisualFenceCompletionVersion
+	inc a
+	sta.l Oam_VisualFenceCompletionVersion
+	rep #$31
+.a16
+	bra Core_Oam_Play__sequence_wrap_ready
+Core_Oam_Play__sequence_wrap_ready:
+	.a16
+	.i16
+	lda #1
+	sta.l Oam_VisualFenceSequenceCounter
+	lda #0
+	sta.l Oam_VisualFenceSequenceCounter+2
+Core_Oam_Play__sequence_ready:
+	.a16
+	.i16
+	lda.l Oam_VisualFenceSequenceCounter
+	sta.l Oam_VisualFenceSubmitted
+	sta.l DmaRequest_OwnerSequence
+	lda.l Oam_VisualFenceSequenceCounter+2
+	sta.l Oam_VisualFenceSubmitted+2
+	sta.l DmaRequest_OwnerSequence+2
+	lda.l Oam_VisualFenceEpochCounter
+	sta.l Oam_VisualFenceSubmittedEpoch
+	sta.l DmaRequest_OwnerEpoch
+	lda.l Oam_VisualFenceEpochCounter+2
+	sta.l Oam_VisualFenceSubmittedEpoch+2
+	sta.l DmaRequest_OwnerEpoch+2
     rep #$31
 .a16
     jsr Core_Dma_Enqueue
@@ -403,6 +535,7 @@ Core_Oam_Play__queued_main:
 .i16
     lda #1
     sta Oam_UploadFlag
+    jsl SourceVisual_BindCandidateFence
 
     ; --- Hi table: ceil(sprite_count/4) bytes, starting at OAM address 512
     ; (word address $0100, NOT byte address $0200) -- real hardware OAM's
@@ -482,6 +615,93 @@ Core_Oam_Play__hi_len_done:
     bra Core_Oam_Play__done
 Core_Oam_Play__done:
     rts
+
+; Full 64-bit token rollover may reset only after every DMA slot is inactive
+; and the sole candidate packet no longer carries a submitted fence.
+; @return carry<bool>  set when sequence/epoch may safely restart at 1/1
+Core_Oam_FenceEpochResetReady:
+	rep #$31
+.a16
+.i16
+	ldx #0
+Core_Oam_FenceEpochResetReady__queue:
+	sep #$20
+.a8
+	lda.l DmaQueue+4,x
+	bit #DMA_OPT_ACTIVE
+	beq Core_Oam_FenceEpochResetReady__queue_inactive
+	brl Core_Oam_FenceEpochResetReady__busy8
+Core_Oam_FenceEpochResetReady__queue_inactive:
+	rep #$31
+.a16
+.i16
+	txa
+	clc
+	adc #DMA_QUEUE_SLOT_SIZE
+	tax
+	cpx #DMA_QUEUE_SLOTS*DMA_QUEUE_SLOT_SIZE
+	bcc Core_Oam_FenceEpochResetReady__queue
+	sep #$20
+.a8
+	lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+	beq Core_Oam_FenceEpochResetReady__ready8
+	rep #$31
+.a16
+.i16
+	lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE
+	ora.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+2
+	ora.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH
+	ora.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH+2
+	bne Core_Oam_FenceEpochResetReady__busy
+	sec
+	rts
+Core_Oam_FenceEpochResetReady__ready8:
+	rep #$31
+.a16
+.i16
+	sec
+	rts
+Core_Oam_FenceEpochResetReady__busy8:
+	rep #$31
+.a16
+.i16
+Core_Oam_FenceEpochResetReady__busy:
+	clc
+	rts
+
+; @return carry<bool>  set only when no OAM DMA descriptor is outstanding
+Core_Oam_NoPendingOam:
+	rep #$31
+.a16
+.i16
+	ldx #0
+Core_Oam_NoPendingOam__scan:
+	sep #$20
+.a8
+	lda.l DmaQueue+4,x
+	bit #DMA_OPT_ACTIVE
+	beq Core_Oam_NoPendingOam__next
+	and #$1F
+	cmp #DMA_TYPE_OAM
+	beq Core_Oam_NoPendingOam__busy8
+Core_Oam_NoPendingOam__next:
+	rep #$31
+.a16
+.i16
+	txa
+	clc
+	adc #DMA_QUEUE_SLOT_SIZE
+	tax
+	cpx #DMA_QUEUE_SLOTS*DMA_QUEUE_SLOT_SIZE
+	bcc Core_Oam_NoPendingOam__scan
+	sec
+	rts
+Core_Oam_NoPendingOam__busy8:
+	rep #$31
+.a16
+.i16
+	clc
+	rts
 
 ; Call once per sprite you want visible this frame, after filling
 ; OamSetSprite_X/Y/Tile/Attr/Hi. Writes one entry at the Oam_CurrentSlot

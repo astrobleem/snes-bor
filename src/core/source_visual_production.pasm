@@ -6,14 +6,24 @@
 ; Source-policy actors are fail-closed: no legacy 32x48 fallback is allowed.
 
 ; The source publisher must not overlap the legacy animation/MSU staging
-; records at $7E2000-$7E23FF.  The verified gap after HUD staging is
-; $7E5B00-$7E5FFF; the publisher uses its first 1 KiB as the transient
-; source-sheet DMA staging buffer.  The remaining lookup/state scratch below
-; remains in the existing compiler-owned source-publisher arena.
+; records at $7E2000-$7E23FF. The verified gap after HUD staging is
+; $7E5B00-$7E5FFF. The 1 KiB DMA staging buffer occupies $7E5B00-$7E5EFF;
+; candidate-admission scratch occupies $7E5F00-$7E5F91, disjoint from it.
 SourceVisual_TileStaging    = $7E5B00 ; 1 KiB, disjoint from legacy staging
 SourceVisual_PieceTable     = $7E4000 ; up to 65 * 16-byte piece rows
 ; The 65-row table ends at $4410.  Keep loader scratch in the checked free
 ; publisher arena rather than truncating Normal's 65-piece K9999 upper frame.
+; PieceTable itself is one global row buffer, so its validity is tagged with
+; the actor and catalog entry that last completed a full read. $4410-$449F is
+; the verified 144-byte gap before the next publisher scratch at $44A0.
+SourceVisual_PieceTableValid = $7E4410
+SourceVisual_PieceTableOwner = $7E4411
+SourceVisual_PieceTableEntry = $7E4412 ; u16
+; RowScratch is shared by every actor and every 42-byte table-row reader.
+; These bytes tag the only case where a block payload row may be reused.
+; The free $4414-$449F gap is bounded by the debug table at $4500.
+SourceVisual_RowScratchBlockIndex = $7E4414 ; u16, catalog block ID
+SourceVisual_RowScratchBlockValid = $7E4416 ; set only after a full block row
 SourceVisual_EntryScratch   = $7E4800 ; 24-byte SVIS entry
 SourceVisual_RowScratch     = $7E4840 ; 64-byte table-row scratch
 SourceVisual_PaletteTemp    = $7E4880 ; 32-byte palette read scratch
@@ -21,7 +31,61 @@ SourceVisual_PaletteStaging = $7E4900 ; 8 * 32-byte OBJ palettes
 SourceVisual_Offset         = $7E4A00 ; 32-bit MSU seek scratch
 SourceVisual_Key            = $7E4A04 ; roster, role, frame, map
 SourceVisual_Error          = $7E4A08 ; diagnostic byte
-SourceVisual_State           = $7E4A80 ; 6 * 32-byte actor visual leases
+SourceVisual_State           = $7E4A80 ; 6 * 32-byte published actor visual leases
+; Palette selection and resource-cache fields share bytes +16..+23. Keep the
+; entry-row-valid marker in its own byte so a palette value cannot masquerade
+; as a cached entry row on a later loader pass.
+SOURCE_VISUAL_STATE_SHEET_ROW_VALID = 24
+SOURCE_VISUAL_STATE_PIECE_ROWS_VALID = 25
+SOURCE_VISUAL_STATE_ENTRY_ROW_VALID = 26
+; One 32-byte sidecar per supported actor slot: 6 * 32 = 192 bytes total.
+; It starts after the last BOR-owned byte at $7E53D5 and ends at $7E5497,
+; before Spawn_Index at $7E5500. This is one table, not 192 bytes per actor.
+SourceVisual_CandidateState   = $7E53D8
+; Complete source geometry cache. Authored right-facing X/Y, tile, canonical
+; attribute, and size/mirror flags use seven bytes per piece. Left-facing X/Y
+; are a separate signed-word sidecar (four bytes per piece), copied with the
+; packet before its published valid flag is set. Six published rows are fixed
+; at 6*65*7=2,730 bytes plus 6*65*4=1,560 sidecar bytes. One global 65-piece
+; candidate row is admitted at a time; other actors keep rendering complete
+; published rows until this bounded lane is free.
+; Verified free WRAM: $7EEAB7-$7EEFFF (1,353 bytes), $7F8C00-$7F8FFF
+; (1,024 bytes), and $7F9120-$7F9FFF (3,808 bytes). Published rows occupy
+; 2,730 bytes in the last range; one candidate row and metadata occupy 455
+; bytes in the first. Candidate left geometry occupies 260 bytes after its
+; owner byte. Published left geometry is split into 780-byte groups for slots
+; 0..2 and 3..5. The first group starts after OAM fence scratch at $7F9CF0;
+; the second occupies $7F8C00-$7F8F0B. Published metadata, current-field
+; flags, queue sequence tags, and fence state remain disjoint.
+SourceVisual_CandidatePacketData = $7EEAB7 ; 65 * 7 = 455 bytes
+SourceVisual_CandidatePacketMeta = $7EEC7E ; 16-byte candidate descriptor
+SourceVisual_PacketCandidateOwner = $7EEC8E ; $FF free, else actor slot 0..5
+SourceVisual_CandidateLeftGeometry = $7EEC8F ; 65 * (signed X,Y words) = 260 bytes
+SourceVisual_PacketData       = $7F9120 ; 6 * 65 * 7 = 2,730 bytes
+SourceVisual_PacketMeta       = $7F9BCA ; 6 * 16 = 96 bytes, published rows
+SourceVisual_FrameMeta        = $7F9C2A ; 6 * 16 = 96 bytes, this render pass
+SourceVisual_PublishedLeftGeometry012 = $7F9CF0 ; slots 0..2, 3 * 65 * 4
+SourceVisual_PublishedLeftGeometry345 = $7F8C00 ; slots 3..5, 3 * 65 * 4
+SOURCE_VISUAL_PACKET_META_STRIDE = 16
+SOURCE_VISUAL_PACKET_META_COUNT = 0 ; authored-piece count
+SOURCE_VISUAL_PACKET_META_WIDTH = 2 ; source frame width
+SOURCE_VISUAL_PACKET_META_ENTRY = 4 ; catalog entry index
+SOURCE_VISUAL_PACKET_META_VALID = 6 ; set last, after complete row copy
+SOURCE_VISUAL_PACKET_META_OWNER = 7 ; candidate actor slot
+SOURCE_VISUAL_PACKET_META_FENCE = 8 ; candidate OAM sequence, u32
+SOURCE_VISUAL_PACKET_META_EPOCH = 12 ; non-aliasing OAM token epoch, u32
+; FrameMeta bytes 0..3 snapshot the live key immediately after FindEntry.
+; Offset 8 is otherwise unused in FrameMeta (PacketMeta is a separate array).
+SOURCE_VISUAL_FRAME_ACTION_ROSTER = 0
+SOURCE_VISUAL_FRAME_ACTION_ROLE = 1
+SOURCE_VISUAL_FRAME_ACTION_FRAME = 2
+SOURCE_VISUAL_FRAME_ACTION_MAP = 3
+SOURCE_VISUAL_FRAME_ACTION_VALID = 8
+SOURCE_VISUAL_ACTION_NONE = 0
+SOURCE_VISUAL_ACTION_LIVE = 1
+SOURCE_VISUAL_ACTION_STALE_FENCE = 2
+SOURCE_VISUAL_PACKET_ROW_BYTES = 7
+SOURCE_VISUAL_PACKET_ACTOR_BYTES = SOURCE_VISUAL_MAX_PIECES * SOURCE_VISUAL_PACKET_ROW_BYTES
 SourceVisual_DebugSeek      = $7E4A50 ; last 32-bit native seek, diagnostic
 SourceVisual_DebugIndex     = $7E4A54 ; matched catalog entry index
 SourceVisual_DebugD         = $7E4A56
@@ -41,7 +105,7 @@ SourceVisual_PaletteSlot     = $7E4B60
 SourceVisual_Record          = $7E4B62 ; current actor's 32-byte lease offset
 SourceVisual_PaletteBase     = $7E4B64 ; physical OBJ palette base for actor slot
 SourceVisual_PresentationMask = $7E4B66 ; actor leases touched this pass
-SourceVisual_PresentationField = $7E4B68 ; NMI field owning the presentation mask
+SourceVisual_PresentationField = $7E4B68 ; retained diagnostic NMI field
 SourceVisual_ActorSlot       = $7E4B6A ; actor-context slot 0..5
 SourceVisual_DebugRecord     = $7E4B6C ; 8-byte debug row offset for actor slot
 SourceVisual_AllocCandidate  = $7E4B70
@@ -83,7 +147,7 @@ SourceVisual_RetireEntityOffset = $7E4BB0
 SourceVisual_BlockCache      = $7E4C00 ; 64 * 8-byte content-addressed slots
 SourceVisual_ActorPieceMap   = $7E4E00 ; 6 * 65 one-byte block-slot maps
 ; Eight 8-byte rows: global palette ID [0..1], transfer state [3]
-; (0=reserved, 1=ready, 2=DMA pending), actor-owner mask [4].
+; (0=reserved, 1=ready, 2=DMA pending), published owners [4], candidate owners [5].
 SourceVisual_PaletteCache    = $7E4FA0
 SourceVisual_DebugTrace      = $7E4500 ; 6 * (key[4], entry index[2], error[2])
 SourceVisual_FindTrace       = $7E4540 ; 8 * (key[4], D[2], result[2])
@@ -123,6 +187,146 @@ SourceVisual_VisiblePieces     = $7E44AA
 SourceVisual_EmitPieceWidth    = $7E44AC
 SourceVisual_EmitPieceHeight   = $7E44AE
 SourceVisual_PaletteTransferBit = $7E44B0 ; .dw, disjoint from persistent BaseTile
+SourceVisual_CandidateBase    = $7E4BD2 ; sidecar offset = actorSlot * 32
+SourceVisual_OwnerChannel     = $7E4BD4 ; 0=published, 1=candidate
+SourceVisual_UseCandidate     = $7E4BD5 ; selected lease for this compositor pass
+SourceVisual_OwnerOffset      = $7E4BD6 ; .dw block/palette owner byte offset
+SourceVisual_PreflightCount   = $7E4BD8 ; bounded resource admission count
+SourceVisual_PreflightScan    = $7E4BDA
+SourceVisual_PreflightNeed    = $7E4BDC
+SourceVisual_PreflightFree    = $7E4BDE
+SourceVisual_PreflightId      = $7E4BE0
+SourceVisual_PreflightIds     = $7E5F00 ; 65 u16 IDs, outside the DMA staging window
+SourceVisual_PreflightPaletteIds = $7E5F82 ; 8 u16 palette identities
+SourceVisual_CandidateAction  = $7E4BB2 ; restore dispatch: 0=old, 1=capacity, 2=terminal
+; Six 3-byte semantic identities (roster, role, map) plus one valid byte per
+; actor. $7E4BB4-$7E4BCB is the symbol-map-verified gap before PacketCopyCount
+; at $7E4BD0. These identities are derived from the immutable candidate key,
+; not the live FrameMeta request. Frame is intentionally excluded; facing is
+; sampled by Emit from CHAR_FACING_LEFT and uses the packet's stored geometry.
+SourceVisual_CandidateActionIdentity = $7E4BB4 ; 6 * (roster, role, map)
+SourceVisual_CandidateActionValid = $7E4BC6 ; .db x6
+SourceVisual_CurrentActionScratch = $7E4BCC ; 3 bytes copied from live FrameMeta
+SourceVisual_OamFenceSubmitted  = Oam_VisualFenceSubmitted
+SourceVisual_OamFenceSubmittedEpoch = Oam_VisualFenceSubmittedEpoch
+SourceVisual_OamFenceCompleted  = Oam_VisualFenceCompleted
+SourceVisual_OamFenceCompletedValid = Oam_VisualFenceCompletedValid
+SourceVisual_OamFenceCompletedEpoch = Oam_VisualFenceCompletedEpoch
+SourceVisual_OamFenceCompletionVersion = Oam_VisualFenceCompletionVersion
+SourceVisual_PacketCandidateLaneOwner = SourceVisual_PacketCandidateOwner
+SourceVisual_CommitMask         = Oam_VisualCommitMask
+SourceVisual_PacketMetaOffset = $7E4BE2
+SourceVisual_PacketStart      = $7E4BE4
+SourceVisual_PacketCount      = $7E4BE6
+SourceVisual_PacketTotal      = $7E4BE8
+SourceVisual_PacketDataIndex  = $7E4BEA
+SourceVisual_PacketOamIndex   = $7E4BEC
+SourceVisual_PacketAnchorX    = $7E4BEE
+SourceVisual_PacketDrawY      = $7E4BF0
+SourceVisual_PacketActorY     = $7E4BF2
+SourceVisual_PacketOldX       = $7E4BF4
+SourceVisual_PacketNewX       = $7E4BF6
+SourceVisual_PacketDeltaY     = $7E4BF8
+SourceVisual_PacketFacing     = $7E4BFA
+SourceVisual_PacketSourceRow  = $7E4BFC
+SourceVisual_OamRetireMask    = $7E4BFE
+; One actor may complete at most one shared staging block before yielding the
+; rest of its render call. This gives later actor contexts a turn at the same
+; DMA boundary instead of letting an earlier actor immediately admit another
+; block and monopolize the sole staging buffer.
+SourceVisual_BlockCompletedThisCall = $7E4BFF
+SourceVisual_PacketCopyCount  = $7E4BD0
+SourceVisual_EmitOamStart     = $7E44B4
+SourceVisual_EmitActorY       = $7E44B6
+SourceVisual_EmitFrameWidth   = $7E44B8
+SourceVisual_PacketOldIdentity = $7E44BA
+; Left-facing geometry-cache index/values and per-slot actor-base calculation.
+SourceVisual_PacketLeftActorLocal = $7EED94 ; slot within its 0..2 sidecar group
+SourceVisual_PacketLeftGroup  = $7EED96 ; 0=slots 0..2, 1=slots 3..5
+SourceVisual_PacketLeftBaseOffset = $7EED98 ; actor slot * 260 within group
+SourceVisual_PacketLeftPieceOffset = $7EED9A ; piece index * 4
+SourceVisual_PacketLeftX      = $7EED9C ; signed 16-bit cached left X
+SourceVisual_PacketLeftY      = $7EED9E ; signed 16-bit cached left Y
+SourceVisual_PacketLeftCursor = $7EEDA0 ; candidate-to-published copy cursor
+; One durable absolute MSU payload offset per 8-byte block-cache record. This
+; preserves a completed 42-byte row's useful result when shared RowScratch is
+; reused by another actor between reader turns. Cache state+6=2 is the valid
+; bit; allocation resets it before this sidecar can be consumed. 64 * 4 bytes
+; occupy $7EEDA2-$7EEEA1, within the verified free arena ending at $7EEFFF.
+SourceVisual_BlockPayloadOffsets = $7EEDA2
+; Candidate asset identity is separate from the live request and loader scratch.
+; Six 4-byte keys occupy $7EEEA2-$7EEEB9, immediately after the 64-entry
+; BlockPayloadOffsets sidecar ($7EEDA2-$7EEEA1), within the verified free arena.
+SourceVisual_CandidateKey = $7EEEA2 ; six immutable [roster, role, frame, map] keys
+; The one-byte MSU/catalog binding latch and its owner use the remaining
+; checked bytes after CandidateKey ($7EEEA2-$7EEEB9).
+SourceVisual_CatalogBindState = $7EEEBA ; 0=unchecked, 1=read pending, 2=valid, $FF=bad
+SourceVisual_CatalogBindOwner = $7EEEBB ; actor that owns the one-time SVIX read
+SourceVisual_PacketOldValid   = $7E44BB
+SourceVisual_PacketNewIdentity = $7E44BC
+SourceVisual_PacketNewValid   = $7E44BD
+SourceVisual_PacketCopyByte   = $7E44BE
+SourceVisual_PacketSpriteX    = $7E44C0
+SourceVisual_PacketSpriteY    = $7E44C2
+SourceVisual_PacketSpriteHigh = $7E44C4
+SourceVisual_PacketDirectionChanged = $7E44C6
+SourceVisual_PacketSpriteAttr = $7E44C7
+SourceVisual_PacketOldWidth   = $7E44C8
+SourceVisual_PacketOldDrawY   = $7E44CA
+SourceVisual_PacketOldActorY  = $7E44CC
+SourceVisual_PacketOldFacing  = $7E44CE
+SourceVisual_PacketSpriteRelX = $7E44D0
+; One bounded MSU-1 reader owns the shared seek/data cursor. The async state
+; uses the verified $7E5498-$7E54FF gap after the six 32-byte candidate rows.
+; State: 0=idle, 1=seek pending, 2=chunk boundary, 3=abandoned seek drain.
+SourceVisual_LoaderOwner       = $7E5498 ; $FF when no candidate owns scratch
+SourceVisual_ReadState         = $7E5499
+SourceVisual_ReadRequestKind   = $7E549A ; 1 entry, 2 row, 3 pieces, 4 tile, 5 palette, 6 binding
+SourceVisual_ReadKind          = $7E549B
+SourceVisual_ReadOwner         = $7E549C
+SourceVisual_ReadOffset        = $7E549D ; u32 descriptor
+SourceVisual_ReadLength        = $7E54A1 ; u16 descriptor
+SourceVisual_ReadCursor        = $7E54A3 ; u16 bytes already copied
+SourceVisual_ReadSeek          = $7E54A5 ; u32 current seek = offset + cursor
+; Keep these 16-bit words disjoint: ReadChunk is charged to WorkRemaining,
+; while ReadRemaining drives the local copy loop. $54E8-$54E9 is free in the
+; verified $5498-$54FF reader gap after the queue cursor at $54E6.
+SourceVisual_ReadChunk         = $7E54E8 ; u16 bytes copied this service turn
+SourceVisual_ReadRemaining     = $7E54AA ; u16 bounded copy loop
+SourceVisual_EntryReady        = $7E54AC
+SourceVisual_EntryReadySlot    = $7E54AD
+SourceVisual_EntryReadyIndex   = $7E54AE ; u16
+SourceVisual_LoaderEntryValid  = $7E54B0
+SourceVisual_LoaderEntryIndex  = $7E54B1 ; u16 immutable candidate identity
+SourceVisual_LoaderKey         = $7E54B3 ; four-byte candidate key
+SourceVisual_PublishedFastPath = $7E54B7
+SourceVisual_ReadRequestLength = $7E54B8 ; u16 input length for async reader
+SourceVisual_WorkRemaining     = $7E54BA ; u16 shared byte/parse budget per main-loop turn
+SourceVisual_FindScanOwner     = $7E54BC
+SourceVisual_FindScanActive    = $7E54BD
+SourceVisual_FindScanKey       = $7E54BE ; four-byte key retained across bounded lookup turns
+SourceVisual_FindScanCursor    = $7E54C2 ; u16 key-table byte offset
+SourceVisual_FindScanEnd       = $7E54C4 ; u16 exclusive end offset
+SourceVisual_PreflightState    = $7E54C6 ; 0=idle, 1..8 resumable phases, $FF=done
+SourceVisual_PreflightActor    = $7E54C7
+SourceVisual_PreflightEntry    = $7E54C8 ; u16
+SourceVisual_ReadTurnUsed      = $7E54CA ; one seek/poll/copy turn per game loop
+SourceVisual_PublishedKey     = $7E54CC ; six 4-byte published source keys
+SourceVisual_PlayerPriorityOwner = $7E54E4 ; $FF none; reserved next actor slot
+SourceVisual_WaitingActorMask    = $7E54E5 ; queued requests, one bit per actor slot
+SourceVisual_QueueCursor         = $7E54E6 ; last actor admitted, round-robin
+; Sticky for the current exclusive loader-owner epoch. Only durable actor
+; block-offset/map writes set it; global PieceTable/RowScratch do not qualify.
+SourceVisual_LoaderDurableProgress = $7E54E7
+SOURCE_VISUAL_WORK_BUDGET      = 512
+SOURCE_VISUAL_MSU_READ_CHUNK   = SOURCE_VISUAL_WORK_BUDGET
+SOURCE_VISUAL_MSU_READ_ENTRY   = 1
+SOURCE_VISUAL_MSU_READ_ROW     = 2
+SOURCE_VISUAL_MSU_READ_PIECES  = 3
+SOURCE_VISUAL_MSU_READ_TILE    = 4
+SOURCE_VISUAL_MSU_READ_PALETTE = 5
+SOURCE_VISUAL_MSU_READ_BIND    = 6 ; 8-byte SVIX catalog-version footer
+SOURCE_VISUAL_ERROR_PUBLISHED_NOT_RESIDENT = $3A
 ; Persistent Normal rows publish a sampled runtime-role key/frame into the
 ; same 133-byte StageEnv row. A zero bridge policy remains S-CPU-owned and
 ; continues to use its native CHAR_SELECTED/CHAR_FRAME_INDEX mapping.
@@ -166,12 +370,17 @@ SourceVisual_RenderCurrent:
     lda.l SourceVisual_CallCount
     inc a
     sta.l SourceVisual_CallCount
-    ; Tile staging is a single shared producer, so a queued block must keep
-    ; advancing even if the actor that requested it is retired before its
-    ; next compositor pass.  Service it independently of the current actor's
-    ; residency fast path; otherwise ready actors never visit PrepareBlocks
-    ; and an orphaned state-1 cache row can pin the staging slot forever.
-    jsr SourceVisual_ResumePendingBlock
+    jsr SourceVisual_ResolveActorSlotFromContext
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_BlockCompletedThisCall
+    rep #$31
+.a16
+.i16
+    ; Despawns can happen between MSU chunks. Retire a dead candidate reader
+    ; even when the entity no longer reaches its own render hook.
+    jsr SourceVisual_ProcessRetired
     ; Pit-retired actors remain in the gameplay list until canonical unlink.
     ; Do not reacquire their visual lease or emit stale source pieces meanwhile.
     jsl StageBoundsHost_Normal
@@ -179,7 +388,9 @@ SourceVisual_RenderCurrent:
     jsl StageBounds_Row
     lda.l StageBounds_State,x
     cmp #2
-    beq SourceVisual_RenderCurrent__retired
+    bne SourceVisual_RenderCurrent__stage_live
+    brl SourceVisual_RenderCurrent__retired
+SourceVisual_RenderCurrent__stage_live:
 SourceVisual_RenderCurrent__lookup:
     sep #$20
 .a8
@@ -188,16 +399,42 @@ SourceVisual_RenderCurrent__lookup:
     rep #$31
 .a16
 .i16
-    lda.l Nmi_FrameCounter
-    cmp.l SourceVisual_PresentationField
-    beq SourceVisual_RenderCurrent__same_field
-    sta.l SourceVisual_PresentationField
-    lda #0
-    sta.l SourceVisual_PresentationMask
-SourceVisual_RenderCurrent__same_field:
-.a16
     jsr SourceVisual_FindEntry
-    bcc SourceVisual_RenderCurrent__fail_near
+    bcs SourceVisual_RenderCurrent__entry_found
+    sep #$20
+.a8
+    lda.l SourceVisual_Error
+    cmp #$27
+    beq SourceVisual_RenderCurrent__entry_pending8
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__entry_pending8:
+    rep #$31
+.a16
+.i16
+    ; A pending catalog read must not hide an actor that already has a valid
+    ; published packet. Rebuild its current-position packet while the bounded
+    ; candidate reader resumes on later service turns.
+    lda #$0A00
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_ENTRY,x
+    sta.l SourceVisual_EntryIndexSaved
+    jsr SourceVisual_SetFramePacketIdentity
+    jsr SourceVisual_EmitPublishedPacket
+    bcs SourceVisual_RenderCurrent__entry_pending_emitted
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__entry_pending_emitted:
+    brl SourceVisual_RenderCurrent__publish
+SourceVisual_RenderCurrent__entry_found:
+    ; FindEntry captured the live semantic identity at key_ready, before its
+    ; same-owner path could restore LoaderKey into shared SourceVisual_Key.
     ; Admission must obey the same viewport as publication. Wholly offscreen
     ; source frames cannot pin the bounded OBJ cache needed by visible actors.
     jsr SourceVisual_FrameInViewport
@@ -208,15 +445,563 @@ SourceVisual_RenderCurrent__same_field:
     tax
     jsl SourceVisual_QueueRetireEntityOffset
     jsr SourceVisual_ProcessRetired
-    bra SourceVisual_RenderCurrent__retired
+    brl SourceVisual_RenderCurrent__retired
 SourceVisual_RenderCurrent__visible:
     jsr SourceVisual_SelectResidency
-    bcc SourceVisual_RenderCurrent__fail_near
+    bcs SourceVisual_RenderCurrent__residency_ready
+    sep #$20
+.a8
+    lda.l SourceVisual_Error
+    cmp #$27
+    beq SourceVisual_RenderCurrent__residency_pending8
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__residency_pending8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_ENTRY,x
+    sta.l SourceVisual_EntryIndexSaved
+    jsr SourceVisual_SetFramePacketIdentity
+    jsr SourceVisual_EmitPublishedPacket
+    bcs SourceVisual_RenderCurrent__residency_pending_emitted
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__residency_pending_emitted:
+    brl SourceVisual_RenderCurrent__publish
+SourceVisual_RenderCurrent__residency_ready:
+    ; Resume block I/O only after this actor's key, entry, record, and owner
+    ; channel have been resolved. Before FindEntry, the shared key/index scratch
+    ; can still belong to the previously rendered actor.
+    jsr SourceVisual_ResumePendingBlock
+    jsr SourceVisual_SetFramePacketIdentity
+    sep #$20
+.a8
+    lda.l SourceVisual_UseCandidate
+    beq SourceVisual_RenderCurrent__primary8
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate
+SourceVisual_RenderCurrent__primary8:
+    rep #$31
+.a16
+.i16
+    ; The residency selector has proved this key is the published lease.
+    ; Reposition its cached authored packet without rereading MSU tables.
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    beq SourceVisual_RenderCurrent__primary_load8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_ENTRY,x
+    cmp.l SourceVisual_EntryIndexSaved
+    beq SourceVisual_RenderCurrent__primary_cached
+    brl SourceVisual_RenderCurrent__primary_load
+SourceVisual_RenderCurrent__primary_load8:
+    rep #$31
+.a16
+.i16
+SourceVisual_RenderCurrent__primary_load:
     jsr SourceVisual_LoadResources
-    bcc SourceVisual_RenderCurrent__fail_near
+    bcs SourceVisual_RenderCurrent__primary_loaded
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__primary_cached:
+    jsr SourceVisual_EmitPublishedPacket
+    bcs SourceVisual_RenderCurrent__primary_cached_ok
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__primary_cached_ok:
+    brl SourceVisual_RenderCurrent__publish
+SourceVisual_RenderCurrent__primary_loaded:
+    ; The first successful primary emission is the initial published frame.
+    ; Route it through the bounded candidate packet lane so it is not displayed
+    ; without a complete authored fallback packet while its OAM DMA is pending.
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    beq SourceVisual_RenderCurrent__primary_seed
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__primary_emit
+SourceVisual_RenderCurrent__primary_seed:
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_BeginInitialPacket
+    bcs SourceVisual_RenderCurrent__primary_seed_ready
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__primary_seed_ready:
     jsr SourceVisual_Emit
+    bcs SourceVisual_RenderCurrent__primary_seed_emitted
+    jsr SourceVisual_AbortInitialPacket
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__primary_seed_emitted:
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    bne SourceVisual_RenderCurrent__primary_seed_packet_ready8
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_AbortInitialPacket
+    brl SourceVisual_RenderCurrent__primary_emitted
+SourceVisual_RenderCurrent__primary_seed_packet_ready8:
+    rep #$31
+.a16
+.i16
+    ; Preserve the initial source lease in the normal candidate sidecar. OAM
+    ; binding and commit then use the same exact DMA fence as later changes.
+    jsr SourceVisual_SaveCandidateSidecar
+    lda.l SourceVisual_CandidateBase
+    tax
+    sep #$20
+.a8
+    lda #3
+    sta.l SourceVisual_CandidateState+30,x
+    lda #0
+    sta.l SourceVisual_CandidateState+31,x
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_MarkCandidateFence
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_UseCandidate
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda #4
+    sta.l SourceVisual_OwnerOffset
+    brl SourceVisual_RenderCurrent__primary_emitted
+SourceVisual_RenderCurrent__primary_emit:
+    jsr SourceVisual_Emit
+    bcs SourceVisual_RenderCurrent__primary_emitted
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__primary_emitted:
+    brl SourceVisual_RenderCurrent__publish
+SourceVisual_RenderCurrent__candidate:
+    ; Keep the 32-byte published lease below this render's nested calls while
+    ; the candidate temporarily occupies the loader's existing state row.
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Record
+    tax
+    ldy #0
+SourceVisual_RenderCurrent__candidate_save:
+    lda.l SourceVisual_State,x
+    pha
+    inx
+    inx
+    iny
+    iny
+    cpy #32
+    bcc SourceVisual_RenderCurrent__candidate_save
+    jsr SourceVisual_ActivateCandidate
+    bcs SourceVisual_RenderCurrent__candidate_activated
+    brl SourceVisual_RenderCurrent__candidate_pending
+SourceVisual_RenderCurrent__candidate_activated:
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_State+30,x
+    cmp #1
+    bne SourceVisual_RenderCurrent__candidate_not_capacity
+    brl SourceVisual_RenderCurrent__candidate_capacity_wait
+SourceVisual_RenderCurrent__candidate_not_capacity:
+    cmp #2
+    bne SourceVisual_RenderCurrent__candidate_not_terminal
+    brl SourceVisual_RenderCurrent__candidate_terminal_wait
+SourceVisual_RenderCurrent__candidate_not_terminal:
+    cmp #3
+    bne SourceVisual_RenderCurrent__candidate_load
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_CandidateFenceComplete
+    bcs SourceVisual_RenderCurrent__candidate_commit
+    brl SourceVisual_RenderCurrent__candidate_load
+SourceVisual_RenderCurrent__candidate_commit:
+    lda.l SourceVisual_ActorSlot
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidateActionValid,x
+    cmp #SOURCE_VISUAL_ACTION_STALE_FENCE
+    beq SourceVisual_RenderCurrent__candidate_stale_fence_complete
+    rep #$31
+.a16
+.i16
+    ; OAM submission is irreversible, but publication is not. Recheck the
+    ; live action snapshot after the exact fence before promoting its lease.
+    jsr SourceVisual_CandidateActionMatches
+    bcs SourceVisual_RenderCurrent__candidate_commit_current
+    jsr SourceVisual_CandidateBeginStaleFallback
+    bcs SourceVisual_RenderCurrent__candidate_stale_fallback
+    ; Bootstrap packets have no old packet to fall back to. The pre-submit
+    ; guard still rejects stale initial packets; once submitted, retain this
+    ; first fenced packet so a later current packet can replace it safely.
+    brl SourceVisual_RenderCurrent__candidate_commit_current
+SourceVisual_RenderCurrent__candidate_stale_fence_complete:
+    rep #$31
+.a16
+.i16
+    ; This fence belongs to the already-emitted published fallback, not the
+    ; obsolete candidate packet. Retire candidate pins only if the exact token
+    ; and all source DMA are complete; otherwise keep drawing the old packet.
+    jsr SourceVisual_CandidateRetireStale
+    sep #$20
+.a8
+    lda #4
+    sta.l SourceVisual_CandidateAction
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_restore
+SourceVisual_RenderCurrent__candidate_stale_fallback:
+    jsr SourceVisual_SaveCandidateSidecar
+    sep #$20
+.a8
+    lda #4
+    sta.l SourceVisual_CandidateAction
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_restore
+SourceVisual_RenderCurrent__candidate_commit_current:
+    ; This exact candidate was present in hardware OAM at the matching NMI.
+    ; Promote its owner lane only now; the prior published resources remained
+    ; pinned until this branch.
+    jsr SourceVisual_CommitCandidate
+    jsr SourceVisual_Emit
+    bcs SourceVisual_RenderCurrent__candidate_committed_emit
+    jsr SourceVisual_EmitPublishedPacket
+SourceVisual_RenderCurrent__candidate_committed_emit:
+    ldy #16
+SourceVisual_RenderCurrent__candidate_committed_drop:
+    pla
+    dey
+    bne SourceVisual_RenderCurrent__candidate_committed_drop
+    brl SourceVisual_RenderCurrent__publish
+SourceVisual_RenderCurrent__candidate_load:
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_LoadResources
+    bcs SourceVisual_RenderCurrent__candidate_ready
+    sep #$20
+.a8
+    lda.l SourceVisual_Error
+    cmp #$27
+    bne SourceVisual_RenderCurrent__candidate_error_not_pending
+    brl SourceVisual_RenderCurrent__candidate_pending
+SourceVisual_RenderCurrent__candidate_error_not_pending:
+    cmp #$24
+    bne SourceVisual_RenderCurrent__candidate_error_not_capacity24
+    brl SourceVisual_RenderCurrent__candidate_capacity
+SourceVisual_RenderCurrent__candidate_error_not_capacity24:
+    cmp #$26
+    bne SourceVisual_RenderCurrent__candidate_error_terminal
+    brl SourceVisual_RenderCurrent__candidate_capacity
+SourceVisual_RenderCurrent__candidate_error_terminal:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_terminal
+SourceVisual_RenderCurrent__candidate_ready:
+    ; The candidate may have spent many paced turns loading after its action
+    ; ended. Reject a role/map/roster change before packet construction; frame
+    ; changes within the same action remain eligible.
+    jsr SourceVisual_CandidateActionMatches
+    bcs SourceVisual_RenderCurrent__candidate_action_current
+    ; There is no old packet to draw while the first packet is being loaded.
+    ; Abort that initial lease instead of parking a stale, never-presented
+    ; candidate indefinitely. A replacement candidate keeps the old packet
+    ; and its published owner lane through the normal pending fallback.
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    bne SourceVisual_RenderCurrent__candidate_stale_published8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_AbortInitialPacket
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_CandidateAction
+    rep #$31
+.a16
+.i16
+SourceVisual_RenderCurrent__candidate_initial_stale_aborted:
+    brl SourceVisual_RenderCurrent__candidate_restore
+SourceVisual_RenderCurrent__candidate_stale_published8:
+    rep #$31
+.a16
+.i16
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_packet_wait
+SourceVisual_RenderCurrent__candidate_action_current:
+    jsr SourceVisual_Emit
+    bcs SourceVisual_RenderCurrent__candidate_emit_ok
+    sep #$20
+.a8
+    lda.l SourceVisual_Error
+    cmp #$27
+    beq SourceVisual_RenderCurrent__candidate_packet_wait
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_terminal
+SourceVisual_RenderCurrent__candidate_emit_ok:
+    ; Candidate output is in this frame's OAM shadow. Keep both owner lanes
+    ; until Oam_Play tags the main-table request and NMI acknowledges it.
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda #3
+    sta.l SourceVisual_State+30,x
+    lda #0
+    sta.l SourceVisual_State+31,x
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_SaveCandidateSidecar
+    jsr SourceVisual_MarkCandidateFence
+    sep #$20
+.a8
+    lda #3
+    sta.l SourceVisual_CandidateAction
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_restore
+SourceVisual_RenderCurrent__candidate_packet_wait:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda #4
+    sta.l SourceVisual_State+30,x
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_SaveCandidateSidecar
+    sep #$20
+.a8
+    lda #4
+    sta.l SourceVisual_CandidateAction
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_restore
+SourceVisual_RenderCurrent__candidate_pending:
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_SaveCandidateSidecar
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_CandidateAction
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_restore
+SourceVisual_RenderCurrent__candidate_capacity:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_State+30,x
+    lda.l SourceVisual_Error
+    sta.l SourceVisual_State+31,x
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_SaveCandidateSidecar
+    jsr SourceVisual_ReleaseLoaderOwner
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_CandidateAction
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_restore
+SourceVisual_RenderCurrent__candidate_capacity_wait:
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_ReleaseLoaderOwner
+    jsr SourceVisual_SaveCandidateSidecar
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_CandidateAction
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_restore
+SourceVisual_RenderCurrent__candidate_terminal:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda #2
+    sta.l SourceVisual_State+30,x
+    lda.l SourceVisual_Error
+    sta.l SourceVisual_State+31,x
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_SaveCandidateSidecar
+    jsr SourceVisual_ReleaseLoaderOwner
+    sep #$20
+.a8
+    lda #2
+    sta.l SourceVisual_CandidateAction
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_restore
+SourceVisual_RenderCurrent__candidate_terminal_wait:
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_ReleaseLoaderOwner
+    jsr SourceVisual_SaveCandidateSidecar
+    sep #$20
+.a8
+    lda #2
+    sta.l SourceVisual_CandidateAction
+    rep #$31
+.a16
+.i16
+SourceVisual_RenderCurrent__candidate_restore:
+    ; Restore stack words in reverse order; each is the exact old published
+    ; record, including its local palette map and readiness bits.
+    lda.l SourceVisual_Record
+    clc
+    adc #30
+    tax
+    ldy #16
+SourceVisual_RenderCurrent__candidate_restore_loop:
+    pla
+    sta.l SourceVisual_State,x
+    dex
+    dex
+    dey
+    bne SourceVisual_RenderCurrent__candidate_restore_loop
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_UseCandidate
+    sta.l SourceVisual_OwnerChannel
+    lda.l SourceVisual_CandidateAction
+    sta.l SourceVisual_Temp
+    rep #$31
+.a16
+.i16
+    lda #4
+    sta.l SourceVisual_OwnerOffset
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State+8,x
+    sta.l SourceVisual_BaseTile
+    lda.l SourceVisual_State+12,x
+    sta.l SourceVisual_PaletteBase
+    sep #$20
+.a8
+    lda.l SourceVisual_Temp
+    beq SourceVisual_RenderCurrent__candidate_fallback
+    cmp #1
+    beq SourceVisual_RenderCurrent__candidate_restore_capacity
+    cmp #3
+    beq SourceVisual_RenderCurrent__candidate_emitted
+    cmp #4
+    beq SourceVisual_RenderCurrent__candidate_fallback
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_restore_terminal
+SourceVisual_RenderCurrent__candidate_restore_capacity:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__candidate_fallback
+SourceVisual_RenderCurrent__candidate_emitted:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__publish
+SourceVisual_RenderCurrent__candidate_restore_terminal:
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_HasOwnedDma
+    bcs SourceVisual_RenderCurrent__candidate_fallback
+    jsr SourceVisual_DiscardAllActorVisuals
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__candidate_fallback:
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State,x
+    sta.l SourceVisual_EntryIndexSaved
+    jsr SourceVisual_SetFramePacketIdentity
+    jsr SourceVisual_EmitPublishedPacket
     bcc SourceVisual_RenderCurrent__fail_near
-    bra SourceVisual_RenderCurrent__publish
+    brl SourceVisual_RenderCurrent__publish
 SourceVisual_RenderCurrent__fail_near:
     brl SourceVisual_RenderCurrent__fail
 SourceVisual_RenderCurrent__publish:
@@ -233,24 +1018,80 @@ SourceVisual_RenderCurrent__publish:
     rep #$31
 .a16
 .i16
-    sec
     ply
     plx
     pld
     plb
     plp
+    sec
     rtl
 SourceVisual_RenderCurrent__retired:
     rep #$31
 .a16
 .i16
-    sec
+    jsr SourceVisual_ClearQueuedActor
+    jsr SourceVisual_ReleaseLoaderOwner
+    jsr SourceVisual_MarkActorForOamRetire
     ply
     plx
     pld
     plb
     plp
+    sec
     rtl
+
+; Drop only the candidate lane and its sidecar after the candidate DMA fence.
+SourceVisual_DiscardCandidatePins:
+    jsr SourceVisual_ReleaseLoaderOwner
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda #7
+    sta.l SourceVisual_OwnerOffset
+    jsr SourceVisual_ReleaseActorBlocks
+    jsr SourceVisual_ReleaseActorPalettes
+    lda.l SourceVisual_CandidateBase
+    tax
+    lda #0
+    ldy #16
+SourceVisual_DiscardCandidatePins__clear:
+    sta.l SourceVisual_CandidateState,x
+    inx
+    inx
+    dey
+    bne SourceVisual_DiscardCandidatePins__clear
+    jsr SourceVisual_CandidateActionClear
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_OwnerChannel
+    sta.l SourceVisual_UseCandidate
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_DiscardCandidatePins__lane_done
+    lda #$FF
+    sta.l SourceVisual_PacketCandidateOwner
+    lda #0
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+SourceVisual_DiscardCandidatePins__lane_done:
+    rep #$31
+.a16
+.i16
+    lda #4
+    sta.l SourceVisual_OwnerOffset
+    rts
+
+; Terminal decode/emission failure retires both leases only when no transfer
+; can still reference their staging data.
+SourceVisual_DiscardAllActorVisuals:
+    ; Terminal failure hides this actor in the next OAM packet. Its tile and
+    ; palette owners remain pinned until that packet's DMA fence completes.
+    jsr SourceVisual_MarkActorForOamRetire
+    rts
 
 ; Conservative source-image rectangle, before any resource lease is pinned.
 ; SVIS carries source width/height and authored origin in bytes 4..11. The
@@ -382,6 +1223,21 @@ SourceVisual_FrameMirrorInViewport__outside:
 SourceVisual_RenderCurrent__fail:
 .a16
 .i16
+    sep #$20
+.a8
+    lda.l SourceVisual_Error
+    cmp #$27
+    beq SourceVisual_RenderCurrent__fail_keep_reader8
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_ReleaseLoaderOwner
+    bra SourceVisual_RenderCurrent__fail_log
+SourceVisual_RenderCurrent__fail_keep_reader8:
+    rep #$31
+.a16
+.i16
+SourceVisual_RenderCurrent__fail_log:
     lda #34
     sta.l SourceVisual_DebugQueueStage
     sep #$20
@@ -402,16 +1258,31 @@ SourceVisual_RenderCurrent__fail:
     rep #$31
 .a16
 .i16
-    clc
+SourceVisual_RenderCurrent__fail_return:
     ply
     plx
     pld
     plb
     plp
+    clc
     rtl
 
 ; Build the presentation key from accepted-compat state and find its compiler
 ; generated entry.  No model-name branch exists here.
+SourceVisual_ConsumeWork:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_WorkRemaining
+    beq SourceVisual_ConsumeWork__empty
+    dec a
+    sta.l SourceVisual_WorkRemaining
+    sec
+    rts
+SourceVisual_ConsumeWork__empty:
+    clc
+    rts
+
 SourceVisual_FindEntry:
     rep #$31
 .a16
@@ -538,6 +1409,94 @@ SourceVisual_FindEntry__map_ready:
     lda CHAR_MAP_INDEX
     sta.l SourceVisual_Key+3
 SourceVisual_FindEntry__key_ready:
+    ; Snapshot the actor's current semantic action before an active loader
+    ; restores its immutable catalog key into SourceVisual_Key. Frame, facing,
+    ; and loader request identity remain separate from this per-pass snapshot.
+    jsr SourceVisual_CaptureCurrentAction
+    bcs SourceVisual_FindEntry__key_action_captured
+    rep #$31
+    .a16
+    .i16
+    clc
+    rts
+SourceVisual_FindEntry__key_action_captured:
+    sep #$20
+    .a8
+    ; Preserve changed requests behind the active immutable read. A reserved
+    ; next owner blocks fresh scans, while the current scan/read owner can
+    ; finish its bounded work and yield at a descriptor boundary.
+    jsr SourceVisual_QueueChangedLoaderKey
+    jsr SourceVisual_PriorityGate
+    bcc SourceVisual_FindEntry__loader_busy8
+    sep #$20
+.a8
+    lda.l SourceVisual_FindScanActive
+    beq SourceVisual_FindEntry__check_loader8
+    lda.l SourceVisual_FindScanOwner
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_FindEntry__resume_scan_key8
+    jsr SourceVisual_QueueCurrentActor
+    jsr SourceVisual_RequestPlayerPriority
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_FindEntry__resume_scan_key8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_FindScanKey
+    sta.l SourceVisual_Key
+    lda.l SourceVisual_FindScanKey+2
+    sta.l SourceVisual_Key+2
+    sep #$20
+.a8
+SourceVisual_FindEntry__check_loader8:
+    lda.l SourceVisual_LoaderOwner
+    cmp #$FF
+    bne SourceVisual_FindEntry__loader_set8
+    brl SourceVisual_FindEntry__no_loader8
+SourceVisual_FindEntry__loader_set8:
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_FindEntry__different_owner8
+    brl SourceVisual_FindEntry__loader_owner8
+SourceVisual_FindEntry__different_owner8:
+    ; A changed input-driven player gets one safe priority turn. Every blocked
+    ; actor also enters the bounded round-robin wait mask.
+    jsr SourceVisual_QueueCurrentActor
+    jsr SourceVisual_RequestPlayerPriority
+    brl SourceVisual_FindEntry__loader_busy
+SourceVisual_FindEntry__loader_busy:
+    sep #$20
+SourceVisual_FindEntry__loader_busy8:
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_FindEntry__loader_owner8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_LoaderKey
+    sta.l SourceVisual_Key
+    sta.l SourceVisual_KeySaved
+    lda.l SourceVisual_LoaderKey+2
+    sta.l SourceVisual_Key+2
+    sta.l SourceVisual_KeySaved+2
+    lda.l SourceVisual_LoaderEntryIndex
+    sta.l SourceVisual_EntryIndexSaved
+    brl SourceVisual_FindEntry__cached_key_check
+SourceVisual_FindEntry__no_loader8:
+    rep #$31
+.a16
+.i16
 
     ; The accepted renderer asks for the same visual key on every pass while
     ; a frame remains current.  Reusing the compiler entry already loaded for
@@ -548,6 +1507,7 @@ SourceVisual_FindEntry__key_ready:
     rep #$31
 .a16
 .i16
+SourceVisual_FindEntry__cached_key_check:
     lda.l SourceVisual_Key
     cmp.l SourceVisual_KeySaved
     bne SourceVisual_FindEntry__cold
@@ -557,9 +1517,41 @@ SourceVisual_FindEntry__key_ready:
     lda.l SourceVisual_EntryIndexSaved
     cmp #SOURCE_VISUAL_CATALOG_COUNT
     bcs SourceVisual_FindEntry__cold
+    sep #$20
+.a8
+    lda.l SourceVisual_EntryReady
+    cmp #1
+    bne SourceVisual_FindEntry__cached_entry_missing8
+    lda.l SourceVisual_EntryReadySlot
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_FindEntry__cached_entry_missing8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_EntryReadyIndex
+    cmp.l SourceVisual_EntryIndexSaved
+    beq SourceVisual_FindEntry__cached_entry_ready
+    brl SourceVisual_FindEntry__saved_entry_read
+SourceVisual_FindEntry__cached_entry_missing8:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_FindEntry__saved_entry_read
+SourceVisual_FindEntry__cached_entry_ready:
+    jsr SourceVisual_ClearQueuedActor
     sec
     rts
 SourceVisual_FindEntry__cold:
+
+    sep #$20
+.a8
+    lda.l SourceVisual_FindScanActive
+    beq SourceVisual_FindEntry__fresh_scan8
+    brl SourceVisual_FindEntry__scan_resume8
+SourceVisual_FindEntry__fresh_scan8:
+    rep #$31
+.a16
+.i16
 
     ; Narrow diagnostic ring: records the actual accepted-context key and DP
     ; owner before lookup, so a failed production actor cannot be confused
@@ -575,7 +1567,6 @@ SourceVisual_FindEntry__cold:
     tax
     txa
     sta.l SourceVisual_FindTraceOffset
-    phx
     lda.l SourceVisual_Key
     sta.l SourceVisual_FindTrace,x
     lda.l SourceVisual_Key+2
@@ -585,11 +1576,6 @@ SourceVisual_FindEntry__cold:
     lda.l SourceVisual_FindTraceIndex
     inc a
     sta.l SourceVisual_FindTraceIndex
-    lda.l SourceVisual_Key
-    sta.l SourceVisual_KeySaved
-    lda.l SourceVisual_Key+2
-    sta.l SourceVisual_KeySaved+2
-
     rep #$31
 .a16
 .i16
@@ -600,16 +1586,61 @@ SourceVisual_FindEntry__cold:
     lda.l SourceVisual_RosterKeyStart,x
     sta.l SourceVisual_Temp
     lda.l SourceVisual_RosterKeyEnd,x
-    sta.l SourceVisual_DebugD
+    sta.l SourceVisual_FindScanEnd
     lda.l SourceVisual_Temp
+    sta.l SourceVisual_FindScanCursor
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_FindScanOwner
+    lda.l SourceVisual_Key
+    sta.l SourceVisual_FindScanKey
+    lda.l SourceVisual_Key+1
+    sta.l SourceVisual_FindScanKey+1
+    lda.l SourceVisual_Key+2
+    sta.l SourceVisual_FindScanKey+2
+    lda.l SourceVisual_Key+3
+    sta.l SourceVisual_FindScanKey+3
+    lda #1
+    sta.l SourceVisual_FindScanActive
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_FindScanCursor
     tax
+    lda.l SourceVisual_FindScanEnd
+    sta.l SourceVisual_DebugD
+    bra SourceVisual_FindEntry__scan
+SourceVisual_FindEntry__scan_resume8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_FindScanCursor
+    tax
+    lda.l SourceVisual_FindScanEnd
+    sta.l SourceVisual_DebugD
 SourceVisual_FindEntry__scan:
     txa
     cmp.l SourceVisual_DebugD
-    bcc SourceVisual_FindEntry__within_roster
+    bcc SourceVisual_FindEntry__scan_budget_check
     brl SourceVisual_FindEntry__unsupported_scan
+SourceVisual_FindEntry__scan_budget_check:
 .a16
 .i16
+    jsr SourceVisual_ConsumeWork
+    bcs SourceVisual_FindEntry__scan_budget_ok
+    txa
+    sta.l SourceVisual_FindScanCursor
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_FindEntry__scan_budget_ok:
 SourceVisual_FindEntry__within_roster:
     .a16
     .i16
@@ -638,8 +1669,29 @@ SourceVisual_FindEntry__key_match:
     sta.l SourceVisual_Temp
     sta.l SourceVisual_DebugIndex
     sta.l SourceVisual_EntryIndexSaved
-    plx
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_FindScanActive
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_FindTraceOffset
+    tax
+    lda.l SourceVisual_EntryIndexSaved
     sta.l SourceVisual_FindTrace+6,x
+    lda.l SourceVisual_Key
+    sta.l SourceVisual_KeySaved
+    lda.l SourceVisual_Key+2
+    sta.l SourceVisual_KeySaved+2
+    brl SourceVisual_FindEntry__saved_entry_read
+
+SourceVisual_FindEntry__saved_entry_read:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_EntryIndexSaved
+    sta.l SourceVisual_Temp
     asl a
     clc
     adc.l SourceVisual_Temp
@@ -670,7 +1722,6 @@ SourceVisual_FindEntry__key_match:
 .i16
     jsr SourceVisual_AddCatalogBase
     jsr SourceVisual_ReadEntry
-    sec
     rts
 
 ; Select the lease owned by this actor context. Sheets are allocated later,
@@ -700,6 +1751,16 @@ SourceVisual_SelectResidency__actor_found:
     tya
     sta.l SourceVisual_ActorSlot
     jsr SourceVisual_CancelActorRetire
+    sep #$20
+    .a8
+    lda #0
+    sta.l SourceVisual_UseCandidate
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+    .a16
+    .i16
+    lda #4
+    sta.l SourceVisual_OwnerOffset
     ; Record stride is 32 bytes, while the adjacent diagnostic row
     ; remains the historical 8-byte-per-actor layout.
     tya
@@ -709,6 +1770,7 @@ SourceVisual_SelectResidency__actor_found:
     asl a
     asl a
     sta.l SourceVisual_Record
+    sta.l SourceVisual_CandidateBase
     lda.l SourceVisual_ActorSlot
     asl a
     asl a
@@ -725,34 +1787,60 @@ SourceVisual_SelectResidency__actor_found:
     lda.l SourceVisual_State+29,x
     cmp.l SourceVisual_Key
     bne SourceVisual_SelectResidency__identity_changed
+    ; Finish an open packet before adopting another sampled animation key.
+    sep #$20
+    .a8
+    lda.l SourceVisual_State+28,x
+    beq SourceVisual_SelectResidency__compare_entry8
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_CandidateBase
+    tax
+    sep #$20
+    .a8
+    lda.l SourceVisual_CandidateState+6,x
+    bne SourceVisual_SelectResidency__replace_ready
+    rep #$31
+    .a16
+    .i16
+SourceVisual_SelectResidency__compare_entry8:
     rep #$31
     .a16
     .i16
     lda.l SourceVisual_State,x
     cmp.l SourceVisual_EntryIndexSaved
-    beq SourceVisual_SelectResidency__found
-    ; Do not abandon a source frame whose tiles/palette have not yet produced
-    ; one complete OAM packet.  Its catalog key is the lease entry, not the
-    ; actor's newer live animation key; resume it and publish once before
-    ; beginning the next sampled frame transaction.
+    bne SourceVisual_SelectResidency__entry_changed
+    brl SourceVisual_SelectResidency__found
+SourceVisual_SelectResidency__entry_changed:
     sep #$20
 .a8
     lda.l SourceVisual_State+28,x
     bne SourceVisual_SelectResidency__replace_ready
-    rep #$31
-.a16
-.i16
-    jsr SourceVisual_LoadPendingEntry
-    brl SourceVisual_SelectResidency__found
+    ; No OAM packet has ever been published for this lease, so a changed live
+    ; key can replace it safely. Published actors use the candidate lane above.
+    brl SourceVisual_SelectResidency__replace
 SourceVisual_SelectResidency__replace_ready:
     rep #$31
 .a16
 .i16
-    bra SourceVisual_SelectResidency__replace
+    jsr SourceVisual_SelectCandidate
+    bcc SourceVisual_SelectResidency__candidate_failed
+    brl SourceVisual_SelectResidency__mark
+SourceVisual_SelectResidency__candidate_failed:
+    clc
+    rts
 SourceVisual_SelectResidency__identity_changed:
     rep #$31
     .a16
     .i16
+    lda.l SourceVisual_State+28,x
+    beq SourceVisual_SelectResidency__replace
+    ; Keep the displayed identity's published lease while a different actor
+    ; identity is admitted through the independent candidate owner lane.
+    jsr SourceVisual_SelectCandidate
+    bcc SourceVisual_SelectResidency__candidate_failed
+    brl SourceVisual_SelectResidency__mark
 SourceVisual_SelectResidency__replace:
     ; The shared source staging buffer and queued DMA must be retired before
     ; the old lease can be returned to the bounded allocator.
@@ -760,9 +1848,46 @@ SourceVisual_SelectResidency__replace:
     bcc SourceVisual_SelectResidency__clear_record
     brl SourceVisual_SelectResidency__busy
 SourceVisual_SelectResidency__clear_record:
+    ; A newly found catalog entry is the input to the resource transaction we
+    ; are about to start. Keep that completed entry (and its loader identity)
+    ; across the initial empty-lease allocation; otherwise the next render
+    ; re-reads the key before LoadResources can resume its queued sheet row.
+    sep #$20
+.a8
+    lda.l SourceVisual_EntryReady
+    cmp #1
+    bne SourceVisual_SelectResidency__clear_release_loader8
+    lda.l SourceVisual_EntryReadySlot
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_SelectResidency__clear_release_loader8
+    rep #$31
 .a16
-    jsr SourceVisual_ReleaseActorBlocks
-    jsr SourceVisual_ReleaseActorPalettes
+.i16
+    lda.l SourceVisual_EntryReadyIndex
+    cmp.l SourceVisual_EntryIndexSaved
+    beq SourceVisual_SelectResidency__clear_loader_preserved
+    brl SourceVisual_SelectResidency__clear_release_loader
+SourceVisual_SelectResidency__clear_release_loader8:
+    rep #$31
+.a16
+.i16
+SourceVisual_SelectResidency__clear_release_loader:
+    jsr SourceVisual_ReleaseLoaderOwner
+    bra SourceVisual_SelectResidency__clear_loader_done
+SourceVisual_SelectResidency__clear_loader_preserved:
+SourceVisual_SelectResidency__clear_loader_done:
+    jsr SourceVisual_ReleaseActorOwnership
+    lda.l SourceVisual_CandidateBase
+    tax
+    lda #0
+    ldy #16
+SourceVisual_SelectResidency__clear_candidate:
+    sta.l SourceVisual_CandidateState,x
+    inx
+    inx
+    dey
+    bne SourceVisual_SelectResidency__clear_candidate
+    jsr SourceVisual_CandidateActionClear
     lda.l SourceVisual_Record
     tax
     lda #0
@@ -784,6 +1909,23 @@ SourceVisual_SelectResidency__clear_loop:
     rep #$31
     .a16
     .i16
+    ; Bind the first lease's semantic identity before any paced MSU resource
+    ; work can outlive the request. BeginInitialPacket later checks this saved
+    ; asset key against fresh FrameMeta instead of recapturing mutable Key.
+    jsr SourceVisual_CandidateActionCapture
+    bcs SourceVisual_SelectResidency__initial_action_ready
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_SelectResidency__initial_action_ready:
+    lda.l SourceVisual_Record
+    tax
     lda #1
     sta.l SourceVisual_State+6,x
     lda #0
@@ -791,6 +1933,17 @@ SourceVisual_SelectResidency__clear_loop:
     sta.l SourceVisual_PaletteBase
     bra SourceVisual_SelectResidency__mark
 SourceVisual_SelectResidency__found:
+    ; Default to published ownership; SelectCandidate marks its sidecar path.
+    sep #$20
+    .a8
+    lda #0
+    sta.l SourceVisual_UseCandidate
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+    .a16
+    .i16
+    lda #4
+    sta.l SourceVisual_OwnerOffset
     ; ReadEntry clobbers X when an unfinished animation lease is resumed.
     ; Resolve the actor record again before loading persistent lease fields.
     lda.l SourceVisual_Record
@@ -839,6 +1992,2537 @@ SourceVisual_SelectResidency__bad:
     clc
     rts
 
+; Select or create one bounded replacement packet while preserving the
+; published lease in SourceVisual_State and its independent owner lane.
+SourceVisual_SelectCandidate:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CandidateBase
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidateState+6,x
+    bne SourceVisual_SelectCandidate__existing
+    brl SourceVisual_SelectCandidate__new
+SourceVisual_SelectCandidate__existing:
+    lda.l SourceVisual_CandidateState+29,x
+    cmp.l SourceVisual_Key
+    bne SourceVisual_SelectCandidate__identity_replace
+    rep #$31
+    .a16
+    .i16
+    jsr SourceVisual_CandidateActionMatches
+    bcs SourceVisual_SelectCandidate__action_matches
+    brl SourceVisual_SelectCandidate__identity_replace
+SourceVisual_SelectCandidate__action_matches:
+    ; CandidateActionMatches uses X for its compact identity record. Restore
+    ; the 32-byte lane index before reading candidate status bytes.
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_CandidateBase
+    tax
+    sep #$20
+    .a8
+    lda.l SourceVisual_CandidateState+30,x
+    cmp #1
+    bne SourceVisual_SelectCandidate__status_not_capacity
+    brl SourceVisual_SelectCandidate__capacity_wait
+SourceVisual_SelectCandidate__status_not_capacity:
+    cmp #2
+    bne SourceVisual_SelectCandidate__not_terminal
+    brl SourceVisual_SelectCandidate__terminal_wait
+SourceVisual_SelectCandidate__not_terminal:
+    cmp #4
+    bne SourceVisual_SelectCandidate__selected_existing
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp #$FF
+    beq SourceVisual_SelectCandidate__selected_existing
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_SelectCandidate__selected_existing
+    brl SourceVisual_SelectCandidate__pending_existing
+SourceVisual_SelectCandidate__selected_existing:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_SelectCandidate__selected
+SourceVisual_SelectCandidate__identity_replace:
+    rep #$31
+.a16
+.i16
+    ; A candidate that already reached OAM must be promoted before this lane
+    ; can be reused. An uncommitted candidate is held until its outstanding
+    ; source DMA and, when applicable, OAM fence have retired.
+    lda.l SourceVisual_CandidateBase
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidateState+30,x
+    cmp #3
+    bne SourceVisual_SelectCandidate__identity_wait
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_CandidateFenceComplete
+    bcs SourceVisual_SelectCandidate__identity_commit
+    brl SourceVisual_SelectCandidate__identity_wait
+SourceVisual_SelectCandidate__identity_commit:
+    ; The candidate packet's exact OAM fence is complete. Compare against the
+    ; live action snapshot from FindEntry, never the catalog key restored while
+    ; loading the candidate.
+    jsr SourceVisual_CandidateActionMatches
+    bcs SourceVisual_SelectCandidate__identity_commit_current
+    lda.l SourceVisual_ActorSlot
+    tax
+    sep #$20
+    .a8
+    lda.l SourceVisual_CandidateActionValid,x
+    cmp #SOURCE_VISUAL_ACTION_STALE_FENCE
+    beq SourceVisual_SelectCandidate__identity_retire_stale
+    rep #$31
+    .a16
+    .i16
+    jsr SourceVisual_CandidateBeginStaleFallback
+    bcs SourceVisual_SelectCandidate__identity_stale_fallback
+    ; With no prior packet, the first fenced packet is the only safe visible
+    ; bootstrap. It can be replaced on a later pass after a current action is
+    ; resolved; the pre-submit guard still prevents recording stale initial OAM.
+    brl SourceVisual_SelectCandidate__identity_commit_current
+SourceVisual_SelectCandidate__identity_stale_fallback:
+    sep #$20
+    .a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+    .a16
+    .i16
+    clc
+    rts
+SourceVisual_SelectCandidate__identity_retire_stale:
+    rep #$31
+    .a16
+    .i16
+    jsr SourceVisual_CandidateRetireStale
+    bcs SourceVisual_SelectCandidate__identity_stale_retired
+    sep #$20
+    .a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+    .a16
+    .i16
+    clc
+    rts
+SourceVisual_SelectCandidate__identity_stale_retired:
+    ; CandidateRetireStale has cleared candidate ownership and the completed
+    ; reader. Shared Key/EntryIndexSaved can still name that retired asset, so
+    ; defer replacement until the next FindEntry resolves the live request.
+    brl SourceVisual_SelectCandidate__identity_wait_retry
+SourceVisual_SelectCandidate__identity_commit_current:
+    jsr SourceVisual_ActivateCandidate
+    jsr SourceVisual_CommitCandidate
+    brl SourceVisual_SelectCandidate__new
+SourceVisual_SelectCandidate__identity_wait:
+    rep #$31
+.a16
+.i16
+    ; A stale submitted candidate must never be reactivated while its DMA or
+    ; OAM fence is still outstanding. Keep the old published packet visible.
+    jsr SourceVisual_CandidateActionMatches
+    bcs SourceVisual_SelectCandidate__identity_wait_action_current
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    beq SourceVisual_SelectCandidate__identity_wait_no_old8
+    ; The old published packet is a valid fallback, but an unsubmitted stale
+    ; candidate must not retain the completed shared reader forever. Preserve
+    ; any candidate that has an OAM owner/token or source DMA; otherwise discard
+    ; only its lane and release its reader descriptor before resolving the
+    ; current live key. State+30=3 remains governed by the exact-fence path.
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_CandidateBase
+    tax
+    sep #$20
+    .a8
+    lda.l SourceVisual_CandidateState+30,x
+    cmp #3
+    beq SourceVisual_SelectCandidate__identity_wait_keep_old8
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp #$FF
+    bne SourceVisual_SelectCandidate__identity_wait_keep_old8
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    bne SourceVisual_SelectCandidate__identity_wait_keep_old8
+    rep #$31
+    .a16
+    .i16
+    jsr SourceVisual_HasOwnedDma
+    bcs SourceVisual_SelectCandidate__identity_wait_retry
+    jsr SourceVisual_DiscardCandidatePins
+    ; FindEntry may have restored an older same-owner LoaderKey before this
+    ; stale-action check. After cleanup, return pending so the next render
+    ; recomputes the live key instead of admitting that stale asset again.
+    brl SourceVisual_SelectCandidate__identity_wait_retry
+SourceVisual_SelectCandidate__identity_wait_keep_old8:
+    rep #$31
+    .a16
+    .i16
+SourceVisual_SelectCandidate__identity_wait_retry:
+    .a16
+    .i16
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_SelectCandidate__identity_wait_no_old8:
+    rep #$31
+.a16
+.i16
+SourceVisual_SelectCandidate__identity_wait_action_current:
+    jsr SourceVisual_HasOwnedDma
+    bcc SourceVisual_SelectCandidate__identity_dma_idle
+    brl SourceVisual_SelectCandidate__pending_existing
+SourceVisual_SelectCandidate__identity_dma_idle:
+    ; A completed candidate may have been on hardware OAM. Keep the lane
+    ; immutable until the next matching scene DMA has replaced that packet.
+    lda.l SourceVisual_CandidateBase
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidateState+30,x
+    cmp #3
+    bne SourceVisual_SelectCandidate__identity_releasable
+    brl SourceVisual_SelectCandidate__pending_existing
+SourceVisual_SelectCandidate__identity_releasable:
+    rep #$31
+.a16
+.i16
+    sep #$20
+    .a8
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp #$FF
+    bne SourceVisual_SelectCandidate__pending_existing
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    bne SourceVisual_SelectCandidate__pending_existing
+    rep #$31
+    .a16
+    .i16
+    ; This covers both a stale candidate with no published fallback and a
+    ; same-action key replacement. The common helper releases a completed
+    ; ReadState=4 descriptor as well as candidate-only cache pins; published
+    ; State, packet metadata, OAM, and owner lane are untouched.
+    jsr SourceVisual_DiscardCandidatePins
+    ; EntryIndexSaved/Key may describe the just-retired request. Re-run
+    ; FindEntry on the next render before creating a replacement candidate.
+    brl SourceVisual_SelectCandidate__identity_wait_retry
+SourceVisual_SelectCandidate__capacity_wait:
+    rep #$31
+.a16
+.i16
+    ; A failed capacity admission is latched for this exact catalog entry.
+    ; Do not repeat an impossible preflight every field; retry only if the
+    ; actor requests a different entry. Any partial candidate pins are dropped
+    ; only after the shared DMA fence is clear.
+    lda.l SourceVisual_CandidateBase
+    tax
+    lda.l SourceVisual_CandidateState,x
+    cmp.l SourceVisual_EntryIndexSaved
+    bne SourceVisual_SelectCandidate__capacity_replace
+    jsr SourceVisual_HasOwnedDma
+    bcs SourceVisual_SelectCandidate__pending_existing
+    brl SourceVisual_SelectCandidate__capacity_drop_partial
+SourceVisual_SelectCandidate__capacity_replace:
+    jsr SourceVisual_HasOwnedDma
+    bcs SourceVisual_SelectCandidate__pending_existing
+SourceVisual_SelectCandidate__capacity_drop_partial:
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda #7
+    sta.l SourceVisual_OwnerOffset
+    jsr SourceVisual_ReleaseActorBlocks
+    jsr SourceVisual_ReleaseActorPalettes
+    lda.l SourceVisual_CandidateBase
+    tax
+    rep #$31
+.a16
+.i16
+    ; Keep the bounded capacity-failure marker when the same entry remains
+    ; requested. A different entry gets a fresh candidate below.
+    lda.l SourceVisual_CandidateState,x
+    cmp.l SourceVisual_EntryIndexSaved
+    beq SourceVisual_SelectCandidate__selected
+    brl SourceVisual_SelectCandidate__clear_sidecar_new
+SourceVisual_SelectCandidate__terminal_wait:
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_HasOwnedDma
+    bcs SourceVisual_SelectCandidate__pending_existing
+    lda.l SourceVisual_CandidateBase
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidateState+31,x
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    ; Terminal failure hides the current OAM packet, but the published tile
+    ; and palette owners remain pinned until that OAM DMA completes.
+    jsr SourceVisual_DiscardCandidatePins
+    jsr SourceVisual_MarkActorForOamRetire
+    brl SourceVisual_SelectCandidate__clear_sidecar_fail
+SourceVisual_SelectCandidate__pending_existing:
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_SelectCandidate__selected
+SourceVisual_SelectCandidate__new:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CandidateBase
+    tax
+    lda #0
+    ldy #16
+SourceVisual_SelectCandidate__zero_new:
+    sta.l SourceVisual_CandidateState,x
+    inx
+    inx
+    dey
+    bne SourceVisual_SelectCandidate__zero_new
+    lda.l SourceVisual_CandidateBase
+    tax
+    lda.l SourceVisual_EntryIndexSaved
+    sta.l SourceVisual_CandidateState,x
+    lda #1
+    sta.l SourceVisual_CandidateState+6,x
+    sep #$20
+.a8
+    lda.l SourceVisual_Key
+    sta.l SourceVisual_CandidateState+29,x
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_CandidateActionCapture
+    bcs SourceVisual_SelectCandidate__new_action_captured
+    sep #$20
+    .a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+    .a16
+    .i16
+    brl SourceVisual_SelectCandidate__clear_sidecar_fail
+SourceVisual_SelectCandidate__new_action_captured:
+SourceVisual_SelectCandidate__selected:
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_UseCandidate
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda #7
+    sta.l SourceVisual_OwnerOffset
+    sec
+    rts
+SourceVisual_SelectCandidate__clear_sidecar_new:
+    lda.l SourceVisual_CandidateBase
+    tax
+    lda #0
+    ldy #16
+SourceVisual_SelectCandidate__clear_new:
+    sta.l SourceVisual_CandidateState,x
+    inx
+    inx
+    dey
+    bne SourceVisual_SelectCandidate__clear_new
+    jsr SourceVisual_CandidateActionClear
+    brl SourceVisual_SelectCandidate__new
+SourceVisual_SelectCandidate__clear_sidecar_fail:
+    lda.l SourceVisual_CandidateBase
+    tax
+    lda #0
+    ldy #16
+SourceVisual_SelectCandidate__clear_fail:
+    sta.l SourceVisual_CandidateState,x
+    inx
+    inx
+    dey
+    bne SourceVisual_SelectCandidate__clear_fail
+    jsr SourceVisual_CandidateActionClear
+    clc
+    rts
+
+; Activate a selected candidate only after the caller has saved the published
+; record on its bounded per-render stack frame.
+SourceVisual_ActivateCandidate:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CandidateBase
+    tax
+    ldy #0
+SourceVisual_ActivateCandidate__copy:
+    lda.l SourceVisual_CandidateState,x
+    sta.l SourceVisual_State,x
+    inx
+    inx
+    iny
+    iny
+    cpy #32
+    bcc SourceVisual_ActivateCandidate__copy
+    jsr SourceVisual_LoadPendingEntry
+    bcs SourceVisual_ActivateCandidate__entry_ready
+    rts
+SourceVisual_ActivateCandidate__entry_ready:
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State+8,x
+    sta.l SourceVisual_BaseTile
+    lda.l SourceVisual_State+12,x
+    sta.l SourceVisual_PaletteBase
+    sec
+    rts
+
+; Initial primary publication uses the same packet lane and NMI fence as a
+; replacement candidate. Keep its already-resident published lease pinned in
+; both owner lanes until CommitCandidate atomically promotes the fenced packet.
+SourceVisual_BeginInitialPacket:
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp #$FF
+    bne SourceVisual_BeginInitialPacket__busy8
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    bne SourceVisual_BeginInitialPacket__busy8
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_PinCurrentLeaseCandidate
+    ; The key/identity was captured when this initial lease was created, before
+    ; resource loading. Recheck against this pass's live snapshot; never let a
+    ; later request relabel the already-loaded asset.
+    jsr SourceVisual_CandidateActionMatches
+    bcs SourceVisual_BeginInitialPacket__action_matches
+    sep #$20
+    .a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+    .a16
+    .i16
+    jsr SourceVisual_AbortInitialPacket
+    clc
+    rts
+SourceVisual_BeginInitialPacket__action_matches:
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_UseCandidate
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda #7
+    sta.l SourceVisual_OwnerOffset
+    sec
+    rts
+SourceVisual_BeginInitialPacket__busy8:
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+
+; Capture the full resolved asset key [roster, role, frame, map], then derive
+; the action identity [roster, role, map]. The key belongs to EntryIndexSaved
+; after a fresh key match or same-owner LoaderKey restore. FrameMeta remains
+; the independent live request. Facing is sampled at Emit time; packets store
+; both authored orientations. CandidateKey lives in its separately checked
+; $7EEEA2 sidecar; the compact action identity remains in $7E4BB4-$7E4BCB.
+SourceVisual_CaptureCurrentAction:
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_ActorSlot
+    cmp #6
+    bcs SourceVisual_CaptureCurrentAction__bad
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+    .a8
+    lda #0
+    sta.l SourceVisual_FrameMeta+SOURCE_VISUAL_FRAME_ACTION_VALID,x
+    lda.l SourceVisual_Key
+    sta.l SourceVisual_FrameMeta+SOURCE_VISUAL_FRAME_ACTION_ROSTER,x
+    lda.l SourceVisual_Key+1
+    sta.l SourceVisual_FrameMeta+SOURCE_VISUAL_FRAME_ACTION_ROLE,x
+    lda.l SourceVisual_Key+2
+    sta.l SourceVisual_FrameMeta+SOURCE_VISUAL_FRAME_ACTION_FRAME,x
+    lda.l SourceVisual_Key+3
+    sta.l SourceVisual_FrameMeta+SOURCE_VISUAL_FRAME_ACTION_MAP,x
+    lda #1
+    sta.l SourceVisual_FrameMeta+SOURCE_VISUAL_FRAME_ACTION_VALID,x
+    rep #$31
+    .a16
+    .i16
+    sec
+    rts
+SourceVisual_CaptureCurrentAction__bad:
+    clc
+    rts
+
+SourceVisual_CandidateActionCapture:
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_ActorSlot
+    cmp #6
+    bcs SourceVisual_CandidateActionCapture__bad
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+    .a8
+    lda.l SourceVisual_FrameMeta+SOURCE_VISUAL_FRAME_ACTION_VALID,x
+    cmp #SOURCE_VISUAL_ACTION_LIVE
+    bne SourceVisual_CandidateActionCapture__bad8
+    rep #$31
+    .a16
+    .i16
+    ; SourceVisual_Key is the key for the resolved EntryIndexSaved here: a
+    ; same-owner lookup has already restored LoaderKey, while a fresh lookup
+    ; still holds the key that produced EntryReady. Save all four bytes now;
+    ; FrameMeta remains the independently captured live request used by guards.
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_Key
+    sta.l SourceVisual_CandidateKey,x
+    lda.l SourceVisual_Key+2
+    sta.l SourceVisual_CandidateKey+2,x
+    sep #$20
+    .a8
+    lda.l SourceVisual_CandidateKey,x
+    sta.l SourceVisual_CurrentActionScratch
+    lda.l SourceVisual_CandidateKey+1,x
+    sta.l SourceVisual_CurrentActionScratch+1
+    lda.l SourceVisual_CandidateKey+3,x
+    sta.l SourceVisual_CurrentActionScratch+2
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_ActorSlot
+    asl a
+    clc
+    adc.l SourceVisual_ActorSlot
+    tax
+    sep #$20
+    .a8
+    lda.l SourceVisual_CurrentActionScratch
+    sta.l SourceVisual_CandidateActionIdentity,x
+    lda.l SourceVisual_CurrentActionScratch+1
+    sta.l SourceVisual_CandidateActionIdentity+1,x
+    lda.l SourceVisual_CurrentActionScratch+2
+    sta.l SourceVisual_CandidateActionIdentity+2,x
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_ActorSlot
+    tax
+    sep #$20
+    .a8
+    lda #1
+    sta.l SourceVisual_CandidateActionValid,x
+    rep #$31
+    .a16
+    .i16
+    sec
+    rts
+SourceVisual_CandidateActionCapture__bad8:
+    rep #$31
+    .a16
+    .i16
+SourceVisual_CandidateActionCapture__bad:
+    clc
+    rts
+
+; C=1 only when this actor still requests the candidate key's semantic action.
+; Frame byte 2 may advance within a role; facing is intentionally excluded.
+SourceVisual_CandidateActionMatches:
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_ActorSlot
+    cmp #6
+    bcs SourceVisual_CandidateActionMatches__bad
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+    .a8
+    lda.l SourceVisual_FrameMeta+SOURCE_VISUAL_FRAME_ACTION_VALID,x
+    cmp #SOURCE_VISUAL_ACTION_LIVE
+    bne SourceVisual_CandidateActionMatches__bad8
+    lda.l SourceVisual_FrameMeta+SOURCE_VISUAL_FRAME_ACTION_ROSTER,x
+    sta.l SourceVisual_CurrentActionScratch
+    lda.l SourceVisual_FrameMeta+SOURCE_VISUAL_FRAME_ACTION_ROLE,x
+    sta.l SourceVisual_CurrentActionScratch+1
+    lda.l SourceVisual_FrameMeta+SOURCE_VISUAL_FRAME_ACTION_MAP,x
+    sta.l SourceVisual_CurrentActionScratch+2
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_ActorSlot
+    tax
+    sep #$20
+    .a8
+    lda.l SourceVisual_CandidateActionValid,x
+    cmp #SOURCE_VISUAL_ACTION_LIVE
+    bne SourceVisual_CandidateActionMatches__bad8
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_ActorSlot
+    asl a
+    clc
+    adc.l SourceVisual_ActorSlot
+    tax
+    sep #$20
+    .a8
+    lda.l SourceVisual_CandidateActionIdentity,x
+    cmp.l SourceVisual_CurrentActionScratch
+    bne SourceVisual_CandidateActionMatches__bad8
+    lda.l SourceVisual_CandidateActionIdentity+1,x
+    cmp.l SourceVisual_CurrentActionScratch+1
+    bne SourceVisual_CandidateActionMatches__bad8
+    lda.l SourceVisual_CandidateActionIdentity+2,x
+    cmp.l SourceVisual_CurrentActionScratch+2
+    bne SourceVisual_CandidateActionMatches__bad8
+    rep #$31
+    .a16
+    .i16
+    sec
+    rts
+SourceVisual_CandidateActionMatches__bad8:
+    rep #$31
+    .a16
+    .i16
+SourceVisual_CandidateActionMatches__bad:
+    clc
+    rts
+
+; Clear the current actor's candidate-key validity and key bytes. Callers own
+; candidate-lane retirement; clearing identity never releases resources or
+; changes a fence.
+SourceVisual_CandidateActionClear:
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_ActorSlot
+    cmp #6
+    bcs SourceVisual_CandidateActionClear__done
+    tax
+    sep #$20
+    .a8
+    lda #SOURCE_VISUAL_ACTION_NONE
+    sta.l SourceVisual_CandidateActionValid,x
+    rep #$31
+    .a16
+    .i16
+    ; Invalidate before clearing the immutable key so no consumer can mistake
+    ; a partially cleared row for a live candidate identity.
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    tax
+    lda #0
+    sta.l SourceVisual_CandidateKey,x
+    sta.l SourceVisual_CandidateKey+2,x
+SourceVisual_CandidateActionClear__done:
+    rts
+
+; Begin a two-fence retirement for a stale, already-submitted candidate.
+; Caller has proven the candidate's exact sequence+epoch fence completed.
+; Return C=1 only when a valid old packet exists and must be re-emitted.
+; The old published owner lane stays pinned; candidate owners stay pinned until
+; the fallback OAM fence completes. A first packet has no fallback and returns
+; C=0 so the caller can retain the only fenced packet as a bootstrap.
+SourceVisual_CandidateBeginStaleFallback:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    cmp #6
+    bcs SourceVisual_CandidateBeginStaleFallback__no
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    beq SourceVisual_CandidateBeginStaleFallback__no8
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    beq SourceVisual_CandidateBeginStaleFallback__no8
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_OWNER
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_CandidateBeginStaleFallback__no8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidateActionValid,x
+    cmp #SOURCE_VISUAL_ACTION_LIVE
+    bne SourceVisual_CandidateBeginStaleFallback__no8
+    lda #SOURCE_VISUAL_ACTION_STALE_FENCE
+    sta.l SourceVisual_CandidateActionValid,x
+    lda #0
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+1
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+2
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+3
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH+1
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH+2
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH+3
+    rep #$31
+.a16
+.i16
+    sec
+    rts
+SourceVisual_CandidateBeginStaleFallback__no8:
+    rep #$31
+.a16
+.i16
+SourceVisual_CandidateBeginStaleFallback__no:
+    clc
+    rts
+
+; Retire only the candidate owner channel after its fallback OAM fence has
+; completed. Published packet metadata and published cache-owner bits remain
+; intact. Return C=0 while any source DMA is still owned.
+SourceVisual_CandidateRetireStale:
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorSlot
+    cmp #6
+    bcs SourceVisual_CandidateRetireStale__not_ready8
+    tax
+    lda.l SourceVisual_CandidateActionValid,x
+    cmp #SOURCE_VISUAL_ACTION_STALE_FENCE
+    bne SourceVisual_CandidateRetireStale__not_ready8
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_CandidateRetireStale__not_ready8
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    beq SourceVisual_CandidateRetireStale__not_ready8
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_CandidateFenceComplete
+    bcc SourceVisual_CandidateRetireStale__not_ready
+    jsr SourceVisual_HasOwnedDma
+    bcc SourceVisual_CandidateRetireStale__dma_idle
+SourceVisual_CandidateRetireStale__not_ready:
+    clc
+    rts
+SourceVisual_CandidateRetireStale__not_ready8:
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_CandidateRetireStale__dma_idle:
+    jsr SourceVisual_ReleaseLoaderOwner
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda #7
+    sta.l SourceVisual_OwnerOffset
+    jsr SourceVisual_ReleaseActorBlocks
+    jsr SourceVisual_ReleaseActorPalettes
+    lda.l SourceVisual_CandidateBase
+    tax
+    lda #0
+    ldy #16
+SourceVisual_CandidateRetireStale__clear_sidecar:
+    sta.l SourceVisual_CandidateState,x
+    inx
+    inx
+    dey
+    bne SourceVisual_CandidateRetireStale__clear_sidecar
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_CandidateRetireStale__restore_channel8
+    lda #$FF
+    sta.l SourceVisual_PacketCandidateOwner
+    lda #0
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+1
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+2
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+3
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH+1
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH+2
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH+3
+SourceVisual_CandidateRetireStale__restore_channel8:
+    lda #0
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda #4
+    sta.l SourceVisual_OwnerOffset
+    jsr SourceVisual_CandidateActionClear
+    sec
+    rts
+
+; Copy only this actor's current published owner bits into the candidate lane.
+; The content stays resident throughout the OAM fence, including blocks and
+; palettes shared with other actors.
+SourceVisual_PinCurrentLeaseCandidate:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    tax
+    lda #1
+SourceVisual_PinCurrentLeaseCandidate__block_mask:
+.i16
+    cpx #0
+    beq SourceVisual_PinCurrentLeaseCandidate__block_mask_ready
+    asl a
+    dex
+    bra SourceVisual_PinCurrentLeaseCandidate__block_mask
+SourceVisual_PinCurrentLeaseCandidate__block_mask_ready:
+    sep #$20
+.a8
+    sta.l SourceVisual_BlockActorMask
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_BlockScan
+SourceVisual_PinCurrentLeaseCandidate__block:
+    lda.l SourceVisual_BlockScan
+    cmp #SOURCE_VISUAL_TILE_BLOCKS
+    bcs SourceVisual_PinCurrentLeaseCandidate__palette_start
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockCache+4,x
+    and.l SourceVisual_BlockActorMask
+    beq SourceVisual_PinCurrentLeaseCandidate__block_next8
+    lda.l SourceVisual_BlockCache+7,x
+    ora.l SourceVisual_BlockActorMask
+    sta.l SourceVisual_BlockCache+7,x
+SourceVisual_PinCurrentLeaseCandidate__block_next8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_BlockScan
+    inc a
+    sta.l SourceVisual_BlockScan
+    bra SourceVisual_PinCurrentLeaseCandidate__block
+SourceVisual_PinCurrentLeaseCandidate__palette_start:
+    lda.l SourceVisual_ActorSlot
+    tax
+    lda #1
+SourceVisual_PinCurrentLeaseCandidate__palette_mask:
+.i16
+    cpx #0
+    beq SourceVisual_PinCurrentLeaseCandidate__palette_mask_ready
+    asl a
+    dex
+    bra SourceVisual_PinCurrentLeaseCandidate__palette_mask
+SourceVisual_PinCurrentLeaseCandidate__palette_mask_ready:
+    sep #$20
+.a8
+    sta.l SourceVisual_PaletteOwnerBit
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_PaletteScan
+SourceVisual_PinCurrentLeaseCandidate__palette:
+    lda.l SourceVisual_PaletteScan
+    cmp #8
+    bcs SourceVisual_PinCurrentLeaseCandidate__done
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PaletteCache+4,x
+    and.l SourceVisual_PaletteOwnerBit
+    beq SourceVisual_PinCurrentLeaseCandidate__palette_next8
+    lda.l SourceVisual_PaletteCache+5,x
+    ora.l SourceVisual_PaletteOwnerBit
+    sta.l SourceVisual_PaletteCache+5,x
+SourceVisual_PinCurrentLeaseCandidate__palette_next8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PaletteScan
+    inc a
+    sta.l SourceVisual_PaletteScan
+    bra SourceVisual_PinCurrentLeaseCandidate__palette
+SourceVisual_PinCurrentLeaseCandidate__done:
+    rts
+
+; Roll back the extra owner lane if the first packet could not be emitted.
+SourceVisual_AbortInitialPacket:
+    ; Initial candidates have no published owner to preserve. Retire any
+    ; completed reader descriptor and clear the entire candidate sidecar/meta
+    ; so the next hook can admit the actor's new live key from a clean lane.
+    jsr SourceVisual_ReleaseLoaderOwner
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda #7
+    sta.l SourceVisual_OwnerOffset
+    jsr SourceVisual_ReleaseActorBlocks
+    jsr SourceVisual_ReleaseActorPalettes
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_AbortInitialPacket__lane_done8
+    lda #$FF
+    sta.l SourceVisual_PacketCandidateOwner
+    lda #0
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+SourceVisual_AbortInitialPacket__lane_done8:
+    lda #0
+    sta.l SourceVisual_UseCandidate
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CandidateBase
+    tax
+    lda #0
+    ldy #16
+SourceVisual_AbortInitialPacket__clear_sidecar:
+    sta.l SourceVisual_CandidateState,x
+    inx
+    inx
+    dey
+    bne SourceVisual_AbortInitialPacket__clear_sidecar
+    ldx #0
+    ldy #8
+SourceVisual_AbortInitialPacket__clear_meta:
+    sta.l SourceVisual_CandidatePacketMeta,x
+    inx
+    inx
+    dey
+    bne SourceVisual_AbortInitialPacket__clear_meta
+    sep #$20
+.a8
+    lda #$FF
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_OWNER
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_CandidateActionClear
+    lda #4
+    sta.l SourceVisual_OwnerOffset
+    rts
+
+; Save candidate progress in its sidecar while the caller restores the
+; published record from the stack.
+SourceVisual_SaveCandidateSidecar:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Record
+    tax
+    ldy #0
+SourceVisual_SaveCandidateSidecar__copy:
+    lda.l SourceVisual_State,x
+    sta.l SourceVisual_CandidateState,x
+    inx
+    inx
+    iny
+    iny
+    cpy #32
+    bcc SourceVisual_SaveCandidateSidecar__copy
+    rts
+
+; Published packet rows are tightly packed at 65*7 bytes per actor.
+SourceVisual_GetPublishedPacketOffset:
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_PacketDataIndex
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_PacketSourceRow
+SourceVisual_GetPublishedPacketOffset__loop:
+    lda.l SourceVisual_PacketSourceRow
+    beq SourceVisual_GetPublishedPacketOffset__done
+    lda.l SourceVisual_PacketDataIndex
+    clc
+    adc #SOURCE_VISUAL_PACKET_ACTOR_BYTES
+    sta.l SourceVisual_PacketDataIndex
+    lda.l SourceVisual_PacketSourceRow
+    dec a
+    sta.l SourceVisual_PacketSourceRow
+    bra SourceVisual_GetPublishedPacketOffset__loop
+SourceVisual_GetPublishedPacketOffset__done:
+    rts
+
+; Called only after SourceVisual_Emit has returned success. Retire the old
+; published lane, then move the candidate lane into it. Shared block/palette
+; identities remain live because the candidate bit is set before the old bit
+; is removed by the row-release helpers.
+SourceVisual_CommitCandidate:
+    rep #$31
+.a16
+.i16
+    ; Copy the complete candidate geometry only after its exact OAM DMA fence
+    ; was observed. Keep the candidate lane locked and valid until every byte
+    ; and descriptor field has reached the published bank.
+    jsr SourceVisual_GetPublishedPacketOffset
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_COUNT
+    sta.l SourceVisual_PacketCount
+    asl a
+    asl a
+    asl a
+    sec
+    sbc.l SourceVisual_PacketCount
+    sta.l SourceVisual_PacketCopyCount
+    lda #0
+    sta.l SourceVisual_PacketTotal
+    sep #$20
+.a8
+SourceVisual_CommitCandidate__copy_packet:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketTotal
+    cmp.l SourceVisual_PacketCopyCount
+    bcs SourceVisual_CommitCandidate__packet_copied
+    lda.l SourceVisual_PacketTotal
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidatePacketData,x
+    sta.l SourceVisual_PacketSpriteHigh
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketDataIndex
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketSpriteHigh
+    sta.l SourceVisual_PacketData,x
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketDataIndex
+    inc a
+    sta.l SourceVisual_PacketDataIndex
+    lda.l SourceVisual_PacketTotal
+    inc a
+    sta.l SourceVisual_PacketTotal
+    bra SourceVisual_CommitCandidate__copy_packet
+SourceVisual_CommitCandidate__packet_copied:
+    rep #$31
+.a16
+.i16
+    ; Copy left-facing authored offsets into the slot's sidecar before the
+    ; packet metadata valid byte publishes this complete geometry generation.
+    jsr SourceVisual_CopyCandidateLeftGeometry
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_COUNT
+    sta.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_COUNT,x
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_WIDTH
+    sta.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_WIDTH,x
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_ENTRY
+    sta.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_ENTRY,x
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_COUNT
+    beq SourceVisual_CommitCandidate__empty_packet
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    bra SourceVisual_CommitCandidate__packet_ready
+SourceVisual_CommitCandidate__empty_packet:
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+SourceVisual_CommitCandidate__packet_ready:
+    ; Persist the exact key represented by the newly committed packet. Lookup
+    ; uses it to distinguish a real player pose change from a cached old pose.
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    beq SourceVisual_CommitCandidate__clear_published_key8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_CandidateKey,x
+    sta.l SourceVisual_PublishedKey,x
+    lda.l SourceVisual_CandidateKey+2,x
+    sta.l SourceVisual_PublishedKey+2,x
+    brl SourceVisual_CommitCandidate__published_key_ready
+SourceVisual_CommitCandidate__clear_published_key8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    tax
+    lda #0
+    sta.l SourceVisual_PublishedKey,x
+    sta.l SourceVisual_PublishedKey+2,x
+SourceVisual_CommitCandidate__published_key_ready:
+    rep #$31
+.a16
+.i16
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda #4
+    sta.l SourceVisual_OwnerOffset
+    jsr SourceVisual_ReleaseActorBlocks
+    jsr SourceVisual_ReleaseActorPalettes
+
+    ; Actor mask used by both cache transfer loops.
+    lda.l SourceVisual_ActorSlot
+    tax
+    lda #1
+SourceVisual_CommitCandidate__mask:
+.i16
+    cpx #0
+    beq SourceVisual_CommitCandidate__mask_ready
+    asl a
+    dex
+    bra SourceVisual_CommitCandidate__mask
+SourceVisual_CommitCandidate__mask_ready:
+    sep #$20
+.a8
+    sta.l SourceVisual_BlockActorMask
+    eor #$FF
+    sta.l SourceVisual_BlockOther2
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_BlockScan
+SourceVisual_CommitCandidate__block:
+    lda.l SourceVisual_BlockScan
+    cmp #SOURCE_VISUAL_TILE_BLOCKS
+    bcs SourceVisual_CommitCandidate__palette_start
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockCache+7,x
+    and.l SourceVisual_BlockActorMask
+    beq SourceVisual_CommitCandidate__block_next8
+    lda.l SourceVisual_BlockCache+4,x
+    ora.l SourceVisual_BlockActorMask
+    sta.l SourceVisual_BlockCache+4,x
+    lda.l SourceVisual_BlockCache+7,x
+    and.l SourceVisual_BlockOther2
+    sta.l SourceVisual_BlockCache+7,x
+SourceVisual_CommitCandidate__block_next8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_BlockScan
+    inc a
+    sta.l SourceVisual_BlockScan
+    bra SourceVisual_CommitCandidate__block
+SourceVisual_CommitCandidate__palette_start:
+    lda.l SourceVisual_ActorSlot
+    tax
+    lda #1
+SourceVisual_CommitCandidate__palette_mask:
+.i16
+    cpx #0
+    beq SourceVisual_CommitCandidate__palette_mask_ready
+    asl a
+    dex
+    bra SourceVisual_CommitCandidate__palette_mask
+SourceVisual_CommitCandidate__palette_mask_ready:
+    sep #$20
+.a8
+    sta.l SourceVisual_PaletteOwnerBit
+    eor #$FF
+    sta.l SourceVisual_PaletteOwnerNotBit
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_PaletteScan
+SourceVisual_CommitCandidate__palette:
+    lda.l SourceVisual_PaletteScan
+    cmp #8
+    bcs SourceVisual_CommitCandidate__done
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PaletteCache+5,x
+    and.l SourceVisual_PaletteOwnerBit
+    beq SourceVisual_CommitCandidate__palette_next8
+    lda.l SourceVisual_PaletteCache+4,x
+    ora.l SourceVisual_PaletteOwnerBit
+    sta.l SourceVisual_PaletteCache+4,x
+    lda.l SourceVisual_PaletteCache+5,x
+    and.l SourceVisual_PaletteOwnerNotBit
+    sta.l SourceVisual_PaletteCache+5,x
+SourceVisual_CommitCandidate__palette_next8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PaletteScan
+    inc a
+    sta.l SourceVisual_PaletteScan
+    bra SourceVisual_CommitCandidate__palette
+SourceVisual_CommitCandidate__done:
+    lda.l SourceVisual_CandidateBase
+    tax
+    lda #0
+    ldy #16
+SourceVisual_CommitCandidate__clear:
+    sta.l SourceVisual_CandidateState,x
+    inx
+    inx
+    dey
+    bne SourceVisual_CommitCandidate__clear
+    jsr SourceVisual_CandidateActionClear
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_OwnerChannel
+    sta.l SourceVisual_UseCandidate
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    lda #$FF
+    sta.l SourceVisual_PacketCandidateOwner
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_ReleaseLoaderOwner
+    ; Preserve lease palette/resource fields in +16..+23 while clearing the
+    ; transient row-valid flags in +24..+27.
+    lda.l SourceVisual_Record
+    tax
+    lda #0
+    ldy #2
+SourceVisual_CommitCandidate__clear_read_stages:
+    sta.l SourceVisual_State+24,x
+    inx
+    inx
+    dey
+    bne SourceVisual_CommitCandidate__clear_read_stages
+    lda #4
+    sta.l SourceVisual_OwnerOffset
+    rts
+
+; Return the published sidecar actor-base offset in PacketLeftBaseOffset and
+; the 0..2 / 3..5 segment selector in PacketLeftGroup. Each actor row is
+; exactly 65 * 4 = 260 bytes. The groups are deliberately split across the
+; two checked free WRAM ranges documented above.
+SourceVisual_GetPublishedLeftActorBase:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    cmp #3
+    bcc SourceVisual_GetPublishedLeftActorBase__group012
+    sec
+    sbc #3
+    sta.l SourceVisual_PacketLeftActorLocal
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_PacketLeftGroup
+    rep #$31
+.a16
+.i16
+    bra SourceVisual_GetPublishedLeftActorBase__offset
+SourceVisual_GetPublishedLeftActorBase__group012:
+    sta.l SourceVisual_PacketLeftActorLocal
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_PacketLeftGroup
+    rep #$31
+.a16
+.i16
+SourceVisual_GetPublishedLeftActorBase__offset:
+    ; localActor * 260 = localActor * 256 + localActor * 4.
+    lda.l SourceVisual_PacketLeftActorLocal
+    asl a
+    asl a
+    sta.l SourceVisual_PacketLeftPieceOffset
+    lda.l SourceVisual_PacketLeftActorLocal
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    clc
+    adc.l SourceVisual_PacketLeftPieceOffset
+    sta.l SourceVisual_PacketLeftBaseOffset
+    rts
+
+; Copy all authored left-facing words alongside the candidate packet. The
+; published PacketMeta valid byte is still zero, so no renderer can observe a
+; mixed-generation sidecar; CommitCandidate sets valid only after this returns.
+SourceVisual_CopyCandidateLeftGeometry:
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_PacketLeftCursor
+    jsr SourceVisual_GetPublishedLeftActorBase
+SourceVisual_CopyCandidateLeftGeometry__piece:
+    lda.l SourceVisual_PacketLeftCursor
+    cmp.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_COUNT
+    bcs SourceVisual_CopyCandidateLeftGeometry__done
+    asl a
+    asl a
+    sta.l SourceVisual_PacketLeftPieceOffset
+    tax
+    lda.l SourceVisual_CandidateLeftGeometry,x
+    sta.l SourceVisual_PacketLeftX
+    inx
+    inx
+    lda.l SourceVisual_CandidateLeftGeometry,x
+    sta.l SourceVisual_PacketLeftY
+    lda.l SourceVisual_PacketLeftBaseOffset
+    clc
+    adc.l SourceVisual_PacketLeftPieceOffset
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketLeftGroup
+    beq SourceVisual_CopyCandidateLeftGeometry__store012
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketLeftX
+    sta.l SourceVisual_PublishedLeftGeometry345,x
+    inx
+    inx
+    lda.l SourceVisual_PacketLeftY
+    sta.l SourceVisual_PublishedLeftGeometry345,x
+    bra SourceVisual_CopyCandidateLeftGeometry__next
+SourceVisual_CopyCandidateLeftGeometry__store012:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketLeftX
+    sta.l SourceVisual_PublishedLeftGeometry012,x
+    inx
+    inx
+    lda.l SourceVisual_PacketLeftY
+    sta.l SourceVisual_PublishedLeftGeometry012,x
+SourceVisual_CopyCandidateLeftGeometry__next:
+    lda.l SourceVisual_PacketLeftCursor
+    inc a
+    sta.l SourceVisual_PacketLeftCursor
+    bra SourceVisual_CopyCandidateLeftGeometry__piece
+SourceVisual_CopyCandidateLeftGeometry__done:
+    rts
+
+; Compose a left-facing cached piece from the published sidecar. This helper
+; never reads candidate Entry/Width/PieceTable state, so a pending replacement
+; cannot move the old published pose while the actor's world anchor is fixed.
+SourceVisual_CachedLeftPosition:
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_GetPublishedLeftActorBase
+    lda.l SourceVisual_PieceIndex
+    asl a
+    asl a
+    clc
+    adc.l SourceVisual_PacketLeftBaseOffset
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketLeftGroup
+    beq SourceVisual_CachedLeftPosition__load012
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PublishedLeftGeometry345,x
+    sta.l SourceVisual_PacketSpriteRelX
+    lda.l SourceVisual_PublishedLeftGeometry345+2,x
+    sta.l SourceVisual_PacketDeltaY
+    bra SourceVisual_CachedLeftPosition__compose
+SourceVisual_CachedLeftPosition__load012:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PublishedLeftGeometry012,x
+    sta.l SourceVisual_PacketSpriteRelX
+    lda.l SourceVisual_PublishedLeftGeometry012+2,x
+    sta.l SourceVisual_PacketDeltaY
+SourceVisual_CachedLeftPosition__compose:
+    lda.l SourceVisual_PacketAnchorX
+    clc
+    adc.l SourceVisual_PacketSpriteRelX
+    sta.l SourceVisual_PacketSpriteX
+    lda.l SourceVisual_PacketDrawY
+    clc
+    adc.l SourceVisual_PacketDeltaY
+    sta.l SourceVisual_PacketSpriteY
+    sec
+    rts
+
+SourceVisual_ResolveActorSlotFromContext:
+    rep #$31
+.a16
+.i16
+    tdc
+    sec
+    sbc #$0A00
+    ldy #0
+SourceVisual_ResolveActorSlotFromContext__scan:
+    cmp #0
+    beq SourceVisual_ResolveActorSlotFromContext__found
+    sec
+    sbc #CHAR_ZP_LEN
+    bcc SourceVisual_ResolveActorSlotFromContext__bad
+    iny
+    cpy #6
+    bcc SourceVisual_ResolveActorSlotFromContext__scan
+SourceVisual_ResolveActorSlotFromContext__bad:
+    lda #0
+    sta.l SourceVisual_ActorSlot
+    rts
+SourceVisual_ResolveActorSlotFromContext__found:
+    tya
+    sta.l SourceVisual_ActorSlot
+    rts
+
+SourceVisual_MarkActorForOamRetire:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    tax
+    lda #1
+SourceVisual_MarkActorForOamRetire__shift:
+.i16
+    cpx #0
+    beq SourceVisual_MarkActorForOamRetire__bit
+    asl a
+    dex
+    bra SourceVisual_MarkActorForOamRetire__shift
+SourceVisual_MarkActorForOamRetire__bit:
+    ora.l SourceVisual_OamRetireMask
+    sta.l SourceVisual_OamRetireMask
+    rts
+
+; Initialize the bounded packet cache before the first frame can observe it.
+; Packet bytes are not trusted until the metadata row's valid byte is set by
+; an NMI that completed the matching main-OAM DMA generation.
+SourceVisual_InitPackets:
+    rep #$31
+.a16
+.i16
+    lda #$FFFF
+    sta.l SourceVisual_PresentationField
+    sta.l SourceVisual_RowScratchBlockIndex
+    lda #0
+    sta.l SourceVisual_OamRetireMask
+    sta.l SourceVisual_CommitMask
+    sep #$20
+.a8
+    lda #$FF
+    sta.l SourceVisual_PacketCandidateOwner
+    sta.l SourceVisual_LoaderOwner
+    sta.l SourceVisual_ReadOwner
+    sta.l SourceVisual_EntryReadySlot
+    sta.l SourceVisual_PieceTableOwner
+    sta.l SourceVisual_CatalogBindOwner
+    lda #0
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    sta.l SourceVisual_OamFenceCompletedValid
+    sta.l SourceVisual_ReadState
+    sta.l SourceVisual_LoaderDurableProgress
+    sta.l SourceVisual_PreflightState
+    sta.l SourceVisual_FindScanActive
+    sta.l SourceVisual_EntryReady
+    sta.l SourceVisual_PieceTableValid
+    sta.l SourceVisual_RowScratchBlockValid
+    sta.l SourceVisual_LoaderEntryValid
+    sta.l SourceVisual_PublishedFastPath
+    sta.l SourceVisual_CatalogBindState
+    ; $7E2330 aliases boot-time BgHeaderStaging. Initialize the runtime
+    ; stream gate explicitly after staging and before any live reader starts.
+    lda #0
+    sta.l Msu1_StreamBusy
+    sta.l SourceVisual_ReadTurnUsed
+    sta.l SourceVisual_WorkRemaining
+    sta.l SourceVisual_WorkRemaining+1
+    rep #$31
+.a16
+.i16
+    lda #$FFFF
+    sta.l SourceVisual_PieceTableEntry
+    sta.l SourceVisual_EntryReadyIndex
+    ldx #0
+    lda #0
+SourceVisual_InitPackets__clear_published_keys:
+    sta.l SourceVisual_PublishedKey,x
+    inx
+    inx
+    cpx #24
+    bcc SourceVisual_InitPackets__clear_published_keys
+    sep #$20
+.a8
+    lda #$FF
+    sta.l SourceVisual_PlayerPriorityOwner
+    lda #0
+    sta.l SourceVisual_WaitingActorMask
+    lda #5
+    sta.l SourceVisual_QueueCursor
+    rep #$31
+.a16
+.i16
+    ldx #0
+    lda #0
+SourceVisual_InitPackets__clear_cache:
+    sta.l SourceVisual_PacketMeta,x
+    sta.l SourceVisual_FrameMeta,x
+    inx
+    inx
+    cpx #6 * SOURCE_VISUAL_PACKET_META_STRIDE
+    bcc SourceVisual_InitPackets__clear_cache
+    ldx #0
+SourceVisual_InitPackets__clear_candidate_state:
+    sta.l SourceVisual_CandidateState,x
+    inx
+    inx
+    cpx #6 * 32
+    bcc SourceVisual_InitPackets__clear_candidate_state
+    ldx #0
+    lda #0
+SourceVisual_InitPackets__clear_candidate_keys:
+    sta.l SourceVisual_CandidateKey,x
+    inx
+    inx
+    cpx #6 * 4
+    bcc SourceVisual_InitPackets__clear_candidate_keys
+    ldx #0
+    lda #0
+SourceVisual_InitPackets__clear_candidate_action_valid:
+    sta.l SourceVisual_CandidateActionValid,x
+    inx
+    inx
+    cpx #6
+    bcc SourceVisual_InitPackets__clear_candidate_action_valid
+    rtl
+
+; Start one compositor pass.  This must run before Character_RenderPass walks
+; actors; clearing from RenderCurrent loses earlier actors' candidate marks
+; when the NMI field counter advances between two actor calls.
+SourceVisual_BeginRenderPass:
+    php
+    rep #$31
+.a16
+.i16
+    lda.l Nmi_FrameCounter
+    sta.l SourceVisual_PresentationField
+    lda #0
+    sta.l SourceVisual_PresentationMask
+    jsr SourceVisual_ClearFramePacketMeta
+    plp
+    rtl
+
+SourceVisual_ClearFramePacketMeta:
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_CommitMask
+    ldx #0
+SourceVisual_ClearFramePacketMeta__loop:
+    sta.l SourceVisual_FrameMeta,x
+    inx
+    inx
+    cpx #6 * SOURCE_VISUAL_PACKET_META_STRIDE
+    bcc SourceVisual_ClearFramePacketMeta__loop
+    rts
+
+; FrameMeta records source actors that participated in this render pass. It is
+; not a clipped sprite cache; complete authored geometry is kept separately.
+SourceVisual_SetFramePacketIdentity:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_EntryIndexSaved
+    sta.l SourceVisual_FrameMeta+SOURCE_VISUAL_PACKET_META_ENTRY,x
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_FrameMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    rep #$31
+.a16
+.i16
+    rts
+
+; Mark this actor present in the current field; packet geometry is authored
+; and cached independently of viewport clipping.
+SourceVisual_RecordFramePacket:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_FrameMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    rep #$31
+.a16
+.i16
+    rts
+
+SourceVisual_MarkCandidateFence:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    tax
+    lda #1
+SourceVisual_MarkCandidateFence__shift:
+.i16
+    cpx #0
+    beq SourceVisual_MarkCandidateFence__ready
+    asl a
+    dex
+    bra SourceVisual_MarkCandidateFence__shift
+SourceVisual_MarkCandidateFence__ready:
+    ora.l SourceVisual_CommitMask
+    sta.l SourceVisual_CommitMask
+    rts
+
+; C=true only when the single admitted candidate's exact (epoch,sequence)
+; OAM token completed. The version byte makes this multiword snapshot stable
+; if NMI publishes another completion between S-CPU reads.
+SourceVisual_CandidateFenceComplete:
+    sep #$20
+.a8
+    lda.l SourceVisual_OamFenceCompletedValid
+    beq SourceVisual_CandidateFenceComplete__no
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    beq SourceVisual_CandidateFenceComplete__no
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_OWNER
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_CandidateFenceComplete__no
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE
+    ora.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+2
+    beq SourceVisual_CandidateFenceComplete__no
+    ; Capture the version as one byte before reading the completion record.
+    ; NMI is non-nesting, so one completion changes this byte exactly once
+    ; between these reads; even 8-bit wrap cannot hide one intervening update.
+    sep #$20
+.a8
+    lda.l SourceVisual_OamFenceCompletionVersion
+    pha
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE
+    cmp.l SourceVisual_OamFenceCompleted
+    bne SourceVisual_CandidateFenceComplete__snapshot_no
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+2
+    cmp.l SourceVisual_OamFenceCompleted+2
+    bne SourceVisual_CandidateFenceComplete__snapshot_no
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH
+    cmp.l SourceVisual_OamFenceCompletedEpoch
+    bne SourceVisual_CandidateFenceComplete__snapshot_no
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH+2
+    cmp.l SourceVisual_OamFenceCompletedEpoch+2
+    bne SourceVisual_CandidateFenceComplete__snapshot_no
+    sep #$20
+.a8
+    pla
+    cmp.l SourceVisual_OamFenceCompletionVersion
+    bne SourceVisual_CandidateFenceComplete__no
+    rep #$31
+.a16
+.i16
+SourceVisual_CandidateFenceComplete__yes:
+    sec
+    rts
+SourceVisual_CandidateFenceComplete__snapshot_no:
+    sep #$20
+.a8
+    pla
+    rep #$31
+.a16
+.i16
+SourceVisual_CandidateFenceComplete__no:
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+
+; Bind only candidates actually emitted in this OAM composition to the token
+; stamped on Core_Oam_Play's main-table queue descriptor.
+SourceVisual_BindCandidateFence:
+    php
+    pha
+    phx
+    phy
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CommitMask
+    sta.l SourceVisual_PacketCount
+    lda #0
+    sta.l SourceVisual_PacketSourceRow
+SourceVisual_BindCandidateFence__scan:
+    lda.l SourceVisual_PacketSourceRow
+    cmp #6
+    bcs SourceVisual_BindCandidateFence__done
+    lda.l SourceVisual_PacketCount
+    and #1
+    beq SourceVisual_BindCandidateFence__next
+    lda.l SourceVisual_PacketSourceRow
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidateState+30,x
+    cmp #3
+    bne SourceVisual_BindCandidateFence__next8
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    beq SourceVisual_BindCandidateFence__next8
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_OWNER
+    cmp.l SourceVisual_PacketSourceRow
+    bne SourceVisual_BindCandidateFence__next8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_OamFenceSubmitted
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE
+    lda.l SourceVisual_OamFenceSubmitted+2
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+2
+    lda.l SourceVisual_OamFenceSubmittedEpoch
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH
+    lda.l SourceVisual_OamFenceSubmittedEpoch+2
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH+2
+    sep #$20
+.a8
+SourceVisual_BindCandidateFence__next8:
+    rep #$31
+.a16
+.i16
+SourceVisual_BindCandidateFence__next:
+    lda.l SourceVisual_PacketCount
+    lsr a
+    sta.l SourceVisual_PacketCount
+    lda.l SourceVisual_PacketSourceRow
+    inc a
+    sta.l SourceVisual_PacketSourceRow
+    bra SourceVisual_BindCandidateFence__scan
+SourceVisual_BindCandidateFence__done:
+    .a16
+    .i16
+    rep #$31
+    lda #0
+    sta.l SourceVisual_CommitMask
+    ply
+    plx
+    pla
+    plp
+    rtl
+
+; Re-emit the last committed actor slice from WRAM. No MSU seek, catalog read,
+; piece-table rebuild, or residency-map walk occurs on this path. Coordinates
+; follow the actor's current anchor; packet data is copied atomically only
+; after the complete slice passes cache and OAM-capacity checks.
+; Re-emit the complete published authored packet from WRAM. It contains every
+; piece, including pieces clipped in the original publication. Position and
+; facing are resolved from the live actor while tile/palette references remain
+; protected by the published owner lane.
+SourceVisual_EmitCachedPacket:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    bne SourceVisual_EmitCachedPacket__packet_valid
+    brl SourceVisual_EmitCachedPacket__fail8
+SourceVisual_EmitCachedPacket__packet_valid:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_COUNT,x
+    bne SourceVisual_EmitCachedPacket__has_pieces
+    brl SourceVisual_EmitCachedPacket__fail
+SourceVisual_EmitCachedPacket__has_pieces:
+    cmp #SOURCE_VISUAL_MAX_PIECES+1
+    bcc SourceVisual_EmitCachedPacket__count_ok
+    brl SourceVisual_EmitCachedPacket__fail
+SourceVisual_EmitCachedPacket__count_ok:
+    sta.l SourceVisual_PacketCount
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_WIDTH,x
+    sta.l SourceVisual_PacketOldWidth
+    jsr SourceVisual_GetPublishedPacketOffset
+    lda.l SourceVisual_PacketDataIndex
+    sta.l SourceVisual_PacketStart
+    lda CHAR_POS_X
+    sec
+    sbc Screen_PosX
+    sta.l SourceVisual_PacketAnchorX
+    lda CHAR_POS_Y
+    sta.l SourceVisual_PacketActorY
+    sta.l SourceVisual_PacketDrawY
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_EmitBoundsMode
+    rep #$31
+.a16
+.i16
+    jsl StageBoundsHost_Normal
+    bcc SourceVisual_EmitCachedPacket__anchor_ready
+    jsl StageBounds_Row
+    sep #$20
+.a8
+    lda.l StageBounds_State,x
+    cmp #2
+    bne SourceVisual_EmitCachedPacket__bounds_not_hidden
+    brl SourceVisual_EmitCachedPacket__fail8
+SourceVisual_EmitCachedPacket__bounds_not_hidden:
+    cmp #0
+    beq SourceVisual_EmitCachedPacket__anchor_ready8
+    rep #$31
+.a16
+.i16
+    lda.l StageBounds_DrawY,x
+    cmp #240
+    bcc SourceVisual_EmitCachedPacket__draw_y_ok
+    brl SourceVisual_EmitCachedPacket__fail
+SourceVisual_EmitCachedPacket__draw_y_ok:
+    sta.l SourceVisual_PacketDrawY
+    lda #1
+    sta.l SourceVisual_EmitBoundsMode
+    bra SourceVisual_EmitCachedPacket__anchor_ready
+SourceVisual_EmitCachedPacket__anchor_ready8:
+    rep #$31
+.a16
+.i16
+SourceVisual_EmitCachedPacket__anchor_ready:
+    ; Normal actors keep the authored OBJ priority; falling actors use the
+    ; same behind-panel priority mask as the live emitter.
+    lda.l Oam_CurrentSlot
+    sta.l SourceVisual_EmitOamStart
+    lda #0
+    sta.l SourceVisual_VisiblePieces
+    sta.l SourceVisual_PieceIndex
+    ; Avoid the visibility-count pass when the worst case (every authored
+    ; piece, plus its stage mirror if enabled) fits in the remaining OAM.
+    ; If it does not fit, retain the exact clipped-piece preflight below.
+    lda.l Stage_Mirror
+    and #$00FF
+    beq SourceVisual_EmitCachedPacket__fast_unmirrored
+    lda.l SourceVisual_PacketCount
+    asl a
+    bra SourceVisual_EmitCachedPacket__fast_size
+SourceVisual_EmitCachedPacket__fast_unmirrored:
+    lda.l SourceVisual_PacketCount
+SourceVisual_EmitCachedPacket__fast_size:
+    asl a
+    asl a
+    clc
+    adc.l Oam_CurrentSlot
+    cmp #513
+    bcc SourceVisual_EmitCachedPacket__fast_emit
+    brl SourceVisual_EmitCachedPacket__count_loop
+SourceVisual_EmitCachedPacket__fast_emit:
+    brl SourceVisual_EmitCachedPacket__emit_start
+SourceVisual_EmitCachedPacket__count_loop:
+    lda.l SourceVisual_PieceIndex
+    cmp.l SourceVisual_PacketCount
+    bcs SourceVisual_EmitCachedPacket__capacity
+    jsr SourceVisual_CachedNormalPosition
+    bcc SourceVisual_EmitCachedPacket__count_mirror
+    lda.l SourceVisual_VisiblePieces
+    inc a
+    sta.l SourceVisual_VisiblePieces
+SourceVisual_EmitCachedPacket__count_mirror:
+    lda.l Stage_Mirror
+    and #$00FF
+    beq SourceVisual_EmitCachedPacket__count_next
+    jsr SourceVisual_CachedMirrorPosition
+    bcc SourceVisual_EmitCachedPacket__count_next
+    lda.l SourceVisual_VisiblePieces
+    inc a
+    sta.l SourceVisual_VisiblePieces
+SourceVisual_EmitCachedPacket__count_next:
+    lda.l SourceVisual_PieceIndex
+    inc a
+    sta.l SourceVisual_PieceIndex
+    brl SourceVisual_EmitCachedPacket__count_loop
+SourceVisual_EmitCachedPacket__capacity:
+    lda.l SourceVisual_VisiblePieces
+    asl a
+    asl a
+    clc
+    adc.l Oam_CurrentSlot
+    cmp #513
+    bcc SourceVisual_EmitCachedPacket__emit_start
+    brl SourceVisual_EmitCachedPacket__fail
+SourceVisual_EmitCachedPacket__emit_start:
+    lda #0
+    sta.l SourceVisual_PieceIndex
+SourceVisual_EmitCachedPacket__emit_loop:
+    lda.l SourceVisual_PieceIndex
+    cmp.l SourceVisual_PacketCount
+    bcs SourceVisual_EmitCachedPacket__emitted
+    jsr SourceVisual_CachedNormalPosition
+    bcc SourceVisual_EmitCachedPacket__emit_mirror
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_PacketDirectionChanged
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_WriteCachedPiece
+SourceVisual_EmitCachedPacket__emit_mirror:
+    lda.l Stage_Mirror
+    and #$00FF
+    beq SourceVisual_EmitCachedPacket__emit_next
+    jsr SourceVisual_CachedMirrorPosition
+    bcc SourceVisual_EmitCachedPacket__emit_next
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_PacketDirectionChanged
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_WriteCachedPiece
+SourceVisual_EmitCachedPacket__emit_next:
+    lda.l SourceVisual_PieceIndex
+    inc a
+    sta.l SourceVisual_PieceIndex
+    brl SourceVisual_EmitCachedPacket__emit_loop
+SourceVisual_EmitCachedPacket__emitted:
+    lda CHAR_POS_X
+    sec
+    sbc Screen_PosX
+    sta.l SourceVisual_EmitBaseX
+    lda.l SourceVisual_PacketDrawY
+    sta.l SourceVisual_EmitBaseY
+    lda.l SourceVisual_PacketActorY
+    sta.l SourceVisual_EmitActorY
+    lda.l SourceVisual_PacketOldWidth
+    sta.l SourceVisual_EmitFrameWidth
+    jsr SourceVisual_RecordFramePacket
+    sec
+    rts
+SourceVisual_EmitCachedPacket__fail8:
+    rep #$31
+.a16
+.i16
+SourceVisual_EmitCachedPacket__fail:
+    clc
+    rts
+
+; Load one 7-byte published descriptor and calculate its live normal position.
+; C reports viewport intersection; all scratch remains relative to actor.
+SourceVisual_CachedNormalPosition:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PieceIndex
+    sta.l SourceVisual_PacketCopyCount
+    asl a
+    asl a
+    asl a
+    sec
+    sbc.l SourceVisual_PacketCopyCount
+    clc
+    adc.l SourceVisual_PacketStart
+    sta.l SourceVisual_PacketDataIndex
+    tax
+    lda.l SourceVisual_PacketData,x
+    sta.l SourceVisual_PacketSpriteRelX
+    inx
+    inx
+    lda.l SourceVisual_PacketData,x
+    sta.l SourceVisual_PacketDeltaY
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketData+2,x
+    sta.l SourceVisual_PacketCopyByte
+    lda.l SourceVisual_PacketData+3,x
+    sta.l SourceVisual_PacketSpriteAttr
+    lda.l SourceVisual_PacketData+4,x
+    sta.l SourceVisual_PacketSpriteHigh
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketSpriteHigh
+    and #2
+    beq SourceVisual_CachedNormalPosition__small
+    lda #32
+    sta.l SourceVisual_EmitPieceWidth
+    lda #64
+    bra SourceVisual_CachedNormalPosition__height
+SourceVisual_CachedNormalPosition__small:
+    lda #16
+    sta.l SourceVisual_EmitPieceWidth
+    lda #32
+SourceVisual_CachedNormalPosition__height:
+    sta.l SourceVisual_EmitPieceHeight
+    sep #$20
+.a8
+    lda CHAR_FACING_LEFT
+    beq SourceVisual_CachedNormalPosition__right
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_CachedLeftPosition
+    bra SourceVisual_CachedNormalPosition__position_ready
+SourceVisual_CachedNormalPosition__right:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketAnchorX
+    clc
+    adc.l SourceVisual_PacketSpriteRelX
+    sta.l SourceVisual_PacketSpriteX
+    lda.l SourceVisual_PacketDrawY
+    clc
+    adc.l SourceVisual_PacketDeltaY
+    sta.l SourceVisual_PacketSpriteY
+SourceVisual_CachedNormalPosition__position_ready:
+    ; X interval must intersect [0,256).
+    lda.l SourceVisual_PacketSpriteX
+    bmi SourceVisual_CachedNormalPosition__x_end
+    cmp #256
+    bcs SourceVisual_CachedNormalPosition__outside
+SourceVisual_CachedNormalPosition__x_end:
+    clc
+    adc.l SourceVisual_EmitPieceWidth
+    bmi SourceVisual_CachedNormalPosition__outside
+    beq SourceVisual_CachedNormalPosition__outside
+    ; Y interval must intersect [0,224).
+    lda.l SourceVisual_PacketSpriteY
+    bmi SourceVisual_CachedNormalPosition__y_end
+    cmp #224
+    bcs SourceVisual_CachedNormalPosition__outside
+SourceVisual_CachedNormalPosition__y_end:
+    clc
+    adc.l SourceVisual_EmitPieceHeight
+    bmi SourceVisual_CachedNormalPosition__outside
+    beq SourceVisual_CachedNormalPosition__outside
+    sec
+    rts
+SourceVisual_CachedNormalPosition__outside:
+    clc
+    rts
+
+; Mirror output reuses normal X/size and recomputes only reflected screen Y.
+SourceVisual_CachedMirrorPosition:
+    jsr SourceVisual_CachedNormalPosition
+    lda.l SourceVisual_PacketDeltaY
+    clc
+    adc #248
+    sec
+    sbc CHAR_POS_Y
+    sta.l SourceVisual_PacketSpriteY
+    lda.l SourceVisual_PacketSpriteX
+    bmi SourceVisual_CachedMirrorPosition__x_end
+    cmp #256
+    bcs SourceVisual_CachedMirrorPosition__outside
+SourceVisual_CachedMirrorPosition__x_end:
+    clc
+    adc.l SourceVisual_EmitPieceWidth
+    bmi SourceVisual_CachedMirrorPosition__outside
+    beq SourceVisual_CachedMirrorPosition__outside
+    lda.l SourceVisual_PacketSpriteY
+    bmi SourceVisual_CachedMirrorPosition__y_end
+    cmp #224
+    bcs SourceVisual_CachedMirrorPosition__outside
+SourceVisual_CachedMirrorPosition__y_end:
+    clc
+    adc.l SourceVisual_EmitPieceHeight
+    bmi SourceVisual_CachedMirrorPosition__outside
+    beq SourceVisual_CachedMirrorPosition__outside
+    sec
+    rts
+SourceVisual_CachedMirrorPosition__outside:
+    clc
+    rts
+
+SourceVisual_WriteCachedPiece:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketSpriteX
+    sta.l SourceVisual_EmitPieceX
+    lda.l SourceVisual_PacketSpriteY
+    sta.l SourceVisual_EmitPieceY
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketCopyByte
+    sta OamSetSprite_Tile
+    lda.l SourceVisual_PacketSpriteAttr
+    sta OamSetSprite_Attr
+    lda CHAR_FACING_LEFT
+    beq SourceVisual_WriteCachedPiece__facing_ready
+    lda OamSetSprite_Attr
+    eor #$40
+    sta OamSetSprite_Attr
+SourceVisual_WriteCachedPiece__facing_ready:
+    lda.l SourceVisual_EmitBoundsMode
+    beq SourceVisual_WriteCachedPiece__mirror
+    lda OamSetSprite_Attr
+    and #$CF
+    sta OamSetSprite_Attr
+SourceVisual_WriteCachedPiece__mirror:
+    lda.l SourceVisual_PacketDirectionChanged
+    beq SourceVisual_WriteCachedPiece__attr_ready
+    lda OamSetSprite_Attr
+    and #$CF
+    ora #$20
+    sta OamSetSprite_Attr
+SourceVisual_WriteCachedPiece__attr_ready:
+    lda.l SourceVisual_PacketSpriteHigh
+    and #2
+    sta OamSetSprite_Hi
+    rep #$20
+.a16
+    lda.l SourceVisual_PacketSpriteX
+    and #$0100
+    beq SourceVisual_WriteCachedPiece__xhi_ready
+    sep #$20
+.a8
+    lda.l OamSetSprite_Hi
+    ora #1
+    sta OamSetSprite_Hi
+SourceVisual_WriteCachedPiece__xhi_ready:
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketDirectionChanged
+    beq SourceVisual_WriteCachedPiece__normal_hi
+    lda.l OamSetSprite_Hi
+    ora #$80
+    sta OamSetSprite_Hi
+SourceVisual_WriteCachedPiece__normal_hi:
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_WriteCurrentPiece
+    rts
+; NMI hook after Core_Dma_ProcessQueue. The DMA queue records the exact wide
+; OAM sequence; this hook only retires actors whose hidden OAM was transferred.
+; Candidate packet promotion stays on SCPU so vblank work remains bounded.
+SourceVisual_OnOamComplete:
+    php
+    phb
+    phd
+    pha
+    phx
+    phy
+    sep #$20
+.a8
+    lda.l SourceVisual_OamFenceCompletedValid
+    bne SourceVisual_OnOamComplete__has_fence
+    brl SourceVisual_OnOamComplete__done8
+SourceVisual_OnOamComplete__has_fence:
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_RetireScan
+SourceVisual_OnOamComplete__actor:
+    lda.l SourceVisual_RetireScan
+    cmp #6
+    bcc SourceVisual_OnOamComplete__actor_valid
+    brl SourceVisual_OnOamComplete__done
+SourceVisual_OnOamComplete__actor_valid:
+    tay
+    lda #1
+SourceVisual_OnOamComplete__mask:
+.i16
+    cpy #0
+    beq SourceVisual_OnOamComplete__mask_ready
+    asl a
+    dey
+    bra SourceVisual_OnOamComplete__mask
+SourceVisual_OnOamComplete__mask_ready:
+    and.l SourceVisual_OamRetireMask
+    beq SourceVisual_OnOamComplete__next
+    lda.l SourceVisual_RetireScan
+    sta.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SourceVisual_Record
+    sta.l SourceVisual_CandidateBase
+    jsr SourceVisual_ReleaseActorOwnership
+    jsr SourceVisual_ClearActorVisualRows
+    ; Invalidate the full authored packet after the hardware OAM transfer.
+    lda.l SourceVisual_RetireScan
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    sta.l SourceVisual_FrameMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp.l SourceVisual_RetireScan
+    bne SourceVisual_OnOamComplete__clear_retire8
+    lda #$FF
+    sta.l SourceVisual_PacketCandidateOwner
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+SourceVisual_OnOamComplete__clear_retire8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_RetireScan
+    tay
+    lda #1
+SourceVisual_OnOamComplete__clear_shift:
+.i16
+    cpy #0
+    beq SourceVisual_OnOamComplete__clear_bit
+    asl a
+    dey
+    bra SourceVisual_OnOamComplete__clear_shift
+SourceVisual_OnOamComplete__clear_bit:
+    eor #$FFFF
+    and.l SourceVisual_OamRetireMask
+    sta.l SourceVisual_OamRetireMask
+SourceVisual_OnOamComplete__next:
+    lda.l SourceVisual_RetireScan
+    inc a
+    sta.l SourceVisual_RetireScan
+    brl SourceVisual_OnOamComplete__actor
+SourceVisual_OnOamComplete__done8:
+    rep #$31
+.a16
+.i16
+SourceVisual_OnOamComplete__done:
+    ply
+    plx
+    pla
+    pld
+    plb
+    plp
+    rtl
+SourceVisual_ClearActorVisualRows:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Record
+    tax
+    lda #0
+    ldy #16
+SourceVisual_ClearActorVisualRows__primary:
+    sta.l SourceVisual_State,x
+    inx
+    inx
+    dey
+    bne SourceVisual_ClearActorVisualRows__primary
+    lda.l SourceVisual_CandidateBase
+    tax
+    lda #0
+    ldy #16
+SourceVisual_ClearActorVisualRows__candidate:
+    sta.l SourceVisual_CandidateState,x
+    inx
+    inx
+    dey
+    bne SourceVisual_ClearActorVisualRows__candidate
+    jsr SourceVisual_CandidateActionClear
+    rts
+
+SourceVisual_ClearPublishedVisualRow:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Record
+    tax
+    lda #0
+    ldy #16
+SourceVisual_ClearPublishedVisualRow__loop:
+    sta.l SourceVisual_State,x
+    inx
+    inx
+    dey
+    bne SourceVisual_ClearPublishedVisualRow__loop
+    rts
+
+SourceVisual_EmitPublishedPacket:
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_EmitCachedPacket
+    bcs SourceVisual_EmitPublishedPacket__emitted
+    clc
+    rts
+SourceVisual_EmitPublishedPacket__emitted:
+    ; A stale submitted candidate is retired only after a second, exact OAM
+    ; fence for the old published fallback. Mark that fence once; rebinding on
+    ; each redraw would continuously move the retirement target.
+    lda.l SourceVisual_ActorSlot
+    cmp #6
+    bcs SourceVisual_EmitPublishedPacket__done
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidateActionValid,x
+    cmp #SOURCE_VISUAL_ACTION_STALE_FENCE
+    bne SourceVisual_EmitPublishedPacket__done8
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    beq SourceVisual_EmitPublishedPacket__done8
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_OWNER
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_EmitPublishedPacket__done8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE
+    ora.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+2
+    ora.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH
+    ora.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_EPOCH+2
+    bne SourceVisual_EmitPublishedPacket__done
+    jsr SourceVisual_MarkCandidateFence
+    brl SourceVisual_EmitPublishedPacket__done
+SourceVisual_EmitPublishedPacket__done8:
+    rep #$31
+.a16
+.i16
+SourceVisual_EmitPublishedPacket__done:
+    sec
+    rts
+SourceVisual_EmitPublishedPacket__fail:
+    clc
+    rts
+
+; Map every visible old piece to a ready content block. The published owner
+; bit is added before a newly exposed ready block is referenced, so candidate
+; retirement cannot reclaim it prematurely. Any missing/not-ready visible
+; block means a published lease was evicted or corrupted and fails closed.
+SourceVisual_RebuildPublishedMap:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    clc
+    adc.l SourceVisual_ActorSlot
+    sta.l SourceVisual_ActorMapBase
+    lda.l SourceVisual_ActorSlot
+    tax
+    lda #1
+SourceVisual_RebuildPublishedMap__mask:
+.i16
+    cpx #0
+    beq SourceVisual_RebuildPublishedMap__mask_ready
+    asl a
+    dex
+    bra SourceVisual_RebuildPublishedMap__mask
+SourceVisual_RebuildPublishedMap__mask_ready:
+    sep #$20
+.a8
+    sta.l SourceVisual_BlockActorMask
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_PieceIndex
+SourceVisual_RebuildPublishedMap__piece:
+    lda.l SourceVisual_PieceIndex
+    cmp.l SourceVisual_PieceCount
+    bcs SourceVisual_RebuildPublishedMap__done
+    jsr SourceVisual_ViewportPiece
+    bcc SourceVisual_RebuildPublishedMap__next
+    lda.l SourceVisual_PieceIndex
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PieceTable+12,x
+    sta.l SourceVisual_BlockIndex
+    jsr SourceVisual_FindBlock
+    bcc SourceVisual_RebuildPublishedMap__missing
+    lda.l SourceVisual_BlockRecord
+    tax
+    lda.l SourceVisual_BlockCache+2,x
+    cmp #2
+    bne SourceVisual_RebuildPublishedMap__missing
+    ; Pin this visible old reference before mapping its physical tile slot.
+    lda.l SourceVisual_BlockRecord
+    clc
+    adc.l SourceVisual_OwnerOffset
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockCache,x
+    ora.l SourceVisual_BlockActorMask
+    sta.l SourceVisual_BlockCache,x
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_MapCurrentPiece
+    bra SourceVisual_RebuildPublishedMap__next
+SourceVisual_RebuildPublishedMap__missing:
+    sep #$20
+.a8
+    lda #SOURCE_VISUAL_ERROR_PUBLISHED_NOT_RESIDENT
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_RebuildPublishedMap__next:
+    lda.l SourceVisual_PieceIndex
+    inc a
+    sta.l SourceVisual_PieceIndex
+    bra SourceVisual_RebuildPublishedMap__piece
+SourceVisual_RebuildPublishedMap__done:
+    sec
+    rts
+
 ; Restore the catalog row selected by this actor's unfinished lease after
 ; FindEntry observed a newer live animation key.  The 24-byte entry table is
 ; addressed by 18 + entryIndex*24 in the compiler-owned SVIS stream.
@@ -846,6 +4530,40 @@ SourceVisual_LoadPendingEntry:
     rep #$31
 .a16
 .i16
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State,x
+    sta.l SourceVisual_EntryIndexSaved
+    sep #$20
+.a8
+    ; EntryScratch is one global row. The per-actor historical flag cannot
+    ; prove that this actor still owns its bytes, so validate the current
+    ; completed-read slot/index on every use.
+SourceVisual_LoadPendingEntry__check_ready8:
+    lda.l SourceVisual_EntryReady
+    cmp #1
+    bne SourceVisual_LoadPendingEntry__read8
+    lda.l SourceVisual_EntryReadySlot
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_LoadPendingEntry__read8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_EntryReadyIndex
+    cmp.l SourceVisual_EntryIndexSaved
+    bne SourceVisual_LoadPendingEntry__read
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_State+SOURCE_VISUAL_STATE_ENTRY_ROW_VALID,x
+    bra SourceVisual_LoadPendingEntry__loaded8
+SourceVisual_LoadPendingEntry__read8:
+    rep #$31
+.a16
+.i16
+SourceVisual_LoadPendingEntry__read:
     lda.l SourceVisual_Record
     tax
     lda.l SourceVisual_State,x
@@ -882,6 +4600,19 @@ SourceVisual_LoadPendingEntry:
 .i16
     jsr SourceVisual_AddCatalogBase
     jsr SourceVisual_ReadEntry
+    bcs SourceVisual_LoadPendingEntry__read_complete
+    rts
+SourceVisual_LoadPendingEntry__read_complete:
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_State+SOURCE_VISUAL_STATE_ENTRY_ROW_VALID,x
+SourceVisual_LoadPendingEntry__loaded8:
+    rep #$31
+.a16
+.i16
     ; The first four entry bytes are the exact roster/role/frame/map key.
     ; Keep FindEntry's one-key cache coherent with the restored lease so the
     ; next live-key change takes the normal catalog lookup path.
@@ -916,11 +4647,19 @@ SourceVisual_CancelActorRetire__shift:
     dey
     bra SourceVisual_CancelActorRetire__shift
 SourceVisual_CancelActorRetire__mask:
+    pha
     sep #$20
 .a8
     eor #$FF
     and.l SourceVisual_RetireMask
     sta.l SourceVisual_RetireMask
+    rep #$20
+.a16
+    pla
+.i16
+    eor #$FFFF
+    and.l SourceVisual_OamRetireMask
+    sta.l SourceVisual_OamRetireMask
     rep #$31
 .a16
 .i16
@@ -967,10 +4706,16 @@ SourceVisual_QueueRetireEntityOffset__shift:
     dey
     bra SourceVisual_QueueRetireEntityOffset__shift
 SourceVisual_QueueRetireEntityOffset__mark:
+    pha
     sep #$20
 .a8
     ora.l SourceVisual_RetireMask
     sta.l SourceVisual_RetireMask
+    rep #$20
+.a16
+    pla
+    ora.l SourceVisual_OamRetireMask
+    sta.l SourceVisual_OamRetireMask
     rep #$31
 .a16
 .i16
@@ -1012,7 +4757,9 @@ SourceVisual_ProcessRetired__scan:
 .a16
     lda.l SourceVisual_RetireScan
     cmp #6
-    bcs SourceVisual_ProcessRetired__restore
+    bcc SourceVisual_ProcessRetired__scan_actor
+    brl SourceVisual_ProcessRetired__restore
+SourceVisual_ProcessRetired__scan_actor:
     lda.l SourceVisual_RetireScan
     tay
     lda #1
@@ -1034,22 +4781,27 @@ SourceVisual_ProcessRetired__check:
 .i16
     lda.l SourceVisual_RetireScan
     sta.l SourceVisual_ActorSlot
-    asl a
-    asl a
-    asl a
-    asl a
-    asl a
-    sta.l SourceVisual_Record
-    jsr SourceVisual_ReleaseActorBlocks
-    jsr SourceVisual_ReleaseActorPalettes
-    lda.l SourceVisual_Record
-    clc
-    adc #6
-    tax
     sep #$20
 .a8
-    lda #0
-    sta.l SourceVisual_State+6,x
+    lda.l SourceVisual_LoaderOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_ProcessRetired__reader_done8
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_ReleaseLoaderOwner
+    bra SourceVisual_ProcessRetired__reader_done
+SourceVisual_ProcessRetired__reader_done8:
+    rep #$31
+.a16
+.i16
+SourceVisual_ProcessRetired__reader_done:
+    lda.l SourceVisual_RetireBit
+    and #$00FF
+    ora.l SourceVisual_OamRetireMask
+    sta.l SourceVisual_OamRetireMask
+    sep #$20
+.a8
     lda.l SourceVisual_RetireBit
     eor #$FF
     and.l SourceVisual_RetireMask
@@ -1066,7 +4818,7 @@ SourceVisual_ProcessRetired__next:
     lda.l SourceVisual_RetireScan
     inc a
     sta.l SourceVisual_RetireScan
-    bra SourceVisual_ProcessRetired__scan
+    brl SourceVisual_ProcessRetired__scan
 SourceVisual_ProcessRetired__restore:
     pla
     sta.l SourceVisual_Record
@@ -1079,8 +4831,8 @@ SourceVisual_ProcessRetired__return:
     plp
     rts
 
-; Release the current actor's references from the shared content-addressed
-; cache. SelectResidency calls this only after source DMA has retired.
+; Release only the selected published/candidate owner channel. Cache rows are
+; reclaimed only when neither channel (nor another actor) still references it.
 SourceVisual_ReleaseActorBlocks:
     rep #$31
 .a16
@@ -1115,19 +4867,33 @@ SourceVisual_ReleaseActorBlocks__scan:
     asl a
     asl a
     tax
+    txa
+    sta.l SourceVisual_BlockRecord
+    clc
+    adc.l SourceVisual_OwnerOffset
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockCache,x
+    and.l SourceVisual_BlockOther2
+    sta.l SourceVisual_BlockCache,x
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_BlockRecord
+    tax
     sep #$20
 .a8
     lda.l SourceVisual_BlockCache+4,x
-    and.l SourceVisual_BlockOther2
-    sta.l SourceVisual_BlockCache+4,x
-    bne SourceVisual_ReleaseActorBlocks__next
+    ora.l SourceVisual_BlockCache+7,x
+    bne SourceVisual_ReleaseActorBlocks__next8
     rep #$31
 .a16
 .i16
     lda #0
     sta.l SourceVisual_BlockCache+2,x
     sta.l SourceVisual_BlockCache+6,x
-SourceVisual_ReleaseActorBlocks__next:
+SourceVisual_ReleaseActorBlocks__next8:
     rep #$31
 .a16
 .i16
@@ -1138,8 +4904,8 @@ SourceVisual_ReleaseActorBlocks__next:
 SourceVisual_ReleaseActorBlocks__done:
     rts
 
-; Drop this actor's references to exact, globally deduplicated CGRAM palettes.
-; Residency replacement reaches here only after its owned palette DMA retires.
+; Drop this actor's selected reference to an exact, globally deduplicated
+; CGRAM palette. Palette rows remain reserved while either owner channel lives.
 SourceVisual_ReleaseActorPalettes:
     rep #$31
 .a16
@@ -1176,9 +4942,21 @@ SourceVisual_ReleaseActorPalettes__scan:
     tax
     sep #$20
 .a8
+    lda.l SourceVisual_OwnerChannel
+    beq SourceVisual_ReleaseActorPalettes__published
+    lda.l SourceVisual_PaletteCache+5,x
+    and.l SourceVisual_PaletteOwnerNotBit
+    sta.l SourceVisual_PaletteCache+5,x
+    bra SourceVisual_ReleaseActorPalettes__check_owners
+SourceVisual_ReleaseActorPalettes__published:
+    sep #$20
+.a8
     lda.l SourceVisual_PaletteCache+4,x
     and.l SourceVisual_PaletteOwnerNotBit
     sta.l SourceVisual_PaletteCache+4,x
+SourceVisual_ReleaseActorPalettes__check_owners:
+    lda.l SourceVisual_PaletteCache+4,x
+    ora.l SourceVisual_PaletteCache+5,x
     bne SourceVisual_ReleaseActorPalettes__next
     lda #0
     sta.l SourceVisual_PaletteCache+3,x
@@ -1186,8 +4964,6 @@ SourceVisual_ReleaseActorPalettes__scan:
 .a16
     lda #0
     sta.l SourceVisual_PaletteCache,x
-    sep #$20
-.a8
 SourceVisual_ReleaseActorPalettes__next:
     rep #$31
 .a16
@@ -1197,6 +4973,43 @@ SourceVisual_ReleaseActorPalettes__next:
     sta.l SourceVisual_PaletteScan
     bra SourceVisual_ReleaseActorPalettes__scan
 SourceVisual_ReleaseActorPalettes__done:
+    rts
+
+; Lifecycle replacement/despawn releases both channels after the DMA fence.
+SourceVisual_ReleaseActorOwnership:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_OwnerChannel
+    pha
+    lda.l SourceVisual_OwnerOffset
+    pha
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda #4
+    sta.l SourceVisual_OwnerOffset
+    jsr SourceVisual_ReleaseActorBlocks
+    jsr SourceVisual_ReleaseActorPalettes
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_OwnerChannel
+    rep #$31
+.a16
+.i16
+    lda #7
+    sta.l SourceVisual_OwnerOffset
+    jsr SourceVisual_ReleaseActorBlocks
+    jsr SourceVisual_ReleaseActorPalettes
+    pla
+    sta.l SourceVisual_OwnerOffset
+    pla
+    sta.l SourceVisual_OwnerChannel
     rts
 
 ; Retained diagnostic-era whole-sheet allocator. Source-sized publication now
@@ -1553,10 +5366,20 @@ SourceVisual_ValidatePaletteMap__piece:
     lda.l SourceVisual_PaletteCache,x
     cmp.l SourceVisual_PaletteGlobalIndex
     bne SourceVisual_ValidatePaletteMap__invalid
+    sep #$20
+.a8
+    lda.l SourceVisual_OwnerChannel
+    beq SourceVisual_ValidatePaletteMap__published_owner
+    lda.l SourceVisual_PaletteCache+5,x
+    bra SourceVisual_ValidatePaletteMap__owner_test
+SourceVisual_ValidatePaletteMap__published_owner:
     lda.l SourceVisual_PaletteCache+4,x
-    and #$00FF
+SourceVisual_ValidatePaletteMap__owner_test:
     and.l SourceVisual_PaletteTransferBit
     beq SourceVisual_ValidatePaletteMap__invalid
+    rep #$31
+.a16
+.i16
     lda.l SourceVisual_PieceIndex
     inc a
     sta.l SourceVisual_PieceIndex
@@ -1584,6 +5407,7 @@ SourceVisual_AllocatePaletteIdentity__find:
     sep #$20
 .a8
     lda.l SourceVisual_PaletteCache+4,x
+    ora.l SourceVisual_PaletteCache+5,x
     beq SourceVisual_AllocatePaletteIdentity__find_next_a8
     rep #$31
 .a16
@@ -1604,9 +5428,17 @@ SourceVisual_AllocatePaletteIdentity__find_next:
 SourceVisual_AllocatePaletteIdentity__found:
     sep #$20
 .a8
+    lda.l SourceVisual_OwnerChannel
+    beq SourceVisual_AllocatePaletteIdentity__found_published
+    lda.l SourceVisual_PaletteCache+5,x
+    ora.l SourceVisual_PaletteOwnerBit
+    sta.l SourceVisual_PaletteCache+5,x
+    bra SourceVisual_AllocatePaletteIdentity__found_done
+SourceVisual_AllocatePaletteIdentity__found_published:
     lda.l SourceVisual_PaletteCache+4,x
     ora.l SourceVisual_PaletteOwnerBit
     sta.l SourceVisual_PaletteCache+4,x
+SourceVisual_AllocatePaletteIdentity__found_done:
     rep #$31
 .a16
 .i16
@@ -1631,9 +5463,17 @@ SourceVisual_AllocatePaletteIdentity__free:
     sep #$20
 .a8
     lda.l SourceVisual_PaletteCache+4,x
+    ora.l SourceVisual_PaletteCache+5,x
     bne SourceVisual_AllocatePaletteIdentity__free_next_a8
+    lda.l SourceVisual_OwnerChannel
+    beq SourceVisual_AllocatePaletteIdentity__free_published
+    lda.l SourceVisual_PaletteOwnerBit
+    sta.l SourceVisual_PaletteCache+5,x
+    bra SourceVisual_AllocatePaletteIdentity__free_claimed
+SourceVisual_AllocatePaletteIdentity__free_published:
     lda.l SourceVisual_PaletteOwnerBit
     sta.l SourceVisual_PaletteCache+4,x
+SourceVisual_AllocatePaletteIdentity__free_claimed:
     lda #0
     sta.l SourceVisual_PaletteCache+3,x
     rep #$20
@@ -1675,6 +5515,7 @@ SourceVisual_MarkPaletteDmaRetired__scan:
     sep #$20
 .a8
     lda.l SourceVisual_PaletteCache+4,x
+    ora.l SourceVisual_PaletteCache+5,x
     beq SourceVisual_MarkPaletteDmaRetired__next_a8
     lda.l SourceVisual_PaletteCache+3,x
     cmp #2
@@ -1702,7 +5543,13 @@ SourceVisual_FindEntry__next:
     tax
     brl SourceVisual_FindEntry__scan
 SourceVisual_FindEntry__unsupported_scan:
-    plx
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_FindScanActive
+    rep #$31
+.a16
+.i16
 SourceVisual_FindEntry__unsupported:
     sep #$20
 .a8
@@ -1714,28 +5561,1247 @@ SourceVisual_FindEntry__unsupported:
     clc
     rts
 
-SourceVisual_Seek:
-    lda.l SourceVisual_Offset+0
-    sta.l SourceVisual_DebugSeek+0
-    lda.l SourceVisual_Offset+1
-    sta.l SourceVisual_DebugSeek+1
-    lda.l SourceVisual_Offset+2
-    sta.l SourceVisual_DebugSeek+2
-    lda.l SourceVisual_Offset+3
-    sta.l SourceVisual_DebugSeek+3
+; If an actor retires while MSU-1 is still seeking, keep the cursor lock until
+; one later service sees ready. A different reader may then safely take over.
+SourceVisual_ServicePendingRead:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phb
+    phd
+    phx
+    phy
+    rep #$31
+.a16
+.i16
+    lda #SOURCE_VISUAL_WORK_BUDGET
+    sta.l SourceVisual_WorkRemaining
     sep #$20
 .a8
-    lda.l SourceVisual_Offset+0
-    sta $2000
-    lda.l SourceVisual_Offset+1
-    sta $2001
-    lda.l SourceVisual_Offset+2
-    sta $2002
-    lda.l SourceVisual_Offset+3
-    sta $2003
-SourceVisual_Seek__busy:
+    lda #0
+    sta.l SourceVisual_ReadTurnUsed
+    jsr SourceVisual_ServiceAbandonedRead
+    ; The helper's common return restores A16. ReadState is one byte and the
+    ; following byte is stale ReadRequestKind; keep this test byte-wide so a
+    ; zero state does not become a nonzero 16-bit value and skip idle service.
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadState
+    beq SourceVisual_ServicePendingRead__idle8
+    cmp #1
+    beq SourceVisual_ServicePendingRead__active8
+    cmp #2
+    beq SourceVisual_ServicePendingRead__active8
+    bra SourceVisual_ServicePendingRead__done8
+SourceVisual_ServicePendingRead__idle8:
+    ; A reader can own the candidate identity before the shared stream becomes
+    ; free. Keep retrying that same request here even when the render gate skips
+    ; this actor; otherwise state 0 waits for another gated render forever.
+    lda.l SourceVisual_LoaderOwner
+    cmp #$FF
+    beq SourceVisual_ServicePendingRead__done8
+    lda.l SourceVisual_LoaderEntryValid
+    cmp #1
+    bne SourceVisual_ServicePendingRead__done8
+SourceVisual_ServicePendingRead__active8:
+    lda.l SourceVisual_LoaderOwner
+    cmp.l SourceVisual_ReadOwner
+    bne SourceVisual_ServicePendingRead__done8
+    rep #$31
+.a16
+.i16
+    ; Rehydrate the exact pending descriptor, independent of which actor the
+    ; renderer happens to visit this frame. AsyncRead still owns all cursor
+    ; and candidate-identity validation.
+    lda.l SourceVisual_ReadOwner
+    and #$00FF
+    sta.l SourceVisual_ActorSlot
+    lda.l SourceVisual_ReadOffset
+    sta.l SourceVisual_Offset
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadOffset+2
+    sta.l SourceVisual_Offset+2
+    lda.l SourceVisual_ReadOffset+3
+    sta.l SourceVisual_Offset+3
+    lda.l SourceVisual_ReadKind
+    sta.l SourceVisual_ReadRequestKind
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ReadLength
+    sta.l SourceVisual_ReadRequestLength
+    jsr SourceVisual_AsyncRead
+SourceVisual_ServicePendingRead__done8:
+    rep #$31
+.a16
+.i16
+    ; The read service alone can leave a complete descriptor sitting in the
+    ; shared scratch until this actor reaches RenderCurrent again. Advance the
+    ; current owner here as well, before presentation/actor gates; both paths
+    ; use the same bounded LoadResources state machine and shared work budget.
+    jsr SourceVisual_ServiceCandidateStage
+    ply
+    plx
+    pld
+    plb
+    pla
+    plp
+    rtl
+
+; Resume the active resource state machine for the exact loader owner. The
+; primary row is used only before that actor has a published packet; otherwise
+; load the candidate sidecar into the existing row temporarily, then restore
+; the published lease before actor rendering starts. AsyncRead's per-turn and
+; byte budget remain shared with the later compositor call.
+SourceVisual_ServiceCandidateStage:
+    php
+    phx
+    phy
+    phd
+    rep #$31
+.a16
+.i16
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadState
+    cmp #4
+    beq SourceVisual_ServiceCandidateStage__read_complete8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__read_complete8:
+    lda.l SourceVisual_LoaderOwner
+    cmp #$FF
+    bne SourceVisual_ServiceCandidateStage__has_owner8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__has_owner8:
+    lda.l SourceVisual_LoaderEntryValid
+    cmp #1
+    beq SourceVisual_ServiceCandidateStage__entry_valid8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__entry_valid8:
+    lda.l SourceVisual_LoaderOwner
+    cmp.l SourceVisual_ReadOwner
+    beq SourceVisual_ServiceCandidateStage__owner_matches8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__owner_matches8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_LoaderOwner
+    and #$00FF
+    sta.l SourceVisual_ActorSlot
+    ; LoadResources shares the renderer's actor-context contract. The ungated
+    ; main-loop service has D=0, so reconstruct the owning CHAR direct-page
+    ; base here; the PHD/PLD pair keeps the service caller's D unchanged.
+    lda.l SourceVisual_ActorSlot
+    tax
+    lda #$0A00
+    cpx #0
+    beq SourceVisual_ServiceCandidateStage__actor_dp_ready
+SourceVisual_ServiceCandidateStage__actor_dp_loop:
+    clc
+    adc #CHAR_ZP_LEN
+    dex
+    bne SourceVisual_ServiceCandidateStage__actor_dp_loop
+SourceVisual_ServiceCandidateStage__actor_dp_ready:
+    tcd
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SourceVisual_Record
+    sta.l SourceVisual_CandidateBase
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SourceVisual_PacketMetaOffset
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    bne SourceVisual_ServiceCandidateStage__published8
+    brl SourceVisual_ServiceCandidateStage__primary8
+SourceVisual_ServiceCandidateStage__published8:
+    ; A published actor keeps its primary lease live while its one candidate
+    ; advances. Never run the candidate over a different packet-lane owner.
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp #$FF
+    beq SourceVisual_ServiceCandidateStage__candidate_lane_free8
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_ServiceCandidateStage__candidate_lane_free8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__candidate_lane_free8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CandidateBase
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidateState+6,x
+    bne SourceVisual_ServiceCandidateStage__candidate_active8
+    brl SourceVisual_ServiceCandidateStage__published_idle8
+SourceVisual_ServiceCandidateStage__candidate_active8:
+    lda.l SourceVisual_CandidateState+30,x
+    beq SourceVisual_ServiceCandidateStage__candidate_running8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__candidate_running8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CandidateState,x
+    cmp.l SourceVisual_LoaderEntryIndex
+    beq SourceVisual_ServiceCandidateStage__candidate_entry_matches
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__candidate_entry_matches:
+    ; Keep all 32 bytes of the published lease on the bounded CPU stack while
+    ; the candidate uses the existing loader state row.
+    lda.l SourceVisual_Record
+    tax
+    ldy #0
+SourceVisual_ServiceCandidateStage__save_published:
+    lda.l SourceVisual_State,x
+    pha
+    inx
+    inx
+    iny
+    iny
+    cpy #32
+    bcc SourceVisual_ServiceCandidateStage__save_published
+    lda.l SourceVisual_CandidateBase
+    tax
+    ldy #0
+SourceVisual_ServiceCandidateStage__load_candidate:
+    lda.l SourceVisual_CandidateState,x
+    sta.l SourceVisual_State,x
+    inx
+    inx
+    iny
+    iny
+    cpy #32
+    bcc SourceVisual_ServiceCandidateStage__load_candidate
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_UseCandidate
+    sta.l SourceVisual_OwnerChannel
+    lda #0
+    sta.l SourceVisual_Error
+    lda #0
+    sta.l SourceVisual_BlockCompletedThisCall
+    rep #$31
+.a16
+.i16
+    lda #7
+    sta.l SourceVisual_OwnerOffset
+    lda.l SourceVisual_LoaderKey
+    sta.l SourceVisual_Key
+    lda.l SourceVisual_LoaderKey+2
+    sta.l SourceVisual_Key+2
+    jsr SourceVisual_ActivateCandidate
+    bcc SourceVisual_ServiceCandidateStage__save_candidate
+    jsr SourceVisual_LoadResources
+    bcs SourceVisual_ServiceCandidateStage__save_candidate
+    sep #$20
+.a8
+    lda.l SourceVisual_Error
+    cmp #$27
+    beq SourceVisual_ServiceCandidateStage__save_candidate
+    cmp #$24
+    beq SourceVisual_ServiceCandidateStage__candidate_capacity8
+    cmp #$26
+    beq SourceVisual_ServiceCandidateStage__candidate_capacity8
+    lda #2
+    bra SourceVisual_ServiceCandidateStage__candidate_terminal8
+SourceVisual_ServiceCandidateStage__candidate_capacity8:
+    lda #1
+SourceVisual_ServiceCandidateStage__candidate_terminal8:
+    ; Preserve the selected capacity/terminal state across loading the actor
+    ; record offset. The state byte must not inherit Record's low byte.
+    pha
+    rep #$20
+.a16
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    pla
+    sta.l SourceVisual_State+30,x
+    lda.l SourceVisual_Error
+    sta.l SourceVisual_State+31,x
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_ReleaseLoaderOwner
+    brl SourceVisual_ServiceCandidateStage__save_candidate
+SourceVisual_ServiceCandidateStage__save_candidate:
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_SaveCandidateSidecar
+    lda.l SourceVisual_Record
+    tax
+    clc
+    txa
+    adc #30
+    tax
+    ldy #16
+SourceVisual_ServiceCandidateStage__restore_published:
+    pla
+    sta.l SourceVisual_State,x
+    dex
+    dex
+    dey
+    bne SourceVisual_ServiceCandidateStage__restore_published
+    brl SourceVisual_ServiceCandidateStage__done
+
+SourceVisual_ServiceCandidateStage__primary8:
+    ; A completed first catalog read has no primary lease yet. Admit that
+    ; immutable loader request before comparing State.entry; otherwise the
+    ; zero-initialized lease row rejects it forever and no render-gated caller
+    ; gets a chance to consume EntryReady. The loader key/index remain the
+    ; identity even if the live actor has advanced to another animation frame.
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_State+6,x
+    bne SourceVisual_ServiceCandidateStage__primary_has_lease8
+SourceVisual_ServiceCandidateStage__initial_entry8:
+    jsr SourceVisual_ServiceAdmitInitialEntry
+    bcs SourceVisual_ServiceCandidateStage__initial_entry_admitted8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__initial_entry_admitted8:
+    brl SourceVisual_ServiceCandidateStage__primary_continue8
+SourceVisual_ServiceCandidateStage__primary_has_lease8:
+    ; State+28 is set only after this actor's packet has successfully reached
+    ; the OAM shadow. An initial P1 lease has no published packet to fall back
+    ; to, so keep its shared-reader turn until that first packet is emitted.
+    brl SourceVisual_ServiceCandidateStage__primary_continue8
+SourceVisual_ServiceCandidateStage__primary_continue8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State,x
+    cmp.l SourceVisual_LoaderEntryIndex
+    beq SourceVisual_ServiceCandidateStage__primary_entry_matches
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__primary_entry_matches:
+    sep #$20
+.a8
+    lda.l SourceVisual_State+6,x
+    bne SourceVisual_ServiceCandidateStage__primary_live8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__primary_live8:
+    lda.l SourceVisual_State+30,x
+    beq SourceVisual_ServiceCandidateStage__primary_status_ok8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__primary_status_ok8:
+    lda #0
+    sta.l SourceVisual_UseCandidate
+    sta.l SourceVisual_OwnerChannel
+    sta.l SourceVisual_Error
+    lda #0
+    sta.l SourceVisual_BlockCompletedThisCall
+    rep #$31
+.a16
+.i16
+    lda #4
+    sta.l SourceVisual_OwnerOffset
+    lda.l SourceVisual_LoaderKey
+    sta.l SourceVisual_Key
+    lda.l SourceVisual_LoaderKey+2
+    sta.l SourceVisual_Key+2
+    jsr SourceVisual_LoadPendingEntry
+    bcs SourceVisual_ServiceCandidateStage__primary_entry_consumed
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__primary_entry_consumed:
+    jsr SourceVisual_LoadResources
+    bcs SourceVisual_ServiceCandidateStage__resources_ready
+    ; $27 is retryable pending. Other carry-clear LoadResources results are
+    ; terminal/nonretryable here, so release the reader even when this owner
+    ; epoch has not yet produced a durable row/map continuation.
+    sep #$20
+.a8
+    lda.l SourceVisual_Error
+    cmp #$27
+    beq SourceVisual_ServiceCandidateStage__resources_pending8
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_ReleaseLoaderOwner
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__resources_pending8:
+    rep #$31
+.a16
+.i16
+SourceVisual_ServiceCandidateStage__resources_ready:
+    ; ReadState zero is the bounded handoff point. The sticky owner-epoch bit
+    ; below proves that a durable per-actor row/map continuation exists.
+    sep #$20
+.a8
+    lda.l SourceVisual_PlayerPriorityOwner
+    cmp #$FF
+    bne SourceVisual_ServiceCandidateStage__yield_other_owner8
+    brl SourceVisual_ServiceCandidateStage__yield_not_priority8
+SourceVisual_ServiceCandidateStage__yield_other_owner8:
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_ServiceCandidateStage__yield_not_priority8
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__yield_not_priority8:
+    ; A reservation is held until its owner gets a real seek or ready-data
+    ; turn. With no reservation, yield at this idle-descriptor boundary to any
+    ; other queued actor so new player keys cannot keep winning each turn.
+    lda.l SourceVisual_PlayerPriorityOwner
+    cmp #$FF
+    bne SourceVisual_ServiceCandidateStage__yield_has_other8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    and #$00FF
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorWaitBits,x
+    eor #$FF
+    and.l SourceVisual_WaitingActorMask
+    beq SourceVisual_ServiceCandidateStage__yield_no_other8
+SourceVisual_ServiceCandidateStage__yield_has_other8:
+    ; Preserve the initial primary (slot 0) lease until it has emitted one
+    ; packet. State+28 is the per-actor presentable latch, not CandidateMeta
+    ; VALID (which may be zero for a legitimate empty frame). Other actors
+    ; still yield at the normal bounded descriptor boundary below.
+    lda.l SourceVisual_ActorSlot
+    bne SourceVisual_ServiceCandidateStage__yield_initial_p1_checked8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_State+28,x
+    bne SourceVisual_ServiceCandidateStage__yield_initial_p1_checked8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__yield_initial_p1_checked8:
+    ; Both incoming paths are A8. Keep A8 for byte-sized owner/valid tests,
+    ; while restoring the 16-bit index width needed by the next actor lookup.
+    rep #$10
+.a8
+.i16
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp #$FF
+    beq SourceVisual_ServiceCandidateStage__yield_lane_free8
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__yield_no_other8:
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__yield_lane_free8:
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    beq SourceVisual_ServiceCandidateStage__yield_packet_free8
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__yield_packet_free8:
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadState
+    beq SourceVisual_ServiceCandidateStage__yield_reader_free8
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__yield_reader_free8:
+    lda.l SourceVisual_LoaderDurableProgress
+    bne SourceVisual_ServiceCandidateStage__yield_progress_ready8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__yield_progress_ready8:
+    ; Keep this unfinished actor in the bounded queue before releasing the
+    ; shared reader. Otherwise ClaimQueuedActor has already cleared its waiter
+    ; bit, and a stream of fresh player-key priority tokens can repeatedly win
+    ; the next descriptor boundary before this actor is rendered again.
+SourceVisual_ServiceCandidateStage__yield_requeue:
+    jsr SourceVisual_QueueCurrentActor
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_ReleaseLoaderOwner
+SourceVisual_ServiceCandidateStage__yield_released:
+    brl SourceVisual_ServiceCandidateStage__done
+
+; A completed ENTRY read can be redundant once this actor's exact key and
+; entry already have a valid published packet. Retire only after ReadEntry has
+; tagged EntryScratch for this actor/index; preserve that tag across the owner
+; release so FindEntry's existing same-key cache remains usable. Never release
+; another kind/actor's descriptor or a reader with candidate/scan state active.
+SourceVisual_ServiceCandidateStage__published_idle8:
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp #$FF
+    beq SourceVisual_ServiceCandidateStage__published_lane_free8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__published_lane_free8:
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    beq SourceVisual_ServiceCandidateStage__published_packet_free8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__published_packet_free8:
+    lda.l SourceVisual_CandidateState+30,x
+    beq SourceVisual_ServiceCandidateStage__published_status_free8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__published_status_free8:
+    lda.l SourceVisual_ReadKind
+    cmp #SOURCE_VISUAL_MSU_READ_ENTRY
+    beq SourceVisual_ServiceCandidateStage__published_kind_ok8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__published_kind_ok8:
+    lda.l SourceVisual_ReadRequestKind
+    cmp #SOURCE_VISUAL_MSU_READ_ENTRY
+    beq SourceVisual_ServiceCandidateStage__published_request_ok8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__published_request_ok8:
+    lda.l SourceVisual_EntryReady
+    cmp #1
+    beq SourceVisual_ServiceCandidateStage__published_ready8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__published_ready8:
+    lda.l SourceVisual_EntryReadySlot
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_ServiceCandidateStage__published_ready_owner8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__published_ready_owner8:
+    lda.l SourceVisual_FindScanActive
+    beq SourceVisual_ServiceCandidateStage__published_no_scan8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__published_no_scan8:
+    lda.l SourceVisual_PreflightState
+    beq SourceVisual_ServiceCandidateStage__published_no_preflight8
+    brl SourceVisual_ServiceCandidateStage__done8
+SourceVisual_ServiceCandidateStage__published_no_preflight8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ReadLength
+    cmp #24
+    beq SourceVisual_ServiceCandidateStage__published_length_ok
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__published_length_ok:
+    lda.l SourceVisual_ReadCursor
+    cmp.l SourceVisual_ReadLength
+    beq SourceVisual_ServiceCandidateStage__published_cursor_ok
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__published_cursor_ok:
+    lda.l SourceVisual_EntryReadyIndex
+    cmp.l SourceVisual_LoaderEntryIndex
+    beq SourceVisual_ServiceCandidateStage__published_ready_index_ok
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__published_ready_index_ok:
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State,x
+    cmp.l SourceVisual_LoaderEntryIndex
+    beq SourceVisual_ServiceCandidateStage__published_state_index_ok
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__published_state_index_ok:
+    lda.l SourceVisual_PacketMetaOffset
+    tax
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_ENTRY,x
+    cmp.l SourceVisual_LoaderEntryIndex
+    beq SourceVisual_ServiceCandidateStage__published_meta_index_ok
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__published_meta_index_ok:
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PublishedKey,x
+    cmp.l SourceVisual_LoaderKey
+    beq SourceVisual_ServiceCandidateStage__published_key_low_ok
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__published_key_low_ok:
+    lda.l SourceVisual_PublishedKey+2,x
+    cmp.l SourceVisual_LoaderKey+2
+    beq SourceVisual_ServiceCandidateStage__published_key_match
+    brl SourceVisual_ServiceCandidateStage__done
+SourceVisual_ServiceCandidateStage__published_key_match:
+    ; ReleaseLoaderOwner invalidates EntryReady. Its bytes and slot/index tag
+    ; remain valid until another ENTRY seek actually starts, so restore only the
+    ; already-validated ready bit after the completed descriptor is retired.
+    jsr SourceVisual_ReleaseLoaderOwner
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_EntryReady
+    brl SourceVisual_ServiceCandidateStage__done8
+
+; Consume the completed immutable catalog-entry descriptor and create the
+; actor's first primary lease before any sheet/piece reads can be serviced.
+; Called only from the primary path with D set to the owner actor's CHAR row.
+; A later native animation key cannot replace LoaderKey/LoaderEntryIndex while
+; the catalog seek is pending, so the first request is admitted exactly once.
+SourceVisual_ServiceAdmitInitialEntry:
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadState
+    cmp #4
+    beq SourceVisual_ServiceAdmitInitialEntry__complete8
+    brl SourceVisual_ServiceAdmitInitialEntry__pending8
+SourceVisual_ServiceAdmitInitialEntry__complete8:
+    lda.l SourceVisual_LoaderEntryValid
+    cmp #1
+    bne SourceVisual_ServiceAdmitInitialEntry__pending8
+    lda.l SourceVisual_LoaderOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_ServiceAdmitInitialEntry__pending8
+    lda.l SourceVisual_ReadOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_ServiceAdmitInitialEntry__pending8
+    lda.l SourceVisual_ReadKind
+    cmp #SOURCE_VISUAL_MSU_READ_ENTRY
+    bne SourceVisual_ServiceAdmitInitialEntry__pending8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ReadLength
+    cmp #24
+    bne SourceVisual_ServiceAdmitInitialEntry__pending
+    ; Rehydrate the exact completed read descriptor before ReadEntry validates
+    ; it and publishes the EntryReady slot/index consumed by SelectResidency.
+    lda.l SourceVisual_LoaderEntryIndex
+    sta.l SourceVisual_EntryIndexSaved
+    lda.l SourceVisual_LoaderKey
+    sta.l SourceVisual_Key
+    lda.l SourceVisual_LoaderKey+2
+    sta.l SourceVisual_Key+2
+    lda.l SourceVisual_ReadOffset
+    sta.l SourceVisual_Offset
+    lda.l SourceVisual_ReadOffset+2
+    sta.l SourceVisual_Offset+2
+    jsr SourceVisual_ReadEntry
+    bcc SourceVisual_ServiceAdmitInitialEntry__pending
+    jsr SourceVisual_SelectResidency
+    bcc SourceVisual_ServiceAdmitInitialEntry__pending
+    sec
+    rts
+SourceVisual_ServiceAdmitInitialEntry__pending8:
+    rep #$31
+.a16
+.i16
+SourceVisual_ServiceAdmitInitialEntry__pending:
+    clc
+    rts
+
+SourceVisual_ServiceCandidateStage__done8:
+    rep #$31
+.a16
+.i16
+SourceVisual_ServiceCandidateStage__done:
+    pld
+    ply
+    plx
+    plp
+    rts
+
+; Clear only the visual seek bit as one 65816 memory-RMW instruction. NMI
+; clears the legacy DMA bit with its own read/write; it cannot interrupt a
+; TRB opcode, so this cannot restore a stale bit-0 value. The DBR window is
+; explicit: TRB has absolute, not long, addressing on the 65816.
+SourceVisual_ClearSeekReservation:
+    php
+    phb
+    sep #$20
+.a8
+    lda #$7E
+    pha
+    plb
+    lda #$80
+    trb.w $2330
+    plb
+    plp
+    rts
+
+SourceVisual_ServiceAbandonedRead:
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadState
+    cmp #3
+    bne SourceVisual_ServiceAbandonedRead__done8
+    lda #1
+    sta.l SourceVisual_ReadTurnUsed
     lda $2000
-    bmi SourceVisual_Seek__busy
+    bmi SourceVisual_ServiceAbandonedRead__done8
+    jsr SourceVisual_ClearSeekReservation
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_ReadState
+    sta.l SourceVisual_LoaderEntryValid
+    lda #$FF
+    sta.l SourceVisual_LoaderOwner
+    sta.l SourceVisual_ReadOwner
+    lda #0
+    sta.l SourceVisual_LoaderDurableProgress
+SourceVisual_ServiceAbandonedRead__done8:
+    rep #$31
+.a16
+.i16
+    rts
+
+; Release a completed/abandoned candidate's MSU ownership. A seek that is
+; still busy drains asynchronously before another reader may alter the cursor.
+SourceVisual_ReleaseLoaderOwner:
+    sep #$20
+.a8
+    lda.l SourceVisual_LoaderOwner
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_ReleaseLoaderOwner__owned8
+    lda.l SourceVisual_FindScanActive
+    bne SourceVisual_ReleaseLoaderOwner__foreign_find_scan8
+    brl SourceVisual_ReleaseLoaderOwner__done8
+SourceVisual_ReleaseLoaderOwner__foreign_find_scan8:
+    lda.l SourceVisual_FindScanOwner
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_ReleaseLoaderOwner__clear_find_scan8
+    brl SourceVisual_ReleaseLoaderOwner__done8
+SourceVisual_ReleaseLoaderOwner__clear_find_scan8:
+.a8
+    lda #0
+    sta.l SourceVisual_FindScanActive
+    sta.l SourceVisual_PreflightState
+    rep #$31
+.a16
+.i16
+    rts
+SourceVisual_ReleaseLoaderOwner__owned8:
+    ; This branch target follows an A16 return path in the linear source, so
+    ; establish the byte width here as well as at the routine entry.
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadState
+    cmp #0
+    beq SourceVisual_ReleaseLoaderOwner__retry_unstarted8
+    cmp #1
+    beq SourceVisual_ReleaseLoaderOwner__abandon
+    cmp #3
+    beq SourceVisual_ReleaseLoaderOwner__done8
+    bra SourceVisual_ReleaseLoaderOwner__drop_descriptor8
+SourceVisual_ReleaseLoaderOwner__retry_unstarted8:
+    ; State zero is a registered descriptor whose seek has not started. Drop
+    ; only this transient global descriptor; the actor's candidate/cache stage
+    ; remains authoritative and will reconstruct the same request on its next
+    ; grant. RowScratch identity remains tagged, so a tile retry can use it only
+    ; if it still belongs to that exact block.
+SourceVisual_ReleaseLoaderOwner__drop_descriptor8:
+    jsr SourceVisual_ClearSeekReservation
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_ReadState
+    sta.l SourceVisual_EntryReady
+    sta.l SourceVisual_LoaderEntryValid
+    sta.l SourceVisual_LoaderDurableProgress
+    lda.l SourceVisual_CatalogBindState
+    cmp #1
+    bne SourceVisual_ReleaseLoaderOwner__binding_released8
+    lda.l SourceVisual_CatalogBindOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_ReleaseLoaderOwner__binding_released8
+    lda #0
+    sta.l SourceVisual_CatalogBindState
+    lda #$FF
+    sta.l SourceVisual_CatalogBindOwner
+SourceVisual_ReleaseLoaderOwner__binding_released8:
+    lda #$FF
+    sta.l SourceVisual_LoaderOwner
+    sta.l SourceVisual_ReadOwner
+    jsr SourceVisual_GrantNextQueuedActor
+    bra SourceVisual_ReleaseLoaderOwner__done8
+SourceVisual_ReleaseLoaderOwner__abandon:
+.a8
+    lda #3
+    sta.l SourceVisual_ReadState
+    lda.l SourceVisual_CatalogBindState
+    cmp #1
+    bne SourceVisual_ReleaseLoaderOwner__done8
+    lda.l SourceVisual_CatalogBindOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_ReleaseLoaderOwner__done8
+    lda #0
+    sta.l SourceVisual_CatalogBindState
+    lda #$FF
+    sta.l SourceVisual_CatalogBindOwner
+    bra SourceVisual_ReleaseLoaderOwner__done8
+SourceVisual_ReleaseLoaderOwner__done8:
+.a8
+    lda #0
+    sta.l SourceVisual_PreflightState
+    sta.l SourceVisual_FindScanActive
+    rep #$31
+.a16
+.i16
+    rts
+
+; One call issues a seek, polls an outstanding seek once, or copies at most
+; SOURCE_VISUAL_MSU_READ_CHUNK ready bytes. Partial reads save their cursor and
+; re-seek on the next turn because other animation readers share MSU-1's cursor.
+; Carry set means the requested buffer is complete; clear means try next turn.
+SourceVisual_AsyncRead:
+    rep #$31
+.a16
+.i16
+    sep #$20
+.a8
+    ; Keep the one-I/O-turn-per-frame budget, but do not drop a later
+    ; descriptor when an earlier reader already used this turn. A completed
+    ; catalog row can be followed by a sheet/piece-row request in the same
+    ; render pass; latch that next descriptor for ServicePendingRead instead
+    ; of returning an unowned $27 that the next animation key can overwrite.
+    lda.l SourceVisual_LoaderOwner
+    cmp #$FF
+    bne SourceVisual_AsyncRead__owner_present
+    lda.l SourceVisual_PlayerPriorityOwner
+    cmp #$FF
+    beq SourceVisual_AsyncRead__fresh_owner8
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_AsyncRead__fresh_owner8
+    jsr SourceVisual_QueueCurrentActor
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__fresh_owner8:
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_LoaderOwner
+    sta.l SourceVisual_ReadOwner
+    lda #1
+    sta.l SourceVisual_LoaderEntryValid
+    lda #0
+    sta.l SourceVisual_LoaderDurableProgress
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_EntryIndexSaved
+    sta.l SourceVisual_LoaderEntryIndex
+    lda.l SourceVisual_Key
+    sta.l SourceVisual_LoaderKey
+    lda.l SourceVisual_Key+2
+    sta.l SourceVisual_LoaderKey+2
+    jsr SourceVisual_ClaimQueuedActor
+    brl SourceVisual_AsyncRead__state
+SourceVisual_AsyncRead__owner_present:
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_AsyncRead__owner_ok8
+    jsr SourceVisual_QueueCurrentActor
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__owner_ok8:
+    rep #$31
+.a16
+.i16
+SourceVisual_AsyncRead__state:
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadState
+    bne SourceVisual_AsyncRead__state_nonzero8
+    lda.l SourceVisual_ReadTurnUsed
+    beq SourceVisual_AsyncRead__state_idle_turn_free8
+    brl SourceVisual_AsyncRead__queue_descriptor8
+SourceVisual_AsyncRead__state_idle_turn_free8:
+    brl SourceVisual_AsyncRead__start
+SourceVisual_AsyncRead__state_nonzero8:
+    cmp #1
+    beq SourceVisual_AsyncRead__compare
+    cmp #2
+    beq SourceVisual_AsyncRead__compare
+    cmp #4
+    beq SourceVisual_AsyncRead__compare
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__compare:
+    lda.l SourceVisual_ReadOwner
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_AsyncRead__owner_match
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__owner_match:
+    lda.l SourceVisual_ReadKind
+    cmp.l SourceVisual_ReadRequestKind
+    beq SourceVisual_AsyncRead__compare_kind_ok
+    ; A different kind can mean the previous descriptor completed (for
+    ; example, catalog entry -> sheet row). Let descriptor_mismatch decide:
+    ; completed reads may be replaced/queued, while active reads stay pending.
+    brl SourceVisual_AsyncRead__descriptor_mismatch
+SourceVisual_AsyncRead__compare_kind_ok:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ReadLength
+    cmp.l SourceVisual_ReadRequestLength
+    beq SourceVisual_AsyncRead__compare_length_ok
+    brl SourceVisual_AsyncRead__descriptor_mismatch
+SourceVisual_AsyncRead__compare_length_ok:
+    lda.l SourceVisual_ReadOffset
+    cmp.l SourceVisual_Offset
+    beq SourceVisual_AsyncRead__compare_offset_low_ok
+    brl SourceVisual_AsyncRead__descriptor_mismatch
+SourceVisual_AsyncRead__compare_offset_low_ok:
+    lda.l SourceVisual_ReadOffset+2
+    cmp.l SourceVisual_Offset+2
+    beq SourceVisual_AsyncRead__compare_offset_high_ok
+    brl SourceVisual_AsyncRead__descriptor_mismatch
+SourceVisual_AsyncRead__compare_offset_high_ok:
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadState
+    cmp #4
+    beq SourceVisual_AsyncRead__latched_complete8
+    lda.l SourceVisual_ReadTurnUsed
+    beq SourceVisual_AsyncRead__state_turn_free8
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__state_turn_free8:
+    lda.l SourceVisual_ReadState
+    cmp #2
+    bne SourceVisual_AsyncRead__poll_ready8
+    brl SourceVisual_AsyncRead__resume
+SourceVisual_AsyncRead__poll_ready8:
+    lda #1
+    sta.l SourceVisual_ReadTurnUsed
+    lda $2000
+    bpl SourceVisual_AsyncRead__ready
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__latched_complete8:
+    rep #$31
+.a16
+.i16
+    sec
+    rts
+SourceVisual_AsyncRead__descriptor_mismatch:
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadState
+    cmp #4
+    beq SourceVisual_AsyncRead__discard_complete8
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__discard_complete8:
+    lda.l SourceVisual_ReadTurnUsed
+    bne SourceVisual_AsyncRead__queue_descriptor8
+    lda #0
+    sta.l SourceVisual_ReadState
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_AsyncRead__start
+SourceVisual_AsyncRead__queue_descriptor8:
+    ; Descriptor registration is metadata work only: no seek, ready poll, or
+    ; payload copy consumes a second MSU turn. ServicePendingRead will replay
+    ; the complete descriptor at the next service point. Publish state zero
+    ; after all 16/32-bit fields and owner identity are stored.
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Offset
+    sta.l SourceVisual_ReadOffset
+    lda.l SourceVisual_Offset+2
+    sta.l SourceVisual_ReadOffset+2
+    lda.l SourceVisual_ReadRequestLength
+    sta.l SourceVisual_ReadLength
+    lda #0
+    sta.l SourceVisual_ReadCursor
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadRequestKind
+    sta.l SourceVisual_ReadKind
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_ReadOwner
+    lda #0
+    sta.l SourceVisual_ReadState
+    ; This descriptor is retained for the next service turn, so callers must
+    ; classify the clear-carry return as pending rather than terminal failure.
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_AsyncRead__ready:
+    ; A priority grant is spent only when this turn can consume ready bytes,
+    ; not on a busy poll that made no resource progress.
+    jsr SourceVisual_ConsumePriorityTurn
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_AsyncRead__copy_chunk
+SourceVisual_AsyncRead__start:
+    sep #$20
+.a8
+    lda.l Msu1_StreamBusy
+    beq SourceVisual_AsyncRead__stream_free
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__stream_free:
+    ; The dispatch above inspects ReadState in A8. A fresh descriptor copies
+    ; 16-bit offsets, length, and cursor; restore A16/I16 before those stores or
+    ; stale high bytes turn a short row request into an enormous read.
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Offset
+    sta.l SourceVisual_ReadOffset
+    lda.l SourceVisual_Offset+2
+    sta.l SourceVisual_ReadOffset+2
+    lda.l SourceVisual_ReadRequestLength
+    sta.l SourceVisual_ReadLength
+    lda #0
+    sta.l SourceVisual_ReadCursor
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadRequestKind
+    sta.l SourceVisual_ReadKind
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_ReadOwner
+    brl SourceVisual_AsyncRead__issue_seek
+SourceVisual_AsyncRead__resume:
+    sep #$20
+.a8
+    lda.l Msu1_StreamBusy
+    beq SourceVisual_AsyncRead__stream_free_resume
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__stream_free_resume:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_AsyncRead__issue_seek
+SourceVisual_AsyncRead__issue_seek:
+    sep #$20
+.a8
+    ; These buffers are global scratch. Invalidate their owner tags only when a
+    ; seek that will write them actually starts, not when another actor merely
+    ; queues behind the current MSU owner.
+    lda.l SourceVisual_ReadKind
+    cmp #SOURCE_VISUAL_MSU_READ_ENTRY
+    bne SourceVisual_AsyncRead__issue_not_entry8
+    lda #0
+    sta.l SourceVisual_EntryReady
+SourceVisual_AsyncRead__issue_not_entry8:
+    lda.l SourceVisual_ReadKind
+    cmp #SOURCE_VISUAL_MSU_READ_PIECES
+    bne SourceVisual_AsyncRead__issue_row_tag8
+    lda #0
+    sta.l SourceVisual_PieceTableValid
+SourceVisual_AsyncRead__issue_row_tag8:
+    ; ReadRow calls can be denied while a different actor owns the active
+    ; descriptor. Invalidate shared RowScratch only when this row's seek is
+    ; actually admitted, alongside the other global-buffer tags.
+    lda.l SourceVisual_ReadKind
+    cmp #SOURCE_VISUAL_MSU_READ_ROW
+    beq SourceVisual_AsyncRead__invalidate_row_tag8
+    cmp #SOURCE_VISUAL_MSU_READ_BIND
+    bne SourceVisual_AsyncRead__issue_buffers_valid8
+SourceVisual_AsyncRead__invalidate_row_tag8:
+    lda #0
+    sta.l SourceVisual_RowScratchBlockValid
+SourceVisual_AsyncRead__issue_buffers_valid8:
+    lda #1
+    sta.l SourceVisual_ReadTurnUsed
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ReadOffset
+    clc
+    adc.l SourceVisual_ReadCursor
+    sta.l SourceVisual_ReadSeek
+    sta.l SourceVisual_DebugSeek
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadOffset+2
+    adc #0
+    sta.l SourceVisual_ReadSeek+2
+    sta.l SourceVisual_DebugSeek+2
+    lda.l SourceVisual_ReadOffset+3
+    adc #0
+    sta.l SourceVisual_ReadSeek+3
+    sta.l SourceVisual_DebugSeek+3
+    lda #$80
+    sta.l Msu1_StreamBusy
+    lda #1
+    sta.l SourceVisual_ReadState
+    lda.l SourceVisual_ReadSeek
+    sta $2000
+    lda.l SourceVisual_ReadSeek+1
+    sta $2001
+    lda.l SourceVisual_ReadSeek+2
+    sta $2002
+    lda.l SourceVisual_ReadSeek+3
+    sta $2003
+    jsr SourceVisual_ConsumePriorityTurn
+SourceVisual_AsyncRead__seek_poll8:
+    ; One status sample lets an immediately-ready seek consume this turn's
+    ; existing work budget. If it is still busy, return pending without
+    ; polling in a loop or changing the descriptor/owner.
+    lda $2000
+    bpl SourceVisual_AsyncRead__seek_ready8
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__seek_ready8:
+    brl SourceVisual_AsyncRead__copy_chunk
+SourceVisual_AsyncRead__copy_chunk:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ReadLength
+    sec
+    sbc.l SourceVisual_ReadCursor
+    bne SourceVisual_AsyncRead__remaining
+    brl SourceVisual_AsyncRead__complete
+SourceVisual_AsyncRead__remaining:
+    lda.l SourceVisual_WorkRemaining
+    bne SourceVisual_AsyncRead__work_available
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__work_available:
+    ; Consume no more than the shared byte/parse budget remaining this turn.
+    lda.l SourceVisual_ReadLength
+    sec
+    sbc.l SourceVisual_ReadCursor
+    cmp.l SourceVisual_WorkRemaining
+    bcc SourceVisual_AsyncRead__chunk_sized
+    beq SourceVisual_AsyncRead__chunk_sized
+    lda.l SourceVisual_WorkRemaining
+SourceVisual_AsyncRead__chunk_sized:
+    sta.l SourceVisual_ReadChunk
+    sta.l SourceVisual_ReadRemaining
+    lda.l SourceVisual_ReadCursor
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_ReadKind
+    cmp #SOURCE_VISUAL_MSU_READ_ENTRY
+    beq SourceVisual_AsyncRead__copy_entry
+    cmp #SOURCE_VISUAL_MSU_READ_ROW
+    beq SourceVisual_AsyncRead__copy_row
+    cmp #SOURCE_VISUAL_MSU_READ_PIECES
+    beq SourceVisual_AsyncRead__copy_pieces
+    cmp #SOURCE_VISUAL_MSU_READ_TILE
+    beq SourceVisual_AsyncRead__copy_tile
+    cmp #SOURCE_VISUAL_MSU_READ_PALETTE
+    beq SourceVisual_AsyncRead__copy_palette
+    cmp #SOURCE_VISUAL_MSU_READ_BIND
+    beq SourceVisual_AsyncRead__copy_bind
+    brl SourceVisual_AsyncRead__bad_kind
+SourceVisual_AsyncRead__copy_entry:
+    lda $2001
+    sta.l SourceVisual_EntryScratch,x
+    rep #$31
+.a16
+.i16
+    inx
+    jsr SourceVisual_AsyncRead__dec_remaining
+    bne SourceVisual_AsyncRead__copy_entry
+    brl SourceVisual_AsyncRead__copied
+SourceVisual_AsyncRead__copy_row:
+    lda $2001
+    sta.l SourceVisual_RowScratch,x
+    rep #$31
+.a16
+.i16
+    inx
+    jsr SourceVisual_AsyncRead__dec_remaining
+    bne SourceVisual_AsyncRead__copy_row
+    brl SourceVisual_AsyncRead__copied
+SourceVisual_AsyncRead__copy_pieces:
+    lda $2001
+    sta.l SourceVisual_PieceTable,x
+    rep #$31
+.a16
+.i16
+    inx
+    jsr SourceVisual_AsyncRead__dec_remaining
+    bne SourceVisual_AsyncRead__copy_pieces
+    brl SourceVisual_AsyncRead__copied
+SourceVisual_AsyncRead__copy_tile:
+    lda $2001
+    sta.l SourceVisual_TileStaging,x
+    rep #$31
+.a16
+.i16
+    inx
+    jsr SourceVisual_AsyncRead__dec_remaining
+    bne SourceVisual_AsyncRead__copy_tile
+    brl SourceVisual_AsyncRead__copied
+SourceVisual_AsyncRead__copy_palette:
+    lda $2001
+    sta.l SourceVisual_PaletteTemp,x
+    rep #$31
+.a16
+.i16
+    inx
+    jsr SourceVisual_AsyncRead__dec_remaining
+    bne SourceVisual_AsyncRead__copy_palette
+    brl SourceVisual_AsyncRead__copied
+SourceVisual_AsyncRead__copy_bind:
+    lda $2001
+    sta.l SourceVisual_RowScratch,x
+    rep #$31
+.a16
+.i16
+    inx
+    jsr SourceVisual_AsyncRead__dec_remaining
+    bne SourceVisual_AsyncRead__copy_bind
+SourceVisual_AsyncRead__copied:
+    txa
+    sta.l SourceVisual_ReadCursor
+    lda.l SourceVisual_WorkRemaining
+    sec
+    sbc.l SourceVisual_ReadChunk
+    sta.l SourceVisual_WorkRemaining
+    lda.l SourceVisual_ReadCursor
+    cmp.l SourceVisual_ReadLength
+    bcs SourceVisual_AsyncRead__complete
+    sep #$20
+.a8
+    lda #2
+    sta.l SourceVisual_ReadState
+    jsr SourceVisual_ClearSeekReservation
+    sep #$20
+.a8
+    brl SourceVisual_AsyncRead__pending
+SourceVisual_AsyncRead__dec_remaining:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ReadRemaining
+    dec a
+    sta.l SourceVisual_ReadRemaining
+    cmp #0
+    rts
+SourceVisual_AsyncRead__complete:
+    jsr SourceVisual_ClearSeekReservation
+    sep #$20
+.a8
+    lda #4
+    sta.l SourceVisual_ReadState
+    rep #$31
+.a16
+.i16
+    sec
+    rts
+SourceVisual_AsyncRead__bad_kind:
+    sep #$20
+.a8
+    lda #$23
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_AsyncRead__pending:
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
     rts
 
 ; Add the compiler-owned catalog's full MSU-1 offset to the internal table
@@ -1764,42 +6830,47 @@ SourceVisual_AddCatalogBase:
     rts
 
 SourceVisual_ReadEntry:
-    jsr SourceVisual_Seek
-    rep #$31
-.a16
-.i16
-    ldx #0
-SourceVisual_ReadEntry__loop:
     sep #$20
 .a8
-    lda $2001
-    sta.l SourceVisual_EntryScratch,x
+    lda #SOURCE_VISUAL_MSU_READ_ENTRY
+    sta.l SourceVisual_ReadRequestKind
     rep #$31
 .a16
 .i16
-    inx
-    cpx #24
-    bcc SourceVisual_ReadEntry__loop
+    lda #24
+    sta.l SourceVisual_ReadRequestLength
+    jsr SourceVisual_AsyncRead
+    bcc SourceVisual_ReadEntry__return
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_EntryReady
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_EntryReadySlot
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_EntryIndexSaved
+    sta.l SourceVisual_EntryReadyIndex
+    ; REP #$31 clears carry.  ReadEntry returns the AsyncRead completion
+    ; contract to FindEntry, so restore success after recording the cache.
+    sec
+SourceVisual_ReadEntry__return:
     rts
 
 SourceVisual_ReadRow:
-    jsr SourceVisual_Seek
-    rep #$31
-.a16
-.i16
-    ldx #0
-SourceVisual_ReadRow__loop:
     sep #$20
 .a8
-    lda $2001
-    sta.l SourceVisual_RowScratch,x
+    ; AsyncRead invalidates RowScratchBlockValid only if this actor's seek is
+    ; admitted. A foreign owner may queue this call without touching the bytes.
+    lda #SOURCE_VISUAL_MSU_READ_ROW
+    sta.l SourceVisual_ReadRequestKind
     rep #$31
 .a16
 .i16
-    inx
-    cpx #42
-    bcc SourceVisual_ReadRow__loop
-    rts
+    lda #42
+    sta.l SourceVisual_ReadRequestLength
+    jmp SourceVisual_AsyncRead
 
 ; Read the selected sheet and piece rows.  The sheet is composed by the
 ; compiler in SNES OBJ row-stride order, so the runtime performs one or more
@@ -1898,6 +6969,9 @@ SourceVisual_LoadResources__transparent:
     lda.l SourceVisual_Offset+2
     sta.l SourceVisual_DebugSheetSeek+2
     jsr SourceVisual_ReadRow
+    bcs SourceVisual_LoadResources__legacy_sheet_row_ready
+    brl SourceVisual_LoadResources__pending
+SourceVisual_LoadResources__legacy_sheet_row_ready:
     sep #$20
 .a8
     lda #$A1
@@ -2006,6 +7080,9 @@ SourceVisual_LoadResources__read_short:
     lda #9
     sta.l SourceVisual_DebugQueueStage
     jsr SourceVisual_ReadSheet
+    bcs SourceVisual_LoadResources__legacy_sheet_chunk_ready
+    brl SourceVisual_LoadResources__pending
+SourceVisual_LoadResources__legacy_sheet_chunk_ready:
 
     ; Piece rows are needed for source offsets, hflip and per-piece palette.
     rep #$31
@@ -2053,6 +7130,9 @@ SourceVisual_LoadResources__read_short:
 .i16
     jsr SourceVisual_AddCatalogBase
     jsr SourceVisual_ReadPieces
+    bcs SourceVisual_LoadResources__legacy_pieces_ready
+    brl SourceVisual_LoadResources__pending
+SourceVisual_LoadResources__legacy_pieces_ready:
     lda #8
     sta.l SourceVisual_DebugQueueStage
     sep #$20
@@ -2154,6 +7234,9 @@ SourceVisual_LoadResources__ready:
 .i16
     jsr SourceVisual_AddCatalogBase
     jsr SourceVisual_ReadPieces
+    bcs SourceVisual_LoadResources__legacy_final_pieces_ready
+    brl SourceVisual_LoadResources__pending
+SourceVisual_LoadResources__legacy_final_pieces_ready:
     sec
     rts
 SourceVisual_LoadResources__large:
@@ -2199,6 +7282,16 @@ SourceVisual_LoadResources__bad:
 
 SourceVisual_LoadResources__block_path:
 .a16
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_State+SOURCE_VISUAL_STATE_SHEET_ROW_VALID,x
+    cmp #1
+    beq SourceVisual_LoadResources__block_sheet_cached8
+    rep #$31
+.a16
+.i16
     ; Retain the catalog's source-sheet bound as the fail-closed guard for the
     ; known oversized frame set, but do not reserve or upload this padded sheet.
     lda.l SourceVisual_EntryScratch+20
@@ -2236,7 +7329,27 @@ SourceVisual_LoadResources__block_path:
 .i16
     jsr SourceVisual_AddCatalogBase
     jsr SourceVisual_ReadRow
+    bcs SourceVisual_LoadResources__block_sheet_read
+    brl SourceVisual_LoadResources__block_pending
+SourceVisual_LoadResources__block_sheet_read:
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_State+SOURCE_VISUAL_STATE_SHEET_ROW_VALID,x
+    rep #$31
+.a16
+.i16
     lda.l SourceVisual_RowScratch+32
+    sta.l SourceVisual_State+22,x
+    bra SourceVisual_LoadResources__block_sheet_cached
+SourceVisual_LoadResources__block_sheet_cached8:
+    rep #$31
+.a16
+.i16
+SourceVisual_LoadResources__block_sheet_cached:
+    lda.l SourceVisual_State+22,x
     cmp #SOURCE_VISUAL_MAX_SHEET+1
     bcc SourceVisual_LoadResources__block_sheet_ok
     brl SourceVisual_LoadResources__large
@@ -2244,8 +7357,34 @@ SourceVisual_LoadResources__block_sheet_ok:
 .a16
     sta.l SourceVisual_SheetBytes
 
-    ; Read the source piece rows; their block identities are globally
-    ; content-addressed and may share one of the 64 resident 16x32 slots.
+    ; State+25 remembers this actor's earlier read, but PieceTable is one
+    ; global 65-row scratch buffer. Reuse it only when the global completed-read
+    ; tag still names this actor and catalog entry.
+SourceVisual_LoadResources__piece_table_check:
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_State+SOURCE_VISUAL_STATE_PIECE_ROWS_VALID,x
+    cmp #1
+    bne SourceVisual_LoadResources__block_pieces_need_read8
+    lda.l SourceVisual_PieceTableValid
+    cmp #1
+    bne SourceVisual_LoadResources__block_pieces_need_read8
+    lda.l SourceVisual_PieceTableOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_LoadResources__block_pieces_need_read8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PieceTableEntry
+    cmp.l SourceVisual_EntryIndexSaved
+    beq SourceVisual_LoadResources__block_pieces_cached
+    brl SourceVisual_LoadResources__block_pieces_need_read8
+SourceVisual_LoadResources__block_pieces_need_read8:
+    rep #$31
+.a16
+.i16
     lda.l SourceVisual_EntryScratch+16
     sta.l SourceVisual_Temp
     asl a
@@ -2284,6 +7423,39 @@ SourceVisual_LoadResources__block_sheet_ok:
 .i16
     jsr SourceVisual_AddCatalogBase
     jsr SourceVisual_ReadPieces
+    bcs SourceVisual_LoadResources__block_pieces_read
+    brl SourceVisual_LoadResources__block_pending
+SourceVisual_LoadResources__block_pieces_read:
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_State+SOURCE_VISUAL_STATE_PIECE_ROWS_VALID,x
+    bra SourceVisual_LoadResources__block_pieces_cached
+SourceVisual_LoadResources__block_pieces_cached8:
+    rep #$31
+.a16
+.i16
+SourceVisual_LoadResources__block_pieces_cached:
+    ; A candidate must prove the complete current tile/palette footprint fits
+    ; beside every published lease before it acquires any new cache ownership.
+    sep #$20
+.a8
+    lda.l SourceVisual_OwnerChannel
+    beq SourceVisual_LoadResources__preflight_done8
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_PreflightCandidate
+    bcs SourceVisual_LoadResources__preflight_done
+    clc
+    rts
+SourceVisual_LoadResources__preflight_done8:
+    rep #$31
+.a16
+.i16
+SourceVisual_LoadResources__preflight_done:
     jsr SourceVisual_PrepareBlocks
     bcs SourceVisual_LoadResources__blocks_ready
     brl SourceVisual_LoadResources__block_pending
@@ -2334,65 +7506,573 @@ SourceVisual_LoadResources__block_pending:
     clc
     rts
 
-SourceVisual_ReadSheet:
-    jsr SourceVisual_Seek
+; Exact bounded admission for one candidate packet. The two compact ID lists
+; deduplicate visible tile blocks and all referenced palettes before any new
+; DMA or pin is admitted, so a frame that cannot fit beside the published
+; packet applies backpressure without repeatedly uploading a partial prefix.
+SourceVisual_PreflightCandidate:
     rep #$31
 .a16
 .i16
-    ldx #0
-SourceVisual_ReadSheet__loop:
-    txa
-    sta.l SourceVisual_DebugD
-    cmp.l SourceVisual_ChunkBytes
-    bcs SourceVisual_ReadSheet__done
     sep #$20
 .a8
-    lda $2001
-    sta.l SourceVisual_TileStaging,x
+    lda.l SourceVisual_PreflightState
+    beq SourceVisual_PreflightCandidate__initialize8
+    lda.l SourceVisual_PreflightActor
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_PreflightCandidate__initialize8
     rep #$31
 .a16
 .i16
-    inx
-    bra SourceVisual_ReadSheet__loop
-SourceVisual_ReadSheet__done:
-    rts
-
-SourceVisual_ReadPieces:
-    jsr SourceVisual_Seek
+    lda.l SourceVisual_PreflightEntry
+    cmp.l SourceVisual_EntryIndexSaved
+    bne SourceVisual_PreflightCandidate__initialize
+    sep #$20
+.a8
+    lda.l SourceVisual_PreflightState
+    cmp #$FF
+    bne SourceVisual_PreflightCandidate__state_not_done8
+    brl SourceVisual_PreflightCandidate__ready8
+SourceVisual_PreflightCandidate__state_not_done8:
+    cmp #1
+    bne SourceVisual_PreflightCandidate__state_not_block_piece8
+    brl SourceVisual_PreflightCandidate__resume_block_piece8
+SourceVisual_PreflightCandidate__state_not_block_piece8:
+    cmp #2
+    bne SourceVisual_PreflightCandidate__state_not_block_seen8
+    brl SourceVisual_PreflightCandidate__resume_block_seen8
+SourceVisual_PreflightCandidate__state_not_block_seen8:
+    cmp #3
+    bne SourceVisual_PreflightCandidate__state_not_block_free8
+    brl SourceVisual_PreflightCandidate__resume_block_free8
+SourceVisual_PreflightCandidate__state_not_block_free8:
+    cmp #4
+    bne SourceVisual_PreflightCandidate__state_not_palette_piece8
+    brl SourceVisual_PreflightCandidate__resume_palette_piece8
+SourceVisual_PreflightCandidate__state_not_palette_piece8:
+    cmp #5
+    bne SourceVisual_PreflightCandidate__state_not_palette_scan8
+    brl SourceVisual_PreflightCandidate__resume_palette_cache_scan8
+SourceVisual_PreflightCandidate__state_not_palette_scan8:
+    cmp #6
+    bne SourceVisual_PreflightCandidate__state_not_palette_seen8
+    brl SourceVisual_PreflightCandidate__resume_palette_seen8
+SourceVisual_PreflightCandidate__state_not_palette_seen8:
+    cmp #7
+    bne SourceVisual_PreflightCandidate__state_unknown8
+    brl SourceVisual_PreflightCandidate__resume_palette_free8
+SourceVisual_PreflightCandidate__state_unknown8:
+    cmp #8
+    bne SourceVisual_PreflightCandidate__state_unknown2_8
+    brl SourceVisual_PreflightCandidate__resume_block_cache8
+SourceVisual_PreflightCandidate__state_unknown2_8:
+    brl SourceVisual_PreflightCandidate__initialize8
+SourceVisual_PreflightCandidate__initialize8:
     rep #$31
 .a16
 .i16
-    ldx #0
-SourceVisual_ReadPieces__loop:
+SourceVisual_PreflightCandidate__initialize:
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_PreflightActor
+    rep #$31
+.a16
 .i16
-    txa
+    lda.l SourceVisual_EntryIndexSaved
+    sta.l SourceVisual_PreflightEntry
+    ; The actor's cache ownership bit.
+    lda.l SourceVisual_ActorSlot
+    tax
+    lda #1
+SourceVisual_PreflightCandidate__mask:
+.i16
+    cpx #0
+    beq SourceVisual_PreflightCandidate__mask_ready
+    asl a
+    dex
+    bra SourceVisual_PreflightCandidate__mask
+SourceVisual_PreflightCandidate__mask_ready:
+    sep #$20
+.a8
+    sta.l SourceVisual_BlockActorMask
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_PreflightCount
+    sta.l SourceVisual_PieceIndex
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_PreflightState
+    rep #$31
+.a16
+.i16
+SourceVisual_PreflightCandidate__block_piece:
+    jsr SourceVisual_ConsumeWork
+    bcs SourceVisual_PreflightCandidate__block_piece_budget_ok
+    brl SourceVisual_PreflightCandidate__yield
+SourceVisual_PreflightCandidate__block_piece_budget_ok:
+    lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
-    bcs SourceVisual_ReadPieces__done
-    ; 16 bytes per row; X is a piece index.
-    phx
-    txa
+    bcc SourceVisual_PreflightCandidate__block_piece_in_range
+    brl SourceVisual_PreflightCandidate__block_free_start
+SourceVisual_PreflightCandidate__block_piece_in_range:
+    lda.l SourceVisual_PieceIndex
     asl a
     asl a
     asl a
     asl a
     tax
-    ldy #0
-SourceVisual_ReadPieces__row:
+    lda.l SourceVisual_PieceTable+12,x
+    sta.l SourceVisual_BlockIndex
+    lda #0
+    sta.l SourceVisual_BlockScan
     sep #$20
 .a8
-    lda $2001
-    sta.l SourceVisual_PieceTable,x
+    lda #8
+    sta.l SourceVisual_PreflightState
     rep #$31
 .a16
 .i16
-    inx
-    iny
-    cpy #16
-    bcc SourceVisual_ReadPieces__row
-    plx
-    inx
-    bra SourceVisual_ReadPieces__loop
-SourceVisual_ReadPieces__done:
+SourceVisual_PreflightCandidate__block_cache_scan:
+    jsr SourceVisual_ConsumeWork
+    bcs SourceVisual_PreflightCandidate__block_cache_budget_ok
+    brl SourceVisual_PreflightCandidate__yield
+SourceVisual_PreflightCandidate__block_cache_budget_ok:
+    lda.l SourceVisual_BlockScan
+    cmp #SOURCE_VISUAL_TILE_BLOCKS
+    bcs SourceVisual_PreflightCandidate__block_cache_miss
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_BlockCache+2,x
+    beq SourceVisual_PreflightCandidate__block_cache_next
+    lda.l SourceVisual_BlockCache,x
+    cmp.l SourceVisual_BlockIndex
+    beq SourceVisual_PreflightCandidate__block_next
+SourceVisual_PreflightCandidate__block_cache_next:
+    lda.l SourceVisual_BlockScan
+    inc a
+    sta.l SourceVisual_BlockScan
+    bra SourceVisual_PreflightCandidate__block_cache_scan
+SourceVisual_PreflightCandidate__block_cache_miss:
+    lda #0
+    sta.l SourceVisual_PreflightScan
+    sep #$20
+.a8
+    lda #2
+    sta.l SourceVisual_PreflightState
+    rep #$31
+.a16
+.i16
+SourceVisual_PreflightCandidate__block_seen:
+    jsr SourceVisual_ConsumeWork
+    bcs SourceVisual_PreflightCandidate__block_seen_budget_ok
+    brl SourceVisual_PreflightCandidate__yield
+SourceVisual_PreflightCandidate__block_seen_budget_ok:
+    lda.l SourceVisual_PreflightScan
+    cmp.l SourceVisual_PreflightCount
+    bcs SourceVisual_PreflightCandidate__block_add
+    asl a
+    tax
+    lda.l SourceVisual_PreflightIds,x
+    cmp.l SourceVisual_BlockIndex
+    beq SourceVisual_PreflightCandidate__block_next
+    lda.l SourceVisual_PreflightScan
+    inc a
+    sta.l SourceVisual_PreflightScan
+    bra SourceVisual_PreflightCandidate__block_seen
+SourceVisual_PreflightCandidate__block_add:
+    lda.l SourceVisual_PreflightCount
+    asl a
+    tax
+    lda.l SourceVisual_BlockIndex
+    sta.l SourceVisual_PreflightIds,x
+    lda.l SourceVisual_PreflightCount
+    inc a
+    sta.l SourceVisual_PreflightCount
+SourceVisual_PreflightCandidate__block_next:
+    lda.l SourceVisual_PieceIndex
+    inc a
+    sta.l SourceVisual_PieceIndex
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_PreflightState
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_PreflightCandidate__block_piece
+SourceVisual_PreflightCandidate__block_free_start:
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_PreflightFree
+    sta.l SourceVisual_BlockScan
+    sep #$20
+.a8
+    lda #3
+    sta.l SourceVisual_PreflightState
+    rep #$31
+.a16
+.i16
+SourceVisual_PreflightCandidate__block_free:
+    jsr SourceVisual_ConsumeWork
+    bcs SourceVisual_PreflightCandidate__block_free_budget_ok
+    brl SourceVisual_PreflightCandidate__yield
+SourceVisual_PreflightCandidate__block_free_budget_ok:
+    lda.l SourceVisual_BlockScan
+    cmp #SOURCE_VISUAL_TILE_BLOCKS
+    bcs SourceVisual_PreflightCandidate__block_capacity
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_BlockCache+2,x
+    beq SourceVisual_PreflightCandidate__block_slot_free
+    cmp #2
+    bne SourceVisual_PreflightCandidate__block_free_next
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockCache+4,x
+    ora.l SourceVisual_BlockCache+7,x
+    bne SourceVisual_PreflightCandidate__block_free_next8
+    rep #$31
+.a16
+.i16
+SourceVisual_PreflightCandidate__block_slot_free:
+    lda.l SourceVisual_PreflightFree
+    inc a
+    sta.l SourceVisual_PreflightFree
+SourceVisual_PreflightCandidate__block_free_next:
+    rep #$31
+.a16
+.i16
+SourceVisual_PreflightCandidate__block_free_next8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_BlockScan
+    inc a
+    sta.l SourceVisual_BlockScan
+    bra SourceVisual_PreflightCandidate__block_free
+SourceVisual_PreflightCandidate__block_capacity:
+    lda.l SourceVisual_PreflightCount
+    cmp.l SourceVisual_PreflightFree
+    bcc SourceVisual_PreflightCandidate__palette_start
+    beq SourceVisual_PreflightCandidate__palette_start
+    sep #$20
+.a8
+    lda #$24
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_PreflightCandidate__palette_start:
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_PreflightCount
+    sta.l SourceVisual_PieceIndex
+    sep #$20
+.a8
+    lda #4
+    sta.l SourceVisual_PreflightState
+    rep #$31
+.a16
+.i16
+SourceVisual_PreflightCandidate__palette_piece:
+    jsr SourceVisual_ConsumeWork
+    bcs SourceVisual_PreflightCandidate__palette_piece_budget_ok
+    brl SourceVisual_PreflightCandidate__yield
+SourceVisual_PreflightCandidate__palette_piece_budget_ok:
+    lda.l SourceVisual_PieceIndex
+    cmp.l SourceVisual_PieceCount
+    bcc SourceVisual_PreflightCandidate__palette_piece_ready
+    brl SourceVisual_PreflightCandidate__palette_free_start
+SourceVisual_PreflightCandidate__palette_piece_ready:
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PieceTable+10,x
+    sta.l SourceVisual_PreflightId
+    lda #0
+    sta.l SourceVisual_PreflightScan
+    sep #$20
+.a8
+    lda #5
+    sta.l SourceVisual_PreflightState
+    rep #$31
+.a16
+.i16
+SourceVisual_PreflightCandidate__palette_cache_scan:
+    jsr SourceVisual_ConsumeWork
+    bcs SourceVisual_PreflightCandidate__palette_cache_budget_ok
+    brl SourceVisual_PreflightCandidate__yield
+SourceVisual_PreflightCandidate__palette_cache_budget_ok:
+    lda.l SourceVisual_PreflightScan
+    cmp #8
+    bcs SourceVisual_PreflightCandidate__palette_seen_start
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PaletteCache+4,x
+    ora.l SourceVisual_PaletteCache+5,x
+    beq SourceVisual_PreflightCandidate__palette_cache_next8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PaletteCache,x
+    cmp.l SourceVisual_PreflightId
+    beq SourceVisual_PreflightCandidate__palette_next
+    bra SourceVisual_PreflightCandidate__palette_cache_next
+SourceVisual_PreflightCandidate__palette_cache_next8:
+    rep #$31
+.a16
+.i16
+SourceVisual_PreflightCandidate__palette_cache_next:
+    lda.l SourceVisual_PreflightScan
+    inc a
+    sta.l SourceVisual_PreflightScan
+    bra SourceVisual_PreflightCandidate__palette_cache_scan
+SourceVisual_PreflightCandidate__palette_seen_start:
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_PreflightScan
+    sep #$20
+.a8
+    lda #6
+    sta.l SourceVisual_PreflightState
+    rep #$31
+.a16
+.i16
+SourceVisual_PreflightCandidate__palette_seen:
+    jsr SourceVisual_ConsumeWork
+    bcs SourceVisual_PreflightCandidate__palette_seen_budget_ok
+    brl SourceVisual_PreflightCandidate__yield
+SourceVisual_PreflightCandidate__palette_seen_budget_ok:
+    lda.l SourceVisual_PreflightScan
+    cmp.l SourceVisual_PreflightCount
+    bcs SourceVisual_PreflightCandidate__palette_add
+    asl a
+    tax
+    lda.l SourceVisual_PreflightPaletteIds,x
+    cmp.l SourceVisual_PreflightId
+    beq SourceVisual_PreflightCandidate__palette_next
+    lda.l SourceVisual_PreflightScan
+    inc a
+    sta.l SourceVisual_PreflightScan
+    bra SourceVisual_PreflightCandidate__palette_seen
+SourceVisual_PreflightCandidate__palette_add:
+    lda.l SourceVisual_PreflightCount
+    cmp #8
+    bcs SourceVisual_PreflightCandidate__palette_invalid
+    asl a
+    tax
+    lda.l SourceVisual_PreflightId
+    sta.l SourceVisual_PreflightPaletteIds,x
+    lda.l SourceVisual_PreflightCount
+    inc a
+    sta.l SourceVisual_PreflightCount
+SourceVisual_PreflightCandidate__palette_next:
+    lda.l SourceVisual_PieceIndex
+    inc a
+    sta.l SourceVisual_PieceIndex
+    sep #$20
+.a8
+    lda #4
+    sta.l SourceVisual_PreflightState
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_PreflightCandidate__palette_piece
+SourceVisual_PreflightCandidate__palette_free_start:
+    lda #0
+    sta.l SourceVisual_PreflightFree
+    sta.l SourceVisual_PaletteScan
+    sep #$20
+.a8
+    lda #7
+    sta.l SourceVisual_PreflightState
+    rep #$31
+.a16
+.i16
+SourceVisual_PreflightCandidate__palette_free:
+    jsr SourceVisual_ConsumeWork
+    bcs SourceVisual_PreflightCandidate__palette_free_budget_ok
+    brl SourceVisual_PreflightCandidate__yield
+SourceVisual_PreflightCandidate__palette_free_budget_ok:
+    lda.l SourceVisual_PaletteScan
+    cmp #8
+    bcs SourceVisual_PreflightCandidate__palette_capacity
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PaletteCache+4,x
+    ora.l SourceVisual_PaletteCache+5,x
+    bne SourceVisual_PreflightCandidate__palette_free_next8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PreflightFree
+    inc a
+    sta.l SourceVisual_PreflightFree
+SourceVisual_PreflightCandidate__palette_free_next:
+    rep #$31
+.a16
+.i16
+SourceVisual_PreflightCandidate__palette_free_next8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PaletteScan
+    inc a
+    sta.l SourceVisual_PaletteScan
+    bra SourceVisual_PreflightCandidate__palette_free
+SourceVisual_PreflightCandidate__palette_invalid:
+    sep #$20
+.a8
+    lda #$26
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_PreflightCandidate__palette_capacity:
+    lda.l SourceVisual_PreflightCount
+    cmp.l SourceVisual_PreflightFree
+    bcc SourceVisual_PreflightCandidate__ready
+    beq SourceVisual_PreflightCandidate__ready
+    sep #$20
+.a8
+    lda #$26
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_PreflightCandidate__ready:
+    sep #$20
+.a8
+    lda #$FF
+    sta.l SourceVisual_PreflightState
+SourceVisual_PreflightCandidate__ready8:
+    rep #$31
+.a16
+.i16
+    sec
+    rts
+SourceVisual_PreflightCandidate__yield:
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_PreflightCandidate__resume_block_piece8:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_PreflightCandidate__block_piece
+SourceVisual_PreflightCandidate__resume_block_cache8:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_PreflightCandidate__block_cache_scan
+SourceVisual_PreflightCandidate__resume_block_seen8:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_PreflightCandidate__block_seen
+SourceVisual_PreflightCandidate__resume_block_free8:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_PreflightCandidate__block_free
+SourceVisual_PreflightCandidate__resume_palette_piece8:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_PreflightCandidate__palette_piece
+SourceVisual_PreflightCandidate__resume_palette_cache_scan8:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_PreflightCandidate__palette_cache_scan
+SourceVisual_PreflightCandidate__resume_palette_seen8:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_PreflightCandidate__palette_seen
+SourceVisual_PreflightCandidate__resume_palette_free8:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_PreflightCandidate__palette_free
+
+SourceVisual_ReadSheet:
+    sep #$20
+.a8
+    lda #SOURCE_VISUAL_MSU_READ_TILE
+    sta.l SourceVisual_ReadRequestKind
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ChunkBytes
+    sta.l SourceVisual_ReadRequestLength
+    jmp SourceVisual_AsyncRead
+
+SourceVisual_ReadPieces:
+    sep #$20
+.a8
+    lda #SOURCE_VISUAL_MSU_READ_PIECES
+    sta.l SourceVisual_ReadRequestKind
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PieceCount
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SourceVisual_ReadRequestLength
+    jsr SourceVisual_AsyncRead
+    bcc SourceVisual_ReadPieces__return
+    ; Publish the shared table identity only after AsyncRead completed the full
+    ; descriptor. The valid byte is written last so no consumer can accept a
+    ; partially copied row.
+    lda.l SourceVisual_EntryIndexSaved
+    sta.l SourceVisual_PieceTableEntry
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_PieceTableOwner
+    lda #1
+    sta.l SourceVisual_PieceTableValid
+    rep #$31
+.a16
+.i16
+    sec
+SourceVisual_ReadPieces__return:
     rts
 
 ; Resolve each 16x32 piece to a pinned, content-addressed 256-byte block.
@@ -2437,21 +8117,30 @@ SourceVisual_PrepareBlocks__needs_blocks:
     bcs SourceVisual_PrepareBlocks__scan_start
     brl SourceVisual_PrepareBlocks__pending
 SourceVisual_PrepareBlocks__scan_start:
+    ; Completing a block releases the sole 1-KiB staging buffer. Yield this
+    ; actor's admission for the rest of the call so another waiting actor can
+    ; claim that buffer before this actor queues its next replacement block.
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockCompletedThisCall
+    beq SourceVisual_PrepareBlocks__scan_start8
+    brl SourceVisual_PrepareBlocks__pending
+SourceVisual_PrepareBlocks__scan_start8:
+    rep #$31
 .a16
-    ; Camera/actor movement can expose new pieces without changing the pose.
-    ; Refresh ownership before admission, including every already-resident
-    ; visible block. Offscreen pieces cannot hold scarce OBJ slots hostage.
+.i16
+.a16
+    ; Keep every authored piece resident and pinned: the published packet may
+    ; be re-emitted at a new position while a replacement frame is pending.
     jsr SourceVisual_PinVisibleBlocks
     lda #0
     sta.l SourceVisual_PieceIndex
 SourceVisual_PrepareBlocks__piece:
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
-    bcs SourceVisual_PrepareBlocks__ready
-    jsr SourceVisual_ViewportPiece
-    bcs SourceVisual_PrepareBlocks__visible_piece
-    brl SourceVisual_PrepareBlocks__next_piece
-SourceVisual_PrepareBlocks__visible_piece:
+    bcc SourceVisual_PrepareBlocks__piece_in_range
+    brl SourceVisual_PrepareBlocks__ready
+SourceVisual_PrepareBlocks__piece_in_range:
     lda.l SourceVisual_PieceIndex
     ; Read the globally assigned block ID at piece row +12.
     asl a
@@ -2469,7 +8158,20 @@ SourceVisual_PrepareBlocks__visible_piece:
 SourceVisual_PrepareBlocks__allocated:
     jsr SourceVisual_ReadBlockPayload
     bcs SourceVisual_PrepareBlocks__payload_ready
+    sep #$20
+.a8
+    lda.l SourceVisual_Error
+    cmp #$27
+    beq SourceVisual_PrepareBlocks__read_pending8
+    rep #$31
+.a16
+.i16
     brl SourceVisual_PrepareBlocks__oversized
+SourceVisual_PrepareBlocks__read_pending8:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_PrepareBlocks__pending
 SourceVisual_PrepareBlocks__payload_ready:
     lda.l SourceVisual_BlockRecord
     tax
@@ -2483,17 +8185,21 @@ SourceVisual_PrepareBlocks__payload_ready:
     jsr SourceVisual_QueueBlockRows
     brl SourceVisual_PrepareBlocks__pending
 SourceVisual_PrepareBlocks__found:
-    ; Pin the resident/pending block to this actor before using its slot.
+    ; Pin the resident/pending block in the selected published/candidate lane.
     lda.l SourceVisual_BlockRecord
+    clc
+    adc.l SourceVisual_OwnerOffset
     tax
     sep #$20
 .a8
-    lda.l SourceVisual_BlockCache+4,x
+    lda.l SourceVisual_BlockCache,x
     ora.l SourceVisual_BlockActorMask
-    sta.l SourceVisual_BlockCache+4,x
+    sta.l SourceVisual_BlockCache,x
     rep #$31
 .a16
 .i16
+    lda.l SourceVisual_BlockRecord
+    tax
     lda.l SourceVisual_BlockCache+2,x
     cmp #2
     beq SourceVisual_PrepareBlocks__map_piece
@@ -2503,11 +8209,25 @@ SourceVisual_PrepareBlocks__found:
     brl SourceVisual_PrepareBlocks__pending
 SourceVisual_PrepareBlocks__map_piece:
     jsr SourceVisual_MapCurrentPiece
+    ; This is the candidate/primary cache-hit path after BlockCache state==2.
+    ; RebuildPublishedMap also calls MapCurrentPiece, but does not count as
+    ; progress for a loader owner epoch.
+    sep #$20
+.a8
+    lda.l SourceVisual_LoaderOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_PrepareBlocks__map_piece_no_epoch_progress8
+    lda #1
+    sta.l SourceVisual_LoaderDurableProgress
+SourceVisual_PrepareBlocks__map_piece_no_epoch_progress8:
+    rep #$31
+.a16
+.i16
 SourceVisual_PrepareBlocks__next_piece:
     lda.l SourceVisual_PieceIndex
     inc a
     sta.l SourceVisual_PieceIndex
-    bra SourceVisual_PrepareBlocks__piece
+    brl SourceVisual_PrepareBlocks__piece
 SourceVisual_PrepareBlocks__ready:
 .a16
     lda.l SourceVisual_Record
@@ -2523,8 +8243,6 @@ SourceVisual_PrepareBlocks__apply_loop:
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
     bcs SourceVisual_PrepareBlocks__success
-    jsr SourceVisual_ViewportPiece
-    bcc SourceVisual_PrepareBlocks__apply_next
     jsr SourceVisual_ApplyMappedPiece
 SourceVisual_PrepareBlocks__apply_next:
     lda.l SourceVisual_PieceIndex
@@ -2578,30 +8296,40 @@ SourceVisual_PinVisibleBlocks:
     rep #$31
     .a16
     .i16
-    ldx #0
+    lda #0
+    sta.l SourceVisual_BlockScan
 SourceVisual_PinVisibleBlocks__clear:
+    lda.l SourceVisual_BlockScan
+    cmp #SOURCE_VISUAL_TILE_BLOCKS*8
+    bcs SourceVisual_PinVisibleBlocks__clear_done
+    tax
+    txa
+    sta.l SourceVisual_BlockRecord
+    clc
+    adc.l SourceVisual_OwnerOffset
+    tax
     sep #$20
-    .a8
-    lda.l SourceVisual_BlockCache+4,x
+.a8
+    lda.l SourceVisual_BlockCache,x
     and.l SourceVisual_BlockOther2
-    sta.l SourceVisual_BlockCache+4,x
+    sta.l SourceVisual_BlockCache,x
     rep #$31
     .a16
     .i16
-    txa
+    lda.l SourceVisual_BlockScan
     clc
     adc #8
-    tax
-    cpx #SOURCE_VISUAL_TILE_BLOCKS*8
-    bcc SourceVisual_PinVisibleBlocks__clear
+    sta.l SourceVisual_BlockScan
+    bra SourceVisual_PinVisibleBlocks__clear
+SourceVisual_PinVisibleBlocks__clear_done:
+.a16
+.i16
     lda #0
     sta.l SourceVisual_PieceIndex
 SourceVisual_PinVisibleBlocks__piece:
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
     bcs SourceVisual_PinVisibleBlocks__done
-    jsr SourceVisual_ViewportPiece
-    bcc SourceVisual_PinVisibleBlocks__next
     lda.l SourceVisual_PieceIndex
     asl a
     asl a
@@ -2613,12 +8341,14 @@ SourceVisual_PinVisibleBlocks__piece:
     jsr SourceVisual_FindBlock
     bcc SourceVisual_PinVisibleBlocks__next
     lda.l SourceVisual_BlockRecord
+    clc
+    adc.l SourceVisual_OwnerOffset
     tax
     sep #$20
     .a8
-    lda.l SourceVisual_BlockCache+4,x
+    lda.l SourceVisual_BlockCache,x
     ora.l SourceVisual_BlockActorMask
-    sta.l SourceVisual_BlockCache+4,x
+    sta.l SourceVisual_BlockCache,x
     rep #$31
     .a16
     .i16
@@ -2630,8 +8360,8 @@ SourceVisual_PinVisibleBlocks__next:
 SourceVisual_PinVisibleBlocks__done:
     rts
 
-; A cache record is {blockId:u16, state:u16, owners:u8, progress:u8,
-; payloadLoaded:u8, reserved:u8}. State 1 is loading, 2 is fully resident.
+; A cache record is {blockId:u16, state:u16, published owners:u8, progress:u8,
+; payloadLoaded:u8, candidate owners:u8}. State 1 is loading, 2 is fully resident.
 SourceVisual_FindBlock:
     rep #$31
 .a16
@@ -2680,7 +8410,9 @@ SourceVisual_AllocateBlock__scan:
 .a16
     lda.l SourceVisual_BlockScan
     cmp #SOURCE_VISUAL_TILE_BLOCKS
-    bcs SourceVisual_AllocateBlock__fail
+    bcc SourceVisual_AllocateBlock__slot_scan
+    brl SourceVisual_AllocateBlock__fail
+SourceVisual_AllocateBlock__slot_scan:
     asl a
     asl a
     asl a
@@ -2692,6 +8424,7 @@ SourceVisual_AllocateBlock__scan:
     sep #$20
 .a8
     lda.l SourceVisual_BlockCache+4,x
+    ora.l SourceVisual_BlockCache+7,x
     bne SourceVisual_AllocateBlock__next8
     rep #$31
 .a16
@@ -2715,16 +8448,50 @@ SourceVisual_AllocateBlock__claim:
     sta.l SourceVisual_BlockCache,x
     lda #1
     sta.l SourceVisual_BlockCache+2,x
+    lda.l SourceVisual_BlockRecord
+    clc
+    adc.l SourceVisual_OwnerOffset
+    tax
     sep #$20
 .a8
     lda.l SourceVisual_BlockActorMask
+    sta.l SourceVisual_BlockCache,x
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_BlockRecord
+    tax
+    sep #$20
+.a8
+    lda #0
     sta.l SourceVisual_BlockCache+4,x
+    sta.l SourceVisual_BlockCache+7,x
+    lda.l SourceVisual_OwnerOffset
+    cmp #4
+    bne SourceVisual_AllocateBlock__candidate_owner
+    lda.l SourceVisual_BlockActorMask
+    sta.l SourceVisual_BlockCache+4,x
+    bra SourceVisual_AllocateBlock__owner_set
+SourceVisual_AllocateBlock__candidate_owner:
+    lda.l SourceVisual_BlockActorMask
+    sta.l SourceVisual_BlockCache+7,x
+SourceVisual_AllocateBlock__owner_set:
     lda #0
     sta.l SourceVisual_BlockCache+5,x
     sta.l SourceVisual_BlockCache+6,x
     rep #$31
 .a16
 .i16
+    ; The cache record's payload-ready state is the validity tag for its
+    ; per-cache continuation. Clear both halves whenever this slot is reused.
+    lda.l SourceVisual_BlockRecord
+    lsr a
+    tax
+    lda #0
+    sta.l SourceVisual_BlockPayloadOffsets,x
+    sta.l SourceVisual_BlockPayloadOffsets+2,x
+    lda.l SourceVisual_BlockRecord
+    tax
     txa
     lsr a
     lsr a
@@ -2742,33 +8509,105 @@ SourceVisual_ResumePendingBlock:
     rep #$31
 .a16
 .i16
+    sep #$20
+.a8
+    lda.l SourceVisual_LoaderOwner
+    cmp #$FF
+    beq SourceVisual_ResumePendingBlock__loader_ok8
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_ResumePendingBlock__loader_ok8
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_ResumePendingBlock__loader_ok8:
+    rep #$31
+.a16
+.i16
+    ; Cache rows are shared. Bind the resume to this actor's selected lease
+    ; channel so another actor cannot claim its row with stale global identity.
+    lda.l SourceVisual_ActorSlot
+    and #$00FF
+    cmp #6
+    bcc SourceVisual_ResumePendingBlock__owner_slot_valid
+    brl SourceVisual_ResumePendingBlock__none
+SourceVisual_ResumePendingBlock__owner_slot_valid:
+    tax
+    lda #1
+SourceVisual_ResumePendingBlock__owner_bit:
+    cpx #0
+    beq SourceVisual_ResumePendingBlock__owner_bit_ready
+    asl a
+    dex
+    bra SourceVisual_ResumePendingBlock__owner_bit
+SourceVisual_ResumePendingBlock__owner_bit_ready:
+    sep #$20
+.a8
+    sta.l SourceVisual_BlockActorMask
+    rep #$31
+.a16
+.i16
     lda #0
     sta.l SourceVisual_BlockScan
 SourceVisual_ResumePendingBlock__scan:
 .a16
     lda.l SourceVisual_BlockScan
     cmp #SOURCE_VISUAL_TILE_BLOCKS
-    bcs SourceVisual_ResumePendingBlock__none
+    bcc SourceVisual_ResumePendingBlock__scan_in_range
+    brl SourceVisual_ResumePendingBlock__none
+SourceVisual_ResumePendingBlock__scan_in_range:
     asl a
     asl a
     asl a
     tax
     lda.l SourceVisual_BlockCache+2,x
     cmp #1
-    beq SourceVisual_ResumePendingBlock__found
+    beq SourceVisual_ResumePendingBlock__check_owner
+    brl SourceVisual_ResumePendingBlock__next
+SourceVisual_ResumePendingBlock__check_owner:
+    txa
+    clc
+    adc.l SourceVisual_OwnerOffset
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockCache,x
+    and.l SourceVisual_BlockActorMask
+    bne SourceVisual_ResumePendingBlock__owner_match8
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_ResumePendingBlock__next
+SourceVisual_ResumePendingBlock__owner_match8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_BlockScan
+    asl a
+    asl a
+    asl a
+    sta.l SourceVisual_BlockRecord
+    brl SourceVisual_ResumePendingBlock__found
+SourceVisual_ResumePendingBlock__next:
+    rep #$31
+.a16
+.i16
     lda.l SourceVisual_BlockScan
     inc a
     sta.l SourceVisual_BlockScan
     bra SourceVisual_ResumePendingBlock__scan
 SourceVisual_ResumePendingBlock__found:
-    txa
-    sta.l SourceVisual_BlockRecord
     lda.l SourceVisual_BlockScan
     sta.l SourceVisual_BlockSlot
     jsr SourceVisual_HasOwnedDma
     bcs SourceVisual_ResumePendingBlock__pending
     lda.l SourceVisual_BlockRecord
     tax
+    ; BlockIndex is global scratch. Restore it from the selected cache record
+    ; before QueueBlockRows can resume a row/payload lookup for this actor.
+    lda.l SourceVisual_BlockCache,x
+    sta.l SourceVisual_BlockIndex
     sep #$20
 .a8
     lda.l SourceVisual_BlockCache+5,x
@@ -2778,6 +8617,11 @@ SourceVisual_ResumePendingBlock__found:
 .a16
 .i16
     jsr SourceVisual_QueueBlockRows
+    ; QueueBlockRows reaches its completed-row branch from A8. Restore the
+    ; caller's width contract before returning to RenderCurrent/PrepareBlocks.
+    rep #$31
+.a16
+.i16
     clc
     rts
 SourceVisual_ResumePendingBlock__complete8:
@@ -2786,6 +8630,13 @@ SourceVisual_ResumePendingBlock__complete8:
 .i16
     lda #2
     sta.l SourceVisual_BlockCache+2,x
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_BlockCompletedThisCall
+    rep #$31
+.a16
+.i16
     sec
     rts
 SourceVisual_ResumePendingBlock__pending:
@@ -2808,13 +8659,27 @@ SourceVisual_QueueBlockRows__staging_free:
     sep #$20
 .a8
     lda.l SourceVisual_BlockCache+6,x
-    bne SourceVisual_QueueBlockRows__payload_loaded8
+    cmp #1
+    beq SourceVisual_QueueBlockRows__payload_loaded8
     rep #$31
     .a16
 .i16
     jsr SourceVisual_ReadBlockPayload
     bcs SourceVisual_QueueBlockRows__payload_read
+    sep #$20
+.a8
+    lda.l SourceVisual_Error
+    cmp #$27
+    beq SourceVisual_QueueBlockRows__async_pending8
+    rep #$31
+.a16
+.i16
     brl SourceVisual_QueueBlockRows__bad_payload
+SourceVisual_QueueBlockRows__async_pending8:
+    rep #$31
+.a16
+.i16
+    brl SourceVisual_QueueBlockRows__pending
 SourceVisual_QueueBlockRows__payload_read:
     lda.l SourceVisual_BlockRecord
     tax
@@ -3019,77 +8884,326 @@ SourceVisual_ApplyMappedPiece:
     sta.l SourceVisual_PieceTable+14,x
     rts
 
-; Resolve the block table row and copy only its immutable 256-byte payload to
-; staging. The catalog may contain 1024-byte blocks, which remain explicitly
-; rejected until the separate oversized-frame policy is addressed.
+; Verify the ROM block-offset index is paired with this exact MSU catalog.
+; The eight-byte SVIX footer is read once through the existing bounded reader;
+; a foreign owner is queued without changing its active descriptor.
+SourceVisual_EnsureCatalogBinding:
+    sep #$20
+.a8
+    lda.l SourceVisual_CatalogBindState
+    cmp #2
+    bne SourceVisual_EnsureCatalogBinding__check_invalid8
+    brl SourceVisual_EnsureCatalogBinding__valid8
+SourceVisual_EnsureCatalogBinding__check_invalid8:
+    cmp #$FF
+    bne SourceVisual_EnsureCatalogBinding__check_pending8
+    brl SourceVisual_EnsureCatalogBinding__invalid8
+SourceVisual_EnsureCatalogBinding__check_pending8:
+    cmp #1
+    beq SourceVisual_EnsureCatalogBinding__already_pending8
+    lda.l SourceVisual_LoaderOwner
+    cmp #$FF
+    beq SourceVisual_EnsureCatalogBinding__owner_available8
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_EnsureCatalogBinding__claim8
+    jsr SourceVisual_QueueCurrentActor
+    brl SourceVisual_EnsureCatalogBinding__pending
+SourceVisual_EnsureCatalogBinding__owner_available8:
+    ; A free reader may begin the single shared binding transaction.
+SourceVisual_EnsureCatalogBinding__claim8:
+    lda #1
+    sta.l SourceVisual_CatalogBindState
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_CatalogBindOwner
+    brl SourceVisual_EnsureCatalogBinding__request8
+SourceVisual_EnsureCatalogBinding__already_pending8:
+    lda.l SourceVisual_CatalogBindOwner
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_EnsureCatalogBinding__request8
+    jsr SourceVisual_QueueCurrentActor
+    brl SourceVisual_EnsureCatalogBinding__pending
+SourceVisual_EnsureCatalogBinding__request8:
+    lda #SOURCE_VISUAL_MSU_READ_BIND
+    sta.l SourceVisual_ReadRequestKind
+    rep #$31
+.a16
+.i16
+    lda #SOURCE_VISUAL_MSU_BIND_BYTES
+    sta.l SourceVisual_ReadRequestLength
+    lda #((SOURCE_VISUAL_MSU_BIND_OFFSET) & $FFFF)
+    sta.l SourceVisual_Offset
+    sep #$20
+.a8
+    lda #((SOURCE_VISUAL_MSU_BIND_OFFSET >> 16) & $FF)
+    sta.l SourceVisual_Offset+2
+    lda #((SOURCE_VISUAL_MSU_BIND_OFFSET >> 24) & $FF)
+    sta.l SourceVisual_Offset+3
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_AsyncRead
+    bcc SourceVisual_EnsureCatalogBinding__pending
+    sep #$20
+.a8
+    lda.l SourceVisual_RowScratch+0
+    cmp #$53 ; 'S'
+    bne SourceVisual_EnsureCatalogBinding__mismatch8
+    lda.l SourceVisual_RowScratch+1
+    cmp #$56 ; 'V'
+    bne SourceVisual_EnsureCatalogBinding__mismatch8
+    lda.l SourceVisual_RowScratch+2
+    cmp #$49 ; 'I'
+    bne SourceVisual_EnsureCatalogBinding__mismatch8
+    lda.l SourceVisual_RowScratch+3
+    cmp #$58 ; 'X'
+    bne SourceVisual_EnsureCatalogBinding__mismatch8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_RowScratch+4
+    cmp #((SOURCE_VISUAL_CATALOG_CRC32) & $FFFF)
+    bne SourceVisual_EnsureCatalogBinding__mismatch
+    lda.l SourceVisual_RowScratch+6
+    cmp #((SOURCE_VISUAL_CATALOG_CRC32 >> 16) & $FFFF)
+    bne SourceVisual_EnsureCatalogBinding__mismatch
+    sep #$20
+.a8
+    lda #2
+    sta.l SourceVisual_CatalogBindState
+    lda #$FF
+    sta.l SourceVisual_CatalogBindOwner
+    rep #$31
+.a16
+.i16
+    sec
+    rts
+SourceVisual_EnsureCatalogBinding__mismatch8:
+    rep #$31
+.a16
+.i16
+SourceVisual_EnsureCatalogBinding__mismatch:
+    sep #$20
+.a8
+    lda #$FF
+    sta.l SourceVisual_CatalogBindState
+    sta.l SourceVisual_CatalogBindOwner
+    lda #$23
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_EnsureCatalogBinding__invalid8:
+.a8
+    lda #$23
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_EnsureCatalogBinding__valid8:
+    rep #$31
+.a16
+.i16
+    sec
+    rts
+SourceVisual_EnsureCatalogBinding__pending:
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+
+; Resolve a block ID through the immutable ROM index. The first ROM bank holds
+; 10,922 packed 24-bit offsets (32,766 bytes); the remainder is in bank 65.
+; Offsets are relative to the validated SVIS catalog and retain the existing
+; fail-closed 256-byte tile-block policy.
+SourceVisual_ReadBlockOffsetIndex:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_BlockIndex
+    cmp #SOURCE_VISUAL_BLOCK_INDEX_COUNT
+    bcc SourceVisual_ReadBlockOffsetIndex__in_range
+    brl SourceVisual_ReadBlockOffsetIndex__bad
+SourceVisual_ReadBlockOffsetIndex__in_range:
+    cmp #SOURCE_VISUAL_BLOCK_INDEX_BANK0_COUNT
+    bcc SourceVisual_ReadBlockOffsetIndex__bank0
+    sec
+    sbc #SOURCE_VISUAL_BLOCK_INDEX_BANK0_COUNT
+    sta.l SourceVisual_Temp
+    asl a
+    clc
+    adc.l SourceVisual_Temp
+    tax
+    lda.l SourceVisual_BlockOffsetIndexBank1,x
+    sta.l SourceVisual_Offset
+    inx
+    inx
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockOffsetIndexBank1,x
+    sta.l SourceVisual_Offset+2
+    lda #0
+    sta.l SourceVisual_Offset+3
+    brl SourceVisual_ReadBlockOffsetIndex__check_bound8
+SourceVisual_ReadBlockOffsetIndex__bank0:
+    asl a
+    clc
+    adc.l SourceVisual_BlockIndex
+    tax
+    lda.l SourceVisual_BlockOffsetIndexBank0,x
+    sta.l SourceVisual_Offset
+    inx
+    inx
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockOffsetIndexBank0,x
+    sta.l SourceVisual_Offset+2
+    lda #0
+    sta.l SourceVisual_Offset+3
+SourceVisual_ReadBlockOffsetIndex__check_bound8:
+    lda.l SourceVisual_Offset+2
+    cmp #((SOURCE_VISUAL_BLOCK_INDEX_MAX_OFFSET >> 16) & $FF)
+    bcc SourceVisual_ReadBlockOffsetIndex__valid8
+    beq SourceVisual_ReadBlockOffsetIndex__check_low8
+    brl SourceVisual_ReadBlockOffsetIndex__bad8
+SourceVisual_ReadBlockOffsetIndex__check_low8:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Offset
+    cmp #((SOURCE_VISUAL_BLOCK_INDEX_MAX_OFFSET) & $FFFF)
+    bcc SourceVisual_ReadBlockOffsetIndex__valid
+    beq SourceVisual_ReadBlockOffsetIndex__valid
+    brl SourceVisual_ReadBlockOffsetIndex__bad
+SourceVisual_ReadBlockOffsetIndex__valid8:
+    rep #$31
+.a16
+.i16
+SourceVisual_ReadBlockOffsetIndex__valid:
+    sec
+    rts
+SourceVisual_ReadBlockOffsetIndex__bad8:
+    rep #$31
+.a16
+.i16
+SourceVisual_ReadBlockOffsetIndex__bad:
+    sep #$20
+.a8
+    lda #$23
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+
+; Copy the catalog-bound immutable 256-byte payload to staging. A cache slot's
+; state+6=2 stores the validated absolute offset so resumed reads never depend
+; on shared RowScratch. The 42-byte block metadata seek is replaced by one ROM
+; table lookup; the existing 512-byte budget and one MSU turn remain unchanged.
 SourceVisual_ReadBlockPayload:
     rep #$31
 .a16
 .i16
-    lda #((SOURCE_VISUAL_BLOCK_OFFSET) & $FFFF)
-    sta.l SourceVisual_Offset
-    sep #$20
-.a8
-    lda #((SOURCE_VISUAL_BLOCK_OFFSET >> 16) & $FF)
-    sta.l SourceVisual_Offset+2
-    lda #((SOURCE_VISUAL_BLOCK_OFFSET >> 24) & $FF)
-    sta.l SourceVisual_Offset+3
-    rep #$31
-.a16
-.i16
-    ldy #42
-SourceVisual_ReadBlockPayload__row_offset:
-    lda.l SourceVisual_Offset
-    clc
-    adc.l SourceVisual_BlockIndex
-    sta.l SourceVisual_Offset
-    sep #$20
-.a8
-    lda.l SourceVisual_Offset+2
-    adc #0
-    sta.l SourceVisual_Offset+2
-    lda.l SourceVisual_Offset+3
-    adc #0
-    sta.l SourceVisual_Offset+3
-    rep #$31
-.a16
-.i16
-    dey
-    bne SourceVisual_ReadBlockPayload__row_offset
-    jsr SourceVisual_AddCatalogBase
-    jsr SourceVisual_ReadRow
-    lda.l SourceVisual_RowScratch+32
-    cmp #SOURCE_VISUAL_TILE_BLOCK_BYTES
-    beq SourceVisual_ReadBlockPayload__size_ok
-    clc
+    lda.l SourceVisual_BlockRecord
+    tax
+    ; The actor/cache switch can leave BlockIndex from another block. The cache
+    ; record is the identity authority for both the row lookup and payload.
+    lda.l SourceVisual_BlockCache,x
+    sta.l SourceVisual_BlockIndex
+    jsr SourceVisual_EnsureCatalogBinding
+    bcs SourceVisual_ReadBlockPayload__binding_valid
     rts
-SourceVisual_ReadBlockPayload__size_ok:
-    lda.l SourceVisual_RowScratch+34
+SourceVisual_ReadBlockPayload__binding_valid:
+    lda.l SourceVisual_BlockRecord
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockCache+6,x
+    cmp #1
+    bne SourceVisual_ReadBlockPayload__check_payload8
+    brl SourceVisual_ReadBlockPayload__already_ready
+SourceVisual_ReadBlockPayload__check_payload8:
+    cmp #2
+    beq SourceVisual_ReadBlockPayload__cached_payload8
+    brl SourceVisual_ReadBlockPayload__row_offset_start
+SourceVisual_ReadBlockPayload__cached_payload8:
+    rep #$31
+.a16
+.i16
+    ; State +6=2 is the valid tag for this cache record's durable offset.
+    ; RowScratch is shared and may now hold a different actor's block row.
+    lda.l SourceVisual_BlockRecord
+    lsr a
+    tax
+    lda.l SourceVisual_BlockPayloadOffsets,x
     sta.l SourceVisual_Offset
-    lda.l SourceVisual_RowScratch+36
+    lda.l SourceVisual_BlockPayloadOffsets+2,x
     sta.l SourceVisual_Offset+2
-    sep #$20
-.a8
-    lda #0
-    sta.l SourceVisual_Offset+3
-    rep #$31
-.a16
-.i16
+    brl SourceVisual_ReadBlockPayload__payload_offset
+SourceVisual_ReadBlockPayload__row_offset_start:
+    jsr SourceVisual_ReadBlockOffsetIndex
+    bcc SourceVisual_ReadBlockPayload__return
     jsr SourceVisual_AddCatalogBase
-    jsr SourceVisual_Seek
-    ldx #0
-SourceVisual_ReadBlockPayload__read:
+    lda.l SourceVisual_BlockRecord
+    lsr a
+    tax
+    lda.l SourceVisual_Offset
+    sta.l SourceVisual_BlockPayloadOffsets,x
+    lda.l SourceVisual_Offset+2
+    sta.l SourceVisual_BlockPayloadOffsets+2,x
+    lda.l SourceVisual_BlockRecord
+    tax
     sep #$20
 .a8
-    lda $2001
-    sta.l SourceVisual_TileStaging,x
+    lda #2
+    sta.l SourceVisual_BlockCache+6,x ; durable row/offset continuation valid
+    lda.l SourceVisual_LoaderOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_ReadBlockPayload__size_ok_no_epoch_progress8
+    lda #1
+    sta.l SourceVisual_LoaderDurableProgress
+SourceVisual_ReadBlockPayload__size_ok_no_epoch_progress8:
     rep #$31
 .a16
 .i16
-    inx
-    cpx #SOURCE_VISUAL_TILE_BLOCK_BYTES
-    bcc SourceVisual_ReadBlockPayload__read
+SourceVisual_ReadBlockPayload__payload_offset:
+    sep #$20
+.a8
+    lda #SOURCE_VISUAL_MSU_READ_TILE
+    sta.l SourceVisual_ReadRequestKind
+    rep #$31
+.a16
+.i16
+    lda #SOURCE_VISUAL_TILE_BLOCK_BYTES
+    sta.l SourceVisual_ReadRequestLength
+    jsr SourceVisual_AsyncRead
+    bcc SourceVisual_ReadBlockPayload__return
+    lda.l SourceVisual_BlockRecord
+    tax
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_BlockCache+6,x ; complete staging payload
+    rep #$31
+.a16
+.i16
     sec
+    rts
+SourceVisual_ReadBlockPayload__already_ready:
+    rep #$31
+.a16
+.i16
+    sec
+SourceVisual_ReadBlockPayload__return:
     rts
 
 ; Admit one fixed-size sheet chunk per compositor pass.  Completion is fenced
@@ -3378,6 +9492,25 @@ SourceVisual_QueuePalettes__palette_needs_dma:
     rep #$31
 .a16
 .i16
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_State+19,x
+    cmp #1
+    bne SourceVisual_QueuePalettes__palette_row_needed8
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_State+20,x
+    cmp.l SourceVisual_PaletteGlobalIndex
+    beq SourceVisual_QueuePalettes__palette_payload
+    sep #$20
+.a8
+SourceVisual_QueuePalettes__palette_row_needed8:
+    rep #$31
+.a16
+.i16
     lda.l SourceVisual_PaletteGlobalIndex
     sta.l SourceVisual_DebugD
     ; Palette table rows are also 42 bytes: 32 + 8 + 2.
@@ -3416,7 +9549,34 @@ SourceVisual_QueuePalettes__palette_needs_dma:
     lda #15
     sta.l SourceVisual_DebugQueueStage
     jsr SourceVisual_ReadRow
+    bcs SourceVisual_QueuePalettes__palette_row_read
+    brl SourceVisual_QueuePalettes__fail
+SourceVisual_QueuePalettes__palette_row_read:
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_State+19,x
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PaletteGlobalIndex
+    sta.l SourceVisual_State+20,x
+SourceVisual_QueuePalettes__palette_payload:
     jsr SourceVisual_ReadPalettePayload
+    bcs SourceVisual_QueuePalettes__palette_queued
+    brl SourceVisual_QueuePalettes__fail
+SourceVisual_QueuePalettes__palette_queued:
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_State+19,x
+    rep #$31
+.a16
+.i16
     brl SourceVisual_QueuePalettes__next
 SourceVisual_QueuePalettes__next:
     rep #$31
@@ -3470,26 +9630,21 @@ SourceVisual_ReadPalettePayload:
     jsr SourceVisual_AddCatalogBase
     lda #10
     sta.l SourceVisual_DebugQueueStage
-    jsr SourceVisual_Seek
-    lda #11
-    sta.l SourceVisual_DebugQueueStage
-    rep #$31
-.a16
-.i16
-    ldx #0
-SourceVisual_ReadPalettePayload__read:
-    txa
-    sta.l SourceVisual_DebugIndex
     sep #$20
 .a8
-    lda $2001
-    sta.l SourceVisual_PaletteTemp,x
+    lda #SOURCE_VISUAL_MSU_READ_PALETTE
+    sta.l SourceVisual_ReadRequestKind
     rep #$31
 .a16
 .i16
-    inx
-    cpx #32
-    bcc SourceVisual_ReadPalettePayload__read
+    lda #32
+    sta.l SourceVisual_ReadRequestLength
+    jsr SourceVisual_AsyncRead
+    bcs SourceVisual_ReadPalettePayload__payload_ready
+    rts
+SourceVisual_ReadPalettePayload__payload_ready:
+    lda #11
+    sta.l SourceVisual_DebugQueueStage
     ; Palette slot is retained explicitly; Y is the piece-row offset.
     lda.l SourceVisual_PaletteSlot
     and #$00FF
@@ -3649,6 +9804,7 @@ SourceVisual_ReadPalettePayload__slot_ok:
     rep #$31
 .a16
 .i16
+    sec
     rts
 
 ; Associate the just-enqueued request with the queue slot that contains the
@@ -3808,10 +9964,334 @@ SourceVisual_RefreshFence:
 SourceVisual_RefreshFence__busy:
     rts
 
+; Verify every visible OAM tile reference against the selected ownership lane.
+; $FF is never a valid map entry; it is treated as an invariant violation.
+SourceVisual_ValidateEmitMap:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    tax
+    lda #1
+SourceVisual_ValidateEmitMap__mask:
+.i16
+    cpx #0
+    beq SourceVisual_ValidateEmitMap__mask_ready
+    asl a
+    dex
+    bra SourceVisual_ValidateEmitMap__mask
+SourceVisual_ValidateEmitMap__mask_ready:
+    sep #$20
+.a8
+    sta.l SourceVisual_BlockActorMask
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_PieceIndex
+SourceVisual_ValidateEmitMap__piece:
+    lda.l SourceVisual_PieceIndex
+    cmp.l SourceVisual_PieceCount
+    bcc SourceVisual_ValidateEmitMap__piece_in_range
+    brl SourceVisual_ValidateEmitMap__valid
+SourceVisual_ValidateEmitMap__piece_in_range:
+    lda.l SourceVisual_PieceIndex
+    clc
+    adc.l SourceVisual_ActorMapBase
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorPieceMap,x
+    cmp #$FF
+    beq SourceVisual_ValidateEmitMap__invalid8
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    cmp #SOURCE_VISUAL_TILE_BLOCKS
+    bcs SourceVisual_ValidateEmitMap__invalid
+    sta.l SourceVisual_BlockSlot
+    lda.l SourceVisual_BlockSlot
+    asl a
+    asl a
+    asl a
+    sta.l SourceVisual_BlockRecord
+    tax
+    lda.l SourceVisual_BlockCache+2,x
+    cmp #2
+    bne SourceVisual_ValidateEmitMap__invalid
+    lda.l SourceVisual_BlockRecord
+    clc
+    adc.l SourceVisual_OwnerOffset
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockCache,x
+    and.l SourceVisual_BlockActorMask
+    beq SourceVisual_ValidateEmitMap__invalid8
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_BlockSlotToTile
+    lda.l SourceVisual_PieceIndex
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PieceTable+14,x
+    and #$01FF
+    cmp.l SourceVisual_BlockTileBase
+    bne SourceVisual_ValidateEmitMap__invalid
+SourceVisual_ValidateEmitMap__next:
+    lda.l SourceVisual_PieceIndex
+    inc a
+    sta.l SourceVisual_PieceIndex
+    brl SourceVisual_ValidateEmitMap__piece
+SourceVisual_ValidateEmitMap__invalid8:
+    rep #$31
+.a16
+.i16
+SourceVisual_ValidateEmitMap__invalid:
+    clc
+    rts
+SourceVisual_ValidateEmitMap__valid:
+    sec
+    rts
+
+; Build one complete, un-clipped candidate from the mapped catalog rows. The
+; global candidate lane is admitted one actor at a time; each row is
+; {rightX:i16,rightY:i16,tile:u8,attr:u8,sizeFlags:u8}.
+SourceVisual_BuildCandidatePacket:
+    sep #$20
+.a8
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    beq SourceVisual_BuildCandidatePacket__fresh
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_OWNER
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_BuildCandidatePacket__fresh
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE
+    ora.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+2
+    beq SourceVisual_BuildCandidatePacket__fresh
+    brl SourceVisual_BuildCandidatePacket__already_ready
+SourceVisual_BuildCandidatePacket__fresh:
+    rep #$31
+.a16
+.i16
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PieceCount
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_COUNT
+    lda.l SourceVisual_EntryScratch+4
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_WIDTH
+    lda.l SourceVisual_EntryIndexSaved
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_ENTRY
+    lda #0
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_FENCE+2
+    sta.l SourceVisual_PieceIndex
+SourceVisual_BuildCandidatePacket__piece:
+    lda.l SourceVisual_PieceIndex
+    cmp.l SourceVisual_PieceCount
+    bcc SourceVisual_BuildCandidatePacket__piece_ready
+    brl SourceVisual_BuildCandidatePacket__publish
+SourceVisual_BuildCandidatePacket__piece_ready:
+    ; Source row offset = piece*16; packet offset = piece*7.
+    lda.l SourceVisual_PieceIndex
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SourceVisual_PieceOffset
+    tax
+    lda.l SourceVisual_PieceIndex
+    sta.l SourceVisual_PacketCopyCount
+    asl a
+    asl a
+    asl a
+    sec
+    sbc.l SourceVisual_PacketCopyCount
+    sta.l SourceVisual_PacketDataIndex
+    lda.l SourceVisual_PieceTable,x
+    sta.l SourceVisual_PacketSpriteRelX
+    lda.l SourceVisual_PieceTable+2,x
+    sta.l SourceVisual_PacketDeltaY
+    lda.l SourceVisual_PacketDataIndex
+    tax
+    lda.l SourceVisual_PacketSpriteRelX
+    sta.l SourceVisual_CandidatePacketData,x
+    lda.l SourceVisual_PacketDataIndex
+    clc
+    adc #2
+    tax
+    lda.l SourceVisual_PacketDeltaY
+    sta.l SourceVisual_CandidatePacketData,x
+    ; Preserve the authored left-facing position as signed offsets too. The
+    ; published fallback must not synthesize it from a frame width or any
+    ; mutable candidate-table state while a replacement is pending.
+SourceVisual_BuildCandidatePacket__capture_left:
+    lda.l SourceVisual_PieceOffset
+    tax
+    lda.l SourceVisual_PieceTable+4,x
+    sta.l SourceVisual_PacketLeftX
+    lda.l SourceVisual_PieceTable+6,x
+    sta.l SourceVisual_PacketLeftY
+    lda.l SourceVisual_PieceIndex
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PacketLeftX
+    sta.l SourceVisual_CandidateLeftGeometry,x
+    inx
+    inx
+    lda.l SourceVisual_PacketLeftY
+    sta.l SourceVisual_CandidateLeftGeometry,x
+SourceVisual_BuildCandidatePacket__left_saved:
+    lda.l SourceVisual_PieceOffset
+    tax
+    lda.l SourceVisual_PieceTable+14,x
+    and #$01FF
+    clc
+    adc.l SourceVisual_BaseTile
+    sta.l SourceVisual_PacketTotal
+    lda.l SourceVisual_PacketDataIndex
+    clc
+    adc #4
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketTotal
+    sta.l SourceVisual_CandidatePacketData,x
+    ; Palette mapping is one-based in the actor row; OAM attribute palette
+    ; bits are zero-based and normalized to right-facing (H-flip clear).
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PieceOffset
+    tax
+    lda.l SourceVisual_PieceTable+8,x
+    and #$00FF
+    clc
+    adc.l SourceVisual_Record
+    clc
+    adc #16
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_State,x
+    bne SourceVisual_BuildCandidatePacket__palette_ready
+    brl SourceVisual_BuildCandidatePacket__bad_palette
+SourceVisual_BuildCandidatePacket__palette_ready:
+    dec a
+    asl a
+    ora #$30
+    sta.l SourceVisual_PacketSpriteAttr
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketTotal
+    and #$0100
+    beq SourceVisual_BuildCandidatePacket__name_ready
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketSpriteAttr
+    ora #$01
+    sta.l SourceVisual_PacketSpriteAttr
+    rep #$31
+.a16
+.i16
+SourceVisual_BuildCandidatePacket__name_ready:
+    sep #$20
+.a8
+SourceVisual_BuildCandidatePacket__priority_ready:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketDataIndex
+    clc
+    adc #5
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketSpriteAttr
+    sta.l SourceVisual_CandidatePacketData,x
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PieceOffset
+    tax
+    lda.l SourceVisual_PieceTable+14,x
+    and #$8000
+    beq SourceVisual_BuildCandidatePacket__small
+    sep #$20
+.a8
+    lda #2
+    bra SourceVisual_BuildCandidatePacket__size_ready
+SourceVisual_BuildCandidatePacket__small:
+    sep #$20
+.a8
+    lda #0
+SourceVisual_BuildCandidatePacket__size_ready:
+    sta.l SourceVisual_PacketSpriteHigh
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PacketDataIndex
+    clc
+    adc #6
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketSpriteHigh
+    sta.l SourceVisual_CandidatePacketData,x
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_PieceIndex
+    inc a
+    sta.l SourceVisual_PieceIndex
+    brl SourceVisual_BuildCandidatePacket__piece
+SourceVisual_BuildCandidatePacket__publish:
+    ; Publish metadata only after every authored descriptor is complete.
+    lda.l SourceVisual_ActorSlot
+    sep #$20
+.a8
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_OWNER
+    lda #1
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    rep #$31
+.a16
+.i16
+    sec
+    rts
+SourceVisual_BuildCandidatePacket__already_ready:
+    sec
+    rts
+SourceVisual_BuildCandidatePacket__bad_palette:
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+
 SourceVisual_Emit:
     rep #$31
 .a16
 .i16
+    lda.l Oam_CurrentSlot
+    sta.l SourceVisual_EmitOamStart
+    lda CHAR_POS_Y
+    sta.l SourceVisual_EmitActorY
+    lda.l SourceVisual_EntryScratch+4
+    sta.l SourceVisual_EmitFrameWidth
     lda #0
     sta.l SourceVisual_DebugEmitPiece+44
     lda #36
@@ -3863,6 +10343,7 @@ SourceVisual_Emit__count_visible:
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
     bcs SourceVisual_Emit__reserve_visible
+    lda.l SourceVisual_PieceIndex
     jsr SourceVisual_ViewportNormalPiece
     bcc SourceVisual_Emit__count_mirror
     lda.l SourceVisual_VisiblePieces
@@ -3901,9 +10382,66 @@ SourceVisual_Emit__oam_capacity_ok:
     rep #$31
 .a16
 .i16
+    ; Validate every live tile/palette mapping before writing the first OAM
+    ; byte. This makes a successful Emit a complete packet commit, never a
+    ; partial candidate followed by a fallback over a half-written buffer.
+    jsr SourceVisual_ValidateEmitMap
+    bcs SourceVisual_Emit__tile_map_valid
+    brl SourceVisual_Emit__tile_fail
+SourceVisual_Emit__tile_map_valid:
+    jsr SourceVisual_ValidatePaletteMap
+    bcs SourceVisual_Emit__palette_map_valid
+    brl SourceVisual_Emit__palette_fail_before_write
+SourceVisual_Emit__palette_map_valid:
+    ; A single full-packet staging row is sufficient because only one
+    ; candidate may be published per OAM field. Other candidates keep their
+    ; prior published rows and receive explicit status-4 backpressure.
+    sep #$20
+.a8
+    lda.l SourceVisual_UseCandidate
+    beq SourceVisual_Emit__candidate_lane_ready8
+    lda.l SourceVisual_PacketCandidateOwner
+    cmp #$FF
+    beq SourceVisual_Emit__candidate_lane_claim
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_Emit__candidate_lane_ready8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_Emit__candidate_lane_claim:
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_PacketCandidateOwner
+SourceVisual_Emit__candidate_lane_ready8:
+    rep #$31
+.a16
+.i16
     lda #0
     sta.l SourceVisual_PieceIndex
     bra SourceVisual_Emit__piece
+SourceVisual_Emit__tile_fail:
+    sep #$20
+.a8
+    lda #$29
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_Emit__palette_fail_before_write:
+    sep #$20
+.a8
+    lda #$2A
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    clc
+    rts
 SourceVisual_Emit__hidden:
     sec
     rts
@@ -4061,6 +10599,14 @@ SourceVisual_WriteMirror:
     .a16
     .i16
 SourceVisual_WriteMirror__emit:
+    sep #$20
+.a8
+    lda.l OamSetSprite_Hi
+    ora #$80
+    sta.l OamSetSprite_Hi
+    rep #$31
+.a16
+.i16
     jsr SourceVisual_WriteCurrentPiece
 SourceVisual_Emit__next_piece:
     lda.l SourceVisual_PieceIndex
@@ -4069,6 +10615,90 @@ SourceVisual_Emit__next_piece:
     jmp SourceVisual_Emit__piece
 SourceVisual_Emit__done:
 .a16
+    sep #$20
+.a8
+    lda.l SourceVisual_UseCandidate
+    beq SourceVisual_Emit__packet_record
+    rep #$31
+.a16
+.i16
+    jsr SourceVisual_BuildCandidatePacket
+    bcs SourceVisual_Emit__packet_record
+    ; No OAM bytes have been committed when packet construction fails; roll
+    ; back the append cursor and release admission before returning failure.
+    lda.l SourceVisual_EmitOamStart
+    sta.l Oam_CurrentSlot
+    sep #$20
+.a8
+    lda #$FF
+    sta.l SourceVisual_PacketCandidateOwner
+    lda #0
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_Emit__packet_record:
+    rep #$31
+.a16
+.i16
+    sep #$20
+    .a8
+    lda.l SourceVisual_UseCandidate
+    beq SourceVisual_Emit__record_frame
+    rep #$31
+    .a16
+    .i16
+    jsr SourceVisual_CandidateActionMatches
+    bcs SourceVisual_Emit__record_frame
+    ; The built packet has not been recorded/submitted yet. Roll back only this
+    ; actor's appended shadow OAM. A replacement keeps its candidate lease
+    ; pinned for normal identity retirement; an initial packet has no prior
+    ; frame to fall back to, so abort its candidate lease here. A submitted
+    ; DMA is never cancelled here.
+    lda.l SourceVisual_EmitOamStart
+    sta.l Oam_CurrentSlot
+    sep #$20
+    .a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+    .a16
+    .i16
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+    .a8
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    bne SourceVisual_Emit__stale_replacement8
+    rep #$31
+    .a16
+    .i16
+    jsr SourceVisual_AbortInitialPacket
+    clc
+    rts
+SourceVisual_Emit__stale_replacement8:
+.a8
+.i16
+    lda #$FF
+    sta.l SourceVisual_PacketCandidateOwner
+    lda #0
+    sta.l SourceVisual_CandidatePacketMeta+SOURCE_VISUAL_PACKET_META_VALID
+    rep #$31
+    .a16
+    .i16
+    clc
+    rts
+SourceVisual_Emit__record_frame:
+    rep #$31
+    .a16
+    .i16
+    jsr SourceVisual_RecordFramePacket
     lda #38
     sta.l SourceVisual_DebugQueueStage
     lda.l Oam_Buffer
@@ -4340,3 +10970,348 @@ SourceVisual_SetSprite:
     rts
 
 ; Scratch labels are explicit WRAM addresses above.
+
+
+; A reservation is a bounded six-slot round-robin token. It remains until the
+; reserved actor claims the stream or proves its request already published.
+SourceVisual_PriorityGate:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    sep #$20
+.a8
+    lda.l SourceVisual_PlayerPriorityOwner
+    cmp #$FF
+    beq SourceVisual_PriorityGate__allow8
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_PriorityGate__allow8
+    lda.l SourceVisual_LoaderOwner
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_PriorityGate__allow8
+    lda.l SourceVisual_FindScanActive
+    beq SourceVisual_PriorityGate__blocked8
+    lda.l SourceVisual_FindScanOwner
+    cmp.l SourceVisual_ActorSlot
+    beq SourceVisual_PriorityGate__allow8
+SourceVisual_PriorityGate__blocked8:
+    jsr SourceVisual_QueueCurrentActor
+    rep #$30
+.a16
+.i16
+    plx
+    pla
+    plp
+    clc
+    rts
+SourceVisual_PriorityGate__allow8:
+    rep #$30
+.a16
+.i16
+    plx
+    pla
+    plp
+    sec
+    rts
+
+; Preserve a new key while its current immutable descriptor is in flight.
+SourceVisual_QueueChangedLoaderKey:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    sep #$20
+.a8
+    lda.l SourceVisual_LoaderOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_QueueChangedLoaderKey__done8
+    rep #$30
+.a16
+.i16
+    lda.l SourceVisual_Key
+    cmp.l SourceVisual_LoaderKey
+    bne SourceVisual_QueueChangedLoaderKey__enqueue
+    lda.l SourceVisual_Key+2
+    cmp.l SourceVisual_LoaderKey+2
+    beq SourceVisual_QueueChangedLoaderKey__done
+SourceVisual_QueueChangedLoaderKey__enqueue:
+    jsr SourceVisual_QueueCurrentActor
+    bra SourceVisual_QueueChangedLoaderKey__done
+SourceVisual_QueueChangedLoaderKey__done8:
+    rep #$30
+.a16
+.i16
+SourceVisual_QueueChangedLoaderKey__done:
+    plx
+    pla
+    plp
+    rts
+
+; Only CHAR_INPUT_DRIVEN==1 is a player; slot numbers are not ownership.
+SourceVisual_RequestPlayerPriority:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    sep #$20
+.a8
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    bne SourceVisual_RequestPlayerPriority__done8
+    rep #$30
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    and #$00FF
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_PacketMeta+SOURCE_VISUAL_PACKET_META_VALID,x
+    beq SourceVisual_RequestPlayerPriority__done8
+    rep #$30
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    and #$00FF
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_Key
+    cmp.l SourceVisual_PublishedKey,x
+    bne SourceVisual_RequestPlayerPriority__changed
+    lda.l SourceVisual_Key+2
+    cmp.l SourceVisual_PublishedKey+2,x
+    beq SourceVisual_RequestPlayerPriority__done
+SourceVisual_RequestPlayerPriority__changed:
+    jsr SourceVisual_QueueCurrentActor
+    sep #$20
+.a8
+    lda.l SourceVisual_PlayerPriorityOwner
+    cmp #$FF
+    bne SourceVisual_RequestPlayerPriority__done8
+    ; Do not mint another player token while a different actor is already
+    ; waiting. The queue's next release grants that actor before the player's
+    ; next changed key can reserve the stream again.
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    and #$00FF
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorWaitBits,x
+    eor #$FF
+    and.l SourceVisual_WaitingActorMask
+    bne SourceVisual_RequestPlayerPriority__done8
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_PlayerPriorityOwner
+SourceVisual_RequestPlayerPriority__done8:
+    rep #$30
+.a16
+.i16
+SourceVisual_RequestPlayerPriority__done:
+    plx
+    pla
+    plp
+    rts
+
+; One request bit per actor; latest keys are recomputed on that actor's turn.
+SourceVisual_QueueCurrentActor:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    lda.l SourceVisual_ActorSlot
+    and #$00FF
+    cmp #6
+    bcs SourceVisual_QueueCurrentActor__done
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorWaitBits,x
+    ora.l SourceVisual_WaitingActorMask
+    sta.l SourceVisual_WaitingActorMask
+    rep #$30
+.a16
+.i16
+SourceVisual_QueueCurrentActor__done:
+    plx
+    pla
+    plp
+    rts
+
+SourceVisual_ClearQueuedActor:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    lda.l SourceVisual_ActorSlot
+    and #$00FF
+    cmp #6
+    bcs SourceVisual_ClearQueuedActor__done
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorWaitBits,x
+    eor #$FF
+    and.l SourceVisual_WaitingActorMask
+    sta.l SourceVisual_WaitingActorMask
+    lda.l SourceVisual_PlayerPriorityOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_ClearQueuedActor__done8
+    lda #$FF
+    sta.l SourceVisual_PlayerPriorityOwner
+    lda.l SourceVisual_LoaderOwner
+    cmp #$FF
+    bne SourceVisual_ClearQueuedActor__done8
+    jsr SourceVisual_GrantNextQueuedActor
+SourceVisual_ClearQueuedActor__done8:
+    rep #$30
+.a16
+.i16
+SourceVisual_ClearQueuedActor__done:
+    plx
+    pla
+    plp
+    rts
+
+; A fresh AsyncRead owner claim consumes this actor's queue bit and grant.
+SourceVisual_ClaimQueuedActor:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    lda.l SourceVisual_ActorSlot
+    and #$00FF
+    cmp #6
+    bcs SourceVisual_ClaimQueuedActor__done
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorWaitBits,x
+    eor #$FF
+    and.l SourceVisual_WaitingActorMask
+    sta.l SourceVisual_WaitingActorMask
+    lda.l SourceVisual_ActorSlot
+    sta.l SourceVisual_QueueCursor
+SourceVisual_ClaimQueuedActor__done8:
+    rep #$30
+.a16
+.i16
+SourceVisual_ClaimQueuedActor__done:
+    plx
+    pla
+    plp
+    rts
+
+; Reserve the next waiter after a reader releases a completed descriptor.
+; The reservation remains until that actor starts a seek or consumes ready
+; bytes; then other waiters advance by bounded round-robin.
+SourceVisual_GrantNextQueuedActor:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    phy
+    sep #$20
+.a8
+    lda.l SourceVisual_PlayerPriorityOwner
+    cmp #$FF
+    beq SourceVisual_GrantNextQueuedActor__select
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_GrantNextQueuedActor__done8
+    lda #$FF
+    sta.l SourceVisual_PlayerPriorityOwner
+SourceVisual_GrantNextQueuedActor__select:
+    rep #$30
+.a16
+.i16
+    lda.l SourceVisual_QueueCursor
+    and #$00FF
+    inc a
+    cmp #6
+    bcc SourceVisual_GrantNextQueuedActor__start
+    lda #0
+SourceVisual_GrantNextQueuedActor__start:
+    tax
+    ldy #6
+SourceVisual_GrantNextQueuedActor__scan:
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorWaitBits,x
+    and.l SourceVisual_WaitingActorMask
+    bne SourceVisual_GrantNextQueuedActor__found8
+    rep #$30
+.a16
+.i16
+    inx
+    cpx #6
+    bcc SourceVisual_GrantNextQueuedActor__index_ok
+    ldx #0
+SourceVisual_GrantNextQueuedActor__index_ok:
+    dey
+    bne SourceVisual_GrantNextQueuedActor__scan
+    sep #$20
+.a8
+    lda #$FF
+    sta.l SourceVisual_PlayerPriorityOwner
+    bra SourceVisual_GrantNextQueuedActor__done8
+SourceVisual_GrantNextQueuedActor__found8:
+    txa
+    sta.l SourceVisual_PlayerPriorityOwner
+SourceVisual_GrantNextQueuedActor__done8:
+    rep #$30
+.a16
+.i16
+SourceVisual_GrantNextQueuedActor__done:
+    ply
+    plx
+    pla
+    plp
+    rts
+
+SourceVisual_ActorWaitBits:
+    .db $01, $02, $04, $08, $10, $20
+
+; Consume a priority reservation only when AsyncRead has real I/O progress.
+; Preserve the caller's accumulator, width flags, and other processor state.
+SourceVisual_ConsumePriorityTurn:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    sep #$20
+.a8
+    lda.l SourceVisual_PlayerPriorityOwner
+    cmp.l SourceVisual_ActorSlot
+    bne SourceVisual_ConsumePriorityTurn__done8
+    lda #$FF
+    sta.l SourceVisual_PlayerPriorityOwner
+SourceVisual_ConsumePriorityTurn__done8:
+    rep #$30
+.a16
+.i16
+    pla
+    plp
+    rts
+

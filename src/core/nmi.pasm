@@ -257,6 +257,10 @@ Core_Nmi_Play__do_commit:
     rep #$31
 .a16
     jsr Core_Dma_ProcessQueue
+    ; The queue just executed every active descriptor. SourceVisual validates
+    ; the exact main-OAM generation token here, snapshots its bounded packet,
+    ; and only then permits the main loop to retire old tile/palette pins.
+    jsl SourceVisual_OnOamComplete
 
     ; Phase 9 step 4 (SyncScroll): if Core_StreamScroll_Play (main.pasm)
     ; finished resolving a streaming BG1 column this frame, write it into
@@ -273,15 +277,18 @@ Core_Nmi_Play__do_commit:
 
     sep #$20
 .a8
-    ; Msu1_LoadFrame (main.pasm) sets Msu1_StreamBusy=1 right after queuing
+    ; Msu1_LoadFrame (main.pasm) sets bit 0 of Msu1_StreamBusy after queuing
     ; its 6 row-DMAs, whose source is a single shared WRAM staging buffer
     ; (AnimFrameStaging) -- those DMAs have now just fired via the
     ; Core_Dma_ProcessQueue call directly above, so it's safe to clear the
-    ; gate here and let another caller reuse the buffer. Only reached via
+    ; legacy bit-0 gate here and let another caller reuse the buffer. Preserve
+    ; bit 7, which locks the source-visual resumable MSU cursor across frames.
+    ; Only reached via
     ; the do-commit path (this routine's Core_Nmi_Play__frame_skipped path
     ; does NOT run Core_Dma_ProcessQueue, so it must not clear this either
     ; -- and doesn't, since that path returns before ever reaching here).
-    lda #0
+    lda.l Msu1_StreamBusy
+    and #$80
     sta.l Msu1_StreamBusy
 
     lda.l Oam_UploadFlag

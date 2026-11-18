@@ -954,10 +954,14 @@ S6Host_PlayerMove__x_store:
     stz $14
     bra S6Host_PlayerMove__x_bound_done
 S6Host_PlayerMove__x_bound_right:
+    .a16
+    .i16
     lda $14
+    ; A signed negative position is below a nonnegative upper bound.
+    ; Keep the existing directional contract; never map it to the far edge.
+    bmi S6Host_PlayerMove__x_bound_done
     cmp.l S6Host_PlayerWorldMaxX
     bcc S6Host_PlayerMove__x_bound_done
-    beq S6Host_PlayerMove__x_bound_done
     lda.l S6Host_PlayerWorldMaxX
     sta $14
 S6Host_PlayerMove__x_bound_done:

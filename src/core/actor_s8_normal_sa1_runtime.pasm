@@ -3,14 +3,15 @@
 ; and the special Biker driver remain on their existing typed S-CPU services.
 ; Spawn/respawn is a true dependency boundary: drain queued ticks, bind one
 ; production slot, then publish only that context and its 133-byte metadata row.
-S6Normal_LastStage = $7E1778
+S6Normal_LastStage = $7E1762
 ; Spawn_Play can reassign an allocated actor row without invoking the
 ; behavior binder again. Track the roster represented by each live source
 ; context so the render-boundary ownership sweep can safely rebind it.
-; $17C0..$17C5 and $17C6..$17C9 are unused; bridge scratch begins at $17E0.
-S6Normal_BoundRoster = $7E17C0
-S6Normal_BindLiveActors__slot_index = $7E17C6
-S6Normal_BindLiveActors__worker_context = $7E17C8
+; Reserve $17A0..$17A9 between clock $1780..$179F and zero-velocity
+; blocks $17B0..$17DF. Bridge scratch begins at $17E0.
+S6Normal_BoundRoster = $7E17A0
+S6Normal_BindLiveActors__slot_index = $7E17A6
+S6Normal_BindLiveActors__worker_context = $7E17A8
 ; Six-byte shared target-type directory for the persistent worker's ordered
 ; world-attack pass. Only native breakable props are marked; HP,
 ; invulnerability, rewards and lifecycle remain S-CPU-owned typed state.
@@ -1052,8 +1053,13 @@ S6Normal_BindLiveActors__worker_actor_live:
     rep #$30
     .a16
     .i16
+    beq S6Normal_BindLiveActors__roster_matches
     plx
-    bne S6Normal_BindLiveActors__roster_changed
+    bra S6Normal_BindLiveActors__roster_changed
+S6Normal_BindLiveActors__roster_matches:
+    .a16
+    .i16
+    plx
     brl S6Normal_BindLiveActors__next
 S6Normal_BindLiveActors__roster_changed:
     lda #0

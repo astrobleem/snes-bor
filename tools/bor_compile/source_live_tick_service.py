@@ -50,7 +50,8 @@ def _target(value, name):
     raise ValueError("LIVE_TICK_PLAYER_SYMBOL:" + name)
 
 
-def emit(symbols, player_symbols, work=WORK_DEFAULT, latest=LATEST_DEFAULT):
+def emit(symbols, player_symbols, work=WORK_DEFAULT, latest=LATEST_DEFAULT,
+         *, fresh_input_hook=None):
     """Emit a standalone local-label routine named ``LiveTick_Service``.
 
     ``symbols`` supplies actual assembled symbol addresses for the source
@@ -89,6 +90,7 @@ def emit(symbols, player_symbols, work=WORK_DEFAULT, latest=LATEST_DEFAULT):
     if "PlayerHistory_Refresh" not in player_symbols:
         raise ValueError("LIVE_TICK_PLAYER_SYMBOL:PlayerHistory_Refresh")
     history = _target(player_symbols["PlayerHistory_Refresh"], "PlayerHistory_Refresh")
+    hook = _target(fresh_input_hook, "fresh_input_hook") if fresh_input_hook is not None else None
     from source_foreign_state_layout import layout
     regions = {r["name"]: r for r in layout(0x7FA000, 6400)["regions"]}
     input_snapshot = regions["input_snapshot"]["address"]
@@ -151,6 +153,10 @@ def emit(symbols, player_symbols, work=WORK_DEFAULT, latest=LATEST_DEFAULT):
     put(f" sta.l ${input_snapshot:06X},x")
     put(" inx", " inx", " cpx #20"); branch("bcc", "LiveTick_CopyInput")
     put(f" jsl {history}"); branch("bcs", "LiveTick_FaultOwned")
+    if hook is not None:
+        # Selector UI executes once per outer input iteration, before the
+        # first update tick. Catch-up ticks jump directly to CatchUp below.
+        put(f" jsl {hook}"); branch("bcs", "LiveTick_FaultOwned")
     label("LiveTick_CatchUp")
     put(f" jsl ${symbols['SourceWorldTick4086_Begin']:06X}"); branch("bcs", "LiveTick_FaultOwned")
 

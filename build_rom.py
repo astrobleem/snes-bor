@@ -7,6 +7,7 @@ import sys
 import shutil
 import hashlib
 import json
+import zlib
 from pathlib import Path
 
 ROM_SIZE = 0x400000
@@ -517,7 +518,8 @@ def _load_poppy_symbols(path):
 def validate_bank0_layout(poppy_data, symbol_path):
     """Reject executable output that collides with the LoROM tail tables."""
     symbols = _load_poppy_symbols(symbol_path)
-    required = ('scpu_boot', 'scpu_bank0_runtime_end', 'nmi_handler',
+    required = ('scpu_boot', 'scpu_bank0_preboot_end',
+                'scpu_bank0_runtime_end', 'nmi_handler',
                 'nmi_handler_end', 'irq_handler', 'irq_handler_end')
     missing = [name for name in required if name not in symbols]
     if missing:
@@ -535,6 +537,13 @@ def validate_bank0_layout(poppy_data, symbol_path):
         if symbols[name] != value:
             raise SystemExit(f'bank0 layout guard: {name} is ${symbols[name]:06X}, '
                              f'expected ${value:06X}')
+
+    preboot_end = symbols['scpu_bank0_preboot_end']
+    if preboot_end >> 16 != 0 or \
+            (preboot_end & 0xFFFF) > (symbols['scpu_boot'] & 0xFFFF):
+        raise SystemExit(f'bank0 layout guard: sequential runtime ends at '
+                         f'${preboot_end:06X}, overlapping fixed reset body '
+                         f'${symbols["scpu_boot"]:06X}')
 
     runtime_end = symbols['scpu_bank0_runtime_end'] & 0xFFFF
     nmi = symbols['nmi_handler'] & 0xFFFF
@@ -555,9 +564,189 @@ def validate_bank0_layout(poppy_data, symbol_path):
         raise SystemExit(f'bank0 layout guard: emitted byte ${first:04X} in '
                          'header/vector window $7FC0-$7FFF')
 
+    def bank0_offset(address):
+        if address >> 16 != 0 or (address & 0xFFFF) < 0x8000:
+            raise SystemExit(f'bank0 layout guard: non-LoROM code address '
+                             f'${address:06X}')
+        return address & 0x7FFF
+
+    for name, opcode in (('scpu_boot', 0x78), ('nmi_handler', 0x22),
+                         ('irq_handler', 0x40)):
+        offset = bank0_offset(symbols[name])
+        if offset >= len(poppy_data) or poppy_data[offset] != opcode:
+            actual = poppy_data[offset] if offset < len(poppy_data) else None
+            raise SystemExit(f'bank0 layout guard: {name} opcode is '
+                             f'{actual!r}, expected ${opcode:02X}')
+
     print(f'bank0 layout guard: PASS (runtime_end=${runtime_end:04X}, '
           f'free_before_nmi={0xFFA0 - runtime_end} bytes, '
           f'header_window=${0x7FC0:04X}-${0x7FFF:04X} empty)')
+
+
+def validate_streamscroll_layout(poppy_data, symbol_path):
+    """Guard the relocated frontpanel streamer and its cross-bank ABI."""
+    symbols = _load_poppy_symbols(symbol_path)
+    required = (
+        'Core_StreamScrollFp_SeekColumn', 'Core_StreamScrollFp_FetchTileToBuffer',
+        'Core_StreamScrollFp_PickColumn', 'Core_StreamScrollFp_ResolveRows',
+        'Core_StreamScrollFp_Play', 'Core_StreamScrollFp_BankEnd',
+        'Core_StreamScrollFp_Play__legacy_return',
+        'Core_StreamScrollFp_Play__disabled_return',
+        'Core_StreamScrollFp_Play__busy_return',
+        'Core_StreamScrollFp_Play__normal_return',
+        'Core_StreamScrollFp_Play__pick_call',
+        'Core_StreamScrollFp_Play__seek_call',
+        'Core_StreamScrollFp_Play__resolve_call',
+        'Core_StreamScrollFp_ResolveRows__fetch_tile_call',
+        'Game_State_Play__fp_scroll_call',
+        'Core_StreamScrollFp_SeekColumn__mul_call',
+        'Core_StreamScrollFp_PickColumn__min_call',
+        'Core_StreamScrollFp_ResolveRows__has_slot_call',
+        'Core_StreamScrollFp_ResolveRows__alloc_call',
+        'Core_StreamScrollFp_ResolveRows__enqueue_call',
+        'Core_StreamScrollFp_Play__stage_dispatch_call',
+        'Core_StreamScrollFp_CommitColumn',
+        'Core_StreamScrollFp_CommitColumn__legacy_call',
+        'Core_StreamScrollFp_CommitColumn__return',
+        'Core_Math_Mul_Long', 'Core_Math_Min_Long',
+        'Core_StreamCacheFp_AllocateSlot_Long',
+        'Core_Dma_HasFreeSlot_Long', 'Core_Dma_Enqueue_Long',
+        'Core_Math_Mul', 'Core_Math_Min', 'Core_StreamCacheFp_AllocateSlot',
+        'Core_Dma_HasFreeSlot', 'Core_Dma_Enqueue',
+        'StageFp_BG2PlayDispatch', 'StageFp_BG2LegacyCommit',
+    )
+    missing = [name for name in required if name not in symbols]
+    if missing:
+        raise SystemExit('frontpanel stream layout guard: missing symbols: '
+                         + ', '.join(missing))
+
+    def lorom_offset(address):
+        bank, cpu = address >> 16, address & 0xFFFF
+        if cpu < 0x8000:
+            raise SystemExit(f'frontpanel stream layout guard: '
+                             f'${address:06X} is outside LoROM code space')
+        return bank * 0x8000 + (cpu - 0x8000)
+
+    bank = symbols['Core_StreamScrollFp_SeekColumn'] >> 16
+    if bank != 0x0A or (symbols['Core_StreamScrollFp_SeekColumn'] & 0xFFFF) != 0x8000:
+        raise SystemExit('frontpanel stream layout guard: streamer must start '
+                         'at $0A:8000')
+    block_end = symbols['Core_StreamScrollFp_BankEnd']
+    if block_end >> 16 != bank or block_end <= symbols['Core_StreamScrollFp_Play']:
+        raise SystemExit('frontpanel stream layout guard: bank-10 block range is invalid')
+
+    entries = {
+        'Core_StreamScrollFp_SeekColumn': b'\x08',  # PHP
+        'Core_StreamScrollFp_FetchTileToBuffer': b'\xC2\x31',  # REP #$31
+        'Core_StreamScrollFp_PickColumn': b'\xC2\x31',
+        'Core_StreamScrollFp_ResolveRows': b'\xC2\x31',
+        'Core_StreamScrollFp_Play': b'\x08',
+    }
+    for name, expected in entries.items():
+        address = symbols[name]
+        if address >> 16 != bank:
+            raise SystemExit(f'frontpanel stream layout guard: {name} escaped bank 10')
+        offset = lorom_offset(address)
+        actual = bytes(poppy_data[offset:offset + len(expected)])
+        if actual != expected:
+            raise SystemExit(f'frontpanel stream layout guard: {name} bytes '
+                             f'{actual.hex(" ")}, expected {expected.hex(" ")}')
+
+    for name in ('Core_StreamScrollFp_Play__legacy_return',
+                 'Core_StreamScrollFp_Play__disabled_return',
+                 'Core_StreamScrollFp_Play__busy_return',
+                 'Core_StreamScrollFp_Play__normal_return'):
+        if symbols[name] >> 16 != bank or poppy_data[lorom_offset(symbols[name])] != 0x6B:
+            raise SystemExit(f'frontpanel stream layout guard: {name} is not RTL')
+
+    def check_call(call_name, target_name, opcode):
+        call, target = symbols[call_name], symbols[target_name]
+        if opcode == 0x20 and call >> 16 != target >> 16:
+            raise SystemExit(f'frontpanel stream layout guard: JSR {call_name} '
+                             f'crosses from bank {call >> 16:02X} to '
+                             f'{target >> 16:02X}')
+        offset = lorom_offset(call)
+        expected = bytes((opcode, target & 0xFF, (target >> 8) & 0xFF))
+        if opcode == 0x22:
+            expected += bytes(((target >> 16) & 0xFF,))
+        actual = bytes(poppy_data[offset:offset + len(expected)])
+        if actual != expected:
+            raise SystemExit(f'frontpanel stream layout guard: {call_name} '
+                             f'encodes {actual.hex(" ")}, expected {expected.hex(" ")}')
+
+    calls = (
+        ('Game_State_Play__fp_scroll_call', 'Core_StreamScrollFp_Play', 0x22),
+        ('Core_StreamScrollFp_SeekColumn__mul_call', 'Core_Math_Mul_Long', 0x22),
+        ('Core_StreamScrollFp_PickColumn__min_call', 'Core_Math_Min_Long', 0x22),
+        ('Core_StreamScrollFp_ResolveRows__has_slot_call', 'Core_Dma_HasFreeSlot_Long', 0x22),
+        ('Core_StreamScrollFp_ResolveRows__alloc_call', 'Core_StreamCacheFp_AllocateSlot_Long', 0x22),
+        ('Core_StreamScrollFp_ResolveRows__enqueue_call', 'Core_Dma_Enqueue_Long', 0x22),
+        ('Core_StreamScrollFp_Play__stage_dispatch_call', 'StageFp_BG2PlayDispatch', 0x22),
+        ('Core_StreamScrollFp_Play__pick_call', 'Core_StreamScrollFp_PickColumn', 0x20),
+        ('Core_StreamScrollFp_Play__seek_call', 'Core_StreamScrollFp_SeekColumn', 0x20),
+        ('Core_StreamScrollFp_Play__resolve_call', 'Core_StreamScrollFp_ResolveRows', 0x20),
+        ('Core_StreamScrollFp_ResolveRows__fetch_tile_call',
+         'Core_StreamScrollFp_FetchTileToBuffer', 0x20),
+        ('Core_StreamScrollFp_CommitColumn__legacy_call',
+         'StageFp_BG2LegacyCommit', 0x22),
+    )
+    for call_name, target_name, opcode in calls:
+        check_call(call_name, target_name, opcode)
+
+    if symbols['Core_StreamScrollFp_CommitColumn'] >> 16 != 0 \
+            or symbols['Core_StreamScrollFp_CommitColumn__return'] >> 16 != 0 \
+            or poppy_data[lorom_offset(symbols['Core_StreamScrollFp_CommitColumn__return'])] != 0x60:
+        raise SystemExit('frontpanel stream layout guard: legacy commit leaf '
+                         'must remain bank-0 JSL/RTS-compatible')
+
+    adapters = (
+        ('Core_Math_Mul_Long', 'Core_Math_Mul'),
+        ('Core_Math_Min_Long', 'Core_Math_Min'),
+        ('Core_StreamCacheFp_AllocateSlot_Long', 'Core_StreamCacheFp_AllocateSlot'),
+        ('Core_Dma_HasFreeSlot_Long', 'Core_Dma_HasFreeSlot'),
+        ('Core_Dma_Enqueue_Long', 'Core_Dma_Enqueue'),
+    )
+    for adapter, target_name in adapters:
+        address, target = symbols[adapter], symbols[target_name]
+        if address >> 16 != 0 or target >> 16 != 0:
+            raise SystemExit(f'frontpanel stream layout guard: {adapter} and '
+                             f'{target_name} must both remain in bank 0')
+        offset = lorom_offset(address)
+        expected = bytes((0x20, target & 0xFF, (target >> 8) & 0xFF, 0x6B))
+        actual = bytes(poppy_data[offset:offset + 4])
+        if actual != expected:
+            raise SystemExit(f'frontpanel stream layout guard: {adapter} bytes '
+                             f'{actual.hex(" ")}, expected {expected.hex(" ")}')
+
+    print('frontpanel stream layout guard: PASS '
+          f'(bank=0A, range=$8000-${block_end & 0xFFFF:04X}, '
+          'entry opcodes, JSL targets, RTL exits and bank-0 adapters verified)')
+
+
+def validate_linked_fixed_layout(rom, symbol_path):
+    """Check final LoROM vectors and fixed executable bytes after linking."""
+    symbols = _load_poppy_symbols(symbol_path)
+    vectors = (
+        ('RESET', 0x7FFC, symbols['scpu_boot']),
+        ('NMI', 0x7FEA, symbols['nmi_handler']),
+        ('IRQ', 0x7FFE, symbols['irq_handler']),
+    )
+    for name, offset, target in vectors:
+        expected = target & 0xFFFF
+        actual = rom[offset] | (rom[offset + 1] << 8)
+        if actual != expected:
+            raise SystemExit(f'postlink layout guard: {name} vector is '
+                             f'${actual:04X}, expected ${expected:04X}')
+
+    for name, expected in (('scpu_boot', 0x78), ('nmi_handler', 0x22),
+                           ('irq_handler', 0x40)):
+        address = symbols[name]
+        offset = (address >> 16) * 0x8000 + ((address & 0xFFFF) - 0x8000)
+        actual = rom[offset]
+        if actual != expected:
+            raise SystemExit(f'postlink layout guard: {name} opcode is '
+                             f'${actual:02X}, expected ${expected:02X}')
+    print('postlink layout guard: PASS (RESET/NMI/IRQ vectors target intact stubs)')
 
 
 def validate_text_bank_layout(symbol_path):
@@ -848,13 +1037,20 @@ def build_msu_assets(write_output=True, source_sized_visual=False):
         visual_blob = Path('src/generated/production_source_visual.bin').read_bytes()
         visual_catalog = json.loads(Path('src/generated/production_source_visual.json').read_text(encoding='utf-8'))
         visual_offset = len(msu_data)
+        binding_footer = b'SVIX' + (zlib.crc32(visual_blob) & 0xFFFFFFFF).to_bytes(4, 'little')
+        binding_footer_offset = visual_offset + len(visual_blob)
         msu_data += visual_blob
+        msu_data += binding_footer
         roster_sidecar['source_visual'] = {
             'format': 'SVIS1',
             'entry_count': visual_catalog['summary']['entry_count'],
             'data_offset': visual_offset,
             'data_size': len(visual_blob),
             'sha256': hashlib.sha256(visual_blob).hexdigest(),
+            'catalog_crc32': zlib.crc32(visual_blob) & 0xFFFFFFFF,
+            'binding_format': 'SVIX1',
+            'binding_footer_offset': binding_footer_offset,
+            'binding_footer_bytes': len(binding_footer),
         }
     # Layout audits flatten main's includes, so publish these finalized
     # pack-derived constants before auditing the queue's WRAM ownership.
@@ -913,6 +1109,8 @@ def write_source_visual_layout_include(sidecar, *, enabled=False):
     emit_policy_include(catalog, 'src/generated/production_source_visual.pasm',
                         enabled=enabled, msu_offset=visual.get('data_offset', 0),
                         msu_size=visual.get('data_size', 0),
+                        msu_bind_offset=visual.get('binding_footer_offset', 0),
+                        catalog_crc32=visual.get('catalog_crc32'),
                         key_path='src/generated/production_source_visual_keys.pasm')
 
 
@@ -988,6 +1186,7 @@ def link_rom():
         poppy_data = bytearray(f.read())
     print(f"Poppy binary: {len(poppy_data)} bytes (0x{len(poppy_data):X})")
     validate_bank0_layout(poppy_data, 'src/main.sym')
+    validate_streamscroll_layout(poppy_data, 'src/main.sym')
     validate_text_bank_layout('src/main.sym')
     validate_score_layout('src/main.sym')
     validate_vm_wram_layout('src/main.sym')
@@ -1064,6 +1263,7 @@ def link_rom():
     rom[0x7FDE] = total & 0xFF
     rom[0x7FDF] = (total >> 8) & 0xFF
 
+    validate_linked_fixed_layout(rom, 'src/main.sym')
     return bytes(rom)
 
 

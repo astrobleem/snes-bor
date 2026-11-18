@@ -36,6 +36,11 @@ Game_StatePrev = $7E2752   ; .dw -- last frame's state, used only to detect
                            ; the transition edge into a non-playing state
                            ; (one-shot OAM clear+upload, then Core_Oam_Play
                            ; stops being called for the rest of that state)
+; The S6 presentation gate sets this only when it deliberately skips the
+; Character_RenderPass call. Keep it separate from Oam_CurrentSlot: a
+; completed render with zero visible actors must still submit an empty OAM
+; table to hide the previous hardware frame.
+Game_State_PresentationSkipped = $7E5926 ; .dw -- one-loop render-skip handshake
 
 ; ============================================================================
 ; Phase G5 (plan_game.md 5): title screen.
@@ -365,10 +370,16 @@ Entity5_InvulnFrames = $7E58B5
 ; of re-asserting width at entry rather than trusting the caller).
 ; ----------------------------------------------------------------------
 Game_State_Play:
+    ; Advance any retained source-visual MSU seek before the presentation
+    ; gate or actor dispatch. This runs once every paced main-loop turn, even
+    ; before first display-ready and when Character_RenderPass is skipped.
+    jsl SourceVisual_ServicePendingRead
     jsl StageWater_Begin
     php
     rep #$31
 .a16
+    lda #0
+    sta.l Game_State_PresentationSkipped
     jsl StageTimerHost_FrameService
     lda Game_State
     cmp Game_StatePrev
@@ -899,7 +910,8 @@ Game_State_Play__stage_no_win:
     ; Phase 10 Step 2c (plan.md 2.10): same idea, for the BG3 frontpanel's
     ; own cache -- see Core_StreamScrollFp_Play's own header for the DMA-
     ; queue-sharing note (BG1 and FP may both enqueue in the same frame).
-    jsr Core_StreamScrollFp_Play
+Game_State_Play__fp_scroll_call:
+    jsl Core_StreamScrollFp_Play
     ; Spawn-table phase: runs before Hud_Play so a spawn landing this frame
     ; (CHAR_HP 0 -> CHAR_HP_MAX) is reflected in the same frame's HUD bar
     ; redraw instead of lagging one frame behind.
@@ -928,6 +940,12 @@ Game_State_Play__after_hud:
     ; actor resource service has finished.
     jsl StageWater_OamBegin
 Game_State_Play__after_water:
+    lda.l Game_State_PresentationSkipped
+    beq Game_State_Play__submit_oam
+    lda #0
+    sta.l Game_State_PresentationSkipped
+    jmp Game_State_Play__done
+Game_State_Play__submit_oam:
     jsr Core_Oam_Play
 
 Game_State_Play__done:

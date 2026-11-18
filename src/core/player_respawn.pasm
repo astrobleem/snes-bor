@@ -20,7 +20,6 @@ Game_State_RespawnPlayer_Long:
     sta.l Player_InvulnFrames
     lda #0
     sta.l Player_JumpAnimMode
-    sta.l Player_JumpFCount
     rep #$31
 .a16
     lda #PLAYER_RESPAWN_Y

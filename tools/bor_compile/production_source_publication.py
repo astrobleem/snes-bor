@@ -12,6 +12,7 @@ import io
 import json
 import struct
 import sys
+import zlib
 from collections import Counter
 from pathlib import Path
 
@@ -27,11 +28,15 @@ from source_compact_packing import pack_compact  # noqa: E402
 from source_obj_atlas import (place_full_obj, place_large_obj,
                               _physical_origins)  # noqa: E402
 from source_visual_palette_pack import palette_banks_for_frames  # noqa: E402
+from source_visual_offset_index import (  # noqa: E402
+    RUNTIME_CATALOG_MAGIC, RUNTIME_CATALOG_BINDING_BYTES,
+    RUNTIME_BLOCK_INDEX_RECORD_BYTES, RUNTIME_BLOCK_INDEX_BANK0_ENTRIES,
+    pack_runtime_block_offset_index,
+    make_runtime_catalog_binding_footer, write_runtime_block_offset_index,
+)
 
 VISUAL_POLICY_LEGACY_FIXED = 0
 VISUAL_POLICY_SOURCE_SIZED = 1
-
-RUNTIME_CATALOG_MAGIC = b"SVIS1\0"
 
 # Presentation keys mirror the accepted actor's selected animation family;
 # they do not select or advance gameplay state.
@@ -803,8 +808,10 @@ def pack_runtime_catalog(catalog):
     return bytes(out)
 
 
+
 def emit_policy_include(catalog, path, *, enabled=False, msu_offset=None,
-                        msu_size=None, key_path=None):
+                        msu_size=None, msu_bind_offset=None, catalog_crc32=None,
+                        key_path=None):
     """Emit policy metadata and, optionally, the large native key table.
 
     The policy/constants are small and may live with the bank-0 include.  A
@@ -829,6 +836,14 @@ def emit_policy_include(catalog, path, *, enabled=False, msu_offset=None,
     unique_palettes = {p["palette"] for e in entries for p in e["pieces"]}
     unique_sheets = {e["sheet"] for e in entries}
     piece_count = sum(len(e["pieces"]) for e in entries)
+    packed_catalog = pack_runtime_catalog(catalog)
+    block_offsets = pack_runtime_block_offset_index(packed_catalog)
+    if catalog_crc32 is None:
+        catalog_crc32 = zlib.crc32(packed_catalog) & 0xFFFFFFFF
+    else:
+        catalog_crc32 = int(catalog_crc32) & 0xFFFFFFFF
+    max_block_offset = max((int.from_bytes(block_offsets[i:i + 3], "little")
+                            for i in range(0, len(block_offsets), 3)), default=0)
     piece_offset = 18 + len(entries) * 24
     block_offset = piece_offset + piece_count * 16
     palette_offset = block_offset + len(unique_blocks) * 42
@@ -848,6 +863,15 @@ def emit_policy_include(catalog, path, *, enabled=False, msu_offset=None,
         f"SOURCE_VISUAL_PALETTE_OFFSET = {palette_offset}",
         f"SOURCE_VISUAL_SHEET_OFFSET = {sheet_offset}",
         f"SOURCE_VISUAL_BLOCK_COUNT = {len(unique_blocks)}",
+        f"SOURCE_VISUAL_BLOCK_INDEX_RECORD_BYTES = {RUNTIME_BLOCK_INDEX_RECORD_BYTES}",
+        f"SOURCE_VISUAL_BLOCK_INDEX_BANK0_COUNT = {RUNTIME_BLOCK_INDEX_BANK0_ENTRIES}",
+        f"SOURCE_VISUAL_BLOCK_INDEX_COUNT = {len(unique_blocks)}",
+        "SOURCE_VISUAL_BLOCK_INDEX_BANK0_BASE = $408000",
+        "SOURCE_VISUAL_BLOCK_INDEX_BANK1_BASE = $418000",
+        f"SOURCE_VISUAL_BLOCK_INDEX_MAX_OFFSET = ${max_block_offset:06X}",
+        f"SOURCE_VISUAL_CATALOG_CRC32 = ${catalog_crc32:08X}",
+        f"SOURCE_VISUAL_MSU_BIND_OFFSET = ${int(msu_bind_offset or 0):08X}",
+        f"SOURCE_VISUAL_MSU_BIND_BYTES = {RUNTIME_CATALOG_BINDING_BYTES}",
         f"SOURCE_VISUAL_PALETTE_COUNT = {len(unique_palettes)}",
         f"SOURCE_VISUAL_SHEET_COUNT = {len(unique_sheets)}",
         "; Bank 19 ($13:8000) is reserved for the large native key table.",
@@ -888,7 +912,9 @@ def write_catalog(roster_configs, json_path, include_path=None):
     catalog = build_catalog(roster_configs)
     Path(json_path).write_text(json.dumps(catalog, indent=2, sort_keys=True) + "\n",
                                encoding="utf-8", newline="\n")
-    Path(json_path).with_suffix(".bin").write_bytes(pack_runtime_catalog(catalog))
+    packed_catalog = pack_runtime_catalog(catalog)
+    Path(json_path).with_suffix(".bin").write_bytes(packed_catalog)
+    write_runtime_block_offset_index(packed_catalog, Path(json_path).parent)
     if include_path:
         emit_policy_include(catalog, include_path)
     return catalog

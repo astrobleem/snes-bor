@@ -10808,6 +10808,8 @@ Core_StreamScroll_Play__resume:
 ; height_tiles*3 (84) like the boot loader's own column read.
 ; @param X<16-bit>  world column to seek to
 ; Clobbers A, X, Y.
+.bank 10
+.org $8000
 Core_StreamScrollFp_SeekColumn:
     php
     sei
@@ -10822,7 +10824,8 @@ Core_StreamScrollFp_SeekColumn:
     lda.l StreamStageFp_ColStrideLo
     tax
     pla                           ; world_col back into A
-    jsr Core_Math_Mul            ; a = product lo16, x = product hi16
+Core_StreamScrollFp_SeekColumn__mul_call:
+    jsl Core_Math_Mul_Long       ; a = product lo16, x = product hi16
     pha
     txa
     sta StreamScrollFp_ProdHi
@@ -10998,7 +11001,8 @@ Core_StreamScrollFp_PickColumn:
     dec a
     tax
     pla
-    jsr Core_Math_Min               ; a = min(desired_hi_raw, width-1)
+Core_StreamScrollFp_PickColumn__min_call:
+    jsl Core_Math_Min_Long          ; a = min(desired_hi_raw, width-1)
     sta StreamScrollFp_DesiredHi
 
     lda StreamScrollFp_DesiredLo
@@ -11105,7 +11109,8 @@ Core_StreamScrollFp_ResolveRows__miss_ok:
     rep #$31
 .a16
 .i16
-    jsr Core_Dma_HasFreeSlot
+Core_StreamScrollFp_ResolveRows__has_slot_call:
+    jsl Core_Dma_HasFreeSlot_Long
     bcs Core_StreamScrollFp_ResolveRows__queue_ok
     clc
     rts
@@ -11119,8 +11124,10 @@ Core_StreamScrollFp_ResolveRows__queue_ok:
 .i16
     lda StreamStageFp_TileId
     tax
-    jsr Core_StreamCacheFp_AllocateSlot
+Core_StreamScrollFp_ResolveRows__alloc_call:
+    jsl Core_StreamCacheFp_AllocateSlot_Long
     sta StreamStageFp_Slot
+Core_StreamScrollFp_ResolveRows__fetch_tile_call:
     jsr Core_StreamScrollFp_FetchTileToBuffer
 
     sep #$20
@@ -11163,7 +11170,8 @@ Core_StreamScrollFp_ResolveRows__queue_ok:
     rep #$31
 .a16
 .i16
-    jsr Core_Dma_Enqueue
+Core_StreamScrollFp_ResolveRows__enqueue_call:
+    jsl Core_Dma_Enqueue_Long
     bcs Core_StreamScrollFp_ResolveRows__enqueued
     clc                             ; queue full -- retry this row later
     rts
@@ -11340,10 +11348,6 @@ Core_StreamScrollFp_ResolveRows__window_done:
 ; comment for why this can't be a DMA. Only walks FP_CONTENT_ROW_COUNT rows
 ; (a fixed constant here, not a variable HeightTiles like BG1's, since FP
 ; never resolves the other 21 blank rows -- see this block's own header).
-Core_StreamScrollFp_CommitColumn:
-    jsl StageFp_BG2LegacyCommit
-    rts
-
 ; Call once per scpu_main_loop iteration, right after Core_StreamScroll_Play
 ; (this file's own convention: BG1 resolves first, FP second, both gated the
 ; same way). No-ops immediately if FP has no data for this level
@@ -11361,10 +11365,12 @@ Core_StreamScrollFp_CommitColumn:
 ; why it must be stress-tested, not just trusted, before shipping.
 Core_StreamScrollFp_Play:
     php
+Core_StreamScrollFp_Play__stage_dispatch_call:
     jsl StageFp_BG2PlayDispatch
     bcc Core_StreamScrollFp_Play__legacy
     plp
-    rts
+Core_StreamScrollFp_Play__legacy_return:
+    rtl
 Core_StreamScrollFp_Play__legacy:
     plp
     php
@@ -11380,7 +11386,8 @@ Core_StreamScrollFp_Play__legacy:
 .a16
 .i16
     plp
-    rts
+Core_StreamScrollFp_Play__disabled_return:
+    rtl
 Core_StreamScrollFp_Play__enabled:
     lda.l Msu1_StreamBusy
     beq Core_StreamScrollFp_Play__msu_free
@@ -11388,7 +11395,8 @@ Core_StreamScrollFp_Play__enabled:
 .a16
 .i16
     plp
-    rts
+Core_StreamScrollFp_Play__busy_return:
+    rtl
 Core_StreamScrollFp_Play__msu_free:
     ; Redundant re-sync -- same reason Core_StreamScroll_Play__msu_free's
     ; own comment gives (this label is reached by a `beq` that jumps over a
@@ -11405,19 +11413,47 @@ Core_StreamScrollFp_Play__msu_free:
     cmp #$FFFF
     bne Core_StreamScrollFp_Play__resume
 
+Core_StreamScrollFp_Play__pick_call:
     jsr Core_StreamScrollFp_PickColumn
     sta StreamScrollFp_PendCol
     tax
+Core_StreamScrollFp_Play__seek_call:
     jsr Core_StreamScrollFp_SeekColumn
     lda #0
     sta StreamScrollFp_PendTile
 Core_StreamScrollFp_Play__resume:
+Core_StreamScrollFp_Play__resolve_call:
     jsr Core_StreamScrollFp_ResolveRows
 
     plp
     rep #$31
 .a16
 .i16
+Core_StreamScrollFp_Play__normal_return:
+    rtl
+Core_StreamScrollFp_BankEnd:
+
+; The frontpanel streamer is a bank-10 module so its implementation cannot
+; overlap the fixed bank-0 boot body at $FC03. These small bank-0 adapters
+; let the relocated code call existing RTS-only helpers without leaking the
+; caller's return bank onto their stacks.
+.bank 0
+Core_Math_Mul_Long:
+    jsr Core_Math_Mul
+    rtl
+Core_Math_Min_Long:
+    jsr Core_Math_Min
+    rtl
+Core_StreamCacheFp_AllocateSlot_Long:
+    jsr Core_StreamCacheFp_AllocateSlot
+    rtl
+
+; Keep this compatibility leaf in bank 0: the legacy NMI fixture uses a
+; same-bank JSR/RTS call. The live NMI path uses StageFp_BG2CommitDispatch.
+Core_StreamScrollFp_CommitColumn:
+Core_StreamScrollFp_CommitColumn__legacy_call:
+    jsl StageFp_BG2LegacyCommit
+Core_StreamScrollFp_CommitColumn__return:
     rts
 
 ; ============================================================================
@@ -11503,6 +11539,9 @@ Hud_DrawBar__have:
 ; would mean an HP-only change also re-running the text path's own checks
 ; for no reason, and vice versa.
 ; ============================================================================
+; This marks the end of sequential bank-0 runtime before fixed lower-bank
+; gaps and the reset body. build_rom.py rejects growth into those regions.
+scpu_bank0_preboot_end:
 ; Keep this 17-byte cross-bank wrapper in the audited $B880-$C0FF gap.
 ; Emitting it at the tail of bank 0 put its JSL/return across fixed scpu_boot
 ; at $FC03; assembly accepted the overlap, replacing the boss-call bank byte
@@ -13812,6 +13851,7 @@ Footdie_StreamSource:
 .bank 19
 .org $8000
 .include "generated/production_source_visual_keys.pasm"
+.include "generated/production_source_visual_block_offsets.pasm"
 
 ; Generic typed script API boundary. Bank 28 is outside existing code/audio
 ; banks 0..27. Source context is opt-in; unbound APIs fail explicitly.

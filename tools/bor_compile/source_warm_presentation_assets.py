@@ -14,6 +14,7 @@ HEADER = struct.Struct('<4s6H')
 META_BANK = 41
 CODE_BANK = 43
 RENDER_BANK = 46
+COLD_BANK = 42
 CONTROL = 0x7e9400
 ROW_CACHE = 0x7e8400
 RENDER_PIN = 0x7e9600
@@ -41,7 +42,7 @@ def layout():
                 original_foreground_resumption_allowed=False,production_lease=False)
 
 
-def scatter_images(rom, blobs, *, reserved_banks=(META_BANK,CODE_BANK,RENDER_BANK)):
+def scatter_images(rom, blobs, *, reserved_banks=(META_BANK,CODE_BANK,RENDER_BANK,COLD_BANK)):
     """First-fit decreasing, without crossing a checked zero 32-KiB slot."""
     if len(rom)!=4194304:
         raise ValueError('WARM_ROM_EXTENT')

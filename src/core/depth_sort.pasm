@@ -243,7 +243,10 @@ Character_RenderPass:
     lda.l SourceVisual_RenderPassCount
     inc a
     sta.l SourceVisual_RenderPassCount
-    ; Exactly one reset per frame, unconditionally -- this is now the ONLY
+    ; Packet marks are shared by every actor emitted below. Reset once at the
+    ; actual pass boundary, before the depth-sorted actor loop starts.
+    jsl SourceVisual_BeginRenderPass
+    ; Exactly one reset per completed render pass -- this is now the ONLY
     ; place OAM entries are emitted (replaces the old per-entity Oam_
     ; CursorResetDone flag check that used to live in Character_PlayFrame).
     ; `lda #0 / sta.l` instead of `stz.l`/`stz.w` -- see Depth_Sort_

@@ -69,6 +69,9 @@ DmaRequest_SourceBank    = $7E0472   ; .db — source address, bank byte
 DmaRequest_TargetAddr    = $7E0473   ; .dw — see "Target addresses" note above
 DmaRequest_Length        = $7E0475   ; .dw — must be nonzero
 DmaRequest_TypeFlags     = $7E0477   ; .db — DMA_TYPE_* | optional DMA_OPT_FIXED_SOURCE/REVERSE
+; Optional producer-owned OAM sequence/epoch, zero for generic DMA.
+DmaRequest_OwnerSequence  = $7F9CAA   ; .dd - request staging in verified free WRAM
+DmaRequest_OwnerEpoch     = $7F9CDC   ; .dd - non-aliasing OAM token epoch
 
 ; --- Queue state ---
 DmaQueue_CurrentSlot = $7E0478   ; .dw — byte offset into DmaQueue, wraps at SLOTS*SIZE
@@ -83,10 +86,11 @@ DmaQueue_ProcessRemaining = $7E047E ; .dw — bounded NMI ring-scan count
 ;   +5,+6  sourceAddressLow (dw)
 ;   +7     sourceBank       (db)
 DmaQueue = $7E0480
-; Zero means no producer-specific completion fence.  Source-sized visual
-; publication uses tokens 1..6 here without changing the public eight-byte
-; queue-slot ABI.
-DmaQueue_Owner = $7E4600
+; Legacy source-visual ownership token, retained for the source block loaders.
+DmaQueue_Owner = $7E4600 ; 8 byte actor/block ownership tokens
+; Parallel OAM sequence tags and epochs. Payloads are written before ACTIVE.
+DmaQueue_OwnerSequence = $7F9C8A ; 8 * u32, zero means generic DMA
+DmaQueue_OwnerEpoch    = $7F9CBC ; 8 * u32, zero for generic DMA
 
 Core_Dma_Init:
 	rep #$31
@@ -96,14 +100,36 @@ Core_Dma_Init:
 	sta DmaQueue_BudgetTotal
 	sep #$20
 .a8
-	ldx #0
 	lda #0
+	sta.l SourceVisual_OamFenceCompletedValid
+	rep #$20
+.a16
+	lda #0
+	sta.l DmaRequest_OwnerSequence
+	sta.l DmaRequest_OwnerSequence+2
+	sta.l DmaRequest_OwnerEpoch
+	sta.l DmaRequest_OwnerEpoch+2
+	ldx #0
 Core_Dma_Init__owner_clear:
 .i16
+	sta.l DmaQueue_OwnerSequence,x
+	sta.l DmaQueue_OwnerSequence+2,x
+	sta.l DmaQueue_OwnerEpoch,x
+	sta.l DmaQueue_OwnerEpoch+2,x
+	inx
+	inx
+	inx
+	inx
+	cpx #DMA_QUEUE_SLOTS*4
+	bcc Core_Dma_Init__owner_clear
+	sep #$20
+.a8
+	ldx #0
+Core_Dma_Init__legacy_owner_clear:
 	sta.l DmaQueue_Owner,x
 	inx
 	cpx #DMA_QUEUE_SLOTS
-	bcc Core_Dma_Init__owner_clear
+	bcc Core_Dma_Init__legacy_owner_clear
 	rep #$31
 .a16
 	ldx #0
@@ -167,6 +193,13 @@ Core_Dma_Enqueue__scan:
 	; queue full
 	rep #$31
 .a16
+	lda #0
+	sta.l DmaRequest_OwnerSequence
+	sta.l DmaRequest_OwnerSequence+2
+	sta.l DmaRequest_OwnerEpoch
+	sta.l DmaRequest_OwnerEpoch+2
+	rep #$31
+.a16
 	plp
 	clc
 	rts
@@ -190,12 +223,45 @@ Core_Dma_Enqueue__found_slot:
 	lda DmaRequest_SourceBank
 	sta.l DmaQueue+7,x
 
-	; only mark active after everything else is written — if ProcessQueue
-	; runs (e.g. via NMI) partway through this routine, a half-written slot
-	; must not look like a real pending transfer.
+	; Copy the full producer OAM token before publishing ACTIVE. NMI must never
+	; see a live slot with a stale or partially written sequence/epoch.
+	phx
+	rep #$20
+.a16
+	txa
+	lsr a
+	lsr a
+	lsr a
+	pha
+	asl a
+	asl a
+	tax
+	lda.l DmaRequest_OwnerEpoch
+	sta.l DmaQueue_OwnerEpoch,x
+	lda.l DmaRequest_OwnerEpoch+2
+	sta.l DmaQueue_OwnerEpoch+2,x
+	lda #0
+	sta.l DmaRequest_OwnerEpoch
+	sta.l DmaRequest_OwnerEpoch+2
+	pla
+	asl a
+	asl a
+	tax
+	lda.l DmaRequest_OwnerSequence
+	sta.l DmaQueue_OwnerSequence,x
+	lda.l DmaRequest_OwnerSequence+2
+	sta.l DmaQueue_OwnerSequence+2,x
+	lda #0
+	sta.l DmaRequest_OwnerSequence
+	sta.l DmaRequest_OwnerSequence+2
+	sep #$20
+.a8
+	plx
 	lda DmaRequest_TypeFlags
 	ora #DMA_OPT_ACTIVE
 	sta.l DmaQueue+4,x
+	rep #$31
+.a16
 
 	rep #$31
 .a16
@@ -301,7 +367,9 @@ Core_Dma_ProcessQueue__loop:
 .a8
 	lda.l DmaQueue+4,x
 	bit #DMA_OPT_ACTIVE
-	beq Core_Dma_ProcessQueue__skip
+	bne Core_Dma_ProcessQueue__active
+	brl Core_Dma_ProcessQueue__skip
+Core_Dma_ProcessQueue__active:
 
 	and #~DMA_OPT_MASK
 	cmp #DMA_TYPE_VRAM
@@ -336,30 +404,97 @@ Core_Dma_ProcessQueue__bad_type:
 	jsr Core_Error_Handler
 
 Core_Dma_ProcessQueue__next:
-	; STZ has no long addressing mode on 65816 — `.l` on it doesn't error,
-	; it silently emits a malformed instruction (see header note). lda #0 /
-	; sta.l is the correct equivalent. Explicit sep #$20 here too: A was left
-	; 16-bit by the transfer handler this came from, and a 16-bit stz/sta at
-	; +4,x would clobber the low byte of the slot's sourceAddressLow (+5) as
-	; well as the transferType/active byte we actually mean to clear.
+	; Publish completion only for a nonzero sequence attached to a main OAM DMA.
+	; Generic/high-table OAM must not erase a still-consumable completion.
+	rep #$31
+.a16
+	lda.l DmaQueue_CurrentSlot
+	tax
 	sep #$20
 .a8
-	lda #0
-	sta.l DmaQueue+4,x
-	; Clear the optional owner token at the same queue slot.
-	pha
+	lda.l DmaQueue+4,x
+	and #$1F
+	cmp #DMA_TYPE_OAM
+	beq Core_Dma_ProcessQueue__tag_check
+	brl Core_Dma_ProcessQueue__clear_owner
+Core_Dma_ProcessQueue__tag_check:
+	rep #$31
+.a16
+.i16
 	txa
 	lsr a
 	lsr a
 	lsr a
-	tay
-	tya
+	pha
+	asl a
+	asl a
 	tax
+	lda.l DmaQueue_OwnerSequence,x
+	sta.l Oam_VisualFencePublishScratch
+	lda.l DmaQueue_OwnerSequence+2,x
+	ora.l Oam_VisualFencePublishScratch
+	beq Core_Dma_ProcessQueue__untagged_oam
+	lda.l DmaQueue_OwnerSequence,x
+	sta.l SourceVisual_OamFenceCompleted
+	lda.l DmaQueue_OwnerSequence+2,x
+	sta.l SourceVisual_OamFenceCompleted+2
 	pla
+	asl a
+	asl a
+	tax
+	lda.l DmaQueue_OwnerEpoch,x
+	sta.l SourceVisual_OamFenceCompletedEpoch
+	lda.l DmaQueue_OwnerEpoch+2,x
+	sta.l SourceVisual_OamFenceCompletedEpoch+2
+	sep #$20
+.a8
+	lda #1
+	sta.l SourceVisual_OamFenceCompletedValid
+	lda.l Oam_VisualFenceCompletionVersion
+	inc a
+	sta.l Oam_VisualFenceCompletionVersion
+	brl Core_Dma_ProcessQueue__clear_owner
+Core_Dma_ProcessQueue__untagged_oam:
+	pla
+	brl Core_Dma_ProcessQueue__clear_owner
+Core_Dma_ProcessQueue__clear_owner:
+	rep #$31
+.a16
+	lda.l DmaQueue_CurrentSlot
+	tax
+	sep #$20
+.a8
+	lda #0
+	sta.l DmaQueue+4,x
+	rep #$20
+.a16
+	txa
+	lsr a
+	lsr a
+	lsr a
+	pha
+	tax
 	sep #$20
 .a8
 	lda #0
 	sta.l DmaQueue_Owner,x
+	rep #$20
+.a16
+	pla
+	pha
+	asl a
+	asl a
+	tax
+	lda #0
+	sta.l DmaQueue_OwnerEpoch,x
+	sta.l DmaQueue_OwnerEpoch+2,x
+	pla
+	asl a
+	asl a
+	tax
+	lda #0
+	sta.l DmaQueue_OwnerSequence,x
+	sta.l DmaQueue_OwnerSequence+2,x
 	rep #$31
 .a16
 	lda.l DmaQueue_ProcessRemaining
@@ -369,7 +504,7 @@ Core_Dma_ProcessQueue__next:
 	lda DmaQueue_CurrentSlot
 	clc
 	adc #DMA_QUEUE_SLOT_SIZE
-	bra Core_Dma_ProcessQueue__loop
+	brl Core_Dma_ProcessQueue__loop
 
 Core_Dma_ProcessQueue__skip:
 	; Empty slots do not terminate the ring scan.  Other producers may have
@@ -383,7 +518,7 @@ Core_Dma_ProcessQueue__skip:
 	lda DmaQueue_CurrentSlot
 	clc
 	adc #DMA_QUEUE_SLOT_SIZE
-	bra Core_Dma_ProcessQueue__loop
+	brl Core_Dma_ProcessQueue__loop
 
 Core_Dma_ProcessQueue__done:
 	rep #$31
