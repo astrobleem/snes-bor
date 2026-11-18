@@ -42,19 +42,15 @@
 ;
 ; Entered from core/game_state.pasm's Game_State_Play__playing via an
 ; edge-triggered Start check (real BOR's pausemenu() is likewise entered on
-; FLAG_START during gameplay); reuses the same physical BG3 rows as the
-; title/charselect screens (8/10/12) since PAUSED is mutually exclusive
-; with both in time (only ever entered from PLAYING).
+; FLAG_START during gameplay). Rows 12/14/16/18 stay below the Normal
+; HUD (rows 0..11) and above the frontpanel (rows 21..27). Closing the
+; menu needs no gameplay HUD invalidation or additional redraw work.
 ; ============================================================================
 
-PAUSE_ROW_HEADER   = 8
-PAUSE_ROW_CONTINUE = 10
-PAUSE_ROW_ENDGAME  = 12
-PAUSE_ROW_VOLUME   = 14   ; Phase G5 SRAM slice -- row 14 is otherwise
-                            ; unused by title/charselect/HUD (see
-                            ; core/game_state.pasm/main.pasm's own *_ROW_*
-                            ; constants), safe to reuse the same way 8/10/12
-                            ; already are
+PAUSE_ROW_HEADER   = 12
+PAUSE_ROW_CONTINUE = 14
+PAUSE_ROW_ENDGAME  = 16
+PAUSE_ROW_VOLUME   = 18   ; Last menu row; all four clear before exit.
 
 PAUSE_STEP_DRAW_HEADER   = 0
 PAUSE_STEP_DRAW_CONTINUE = 1
@@ -235,7 +231,7 @@ Game_State_Play__pausemenu_wait:
     rep #$31
 .a16
 .i16
-    lda.l Input_trigger+1
+    jsl SourcePause_CombinedEdge
     and #$0008                     ; Up -- bit3 (Character_PlayFrame__dpad_y's
                                      ; own documented "bit11 of the word = bit3
                                      ; of this byte" layout)
@@ -247,7 +243,7 @@ Game_State_Play__pausemenu_wait_check_down:
     rep #$31
 .a16
 .i16
-    lda.l Input_trigger+1
+    jsl SourcePause_CombinedEdge
     and #$0004                     ; Down -- bit2
     beq Game_State_Play__pausemenu_wait_check_left
     sep #$20
@@ -312,7 +308,7 @@ Game_State_Play__pausemenu_wait_check_left:
     rep #$31
 .a16
 .i16
-    lda.l Input_trigger+1
+    jsl SourcePause_CombinedEdge
     and #$0002                     ; Left -- bit1
     beq Game_State_Play__pausemenu_wait_check_right
     sep #$20
@@ -322,7 +318,7 @@ Game_State_Play__pausemenu_wait_check_right:
     rep #$31
 .a16
 .i16
-    lda.l Input_trigger+1
+    jsl SourcePause_CombinedEdge
     and #$0001                     ; Right -- bit0
     beq Game_State_Play__pausemenu_wait_check_start
     sep #$20
@@ -457,9 +453,8 @@ Game_State_Play__pausemenu_clear_volume:
     sta.l Game_State
     jmp Game_State_Play__pausemenu_done
 Game_State_Play__pausemenu_endgame:
-    sep #$20
+    jml SourceQuit_EndGame
 .a8
-    lda #PAUSE_STEP_DRAW_HEADER
     sta.l Pause_Step            ; reset for the next time PAUSED is entered
     rep #$20
 .a16

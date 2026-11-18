@@ -76,7 +76,7 @@ def emit(req,work,sy):
     put(' lda $18\n ora $1A\n ora $1C\n ora $1E');jump('beq','False')
     # Cache absence is a checked live invariant, not an actor-name exception.
     equal(sy['SourceModelAnimationCopy4086_Ready'],0xb4e9);equal(sy['SourceModelAnimationCopy4086_Models'],models)
-    equal(sy['SourceModelAnimationCopy4086_Maximum'],168);equal(sy['SourceModelAnimationCopy4086_RowBytes'],336)
+    equal(sy['SourceModelAnimationCopy4086_Maximum'],168);equal(sy['SourceModelAnimationCopy4086_Bytes'],models*336)
     put(' lda $0A\n sta $50\n lda #0\n tax');label('CacheOffset')
     put(' cpx $50\n beq FlatTrymove_Cache\n clc\n adc #336\n inx\n bra FlatTrymove_CacheOffset');label('Cache')
     put(' tax\n lda.l $43C022,x\n ora.l $43C028,x');jump('bne')

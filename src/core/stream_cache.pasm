@@ -119,6 +119,14 @@ StreamCache_NormalLayout = $7E259A ; .db -- Normal reclaims legacy BG3 FP cache
 StreamCache_BG2Capacity = $7E259B ; .db -- Normal BG2 cache slots admitted
 StreamCache_LegacyFpActive = $7E259C ; .db -- Easy retains BG3 FP cache ownership
 
+; Exhausted-ring witness: valid word, byte stamp, reservation word and
+; legacy-owner byte. Cleared on every cache initialization. No other writer
+; frees Slot2Tile entries; touches only renew stamps to CurrentStamp.
+StreamCache_Exhausted = $7E4BD0
+StreamCache_ExhaustedStamp = $7E4BD2
+StreamCache_ExhaustedLayout = $7E4BD4
+StreamCache_ExhaustedLegacy = $7E4BD6
+
 Core_StreamCache_Init:
 	php
 	sei
@@ -139,6 +147,7 @@ Core_StreamCache_Init:
 	sta StreamCache_ScanCursor      ; cursor starts at slot 1 (0 is reserved)
 	lda #0
 	sta StreamCache_Test_CallCount  ; see its declaration's comment above
+	sta.l StreamCache_Exhausted
 	sta.l StreamCache_NormalLayout
 	sta.l StreamCache_BG2Capacity
 	sta.l StreamCache_LegacyFpActive
@@ -200,6 +209,138 @@ Core_StreamCache_Init__slotstamp:
 ; @return A<16-bit>  the allocated slot number (1..STREAM_CACHE_USABLE)
 ; Clobbers X, Y.
 Core_StreamCache_AllocateSlot:
+    jsl Core_StreamCache_AllocateSlotLong
+    rts
+
+; Carry set means the physical BG1 tile slot is owned by another live layer.
+; Normal reclaims the legacy BG3 foreground-cache band for BG1; Easy retains
+; that band only while its legacy foreground is active.
+; Bank $0C has grown through the former $8B00 helper address (scene-video
+; frame loading now occupies that range). Keep this shared allocator helper
+; in a dedicated ROM bank so later bank-$0C growth cannot replace its bytes
+; while leaving the symbol table apparently intact.
+.bank 27
+.org $8000
+Core_StreamCache_IsReserved:
+    jml Core_StreamCache_IsReserved__body
+
+; The streamed tilemap encodes blank cells as cache slot 0. Power-on VRAM is
+; not guaranteed to be zero, so establish the reserved blank before computing
+; the first resident column. This wrapper preserves the existing initial-
+; column call while keeping the 32-byte PPU clear out of the full bank-0
+; runtime window.
+.org $8080
+Core_StreamCache_InitialColumnSetup:
+	sep #$20
+.a8
+	lda #$80
+	sta.l $002115             ; VMAIN: increment after the high-byte write
+	rep #$31
+.a16
+.i16
+	lda #BG1_TILES_VRAM_WORD
+	sta.l $002116             ; VMADD = BG1 tile slot 0
+	sep #$20
+.a8
+	lda #0
+	ldx #16                   ; one 4bpp tile = 16 VRAM words = 32 bytes
+Core_StreamCache_InitialColumnSetup__clear:
+	sta.l $002118
+	sta.l $002119
+	dex
+	bne Core_StreamCache_InitialColumnSetup__clear
+	rep #$31
+.a16
+.i16
+	jsl Stage_StreamInitialColumn
+	rtl
+.org $8100
+Core_StreamCache_IsReserved__body:
+    rep #$30
+.a16
+.i16
+    lda StreamCache_Candidate
+    and #15
+    bne Core_StreamCache_IsReserved__check
+    jsl SourceVisual_SampleInput
+Core_StreamCache_IsReserved__check:
+.a16
+.i16
+	rep #$30
+.a16
+.i16
+	lda StreamCache_Candidate
+	cmp #512
+	bcc Core_StreamCache_IsReserved__legacy
+	cmp #518
+	bcc Core_StreamCache_IsReserved__yes ; BG3 HUD words $2000-$205F
+Core_StreamCache_IsReserved__legacy:
+	sep #$20
+.a8
+	lda.l StreamCache_NormalLayout
+	bne Core_StreamCache_IsReserved__font
+	lda.l StreamCache_LegacyFpActive
+	beq Core_StreamCache_IsReserved__font
+	rep #$30
+.a16
+.i16
+	lda StreamCache_Candidate
+	cmp #528
+	bcc Core_StreamCache_IsReserved__font
+	cmp #656
+	bcc Core_StreamCache_IsReserved__yes ; Easy legacy BG3 foreground cache
+Core_StreamCache_IsReserved__font:
+	rep #$30
+.a16
+.i16
+	lda StreamCache_Candidate
+	cmp #656
+	bcc Core_StreamCache_IsReserved__bg2
+	cmp #704
+	bcc Core_StreamCache_IsReserved__yes ; BG3 font words $2900-$2BF7
+Core_StreamCache_IsReserved__bg2:
+	sep #$20
+.a8
+	lda.l StreamCache_NormalLayout
+	beq Core_StreamCache_IsReserved__no
+	lda.l StreamCache_BG2Capacity
+	beq Core_StreamCache_IsReserved__no
+	rep #$30
+.a16
+.i16
+	lda StreamCache_Candidate
+	cmp #1023
+	beq Core_StreamCache_IsReserved__yes ; BG2 transparent tile 255
+	cmp #768
+	bcc Core_StreamCache_IsReserved__no
+	sec
+	sbc #768
+	sta StreamCache_OldTile
+	sep #$20
+.a8
+	lda.l StreamCache_BG2Capacity
+	rep #$30
+.a16
+.i16
+	and #$00FF
+	cmp StreamCache_OldTile
+	bcc Core_StreamCache_IsReserved__no
+	beq Core_StreamCache_IsReserved__no
+Core_StreamCache_IsReserved__yes:
+	rep #$30
+.a16
+.i16
+	sec
+	rtl
+Core_StreamCache_IsReserved__no:
+	rep #$30
+.a16
+.i16
+	clc
+	rtl
+
+.org $8300
+Core_StreamCache_AllocateSlotLong:
 	php
 	sei
 	rep #$31
@@ -230,6 +371,20 @@ Core_StreamCache_AllocateSlot__cursor_ok:
 .i16
 	sta StreamCache_ScanCursor
 
+    ; A full failed scan proves every legal slot occupied and protected.
+    ; With the same stamp and reservation layout, allocation/touch can only
+    ; keep it protected. Reuse the ORIGINAL forced-eviction choice without
+    ; rescanning 1,023 unchanged rows. A stamp/layout change invalidates it.
+    jsr Core_StreamCache_FindEligible
+    bcc Core_StreamCache_AllocateSlot__bitmap_empty
+    brl Core_StreamCache_AllocateSlot__found
+Core_StreamCache_AllocateSlot__bitmap_empty:
+.a16
+.i16
+    brl Core_StreamCache_AllocateSlot__force_find
+Core_StreamCache_AllocateSlot__scan_start:
+.a16
+.i16
 	ldy #0                          ; scan counter
 Core_StreamCache_AllocateSlot__scan:
 rep #$31
@@ -304,6 +459,7 @@ Core_StreamCache_AllocateSlot__advance_ok:
 	cpy #STREAM_CACHE_SCAN_LIMIT
 	bcc Core_StreamCache_AllocateSlot__scan
 
+	jsr Core_StreamCache_RecordExhausted
 	; scan budget exhausted -- force-evict a legal slot, never a live owner.
 	brl Core_StreamCache_AllocateSlot__force_find
 Core_StreamCache_AllocateSlot__force_find:
@@ -372,121 +528,64 @@ Core_StreamCache_AllocateSlot__no_evict:
 	rep #$31
 .a16
 .i16
-	rts
-
-; Carry set means the physical BG1 tile slot is owned by another live layer.
-; Normal reclaims the legacy BG3 foreground-cache band for BG1; Easy retains
-; that band only while its legacy foreground is active.
-; Bank $0C has grown through the former $8B00 helper address (scene-video
-; frame loading now occupies that range). Keep this shared allocator helper
-; in a dedicated ROM bank so later bank-$0C growth cannot replace its bytes
-; while leaving the symbol table apparently intact.
-.bank 27
-.org $8000
-Core_StreamCache_IsReserved:
-	rep #$30
-.a16
-.i16
-	lda StreamCache_Candidate
-	cmp #512
-	bcc Core_StreamCache_IsReserved__legacy
-	cmp #518
-	bcc Core_StreamCache_IsReserved__yes ; BG3 HUD words $2000-$205F
-Core_StreamCache_IsReserved__legacy:
-	sep #$20
-.a8
-	lda.l StreamCache_NormalLayout
-	bne Core_StreamCache_IsReserved__font
-	lda.l StreamCache_LegacyFpActive
-	beq Core_StreamCache_IsReserved__font
-	rep #$30
-.a16
-.i16
-	lda StreamCache_Candidate
-	cmp #528
-	bcc Core_StreamCache_IsReserved__font
-	cmp #656
-	bcc Core_StreamCache_IsReserved__yes ; Easy legacy BG3 foreground cache
-Core_StreamCache_IsReserved__font:
-	rep #$30
-.a16
-.i16
-	lda StreamCache_Candidate
-	cmp #656
-	bcc Core_StreamCache_IsReserved__bg2
-	cmp #704
-	bcc Core_StreamCache_IsReserved__yes ; BG3 font words $2900-$2BF7
-Core_StreamCache_IsReserved__bg2:
-	sep #$20
-.a8
-	lda.l StreamCache_NormalLayout
-	beq Core_StreamCache_IsReserved__no
-	lda.l StreamCache_BG2Capacity
-	beq Core_StreamCache_IsReserved__no
-	rep #$30
-.a16
-.i16
-	lda StreamCache_Candidate
-	cmp #1023
-	beq Core_StreamCache_IsReserved__yes ; BG2 transparent tile 255
-	cmp #768
-	bcc Core_StreamCache_IsReserved__no
-	sec
-	sbc #768
-	sta StreamCache_OldTile
-	sep #$20
-.a8
-	lda.l StreamCache_BG2Capacity
-	rep #$30
-.a16
-.i16
-	and #$00FF
-	cmp StreamCache_OldTile
-	bcc Core_StreamCache_IsReserved__no
-	beq Core_StreamCache_IsReserved__no
-Core_StreamCache_IsReserved__yes:
-	rep #$30
-.a16
-.i16
-	sec
-	rtl
-Core_StreamCache_IsReserved__no:
-	rep #$30
-.a16
-.i16
-	clc
 	rtl
 
-; The streamed tilemap encodes blank cells as cache slot 0. Power-on VRAM is
-; not guaranteed to be zero, so establish the reserved blank before computing
-; the first resident column. This wrapper preserves the existing initial-
-; column call while keeping the 32-byte PPU clear out of the full bank-0
-; runtime window.
-.org $8080
-Core_StreamCache_InitialColumnSetup:
-	sep #$20
-.a8
-	lda #$80
-	sta.l $002115             ; VMAIN: increment after the high-byte write
-	rep #$31
+
+Core_StreamCache_ExhaustedValid:
 .a16
 .i16
-	lda #BG1_TILES_VRAM_WORD
-	sta.l $002116             ; VMADD = BG1 tile slot 0
-	sep #$20
-.a8
-	lda #0
-	ldx #16                   ; one 4bpp tile = 16 VRAM words = 32 bytes
-Core_StreamCache_InitialColumnSetup__clear:
-	sta.l $002118
-	sta.l $002119
-	dex
-	bne Core_StreamCache_InitialColumnSetup__clear
-	rep #$31
+    lda.l StreamCache_Exhausted
+    beq Core_StreamCache_ExhaustedValid__no
+    lda.l StreamCache_NormalLayout
+    cmp.l StreamCache_ExhaustedLayout
+    bne Core_StreamCache_ExhaustedValid__no
+    lda.l StreamCache_LegacyFpActive
+    and #$00FF
+    cmp.l StreamCache_ExhaustedLegacy
+    bne Core_StreamCache_ExhaustedValid__no
+    lda.l StreamCache_CurrentStamp
+    and #$00FF
+    sec
+    sbc.l StreamCache_ExhaustedStamp
+    and #$00FF
+    beq Core_StreamCache_ExhaustedValid__yes
+    cmp #1
+    bne Core_StreamCache_ExhaustedValid__no
+    ; On one modular stamp step, only rows reaching age 16 can become
+    ; newly eligible. Free rows remain free until this allocator claims them;
+    ; touches only remove eligibility and candidates are still revalidated.
+    jsr Core_StreamCache_AgeEligible
+    jsr Core_StreamCache_RecordExhausted
+Core_StreamCache_ExhaustedValid__yes:
 .a16
 .i16
-	jsl Stage_StreamInitialColumn
-	rtl
+    sec
+    rts
+Core_StreamCache_ExhaustedValid__no:
+.a16
+.i16
+    lda #0
+    sta.l StreamCache_Exhausted
+    clc
+    rts
+
+Core_StreamCache_RecordExhausted:
+.a16
+.i16
+    lda.l StreamCache_CurrentStamp
+    and #$00FF
+    sta.l StreamCache_ExhaustedStamp
+    lda.l StreamCache_NormalLayout
+    sta.l StreamCache_ExhaustedLayout
+    lda.l StreamCache_LegacyFpActive
+    and #$00FF
+    sta.l StreamCache_ExhaustedLegacy
+    lda #1
+    sta.l StreamCache_Exhausted
+    rts
+
+.org $9000
+.include "stream_cache_eligible.pasm"
 .bank 0
 
 ; ----------------------------------------------------------------------

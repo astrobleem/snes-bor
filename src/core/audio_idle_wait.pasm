@@ -14,6 +14,10 @@ Tad_StreamWaitFrame:
     phy
     lda.l Nmi_FrameCounter
     pha
+    jsl SVActor_ServiceFirstNpcDuringWait
+    jsl SourceWarm_WaitEntry
+    lda #0
+    pha ; one foreground position attempt at most in this wait
     cld
     lda #0
     tcd
@@ -27,9 +31,18 @@ Tad_StreamWaitFrame:
 Tad_StreamWaitFrame__loop:
 .a16
 .i16
-    lda 1,s
+    lda 3,s
     cmp.l Nmi_FrameCounter
     bne Tad_StreamWaitFrame__done
+    lda 1,s
+    bne Tad_StreamWaitFrame__position_done
+    jsl SourceReserve_Wait
+    bcc Tad_StreamWaitFrame__position_done
+    lda #1
+    sta 1,s
+Tad_StreamWaitFrame__position_done:
+.a16
+.i16
     sep #$20
 .a8
     lda.l AudioStream_Enable
@@ -47,6 +60,7 @@ Tad_StreamWaitFrame__no_pump:
 Tad_StreamWaitFrame__done:
 .a16
 .i16
+    pla ; discard bounded position-attempt local
     pla
     ply
     plx
@@ -54,4 +68,4 @@ Tad_StreamWaitFrame__done:
     plb
     plp
     cmp.l Nmi_FrameCounter
-    jml Core_Nmi_WaitFrame__return
+    jml SourceWarm_WaitReturn

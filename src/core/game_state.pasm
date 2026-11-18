@@ -365,7 +365,7 @@ Entity5_InvulnFrames = $7E58B5
 ; of re-asserting width at entry rather than trusting the caller).
 ; ----------------------------------------------------------------------
 Game_State_Play:
-    jsl StageWater_Begin
+    jsl SourceVisual_BeginPresentationFrame
     php
     rep #$31
 .a16
@@ -873,6 +873,7 @@ Game_State_Play__stage_no_win:
     inc a
     sta.l SourceVisual_AfterPassCount
     jsr Core_Screen_Play
+    jsl SourceVisual_EarlySubmit
     jsl Stage_ScrollPlay
     ; --- Gate 0 (plan_vm.md 2, 0.2 deviation 1): the script VM gets one
     ; call per frame, same as the two lines above. Vm_Run itself is a
@@ -928,7 +929,7 @@ Game_State_Play__after_hud:
     ; actor resource service has finished.
     jsl StageWater_OamBegin
 Game_State_Play__after_water:
-    jsr Core_Oam_Play
+    jsl SourceVisual_CompletedSubmit
 
 Game_State_Play__done:
     plp

@@ -3,7 +3,8 @@
 ; Actor A0 attack role, A2 signed range minimum,A4 signed maximum,A6 walk role.
 ; A8 nonzero means additional attack/upper/jump/frame-event semantics required.
 ; C6 authored speed in twentieths; B0 points to signed x/z speed words.
-; D8/DA retain subpixel remainders in twentieths. E6:1 enemy,11 prepare,
+; 9A/9C retain subpixel remainders in twentieths. D8/DA belong to the
+; incoming attack identity and must survive movement. E6:1 enemy,11 prepare,
 ; 12 attack,13 runoff. RNG remains the shared source stream at world36.
 S6_EnemyDecision:
     rep #$30
@@ -62,9 +63,9 @@ S6_EnemyDecision__has_target:
 S6_EnemyDecision__face_fraction:
     .a16
     .i16
-    lda.l $7E00D8,x
+    lda.l $7E009A,x
     sec
-    sbc $D8
+    sbc $9A
     beq S6_EnemyDecision__left
     bmi S6_EnemyDecision__left
     lda #1
@@ -594,7 +595,7 @@ S6_EnemyApplyAxis:
     jmp S6_EnemyApplyAxis__done
 S6_EnemyApplyAxis__velocity:
     ldx $90
-    lda $D8,x
+    lda $9A,x
     clc
     adc $96
     sta $AA
@@ -674,6 +675,7 @@ S6_EnemyApplyAxis__negative_position:
     .a16
     .i16
     lda $98
+    beq S6_EnemyApplyAxis__store_remainder
     bmi S6_EnemyApplyAxis__store_remainder
     ldx $92
     lda $14,x
@@ -688,7 +690,7 @@ S6_EnemyApplyAxis__store_remainder:
     .i16
     ldx $90
     lda $98
-    sta $D8,x
+    sta $9A,x
 S6_EnemyApplyAxis__done:
     .a16
     .i16

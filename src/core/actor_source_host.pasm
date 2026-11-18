@@ -954,10 +954,14 @@ S6Host_PlayerMove__x_store:
     stz $14
     bra S6Host_PlayerMove__x_bound_done
 S6Host_PlayerMove__x_bound_right:
+    .a16
+    .i16
     lda $14
+    ; A signed negative position is below a nonnegative upper bound.
+    ; Keep the existing directional contract; never map it to the far edge.
+    bmi S6Host_PlayerMove__x_bound_done
     cmp.l S6Host_PlayerWorldMaxX
     bcc S6Host_PlayerMove__x_bound_done
-    beq S6Host_PlayerMove__x_bound_done
     lda.l S6Host_PlayerWorldMaxX
     sta $14
 S6Host_PlayerMove__x_bound_done:
@@ -1002,6 +1006,7 @@ S6Host_PlayerMove__y_store:
     lda #4
     sta $94
     jsl S6_EnemyApplyAxis
+    jsl S6Host_PlayerViewportBounds
 
     lda $B4
     and #$0300
@@ -1173,4 +1178,117 @@ S6_HitEffects:
     lda.l S6Host_HitEvents
     inc a
     sta.l S6Host_HitEvents
+    rtl
+
+; Pinned BOR.C eba02fe6 player_trymove(), lines3054..3064:
+; living players remain within advancex+10..310 and source depth160..232.
+; Apply to the admitted resident production player, not its rendered proxy.
+; Dead/below-ground actors retain their existing fall/retirement ownership.
+; Fractional remainders are part of the position and reset only on clamping.
+S6Host_PlayerViewportBounds:
+.a16
+.i16
+    lda.l S6Host_Mode
+    cmp #1
+    bne S6Host_PlayerViewportBounds__return_near
+    lda.l S7Resident_Owner
+    cmp #2
+    bne S6Host_PlayerViewportBounds__return_near
+    lda $F2
+    cmp #1
+    bne S6Host_PlayerViewportBounds__return_near
+    lda $F0
+    beq S6Host_PlayerViewportBounds__return_near
+    bmi S6Host_PlayerViewportBounds__return_near
+    lda $18
+    bmi S6Host_PlayerViewportBounds__return_near
+    lda.l Screen_PosX
+    jsl S6Bridge_UnprojectPolicy
+    bcc S6Host_PlayerViewportBounds__camera
+    jml S6Host_EnvironmentBlocked
+S6Host_PlayerViewportBounds__return_near:
+.a16
+.i16
+    rtl
+S6Host_PlayerViewportBounds__camera:
+.a16
+.i16
+    clc
+    adc #10
+    sta $96
+    lda $14
+    bmi S6Host_PlayerViewportBounds__left
+    cmp $96
+    bcc S6Host_PlayerViewportBounds__left
+    bne S6Host_PlayerViewportBounds__upper
+    lda $9A
+    bpl S6Host_PlayerViewportBounds__upper
+S6Host_PlayerViewportBounds__left:
+.a16
+.i16
+    lda $96
+    sta $14
+    stz $9A
+S6Host_PlayerViewportBounds__upper:
+.a16
+.i16
+    lda $96
+    clc
+    adc #300
+    cmp.l S6Host_PlayerWorldMaxX
+    bcc S6Host_PlayerViewportBounds__cap
+    lda.l S6Host_PlayerWorldMaxX
+S6Host_PlayerViewportBounds__cap:
+.a16
+.i16
+    sta $98
+    lda $14
+    cmp $98
+    bcc S6Host_PlayerViewportBounds__depth
+    bne S6Host_PlayerViewportBounds__right
+    lda $9A
+    beq S6Host_PlayerViewportBounds__depth
+    bmi S6Host_PlayerViewportBounds__depth
+S6Host_PlayerViewportBounds__right:
+.a16
+.i16
+    lda $98
+    sta $14
+    stz $9A
+S6Host_PlayerViewportBounds__depth:
+.a16
+.i16
+    lda $16
+    bmi S6Host_PlayerViewportBounds__near
+    cmp #160
+    bcc S6Host_PlayerViewportBounds__near
+    bne S6Host_PlayerViewportBounds__far_check
+    lda $9C
+    bpl S6Host_PlayerViewportBounds__far_check
+S6Host_PlayerViewportBounds__near:
+.a16
+.i16
+    lda #160
+    sta $16
+    stz $9C
+    rtl
+S6Host_PlayerViewportBounds__far_check:
+.a16
+.i16
+    lda $16
+    cmp #232
+    bcc S6Host_PlayerViewportBounds__done
+    bne S6Host_PlayerViewportBounds__far
+    lda $9C
+    beq S6Host_PlayerViewportBounds__done
+    bmi S6Host_PlayerViewportBounds__done
+S6Host_PlayerViewportBounds__far:
+.a16
+.i16
+    lda #232
+    sta $16
+    stz $9C
+S6Host_PlayerViewportBounds__done:
+.a16
+.i16
     rtl

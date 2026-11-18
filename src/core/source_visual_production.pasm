@@ -80,6 +80,30 @@ SourceVisual_RetireMask      = $7E4BAC
 SourceVisual_RetireBit       = $7E4BAD
 SourceVisual_RetireScan      = $7E4BAE
 SourceVisual_RetireEntityOffset = $7E4BB0
+SourceVisual_ServiceOnly     = $7E4BB2 ; loader calls never acknowledge OAM
+SourceVisual_ServiceField    = $7E4BB4 ; physical field last serviced in relay wait
+SourceVisual_LatchedInput    = $7E4BB6 ; native P1 edges retained until main poll
+SourceVisual_ServiceCount    = $7E4BB8 ; bounded-loader diagnostic
+SourceVisual_FieldPress1     = $7E4BBA ; independent hardware poll history
+SourceVisual_FieldRaw1       = $7E4BBC
+SourceVisual_FieldEdge1      = $7E4BBE
+SourceVisual_FieldPress2     = $7E4BC0
+SourceVisual_FieldRaw2       = $7E4BC2
+SourceVisual_FieldEdge2      = $7E4BC4
+SourceVisual_LatchedInput2   = $7E4BC6
+SourceVisual_PollPending1    = $7E4BC8
+SourceVisual_PollPending2    = $7E4BCA
+; Direct-mapped hints occupy 64 bytes after the 1 KiB staging
+; buffer. Uninitialized hints and hash collisions are harmless: each lookup
+; checks slot bounds, live state and the COMPLETE block identity.
+SourceVisual_BlockHint       = $7E5F00 ; 64 byte slot+1 hints
+SourceVisual_BlockBuckets    = $435E00 ; 64 hash buckets * 64 physical-slot bits, ends $435FFF
+; Previous BW attack-body rows end $435D9F; no tile, palette or DMA payload here.
+SourceVisual_BucketMagic     = $7E4BEC
+SourceVisual_BucketBase      = $7E4BEE
+SourceVisual_BucketBits      = $7E4BF0
+SourceVisual_BucketMask      = $7E4BF2
+SourceVisual_InputSampleField = $7E4BCC ; independent of loader service pacing
 SourceVisual_BlockCache      = $7E4C00 ; 64 * 8-byte content-addressed slots
 SourceVisual_ActorPieceMap   = $7E4E00 ; 6 * 65 one-byte block-slot maps
 ; Eight 8-byte rows: global palette ID [0..1], transfer state [3]
@@ -153,6 +177,20 @@ SOURCE_VISUAL_MSU_OFFSET_HI = (SOURCE_VISUAL_MSU_OFFSET >> 24) & $FF
 ; Entry: D = the real production entity context.  A16/I16.
 ; Carry set means this actor emitted source-sized OAM.  Carry clear means the
 ; caller must hide the source-policy actor and report SourceVisual_Error.
+SourceVisual_ServiceCurrent:
+    php
+    phb
+    phd
+    phx
+    phy
+    sei
+    rep #$31
+.a16
+.i16
+    lda #1
+    sta.l SourceVisual_ServiceOnly
+    bra SourceVisual_RenderCurrent__begin
+
 SourceVisual_RenderCurrent:
     php
     phb
@@ -163,6 +201,21 @@ SourceVisual_RenderCurrent:
     rep #$31
 .a16
 .i16
+    lda #0
+    sta.l SourceVisual_ServiceOnly
+SourceVisual_RenderCurrent__begin:
+.a16
+.i16
+    lda.l Game_CampaignId
+    and #$00FF
+    cmp #3
+    bne SourceVisual_RenderCurrent__completion_reset_done
+    lda #0
+    sta.l SourceCritical_Completing
+SourceVisual_RenderCurrent__completion_reset_done:
+.a16
+.i16
+    jsl SourceReady_Observe
     lda.l SourceVisual_CallCount
     inc a
     sta.l SourceVisual_CallCount
@@ -179,7 +232,8 @@ SourceVisual_RenderCurrent:
     jsl StageBounds_Row
     lda.l StageBounds_State,x
     cmp #2
-    beq SourceVisual_RenderCurrent__retired
+    bne SourceVisual_RenderCurrent__lookup
+    brl SourceVisual_RenderCurrent__retired
 SourceVisual_RenderCurrent__lookup:
     sep #$20
 .a8
@@ -197,7 +251,11 @@ SourceVisual_RenderCurrent__lookup:
 SourceVisual_RenderCurrent__same_field:
 .a16
     jsr SourceVisual_FindEntry
-    bcc SourceVisual_RenderCurrent__fail_near
+    bcs SourceVisual_RenderCurrent__entry_found
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__entry_found:
+.a16
+.i16
     ; Admission must obey the same viewport as publication. Wholly offscreen
     ; source frames cannot pin the bounded OBJ cache needed by visible actors.
     jsr SourceVisual_FrameInViewport
@@ -208,16 +266,105 @@ SourceVisual_RenderCurrent__same_field:
     tax
     jsl SourceVisual_QueueRetireEntityOffset
     jsr SourceVisual_ProcessRetired
-    bra SourceVisual_RenderCurrent__retired
+    brl SourceVisual_RenderCurrent__retired
 SourceVisual_RenderCurrent__visible:
     jsr SourceVisual_SelectResidency
-    bcc SourceVisual_RenderCurrent__fail_near
+    bcs SourceVisual_RenderCurrent__selected
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__selected:
+.a16
+.i16
+    jsr SourcePressure_HoldP1
+    bcc SourceVisual_RenderCurrent__pressure_clear
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__pressure_clear:
+.a16
+.i16
+    ; Loader-only visits need not reread a published, ready selected lease.
+    ; The compositor still validates viewport residency before every emission.
+    lda.l SourceVisual_ServiceOnly
+    beq SourceVisual_RenderCurrent__compositor_check
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State+6,x
+    cmp #2
+    bne SourceVisual_RenderCurrent__compositor_check
+    lda.l SourceVisual_State+28,x
+    and #$00FF
+    beq SourceVisual_RenderCurrent__compositor_check
+    brl SourceVisual_RenderCurrent__retired
+SourceVisual_RenderCurrent__compositor_check:
+.a16
+.i16
+    ; A published full P1 pose is immutable and remains pinned. Relay waits
+    ; need not reread its MSU tables; the compositor can place that same
+    ; validated SOURCE packet at the newly accepted actor position.
+    jsr SourceVisual_ReuseCompleted
+    bcc SourceVisual_RenderCurrent__load_desired
+    brl SourceVisual_RenderCurrent__retired
+SourceVisual_RenderCurrent__load_desired:
+.a16
+.i16
+    ; A critical player's already-transferred lease may finish in this
+    ; compositor, without waiting for another foreground loader visit.
+    jsl SourceCritical_CompleteReady
+    bcs SourceVisual_RenderCurrent__load_now
+    ; Keep the accepted P1 position responsive while desired media is pending.
+    ; The completed emitter validates every pinned block and palette identity.
+    lda.l SourceVisual_ServiceOnly
+    bne SourceVisual_RenderCurrent__load_now
+    tdc
+    cmp #$0A00
+    bne SourceVisual_RenderCurrent__load_now
+    lda.l SourceVisual_CompletedValid
+    beq SourceVisual_RenderCurrent__load_now
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State+6,x
+    cmp #2
+    beq SourceVisual_RenderCurrent__load_now
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$30
+.a16
+.i16
+    brl SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__load_now:
+.a16
+.i16
     jsr SourceVisual_LoadResources
     bcc SourceVisual_RenderCurrent__fail_near
+    ; Relay-wait service can retire/load resources but never emit or mark a
+    ; packet published. Only the normal depth-sorted compositor does that.
+    jsl SourceAttackOwned_ServiceCapture
+    bcs SourceVisual_RenderCurrent__retired
+    jsr SourceVisual_CompletedCanPublish
+    bcs SourceVisual_RenderCurrent__emit_desired
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$31
+.a16
+.i16
+    bra SourceVisual_RenderCurrent__fail_near
+SourceVisual_RenderCurrent__emit_desired:
+.a16
+.i16
     jsr SourceVisual_Emit
     bcc SourceVisual_RenderCurrent__fail_near
+    jsl SourceAttackTemplate_Capture
+    jsr SourceVisual_CompletedCapture
     bra SourceVisual_RenderCurrent__publish
 SourceVisual_RenderCurrent__fail_near:
+    jsr SourceVisual_EmitCompleted
+    bcc SourceVisual_RenderCurrent__fail_jump
+    brl SourceVisual_RenderCurrent__retired
+SourceVisual_RenderCurrent__fail_jump:
+.a16
+.i16
     brl SourceVisual_RenderCurrent__fail
 SourceVisual_RenderCurrent__publish:
     ; Once this exact source packet has reached the OAM shadow, mark the
@@ -233,23 +380,23 @@ SourceVisual_RenderCurrent__publish:
     rep #$31
 .a16
 .i16
-    sec
     ply
     plx
     pld
     plb
     plp
+    sec
     rtl
 SourceVisual_RenderCurrent__retired:
     rep #$31
 .a16
 .i16
-    sec
     ply
     plx
     pld
     plb
     plp
+    sec
     rtl
 
 ; Conservative source-image rectangle, before any resource lease is pinned.
@@ -402,12 +549,12 @@ SourceVisual_RenderCurrent__fail:
     rep #$31
 .a16
 .i16
-    clc
     ply
     plx
     pld
     plb
     plp
+    clc
     rtl
 
 ; Build the presentation key from accepted-compat state and find its compiler
@@ -435,6 +582,42 @@ SourceVisual_FindEntry:
     lda CHAR_SELECTED
     cmp #CHAR_SELECTED_JUMP
     beq SourceVisual_FindEntry__source_jump
+    ; Service-only admission may prepare the coherent accepted source attack.
+    ; Ordinary rendering keeps its existing native-role and physical jump seam.
+    rep #$30
+.a16
+.i16
+    lda.l SourceVisual_ServiceOnly
+    cmp #1
+    bne SourceVisual_FindEntry__warm_ordinary
+    tdc
+    cmp #$0A00
+    beq SourceVisual_FindEntry__warm_p1
+    cmp #$0A85
+    bne SourceVisual_FindEntry__warm_ordinary
+    lda #1
+    bra SourceVisual_FindEntry__warm_check
+SourceVisual_FindEntry__warm_p1:
+.a16
+.i16
+    lda #0
+SourceVisual_FindEntry__warm_check:
+.a16
+.i16
+    jsl SourceWarm_ReadAttack
+    bcc SourceVisual_FindEntry__warm_ordinary
+    sep #$20
+.a8
+    lda #2
+    sta.l SourceVisual_Key+1
+    lda.l SourceWarm_Frame
+    sta.l SourceVisual_Key+2
+    brl SourceVisual_FindEntry__map_ready
+SourceVisual_FindEntry__warm_ordinary:
+.a16
+.i16
+    sep #$20
+.a8
     lda.l SourceVisual_Sa1RuntimeRole,x
     sta.l SourceVisual_Key+1
     lda.l SourceVisual_Sa1Frame,x
@@ -548,6 +731,8 @@ SourceVisual_FindEntry__key_ready:
     rep #$31
 .a16
 .i16
+    jsl SourceAttack0_BeforeLookup
+    jsl SourceIdleFitProxy
     lda.l SourceVisual_Key
     cmp.l SourceVisual_KeySaved
     bne SourceVisual_FindEntry__cold
@@ -600,16 +785,84 @@ SourceVisual_FindEntry__cold:
     lda.l SourceVisual_RosterKeyStart,x
     sta.l SourceVisual_Temp
     lda.l SourceVisual_RosterKeyEnd,x
+    sta.l SourceVisual_Offset
+    lda.l SourceVisual_RosterKeyCount,x
     sta.l SourceVisual_DebugD
     lda.l SourceVisual_Temp
     tax
-SourceVisual_FindEntry__scan:
-    txa
-    cmp.l SourceVisual_DebugD
-    bcc SourceVisual_FindEntry__within_roster
-    brl SourceVisual_FindEntry__unsupported_scan
+    ; Idle frame zero is commonly the first row: retain its short path.
+    lda.l SOURCE_VISUAL_KEY_BASE,x
+    cmp.l SourceVisual_Key
+    bne SourceVisual_FindEntry__binary
+    lda.l SOURCE_VISUAL_KEY_BASE+2,x
+    cmp.l SourceVisual_Key+2
+    bne SourceVisual_FindEntry__binary
+    brl SourceVisual_FindEntry__key_match
+SourceVisual_FindEntry__binary:
 .a16
 .i16
+    ; Lower bound over sorted (role,frame,map), keeping the first duplicate.
+    ; Temp is a byte offset, DebugD a row count, Offset the exclusive end.
+    lda.l SourceVisual_DebugD
+    bne SourceVisual_FindEntry__halve
+    brl SourceVisual_FindEntry__candidate
+SourceVisual_FindEntry__halve:
+.a16
+.i16
+    lsr a
+    sta.l SourceVisual_Offset+2
+    asl a
+    clc
+    adc.l SourceVisual_Offset+2
+    asl a
+    clc
+    adc.l SourceVisual_Temp
+    tax
+    sep #$20
+.a8
+    lda.l SOURCE_VISUAL_KEY_BASE+1,x
+    cmp.l SourceVisual_Key+1
+    bcc SourceVisual_FindEntry__advance
+    bne SourceVisual_FindEntry__lower
+    lda.l SOURCE_VISUAL_KEY_BASE+2,x
+    cmp.l SourceVisual_Key+2
+    bcc SourceVisual_FindEntry__advance
+    bne SourceVisual_FindEntry__lower
+    lda.l SOURCE_VISUAL_KEY_BASE+3,x
+    cmp.l SourceVisual_Key+3
+    bcc SourceVisual_FindEntry__advance
+SourceVisual_FindEntry__lower:
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_Offset+2
+    sta.l SourceVisual_DebugD
+    brl SourceVisual_FindEntry__binary
+SourceVisual_FindEntry__advance:
+    rep #$31
+.a16
+.i16
+    txa
+    clc
+    adc #6
+    sta.l SourceVisual_Temp
+    lda.l SourceVisual_DebugD
+    sec
+    sbc.l SourceVisual_Offset+2
+    dec a
+    sta.l SourceVisual_DebugD
+    brl SourceVisual_FindEntry__binary
+SourceVisual_FindEntry__candidate:
+.a16
+.i16
+    lda.l SourceVisual_Temp
+    cmp.l SourceVisual_Offset
+    bcc SourceVisual_FindEntry__candidate_in_range
+    brl SourceVisual_FindEntry__unsupported_scan
+SourceVisual_FindEntry__candidate_in_range:
+.a16
+.i16
+    tax
 SourceVisual_FindEntry__within_roster:
     .a16
     .i16
@@ -699,6 +952,7 @@ SourceVisual_SelectResidency__actor_scan:
 SourceVisual_SelectResidency__actor_found:
     tya
     sta.l SourceVisual_ActorSlot
+    jsr SourcePressure_History
     jsr SourceVisual_CancelActorRetire
     ; Record stride is 32 bytes, while the adjacent diagnostic row
     ; remains the historical 8-byte-per-actor layout.
@@ -742,6 +996,14 @@ SourceVisual_SelectResidency__actor_found:
     rep #$31
 .a16
 .i16
+    ; A physical jump may replace an unfinished non-jump desired lease.
+    ; The replacement path still fences DMA and preserves completed pins.
+    jsl SourceIdle_CanReplace
+    bcs SourceVisual_SelectResidency__replace
+    jsl SourceVisual_FirstIdleCanReplace
+    bcs SourceVisual_SelectResidency__replace
+    jsr SVActor_JumpReplace
+    bcs SourceVisual_SelectResidency__replace
     jsr SourceVisual_LoadPendingEntry
     brl SourceVisual_SelectResidency__found
 SourceVisual_SelectResidency__replace_ready:
@@ -756,7 +1018,7 @@ SourceVisual_SelectResidency__identity_changed:
 SourceVisual_SelectResidency__replace:
     ; The shared source staging buffer and queued DMA must be retired before
     ; the old lease can be returned to the bounded allocator.
-    jsr SourceVisual_HasOwnedDma
+    jsr SourceRom_HasReplacementDma
     bcc SourceVisual_SelectResidency__clear_record
     brl SourceVisual_SelectResidency__busy
 SourceVisual_SelectResidency__clear_record:
@@ -781,6 +1043,8 @@ SourceVisual_SelectResidency__clear_loop:
     .a8
     lda.l SourceVisual_Key
     sta.l SourceVisual_State+29,x
+    lda.l SourceVisual_Key+1
+    sta.l SourceVisual_State+30,x
     rep #$31
     .a16
     .i16
@@ -852,6 +1116,9 @@ SourceVisual_LoadPendingEntry:
     sta.l SourceVisual_EntryIndexSaved
     sta.l SourceVisual_DebugIndex
     sta.l SourceVisual_Temp
+    jsr SVActor_MetaEntry
+    bcs SourceVisual_LoadPendingEntry__coherent
+    lda.l SourceVisual_EntryIndexSaved
     asl a
     clc
     adc.l SourceVisual_Temp
@@ -882,6 +1149,9 @@ SourceVisual_LoadPendingEntry:
 .i16
     jsr SourceVisual_AddCatalogBase
     jsr SourceVisual_ReadEntry
+SourceVisual_LoadPendingEntry__coherent:
+.a16
+.i16
     ; The first four entry bytes are the exact roster/role/frame/map key.
     ; Keep FindEntry's one-key cache coherent with the restored lease so the
     ; next live-key change takes the normal catalog lookup path.
@@ -941,6 +1211,7 @@ SourceVisual_QueueRetireEntityOffset:
     rep #$31
 .a16
 .i16
+    jsr SVActor_RetireOffset
     txa
     ldy #0
 SourceVisual_QueueRetireEntityOffset__slot:
@@ -967,6 +1238,25 @@ SourceVisual_QueueRetireEntityOffset__shift:
     dey
     bra SourceVisual_QueueRetireEntityOffset__shift
 SourceVisual_QueueRetireEntityOffset__mark:
+.a16
+.i16
+    ; P1's completed packet must retire through a real hidden/replacement
+    ; OAM commit. Do not free its bit6/7 pins at the source unlink boundary.
+    phx
+    pha
+    txa
+    bne SourceVisual_QueueRetireEntityOffset__completed_done
+    jsr SourceVisual_CompletedEnabled
+    bcc SourceVisual_QueueRetireEntityOffset__completed_done
+    lda #0
+    sta.l SourceVisual_CompletedValid
+    lda #1
+    sta.l SourceVisual_CompletedRetire
+SourceVisual_QueueRetireEntityOffset__completed_done:
+.a16
+.i16
+    pla
+    plx
     sep #$20
 .a8
     ora.l SourceVisual_RetireMask
@@ -1042,9 +1332,9 @@ SourceVisual_ProcessRetired__check:
     sta.l SourceVisual_Record
     jsr SourceVisual_ReleaseActorBlocks
     jsr SourceVisual_ReleaseActorPalettes
+    ; Record is already the actor row base. The field displacement belongs
+    ; only in the store: adding it twice leaves retired state1 jobs live.
     lda.l SourceVisual_Record
-    clc
-    adc #6
     tax
     sep #$20
 .a8
@@ -1085,6 +1375,7 @@ SourceVisual_ReleaseActorBlocks:
     rep #$31
 .a16
 .i16
+    jsr SVActor_ReleasePinLease
     lda.l SourceVisual_ActorSlot
     tax
     lda #1
@@ -1110,7 +1401,11 @@ SourceVisual_ReleaseActorBlocks__scan:
 .a16
     lda.l SourceVisual_BlockScan
     cmp #SOURCE_VISUAL_TILE_BLOCKS
-    bcs SourceVisual_ReleaseActorBlocks__done
+    bcc SourceVisual_ReleaseActorBlocks__body
+    brl SourceVisual_ReleaseActorBlocks__done
+SourceVisual_ReleaseActorBlocks__body:
+.a16
+.i16
     asl a
     asl a
     asl a
@@ -1121,7 +1416,42 @@ SourceVisual_ReleaseActorBlocks__scan:
     and.l SourceVisual_BlockOther2
     sta.l SourceVisual_BlockCache+4,x
     bne SourceVisual_ReleaseActorBlocks__next
+    jsr SVActor_ProtectBlocks
+    bcs SourceVisual_ReleaseActorBlocks__next
+    lda.l SourceVisual_BlockCache+7,x
+    cmp #$A6
+    beq SourceVisual_ReleaseActorBlocks__private_tag
+    cmp #$A7
+    bne SourceVisual_ReleaseActorBlocks__clear_unowned
+SourceVisual_ReleaseActorBlocks__private_tag:
+.a8
+.i16
+    jsl SourcePrefetch_KeepPending
+    bcs SourceVisual_ReleaseActorBlocks__next
+    jsl SourcePrefetch_KeepReady
+    bcs SourceVisual_ReleaseActorBlocks__next
+SourceVisual_ReleaseActorBlocks__clear_unowned:
+.a8
+.i16
+    lda.l SourceVisual_BlockCache+2,x
+    cmp #2
+    bne SourceVisual_ReleaseActorBlocks__clear_cache
+    jsl SourceIdle_KeepBlock
+    bcs SourceVisual_ReleaseActorBlocks__next
+SourceVisual_ReleaseActorBlocks__clear_cache:
+.a8
+.i16
     rep #$31
+.a16
+.i16
+    ; Invalidate the full-cache certificate immediately before an actual
+    ; clear; retaining evictable Ready content cannot create an empty row.
+    lda.l SourceVisual_BucketMagic
+    cmp #$B17B
+    bne SourceVisual_ReleaseActorBlocks__occupancy_unknown
+    lda #$B17A
+    sta.l SourceVisual_BucketMagic
+SourceVisual_ReleaseActorBlocks__occupancy_unknown:
 .a16
 .i16
     lda #0
@@ -1134,7 +1464,7 @@ SourceVisual_ReleaseActorBlocks__next:
     lda.l SourceVisual_BlockScan
     inc a
     sta.l SourceVisual_BlockScan
-    bra SourceVisual_ReleaseActorBlocks__scan
+    brl SourceVisual_ReleaseActorBlocks__scan
 SourceVisual_ReleaseActorBlocks__done:
     rts
 
@@ -1180,6 +1510,16 @@ SourceVisual_ReleaseActorPalettes__scan:
     and.l SourceVisual_PaletteOwnerNotBit
     sta.l SourceVisual_PaletteCache+4,x
     bne SourceVisual_ReleaseActorPalettes__next
+    jsr SVActor_ProtectPalettes
+    bcs SourceVisual_ReleaseActorPalettes__next
+    lda.l SourceVisual_PaletteCache+3,x
+    cmp #1
+    bne SourceVisual_ReleaseActorPalettes__clear
+    jsl SourceIdle_KeepPalette
+    bcs SourceVisual_ReleaseActorPalettes__next
+SourceVisual_ReleaseActorPalettes__clear:
+.a8
+.i16
     lda #0
     sta.l SourceVisual_PaletteCache+3,x
     rep #$20
@@ -1584,7 +1924,17 @@ SourceVisual_AllocatePaletteIdentity__find:
     sep #$20
 .a8
     lda.l SourceVisual_PaletteCache+4,x
-    beq SourceVisual_AllocatePaletteIdentity__find_next_a8
+    bne SourceVisual_AllocatePaletteIdentity__occupied
+    jsr SVActor_ProtectPalettes
+    bcs SourceVisual_AllocatePaletteIdentity__occupied
+    lda.l SourceVisual_PaletteCache+3,x
+    cmp #1
+    bne SourceVisual_AllocatePaletteIdentity__find_next_a8
+    jsl SourceIdle_KeepPalette
+    bcc SourceVisual_AllocatePaletteIdentity__find_next_a8
+SourceVisual_AllocatePaletteIdentity__occupied:
+.a8
+.i16
     rep #$31
 .a16
 .i16
@@ -1632,6 +1982,8 @@ SourceVisual_AllocatePaletteIdentity__free:
 .a8
     lda.l SourceVisual_PaletteCache+4,x
     bne SourceVisual_AllocatePaletteIdentity__free_next_a8
+    jsr SVActor_ProtectPalettes
+    bcs SourceVisual_AllocatePaletteIdentity__free_next_a8
     lda.l SourceVisual_PaletteOwnerBit
     sta.l SourceVisual_PaletteCache+4,x
     lda #0
@@ -1696,11 +2048,7 @@ SourceVisual_FindEntry__next:
     rep #$31
 .a16
 .i16
-    txa
-    clc
-    adc #6
-    tax
-    brl SourceVisual_FindEntry__scan
+    ; A nonmatching lower bound proves absence; never scan later entries.
 SourceVisual_FindEntry__unsupported_scan:
     plx
 SourceVisual_FindEntry__unsupported:
@@ -1788,23 +2136,91 @@ SourceVisual_ReadRow:
 .a16
 .i16
     ldx #0
-SourceVisual_ReadRow__loop:
     sep #$20
 .a8
+SourceVisual_ReadRow__loop:
+.a8
+.i16
     lda $2001
     sta.l SourceVisual_RowScratch,x
-    rep #$31
-.a16
-.i16
     inx
     cpx #42
     bcc SourceVisual_ReadRow__loop
+    rep #$31
+.a16
+.i16
     rts
 
 ; Read the selected sheet and piece rows.  The sheet is composed by the
 ; compiler in SNES OBJ row-stride order, so the runtime performs one or more
 ; contiguous VRAM transfers instead of a per-piece tile-layout guess.
 SourceVisual_LoadResources:
+    rep #$30
+.a16
+.i16
+    jsr SourceRom_ClassifyPlayer
+    bcc SourceVisual_LoadResources__ordinary_enter
+    ; Keep the ordinary ROM player fast path, but reserve completion space
+    ; while an on-screen NPC has never published a first picture.
+    jsr SVActor_LoadOwnerNeedsFirstPicture
+SourceCoexist_AdmissionReturn:
+.a16
+.i16
+    bcs SourceVisual_LoadResources__ordinary_enter
+    lda.l SVActor_LoadOwner
+    beq SourceVisual_LoadResources__ordinary_enter
+    lda.l SourceVisual_ActorSlot
+    inc a
+    cmp.l SVActor_LoadOwner
+    bne SourceVisual_LoadResources__admitted
+SourceVisual_LoadResources__ordinary_enter:
+.a16
+.i16
+    jsr SVActor_LoadEnter
+    bcs SourceVisual_LoadResources__admitted
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$30
+.a16
+.i16
+    clc
+    rts
+SourceVisual_LoadResources__admitted:
+.a16
+.i16
+    jsr SourceVisual_LoadResourcesBody
+    php
+    bcc SourceVisual_LoadResources__share_done
+    jsl SourceShare_TryReadyP2
+SourceVisual_LoadResources__share_done:
+.a16
+.i16
+    jsr SVActor_LoadLeave
+    plp
+    rts
+SourceVisual_LoadResourcesBody:
+    rep #$30
+.a16
+.i16
+    jsr SourceVisual_NpcCompositor
+    bcc SourceVisual_LoadResources__service_allowed
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State+6,x
+    cmp #2
+    beq SourceVisual_LoadResources__service_allowed
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$30
+.a16
+.i16
+    clc
+    rts
+SourceVisual_LoadResources__service_allowed:
     sep #$20
 .a8
     lda #$A0
@@ -2246,44 +2662,28 @@ SourceVisual_LoadResources__block_sheet_ok:
 
     ; Read the source piece rows; their block identities are globally
     ; content-addressed and may share one of the 64 resident 16x32 slots.
-    lda.l SourceVisual_EntryScratch+16
-    sta.l SourceVisual_Temp
-    asl a
-    asl a
-    asl a
-    asl a
-    sta.l SourceVisual_Offset
-    lda.l SourceVisual_Temp
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    lsr a
-    sta.l SourceVisual_Offset+2
-    lda.l SourceVisual_Offset
-    clc
-    adc #SOURCE_VISUAL_PIECE_OFFSET
-    sta.l SourceVisual_Offset
-    sep #$20
-.a8
-    lda.l SourceVisual_Offset+2
-    adc #((SOURCE_VISUAL_PIECE_OFFSET >> 16) & $FF)
-    sta.l SourceVisual_Offset+2
-    lda #((SOURCE_VISUAL_PIECE_OFFSET >> 24) & $FF)
-    adc #0
-    sta.l SourceVisual_Offset+3
-    rep #$31
+    lda.l SourceRom_PlayerMode
+    bne SourceVisual_LoadResources__pieces_loaded
+    jsr SourceVisual_ReadSelectedPieces
+SourceVisual_LoadResources__pieces_loaded:
 .a16
 .i16
-    jsr SourceVisual_AddCatalogBase
-    jsr SourceVisual_ReadPieces
+    ; Overlap the one attack palette with pending immutable tile transfers.
+    jsl SourceVisual_PrewarmAttackPalette
+    jsr SVActor_ReadyLease
+    bcc SourceVisual_LoadResources__need_admission
+    sec
+    rts
+SourceVisual_LoadResources__need_admission:
+.a16
+.i16
+    jsl SourceShare_DeferDuplicateP2
+    bcc SourceVisual_LoadResources__prepare_unique
+    jsr SourceVisual_ResumePendingBlock
+    brl SourceVisual_LoadResources__block_pending
+SourceVisual_LoadResources__prepare_unique:
+.a16
+.i16
     jsr SourceVisual_PrepareBlocks
     bcs SourceVisual_LoadResources__blocks_ready
     brl SourceVisual_LoadResources__block_pending
@@ -2306,9 +2706,9 @@ SourceVisual_LoadResources__block_palette_queued:
     lda #1
     sta.l SourceVisual_State+4,x
 SourceVisual_LoadResources__block_palette_done:
-    ; Palette DMA and tile DMA share the fail-closed publication fence. Never
-    ; write OAM that selects a palette until its CGRAM row has retired.
-    jsr SourceVisual_HasOwnedDma
+    ; Admit CGRAM only after actual palette transfers retire.
+    ; Unrelated immutable tile sources cannot retain palette staging.
+    jsr SourceRom_HasPaletteDma
     bcs SourceVisual_LoadResources__block_palette_pending
     jsr SourceVisual_MarkPaletteDmaRetired
     sec
@@ -2334,11 +2734,44 @@ SourceVisual_LoadResources__block_pending:
     clc
     rts
 
+SourcePalette_Bridge_SVActor_LoadOwnerNeedsFirstPicture:
+.a16
+.i16
+    jsr SVActor_LoadOwnerNeedsFirstPicture
+    rtl
+SourcePalette_Bridge_SVActor_Enabled:
+.a16
+.i16
+    jsr SVActor_Enabled
+    rtl
+SourcePalette_Bridge_SourceRom_HasPaletteDma:
+.a16
+.i16
+    jsr SourceRom_HasPaletteDma
+    rtl
+SourcePalette_Bridge_SourceRom_CheckDmaSlot:
+.a16
+.i16
+    jsr SourceRom_CheckDmaSlot
+    rtl
+SourcePalette_Bridge_SourceVisual_AllocatePalettes:
+.a16
+.i16
+    jsr SourceVisual_AllocatePalettes
+    rtl
+SourcePalette_Bridge_SourceVisual_QueuePalettes:
+.a16
+.i16
+    jsr SourceVisual_QueuePalettes
+    rtl
+
 SourceVisual_ReadSheet:
     jsr SourceVisual_Seek
     rep #$31
 .a16
 .i16
+    lda #0
+    sta.l SourceRom_StagingMagic
     ldx #0
 SourceVisual_ReadSheet__loop:
     txa
@@ -2358,41 +2791,46 @@ SourceVisual_ReadSheet__done:
     rts
 
 SourceVisual_ReadPieces:
+    rep #$31
+.a16
+.i16
+    jsr SVActor_MetaPieces
+    bcc SourceVisual_ReadPieces__stream
+    brl SourceVisual_ReadPieces__done
+SourceVisual_ReadPieces__stream:
+.a16
+.i16
     jsr SourceVisual_Seek
     rep #$31
 .a16
 .i16
+    lda.l SourceVisual_PieceCount
+    asl a
+    asl a
+    asl a
+    asl a
+    tay
     ldx #0
-SourceVisual_ReadPieces__loop:
-.i16
-    txa
-    cmp.l SourceVisual_PieceCount
-    bcs SourceVisual_ReadPieces__done
-    ; 16 bytes per row; X is a piece index.
-    phx
-    txa
-    asl a
-    asl a
-    asl a
-    asl a
-    tax
-    ldy #0
-SourceVisual_ReadPieces__row:
+    cpy #0
+    beq SourceVisual_ReadPieces__stream_done
     sep #$20
 .a8
+SourceVisual_ReadPieces__loop:
+.a8
+.i16
     lda $2001
     sta.l SourceVisual_PieceTable,x
+    inx
+    dey
+    bne SourceVisual_ReadPieces__loop
+SourceVisual_ReadPieces__stream_done:
     rep #$31
 .a16
 .i16
-    inx
-    iny
-    cpy #16
-    bcc SourceVisual_ReadPieces__row
-    plx
-    inx
-    bra SourceVisual_ReadPieces__loop
+    jsr SVActor_MetaSave
 SourceVisual_ReadPieces__done:
+.a16
+.i16
     rts
 
 ; Resolve each 16x32 piece to a pinned, content-addressed 256-byte block.
@@ -2435,6 +2873,8 @@ SourceVisual_PrepareBlocks__needs_blocks:
 
     jsr SourceVisual_ResumePendingBlock
     bcs SourceVisual_PrepareBlocks__scan_start
+    lda.l SourceRom_PlayerMode
+    bne SourceVisual_PrepareBlocks__scan_start
     brl SourceVisual_PrepareBlocks__pending
 SourceVisual_PrepareBlocks__scan_start:
 .a16
@@ -2443,12 +2883,17 @@ SourceVisual_PrepareBlocks__scan_start:
     ; visible block. Offscreen pieces cannot hold scarce OBJ slots hostage.
     jsr SourceVisual_PinVisibleBlocks
     lda #0
+    sta.l SourceRom_Incomplete
     sta.l SourceVisual_PieceIndex
 SourceVisual_PrepareBlocks__piece:
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
-    bcs SourceVisual_PrepareBlocks__ready
-    jsr SourceVisual_ViewportPiece
+    bcc SourceVisual_PrepareBlocks__piece_body
+    brl SourceVisual_PrepareBlocks__ready
+SourceVisual_PrepareBlocks__piece_body:
+.a16
+.i16
+    jsr SourceVisual_ResidencyPiece
     bcs SourceVisual_PrepareBlocks__visible_piece
     brl SourceVisual_PrepareBlocks__next_piece
 SourceVisual_PrepareBlocks__visible_piece:
@@ -2471,16 +2916,17 @@ SourceVisual_PrepareBlocks__allocated:
     bcs SourceVisual_PrepareBlocks__payload_ready
     brl SourceVisual_PrepareBlocks__oversized
 SourceVisual_PrepareBlocks__payload_ready:
-    lda.l SourceVisual_BlockRecord
-    tax
-    sep #$20
-.a8
-    lda #1
-    sta.l SourceVisual_BlockCache+6,x ; immutable staging payload is ready
-    rep #$31
 .a16
 .i16
     jsr SourceVisual_QueueBlockRows
+    lda.l SourceRom_Bank
+    beq SourceVisual_PrepareBlocks__pending_jump
+    lda #1
+    sta.l SourceRom_Incomplete
+    brl SourceVisual_PrepareBlocks__next_piece
+SourceVisual_PrepareBlocks__pending_jump:
+.a16
+.i16
     brl SourceVisual_PrepareBlocks__pending
 SourceVisual_PrepareBlocks__found:
     ; Pin the resident/pending block to this actor before using its slot.
@@ -2500,6 +2946,14 @@ SourceVisual_PrepareBlocks__found:
     ; The sole shared staging payload is still being uploaded. Keep the
     ; frame closed until the DMA fence observes completion.
     jsr SourceVisual_QueueBlockRows
+    lda.l SourceRom_Bank
+    beq SourceVisual_PrepareBlocks__found_pending
+    lda #1
+    sta.l SourceRom_Incomplete
+    bra SourceVisual_PrepareBlocks__next_piece
+SourceVisual_PrepareBlocks__found_pending:
+.a16
+.i16
     brl SourceVisual_PrepareBlocks__pending
 SourceVisual_PrepareBlocks__map_piece:
     jsr SourceVisual_MapCurrentPiece
@@ -2507,14 +2961,19 @@ SourceVisual_PrepareBlocks__next_piece:
     lda.l SourceVisual_PieceIndex
     inc a
     sta.l SourceVisual_PieceIndex
-    bra SourceVisual_PrepareBlocks__piece
+    brl SourceVisual_PrepareBlocks__piece
 SourceVisual_PrepareBlocks__ready:
 .a16
+    lda.l SourceRom_Incomplete
+    beq SourceVisual_PrepareBlocks__complete
+    brl SourceVisual_PrepareBlocks__pending
+SourceVisual_PrepareBlocks__complete:
+.a16
+.i16
     lda.l SourceVisual_Record
     tax
     lda #2
     sta.l SourceVisual_State+6,x
-    brl SourceVisual_PrepareBlocks__apply_all
 SourceVisual_PrepareBlocks__apply_all:
 .a16
     lda #0
@@ -2523,7 +2982,7 @@ SourceVisual_PrepareBlocks__apply_loop:
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
     bcs SourceVisual_PrepareBlocks__success
-    jsr SourceVisual_ViewportPiece
+    jsr SourceVisual_ResidencyPiece
     bcc SourceVisual_PrepareBlocks__apply_next
     jsr SourceVisual_ApplyMappedPiece
 SourceVisual_PrepareBlocks__apply_next:
@@ -2570,6 +3029,22 @@ SourceVisual_PrepareBlocks__oversized:
 ; block before a missing block may evict an unowned cache record. This also
 ; protects later pieces while an earlier visible piece uploads over fields.
 SourceVisual_PinVisibleBlocks:
+    rep #$30
+.a16
+.i16
+    ; P1 admits the full source frame, so its owner set is independent of
+    ; viewport motion. SelectResidency releases it on key replacement.
+    ; NPCs retain viewport-dependent clearing/repinning below.
+    jsr SourceVisual_CompletedEnabled
+    bcc SourceVisual_PinVisibleBlocks__clear_begin
+    ; Full-pose producer ownership is monotonic until lease release.
+    ; Pin all resident future pieces once before the first allocation.
+    jsr SVActor_PinLeaseOnce
+    bcs SourceVisual_PinVisibleBlocks__pin_begin
+    rts
+SourceVisual_PinVisibleBlocks__clear_begin:
+.a16
+.i16
     sep #$20
     .a8
     lda.l SourceVisual_BlockActorMask
@@ -2594,13 +3069,16 @@ SourceVisual_PinVisibleBlocks__clear:
     tax
     cpx #SOURCE_VISUAL_TILE_BLOCKS*8
     bcc SourceVisual_PinVisibleBlocks__clear
+SourceVisual_PinVisibleBlocks__pin_begin:
+.a16
+.i16
     lda #0
     sta.l SourceVisual_PieceIndex
 SourceVisual_PinVisibleBlocks__piece:
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
     bcs SourceVisual_PinVisibleBlocks__done
-    jsr SourceVisual_ViewportPiece
+    jsr SourceVisual_ResidencyPiece
     bcc SourceVisual_PinVisibleBlocks__next
     lda.l SourceVisual_PieceIndex
     asl a
@@ -2636,13 +3114,106 @@ SourceVisual_FindBlock:
     rep #$31
 .a16
 .i16
+    jsr SourceVisual_BucketEnsure
+    ; A pending frame revisits its visible pieces on every loader service.
+    ; Reuse its map only after checking the live cache state and full block
+    ; identity. Reallocated slots and uninitialized maps take the normal scan.
+    ; This neither allocates storage nor weakens the queued-DMA fence.
+    lda.l SourceVisual_PieceIndex
+    clc
+    adc.l SourceVisual_ActorMapBase
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_ActorPieceMap,x
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    cmp #SOURCE_VISUAL_TILE_BLOCKS
+    bcs SourceVisual_FindBlock__hint_start
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_BlockCache+2,x
+    beq SourceVisual_FindBlock__hint_start
+    lda.l SourceVisual_BlockCache,x
+    cmp.l SourceVisual_BlockIndex
+    bne SourceVisual_FindBlock__hint_start
+    brl SourceVisual_FindBlock__hit
+SourceVisual_FindBlock__hint_start:
+.a16
+.i16
+    lda.l SourceVisual_BlockIndex
+    and #$003F
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockHint,x
+    rep #$31
+.a16
+.i16
+    and #$00FF
+    bne SourceVisual_FindBlock__hint_present
+    ; Ensure clears/reconstructs all hints, and every allocation sets its
+    ; hash before returning. Zero therefore proves this hash has no live row.
+    ; Retire/evict may leave stale NONZERO hints: those still validate/scan.
+    brl SourceVisual_FindBlock__miss
+SourceVisual_FindBlock__hint_present:
+.a16
+.i16
+    dec a
+    cmp #SOURCE_VISUAL_TILE_BLOCKS
+    bcs SourceVisual_FindBlock__scan_start
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_BlockCache+2,x
+    beq SourceVisual_FindBlock__scan_start
+    lda.l SourceVisual_BlockCache,x
+    cmp.l SourceVisual_BlockIndex
+    bne SourceVisual_FindBlock__scan_start
+    brl SourceVisual_FindBlock__hit
+SourceVisual_FindBlock__scan_start:
+.a16
+.i16
+    ; Each bit identifies a possible live slot. Stale bits are harmless:
+    ; the original state/full-ID tests still decide every hit. Allocation
+    ; updates both old and new buckets, so a live block cannot be omitted.
+    lda.l SourceVisual_BlockIndex
+    and #$003F
+    asl a
+    asl a
+    asl a
+    sta.l SourceVisual_BucketBase
     lda #0
     sta.l SourceVisual_BlockScan
 SourceVisual_FindBlock__scan:
 .a16
+.i16
     lda.l SourceVisual_BlockScan
     cmp #SOURCE_VISUAL_TILE_BLOCKS
     bcs SourceVisual_FindBlock__miss
+    lsr a
+    lsr a
+    lsr a
+    clc
+    adc.l SourceVisual_BucketBase
+    tax
+    lda.l SourceVisual_BlockBuckets,x
+    and #$00FF
+    sta.l SourceVisual_BucketBits
+    beq SourceVisual_FindBlock__skip_byte
+SourceVisual_FindBlock__bit:
+.a16
+.i16
+    lda.l SourceVisual_BucketBits
+    lsr a
+    sta.l SourceVisual_BucketBits
+    bcc SourceVisual_FindBlock__next
+    lda.l SourceVisual_BlockScan
     asl a
     asl a
     asl a
@@ -2653,8 +3224,20 @@ SourceVisual_FindBlock__scan:
     cmp.l SourceVisual_BlockIndex
     beq SourceVisual_FindBlock__hit
 SourceVisual_FindBlock__next:
+.a16
+.i16
     lda.l SourceVisual_BlockScan
     inc a
+    sta.l SourceVisual_BlockScan
+    and #7
+    bne SourceVisual_FindBlock__bit
+    bra SourceVisual_FindBlock__scan
+SourceVisual_FindBlock__skip_byte:
+.a16
+.i16
+    lda.l SourceVisual_BlockScan
+    clc
+    adc #8
     sta.l SourceVisual_BlockScan
     bra SourceVisual_FindBlock__scan
 SourceVisual_FindBlock__hit:
@@ -2664,6 +3247,8 @@ SourceVisual_FindBlock__hit:
     lsr a
     lsr a
     sta.l SourceVisual_BlockSlot
+    ; Lookup does not mutate cache membership. Allocation and reconstruction
+    ; are its only publishers; repeatedly re-ORing the same bucket is wasted.
     sec
     rts
 SourceVisual_FindBlock__miss:
@@ -2674,6 +3259,73 @@ SourceVisual_AllocateBlock:
     rep #$31
 .a16
 .i16
+    jsr SourceVisual_AllocateBlockTry
+    bcs SourceVisual_AllocateBlock__bounded_return
+    jsl SourcePriority_Release
+    bcc SourceVisual_AllocateBlock__normal_reclaim
+    jsr SourceVisual_AllocateBlockTry
+    bcs SourceVisual_AllocateBlock__bounded_return
+SourceVisual_AllocateBlock__normal_reclaim:
+    jsr SourceVisual_ReclaimRepeatedPose
+    bcs SourceVisual_AllocateBlock__retry
+    ; A whole, previously accepted shared walking picture can release the
+    ; redundant player's old blocks only AFTER the real OAM drain witness.
+    jsr SourcePressure_ShareWalk
+    clc
+    bra SourceVisual_AllocateBlock__bounded_return
+SourceVisual_AllocateBlock__retry:
+.a16
+.i16
+    ; One retry only. A reclaimed desired block must still pass the same
+    ; empty/victim allocator and all normal producer/DMA admission checks.
+    jsr SourceVisual_AllocateBlockTry
+SourceVisual_AllocateBlock__bounded_return:
+.a16
+.i16
+    rts
+SourceVisual_AllocateBlockTry:
+    rep #$31
+.a16
+.i16
+    ; B17B is certified only by a full scan with no empty slot. It remains
+    ; a valid hash index. Releases/init invalidate it before any zero write.
+    lda.l SourceVisual_BucketMagic
+    cmp #$B17B
+    beq SourceVisual_AllocateBlock__victim_start
+    ; Preserve unowned resident artwork while genuinely empty slots remain.
+    ; An idle/walk/idle transition should reuse its previous immutable blocks,
+    ; not reload them because a low-numbered unowned slot preceded free space.
+    lda #0
+    sta.l SourceVisual_BlockScan
+SourceVisual_AllocateBlock__empty:
+.a16
+.i16
+    lda.l SourceVisual_BlockScan
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_BlockCache+2,x
+    bne SourceVisual_AllocateBlock__empty_next
+    brl SourceVisual_AllocateBlock__claim
+SourceVisual_AllocateBlock__empty_next:
+.a16
+.i16
+    lda.l SourceVisual_BlockScan
+    inc a
+    sta.l SourceVisual_BlockScan
+    cmp #SOURCE_VISUAL_TILE_BLOCKS
+    bcc SourceVisual_AllocateBlock__empty
+    ; Certify occupancy only after the actual completed 64-row empty scan.
+    lda.l SourceVisual_BucketMagic
+    cmp #$B17A
+    bne SourceVisual_AllocateBlock__victim_start
+    lda #$B17B
+    sta.l SourceVisual_BucketMagic
+SourceVisual_AllocateBlock__victim_start:
+.a16
+.i16
+    ; At capacity retain the existing lowest legal unowned victim policy.
     lda #0
     sta.l SourceVisual_BlockScan
 SourceVisual_AllocateBlock__scan:
@@ -2693,6 +3345,8 @@ SourceVisual_AllocateBlock__scan:
 .a8
     lda.l SourceVisual_BlockCache+4,x
     bne SourceVisual_AllocateBlock__next8
+    jsr SVActor_ProtectBlocks
+    bcs SourceVisual_AllocateBlock__next8
     rep #$31
 .a16
 .i16
@@ -2708,6 +3362,7 @@ SourceVisual_AllocateBlock__next:
     bra SourceVisual_AllocateBlock__scan
 SourceVisual_AllocateBlock__claim:
 .a16
+    jsr SourceVisual_BucketForget
     txa
     sta.l SourceVisual_BlockRecord
     tax
@@ -2715,6 +3370,7 @@ SourceVisual_AllocateBlock__claim:
     sta.l SourceVisual_BlockCache,x
     lda #1
     sta.l SourceVisual_BlockCache+2,x
+    jsl SourcePending_Invalidate
     sep #$20
 .a8
     lda.l SourceVisual_BlockActorMask
@@ -2722,6 +3378,7 @@ SourceVisual_AllocateBlock__claim:
     lda #0
     sta.l SourceVisual_BlockCache+5,x
     sta.l SourceVisual_BlockCache+6,x
+    sta.l SourceVisual_BlockCache+7,x ; every ordinary claim ends prior private identity
     rep #$31
 .a16
 .i16
@@ -2730,6 +3387,7 @@ SourceVisual_AllocateBlock__claim:
     lsr a
     lsr a
     sta.l SourceVisual_BlockSlot
+    jsr SourceVisual_RememberBlock
     sec
     rts
 SourceVisual_AllocateBlock__fail:
@@ -2739,67 +3397,46 @@ SourceVisual_AllocateBlock__fail:
 ; Finish or continue the sole tile-staging upload. Carry is clear while a
 ; block remains in flight and set when there is no pending block.
 SourceVisual_ResumePendingBlock:
-    rep #$31
-.a16
-.i16
-    lda #0
-    sta.l SourceVisual_BlockScan
-SourceVisual_ResumePendingBlock__scan:
-.a16
-    lda.l SourceVisual_BlockScan
-    cmp #SOURCE_VISUAL_TILE_BLOCKS
-    bcs SourceVisual_ResumePendingBlock__none
-    asl a
-    asl a
-    asl a
-    tax
-    lda.l SourceVisual_BlockCache+2,x
-    cmp #1
-    beq SourceVisual_ResumePendingBlock__found
-    lda.l SourceVisual_BlockScan
-    inc a
-    sta.l SourceVisual_BlockScan
-    bra SourceVisual_ResumePendingBlock__scan
-SourceVisual_ResumePendingBlock__found:
-    txa
-    sta.l SourceVisual_BlockRecord
-    lda.l SourceVisual_BlockScan
-    sta.l SourceVisual_BlockSlot
-    jsr SourceVisual_HasOwnedDma
-    bcs SourceVisual_ResumePendingBlock__pending
-    lda.l SourceVisual_BlockRecord
-    tax
-    sep #$20
-.a8
-    lda.l SourceVisual_BlockCache+5,x
-    cmp #4
-    beq SourceVisual_ResumePendingBlock__complete8
-    rep #$31
-.a16
-.i16
-    jsr SourceVisual_QueueBlockRows
-    clc
-    rts
-SourceVisual_ResumePendingBlock__complete8:
-    rep #$31
-.a16
-.i16
-    lda #2
-    sta.l SourceVisual_BlockCache+2,x
-    sec
-    rts
-SourceVisual_ResumePendingBlock__pending:
-    clc
-    rts
-SourceVisual_ResumePendingBlock__none:
-    sec
+    jsr SourceRom_ResumePending
     rts
 
 SourceVisual_QueueBlockRows:
     rep #$31
 .a16
 .i16
-    jsr SourceVisual_HasOwnedDma
+    lda #0
+    sta.l SourceRom_Bank
+    lda.l SourceVisual_BlockRecord
+    tax
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockCache+6,x
+    cmp #2
+    rep #$31
+.a16
+.i16
+    bne SourceVisual_QueueBlockRows__wram_fence
+    jsr SourceRom_ResolveTagged
+    bcs SourceVisual_QueueBlockRows__rom_packet
+    brl SourceVisual_QueueBlockRows__bad_payload
+SourceVisual_QueueBlockRows__rom_packet:
+.a16
+.i16
+    lda.l SourceVisual_BlockRecord
+    tax
+    lda.l SourceVisual_BlockCache+5,x
+    and #$00FF
+    bne SourceVisual_QueueBlockRows__staging_free
+    jsr SourceRom_QueueWholeBlock
+    rep #$31
+.a16
+.i16
+    clc
+    rts
+SourceVisual_QueueBlockRows__wram_fence:
+.a16
+.i16
+    jsr SourceRom_HasStagingDma
     bcc SourceVisual_QueueBlockRows__staging_free
     brl SourceVisual_QueueBlockRows__pending
 SourceVisual_QueueBlockRows__staging_free:
@@ -2816,12 +3453,9 @@ SourceVisual_QueueBlockRows__staging_free:
     bcs SourceVisual_QueueBlockRows__payload_read
     brl SourceVisual_QueueBlockRows__bad_payload
 SourceVisual_QueueBlockRows__payload_read:
-    lda.l SourceVisual_BlockRecord
-    tax
-    sep #$20
-.a8
-    lda #1
-    sta.l SourceVisual_BlockCache+6,x
+.a16
+.i16
+    bra SourceVisual_QueueBlockRows__row
 SourceVisual_QueueBlockRows__payload_loaded8:
     rep #$31
 .a16
@@ -2840,7 +3474,8 @@ SourceVisual_QueueBlockRows__has_row:
     rep #$31
 .a16
 .i16
-    jsl Core_Dma_HasFreeSlot_Long
+    lda #64
+    jsr SourceRom_CheckDmaSlot
     bcs SourceVisual_QueueBlockRows__slot_available
     brl SourceVisual_QueueBlockRows__pending
 SourceVisual_QueueBlockRows__slot_available:
@@ -2849,7 +3484,11 @@ SourceVisual_QueueBlockRows__slot_available:
     clc
     adc #64
     cmp #DMA_TRANSFER_MAX_BYTES
-    bcs SourceVisual_QueueBlockRows__pending
+    bcc SourceVisual_QueueBlockRows__budget_ok
+    brl SourceVisual_QueueBlockRows__pending
+SourceVisual_QueueBlockRows__budget_ok:
+.a16
+.i16
     ; Source pointer is one 64-byte horizontal row of two adjacent tiles.
     lda.l SourceVisual_BlockProgress
     asl a
@@ -2858,8 +3497,22 @@ SourceVisual_QueueBlockRows__slot_available:
     asl a
     asl a
     asl a
+    sta.l SourceVisual_BlockDataBytes
+    lda.l SourceRom_Bank
+    beq SourceVisual_QueueBlockRows__wram_address
+    lda.l SourceVisual_BlockDataBytes
+    clc
+    adc.l SourceRom_Address
+    bra SourceVisual_QueueBlockRows__source_address
+SourceVisual_QueueBlockRows__wram_address:
+.a16
+.i16
+    lda.l SourceVisual_BlockDataBytes
     clc
     adc #SourceVisual_TileStaging
+SourceVisual_QueueBlockRows__source_address:
+.a16
+.i16
     sta.l DmaRequest_SourceAddrLow
     ; Destination = $8000 + physicalTile*32 + verticalRow*512.
     jsr SourceVisual_BlockSlotToTile
@@ -2892,7 +3545,12 @@ SourceVisual_QueueBlockRows__slot_available:
     sta.l DmaRequest_Length
     sep #$20
 .a8
+    lda.l SourceRom_Bank
+    bne SourceVisual_QueueBlockRows__source_bank
     lda #$7E
+SourceVisual_QueueBlockRows__source_bank:
+.a8
+.i16
     sta.l DmaRequest_SourceBank
     lda #DMA_TYPE_VRAM
     sta.l DmaRequest_TypeFlags
@@ -2914,12 +3572,21 @@ SourceVisual_QueueBlockRows__slot_available:
 .i16
     brl SourceVisual_QueueBlockRows__row
 SourceVisual_QueueBlockRows__queued:
+    rep #$31
+.a16
+.i16
     clc
     rts
 SourceVisual_QueueBlockRows__pending:
+    rep #$31
+.a16
+.i16
     clc
     rts
 SourceVisual_QueueBlockRows__bad_payload:
+    rep #$31
+.a16
+.i16
     clc
     rts
 
@@ -3023,9 +3690,25 @@ SourceVisual_ApplyMappedPiece:
 ; staging. The catalog may contain 1024-byte blocks, which remain explicitly
 ; rejected until the separate oversized-frame policy is addressed.
 SourceVisual_ReadBlockPayload:
+    jsr SourceRom_Resolve
+    bcc SourceVisual_ReadBlockPayload__msu
+    lda.l SourceVisual_BlockRecord
+    tax
+    sep #$20
+.a8
+    lda #2
+    sta.l SourceVisual_BlockCache+6,x ; durable immutable ROM source kind
     rep #$31
 .a16
 .i16
+    sec
+    rts
+SourceVisual_ReadBlockPayload__msu:
+    rep #$31
+.a16
+.i16
+    lda #0
+    sta.l SourceRom_StagingMagic
     lda #((SOURCE_VISUAL_BLOCK_OFFSET) & $FFFF)
     sta.l SourceVisual_Offset
     sep #$20
@@ -3078,17 +3761,34 @@ SourceVisual_ReadBlockPayload__size_ok:
     jsr SourceVisual_AddCatalogBase
     jsr SourceVisual_Seek
     ldx #0
-SourceVisual_ReadBlockPayload__read:
     sep #$20
 .a8
+SourceVisual_ReadBlockPayload__read:
+.a8
+.i16
     lda $2001
     sta.l SourceVisual_TileStaging,x
-    rep #$31
-.a16
-.i16
     inx
     cpx #SOURCE_VISUAL_TILE_BLOCK_BYTES
     bcc SourceVisual_ReadBlockPayload__read
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_BlockRecord
+    tax
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_BlockCache+6,x ; sole shared WRAM payload source kind
+    rep #$31
+.a16
+.i16
+    lda.l SourceVisual_BlockRecord
+    sta.l SourceRom_StagingRecord
+    lda.l SourceVisual_BlockCache,x
+    sta.l SourceRom_StagingBlock
+    lda #$5357
+    sta.l SourceRom_StagingMagic ; last, after all 256 bytes and kind
     sec
     rts
 
@@ -3276,7 +3976,6 @@ SourceVisual_QueuePalettes:
     lda #0
     sta.l SourceVisual_PaletteMask
     sta.l SourceVisual_PieceIndex
-    brl SourceVisual_QueuePalettes__piece
 SourceVisual_QueuePalettes__piece:
     lda.l SourceVisual_PieceIndex
     cmp.l SourceVisual_PieceCount
@@ -3417,7 +4116,8 @@ SourceVisual_QueuePalettes__palette_needs_dma:
     sta.l SourceVisual_DebugQueueStage
     jsr SourceVisual_ReadRow
     jsr SourceVisual_ReadPalettePayload
-    brl SourceVisual_QueuePalettes__next
+    bcc SourceVisual_QueuePalettes__fail
+    nop
 SourceVisual_QueuePalettes__next:
     rep #$31
 .a16
@@ -3471,11 +4171,11 @@ SourceVisual_ReadPalettePayload:
     lda #10
     sta.l SourceVisual_DebugQueueStage
     jsr SourceVisual_Seek
-    lda #11
-    sta.l SourceVisual_DebugQueueStage
     rep #$31
 .a16
 .i16
+    lda #11
+    sta.l SourceVisual_DebugQueueStage
     ldx #0
 SourceVisual_ReadPalettePayload__read:
     txa
@@ -3610,9 +4310,12 @@ SourceVisual_ReadPalettePayload__copy7_loop:
     cpx #32
     bcc SourceVisual_ReadPalettePayload__copy7_loop
 SourceVisual_ReadPalettePayload__queue:
+.a16
+.i16
     ; One source palette packet is queued with the same completion ordering as
     ; the sheet.  The actual physical slot is the local palette slot.
-    jsl Core_Dma_HasFreeSlot_Long
+    lda #32
+    jsr SourceRom_CheckDmaSlot
     bcs SourceVisual_ReadPalettePayload__slot_ok
     brl SourceVisual_QueuePalettes__fail
 SourceVisual_ReadPalettePayload__slot_ok:
@@ -3646,7 +4349,7 @@ SourceVisual_ReadPalettePayload__slot_ok:
     sta.l SourceVisual_PaletteCache+3,x
     lda #$A9
     sta.l SourceVisual_Error
-    rep #$31
+    rep #$30
 .a16
 .i16
     rts
@@ -3750,7 +4453,28 @@ SourceVisual_HasOwnedDma__scan:
     beq SourceVisual_HasOwnedDma__next
     lda.l DmaQueue+7,x
     cmp #$7E
-    bne SourceVisual_HasOwnedDma__next
+    beq SourceVisual_HasOwnedDma__wram
+    cmp #$35
+    bcc SourceVisual_HasOwnedDma__next
+    cmp #$38
+    bcc SourceVisual_HasOwnedDma__rom
+    cmp #$3A
+    bcc SourceVisual_HasOwnedDma__next
+    cmp #$3D
+    bcs SourceVisual_HasOwnedDma__next
+SourceVisual_HasOwnedDma__rom:
+.a8
+.i16
+    rep #$31
+.a16
+.i16
+    lda.l DmaQueue+5,x
+    cmp #$8000
+    bcc SourceVisual_HasOwnedDma__next16
+    bra SourceVisual_HasOwnedDma__owned
+SourceVisual_HasOwnedDma__wram:
+.a8
+.i16
     rep #$31
 .a16
 .i16
@@ -3812,6 +4536,7 @@ SourceVisual_Emit:
     rep #$31
 .a16
 .i16
+    jsl SourcePacket_EmitStart
     lda #0
     sta.l SourceVisual_DebugEmitPiece+44
     lda #36
@@ -3849,7 +4574,25 @@ SourceVisual_Emit__height_visible:
     sta.l SourceVisual_EmitBoundsMode
     bra SourceVisual_Emit__y_ready
 SourceVisual_Emit__ground_y:
+.a16
+.i16
     lda CHAR_POS_Y
+    sta.l SourceVisual_EmitBaseY
+    ; This path bypasses Character_RenderFrame/Jump_ApplyOamYOffset.
+    ; Keep lane depth for sorting; subtract this actor's accepted Q8.8
+    ; native jump height from the source-piece foot for presentation only.
+    ; Bounds-owned falls use their cached DrawY above and bypass this seam.
+    lda CHAR_SELECTED
+    and #$00FF
+    cmp #CHAR_SELECTED_JUMP
+    bne SourceVisual_Emit__y_ready
+    lda CHAR_THROW_ZPOS
+    xba
+    and #$00FF
+    eor #$FFFF
+    inc a
+    clc
+    adc.l SourceVisual_EmitBaseY
     sta.l SourceVisual_EmitBaseY
 SourceVisual_Emit__y_ready:
 .a16
@@ -4069,6 +4812,8 @@ SourceVisual_Emit__next_piece:
     jmp SourceVisual_Emit__piece
 SourceVisual_Emit__done:
 .a16
+.i16
+    jsl SourcePacket_EmitFinish
     lda #38
     sta.l SourceVisual_DebugQueueStage
     lda.l Oam_Buffer
@@ -4340,3 +5085,429 @@ SourceVisual_SetSprite:
     rts
 
 ; Scratch labels are explicit WRAM addresses above.
+
+; Production main-loop poll seam. Field-paced relay waits accumulate real
+; native edges separately; merge once here so a short A/Y pulse cannot vanish
+; before the existing native player services get their main-loop turn.
+SourceVisual_PollInput:
+    jsl SourceVisual_SampleInput
+    rep #$30
+.a16
+.i16
+    ; Preserve producer-owned pending edges before the legacy poll shim.
+    ; Only this S-CPU main thread publishes/consumes these input mailboxes.
+    lda.l $412016
+    sta.l SourceVisual_PollPending1
+    lda.l $41201A
+    sta.l SourceVisual_PollPending2
+    jsl Core_Input_Poll
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    lda.l Game_CampaignId
+    and #$00FF
+    cmp #3
+    bne SourceVisual_PollInput__clear
+    lda.l $7E1760 ; S6Host_Mode, standalone runtime is linked by the compiler
+    cmp #1
+    bne SourceVisual_PollInput__clear
+    ; A main poll may observe a held button already delivered by a private
+    ; field poll. Reconcile against that private history so the source sees
+    ; one edge, not a duplicate caused by the slower main-loop Input_old.
+    lda.l SourceVisual_FieldPress1
+    eor #$FFFF
+    and.l Input_press
+    ora.l SourceVisual_PollPending1
+    sta.l $412016
+    lda.l Input_press
+    sta.l $412014
+    sta.l SourceVisual_FieldPress1
+    lda.l SourceVisual_FieldPress2
+    eor #$FFFF
+    and.l Input2_press_Addr
+    ora.l SourceVisual_PollPending2
+    sta.l $41201A
+    lda.l Input2_press_Addr
+    sta.l $412018
+    sta.l SourceVisual_FieldPress2
+    lda.l Input_trigger
+    ora.l SourceVisual_LatchedInput
+    sta.l Input_trigger
+    lda.l Input2_trigger_Addr
+    ora.l SourceVisual_LatchedInput2
+    sta.l Input2_trigger_Addr
+SourceVisual_PollInput__clear:
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_LatchedInput
+    sta.l SourceVisual_LatchedInput2
+    pla
+    plp
+    rtl
+
+; Store only a hint. Never modify cache state/ownership or any DMA fence.
+SourceVisual_RememberBlock:
+.a16
+.i16
+    phx
+    lda.l SourceVisual_BlockIndex
+    jsr SourceVisual_BucketAddress
+    sep #$20
+.a8
+    ora.l SourceVisual_BlockBuckets,x
+    sta.l SourceVisual_BlockBuckets,x
+    rep #$30
+.a16
+.i16
+    plx
+    phx
+    lda.l SourceVisual_BlockIndex
+    and #$003F
+    tax
+    lda.l SourceVisual_BlockSlot
+    inc a
+    sep #$20
+.a8
+    sta.l SourceVisual_BlockHint,x
+    rep #$31
+.a16
+.i16
+    plx
+    rts
+
+; Cooperative hardware input sampling during expensive background allocation.
+; Main-thread only, all caller registers preserved; no MSU, visual loader,
+; game-facing input writes or worker control. Shares private edge histories
+; with relay waits, but uses a separate stamp so it cannot suppress loading.
+; Persistent Normal skips the native entity dispatch. Its jump seam used to
+; advance gravity once per slow main-loop iteration rather than once per
+; physical field, stretching a normal jump into thousands of fields. Keep
+; the existing Jump_PlayerTick physics, applying each elapsed field in order.
+; Grounded history cannot be charged to a newly accepted jump edge.
+SourceVisual_JumpField1 = $7E4BD8
+SourceVisual_JumpField2 = $7E4BDA
+SourceVisual_JumpDue = $7E4BDC
+SourceVisual_JumpWasAir = $7E4BDE
+SourceVisual_JumpIndex = $7E4BE0
+
+SourceVisual_PlayerFields:
+    php
+    rep #$30
+.a16
+.i16
+    phx
+    phy
+    tdc
+    cmp #$0A00
+    beq SourceVisual_PlayerFields__p1
+    ldx #2
+    bra SourceVisual_PlayerFields__clock
+SourceVisual_PlayerFields__p1:
+.a16
+.i16
+    ldx #0
+SourceVisual_PlayerFields__clock:
+.a16
+.i16
+    txa
+    sta.l SourceVisual_JumpIndex
+    lda.l StageTimer_FieldCounter
+    sec
+    sbc.l SourceVisual_JumpField1,x
+    beq SourceVisual_PlayerFields__done
+    cmp #120
+    bcc SourceVisual_PlayerFields__due
+    lda #120
+SourceVisual_PlayerFields__due:
+.a16
+.i16
+    sta.l SourceVisual_JumpDue
+    clc
+    adc.l SourceVisual_JumpField1,x
+    sta.l SourceVisual_JumpField1,x
+    lda CHAR_SELECTED
+    and #$00FF
+    cmp #CHAR_SELECTED_JUMP
+    beq SourceVisual_PlayerFields__air
+    lda #0
+    bra SourceVisual_PlayerFields__record
+SourceVisual_PlayerFields__air:
+.a16
+.i16
+    lda #1
+SourceVisual_PlayerFields__record:
+.a16
+.i16
+    sta.l SourceVisual_JumpWasAir
+    sep #$20
+.a8
+    jsl Jump_PlayerInputGate
+    rep #$30
+.a16
+.i16
+    lda.l SourceVisual_JumpWasAir
+    beq SourceVisual_PlayerFields__done
+SourceVisual_PlayerFields__next:
+.a16
+.i16
+    lda.l SourceVisual_JumpDue
+    dec a
+    sta.l SourceVisual_JumpDue
+    beq SourceVisual_PlayerFields__done
+    lda CHAR_SELECTED
+    and #$00FF
+    cmp #CHAR_SELECTED_JUMP
+    bne SourceVisual_PlayerFields__done
+    sep #$20
+.a8
+    jsl Jump_PlayerTick
+    rep #$30
+.a16
+.i16
+    bra SourceVisual_PlayerFields__next
+SourceVisual_PlayerFields__done:
+    rep #$30
+.a16
+.i16
+    ply
+    plx
+    plp
+    rtl
+
+; X is a cache-record byte offset; A is its full block ID. Return X as the
+; bucket byte offset and A as that physical slot's bit. Preserve Y.
+SourceVisual_BucketAddress:
+.a16
+.i16
+    phy
+    and #$003F
+    asl a
+    asl a
+    asl a
+    sta.l SourceVisual_BucketBase
+    txa
+    lsr a
+    lsr a
+    lsr a
+    pha
+    lsr a
+    lsr a
+    lsr a
+    clc
+    adc.l SourceVisual_BucketBase
+    sta.l SourceVisual_BucketBase
+    pla
+    and #7
+    tay
+    lda #1
+SourceVisual_BucketAddress__shift:
+.a16
+.i16
+    cpy #0
+    beq SourceVisual_BucketAddress__index
+    asl a
+    dey
+    bra SourceVisual_BucketAddress__shift
+SourceVisual_BucketAddress__index:
+.a16
+.i16
+    sta.l SourceVisual_BucketMask
+    lda.l SourceVisual_BucketBase
+    tax
+    lda.l SourceVisual_BucketMask
+    ply
+    rts
+
+SourceVisual_BucketForget:
+.a16
+.i16
+    phx
+    lda.l SourceVisual_BlockCache,x
+    jsr SourceVisual_BucketAddress
+    eor #$FFFF
+    sep #$20
+.a8
+    and.l SourceVisual_BlockBuckets,x
+    sta.l SourceVisual_BlockBuckets,x
+    rep #$30
+.a16
+.i16
+    plx
+    rts
+
+; Reconstruct once, including existing nonzero rows from an earlier epoch.
+; Releases may leave stale bits, which are checked against the live cache.
+SourceVisual_BucketEnsure:
+.a16
+.i16
+    lda.l SourceVisual_BucketMagic
+    cmp #$B17A
+    beq SourceVisual_BucketEnsure__valid
+    cmp #$B17B
+    bne SourceVisual_BucketEnsure__init
+SourceVisual_BucketEnsure__valid:
+.a16
+.i16
+    rts
+SourceVisual_BucketEnsure__init:
+.a16
+.i16
+    phx
+    phy
+    lda.l SourceVisual_BlockIndex
+    pha
+    lda.l SourceVisual_BlockSlot
+    pha
+    ldx #511
+    sep #$20
+.a8
+    lda #0
+SourceVisual_BucketEnsure__clear_wide:
+.a8
+.i16
+    sta.l SourceVisual_BlockBuckets,x
+    dex
+    bpl SourceVisual_BucketEnsure__clear_wide
+    ldx #63
+SourceVisual_BucketEnsure__clear:
+.a8
+.i16
+    sta.l SourceVisual_BlockHint,x
+    dex
+    bpl SourceVisual_BucketEnsure__clear
+    rep #$30
+.a16
+.i16
+    ldx #0
+SourceVisual_BucketEnsure__record:
+.a16
+.i16
+    lda.l SourceVisual_BlockCache+2,x
+    beq SourceVisual_BucketEnsure__next
+    phx
+    txa
+    lsr a
+    lsr a
+    lsr a
+    sta.l SourceVisual_BlockSlot
+    lda.l SourceVisual_BlockCache,x
+    sta.l SourceVisual_BlockIndex
+    jsr SourceVisual_RememberBlock
+    plx
+SourceVisual_BucketEnsure__next:
+.a16
+.i16
+    txa
+    clc
+    adc #8
+    tax
+    cpx #512
+    bcc SourceVisual_BucketEnsure__record
+    lda #$B17A
+    sta.l SourceVisual_BucketMagic
+    pla
+    sta.l SourceVisual_BlockSlot
+    pla
+    sta.l SourceVisual_BlockIndex
+    ply
+    plx
+    rts
+
+; Only production NPC compositor calls defer incomplete media admission.
+SourceVisual_NpcCompositor:
+.a16
+.i16
+    lda.l SourceInput_Magic
+    cmp #$1A60
+    bne SourceVisual_NpcCompositor__no
+    lda.l SourceVisual_ServiceOnly
+    bne SourceVisual_NpcCompositor__no
+    tdc
+    cmp #$0A00
+    beq SourceVisual_NpcCompositor__no
+    cmp #$0A85
+    bne SourceVisual_NpcCompositor__yes
+    lda.l Game_CampaignId
+    and #$00FF
+    cmp #3
+    bne SourceVisual_NpcCompositor__yes
+    lda.l SourceCritical_Completing
+    cmp #1
+    bne SourceVisual_NpcCompositor__yes
+    lda.l SourceCritical_Entry
+    cmp.l SourceVisual_EntryIndexSaved
+    bne SourceVisual_NpcCompositor__yes
+    lda.l SourceCritical_Stage
+    cmp.l Game_StageIndex
+    beq SourceVisual_NpcCompositor__no
+SourceVisual_NpcCompositor__yes:
+.a16
+.i16
+    sec
+    rts
+SourceVisual_NpcCompositor__no:
+.a16
+.i16
+    clc
+    rts
+
+; Main-thread, once-per-field completion service. Only an already-loaded
+; immutable block payload may progress here: no catalog, piece or MSU read.
+; Preserve the relay's timeout/register context. The original producer still
+; checks real active DMA rows before retirement or reuse of staging memory.
+SourceVisual_ServicePending:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    phy
+    phb
+    phd
+    sep #$20
+.a8
+    lda #0
+    pha
+    plb
+    rep #$30
+.a16
+.i16
+    ldx #0
+SourceVisual_ServicePending__scan:
+.a16
+.i16
+    lda.l SourceVisual_BlockCache+2,x
+    cmp #1
+    beq SourceVisual_ServicePending__found
+    txa
+    clc
+    adc #8
+    tax
+    cpx #512
+    bcc SourceVisual_ServicePending__scan
+    bra SourceVisual_ServicePending__done
+SourceVisual_ServicePending__found:
+.a16
+.i16
+    lda.l SourceVisual_BlockCache+6,x
+    and #$00FF
+    cmp #1
+    bne SourceVisual_ServicePending__done
+    jsr SourceVisual_ResumePendingBlock
+SourceVisual_ServicePending__done:
+    rep #$30
+.a16
+.i16
+    pld
+    plb
+    ply
+    plx
+    pla
+    plp
+    rtl
+
+.include "source_pressure_shared_walk.pasm"

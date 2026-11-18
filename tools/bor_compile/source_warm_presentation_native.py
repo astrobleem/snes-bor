@@ -26,8 +26,11 @@ def _relax(text, prefix):
     return re.sub(r'^ (beq|bne|bcc|bcs|bmi|bpl) ('+prefix+r'\w+)$',sub,text,flags=re.M)
 
 
-def helper(config, symbols):
+def helper(config, symbols, *, tick_service='LiveTick_Service', initialize=None):
     """Bank-43 helper; the world/tile decoder remain separate linked routines."""
+    for target in (tick_service,initialize):
+        if target is not None and not isinstance(target,str):raise ValueError('WARM_SERVICE_TARGET')
+        if target is not None and not re.fullmatch(r'[A-Za-z_]\w*',target):raise ValueError('WARM_SERVICE_TARGET')
     c=CONTROL;p=RENDER_PIN;d=DISPLAY_PIN
     lines=['.snes','.bank 43','.org $8000']
     def put(s):lines.extend(s.strip().splitlines())
@@ -44,13 +47,14 @@ def helper(config, symbols):
     # real constructor and actual audio/clock startup. Never resume old scene.
     put(' rep #$38\n lda #0\n tcd')
     for off in range(16,24,2):store(0x7e7700+off,0)
+    if initialize is not None:put(f' jsl {initialize}\n bcs WarmMain_Fault')
     put(' ldx #0')
     label('WarmMain_CopyCold')
     put(f' lda.l $7FBA00,x\n sta.l ${d:06X},x\n inx\n inx\n cpx #146\n bcc WarmMain_CopyCold')
     store(d+146,0)
     label('WarmMain_Ready');put(' nop')
     label('WarmMain_Loop')
-    put(' jsl LiveTick_Service\n bcs WarmMain_Fault\n jsl WarmTryPublish\n bcs WarmMain_Fault\n jmp WarmMain_Loop')
+    put(f' jsl {tick_service}\n bcs WarmMain_Fault\n jsl WarmTryPublish\n bcs WarmMain_Fault\n jmp WarmMain_Loop')
     label('WarmMain_Fault');store(c+0x100,3)
     label('WarmMain_Stop');put(' wai\n jmp WarmMain_Stop')
 
@@ -72,7 +76,7 @@ def helper(config, symbols):
         put(' ldx #0');label(f'WarmYield_Save{i}')
         put(f' lda.l ${src:06X},x\n sta.l ${dst:06X},x\n inx\n inx\n cpx #{size}\n bcc WarmYield_Save{i}')
     store(c+0x104,1)
-    put(' jsl LiveTick_Service\n bcc WarmYield_Compare')
+    put(f' jsl {tick_service}\n bcc WarmYield_Compare')
     store(c+0x102,1)
     label('WarmYield_Compare')
     for i,(src,dst,size) in enumerate(YIELD_GUARDS):

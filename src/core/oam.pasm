@@ -1,9 +1,9 @@
 ; ============================================================================
-; core/oam.pasm — sprite (OAM) shadow buffer, uploaded to hardware via DMA
+; core/oam.pasm â€” sprite (OAM) shadow buffer, uploaded to hardware via DMA
 ; during NMI.
 ;
 ; Ported (adapted, not literal) from SNES-SuperBossGaiden (src/core/oam.65816
-; + oam.h), used with the original author's permission — see
+; + oam.h), used with the original author's permission â€” see
 ; [[license-authorization-superbossgaiden]] / module headers elsewhere in
 ; this project for what "adapted" means here.
 ;
@@ -15,7 +15,7 @@
 ; enqueues a single DMA transfer (via core/dma.pasm's Core_Dma_Enqueue) that
 ; core/nmi.pasm's Core_Nmi_Play drains during the next vblank. Unlike
 ; upstream, the real hardware transfer goes through this project's existing
-; DMA queue instead of a hand-rolled immediate DMA — dma.pasm already has
+; DMA queue instead of a hand-rolled immediate DMA â€” dma.pasm already has
 ; DMA_TYPE_OAM wired to hardware channel 7, so there's no reason to bypass it.
 ; OBSEL is static: Core_Oam_Init seeds the shadow and commits it once under
 ; forced blank. The per-frame NMI need not rewrite that unchanged register.
@@ -25,7 +25,7 @@
 ; and poppy_assembler_bugs.md project memory for the full confirmed list):
 ;   - Indexed WRAM access always `.l`, never `.w`.
 ;   - No `stz.l` (no long-addressing STZ exists on real 65816; this Poppy
-;     build silently mis-encodes it) — `lda #0` / `sta.l` instead.
+;     build silently mis-encodes it) â€” `lda #0` / `sta.l` instead.
 ;   - Every label that's a branch target gets a `nop` immediately before it
 ;     as a precaution against this Poppy build's branch-target address
 ;     misresolution bug, then gets verified via raw-byte alignment check
@@ -40,9 +40,9 @@ Oam_PackedHi   = $7E5300 ; real hardware 2nd-OAM-table format, 32B (4 sprites/by
 ; --- Working buffer, packed into Oam_PackedHi each upload ---
 Oam_ExpandedHi = $7E5320 ; 128 sprites x 1B (size/x-high bits, pre-shifted), 128B
 
-Oam_CurrentSlot = $7E53A0 ; .dw — byte offset into Oam_Buffer, next free sprite slot
-Oam_UploadFlag  = $7E53A2 ; .dw — nonzero: Core_Oam_Play has a transfer to enqueue
-Oam_VramStart   = $7E53A4 ; .dw — VRAM word address sprite tiles are based at
+Oam_CurrentSlot = $7E53A0 ; .dw â€” byte offset into Oam_Buffer, next free sprite slot
+Oam_UploadFlag  = $7E53A2 ; .dw â€” nonzero: Core_Oam_Play has a transfer to enqueue
+Oam_VramStart   = $7E53A4 ; .dw â€” VRAM word address sprite tiles are based at
 
 OamShadow_Start = Oam_Buffer
 OamShadow_End   = $7E53A6
@@ -53,9 +53,9 @@ OamShadow_End   = $7E53A6
 ; gap between OamShadow_End and main.pasm's Anim_* WRAM block ($7E53B0+) --
 ; confirmed via a project-wide grep for 7E53A/7E53B that nothing else claims
 ; this range.
-OamHiSrcIndex   = $7E53A6 ; .dw — index into Oam_ExpandedHi for the current group (stride 4)
-OamHiDstIndex   = $7E53A8 ; .dw — index into Oam_PackedHi for the current group (stride 1)
-OamHiPackedTemp = $7E53AA ; .db — this group's packed byte, built up before the store
+OamHiSrcIndex   = $7E53A6 ; .dw â€” index into Oam_ExpandedHi for the current group (stride 4)
+OamHiDstIndex   = $7E53A8 ; .dw â€” index into Oam_PackedHi for the current group (stride 1)
+OamHiPackedTemp = $7E53AA ; .db â€” this group's packed byte, built up before the store
 
 ; --- Core_Oam_SetSprite's caller-filled request cells. Same pattern as
 ; core/dma.pasm's DmaRequest_* staging area (fill these, then jsr) rather
@@ -63,11 +63,11 @@ OamHiPackedTemp = $7E53AA ; .db — this group's packed byte, built up before th
 ; fit cleanly in A/X/Y. Not part of the shadow-clear range (OamShadow_End)
 ; -- always fully overwritten by the caller before use, same as OamHi*
 ; above. Fills the remaining gap before main.pasm's Anim_* block ($7E53B0).
-OamSetSprite_X    = $7E53AB ; .db — X-low (0-255; 9th/X-high bit lives in Hi below)
+OamSetSprite_X    = $7E53AB ; .db â€” X-low (0-255; 9th/X-high bit lives in Hi below)
 OamSetSprite_Y    = $7E53AC ; .db
-OamSetSprite_Tile = $7E53AD ; .db — OBJ base tile index
-OamSetSprite_Attr = $7E53AE ; .db — priority/palette/flip byte
-OamSetSprite_Hi   = $7E53AF ; .db — hi-table byte, pre-shifted (bit0=X-high, bit1=size),
+OamSetSprite_Tile = $7E53AD ; .db â€” OBJ base tile index
+OamSetSprite_Attr = $7E53AE ; .db â€” priority/palette/flip byte
+OamSetSprite_Hi   = $7E53AF ; .db â€” hi-table byte, pre-shifted (bit0=X-high, bit1=size),
                              ;        same convention as Oam_ExpandedHi's own entries
 
 ; Highest Oam_CurrentSlot byte-count ever seen across frames, so the
@@ -236,58 +236,10 @@ Core_Oam_ClearAll__packed_loop:
 ; on screen forever, which is exactly the bug this whole shadow-buffer
 ; system exists to prevent.
 Core_Oam_ClearActive:
-    rep #$31
-.a16
-    lda #0
-    sta Oam_CurrentSlot
-
-    ; --- Main table: Oam_HighWaterSlot/4 sprites (exact -- Oam_CurrentSlot
-    ; only ever advances by exactly 4 per sprite written, so this divides
-    ; evenly, no rounding needed). ---
-    lda.l Oam_HighWaterSlot
-    lsr a
-    lsr a
-    beq Core_Oam_ClearActive__main_skip
-    tay
-    ldx #0
-Core_Oam_ClearActive__main_loop:
+    jml Core_Oam_ClearActiveFast
+Core_Oam_ClearActive__return:
 .a16
 .i16
-    lda #OAM_DEFAULT_Y * 256 + OAM_HIDDEN_X
-    sta.l Oam_Buffer,x
-    lda #0
-    sta.l Oam_Buffer+2,x
-    inx
-    inx
-    inx
-    inx
-    dey
-    bne Core_Oam_ClearActive__main_loop
-Core_Oam_ClearActive__main_skip:
-.a16
-.i16
-
-    ; Expanded high table has ONE byte per sprite, not one per four.
-    ; Packed bytes are regenerated over the high-water extent before DMA.
-    lda.l Oam_HighWaterSlot
-    lsr a
-    lsr a
-    beq Core_Oam_ClearActive__hi_skip
-    tay
-    ldx #0
-    sep #$20
-.a8
-Core_Oam_ClearActive__hi_loop:
-.a8
-.i16
-    lda #OAM_HIDDEN_HI
-    sta.l Oam_ExpandedHi,x
-    inx
-    dey
-    bne Core_Oam_ClearActive__hi_loop
-Core_Oam_ClearActive__hi_skip:
-    rep #$20
-.a16
     rts
 
 ; Call once per frame after all sprites for this frame have been written
@@ -390,7 +342,7 @@ Core_Oam_Play__main_len_done:
     sta DmaRequest_TypeFlags
     rep #$31
 .a16
-    jsr Core_Dma_Enqueue
+    jsl SourcePacket_EnqueueMain
     bcs Core_Oam_Play__queued_main
     ; bra (not just bcc/bcs) is also range-limited to +-127 bytes -- the
     ; hi-table dispatch block below (grown this session by the one-shot

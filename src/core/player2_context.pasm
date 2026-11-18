@@ -1511,22 +1511,48 @@ G13_PlayerScore_Add32__p1:
 G13_PlayerScore_Add32__derive_threshold:
 .a16
 .i16
-    lda #$C350
-    sta.l VmArith_DivLo
-    lda #0
-    sta.l VmArith_DivHi
-    jsl G13_Core_Math_Div32_Long
-
-    ; threshold = quotient * 50000 + 50000
-    lda.l VmArith_QLo
-    ldx #$C350
-    jsl G13_Core_Math_Mul32_Long
-    clc
-    adc #$C350
-    sta.l VmArith_RemLo
-    txa
-    adc #0
-    sta.l VmArith_RemHi
+    jsl ScoreThreshold_Compute
+    bra ScoreThreshold_Continue
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+ScoreThreshold_Continue:
 
     ; new = old + add, with a source cap rather than 16-bit saturation.
     ; Reload old score because the divider consumed QLo/QHi.

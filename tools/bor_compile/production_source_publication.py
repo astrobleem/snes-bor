@@ -867,6 +867,10 @@ def emit_policy_include(catalog, path, *, enabled=False, msu_offset=None,
     rows.append("    .dw " + ", ".join(str(v or 0) for v in roster_start))
     rows.append("SourceVisual_RosterKeyEnd:")
     rows.append("    .dw " + ", ".join(str(v or 0) for v in roster_end))
+    # Count rows, so runtime lower-bound search needs no hardware division.
+    rows.append("SourceVisual_RosterKeyCount:")
+    rows.append("    .dw " + ", ".join(str(((end or 0) - (start or 0)) // 6)
+                                      for start, end in zip(roster_start, roster_end)))
     key_rows = ["; Generated from production_source_publication.py; do not edit.",
                 "SourceVisual_EntryKeys:"]
     # Store an entry index, not a byte offset: the entry table can exceed

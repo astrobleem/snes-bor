@@ -56,8 +56,11 @@ DMA_TRANSFER_MAX_BYTES = $0b00   ; per-frame budget cap, matches upstream's defa
 DMA_TYPE_VRAM  = 0
 DMA_TYPE_OAM   = 1
 DMA_TYPE_CGRAM = 2
-DMA_TYPE_MAX   = 3
+DMA_TYPE_SOURCE_BLOCK = 3 ; immutable 256-byte source, four 64-byte OBJ rows
+DMA_TYPE_MAX   = 4
 
+; Internal inactive reservation; no gameplay producer emits it yet.
+DMA_OPT_RESERVED     = $10
 DMA_OPT_REVERSE      = $20   ; PPU-to-CPU instead of CPU-to-PPU (readback)
 DMA_OPT_ACTIVE       = $40   ; slot occupied / transfer pending
 DMA_OPT_FIXED_SOURCE = $80   ; don't advance source address (fill-style transfer)
@@ -135,6 +138,24 @@ Core_Dma_Enqueue:
 	jsr Core_Error_Handler
 
 Core_Dma_Enqueue__valid_type:
+.a16
+.i16
+    cmp #DMA_TYPE_SOURCE_BLOCK
+    bne Core_Dma_Enqueue__ordinary_length
+    lda DmaRequest_Length
+    cmp #256
+    beq Core_Dma_Enqueue__source_flags
+    pea Error_InvalidDmaTransferLength
+    jsr Core_Error_Handler
+Core_Dma_Enqueue__source_flags:
+.a16
+    lda DmaRequest_TypeFlags
+    and #(DMA_OPT_REVERSE | DMA_OPT_FIXED_SOURCE)
+    beq Core_Dma_Enqueue__ordinary_length
+    pea Error_InvalidDmaTransferType
+    jsr Core_Error_Handler
+Core_Dma_Enqueue__ordinary_length:
+.a16
 	lda DmaRequest_Length
 	bne Core_Dma_Enqueue__valid_length
 	pea Error_InvalidDmaTransferLength
@@ -152,7 +173,7 @@ Core_Dma_Enqueue__scan:
 	sep #$20
 .a8
 	lda.l DmaQueue+4,x
-	bit #DMA_OPT_ACTIVE
+	bit #(DMA_OPT_ACTIVE | DMA_OPT_RESERVED)
 	beq Core_Dma_Enqueue__found_slot
 	rep #$31
 .a16
@@ -164,11 +185,10 @@ Core_Dma_Enqueue__scan:
 	dey
 	bne Core_Dma_Enqueue__scan
 
-	; queue full
-	rep #$31
+	; Queue full: retry HUD dirtiness only on this failed admission path.
+	jml HudRetryFailure_QueueFull
 .a16
-	plp
-	clc
+Core_Dma_Enqueue__full_return:
 	rts
 
 Core_Dma_Enqueue__found_slot:
@@ -227,7 +247,7 @@ Core_Dma_HasFreeSlot__scan:
 	sep #$20
 .a8
 	lda.l DmaQueue+4,x
-	bit #DMA_OPT_ACTIVE
+	bit #(DMA_OPT_ACTIVE | DMA_OPT_RESERVED)
 	beq Core_Dma_HasFreeSlot__found
 	rep #$31
 .a16
@@ -307,7 +327,7 @@ Core_Dma_ProcessQueue__loop:
 	cmp #DMA_TYPE_VRAM
 	bne Core_Dma_ProcessQueue__try_oam
 	jsr Core_Dma_TransferVram
-	bra Core_Dma_ProcessQueue__next
+	brl Core_Dma_ProcessQueue__next
 
 Core_Dma_ProcessQueue__try_oam:
 .a8
@@ -315,21 +335,33 @@ Core_Dma_ProcessQueue__try_oam:
 	cmp #DMA_TYPE_OAM
 	bne Core_Dma_ProcessQueue__try_cgram
 	jsr Core_Dma_TransferOam
-	bra Core_Dma_ProcessQueue__next
+	brl Core_Dma_ProcessQueue__next
 
 Core_Dma_ProcessQueue__try_cgram:
 .a8
 .i16
 	cmp #DMA_TYPE_CGRAM
-	bne Core_Dma_ProcessQueue__bad_type
+	bne Core_Dma_ProcessQueue__try_source_block
+    ; Enforce source palette ownership before dispatch, preserving the
+    ; single-return transfer-handler ABI used by native compiler wrappers.
+    jsl SourceVisual_AllowCgramRequest
+    bcc Core_Dma_ProcessQueue__next
 	jsr Core_Dma_TransferCgram
-	bra Core_Dma_ProcessQueue__next
+	brl Core_Dma_ProcessQueue__next
+
+Core_Dma_ProcessQueue__try_source_block:
+.a8
+.i16
+    cmp #DMA_TYPE_SOURCE_BLOCK
+    bne Core_Dma_ProcessQueue__bad_type
+    jsr Core_Dma_TransferSourceBlock
+    brl Core_Dma_ProcessQueue__next
 
 Core_Dma_ProcessQueue__bad_type:
 	rep #$31
 .a16
 	; Inlined instead of `@Core_Error_Trigger` — see header note. This one
-	; matters beyond itself: the three `bra Core_Dma_ProcessQueue__next`
+	; matters beyond itself: the three `brl Core_Dma_ProcessQueue__next`
 	; above all jump forward across this same macro invocation, so an
 	; uncounted-macro-size bug here also breaks all three of those branches.
 	pea Error_InvalidDmaTransferType
@@ -346,16 +378,17 @@ Core_Dma_ProcessQueue__next:
 .a8
 	lda #0
 	sta.l DmaQueue+4,x
-	; Clear the optional owner token at the same queue slot.
-	pha
+	; Index math must use the full accumulator before transfer to X16.
+	; A8 TXA/LSR preserves B from the transfer length ($0100/$0200),
+	; otherwise clearing an owner can overwrite the input journal/catalog.
+	rep #$31
+.a16
+.i16
 	txa
 	lsr a
 	lsr a
 	lsr a
-	tay
-	tya
 	tax
-	pla
 	sep #$20
 .a8
 	lda #0
@@ -369,7 +402,7 @@ Core_Dma_ProcessQueue__next:
 	lda DmaQueue_CurrentSlot
 	clc
 	adc #DMA_QUEUE_SLOT_SIZE
-	bra Core_Dma_ProcessQueue__loop
+	jmp Core_Dma_ProcessQueue__loop
 
 Core_Dma_ProcessQueue__skip:
 	; Empty slots do not terminate the ring scan.  Other producers may have
@@ -383,7 +416,7 @@ Core_Dma_ProcessQueue__skip:
 	lda DmaQueue_CurrentSlot
 	clc
 	adc #DMA_QUEUE_SLOT_SIZE
-	bra Core_Dma_ProcessQueue__loop
+	jmp Core_Dma_ProcessQueue__loop
 
 Core_Dma_ProcessQueue__done:
 	rep #$31
@@ -435,6 +468,9 @@ Core_Dma_TransferVram:
 
 	rep #$31
 .a16
+Core_Dma_SourceBlock_Return:
+.a16
+.i16
 	rts
 
 Core_Dma_TransferOam:
@@ -487,3 +523,94 @@ Core_Dma_TransferCgram:
 	rep #$31
 .a16
 	rts
+
+; One queue entry owns all four rows until all hardware transfers finish.
+; No shared WRAM scratch: NMI may interrupt the source producer at any point.
+; Channel 7 advances its immutable source by 64 bytes after each transfer.
+Core_Dma_TransferSourceBlock:
+.a16
+.i16
+    rep #$31
+    phy
+    lda.l DmaQueue+5,x
+    sta $4372
+    ; Keep the next VRAM word address in Y. STY writes it directly without
+    ; rereading and shifting the queue target for every physical row.
+    lda.l DmaQueue+2,x
+    lsr a
+    tay
+    sep #$20
+.a8
+    lda.l DmaQueue+7,x
+    sta $4374
+    lda #$80
+    sta $2115
+    lda #$01
+    sta $4370
+    lda #$18
+    sta $4371
+    rep #$31
+.a16
+.i16
+Core_Dma_TransferSourceBlock__row:
+.a16
+.i16
+    sty $2116
+    lda #64
+    sta $4375
+    sep #$20
+.a8
+    lda #$80
+    sta $420B
+    rep #$31
+.a16
+.i16
+    tya
+    adc #256
+    tay
+Core_Dma_TransferSourceBlock__row1:
+.a16
+.i16
+    sty $2116
+    lda #64
+    sta $4375
+    sep #$20
+.a8
+    lda #$80
+    sta $420B
+    rep #$31
+.a16
+.i16
+    tya
+    adc #256
+    tay
+Core_Dma_TransferSourceBlock__row2:
+.a16
+.i16
+    sty $2116
+    lda #64
+    sta $4375
+    sep #$20
+.a8
+    lda #$80
+    sta $420B
+    rep #$31
+.a16
+.i16
+    tya
+    adc #256
+    tay
+Core_Dma_TransferSourceBlock__row3:
+.a16
+.i16
+    sty $2116
+    lda #64
+    sta $4375
+    sep #$20
+.a8
+    lda #$80
+    sta $420B
+    ; Same eight-byte bank0 footprint. The continuation runs only after
+    ; all four physical row writes; it preserves the original short-call ABI.
+    jml SourcePrefetch_AfterPhysical
+    .db $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA

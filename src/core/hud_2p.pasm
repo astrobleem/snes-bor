@@ -3,7 +3,7 @@
 ;
 ; P2 is a source-normal selected player. This module only adds presentation
 ; for the already-owned Entity1/G13_P2Score/G13_P2Lives state.
-; It uses the existing HudStaging/TextStaging buffers and queues at most one
+; P2 owns a distinct64-byte slice of the reserved HUD staging arena; queues at most one
 ; P2 bar and one P2 text row per gameplay service, just like the established
 ; P1 HUD path.  Rows 7-9 are free gameplay rows: row 6 remains the boss bar,
 ; rows 21-27 remain the frontpanel owner.
@@ -40,7 +40,7 @@ Hud_Play__2p_bar_clear:
 .a16
 .i16
     lda #$0000
-    sta.l HudStaging,x
+    sta.l HudP2Staging,x
     inx
     inx
     cpx #HUD_STAGING_BYTES
@@ -57,7 +57,7 @@ Hud_Play__2p_bar_clear:
     rep #$31
 .a16
 .i16
-    lda #HudStaging
+    lda #HudP2Staging
     sta.l DmaRequest_SourceAddrLow
     lda #(BG3_TILEMAP_VRAM_WORD + HUD_ROW_P2_BAR * TEXT_ROW_ENTRIES) * 2
     sta.l DmaRequest_TargetAddr
@@ -83,10 +83,10 @@ Hud_Play__2p_drawbar:
     inx
     inx
     lda #HUD_TILE_CAP_LEFT
-    sta.l HudStaging,x
+    sta.l HudP2Staging,x
     inx
     lda #HUD_ENTRY_HIGH
-    sta.l HudStaging,x
+    sta.l HudP2Staging,x
     inx
     ldy #HUD_BAR_TILES
 Hud_Play__2p_drawbar_body:
@@ -114,18 +114,18 @@ Hud_Play__2p_drawbar_have:
     lda.l HudBarFilled
     clc
     adc #HUD_TILE_FILL_BASE
-    sta.l HudStaging,x
+    sta.l HudP2Staging,x
     inx
     lda #HUD_ENTRY_HIGH
-    sta.l HudStaging,x
+    sta.l HudP2Staging,x
     inx
     dey
     bne Hud_Play__2p_drawbar_body
     lda #HUD_TILE_CAP_RIGHT
-    sta.l HudStaging,x
+    sta.l HudP2Staging,x
     inx
     lda #HUD_ENTRY_HIGH
-    sta.l HudStaging,x
+    sta.l HudP2Staging,x
     rts
 
 Hud_Play__2p_text:

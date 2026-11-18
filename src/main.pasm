@@ -4236,6 +4236,7 @@ HudBossStaging     = $7E276D   ; 64B -- one BG3 tilemap row, pre-DMA (own
                                  ; buffer, not shared with HudStaging -- see
                                  ; Hud_Play__boss_bar's own header)
 HudStaging         = $7E2400   ; 256B -- BG3 tilemap rows 0-3, pre-DMA
+HudP2Staging       = $7E2440   ; 64B within existing256B reservation; independent queued P2 bar
 ; Msu1_StreamBusy is declared earlier in this file (before the core/*.pasm
 ; .include block) -- core/nmi.pasm's Core_Nmi_Play references it, and that
 ; .include is textually processed before this point, so the constant must
@@ -5351,6 +5352,13 @@ Anim_Play_Rise__frame_ok:
 Msu1_LoadFrame:
     php
     sei
+    ; The policy lookup clobbers A. Preserve the caller's real frame index
+    ; for the legacy branch, and establish widths before indexing the table.
+    rep #$30
+.a16
+.i16
+    and #$00FF
+    pha
     ; SOURCE_SIZED owns the actor's presentation resources.  The accepted
     ; gameplay animation still advances and its frame sound remains routed,
     ; but the legacy 768-byte OBJ upload must not overwrite the compiler
@@ -5362,10 +5370,25 @@ Msu1_LoadFrame:
     lda CHAR_ROSTER_INDEX
     cmp #SOURCE_VISUAL_ROSTER_COUNT
     bcs Msu1_LoadFrame__legacy
+    ; TAX into I16 consumes the full accumulator, including hidden B in A8.
+    ; A stale high byte otherwise bypasses SOURCE_SIZED and overwrites its
+    ; live content-addressed cache with a legacy fixed-column frame upload.
+    rep #$30
+.a16
+.i16
+    and #$00FF
     tax
+    sep #$20
+.a8
     lda.l SourceVisual_RosterPolicy,x
     cmp #VISUAL_POLICY_SOURCE_SIZED
     bne Msu1_LoadFrame__legacy
+    rep #$30
+.a16
+.i16
+    pla
+    sep #$20
+.a8
     jsl Audio_FrameSoundDispatch
     plp
     rep #$31
@@ -5376,6 +5399,7 @@ Msu1_LoadFrame__legacy:
     rep #$31
 .a16
 .i16
+    pla
     and #$00FF                  ; zero-extend frame_index
     sta.l AnimHeaderStaging+12  ; scratch = n
     asl a
@@ -10551,10 +10575,8 @@ Core_StreamScroll_ResolveRows__not_new_hi:
 ; explicitly resyncs to that on every exit path since it freely switches
 ; width internally.
 Core_StreamScroll_CommitColumn:
-    ; Called from core/nmi.pasm's Core_Nmi_Play, which forces DBR=0 at its
-    ; top ("where all hardware registers live") -- unlike Core_StreamScroll_
-    ; Play/ResolveRows (called from scpu_main_loop, where DBR=$7E), every
-    ; $7Exxxx access in THIS routine must be explicit .l, not bare .w.
+    ; NMI caller owns DBR=0. CPU word stores write $2118 then $2119;
+    ; VMAIN=$81 advances 32 words after the high byte, exactly one map row.
     sep #$20
 .a8
     lda.l StreamScroll_ColPending
@@ -10564,93 +10586,62 @@ Core_StreamScroll_CommitColumn:
 .i16
     rts
 Core_StreamScroll_CommitColumn__go:
-    ; VMAIN must be freshly set here, not assumed from some earlier boot-time
-    ; write -- Bg_LoadScene hit this exact bug already (see its own header
-    ; comment): with $2115=$00, the VRAM address advances on the $2118 (low
-    ; byte) write instead of $2119 (high byte), so every row's high byte
-    ; shears into the NEXT word instead of landing in its own. Confirmed via
-    ; colbuf_probe.py: ColBuf held correct words, but VRAM readback showed
-    ; every row's low byte correct and high byte wrong -- exactly that shear.
-    sep #$20
 .a8
-    lda #$80                 ; increment by one word AFTER the $2119 write
+.i16
+    lda #$81
     sta $2115
     rep #$31
 .a16
 .i16
+    phy
     ldx #0
+    lda.l StreamScroll_HeightTiles
+    beq Core_StreamScroll_CommitColumn__done
+    tay
+    lda.l StreamScroll_ColTargetWord
+    sta $2116
 Core_StreamScroll_CommitColumn__row:
-    ; CPX has no long-addressing mode, so compare via A instead (TXA doesn't
-    ; disturb X).
+.a16
+.i16
+    lda.l StreamScroll_ColBuf,x
+    sta $2118
+    inx
+    inx
+    dey
+    bne Core_StreamScroll_CommitColumn__row
+    ; Preserve the previous helper's final X and VMADDR as well as its data.
     txa
-    cmp.l StreamScroll_HeightTiles
-    bcs Core_StreamScroll_CommitColumn__done
+    lsr a
+    tax
+    dec a
     asl a
     asl a
     asl a
     asl a
-    asl a                       ; A = row * 32 (words between rows in VRAM)
+    asl a
     clc
     adc.l StreamScroll_ColTargetWord
+    inc a
     sta $2116
-    ; ColBuf index MUST be X, not Y -- the 65816 has no indexed-LONG
-    ; addressing mode with Y at all (only `addr24,X` exists). Poppy silently
-    ; accepts `.l Symbol,y` anyway and falls back to a 3-byte absolute,Y
-    ; (DBR-relative, and 1 byte short of the 4 it budgeted), which both reads
-    ; the wrong bank (DBR=0 here, not $7E -- see this routine's header
-    ; comment) AND shifts every following instruction in the routine one byte
-    ; early per occurrence. Exactly the bug Bg_LoadScene_Streaming's own pass-
-    ; 1/pass-2 loops already document (see their header comments) and use X
-    ; to avoid -- this routine used Y instead and hit the same class:
-    ; confirmed via bisection that row 0 (index 0) happened to decode into
-    ; harmless garbage after the shift, but row 1 (index 2) hung the CPU
-    ; solid (Nmi_FrameCounter frozen), and the SAME `lda.l StreamScroll_
-    ; ColBuf,y` line alone (with every other instruction in the loop body
-    ; stripped) reproduced the freeze. X already holds the row counter here,
-    ; so stash it around the ColBuf index computation instead of reusing Y.
-    phx
-    txa
-    asl a                       ; A = row * 2 (ColBuf is word-indexed)
-    tax
-    ; Read the whole 16-bit word via ONE indexed-long load (X unchanged
-    ; across the width switch below), then split with XBA -- NOT a second
-    ; `StreamScroll_ColBuf+1,x` indexed-long read for the high byte. That
-    ; was the original bug here (found by direct comparison against
-    ; Bg_LoadScene_Streaming's own row-write loop, which explicitly avoids
-    ; exactly this "Symbol+1,y" pattern with the same XBA technique, per its
-    ; own comment): ColBuf held correct words start-to-finish (confirmed via
-    ; colbuf_probe.py), but VRAM readback showed the low byte landing
-    ; correctly and the high byte wrong on nearly every row -- a `+1,y`
-    ; indexed-long computed-offset operand, exactly the class of address
-    ; CLAUDE.md's Poppy checklist warns can mis-resolve.
-    lda.l StreamScroll_ColBuf,x
-    sep #$20
-.a8
-    sta $2118
-    rep #$31
-.a16
-.i16
-    lda.l StreamScroll_ColBuf,x
-    xba
-    sep #$20
-.a8
-    sta $2119
-    rep #$31
-.a16
-.i16
-    plx                          ; restore the row counter
-    inx
-    bra Core_StreamScroll_CommitColumn__row
 Core_StreamScroll_CommitColumn__done:
-    ; Reached via `bcs` jumping OVER this loop body's internal sep/rep pairs
-    ; -- redundant resync per CLAUDE.md's Poppy width-tracking checklist.
+.a16
+.i16
     sep #$20
 .a8
+    lda #$80
+    sta $2115
+    rep #$31
+.a16
+.i16
     lda #0
+    sep #$20
+.a8
     sta.l StreamScroll_ColPending
     rep #$31
 .a16
 .i16
+    ply
+    lda #0
     rts
 
 ; Call once per scpu_main_loop iteration, right after Core_Screen_Play and
@@ -12680,7 +12671,7 @@ scpu_main_loop:
     jsr Game_State_Play
     ; Late stream-only opportunity after gameplay; ordinary TAD processing
     ; remains exclusively in Tad_StreamFrameService above.
-    jsl Tad_StreamLatePump
+    jsl SourcePrefetch_TailBatch
     bra scpu_main_loop
 
 ; The LoROM header occupies $FFC0-$FFDF and hardware vectors occupy
@@ -13796,6 +13787,16 @@ Footdie_StreamSource:
 .include "generated/production_source_visual.pasm"
 .include "core/stage_timer_host.pasm"
 .include "core/source_visual_production.pasm"
+.include "core/source_visual_completed.pasm"
+.include "core/source_visual_actor_completed.pasm"
+.include "core/source_rom_payloads.pasm"
+.include "core/oam_clear_fast.pasm"
+.include "core/source_input_fields.pasm"
+SourcePacket_UnrolledBudgetBridge:
+.a16
+.i16
+    jml SourcePacket_UnrolledQueue
+.assert * <= $110000, "bank10 input epilogue crosses bank boundary"
 
 .bank 17
 .org $8000
@@ -13860,6 +13861,13 @@ SourceVM_InstructionReservation:
 ; Foreign source frame owner. Banks 39..45 belong to presentation proof/runtime
 ; publication. Keep this owner outside those reservations and outside bank 0.
 .bank 61
+.org $8000
+.include "core/source_attack_before_compose_v583.pasm"
+.include "core/source_attack0_before_compose_v583.pasm"
+.include "core/source_before_attack_peer_v583.pasm"
+.include "core/source_attack_template_v598.pasm"
+.include "core/source_attack_owned_v606.pasm"
+.assert * < $3DC000, "precompose helper exceeds bank 61 prefix"
 .org $C000
 .include "core/vm/vm_source_update_frame.pasm"
 .include "core/vm/vm_source_animation_callback.pasm"
@@ -14078,3 +14086,2888 @@ SourceVM_InstructionReservation:
 .bank 51
 .org $8000
 .include "core/source_foreign_workspace.pasm"
+
+; BOR immutable payloads; no source media or staging duplication.
+.include "generated/bor_source_rom_payloads.pasm"
+
+; Foreground critical-media completion uses only the verified unused
+; final8KiB of bank60; immutable source payload ends atD000.
+; Verified 4KiB gap after the 20KiB immutable payload; planner ONLY.
+.bank 57
+.org $8800
+.include "core/source_reserved_idle.pasm"
+.include "core/source_attack_capacity_fit.pasm"
+.include "core/source_packet_unrolled_validation.pasm"
+.include "core/source_second_idle.pasm"
+.include "core/source_fp_noop.pasm"
+.include "core/source_idle_visit.pasm"
+.include "core/source_spawn_byte.pasm"
+.include "core/source_physics_tail_idle.pasm"
+.include "core/source_next_pose_pins_v471.pasm"
+.include "core/source_next_pose_emit_v475.pasm"
+.include "core/source_next_witness_v479.pasm"
+.include "core/source_next_frame_v481.pasm"
+.include "core/source_next_compact_v487.pasm"
+.include "core/source_next_scene_v489.pasm"
+.include "core/source_next_live_guard_v497.pasm"
+.include "core/source_next_commit_v493.pasm"
+.include "core/source_next_nmi_control_v499.pasm"
+.assert * < $39F000, "reserved idle exceeds gap"
+
+.bank 60
+.org $D000
+.include "core/source_prefetch_plan.pasm"
+.include "core/source_first_attack_rom_schedule.pasm"
+
+; BC0 low destination, BC2 expanded-high destination, BC4 pack count,
+; BC6 expanded count. Constructed while CopyBusy/ownerBusy hold the image.
+SourceLayout_Defaults:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    lda #$7628
+    sta.l $437BC0
+    lda #$782A
+    sta.l $437BC2
+    lda #5
+    sta.l $437BC4
+    lda #20
+    sta.l $437BC6
+    pla
+    plp
+    rtl
+SourceLayout_Metadata2:
+.a16
+.i16
+    lda.l $437A9C
+    cmp #2
+    beq SourceLayout_LongGuard0
+    brl SourceLayout_No
+SourceLayout_LongGuard0:
+.a16
+.i16
+    lda.l SOURCE_PACKET_ACTIVE_META+2
+    cmp #40
+    bcs SourceLayout_LongGuard1
+    brl SourceLayout_No
+SourceLayout_LongGuard1:
+.a16
+.i16
+    cmp #53
+    bcc SourceLayout_LongGuard2
+    brl SourceLayout_No
+SourceLayout_LongGuard2:
+.a16
+.i16
+    and #3
+    beq SourceLayout_LongGuard3
+    brl SourceLayout_No
+SourceLayout_LongGuard3:
+.a16
+.i16
+    lda.l SOURCE_PACKET_ACTIVE_META+34
+    sec
+    sbc.l SOURCE_PACKET_ACTIVE_META+2
+    cmp #40
+    beq SourceLayout_LongGuard4
+    brl SourceLayout_No
+SourceLayout_LongGuard4:
+.a16
+.i16
+    sec
+    rtl
+SourceLayout_Dynamic2:
+.a16
+.i16
+    jsl SourceLayout_Metadata2
+    bcs SourceLayout_LongGuard5
+    brl SourceLayout_No
+SourceLayout_LongGuard5:
+.a16
+.i16
+    lda.l $4119E6
+    and #255
+    cmp #8
+    beq SourceLayout_LongGuard6
+    brl SourceLayout_No
+SourceLayout_LongGuard6:
+.a16
+.i16
+    lda.l $434E50
+    and #255
+    beq SourceLayout_LongGuard7
+    brl SourceLayout_No
+SourceLayout_LongGuard7:
+.a16
+.i16
+    lda.l $7E0A00+CHAR_SELECTED
+    and #255
+    cmp #3
+    bcc SourceLayout_LongGuard8
+    brl SourceLayout_No
+SourceLayout_LongGuard8:
+.a16
+.i16
+    lda.l $7E0A00+CHAR_THROW_ZPOS
+    beq SourceLayout_LongGuard9
+    brl SourceLayout_No
+SourceLayout_LongGuard9:
+.a16
+.i16
+    lda.l SOURCE_PACKET_ACTIVE_META+6
+    cmp #150
+    beq SourceLayout_LongGuard10
+    brl SourceLayout_No
+SourceLayout_LongGuard10:
+.a16
+.i16
+    sec
+    rtl
+SourceLayout_No:
+.a16
+.i16
+    clc
+    rtl
+SourceLayout_FirstEnd:
+.a16
+.i16
+    jsl SourceLayout_Dynamic2
+    bcc SourceLayout_FirstOriginal
+    lda #40
+    rtl
+SourceLayout_FirstOriginal:
+.a16
+.i16
+    jml SourceNormalize_FirstEnd
+SourceLayout_CopyBase:
+.a16
+.i16
+    php
+    jsl SourceLayout_Defaults
+    jsl SourceNormalize_Bounds
+    jsl SourceLayout_Metadata2
+    bcc SourceLayout_CopyReady
+    lda.l SOURCE_PACKET_ACTIVE_META+2
+    clc
+    adc #$7600
+    sta.l $437BC0
+    lda.l SOURCE_PACKET_ACTIVE_META+2
+    lsr a
+    lsr a
+    clc
+    adc #$7820
+    sta.l $437BC2
+    lda.l SOURCE_PACKET_ACTIVE_META+34
+    clc
+    adc #15
+    lsr a
+    lsr a
+    lsr a
+    lsr a
+    sta.l $437BC4
+    asl a
+    asl a
+    sta.l $437BC6
+SourceLayout_CopyReady:
+.a16
+.i16
+    plp
+    jml SourceShape_CopyBase
+
+; Only one existing render scene may defer optional root-pin release for a
+; physically resident accepted P2 attack. No new resources are allocated,
+; no input/damage is postponed, and a later generation cannot renew the hold.
+SourcePriority_Release:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    phx
+    phy
+    phb
+    phd
+    cld
+    lda.l SourceAttackOwned_InitMagic
+    cmp #$B077
+    beq SourcePriority_Guard0
+    brl SourcePriority_Original
+SourcePriority_Guard0:
+.a16
+.i16
+    lda.l Game_CampaignId
+    and #255
+    cmp #3
+    beq SourcePriority_Campaign
+    brl SourcePriority_Original
+SourcePriority_Campaign:
+.a16
+.i16
+    lda.l Game_StageIndex
+    ora.l Screen_PosX
+    ora.l SourceAttackOwned_Busy
+    ora.l SourceAttackOwned_Hold
+    beq SourcePriority_Guard1
+    brl SourcePriority_Original
+SourcePriority_Guard1:
+.a16
+.i16
+    lda.l SourceAttackOwned_State
+    cmp #2
+    bcc SourcePriority_Unshown
+    lda #0
+    sta.l $437BCE
+    brl SourcePriority_Original
+SourcePriority_Unshown:
+.a16
+.i16
+    lda.l $411AE6
+    and #255
+    cmp #9
+    beq SourcePriority_Guard2
+    brl SourcePriority_Original
+SourcePriority_Guard2:
+.a16
+.i16
+    jsl SourceLayout_Dynamic2
+    bcs SourcePriority_Guard3
+    brl SourcePriority_Original
+SourcePriority_Guard3:
+.a16
+.i16
+    lda.l SourceAttackTemplate_Base+128
+    cmp #$A770
+    beq SourcePriority_Guard4
+    brl SourcePriority_Original
+SourcePriority_Guard4:
+.a16
+.i16
+    lda.l $437006
+    cmp #$0216
+    beq SourcePriority_Guard5
+    brl SourcePriority_Original
+SourcePriority_Guard5:
+.a16
+.i16
+    lda.l $437008
+    cmp #$000A
+    beq SourcePriority_Guard6
+    brl SourcePriority_Original
+SourcePriority_Guard6:
+.a16
+.i16
+    lda.l $437000
+    cmp #$A66C
+    beq SourcePriority_Guard7
+    brl SourcePriority_Original
+SourcePriority_Guard7:
+.a16
+.i16
+    jsl SourceFacing_Match1
+    beq SourcePriority_Guard8
+    brl SourcePriority_Original
+SourcePriority_Guard8:
+.a16
+.i16
+    lda.l $7E0A85+CHAR_SELECTED
+    and #255
+    cmp #3
+    bcc SourcePriority_Guard9
+    brl SourcePriority_Original
+SourcePriority_Guard9:
+.a16
+.i16
+    lda.l $7E0A85+CHAR_THROW_ZPOS
+    beq SourcePriority_Guard10
+    brl SourcePriority_Original
+SourcePriority_Guard10:
+.a16
+.i16
+    lda.l $7E0A85+CHAR_HP
+    and #255
+    bne SourcePriority_Guard11
+    brl SourcePriority_Original
+SourcePriority_Guard11:
+.a16
+.i16
+    lda.l $437BC8
+    and #2
+    beq SourcePriority_Arm
+    lda.l $437BCE
+    cmp #1
+    bne SourcePriority_Original
+    lda.l SourceNextScene_Low
+    cmp.l $437BCA
+    bne SourcePriority_Expire
+    lda.l SourceNextScene_High
+    cmp.l $437BCC
+    bne SourcePriority_Expire
+    bra SourcePriority_Decline
+SourcePriority_Arm:
+.a16
+.i16
+    lda.l $437BC8
+    ora #2
+    sta.l $437BC8
+    lda.l SourceNextScene_Low
+    sta.l $437BCA
+    lda.l SourceNextScene_High
+    sta.l $437BCC
+    lda #1
+    sta.l $437BCE
+SourcePriority_Decline:
+.a16
+.i16
+    pld
+    plb
+    ply
+    plx
+    pla
+    plp
+    clc
+    rtl
+SourcePriority_Expire:
+.a16
+.i16
+    lda #0
+    sta.l $437BCE
+SourcePriority_Original:
+.a16
+.i16
+    pld
+    plb
+    ply
+    plx
+    pla
+    plp
+    jml SourceAttackTemplate_ReleasePressure
+SourcePriority_Observe:
+.a16
+.i16
+    php
+    rep #$20
+    pha
+    lda.l $411AE6
+    and #255
+    cmp #9
+    beq SourcePriority_ObserveDone
+    lda #0
+    sta.l $437BC8
+    sta.l $437BCE
+SourcePriority_ObserveDone:
+.a16
+.i16
+    pla
+    plp
+    rtl
+SourcePriority_End:
+SourceLayout_LongEnd:
+
+.assert * < $3CE000, "first-attack ROM coexistence exceeds planner gap"
+
+.bank 60
+.org $E000
+.include "core/source_critical_completion.pasm"
+.include "core/source_pending_witness.pasm"
+.include "core/source_npc_picture.pasm"
+.include "core/source_attack_prewarm.pasm"
+.include "core/source_attack_palette.pasm"
+.include "core/source_fp_window.pasm"
+.include "core/source_prefetch.pasm"
+.include "core/source_player_first_idle.pasm"
+
+.bank 60
+.org $FC00
+.include "core/source_attack_idle_proxy.pasm"
+.include "core/source_precompose_scope_bridge_v583.pasm"
+
+; Exact observed partial-P1 layout: 8 old player sprites, 10 idle-peer
+; sprites. Grow P1 to10 and shift peer+NPC sprites by2, discarding ONLY the
+; two proven canonical hidden tail slots. Full staged packet stays544 bytes.
+SourceNormalize_Metadata1:
+.a16
+.i16
+    lda.l $437A9C
+    cmp #$0001
+    beq SourceNormalize_Guard0
+    brl SourceNormalize_No
+SourceNormalize_Guard0:
+.a16
+.i16
+    lda.l SOURCE_PACKET_ACTIVE_META
+    cmp #$0000
+    beq SourceNormalize_Guard1
+    brl SourceNormalize_No
+SourceNormalize_Guard1:
+.a16
+.i16
+    lda.l SOURCE_PACKET_ACTIVE_META+2
+    cmp #$0020
+    beq SourceNormalize_Guard2
+    brl SourceNormalize_No
+SourceNormalize_Guard2:
+.a16
+.i16
+    lda.l SOURCE_PACKET_ACTIVE_META+32
+    cmp #$0020
+    beq SourceNormalize_Guard3
+    brl SourceNormalize_No
+SourceNormalize_Guard3:
+.a16
+.i16
+    lda.l SOURCE_PACKET_ACTIVE_META+34
+    cmp #$0048
+    beq SourceNormalize_Guard4
+    brl SourceNormalize_No
+SourceNormalize_Guard4:
+.a16
+.i16
+    lda.l SOURCE_PACKET_ACTIVE_META+12
+    cmp #$0116
+    beq SourceNormalize_Guard5
+    brl SourceNormalize_No
+SourceNormalize_Guard5:
+.a16
+.i16
+    lda.l SOURCE_PACKET_ACTIVE_META+44
+    cmp #$0016
+    beq SourceNormalize_Guard6
+    brl SourceNormalize_No
+SourceNormalize_Guard6:
+.a16
+.i16
+    lda.l $434F00+504
+    cmp #$E0C0
+    beq SourceNormalize_Guard7
+    brl SourceNormalize_No
+SourceNormalize_Guard7:
+.a16
+.i16
+    lda.l $434F00+508
+    cmp #$E0C0
+    beq SourceNormalize_Guard8
+    brl SourceNormalize_No
+SourceNormalize_Guard8:
+.a16
+.i16
+    lda.l $434F00+506
+    ora.l $434F00+510
+    beq SourceNormalize_Guard9
+    brl SourceNormalize_No
+SourceNormalize_Guard9:
+.a16
+.i16
+    lda.l $434F00+543
+    and #$00F0
+    cmp #$0050
+    beq SourceNormalize_Guard10
+    brl SourceNormalize_No
+SourceNormalize_Guard10:
+.a16
+.i16
+    sec
+    rtl
+SourceNormalize_Partial1:
+.a16
+.i16
+    jsl SourceNormalize_Metadata1
+    bcs SourceNormalize_Guard11
+    brl SourceNormalize_No
+SourceNormalize_Guard11:
+.a16
+.i16
+    lda.l $411AE6
+    and #255
+    cmp #8
+    beq SourceNormalize_Guard12
+    brl SourceNormalize_No
+SourceNormalize_Guard12:
+.a16
+.i16
+    lda.l $434E74
+    and #255
+    beq SourceNormalize_Guard13
+    brl SourceNormalize_No
+SourceNormalize_Guard13:
+.a16
+.i16
+    lda.l $7E0A85+CHAR_SELECTED
+    and #255
+    cmp #3
+    bcc SourceNormalize_Guard14
+    brl SourceNormalize_No
+SourceNormalize_Guard14:
+.a16
+.i16
+    lda.l $7E0A85+CHAR_THROW_ZPOS
+    beq SourceNormalize_Guard15
+    brl SourceNormalize_No
+SourceNormalize_Guard15:
+.a16
+.i16
+    lda.l SOURCE_PACKET_ACTIVE_META+38
+    cmp #150
+    beq SourceNormalize_Guard16
+    brl SourceNormalize_No
+SourceNormalize_Guard16:
+.a16
+.i16
+    sec
+    rtl
+SourceNormalize_No:
+.a16
+.i16
+    clc
+    rtl
+SourceNormalize_FirstEnd:
+.a16
+.i16
+    jsl SourceNormalize_Partial1
+    bcc SourceNormalize_FirstOriginal
+    lda #40
+    rtl
+SourceNormalize_FirstOriginal:
+.a16
+.i16
+    lda.l SOURCE_PACKET_ACTIVE_META+2
+    rtl
+SourceNormalize_Bounds:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    phx
+    phy
+    phb
+    lda.l $437A9C
+    cmp #3
+    beq SourceNormalize_MetadataSelected
+    ldx #$5380
+    ldy #$7840
+    lda #63
+    mvn $43,$43
+SourceNormalize_MetadataSelected:
+.a16
+.i16
+    lda #72
+    sta.l $437BB8
+    lda #5
+    sta.l $437BBA
+    jsl SourceNormalize_Metadata1
+    bcc SourceNormalize_BoundsDone
+    lda #32
+    sta.l $437BB8
+    lda #2
+    sta.l $437BBA
+SourceNormalize_BoundsDone:
+.a16
+.i16
+    plb
+    ply
+    plx
+    pla
+    plp
+    rtl
+SourceNormalize_End:
+
+; Only a fully selected, independently sealed/pinned attack image can use
+; its own publication authority. Normal and partial images still require
+; the original normal-position refresh. No readiness/refresh flags written.
+SourceOwnedRefresh_Authority:
+.a16
+.i16
+    lda.l SourcePacket_RefreshAccepted
+    cmp #1
+    beq SourceOwnedRefresh_Return
+    lda.l SourceAttackOwned_Use
+    cmp #1
+    bne SourceOwnedRefresh_Normal
+    lda.l SourceAttackOwned_SourceHi
+    cmp #$76
+    bne SourceOwnedRefresh_Normal
+    lda.l SourceAttackOwned_InitMagic
+    cmp #$B077
+    bne SourceOwnedRefresh_Normal
+    lda.l SourceAttackOwned_State
+    cmp #1
+    bne SourceOwnedRefresh_Normal
+    lda.l SourceAttackOwned_Busy
+    ora.l SourcePacket_CopyBusy
+    bne SourceOwnedRefresh_Normal
+    lda.l $437B38
+    cmp #3
+    bne SourceOwnedRefresh_Normal
+    lda.l $437A9C
+    cmp #3
+    bne SourceOwnedRefresh_Normal
+    lda.l $437B3C
+    cmp #$A55E
+    bne SourceOwnedRefresh_Normal
+    lda.l Game_StageIndex
+    bne SourceOwnedRefresh_Normal
+    lda.l SourceNextScene_Magic
+    cmp #$5343
+    bne SourceOwnedRefresh_Normal
+    lda.l SourceNextScene_Low
+    cmp.l SourceAttackOwned_GenLow
+    bne SourceOwnedRefresh_Normal
+    lda.l SourceNextScene_High
+    cmp.l SourceAttackOwned_GenHigh
+    bne SourceOwnedRefresh_Normal
+    lda.l SourceAttackOwned_Camera
+    cmp.l Screen_PosX
+    bne SourceOwnedRefresh_Normal
+    lda #1
+SourceOwnedRefresh_Return:
+.a16
+.i16
+    rtl
+SourceOwnedRefresh_Normal:
+.a16
+.i16
+    lda.l SourcePacket_RefreshAccepted
+    rtl
+SourceOwnedRefresh_End:
+
+; Normal refresh1 takes its original branch directly (one CPU cycle cheaper).
+; This tail dispatch owns no return frame and can only handle refresh0.
+SourceOwnedRefresh_Dispatch:
+.a16
+.i16
+    cmp #$FFFF
+    bne SourceOwnedRefresh_Deny
+    lda.l SourceAttackOwned_Use
+    cmp #1
+    bne SourceOwnedRefresh_Deny
+    jsl SourceOwnedRefresh_Authority
+    cmp #1
+    bne SourceOwnedRefresh_Deny
+    jml SourcePacket_NmiPublish__cached1
+SourceOwnedRefresh_Deny:
+.a16
+.i16
+    jml SourcePacket_NmiPublish__done
+SourceOwnedRefresh_DispatchEnd:
+
+; Only the private NMI transaction borrows independently proved snapshot
+; authority. Restore the exact normal-refresh flag before its caller can ACK.
+; Ordinary no-private NMI transport stays byte-for-byte on its original path.
+SourceOwnedRefresh_NmiTransfer:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    lda.l SourceAttackOwned_Use
+    cmp #1
+    bne SourceOwnedRefresh_OrdinaryTransfer
+    lda.l SourcePacket_RefreshAccepted
+    bne SourceOwnedRefresh_OrdinaryTransfer
+    jsl SourceOwnedRefresh_Authority
+    cmp #1
+    bne SourceOwnedRefresh_OrdinaryTransfer
+    lda.l SourcePacket_RefreshAccepted
+    pha
+    lda #1
+    sta.l SourcePacket_RefreshAccepted
+    jsl SourcePacket_NmiPublish
+SourceOwnedRefresh_RestoreFlag:
+.a16
+.i16
+    pla
+    sta.l SourcePacket_RefreshAccepted
+    bra SourceOwnedRefresh_TransferDone
+SourceOwnedRefresh_OrdinaryTransfer:
+.a16
+.i16
+    jsl SourcePacket_NmiPublish
+SourceOwnedRefresh_TransferDone:
+.a16
+.i16
+    pla
+    plp
+    rtl
+SourceOwnedRefresh_TransferEnd:
+
+
+
+
+.assert * < $3D0000, "idle proxy exceeds verified gap"
+
+
+; Two-byte retry latch in unused reservation header8..9. Existing word6
+; is LIVE layout state and is deliberately untouched. Alternate NPC/request
+; modules sharing this arena are not linked in this retained configuration.
+SourceIdleFinalize_Attempt = $436008
+.bank 39
+.org $8000
+SourceIdleFinalize_Begin:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    lda #0
+    sta.l SourceIdleFinalize_Attempt
+    pla
+    plp
+    jml SourceAttackLease_BeforeScene
+; Enter with the original SourceSecond save frame. No extra return frame,
+; image copy, resource rotation or publication flag fabrication is added.
+SourceIdleFinalize_Retry:
+.a16
+.i16
+    lda #0
+    sta.l SourcePacket_NmiPending
+    lda.l SourceIdleFinalize_Attempt
+    bne SourceIdleFinalize_Stop
+    lda #1
+    sta.l SourceIdleFinalize_Attempt
+SourceIdleFinalize_Retried:
+.a16
+.i16
+    jml SourceSecond_NoSurplus
+SourceIdleFinalize_Stop:
+.a16
+.i16
+    jml SourceSecond_Done
+SourceIdleFinalize_End:
+.assert * < $288000, "idle finalization helper exceeds bank27"
+.assert SourceIdleFinalize_Attempt+2 <= SourceReserve_Oam, "retry latch overlaps OAM"
+
+; Same 544 immutable bytes, original MVN register/flag/DB return contract.
+; Caller already owns CopyBusy/OwnedBusy. No new work in NMI or guards.
+.org $8400
+SourceFastBase_Copy544:
+.a16
+.i16
+    lda #543
+    php
+    sep #$20
+.a8
+    lda #$43
+    pha
+    plb
+    rep #$20
+.a16
+    lda.w $4F00
+    sta.w $7600
+    lda.w $4F02
+    sta.w $7602
+    lda.w $4F04
+    sta.w $7604
+    lda.w $4F06
+    sta.w $7606
+    lda.w $4F08
+    sta.w $7608
+    lda.w $4F0A
+    sta.w $760A
+    lda.w $4F0C
+    sta.w $760C
+    lda.w $4F0E
+    sta.w $760E
+    lda.w $4F10
+    sta.w $7610
+    lda.w $4F12
+    sta.w $7612
+    lda.w $4F14
+    sta.w $7614
+    lda.w $4F16
+    sta.w $7616
+    lda.w $4F18
+    sta.w $7618
+    lda.w $4F1A
+    sta.w $761A
+    lda.w $4F1C
+    sta.w $761C
+    lda.w $4F1E
+    sta.w $761E
+    lda.w $4F20
+    sta.w $7620
+    lda.w $4F22
+    sta.w $7622
+    lda.w $4F24
+    sta.w $7624
+    lda.w $4F26
+    sta.w $7626
+    lda.w $4F28
+    sta.w $7628
+    lda.w $4F2A
+    sta.w $762A
+    lda.w $4F2C
+    sta.w $762C
+    lda.w $4F2E
+    sta.w $762E
+    lda.w $4F30
+    sta.w $7630
+    lda.w $4F32
+    sta.w $7632
+    lda.w $4F34
+    sta.w $7634
+    lda.w $4F36
+    sta.w $7636
+    lda.w $4F38
+    sta.w $7638
+    lda.w $4F3A
+    sta.w $763A
+    lda.w $4F3C
+    sta.w $763C
+    lda.w $4F3E
+    sta.w $763E
+    lda.w $4F40
+    sta.w $7640
+    lda.w $4F42
+    sta.w $7642
+    lda.w $4F44
+    sta.w $7644
+    lda.w $4F46
+    sta.w $7646
+    lda.w $4F48
+    sta.w $7648
+    lda.w $4F4A
+    sta.w $764A
+    lda.w $4F4C
+    sta.w $764C
+    lda.w $4F4E
+    sta.w $764E
+    lda.w $4F50
+    sta.w $7650
+    lda.w $4F52
+    sta.w $7652
+    lda.w $4F54
+    sta.w $7654
+    lda.w $4F56
+    sta.w $7656
+    lda.w $4F58
+    sta.w $7658
+    lda.w $4F5A
+    sta.w $765A
+    lda.w $4F5C
+    sta.w $765C
+    lda.w $4F5E
+    sta.w $765E
+    lda.w $4F60
+    sta.w $7660
+    lda.w $4F62
+    sta.w $7662
+    lda.w $4F64
+    sta.w $7664
+    lda.w $4F66
+    sta.w $7666
+    lda.w $4F68
+    sta.w $7668
+    lda.w $4F6A
+    sta.w $766A
+    lda.w $4F6C
+    sta.w $766C
+    lda.w $4F6E
+    sta.w $766E
+    lda.w $4F70
+    sta.w $7670
+    lda.w $4F72
+    sta.w $7672
+    lda.w $4F74
+    sta.w $7674
+    lda.w $4F76
+    sta.w $7676
+    lda.w $4F78
+    sta.w $7678
+    lda.w $4F7A
+    sta.w $767A
+    lda.w $4F7C
+    sta.w $767C
+    lda.w $4F7E
+    sta.w $767E
+    lda.w $4F80
+    sta.w $7680
+    lda.w $4F82
+    sta.w $7682
+    lda.w $4F84
+    sta.w $7684
+    lda.w $4F86
+    sta.w $7686
+    lda.w $4F88
+    sta.w $7688
+    lda.w $4F8A
+    sta.w $768A
+    lda.w $4F8C
+    sta.w $768C
+    lda.w $4F8E
+    sta.w $768E
+    lda.w $4F90
+    sta.w $7690
+    lda.w $4F92
+    sta.w $7692
+    lda.w $4F94
+    sta.w $7694
+    lda.w $4F96
+    sta.w $7696
+    lda.w $4F98
+    sta.w $7698
+    lda.w $4F9A
+    sta.w $769A
+    lda.w $4F9C
+    sta.w $769C
+    lda.w $4F9E
+    sta.w $769E
+    lda.w $4FA0
+    sta.w $76A0
+    lda.w $4FA2
+    sta.w $76A2
+    lda.w $4FA4
+    sta.w $76A4
+    lda.w $4FA6
+    sta.w $76A6
+    lda.w $4FA8
+    sta.w $76A8
+    lda.w $4FAA
+    sta.w $76AA
+    lda.w $4FAC
+    sta.w $76AC
+    lda.w $4FAE
+    sta.w $76AE
+    lda.w $4FB0
+    sta.w $76B0
+    lda.w $4FB2
+    sta.w $76B2
+    lda.w $4FB4
+    sta.w $76B4
+    lda.w $4FB6
+    sta.w $76B6
+    lda.w $4FB8
+    sta.w $76B8
+    lda.w $4FBA
+    sta.w $76BA
+    lda.w $4FBC
+    sta.w $76BC
+    lda.w $4FBE
+    sta.w $76BE
+    lda.w $4FC0
+    sta.w $76C0
+    lda.w $4FC2
+    sta.w $76C2
+    lda.w $4FC4
+    sta.w $76C4
+    lda.w $4FC6
+    sta.w $76C6
+    lda.w $4FC8
+    sta.w $76C8
+    lda.w $4FCA
+    sta.w $76CA
+    lda.w $4FCC
+    sta.w $76CC
+    lda.w $4FCE
+    sta.w $76CE
+    lda.w $4FD0
+    sta.w $76D0
+    lda.w $4FD2
+    sta.w $76D2
+    lda.w $4FD4
+    sta.w $76D4
+    lda.w $4FD6
+    sta.w $76D6
+    lda.w $4FD8
+    sta.w $76D8
+    lda.w $4FDA
+    sta.w $76DA
+    lda.w $4FDC
+    sta.w $76DC
+    lda.w $4FDE
+    sta.w $76DE
+    lda.w $4FE0
+    sta.w $76E0
+    lda.w $4FE2
+    sta.w $76E2
+    lda.w $4FE4
+    sta.w $76E4
+    lda.w $4FE6
+    sta.w $76E6
+    lda.w $4FE8
+    sta.w $76E8
+    lda.w $4FEA
+    sta.w $76EA
+    lda.w $4FEC
+    sta.w $76EC
+    lda.w $4FEE
+    sta.w $76EE
+    lda.w $4FF0
+    sta.w $76F0
+    lda.w $4FF2
+    sta.w $76F2
+    lda.w $4FF4
+    sta.w $76F4
+    lda.w $4FF6
+    sta.w $76F6
+    lda.w $4FF8
+    sta.w $76F8
+    lda.w $4FFA
+    sta.w $76FA
+    lda.w $4FFC
+    sta.w $76FC
+    lda.w $4FFE
+    sta.w $76FE
+    lda.w $5000
+    sta.w $7700
+    lda.w $5002
+    sta.w $7702
+    lda.w $5004
+    sta.w $7704
+    lda.w $5006
+    sta.w $7706
+    lda.w $5008
+    sta.w $7708
+    lda.w $500A
+    sta.w $770A
+    lda.w $500C
+    sta.w $770C
+    lda.w $500E
+    sta.w $770E
+    lda.w $5010
+    sta.w $7710
+    lda.w $5012
+    sta.w $7712
+    lda.w $5014
+    sta.w $7714
+    lda.w $5016
+    sta.w $7716
+    lda.w $5018
+    sta.w $7718
+    lda.w $501A
+    sta.w $771A
+    lda.w $501C
+    sta.w $771C
+    lda.w $501E
+    sta.w $771E
+    lda.w $5020
+    sta.w $7720
+    lda.w $5022
+    sta.w $7722
+    lda.w $5024
+    sta.w $7724
+    lda.w $5026
+    sta.w $7726
+    lda.w $5028
+    sta.w $7728
+    lda.w $502A
+    sta.w $772A
+    lda.w $502C
+    sta.w $772C
+    lda.w $502E
+    sta.w $772E
+    lda.w $5030
+    sta.w $7730
+    lda.w $5032
+    sta.w $7732
+    lda.w $5034
+    sta.w $7734
+    lda.w $5036
+    sta.w $7736
+    lda.w $5038
+    sta.w $7738
+    lda.w $503A
+    sta.w $773A
+    lda.w $503C
+    sta.w $773C
+    lda.w $503E
+    sta.w $773E
+    lda.w $5040
+    sta.w $7740
+    lda.w $5042
+    sta.w $7742
+    lda.w $5044
+    sta.w $7744
+    lda.w $5046
+    sta.w $7746
+    lda.w $5048
+    sta.w $7748
+    lda.w $504A
+    sta.w $774A
+    lda.w $504C
+    sta.w $774C
+    lda.w $504E
+    sta.w $774E
+    lda.w $5050
+    sta.w $7750
+    lda.w $5052
+    sta.w $7752
+    lda.w $5054
+    sta.w $7754
+    lda.w $5056
+    sta.w $7756
+    lda.w $5058
+    sta.w $7758
+    lda.w $505A
+    sta.w $775A
+    lda.w $505C
+    sta.w $775C
+    lda.w $505E
+    sta.w $775E
+    lda.w $5060
+    sta.w $7760
+    lda.w $5062
+    sta.w $7762
+    lda.w $5064
+    sta.w $7764
+    lda.w $5066
+    sta.w $7766
+    lda.w $5068
+    sta.w $7768
+    lda.w $506A
+    sta.w $776A
+    lda.w $506C
+    sta.w $776C
+    lda.w $506E
+    sta.w $776E
+    lda.w $5070
+    sta.w $7770
+    lda.w $5072
+    sta.w $7772
+    lda.w $5074
+    sta.w $7774
+    lda.w $5076
+    sta.w $7776
+    lda.w $5078
+    sta.w $7778
+    lda.w $507A
+    sta.w $777A
+    lda.w $507C
+    sta.w $777C
+    lda.w $507E
+    sta.w $777E
+    lda.w $5080
+    sta.w $7780
+    lda.w $5082
+    sta.w $7782
+    lda.w $5084
+    sta.w $7784
+    lda.w $5086
+    sta.w $7786
+    lda.w $5088
+    sta.w $7788
+    lda.w $508A
+    sta.w $778A
+    lda.w $508C
+    sta.w $778C
+    lda.w $508E
+    sta.w $778E
+    lda.w $5090
+    sta.w $7790
+    lda.w $5092
+    sta.w $7792
+    lda.w $5094
+    sta.w $7794
+    lda.w $5096
+    sta.w $7796
+    lda.w $5098
+    sta.w $7798
+    lda.w $509A
+    sta.w $779A
+    lda.w $509C
+    sta.w $779C
+    lda.w $509E
+    sta.w $779E
+    lda.w $50A0
+    sta.w $77A0
+    lda.w $50A2
+    sta.w $77A2
+    lda.w $50A4
+    sta.w $77A4
+    lda.w $50A6
+    sta.w $77A6
+    lda.w $50A8
+    sta.w $77A8
+    lda.w $50AA
+    sta.w $77AA
+    lda.w $50AC
+    sta.w $77AC
+    lda.w $50AE
+    sta.w $77AE
+    lda.w $50B0
+    sta.w $77B0
+    lda.w $50B2
+    sta.w $77B2
+    lda.w $50B4
+    sta.w $77B4
+    lda.w $50B6
+    sta.w $77B6
+    lda.w $50B8
+    sta.w $77B8
+    lda.w $50BA
+    sta.w $77BA
+    lda.w $50BC
+    sta.w $77BC
+    lda.w $50BE
+    sta.w $77BE
+    lda.w $50C0
+    sta.w $77C0
+    lda.w $50C2
+    sta.w $77C2
+    lda.w $50C4
+    sta.w $77C4
+    lda.w $50C6
+    sta.w $77C6
+    lda.w $50C8
+    sta.w $77C8
+    lda.w $50CA
+    sta.w $77CA
+    lda.w $50CC
+    sta.w $77CC
+    lda.w $50CE
+    sta.w $77CE
+    lda.w $50D0
+    sta.w $77D0
+    lda.w $50D2
+    sta.w $77D2
+    lda.w $50D4
+    sta.w $77D4
+    lda.w $50D6
+    sta.w $77D6
+    lda.w $50D8
+    sta.w $77D8
+    lda.w $50DA
+    sta.w $77DA
+    lda.w $50DC
+    sta.w $77DC
+    lda.w $50DE
+    sta.w $77DE
+    lda.w $50E0
+    sta.w $77E0
+    lda.w $50E2
+    sta.w $77E2
+    lda.w $50E4
+    sta.w $77E4
+    lda.w $50E6
+    sta.w $77E6
+    lda.w $50E8
+    sta.w $77E8
+    lda.w $50EA
+    sta.w $77EA
+    lda.w $50EC
+    sta.w $77EC
+    lda.w $50EE
+    sta.w $77EE
+    lda.w $50F0
+    sta.w $77F0
+    lda.w $50F2
+    sta.w $77F2
+    lda.w $50F4
+    sta.w $77F4
+    lda.w $50F6
+    sta.w $77F6
+    lda.w $50F8
+    sta.w $77F8
+    lda.w $50FA
+    sta.w $77FA
+    lda.w $50FC
+    sta.w $77FC
+    lda.w $50FE
+    sta.w $77FE
+    lda.w $5100
+    sta.w $7800
+    lda.w $5102
+    sta.w $7802
+    lda.w $5104
+    sta.w $7804
+    lda.w $5106
+    sta.w $7806
+    lda.w $5108
+    sta.w $7808
+    lda.w $510A
+    sta.w $780A
+    lda.w $510C
+    sta.w $780C
+    lda.w $510E
+    sta.w $780E
+    lda.w $5110
+    sta.w $7810
+    lda.w $5112
+    sta.w $7812
+    lda.w $5114
+    sta.w $7814
+    lda.w $5116
+    sta.w $7816
+    lda.w $5118
+    sta.w $7818
+    lda.w $511A
+    sta.w $781A
+    lda.w $511C
+    sta.w $781C
+    lda.w $511E
+    sta.w $781E
+    ldx #$5120
+    ldy #$7820
+    lda #$FFFF
+    plp
+    rtl
+SourceFastBase_End:
+.assert * < $279000, "fast foreground base copy exceeds bank27 gap"
+
+; Unhooked canonical image-adoption primitive. Caller must already own the
+; private image, metadata and exact displayed-base/resource lease. Carry only
+; certifies layout preparation; it is NOT ownership, Ready or publication.
+; Busy stays set throughout. No image/meta, pin, ACK, input or NMI writes.
+.bank 39
+.org $8B00
+SourceIdleBase_AdoptCanonical:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    phx
+    phy
+    phb
+    lda.l $7E46DE
+    beq SourceIdleBase_G0
+    brl SourceIdleBase_Reject
+SourceIdleBase_G0:
+.a16
+.i16
+    lda.l SourceAttackOwned_InitMagic
+    cmp #$B077
+    beq SourceIdleBase_G1
+    brl SourceIdleBase_Reject
+SourceIdleBase_G1:
+.a16
+.i16
+    lda.l SourceAttackOwned_Busy
+    cmp #1
+    beq SourceIdleBase_G2
+    brl SourceIdleBase_Reject
+SourceIdleBase_G2:
+.a16
+.i16
+    lda.l SourceAttackOwned_State
+    ora.l SourceAttackOwned_Use
+    ora.l SourceAttackOwned_Hold
+    beq SourceIdleBase_G3
+    brl SourceIdleBase_Reject
+SourceIdleBase_G3:
+.a16
+.i16
+    lda.l $437840
+    beq SourceIdleBase_G4
+    brl SourceIdleBase_Reject
+SourceIdleBase_G4:
+.a16
+.i16
+    lda.l $437842
+    cmp #40
+    beq SourceIdleBase_G5
+    brl SourceIdleBase_Reject
+SourceIdleBase_G5:
+.a16
+.i16
+    lda.l $437860
+    cmp #40
+    beq SourceIdleBase_G6
+    brl SourceIdleBase_Reject
+SourceIdleBase_G6:
+.a16
+.i16
+    lda.l $437862
+    cmp #80
+    beq SourceIdleBase_G7
+    brl SourceIdleBase_Reject
+SourceIdleBase_G7:
+.a16
+.i16
+    lda.l $43784C
+    cmp #$0016
+    beq SourceIdleBase_G8
+    brl SourceIdleBase_Reject
+SourceIdleBase_G8:
+.a16
+.i16
+    lda.l $43786C
+    cmp #$0016
+    beq SourceIdleBase_G9
+    brl SourceIdleBase_Reject
+SourceIdleBase_G9:
+.a16
+.i16
+    lda.l $43784E
+    ora.l $43786E
+    beq SourceIdleBase_G10
+    brl SourceIdleBase_Reject
+SourceIdleBase_G10:
+.a16
+.i16
+    jsl SourceLayout_Defaults
+    jsl SourceAttackMask_SeedHigh
+    plb
+    ply
+    plx
+    pla
+    plp
+    sec
+    rtl
+SourceIdleBase_Reject:
+.a16
+.i16
+    plb
+    ply
+    plx
+    pla
+    plp
+    clc
+    rtl
+SourceIdleBase_End:
+.assert * <= $279000, "idle adoption primitive exceeds verified gap"
+
+; Unhooked trusted-caller API. A/Y = expected ticket low/high, X = offset
+; of an exclusively owned40-byte descriptor in bank43. No RAM allocated here.
+; Record: magic0,kind2,ticket4/6,scene8/10,camera12,stage14,physical16/18,
+; idle-display-mask20,root-lease22,retire-ticket24/26,retire-pending28,done30.
+; Caller must latch the matching NMI image/ticket and protect/reset this record.
+.bank 39
+.org $9000
+SourceIdleOwner_Adopt:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    phx
+    phy
+    txa
+    and #1
+    beq SourceIdleOwner_A0
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A0:
+.a16
+.i16
+    cpx #$FFD9
+    bcc SourceIdleOwner_A1
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A1:
+.a16
+.i16
+    lda.l $7E46DE
+    beq SourceIdleOwner_A2
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A2:
+.a16
+.i16
+    lda.l SourcePacket_CopyBusy
+    cmp #1
+    beq SourceIdleOwner_A3
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A3:
+.a16
+.i16
+    lda.l $430000,x
+    cmp #$1DAD
+    beq SourceIdleOwner_A4
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A4:
+.a16
+.i16
+    lda.l $430002,x
+    cmp #2
+    beq SourceIdleOwner_A5
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A5:
+.a16
+.i16
+    lda.l $430004,x
+    cmp $05,s
+    beq SourceIdleOwner_A6
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A6:
+.a16
+.i16
+    lda.l $430006,x
+    cmp $01,s
+    beq SourceIdleOwner_A7
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A7:
+.a16
+.i16
+    lda.l $430010,x
+    cmp $05,s
+    beq SourceIdleOwner_A8
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A8:
+.a16
+.i16
+    lda.l $430012,x
+    cmp $01,s
+    beq SourceIdleOwner_A9
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A9:
+.a16
+.i16
+    lda.l $43001E,x
+    cmp #1
+    beq SourceIdleOwner_A10
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A10:
+.a16
+.i16
+    lda.l $430014,x
+    cmp #3
+    beq SourceIdleOwner_A11
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A11:
+.a16
+.i16
+    lda.l $430016,x
+    cmp #1
+    beq SourceIdleOwner_A12
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A12:
+.a16
+.i16
+    lda.l $43001C,x
+    beq SourceIdleOwner_A13
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A13:
+.a16
+.i16
+    lda.l SourceNextScene_Magic
+    cmp #$5343
+    beq SourceIdleOwner_A14
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A14:
+.a16
+.i16
+    lda.l $430008,x
+    cmp.l SourceNextScene_Low
+    beq SourceIdleOwner_A15
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A15:
+.a16
+.i16
+    lda.l $43000A,x
+    cmp.l SourceNextScene_High
+    beq SourceIdleOwner_A16
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A16:
+.a16
+.i16
+    lda.l $43000C,x
+    cmp.l Screen_PosX
+    beq SourceIdleOwner_A17
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A17:
+.a16
+.i16
+    lda.l $43000C,x
+    beq SourceIdleOwner_A18
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A18:
+.a16
+.i16
+    lda.l $43000E,x
+    cmp.l Game_StageIndex
+    beq SourceIdleOwner_A19
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A19:
+.a16
+.i16
+    lda.l $43000E,x
+    beq SourceIdleOwner_A20
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A20:
+.a16
+.i16
+    jsl SourceIdleOwner_QueueDrained
+    bcs SourceIdleOwner_A21
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A21:
+.a16
+.i16
+    jsl SourceIdleOwner_RootLease
+    bcs SourceIdleOwner_A22
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A22:
+.a16
+.i16
+    jsl SourceIdleBase_AdoptCanonical
+    bcs SourceIdleOwner_A23
+    brl SourceIdleOwner_AdoptNo
+SourceIdleOwner_A23:
+.a16
+.i16
+    lda #3 ; attack-building owner, not Ready/publication
+    sta.l $430002,x
+    ply
+    plx
+    pla
+    plp
+    sec
+    rtl
+SourceIdleOwner_AdoptNo:
+.a16
+.i16
+    ply
+    plx
+    pla
+    plp
+    clc
+    rtl
+SourceIdleOwner_Retire:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    phx
+    phy
+    txa
+    and #1
+    beq SourceIdleOwner_R0
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R0:
+.a16
+.i16
+    cpx #$FFD9
+    bcc SourceIdleOwner_R1
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R1:
+.a16
+.i16
+    lda.l $7E46DE
+    beq SourceIdleOwner_R2
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R2:
+.a16
+.i16
+    lda.l $430000,x
+    cmp #$1DAD
+    beq SourceIdleOwner_R3
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R3:
+.a16
+.i16
+    lda.l $430002,x
+    cmp #4
+    beq SourceIdleOwner_R4
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R4:
+.a16
+.i16
+    lda.l $430014,x
+    beq SourceIdleOwner_R5
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R5:
+.a16
+.i16
+    lda.l $430016,x
+    cmp #1
+    beq SourceIdleOwner_R6
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R6:
+.a16
+.i16
+    lda.l $43001C,x
+    cmp #1
+    beq SourceIdleOwner_R7
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R7:
+.a16
+.i16
+    lda.l $430018,x
+    cmp $05,s
+    beq SourceIdleOwner_R8
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R8:
+.a16
+.i16
+    lda.l $43001A,x
+    cmp $01,s
+    beq SourceIdleOwner_R9
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R9:
+.a16
+.i16
+    lda.l $430010,x
+    cmp $05,s
+    beq SourceIdleOwner_R10
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R10:
+.a16
+.i16
+    lda.l $430012,x
+    cmp $01,s
+    beq SourceIdleOwner_R11
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R11:
+.a16
+.i16
+    lda.l $43001E,x
+    cmp #1
+    beq SourceIdleOwner_R12
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R12:
+.a16
+.i16
+    lda.l $430020,x
+    beq SourceIdleOwner_R13
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R13:
+.a16
+.i16
+    lda.l SourceVisual_CompletedPending
+    beq SourceIdleOwner_R14
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R14:
+.a16
+.i16
+    jsl SourceIdleOwner_QueueDrained
+    bcs SourceIdleOwner_R15
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R15:
+.a16
+.i16
+    jsl SourceIdleOwner_RootLease
+    bcs SourceIdleOwner_R16
+    brl SourceIdleOwner_RetireNo
+SourceIdleOwner_R16:
+.a16
+.i16
+    lda.l SourceReserve_Valid
+    cmp #$1D1E
+    beq SourceIdleOwner_KeepSharedRoot
+    cmp #$1D1F
+    beq SourceIdleOwner_KeepSharedRoot
+    phx
+    ldx #0
+SourceIdleOwner_ClearRoot:
+.a16
+.i16
+    lda.l SVActor_HeldBlocks,x
+    and #$FFFE
+    sta.l SVActor_HeldBlocks,x
+    lda.l SVActor_OldBlocks,x
+    and #$FFFE
+    sta.l SVActor_OldBlocks,x
+    txa
+    clc
+    adc #8
+    tax
+    cpx #80
+    bcc SourceIdleOwner_ClearRoot
+    lda.l SVActor_HeldPalettes
+    and #$FFFE
+    sta.l SVActor_HeldPalettes
+    lda.l SVActor_OldPalettes
+    and #$FFFE
+    sta.l SVActor_OldPalettes
+    plx
+SourceIdleOwner_KeepSharedRoot:
+.a16
+.i16
+    lda #0
+    sta.l $430016,x
+    sta.l $43001C,x
+    ply
+    plx
+    pla
+    plp
+    sec
+    rtl
+SourceIdleOwner_RetireNo:
+.a16
+.i16
+    ply
+    plx
+    pla
+    plp
+    clc
+    rtl
+SourceIdleOwner_QueueDrained:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    phx
+    lda.l Oam_UploadFlag
+    bne SourceIdleOwner_QueueNo
+    ldx #0
+SourceIdleOwner_QueueLoop:
+.a16
+.i16
+    lda.l DmaQueue+4,x
+    and #$005F
+    cmp #(DMA_OPT_ACTIVE | DMA_TYPE_OAM)
+    beq SourceIdleOwner_QueueNo
+    txa
+    clc
+    adc #8
+    tax
+    cpx #64
+    bcc SourceIdleOwner_QueueLoop
+    plx
+    pla
+    plp
+    sec
+    rtl
+SourceIdleOwner_QueueNo:
+.a16
+.i16
+    plx
+    pla
+    plp
+    clc
+    rtl
+SourceIdleOwner_RootLease:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    phx
+    ldx #0
+SourceIdleOwner_RootLoop:
+.a16
+.i16
+    lda.l SourceIdleOwner_RootIds,x
+    pha
+    phx
+    txa
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_BlockCache,x
+    cmp $03,s
+    bne SourceIdleOwner_BadRootRow
+    lda.l SourceVisual_BlockCache+2,x
+    cmp #2
+    bne SourceIdleOwner_BadRootRow
+    lda.l SVActor_HeldBlocks,x
+    ora.l SVActor_OldBlocks,x
+    and #1
+    beq SourceIdleOwner_BadRootRow
+    plx
+    pla
+    inx
+    inx
+    cpx #20
+    bcc SourceIdleOwner_RootLoop
+    lda.l SourceVisual_PaletteCache
+    cmp #361
+    bne SourceIdleOwner_RootNo
+    lda.l SourceVisual_PaletteCache+3
+    and #255
+    cmp #1
+    bne SourceIdleOwner_RootNo
+    lda.l SVActor_HeldPalettes
+    ora.l SVActor_OldPalettes
+    and #1
+    beq SourceIdleOwner_RootNo
+    plx
+    pla
+    plp
+    sec
+    rtl
+SourceIdleOwner_BadRootRow:
+.a16
+.i16
+    plx
+    pla
+SourceIdleOwner_RootNo:
+.a16
+.i16
+    plx
+    pla
+    plp
+    clc
+    rtl
+; Read-only union-lease predicate for a future legacy-drop hook. Caller
+; must still clear its own legacy claim; only physical bit0 release is held.
+SourceIdleOwner_KeepPins:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    txa
+    and #1
+    bne SourceIdleOwner_KeepNo
+    cpx #$FFD9
+    bcs SourceIdleOwner_KeepNo
+    lda.l $430000,x
+    cmp #$1DAD
+    bne SourceIdleOwner_KeepNo
+    lda.l $430016,x
+    cmp #1
+    bne SourceIdleOwner_KeepNo
+    pla
+    plp
+    sec
+    rtl
+SourceIdleOwner_KeepNo:
+.a16
+.i16
+    pla
+    plp
+    clc
+    rtl
+SourceIdleOwner_RootIds:
+    .dw 8842,2633,5886,13304,1592,12228,7241,559,3618,11343
+SourceIdleOwner_End:
+.assert * <= $27A000, "idle owner primitives exceed verified gap"
+
+; Preserve the original enqueue A/Y results as well as CF/X and all context.
+; NMI only drains. An interrupt after Active either drains the row or leaves
+; its length intact, so the subsequent charge is correct or conservative.
+.bank 39
+.org $A000
+SourceQueueBudget_Publish:
+.a16
+.i16
+    sep #$20
+.a8
+    lda.l DmaRequest_SourceBank
+    sta.l DmaQueue+7,x
+    lda.l DmaRequest_TypeFlags
+    ora #DMA_OPT_ACTIVE
+    sta.l DmaQueue+4,x
+    rep #$31
+.a16
+.i16
+    pha
+    cld
+    lda.l DmaQueue,x
+    clc
+    adc.l DmaQueue_BudgetTotal
+    sta.l DmaQueue_BudgetTotal
+    pla
+    rtl
+SourceQueueBudget_End:
+.assert * <= $27A100, "publication budget helper exceeds blank ROM"
+
+; Dormant prerequisite for reserve/seal/publish. Not an ownership grant.
+; The single foreground producer already owns an inactive reserved row X,
+; whose length equals A16. It must keep that row and image immutable until
+; publication/cancellation. NMI ONLY drains; it never creates descriptors.
+; Count actual active bytes as well as the legacy counter: the latter can
+; undercount after its charge-before-Active race. Interrupted scans remain
+; conservative because NMI can only remove rows. No persistent scratch.
+; Return CF=1 iff max(active sum,counter)+length < established $0B00 cap.
+; Preserve A/X/Y/D/DB/P except CF. No queue, resource, image or ACK writes.
+.bank 39
+.org $A100
+SourceQueueBudget_ReservedFits:
+.a16
+.i16
+    php
+    rep #$31
+    cld
+    pha
+    phx
+    phy
+    txa
+    cmp #64
+    bcc SourceQueueBudget_Range
+    brl SourceQueueBudget_No
+SourceQueueBudget_Range:
+.a16
+.i16
+    and #7
+    beq SourceQueueBudget_Aligned
+    brl SourceQueueBudget_No
+SourceQueueBudget_Aligned:
+.a16
+.i16
+    lda.l DmaQueue+4,x
+    and #$00FF
+    cmp #DMA_OPT_RESERVED
+    beq SourceQueueBudget_Reserved
+    brl SourceQueueBudget_No
+SourceQueueBudget_Reserved:
+.a16
+.i16
+    lda 5,s
+    bne SourceQueueBudget_Nonzero
+    brl SourceQueueBudget_No
+SourceQueueBudget_Nonzero:
+.a16
+.i16
+    cmp #DMA_TRANSFER_MAX_BYTES
+    bcc SourceQueueBudget_Bounded
+    brl SourceQueueBudget_No
+SourceQueueBudget_Bounded:
+.a16
+.i16
+    cmp.l DmaQueue,x
+    beq SourceQueueBudget_LengthMatches
+    brl SourceQueueBudget_No
+SourceQueueBudget_LengthMatches:
+.a16
+.i16
+    pha
+    ldx #0
+    ldy #0
+SourceQueueBudget_SumLoop:
+.a16
+.i16
+    lda.l DmaQueue+4,x
+    and #DMA_OPT_ACTIVE
+    beq SourceQueueBudget_SumNext
+    lda.l DmaQueue,x
+    beq SourceQueueBudget_NoExtra
+    tya
+    clc
+    adc.l DmaQueue,x
+    bcs SourceQueueBudget_NoExtra
+    cmp #DMA_TRANSFER_MAX_BYTES
+    bcs SourceQueueBudget_NoExtra
+    tay
+SourceQueueBudget_SumNext:
+.a16
+.i16
+    txa
+    clc
+    adc #8
+    tax
+    cpx #64
+    bcc SourceQueueBudget_SumLoop
+    tya
+    cmp.l DmaQueue_BudgetTotal
+    bcs SourceQueueBudget_HaveMaximum
+    lda.l DmaQueue_BudgetTotal
+SourceQueueBudget_HaveMaximum:
+.a16
+.i16
+    clc
+    adc 1,s
+    bcs SourceQueueBudget_NoExtra
+    cmp #DMA_TRANSFER_MAX_BYTES
+    bcs SourceQueueBudget_NoExtra
+    pla
+    ply
+    plx
+    pla
+    plp
+    sec
+    rtl
+SourceQueueBudget_NoExtra:
+.a16
+.i16
+    pla
+SourceQueueBudget_No:
+.a16
+.i16
+    ply
+    plx
+    pla
+    plp
+    clc
+    rtl
+SourceQueueBudget_ReservedFitsEnd:
+.assert * <= $27A300, "reserved budget predicate exceeds blank ROM"
+
+
+; Existing HUD caches use FF as invalid; stock player life is0..CHAR_HP_MAX.
+; No calls/instructions added to any successful or unchanged-health path.
+.bank 39
+.org $A300
+.assert CHAR_HP_MAX < $FF, "HUD retry sentinel must be outside valid player health"
+HudRetryFailure_QueueFull:
+    rep #$31
+.a16
+.i16
+    pha
+    phx
+    phy
+    lda.l DmaRequest_TypeFlags
+    and #255
+    bne HudRetryFailure_Done
+    lda.l DmaRequest_Length
+    cmp #HUD_STAGING_BYTES
+    bne HudRetryFailure_Done
+    lda.l DmaRequest_SourceBank
+    and #255
+    cmp #$7E
+    bne HudRetryFailure_Done
+    lda.l DmaRequest_SourceAddrLow
+    cmp #HudStaging
+    beq HudRetryFailure_P1
+    cmp #HudP2Staging
+    beq HudTextRetry_P2Bar
+    brl HudTextRetry_Consider
+HudTextRetry_P2Bar:
+.a16
+.i16
+    lda.l DmaRequest_TargetAddr
+    cmp #(BG3_TILEMAP_VRAM_WORD + HUD_ROW_P2_BAR * TEXT_ROW_ENTRIES) * 2
+    bne HudRetryFailure_Done
+    sep #$20
+.a8
+    lda #$FF
+    sta.l HudCachedP2Hp
+    bra HudRetryFailure_Done
+HudRetryFailure_P1:
+.a16
+.i16
+    lda.l DmaRequest_TargetAddr
+    cmp #BG3_TILEMAP_VRAM_WORD * 2
+    bne HudRetryFailure_Done
+    sep #$20
+.a8
+    lda #1
+    sta.l HudDirty
+HudRetryFailure_Done:
+    rep #$30
+.a16
+.i16
+    ply
+    plx
+    pla
+    plp
+    clc
+    jml Core_Dma_Enqueue__full_return
+HudRetryFailure_End:
+.assert * <= $27A500, "HUD failure handler exceeds verified ROM gap"
+
+
+; Extend only rejected exact TextStaging row requests. Existing HUD init
+; uses FFFF caches as invalid for score/lives/stage; no new persistent state.
+.bank 39
+.org $A500
+HudTextRetry_Consider:
+.a16
+.i16
+    lda.l DmaRequest_SourceAddrLow
+    cmp #TextStaging
+    beq HudTextRetry_SourceReady
+    brl HudRetryFailure_Done
+HudTextRetry_SourceReady:
+.a16
+.i16
+    lda.l DmaRequest_TargetAddr
+    cmp #(BG3_TILEMAP_VRAM_WORD + HUD_ROW_SCORE * TEXT_ROW_ENTRIES) * 2
+    beq HudTextRetry_P1Score
+    cmp #(BG3_TILEMAP_VRAM_WORD + HUD_ROW_LIVES * TEXT_ROW_ENTRIES) * 2
+    beq HudTextRetry_P1Lives
+    cmp #(BG3_TILEMAP_VRAM_WORD + HUD_ROW_STAGE * TEXT_ROW_ENTRIES) * 2
+    beq HudTextRetry_Stage
+    cmp #(BG3_TILEMAP_VRAM_WORD + HUD_ROW_P2_SCORE * TEXT_ROW_ENTRIES) * 2
+    beq HudTextRetry_P2Score
+    cmp #(BG3_TILEMAP_VRAM_WORD + HUD_ROW_P2_LIVES * TEXT_ROW_ENTRIES) * 2
+    beq HudTextRetry_P2Lives
+    brl HudRetryFailure_Done
+HudTextRetry_P1Score:
+.a16
+.i16
+    lda #$FFFF
+    sta.l HudCachedScore32
+    sta.l HudCachedScore32+2
+    brl HudRetryFailure_Done
+HudTextRetry_P1Lives:
+.a16
+.i16
+    lda #$FFFF
+    sta.l HudCachedLives
+    brl HudRetryFailure_Done
+HudTextRetry_Stage:
+.a16
+.i16
+    lda #$FFFF
+    sta.l HudCachedStageIndex
+    brl HudRetryFailure_Done
+HudTextRetry_P2Score:
+.a16
+.i16
+    lda #$FFFF
+    sta.l HudCachedP2Score32
+    sta.l HudCachedP2Score32+2
+    brl HudRetryFailure_Done
+HudTextRetry_P2Lives:
+.a16
+.i16
+    lda #$FFFF
+    sta.l HudCachedP2Lives
+    brl HudRetryFailure_Done
+HudTextRetry_End:
+.assert * <= $27A700, "HUD text failure handler exceeds verified ROM gap"
+
+
+; Exact fast quotient for oldScore<50000. The existing strict comparison,
+; score cap, life increments and audio stay in the canonical score core.
+.bank 39
+.org $A800
+ScoreThreshold_Compute:
+.a16
+.i16
+    lda.l VmArith_QHi
+    bne ScoreThreshold_General
+    lda.l VmArith_QLo
+    cmp #$C350
+    bcs ScoreThreshold_General
+    lda #$C350
+    sta.l VmArith_DivLo
+    sta.l VmArith_RemLo
+    lda #0
+    sta.l VmArith_DivHi
+    sta.l VmArith_RemHi
+    sta.l VmArith_QLo
+    sta.l VmArith_QHi
+    clc
+    rtl
+ScoreThreshold_General:
+.a16
+.i16
+    lda #$C350
+    sta.l VmArith_DivLo
+    lda #0
+    sta.l VmArith_DivHi
+    jsl G13_Core_Math_Div32_Long
+
+    ; threshold = quotient * 50000 + 50000
+    lda.l VmArith_QLo
+    ldx #$C350
+    jsl G13_Core_Math_Mul32_Long
+    clc
+    adc #$C350
+    sta.l VmArith_RemLo
+    txa
+    adc #0
+    sta.l VmArith_RemHi
+    rtl
+ScoreThreshold_End:
+.assert * <= $27A900, "score threshold exceeds verified ROM gap"
+
+
+; Called only by the sequenced/validated source player->enemy hit branch.
+; X=event row offset,7E1768=validated source player slot0/1; extra is force.
+; Reuse native force*5, score cap and extra-life semantics. Never replay HP.
+.bank 39
+.org $A700
+SourceCombatScore_Award:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    phy
+    phd
+    lda.l Game_CampaignId
+    and #255
+    cmp #3
+    bne SourceCombatScore_Done
+    lda.l $7E1768
+    cmp #2
+    bcs SourceCombatScore_Done
+    cmp #1
+    bne SourceCombatScore_P1
+    lda.l G13_TwoPlayerEnabled
+    and #255
+    beq SourceCombatScore_Done
+    lda #$0A85
+    bra SourceCombatScore_Player
+SourceCombatScore_P1:
+.a16
+.i16
+    lda #$0A00
+SourceCombatScore_Player:
+.a16
+.i16
+    tcd
+    sep #$20
+.a8
+    lda CHAR_INPUT_DRIVEN
+    cmp #1
+    bne SourceCombatScore_Done
+    rep #$30
+.a16
+.i16
+    lda.l $41245E,x
+    bmi SourceCombatScore_Done
+    jsl G13_Game_Score_Award
+    jsl SourceScoreRom_Try
+SourceCombatScore_Done:
+    rep #$30
+.a16
+.i16
+    pld
+    ply
+    plx
+    pla
+    plp
+    rtl
+SourceCombatScore_End:
+.assert * <= $27A800, "source combat score exceeds verified ROM gap"
+
+; Optional immutable score-row acceleration, ONLY after an accepted source hit.
+; No startup/text path changes and no shared TextStaging producer. If score or
+; queue budget is outside this bounded case, existing dirty HUD handles it.
+.bank 39
+.org $A900
+SourceScoreRom_Try:
+    php
+    rep #$30
+.a16
+.i16
+    lda.l DmaQueue_BudgetTotal
+    cmp #DMA_TRANSFER_MAX_BYTES - TEXT_ROW_BYTES + 1
+    bcc SourceScoreRom_Continue0
+    jml SourceScoreRom_Done
+SourceScoreRom_Continue0:
+    tdc
+    cmp #$0A85
+    beq SourceScoreRom_P2
+    lda.l Game_Score32+2
+    beq SourceScoreRom_Continue1
+    jml SourceScoreRom_Done
+SourceScoreRom_Continue1:
+    lda.l Game_Score32
+    cmp #500
+    bcc SourceScoreRom_Continue2
+    jml SourceScoreRom_Done
+SourceScoreRom_Continue2:
+    asl a
+    tax
+    lda.l SourceScoreRom_Index,x
+    bpl SourceScoreRom_MapP1
+    jml SourceScoreRom_Done
+SourceScoreRom_MapP1:
+.a16
+.i16
+    pha
+    clc
+    adc #SourceScoreRom_P1Rows & $FFFF
+    sta.l DmaRequest_SourceAddrLow
+    lda #BG3_TILEMAP_VRAM_WORD * 2 + HUD_ROW_SCORE * TEXT_ROW_BYTES
+    bra SourceScoreRom_Request
+SourceScoreRom_P2:
+.a16
+.i16
+    lda.l G13_P2Score32+2
+    beq SourceScoreRom_Continue3
+    jml SourceScoreRom_Done
+SourceScoreRom_Continue3:
+    lda.l G13_P2Score32
+    cmp #500
+    bcc SourceScoreRom_Continue4
+    jml SourceScoreRom_Done
+SourceScoreRom_Continue4:
+    asl a
+    tax
+    lda.l SourceScoreRom_Index,x
+    bpl SourceScoreRom_MapP2
+    jml SourceScoreRom_Done
+SourceScoreRom_MapP2:
+.a16
+.i16
+    pha
+    clc
+    adc #SourceScoreRom_P2Rows & $FFFF
+    sta.l DmaRequest_SourceAddrLow
+    lda #BG3_TILEMAP_VRAM_WORD * 2 + HUD_ROW_P2_SCORE * TEXT_ROW_BYTES
+SourceScoreRom_Request:
+.a16
+.i16
+    sta.l DmaRequest_TargetAddr
+    lda #TEXT_ROW_BYTES
+    sta.l DmaRequest_Length
+    sep #$20
+.a8
+    lda #$27
+    sta.l DmaRequest_SourceBank
+    lda #DMA_TYPE_VRAM
+    sta.l DmaRequest_TypeFlags
+    jsl Core_Dma_Enqueue_Long
+    rep #$30
+.a16
+.i16
+    pla
+    bcc SourceScoreRom_Done
+    ; Commit cache only after the real queue accepts immutable ROM ownership.
+    tdc
+    cmp #$0A85
+    beq SourceScoreRom_CacheP2
+    lda.l Game_Score32
+    sta.l HudCachedScore32
+    lda.l Game_Score32+2
+    sta.l HudCachedScore32+2
+    bra SourceScoreRom_Done
+SourceScoreRom_CacheP2:
+.a16
+.i16
+    lda.l G13_P2Score32
+    sta.l HudCachedP2Score32
+    lda.l G13_P2Score32+2
+    sta.l HudCachedP2Score32+2
+SourceScoreRom_Done:
+    plp
+    rtl
+SourceScoreRom_End:
+.assert * <= $27AA00, "score ROM helper exceeds audited gap"
+.bank 39
+.org $B000
+SourceScoreRom_P1Rows:
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2535, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2535, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2536, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2536, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2537, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2537, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2538, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2538, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2539, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2539, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2530, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2530, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2531, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2531, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2532, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2532, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2533, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2533, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2534, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2534, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2535, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2535, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2536, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2536, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2537, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2537, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2538, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2538, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2539, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2531, $2539, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2530, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2530, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2531, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2531, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2532, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2532, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2533, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2533, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2534, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2534, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2535, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2535, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2536, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2536, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2537, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2537, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2538, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2538, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2539, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2532, $2539, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2530, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2530, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2531, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2531, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2532, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2532, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2533, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2533, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2534, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2534, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2535, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2535, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2536, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2536, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2537, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2537, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2538, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2538, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2539, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2533, $2539, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2530, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2530, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2531, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2531, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2532, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2532, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2533, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2533, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2534, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2534, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2535, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2535, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2536, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2536, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2537, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2537, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2538, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2538, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2539, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2553, $2543, $254F, $2552, $2545, $2520, $2534, $2539, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+SourceScoreRom_P2Rows:
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2535, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2535, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2536, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2536, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2537, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2537, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2538, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2538, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2539, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2539, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2530, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2530, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2531, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2531, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2532, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2532, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2533, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2533, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2534, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2534, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2535, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2535, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2536, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2536, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2537, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2537, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2538, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2538, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2539, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2531, $2539, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2530, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2530, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2531, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2531, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2532, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2532, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2533, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2533, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2534, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2534, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2535, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2535, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2536, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2536, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2537, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2537, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2538, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2538, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2539, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2532, $2539, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2530, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2530, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2531, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2531, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2532, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2532, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2533, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2533, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2534, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2534, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2535, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2535, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2536, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2536, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2537, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2537, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2538, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2538, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2539, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2533, $2539, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2530, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2530, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2531, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2531, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2532, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2532, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2533, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2533, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2534, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2534, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2535, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2535, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2536, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2536, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2537, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2537, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2538, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2538, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2539, $2530, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+    .dw $2550, $2532, $2553, $2543, $254F, $2552, $2534, $2539, $2535, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520, $2520
+SourceScoreRom_TablesEnd:
+.assert SourceScoreRom_TablesEnd - SourceScoreRom_P1Rows == 12800, "exact two-player score table size"
+
+; Exact score-to-row offsets; nonmultiples fall back without cache commit.
+.bank 39
+.org $AA00
+SourceScoreRom_Index:
+    .dw $0000, $FFFF, $FFFF, $FFFF, $FFFF, $0040, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0080, $FFFF, $FFFF, $FFFF, $FFFF, $00C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0100, $FFFF, $FFFF, $FFFF, $FFFF, $0140, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0180, $FFFF, $FFFF, $FFFF, $FFFF, $01C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0200, $FFFF, $FFFF, $FFFF, $FFFF, $0240, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0280, $FFFF, $FFFF, $FFFF, $FFFF, $02C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0300, $FFFF, $FFFF, $FFFF, $FFFF, $0340, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0380, $FFFF, $FFFF, $FFFF, $FFFF, $03C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0400, $FFFF, $FFFF, $FFFF, $FFFF, $0440, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0480, $FFFF, $FFFF, $FFFF, $FFFF, $04C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0500, $FFFF, $FFFF, $FFFF, $FFFF, $0540, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0580, $FFFF, $FFFF, $FFFF, $FFFF, $05C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0600, $FFFF, $FFFF, $FFFF, $FFFF, $0640, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0680, $FFFF, $FFFF, $FFFF, $FFFF, $06C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0700, $FFFF, $FFFF, $FFFF, $FFFF, $0740, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0780, $FFFF, $FFFF, $FFFF, $FFFF, $07C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0800, $FFFF, $FFFF, $FFFF, $FFFF, $0840, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0880, $FFFF, $FFFF, $FFFF, $FFFF, $08C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0900, $FFFF, $FFFF, $FFFF, $FFFF, $0940, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0980, $FFFF, $FFFF, $FFFF, $FFFF, $09C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0A00, $FFFF, $FFFF, $FFFF, $FFFF, $0A40, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0A80, $FFFF, $FFFF, $FFFF, $FFFF, $0AC0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0B00, $FFFF, $FFFF, $FFFF, $FFFF, $0B40, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0B80, $FFFF, $FFFF, $FFFF, $FFFF, $0BC0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0C00, $FFFF, $FFFF, $FFFF, $FFFF, $0C40, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0C80, $FFFF, $FFFF, $FFFF, $FFFF, $0CC0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0D00, $FFFF, $FFFF, $FFFF, $FFFF, $0D40, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0D80, $FFFF, $FFFF, $FFFF, $FFFF, $0DC0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0E00, $FFFF, $FFFF, $FFFF, $FFFF, $0E40, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0E80, $FFFF, $FFFF, $FFFF, $FFFF, $0EC0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0F00, $FFFF, $FFFF, $FFFF, $FFFF, $0F40, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $0F80, $FFFF, $FFFF, $FFFF, $FFFF, $0FC0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1000, $FFFF, $FFFF, $FFFF, $FFFF, $1040, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1080, $FFFF, $FFFF, $FFFF, $FFFF, $10C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1100, $FFFF, $FFFF, $FFFF, $FFFF, $1140, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1180, $FFFF, $FFFF, $FFFF, $FFFF, $11C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1200, $FFFF, $FFFF, $FFFF, $FFFF, $1240, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1280, $FFFF, $FFFF, $FFFF, $FFFF, $12C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1300, $FFFF, $FFFF, $FFFF, $FFFF, $1340, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1380, $FFFF, $FFFF, $FFFF, $FFFF, $13C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1400, $FFFF, $FFFF, $FFFF, $FFFF, $1440, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1480, $FFFF, $FFFF, $FFFF, $FFFF, $14C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1500, $FFFF, $FFFF, $FFFF, $FFFF, $1540, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1580, $FFFF, $FFFF, $FFFF, $FFFF, $15C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1600, $FFFF, $FFFF, $FFFF, $FFFF, $1640, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1680, $FFFF, $FFFF, $FFFF, $FFFF, $16C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1700, $FFFF, $FFFF, $FFFF, $FFFF, $1740, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1780, $FFFF, $FFFF, $FFFF, $FFFF, $17C0, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1800, $FFFF, $FFFF, $FFFF, $FFFF, $1840, $FFFF, $FFFF, $FFFF, $FFFF
+    .dw $1880, $FFFF, $FFFF, $FFFF, $FFFF, $18C0, $FFFF, $FFFF, $FFFF, $FFFF
+SourceScoreRom_IndexEnd:
+.assert SourceScoreRom_IndexEnd - SourceScoreRom_Index == 1000, "exact score index size"
+
+
+; Original BOR uses bothnewkeys for paused navigation. Combine only the
+; four paused-menu directional reads, using the existing fixed-session
+; P2 eligibility bit. Read-only: no input mailbox, timer, actor or DMA work.
+.bank 39
+.org $A600
+SourcePause_CombinedEdge:
+.a16
+.i16
+    lda.l G13_TwoPlayerEnabled
+    and #1
+    beq SourcePause_P1Edge
+    lda.l Input_trigger+1
+    ora.l Input2_trigger+1
+    rtl
+SourcePause_P1Edge:
+.a16
+.i16
+    lda.l Input_trigger+1
+    rtl
+SourcePause_CombinedEnd:
+.assert SourcePause_CombinedEnd <= $27A700, "pause input merge exceeds verified gap"
+
+; End Game only, Normal campaign. No live-gameplay hook or new WRAM.
+; Drain first: queue slot wrap is not FIFO. Commit TITLE only after the
+; queued immutable clear physically retires, before title text is admitted.
+.bank 5
+.org $8B00
+SourceQuit_EndGame:
+    php
+    rep #$30
+    cld
+.a16
+.i16
+    phx
+    phy
+    lda.l Game_CampaignId
+    and #$FF
+    cmp #3
+    beq SourceQuit_Normal
+    ply
+    plx
+    plp
+    sep #$20
+.a8
+    lda #0
+    jml $068210
+SourceQuit_Normal:
+.a16
+.i16
+    ldy #8
+SourceQuit_Drain:
+.a16
+.i16
+    jsr SourceQuit_Pending
+    bcc SourceQuit_QueueClear
+    cpy #0
+    beq SourceQuit_Abort
+    jsr SourceQuit_WaitField
+    dey
+    bra SourceQuit_Drain
+SourceQuit_QueueClear:
+.a16
+.i16
+    lda #$8800
+    sta.l DmaRequest_SourceAddrLow
+    lda #(BG3_TILEMAP_VRAM_WORD * 2)
+    sta.l DmaRequest_TargetAddr
+    lda #768
+    sta.l DmaRequest_Length
+    sep #$20
+.a8
+    lda #5
+    sta.l DmaRequest_SourceBank
+    lda #DMA_TYPE_VRAM
+    sta.l DmaRequest_TypeFlags
+    rep #$30
+.a16
+.i16
+    jsl Core_Dma_Enqueue_Long
+    bcc SourceQuit_Abort
+    ldy #8
+SourceQuit_WaitClear:
+.a16
+.i16
+    jsr SourceQuit_Pending
+    bcc SourceQuit_Commit
+    cpy #0
+    beq SourceQuit_Abort
+    jsr SourceQuit_WaitField
+    dey
+    bra SourceQuit_WaitClear
+SourceQuit_Abort:
+.a16
+.i16
+    ply
+    plx
+    plp
+    jml Game_State_Play__pausemenu_done
+SourceQuit_Commit:
+.a16
+.i16
+    lda #0
+    sta.l Game_Lives
+    sta.l G13_P2Lives
+    sep #$20
+.a8
+    sta.l Pause_Step
+    rep #$30
+.a16
+.i16
+    lda #GAME_STATE_TITLE
+    sta.l Game_State
+    ply
+    plx
+    plp
+    rep #$30
+.a16
+.i16
+    lda #GAME_STATE_TITLE
+    jml Game_State_Play__pausemenu_done
+
+; A16/I16, C=1 pending or reserved; no descriptor edits or cancellation.
+SourceQuit_Pending:
+.a16
+.i16
+    ldx #0
+SourceQuit_PendingSlot:
+.a16
+.i16
+    lda.l DmaQueue+4,x
+    and #DMA_OPT_ACTIVE | DMA_OPT_RESERVED
+    bne SourceQuit_Busy
+    txa
+    clc
+    adc #DMA_QUEUE_SLOT_SIZE
+    tax
+    cpx #DMA_QUEUE_SLOTS * DMA_QUEUE_SLOT_SIZE
+    bcc SourceQuit_PendingSlot
+    clc
+    rts
+SourceQuit_Busy:
+.a16
+.i16
+    sec
+    rts
+
+; Normal's unconditional field counter advances even when a visual commit
+; is skipped. No player/media preparation is serviced in this quit wait.
+; Preserve the caller's bounded wait count; stream audio uses its existing
+; foreground late pump, never NMI work. Counter wrap is an inequality.
+SourceQuit_WaitField:
+.a16
+.i16
+    phx
+    phy
+    lda.l StageTimer_FieldCounter
+    pha
+SourceQuit_WaitLoop:
+.a16
+.i16
+    lda 1,s
+    cmp.l StageTimer_FieldCounter
+    bne SourceQuit_FieldDone
+    sep #$20
+.a8
+    lda.l AudioStream_Enable
+    beq SourceQuit_NoPump
+    lda.l AudioSemantic_FootDieStreamActive
+    beq SourceQuit_NoPump
+    jsl Tad_StreamLatePump
+SourceQuit_NoPump:
+.a8
+    rep #$30
+.a16
+.i16
+    bra SourceQuit_WaitLoop
+SourceQuit_FieldDone:
+.a16
+.i16
+    pla
+    ply
+    plx
+    rts
+SourceQuit_CodeEnd:
+.assert SourceQuit_CodeEnd <= $058F00, "quit cleanup exceeds audited ROM gap"
+
+; Ordinary advancing-source VRAM transfer, no fixed/reverse flags.
+.bank 5
+.org $8800
+SourceQuit_BlankRows:
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+    .db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+SourceQuit_BlankEnd:
+.assert SourceQuit_BlankEnd - SourceQuit_BlankRows == 768, "exact twelve HUD rows"

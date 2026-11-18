@@ -774,32 +774,46 @@ StageFp_BG2WriteColumn:
     rep #$30
 .a16
 .i16
+    phy
     lda.l StreamScrollFp_PendCol
     jsr StageFp_BG2MapWord
     sta.l StreamScrollFp_ColTargetWord
+    sta.l $002116
+    sep #$20
+.a8
+    lda #$81
+    sta.l $002115
+    rep #$30
+.a16
+.i16
     ldx #0
+    ldy #28
 StageFp_BG2WriteColumn__row:
 .a16
 .i16
-    lda.l StreamScrollFp_ColTargetWord
-    sta.l $002116
     lda.l StageFp_BG2ColBuf,x
+    sta.l $002118
+    inx
+    inx
+    dey
+    bne StageFp_BG2WriteColumn__row
+    lda.l StreamScrollFp_ColTargetWord
+    clc
+    adc #896
+    sta.l StreamScrollFp_ColTargetWord
+    sec
+    sbc #31
+    sta.l $002116
     sep #$20
 .a8
-    sta.l $002118
-    xba
-    sta.l $002119
+    lda #$80
+    sta.l $002115
     rep #$30
 .a16
 .i16
     lda.l StreamScrollFp_ColTargetWord
-    clc
-    adc #32
-    sta.l StreamScrollFp_ColTargetWord
-    inx
-    inx
+    ply
     cpx #56
-    bcc StageFp_BG2WriteColumn__row
     rts
 
 ; Public boot dispatch: C=1 handled Normal, C=0 run untouched Easy loader.
@@ -1020,11 +1034,14 @@ StageFp_BG2PlayDispatch:
     clc
     rtl
 StageFp_BG2PlayDispatch__normal:
-    php
-    sep #$20
+    jml SourceFpNoop_Gate
+    nop
+    nop
+    nop
+    nop
+SourceFpNoop_OriginalBusyBody:
 .a8
-    lda.l Nmi_FrameBusy
-    pha
+.i16
     lda #1
     sta.l Nmi_FrameBusy
     lda.l StageFp_BG2Loaded
@@ -1118,6 +1135,14 @@ StageFp_BG2CommitDispatch__normal:
     sta.l StageFp_BG2DmaPending
     lda.l StreamScrollFp_ColPending
     beq StageFp_BG2CommitDispatch__presentation
+    ; A full column needs its own physical vblank headroom after queue/BG1.
+    ; Leave its immutable pending buffer and staged bounds intact when late.
+    jsl SourceFp_ColumnWindow
+    bcs StageFp_BG2CommitDispatch__column_room
+    jmp StageFp_BG2CommitDispatch__presentation
+StageFp_BG2CommitDispatch__column_room:
+.a8
+.i16
     lda #$80
     sta.l $002115
     rep #$30

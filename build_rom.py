@@ -514,9 +514,33 @@ def _load_poppy_symbols(path):
     return symbols
 
 
+def validate_rom_bank_ranges(symbol_path):
+    """Poppy can emit bank-relative offsets aboveFFFF without an error.
+
+    A symbol10:10037 is not executable LoROM at11:0037. Reject it before
+    collapsing bank and offset into one integer or constructing a ROM.
+    Bank00 also contains full24-bit RAM equates and is checked separately.
+    """
+    with open(symbol_path, encoding='utf-8-sig') as stream:
+        for line in stream:
+            match = re.match(r'^\s*([0-9A-Fa-f]{2}):([0-9A-Fa-f]+)\s+(\S+)', line)
+            if not match:
+                continue
+            bank, offset, name = match.groups()
+            if int(bank, 16) and int(offset, 16) > 0xFFFF:
+                raise SystemExit(
+                    f'ROM bank layout guard: {name} at{bank}:{offset} exceedsFFFF')
+
+
 def validate_bank0_layout(poppy_data, symbol_path):
     """Reject executable output that collides with the LoROM tail tables."""
+    validate_rom_bank_ranges(symbol_path)
     symbols = _load_poppy_symbols(symbol_path)
+    bridge = symbols.get('SourcePacket_UnrolledBudgetBridge')
+    if bridge is not None and (bridge >> 16) == 0x10 and (bridge & 0xFFFF) > 0xFFFC:
+        raise SystemExit(
+            f'ROM bank layout guard: SourcePacket_UnrolledBudgetBridge JML at '
+            f'10:{bridge & 0xFFFF:04X} crosses bank 10')
     required = ('scpu_boot', 'scpu_bank0_runtime_end', 'nmi_handler',
                 'nmi_handler_end', 'irq_handler', 'irq_handler_end')
     missing = [name for name in required if name not in symbols]

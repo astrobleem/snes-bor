@@ -154,13 +154,10 @@ StageBoundsHost_Physics__done:
     rep #$30
 .a16
 .i16
-    plb
-    pld
-    ply
-    plx
-    pla
-    plp
-    rtl
+    jml SourceIdlePhysicsTail_Return
+    nop
+    nop
+    nop
 
 ; Post-axis commit: source player_move/common_move, not projectile/emitter
 ; drivers. Preserve caller width, X/Y, and all actor/render state except X.

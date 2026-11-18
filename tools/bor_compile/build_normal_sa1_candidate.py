@@ -63,12 +63,15 @@ def _campaign_inputs(source_set='Normal'):
     return coverage, combat_models
 
 
-def _build_overlay(output: Path, source: Path, *, output_is_source=False, source_set='Normal'):
+def _build_overlay(output: Path, source: Path, *, output_is_source=False, source_set='Normal', reserved_rom_banks=()):
     from actor_s6_production_world import build as build_world
     from actor_s7_persistent_worker import install
+    from actor_s7_worker import reserved_rom_snapshot, assert_reserved_rom
+    reserved_rom_banks = tuple(reserved_rom_banks)
     from actor_s7_production_runtime import source_visual_identity
-    from pcm_runtime import assert_no_pcm_copy, link_immutable_pcm
+    from pcm_runtime import assert_no_pcm_copy, link_immutable_pcm, preflight_immutable_pcm
 
+    preflight_immutable_pcm(ROOT / "distribution", output)
     if not output_is_source:
         if output.exists():
             raise FileExistsError(f"refuse to replace existing candidate directory: {output}")
@@ -84,6 +87,8 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False, source
     source_rom = source / "bor.sfc"
     if not source_rom.is_file():
         raise FileNotFoundError(f"compiler source ROM missing: {source_rom}")
+    reserved_before = (reserved_rom_snapshot(source_rom.read_bytes(), reserved_rom_banks)
+                       if reserved_rom_banks else {})
     source_rom_sha256 = hashlib.sha256(source_rom.read_bytes()).hexdigest()
     source_msu_sha256 = hashlib.sha256((source / "bor.msu").read_bytes()).hexdigest()
     visual = source_visual_identity(source)
@@ -94,7 +99,11 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False, source
                          normal_campaign_models=combat_models)
     # build_world just linked a clean host. Existing worker.sym in an in-place
     # rebuild describes the prior ROM, not relocations in this new image.
-    worker_symbols = install(output, production_runtime=True, fresh_world=True)
+    if reserved_before:
+        assert_reserved_rom((output / 'bor.sfc').read_bytes(), reserved_before)
+    worker_symbols = install(output, production_runtime=True, fresh_world=True, reserved_rom_banks=reserved_rom_banks)
+    if reserved_before:
+        assert_reserved_rom((output / 'bor.sfc').read_bytes(), reserved_before)
     manifest = dict(
             status=("OPT_IN_PERSISTENT_SA1_NORMAL_CAMPAIGN_CANDIDATE" if source_set == 'Normal'
                     else f"PERSISTENT_SA1_{source_set.upper()}_CAMPAIGN_CANDIDATE"),
@@ -149,13 +158,17 @@ def _build_overlay(output: Path, source: Path, *, output_is_source=False, source
 
 
 def build_from_source(output: Path, source_image: Path, *, in_place=False,
-                      relink_source=False, source_set='Normal', repack_media=False):
+                      relink_source=False, source_set='Normal', repack_media=False, reserved_rom_banks=()):
+    reserved_rom_banks = tuple(reserved_rom_banks)
     output = output.resolve()
     source = source_image.resolve()
     if in_place and output != source:
         raise ValueError("IN_PLACE_SOURCE_OUTPUT_MUST_MATCH")
     if not source.is_dir() or not (source / "bor.msu").is_file():
         raise FileNotFoundError(f"compiler source image incomplete: {source}")
+    # Reject copied media/exhausted hardlinks before relinking or repacking.
+    from pcm_runtime import preflight_immutable_pcm
+    preflight_immutable_pcm(ROOT / "distribution", output)
     if repack_media:
         if not in_place:
             raise ValueError('MEDIA_REPACK_REQUIRES_IN_PLACE_SOURCE')
@@ -171,14 +184,20 @@ def build_from_source(output: Path, source_image: Path, *, in_place=False,
         # Re-linking the already-generated main.bin is cheap and keeps the
         # expensive media/compiler stage from being repeated.
         import build_rom
-        (source / "bor.sfc").write_bytes(build_rom.link_rom())
-    return _build_overlay(output, source, output_is_source=in_place, source_set=source_set)
+        linked_rom = build_rom.link_rom()
+        if reserved_rom_banks and (source / "bor.sfc").is_file():
+            from actor_s7_worker import reserved_rom_snapshot, assert_reserved_rom
+            assert_reserved_rom(linked_rom, reserved_rom_snapshot((source / "bor.sfc").read_bytes(), reserved_rom_banks))
+        (source / "bor.sfc").write_bytes(linked_rom)
+    return _build_overlay(output, source, output_is_source=in_place, source_set=source_set, reserved_rom_banks=reserved_rom_banks)
 
 
-def build(output: Path, reuse_audio_from: str | None = None, *, source_set='Normal'):
+def build(output: Path, reuse_audio_from: str | None = None, *, source_set='Normal', reserved_rom_banks=()):
     output = output.resolve()
     if output.exists():
         raise FileExistsError(f"refuse to replace existing candidate directory: {output}")
+    from pcm_runtime import preflight_immutable_pcm
+    preflight_immutable_pcm(ROOT / "distribution", output)
     output.parent.mkdir(parents=True, exist_ok=True)
 
     import build_rom
@@ -188,7 +207,7 @@ def build(output: Path, reuse_audio_from: str | None = None, *, source_set='Norm
                        source_sized_visual=True, candidate_dir=source,
                        hard_candidate=source_set in ('Easy', 'Hard', 'Bonus'),
                        bonus_candidate=source_set in ('Easy', 'Bonus'))
-        return _build_overlay(output, source, source_set=source_set)
+        return _build_overlay(output, source, source_set=source_set, reserved_rom_banks=reserved_rom_banks)
 
 
 def main():
@@ -203,6 +222,8 @@ def main():
                         help="finish SA-1 overlay in the source-image directory itself")
     parser.add_argument("--relink-source-image", action="store_true",
                         help="rebuild a clean base ROM from the current main.bin before overlaying")
+    parser.add_argument('--reserve-rom-bank', action='append', type=lambda value: int(value, 0), default=[],
+                        help='exclude an explicitly owned ROM bank from worker installation; repeat per bank')
     args = parser.parse_args()
     if args.in_place_source_image and not args.source_image:
         parser.error("--in-place-source-image requires --source-image")
@@ -211,9 +232,9 @@ def main():
     if args.source_image:
         candidate, manifest = build_from_source(
             args.output, args.source_image, in_place=args.in_place_source_image,
-            relink_source=args.relink_source_image, source_set=args.source_set)
+            relink_source=args.relink_source_image, source_set=args.source_set, reserved_rom_banks=args.reserve_rom_bank)
     else:
-        candidate, manifest = build(args.output, args.reuse_audio_from, source_set=args.source_set)
+        candidate, manifest = build(args.output, args.reuse_audio_from, source_set=args.source_set, reserved_rom_banks=args.reserve_rom_bank)
     result = {
         "output": str(candidate),
         "status": manifest["status"],

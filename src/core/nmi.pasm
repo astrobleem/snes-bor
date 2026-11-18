@@ -269,7 +269,7 @@ Core_Nmi_Play__do_commit:
     ; Phase 10 Step 2c (plan.md 2.10): same handoff for the BG3 frontpanel's
     ; own streaming resolver -- see Core_StreamScrollFp_CommitColumn's
     ; header comment.
-    jsl StageFp_BG2CommitDispatch
+    jsl SourceAttackOwned_AfterNormal
 
     sep #$20
 .a8
@@ -284,28 +284,6 @@ Core_Nmi_Play__do_commit:
     lda #0
     sta.l Msu1_StreamBusy
 
-    lda.l Oam_UploadFlag
-    beq Core_Nmi_Play__skip_oam_reset
-    bra Core_Nmi_Play__do_oam_reset
-Core_Nmi_Play__do_oam_reset:
-    jsr Core_Oam_ClearActive
-    ; Core_Oam_ClearActive does `rep #$31` internally and never restores
-    ; 8-bit mode before its rts (same calling convention as
-    ; Core_Oam_ClearAll, its full-table counterpart used only by
-    ; Core_Oam_Init at boot) -- so this call site, which needs 8-bit to
-    ; continue, must re-assert it itself rather than assume the width it
-    ; had before the call still holds.
-    sep #$20
-.a8
-    lda #0
-    sta.l Oam_UploadFlag
-Core_Nmi_Play__skip_oam_reset:
-.a8
-    ; poppy#386: reached directly via the `beq` a few lines up, which skips
-    ; the `sep #$20`/`.a8` above (on the do-oam-reset path only) -- currently
-    ; safe by luck (width entering the beq already happens to be 8-bit) per
-    ; check_width_directives_baseline.txt, but latent per that file's own
-    ; warning. Poppy's own new width-hazard diagnostic flags this exact site.
     lda #1
     sta.l Nmi_Busy
 
@@ -364,6 +342,26 @@ Core_Nmi_Play__skip_oam_reset:
     lda.l Nmi_Bg3ScrollY+1
     sta $2112
 
+    ; DMA already consumed the shadow. Clear CPU-only WRAM after the final
+    ; PPU update, while main is still paused and Nmi_Busy remains set.
+    lda.l Oam_UploadFlag
+    beq Core_Nmi_Play__skip_oam_reset
+    bra Core_Nmi_Play__do_oam_reset
+Core_Nmi_Play__do_oam_reset:
+    jsr Core_Oam_ClearActive
+    ; Core_Oam_ClearActive does `rep #$31` internally and never restores
+    ; 8-bit mode before its rts (same calling convention as
+    ; Core_Oam_ClearAll, its full-table counterpart used only by
+    ; Core_Oam_Init at boot) -- so this call site, which needs 8-bit to
+    ; continue, must re-assert it itself rather than assume the width it
+    ; had before the call still holds.
+    sep #$20
+.a8
+    lda #0
+    sta.l Oam_UploadFlag
+Core_Nmi_Play__skip_oam_reset:
+.a8
+
     rep #$31
 .a16
     lda.l Nmi_FrameCounter
@@ -384,6 +382,14 @@ Core_Nmi_Play__skip_oam_reset:
     sta.l Nmi_FrameOver
 
 Core_Nmi_Play__done:
+.a8
+.i16
+Core_Nmi_Play__input_tail:
+    ; Production linker installs the same-field input sample here.
+    nop
+    nop
+    nop
+    nop
     lda $4210                  ; RDNMI: acknowledge the nmi flag
     rep #$30
 .a16

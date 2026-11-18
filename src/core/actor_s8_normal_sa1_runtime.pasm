@@ -3,14 +3,21 @@
 ; and the special Biker driver remain on their existing typed S-CPU services.
 ; Spawn/respawn is a true dependency boundary: drain queued ticks, bind one
 ; production slot, then publish only that context and its 133-byte metadata row.
-S6Normal_LastStage = $7E1778
+S6Normal_LastStage = $7E1762
+; Single ownership of the source clock: foreground bootstrap/catch-up, then
+; bounded post-PPU NMI dispatch. Context also suppresses native event drains.
+S6Normal_NmiArm = $7E46DC
+S6Normal_NmiContext = $7E46DE
+; Physical-field publication stamp, after catch-up scratch $5922..$5925.
+S6Normal_LastPresentationField = $7E5926
 ; Spawn_Play can reassign an allocated actor row without invoking the
 ; behavior binder again. Track the roster represented by each live source
 ; context so the render-boundary ownership sweep can safely rebind it.
-; $17C0..$17C5 and $17C6..$17C9 are unused; bridge scratch begins at $17E0.
-S6Normal_BoundRoster = $7E17C0
-S6Normal_BindLiveActors__slot_index = $7E17C6
-S6Normal_BindLiveActors__worker_context = $7E17C8
+; Reserve $17A0..$17A9 between clock $1780..$179F and zero-velocity
+; blocks $17B0..$17DF. Bridge scratch begins at $17E0.
+S6Normal_BoundRoster = $7E17A0
+S6Normal_BindLiveActors__slot_index = $7E17A6
+S6Normal_BindLiveActors__worker_context = $7E17A8
 ; Six-byte shared target-type directory for the persistent worker's ordered
 ; world-attack pass. Only native breakable props are marked; HP,
 ; invulnerability, rewards and lifecycle remain S-CPU-owned typed state.
@@ -54,6 +61,20 @@ S6Normal_Init:
     bra S6Normal_Init__return
 S6Normal_Init__enabled:
     lda #0
+    sta.l S6Normal_NmiArm
+    sta.l S6Normal_NmiContext
+    sta.l $435442 ; disable old normal publication before the epoch changes
+    lda.l $7E175C
+    cmp #1
+    bne S6Normal_Init__previous_parked
+    lda.l $7E175E
+    cmp #2
+    bne S6Normal_Init__previous_parked
+    ; Keep the previous worker parked across all reset/bind/shared copies.
+    ; Owned becomes0 below, so ordinary birth-fence End cannot unpark it.
+    jsl S6Normal_MutationFenceBegin
+S6Normal_Init__previous_parked:
+    lda #0
     sta.l $7E175C
     sta.l $7E175E
     sta.l $7E175A
@@ -61,6 +82,38 @@ S6Normal_Init__enabled:
     sta.l S6Game_Command
     sta.l S6Game_TickCommit
     sta.l S6Game_TickCommit+2
+    sta.l S6Normal_LastPresentationField
+    sta.l $7E4BB4 ; SourceVisual_ServiceField
+    sta.l $7E4BB6 ; SourceVisual_LatchedInput
+    sta.l $7E4BB8 ; SourceVisual_ServiceCount
+    sta.l $7E4BBA ; SourceVisual_FieldPress1
+    sta.l $7E4BC0 ; SourceVisual_FieldPress2
+    sta.l $7E4BC6 ; SourceVisual_LatchedInput2
+    sta.l $7E4BCC ; SourceVisual_InputSampleField
+    sta.l SourceVisual_BucketMagic ; rebuild live-slot buckets for this epoch
+    ; Host mode is still inactive: NMI cannot publish during this reset.
+    sta.l SourceInput_Producer
+    sta.l SourceInput_Consumer
+    sta.l SourceInput_Overflows
+    sta.l SourceInput_Samples
+    sta.l SourceInput_HistoryMisses
+    sta.l SourceInput_BaseReady
+    sta.l SourceInput_ReplayHeld1
+    sta.l SourceInput_ReplayHeld2
+    lda #$FFFF
+    sta.l SourceInput_ReplayField
+    lda #0
+    sta.l $435442 ; SourcePacket_ActiveValid (bank43 presentation control)
+    sta.l $435440 ; SourcePacket_CopyBusy (bank43 presentation control)
+    sta.l $435446 ; SourcePacket_ThisFrame (bank43 presentation control)
+    lda #$1A60
+    sta.l SourceInput_Magic
+    lda #0
+    jsl SourceVisual_CompletedInit
+    lda.l StageTimer_FieldCounter
+    sta.l SourceVisual_JumpField1
+    sta.l SourceVisual_JumpField2
+    lda #0
     ; Stage/bootstrap WRAM is not a zeroed worker-world image. Initialize the
     ; four source relationship pointers before the first persistent tick;
     ; stale values here are consumed by S6_SelectTarget as actor DPs.
@@ -442,6 +495,7 @@ S6Normal_RebaseStageClock:
     ; epoch and park SA-1 while publishing its exact Normal-policy inverse;
     ; player movement then applies BOR's existing per-stage right bound.
     lda #0
+    sta.l S6Normal_NmiArm
     sta.l S6Host_Error
     jsl S7Resident_Flush
     jsl S6Normal_MutationFenceBegin
@@ -626,6 +680,13 @@ S6Normal_Bind__bind:
     .a8
     bra S6Normal_Bind__fenced_done
 S6Normal_Bind__worker_ready:
+    ; Success branches here in A16 across an A8 error tail. Reassert both
+    ; runtime and assembler widths before context-index immediates: otherwise
+    ; SBC/AND consume the following XBA/TAX opcodes as their high bytes and
+    ; the remembered roster is never written to this actor's slot.
+    rep #$30
+    .a16
+    .i16
     lda.l $7E1754
     sec
     sbc #$1900
@@ -1052,8 +1113,13 @@ S6Normal_BindLiveActors__worker_actor_live:
     rep #$30
     .a16
     .i16
+    beq S6Normal_BindLiveActors__roster_matches
     plx
-    bne S6Normal_BindLiveActors__roster_changed
+    bra S6Normal_BindLiveActors__roster_changed
+S6Normal_BindLiveActors__roster_matches:
+    .a16
+    .i16
+    plx
     brl S6Normal_BindLiveActors__next
 S6Normal_BindLiveActors__roster_changed:
     lda #0
@@ -1745,6 +1811,15 @@ S6Normal_MutationFenceBegin__return:
     rep #$30
     .a16
     .i16
+    ; The worker is parked before any birth/retire/stage mutation. Invalidate
+    ; the separate motion image until the next successful source world tick.
+    pha
+    lda #0
+    sta.l $434E7E
+    sta.l $435442 ; SourcePacket_ActiveValid (bank43 presentation control)
+    lda.l Game_StageIndex
+    sta.l $434E9A
+    pla
     ply
     plx
     plp
