@@ -1,0 +1,788 @@
+; Bounded whole-pose sharing under actual OBJ cache exhaustion.
+; No pixels, palettes, source animation or simulation state are authored here.
+; P1 may reuse ONLY a same-model/map walking frame accepted earlier this stage.
+; The old hardware image remains pinned until the existing full OAM witness.
+SourcePressure_HistoryMagic = $434E80
+SourcePressure_HistoryStage = $434E82
+SourcePressure_HistoryIdentity = $434E84
+SourcePressure_HistoryBits = $434E86
+SourcePressure_HoldStage = $434E88
+SourcePressure_HoldEntry = $434E8A
+SourcePressure_Hold = $434E8C
+SourcePressure_Index = $434E90
+SourcePressure_Other = $434E92
+SourcePressure_Id = $434E94
+SourcePressure_Missing = $434E96
+SourcePressure_Credit = $434E98
+
+; Called only AFTER FindEntry resolved a supported live source key.
+SourcePressure_History:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    tdc
+    cmp #$0A00
+    bne SourcePressure_History__done
+    jsr SourceVisual_CompletedEnabled
+    bcc SourcePressure_History__done
+    lda.l SourceInput_Magic
+    cmp #$1A60
+    bne SourcePressure_History__done
+    lda.l SourceVisual_Key+1
+    and #$00FF
+    cmp #1
+    bne SourcePressure_History__done
+    lda.l SourceVisual_Key
+    and #$00FF
+    sta.l SourcePressure_Id
+    lda.l SourceVisual_Key+2
+    and #$FF00
+    ora.l SourcePressure_Id
+    tax
+    lda.l SourcePressure_HistoryMagic
+    cmp #$5057
+    bne SourcePressure_History__reset
+    lda.l SourcePressure_HistoryStage
+    cmp.l Game_StageIndex
+    bne SourcePressure_History__reset
+    txa
+    cmp.l SourcePressure_HistoryIdentity
+    beq SourcePressure_History__frame
+SourcePressure_History__reset:
+.a16
+.i16
+    txa
+    sta.l SourcePressure_HistoryIdentity
+    lda.l Game_StageIndex
+    sta.l SourcePressure_HistoryStage
+    lda #0
+    sta.l SourcePressure_HistoryBits
+    sta.l SourcePressure_Hold
+    lda #$5057
+    sta.l SourcePressure_HistoryMagic
+SourcePressure_History__frame:
+.a16
+.i16
+    lda.l SourceVisual_Key+2
+    and #$00FF
+    cmp #16
+    bcs SourcePressure_History__done
+    tax
+    lda #1
+SourcePressure_History__shift:
+    cpx #0
+    beq SourcePressure_History__bit
+    asl a
+    dex
+    bra SourcePressure_History__shift
+SourcePressure_History__bit:
+    ora.l SourcePressure_HistoryBits
+    sta.l SourcePressure_HistoryBits
+SourcePressure_History__done:
+.a16
+.i16
+    plx
+    pla
+    plp
+    rts
+
+; Do not immediately refill the room just released for P2's first punch.
+; A new jump/attack by P1 takes the normal admission path and ends the hold.
+SourcePressure_HoldP1:
+.a16
+.i16
+    lda.l SourcePressure_HistoryMagic
+    cmp #$5057
+    bne SourcePressure_HoldP1__no
+    lda.l SourcePressure_Hold
+    cmp #1
+    bne SourcePressure_HoldP1__no
+    lda.l Game_StageIndex
+    cmp.l SourcePressure_HoldStage
+    bne SourcePressure_HoldP1__clear
+    lda.l SVActor_Data+SVActor_Valid
+    cmp #1
+    bne SourcePressure_HoldP1__clear
+    lda.l SVActor_Data+1
+    and #$00FF
+    cmp #2
+    beq SourcePressure_HoldP1__maybe_done
+    lda.l SourceVisual_State+32+6
+    cmp #0
+    beq SourcePressure_HoldP1__clear
+    lda.l SourceVisual_State+32
+    cmp.l SourcePressure_HoldEntry
+    bne SourcePressure_HoldP1__clear
+SourcePressure_HoldP1__still_wait:
+    tdc
+    cmp #$0A00
+    bne SourcePressure_HoldP1__no
+    lda.l SourceVisual_Key+1
+    and #$00FF
+    cmp #2
+    bcs SourcePressure_HoldP1__clear
+    sep #$20
+.a8
+    lda #$27
+    sta.l SourceVisual_Error
+    rep #$30
+.a16
+.i16
+    sec
+    rts
+SourcePressure_HoldP1__maybe_done:
+    lda.l SourceVisual_CompletedAwait
+    ora.l SourceVisual_CompletedPending
+    ora.l SVActor_Await
+    ora.l SVActor_Pending
+    bne SourcePressure_HoldP1__still_wait
+SourcePressure_HoldP1__clear:
+    lda #0
+    sta.l SourcePressure_Hold
+SourcePressure_HoldP1__no:
+    clc
+    rts
+
+; Preserve the current P2 renderer invocation and all validation scratch.
+; Never pretend allocation succeeded: old pins are still live on return.
+SourcePressure_ShareWalk:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    phy
+    phb
+    phd
+    lda.l SourceVisual_ActorSlot
+    pha
+    lda.l SourceVisual_BlockActorMask
+    pha
+    lda.l SourceVisual_BlockOther2
+    pha
+    lda.l SourceVisual_BlockScan
+    pha
+    lda.l SourceVisual_PaletteOwnerBit
+    pha
+    lda.l SourceVisual_PaletteScan
+    pha
+    lda.l SVActor_Base
+    pha
+    lda.l SVActor_Bit
+    pha
+    lda.l SVActor_Not
+    pha
+    lda.l SVActor_Slot
+    pha
+    lda.l SVActor_Count
+    pha
+    lda.l SVActor_Index
+    pha
+    lda.l SVActor_Temp
+    pha
+    lda.l SourceVisual_CompletedCount
+    pha
+    lda.l SourceVisual_CompletedIndex
+    pha
+    lda.l SourceVisual_CompletedOwners
+    pha
+    tdc
+    cmp #$0A85
+    beq SourcePressure_ShareWalk__guard0
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard0:
+.a16
+.i16
+    jsr SourceVisual_CompletedEnabled
+    bcs SourcePressure_ShareWalk__guard1
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard1:
+.a16
+.i16
+    jsr SVActor_Enabled
+    bcs SourcePressure_ShareWalk__guard2
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard2:
+.a16
+.i16
+    lda.l SourceInput_Magic
+    cmp #$1A60
+    beq SourcePressure_ShareWalk__guard3
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard3:
+.a16
+.i16
+    lda.l $7E1760
+    cmp #1
+    beq SourcePressure_ShareWalk__guard4
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard4:
+.a16
+.i16
+    lda.l Game_State
+    cmp #0
+    beq SourcePressure_ShareWalk__guard5
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard5:
+.a16
+.i16
+    lda.l $7E46DC
+    cmp #1
+    beq SourcePressure_ShareWalk__guard6
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard6:
+.a16
+.i16
+    lda.l $7E46DE
+    cmp #0
+    beq SourcePressure_ShareWalk__guard7
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard7:
+.a16
+.i16
+    lda.l SourceVisual_Record
+    cmp #32
+    beq SourcePressure_ShareWalk__guard8
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard8:
+.a16
+.i16
+    lda.l SourceVisual_State+32+6
+    cmp #1
+    beq SourcePressure_ShareWalk__guard9
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard9:
+.a16
+.i16
+    lda.l SourceVisual_State+32+28
+    and #$00FF
+    cmp #0
+    beq SourcePressure_ShareWalk__guard10
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard10:
+.a16
+.i16
+    lda.l SourceVisual_State+32+30
+    and #$00FF
+    cmp #2
+    beq SourcePressure_ShareWalk__guard11
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard11:
+.a16
+.i16
+    lda.l SourceVisual_State+30
+    and #$00FF
+    cmp #2
+    bcc SourcePressure_ShareWalk__guard12
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard12:
+.a16
+.i16
+    lda.l SourceVisual_CompletedAwait
+    ora.l SourceVisual_CompletedPending
+    ora.l SourceVisual_CompletedRetire
+    ora.l SourceVisual_CompletedCommitRetire
+    ora.l SVActor_Await
+    ora.l SVActor_Pending
+    ora.l Oam_UploadFlag
+    beq SourcePressure_ShareWalk__guard13
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard13:
+.a16
+.i16
+    lda.l SourcePressure_HistoryMagic
+    cmp #$5057
+    beq SourcePressure_ShareWalk__guard14
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard14:
+.a16
+.i16
+    lda.l SourcePressure_HistoryStage
+    cmp.l Game_StageIndex
+    beq SourcePressure_ShareWalk__guard15
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard15:
+.a16
+.i16
+    lda.l SourcePressure_Hold
+    cmp #0
+    beq SourcePressure_ShareWalk__guard16
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard16:
+.a16
+.i16
+    lda.l $7E0000+2560+CHAR_HP
+    and #$00FF
+    bne SourcePressure_ShareWalk__guard17
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard17:
+.a16
+.i16
+    lda.l $7E0000+2560+CHAR_INPUT_DRIVEN
+    and #$00FF
+    cmp #1
+    beq SourcePressure_ShareWalk__guard18
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard18:
+.a16
+.i16
+    lda.l $7E0000+2560+CHAR_SELECTED
+    and #$00FF
+    cmp #CHAR_SELECTED_JUMP
+    bne SourcePressure_ShareWalk__guard19
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard19:
+.a16
+.i16
+    lda.l $7E0000+2693+CHAR_HP
+    and #$00FF
+    bne SourcePressure_ShareWalk__guard20
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard20:
+.a16
+.i16
+    lda.l $7E0000+2693+CHAR_INPUT_DRIVEN
+    and #$00FF
+    cmp #1
+    beq SourcePressure_ShareWalk__guard21
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard21:
+.a16
+.i16
+    lda.l $7E0000+2693+CHAR_SELECTED
+    and #$00FF
+    cmp #CHAR_SELECTED_JUMP
+    bne SourcePressure_ShareWalk__guard22
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard22:
+.a16
+.i16
+    lda.l SourceVisual_Sa1OwnerPolicy+0
+    and #$00FF
+    cmp #2
+    beq SourcePressure_ShareWalk__guard23
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard23:
+.a16
+.i16
+    lda.l SourceVisual_Sa1OwnerPolicy+133
+    and #$00FF
+    cmp #2
+    beq SourcePressure_ShareWalk__guard24
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard24:
+.a16
+.i16
+    lda.l SourceVisual_CompletedValid
+    cmp #1
+    beq SourcePressure_ShareWalk__guard25
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard25:
+.a16
+.i16
+    lda.l SourceVisual_CompletedStage
+    cmp.l Game_StageIndex
+    beq SourcePressure_ShareWalk__guard26
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard26:
+.a16
+.i16
+    lda.l $7E0000+2560+CHAR_ROSTER_INDEX
+    and #$00FF
+    cmp.l SourceVisual_CompletedRoster
+    beq SourcePressure_ShareWalk__guard27
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard27:
+.a16
+.i16
+    lda.l SourceVisual_CompletedEntry+1
+    and #$00FF
+    cmp #1
+    beq SourcePressure_ShareWalk__guard28
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard28:
+.a16
+.i16
+    lda.l SVActor_Data+1
+    and #$00FF
+    cmp #1
+    beq SourcePressure_ShareWalk__guard29
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard29:
+.a16
+.i16
+    lda.l SourceVisual_CompletedEntry+12
+    and #$00FF
+    bne SourcePressure_ShareWalk__guard30
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard30:
+.a16
+.i16
+    lda.l SVActor_Data+12
+    and #$00FF
+    bne SourcePressure_ShareWalk__guard31
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard31:
+.a16
+.i16
+    lda.l SourceVisual_CompletedEntry
+    and #$00FF
+    sta.l SourcePressure_Id
+    lda.l SourceVisual_CompletedEntry+2
+    and #$FF00
+    ora.l SourcePressure_Id
+    cmp.l SourcePressure_HistoryIdentity
+    beq SourcePressure_ShareWalk__guard32
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard32:
+.a16
+.i16
+    lda.l SVActor_Data
+    and #$00FF
+    sta.l SourcePressure_Id
+    lda.l SVActor_Data+2
+    and #$FF00
+    ora.l SourcePressure_Id
+    cmp.l SourcePressure_HistoryIdentity
+    beq SourcePressure_ShareWalk__guard33
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard33:
+.a16
+.i16
+    lda.l SVActor_Data+2
+    and #$00FF
+    cmp #16
+    bcc SourcePressure_ShareWalk__guard34
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard34:
+.a16
+.i16
+    tax
+    lda #1
+SourcePressure_ShareWalk__history_shift:
+    cpx #0
+    beq SourcePressure_ShareWalk__history_bit
+    asl a
+    dex
+    bra SourcePressure_ShareWalk__history_shift
+SourcePressure_ShareWalk__history_bit:
+    and.l SourcePressure_HistoryBits
+    bne SourcePressure_ShareWalk__guard35
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard35:
+.a16
+.i16
+    jsr SourceVisual_CompletedValidate
+    bcs SourcePressure_ShareWalk__guard36
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard36:
+.a16
+.i16
+    lda #1
+    jsr SVActor_Select
+    jsr SVActor_Validate
+    bcs SourcePressure_ShareWalk__guard37
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard37:
+.a16
+.i16
+    ldx #0
+SourcePressure_ShareWalk__queue:
+    lda.l DmaQueue+4,x
+    and #$0040
+    beq SourcePressure_ShareWalk__queue_next
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__queue_next:
+    txa
+    clc
+    adc #8
+    tax
+    cpx #64
+    bcc SourcePressure_ShareWalk__queue
+    ; Count unique desired IDs not currently resident (pending counts resident).
+    lda #0
+    sta.l SourcePressure_Missing
+    sta.l SourcePressure_Index
+SourcePressure_ShareWalk__wanted:
+    lda.l SourcePressure_Index
+    cmp.l SourceVisual_PieceCount
+    bcc SourcePressure_ShareWalk__wanted_piece
+    brl SourcePressure_ShareWalk__credit_start
+SourcePressure_ShareWalk__wanted_piece:
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PieceTable+12,x
+    sta.l SourcePressure_Id
+    ldx #0
+SourcePressure_ShareWalk__resident:
+    lda.l SourceVisual_BlockCache+2,x
+    beq SourcePressure_ShareWalk__resident_next
+    lda.l SourceVisual_BlockCache,x
+    cmp.l SourcePressure_Id
+    beq SourcePressure_ShareWalk__wanted_next
+SourcePressure_ShareWalk__resident_next:
+    txa
+    clc
+    adc #8
+    tax
+    cpx #512
+    bcc SourcePressure_ShareWalk__resident
+    lda #0
+    sta.l SourcePressure_Other
+SourcePressure_ShareWalk__duplicate:
+    lda.l SourcePressure_Other
+    cmp.l SourcePressure_Index
+    beq SourcePressure_ShareWalk__missing
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PieceTable+12,x
+    cmp.l SourcePressure_Id
+    beq SourcePressure_ShareWalk__wanted_next
+    lda.l SourcePressure_Other
+    inc a
+    sta.l SourcePressure_Other
+    bra SourcePressure_ShareWalk__duplicate
+SourcePressure_ShareWalk__missing:
+    lda.l SourcePressure_Missing
+    inc a
+    sta.l SourcePressure_Missing
+SourcePressure_ShareWalk__wanted_next:
+    lda.l SourcePressure_Index
+    inc a
+    sta.l SourcePressure_Index
+    brl SourcePressure_ShareWalk__wanted
+SourcePressure_ShareWalk__credit_start:
+    lda #0
+    sta.l SourcePressure_Credit
+    ldx #0
+SourcePressure_ShareWalk__credit:
+    lda.l SourceVisual_BlockCache+4,x
+    and #$0040
+    beq SourcePressure_ShareWalk__credit_next
+    lda.l SourceVisual_BlockCache+4,x
+    and #$00BE
+    ora.l SVActor_HeldBlocks,x
+    ora.l SVActor_OldBlocks,x
+    and #$00FF
+    bne SourcePressure_ShareWalk__credit_next
+    lda.l SourcePressure_Credit
+    inc a
+    sta.l SourcePressure_Credit
+SourcePressure_ShareWalk__credit_next:
+    txa
+    clc
+    adc #8
+    tax
+    cpx #512
+    bcc SourcePressure_ShareWalk__credit
+    lda.l SourcePressure_Missing
+    bne SourcePressure_ShareWalk__guard38
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard38:
+.a16
+.i16
+    lda.l SourcePressure_Credit
+    cmp.l SourcePressure_Missing
+    bcs SourcePressure_ShareWalk__guard39
+    brl SourcePressure_ShareWalk__done
+SourcePressure_ShareWalk__guard39:
+.a16
+.i16
+    ; All checks precede mutation. Only P1 desired ownership is abandoned.
+    lda #0
+    sta.l SourceVisual_Record
+    sta.l SourceVisual_ActorSlot
+    jsr SourceVisual_ReleaseActorBlocks
+    jsr SourceVisual_ReleaseActorPalettes
+    ldx #0
+    lda #0
+SourcePressure_ShareWalk__clear_lease:
+    sta.l SourceVisual_State,x
+    inx
+    inx
+    cpx #32
+    bcc SourcePressure_ShareWalk__clear_lease
+    lda #32
+    sta.l SourceVisual_Record
+    lda #1
+    sta.l SourceVisual_ActorSlot
+    lda #0
+    sta.l SourceVisual_CompletedValid
+    ldx #0
+SourcePressure_ShareWalk__rotate_blocks:
+    jsr SourcePressure_RotateBlock
+    txa
+    clc
+    adc #8
+    tax
+    cpx #512
+    bcc SourcePressure_ShareWalk__rotate_blocks
+    ldx #0
+SourcePressure_ShareWalk__rotate_palettes:
+    sep #$20
+.a8
+    lda.l SourceVisual_PaletteCache+4,x
+    and #$3F
+    sta.l SourcePressure_Id
+    lda.l SourceVisual_PaletteCache+4,x
+    and #$40
+    asl a
+    ora.l SourcePressure_Id
+    sta.l SourcePressure_Id
+    lda.l SVActor_HeldPalettes,x
+    and #2
+    beq SourcePressure_ShareWalk__palette_store
+    lda.l SourcePressure_Id
+    ora #$40
+    sta.l SourcePressure_Id
+SourcePressure_ShareWalk__palette_store:
+    lda.l SourcePressure_Id
+    sta.l SourceVisual_PaletteCache+4,x
+    rep #$30
+.a16
+.i16
+    txa
+    clc
+    adc #8
+    tax
+    cpx #64
+    bcc SourcePressure_ShareWalk__rotate_palettes
+    ; Clone the donor's complete, validated source packet; never the live key.
+    ldx #0
+SourcePressure_ShareWalk__entry:
+    lda.l SVActor_Data,x
+    sta.l SourceVisual_CompletedEntry,x
+    inx
+    inx
+    cpx #24
+    bcc SourcePressure_ShareWalk__entry
+    ldx #0
+SourcePressure_ShareWalk__lease:
+    lda.l SVActor_Data+24,x
+    sta.l SourceVisual_CompletedLease,x
+    inx
+    inx
+    cpx #32
+    bcc SourcePressure_ShareWalk__lease
+    lda.l SVActor_Data+12
+    and #$00FF
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SourcePressure_Index
+    ldx #0
+SourcePressure_ShareWalk__pieces:
+    lda.l SVActor_Data+SVActor_Pieces,x
+    sta.l SourceVisual_CompletedPieces,x
+    inx
+    inx
+    txa
+    cmp.l SourcePressure_Index
+    bcc SourcePressure_ShareWalk__pieces
+    sep #$20
+.a8
+    ldx #0
+SourcePressure_ShareWalk__map:
+    lda.l SVActor_Data+SVActor_Map,x
+    sta.l SourceVisual_CompletedMap,x
+    inx
+    cpx #65
+    bcc SourcePressure_ShareWalk__map
+    lda #1
+    sta.l SourceVisual_CompletedLease+28
+    rep #$30
+.a16
+.i16
+    lda.l Game_StageIndex
+    sta.l SourceVisual_CompletedStage
+    sta.l SourcePressure_HoldStage
+    lda.l SVActor_Data+SVActor_Roster
+    sta.l SourceVisual_CompletedRoster
+    lda.l SourceVisual_State+32
+    sta.l SourcePressure_HoldEntry
+    lda #1
+    sta.l SourceVisual_CompletedAwait
+    sta.l SourcePressure_Hold
+    lda.l SourceVisual_CompletedCaptures
+    inc a
+    sta.l SourceVisual_CompletedCaptures
+    lda #1
+    sta.l SourceVisual_CompletedValid
+SourcePressure_ShareWalk__done:
+.a16
+.i16
+    pla
+    sta.l SourceVisual_CompletedOwners
+    pla
+    sta.l SourceVisual_CompletedIndex
+    pla
+    sta.l SourceVisual_CompletedCount
+    pla
+    sta.l SVActor_Temp
+    pla
+    sta.l SVActor_Index
+    pla
+    sta.l SVActor_Count
+    pla
+    sta.l SVActor_Slot
+    pla
+    sta.l SVActor_Not
+    pla
+    sta.l SVActor_Bit
+    pla
+    sta.l SVActor_Base
+    pla
+    sta.l SourceVisual_PaletteScan
+    pla
+    sta.l SourceVisual_PaletteOwnerBit
+    pla
+    sta.l SourceVisual_BlockScan
+    pla
+    sta.l SourceVisual_BlockOther2
+    pla
+    sta.l SourceVisual_BlockActorMask
+    pla
+    sta.l SourceVisual_ActorSlot
+    pld
+    plb
+    ply
+    plx
+    pla
+    plp
+    rts
+
+SourcePressure_RotateBlock:
+    sep #$20
+.a8
+    lda.l SourceVisual_BlockCache+4,x
+    and #$3F
+    sta.l SourcePressure_Id
+    lda.l SourceVisual_BlockCache+4,x
+    and #$40
+    asl a
+    ora.l SourcePressure_Id
+    sta.l SourcePressure_Id
+    lda.l SVActor_HeldBlocks,x
+    and #2
+    beq SourcePressure_RotateBlock__store
+    lda.l SourcePressure_Id
+    ora #$40
+    sta.l SourcePressure_Id
+SourcePressure_RotateBlock__store:
+    lda.l SourcePressure_Id
+    sta.l SourceVisual_BlockCache+4,x
+    rep #$30
+.a16
+.i16
+    rts

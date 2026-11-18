@@ -1,0 +1,343 @@
+; First idle handoff after a completed walk. No simulation/input/Ready writes.
+; Retain the existing rule that a player's FIRST walking picture must publish.
+; Once a complete walk exists, later unfinished walking frames may yield to
+; the native accepted idle role through the original DMA replacement fence.
+; Keep that first idle request at authored frame0 until one idle packet exists.
+; No prefetch jobs, ownership bits, private RAM, palettes or asset data added.
+
+SourceIdle_PreferFirst:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    lda.l SourceVisual_Key+1
+    and #$00FF
+    bne SourceIdle_PreferFirst__done
+    lda.l SourceVisual_Key+2
+    and #$00FF
+    beq SourceIdle_PreferFirst__done
+    phx
+    phy
+    jsr SourceIdle_Eligible
+    bcc SourceIdle_PreferFirst__restore
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_Key+2
+SourceIdle_PreferFirst__changed:
+.a8
+.i16
+    rep #$30
+.a16
+.i16
+SourceIdle_PreferFirst__restore:
+.a16
+.i16
+    ply
+    plx
+SourceIdle_PreferFirst__done:
+.a16
+.i16
+    pla
+    plp
+    rtl
+
+SourceIdle_CanReplace:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    phx
+    phy
+    jsr SourceIdle_Eligible
+    bcc SourceIdle_CanReplace__no
+    lda.l SourceVisual_Key+2
+    and #$00FF
+    bne SourceIdle_CanReplace__no
+    txa
+    cmp.l SourceVisual_Record
+    bne SourceIdle_CanReplace__no
+    lda.l SourceVisual_ActorSlot
+    cmp #2
+    bcs SourceIdle_CanReplace__no
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    cmp.l SourceVisual_Record
+    bne SourceIdle_CanReplace__no
+    lda.l SourceVisual_State+6,x
+    cmp #1
+    beq SourceIdle_CanReplace__mode
+    cmp #2
+    bne SourceIdle_CanReplace__no
+SourceIdle_CanReplace__mode:
+.a16
+.i16
+    lda.l SourceVisual_State+28,x
+    and #$00FF
+    bne SourceIdle_CanReplace__no
+    lda.l SourceVisual_State+30,x
+    and #$00FF
+    cmp #1
+    bne SourceIdle_CanReplace__no
+SourceIdle_CanReplace__yes:
+.a16
+.i16
+    ply
+    plx
+    pla
+    plp
+    sec
+    rtl
+SourceIdle_CanReplace__no:
+.a16
+.i16
+    ply
+    plx
+    pla
+    plp
+    clc
+    rtl
+
+; A16/I16. C1 returns X=the exact player record0/32. Public entries preserve
+; all caller registers. BW-RAM reads follow original campaign/ownership scope.
+SourceIdle_Eligible:
+.a16
+.i16
+    lda.l SourceVisual_Key
+    and #$00FF
+    cmp #22
+    beq SourceIdle_Eligible__guard0
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard0:
+.a16
+.i16
+    lda.l SourceVisual_Key+1
+    and #$00FF
+    beq SourceIdle_Eligible__guard1
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard1:
+.a16
+.i16
+    lda.l SourceVisual_Key+3
+    and #$00FF
+    beq SourceIdle_Eligible__guard2
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard2:
+.a16
+.i16
+    tdc
+    cmp #$0A00
+    beq SourceIdle_Eligible__p1_native
+    cmp #$0A85
+    beq SourceIdle_Eligible__guard3
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard3:
+.a16
+.i16
+    ldx #133
+    ldy #32
+    bra SourceIdle_Eligible__scope
+SourceIdle_Eligible__p1_native:
+.a16
+.i16
+    ldx #0
+    ldy #0
+SourceIdle_Eligible__scope:
+.a16
+.i16
+    lda.l $7E46DE
+    beq SourceIdle_Eligible__guard4
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard4:
+.a16
+.i16
+    jsr SourceNpc_Scope
+    bcs SourceIdle_Eligible__guard5
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard5:
+.a16
+.i16
+    lda.l Game_StageIndex
+    beq SourceIdle_Eligible__guard6
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard6:
+.a16
+.i16
+    lda.l $7E0A00+CHAR_HP,x
+    and #$00FF
+    bne SourceIdle_Eligible__guard7
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard7:
+.a16
+.i16
+    lda.l $7E0A00+CHAR_INPUT_DRIVEN,x
+    and #$00FF
+    cmp #1
+    beq SourceIdle_Eligible__guard8
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard8:
+.a16
+.i16
+    lda.l $7E0A00+CHAR_ROSTER_INDEX,x
+    and #$00FF
+    cmp #22
+    beq SourceIdle_Eligible__guard9
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard9:
+.a16
+.i16
+    lda.l $7E0A00+CHAR_MAP_INDEX,x
+    and #$00FF
+    beq SourceIdle_Eligible__guard10
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard10:
+.a16
+.i16
+    lda.l $7E0A00+CHAR_SELECTED,x
+    and #$00FF
+    cmp #3
+    bcc SourceIdle_Eligible__guard11
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard11:
+.a16
+.i16
+    lda.l SourceVisual_Sa1OwnerPolicy,x
+    and #$00FF
+    cmp #2
+    beq SourceIdle_Eligible__guard12
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard12:
+.a16
+.i16
+    lda.l SourceVisual_Sa1RuntimeRole,x
+    and #$00FF
+    beq SourceIdle_Eligible__guard13
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard13:
+.a16
+.i16
+    lda.l StageBounds_State,x
+    beq SourceIdle_Eligible__guard14
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard14:
+.a16
+.i16
+    tya
+    beq SourceIdle_Eligible__p1_picture
+    lda.l SVActor_Data+SVActor_Valid
+    cmp #1
+    beq SourceIdle_Eligible__guard15
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard15:
+.a16
+.i16
+    lda.l SVActor_Data+SVActor_Stage
+    beq SourceIdle_Eligible__guard16
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard16:
+.a16
+.i16
+    lda.l SVActor_Data+SVActor_Roster
+    cmp #22
+    beq SourceIdle_Eligible__guard17
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard17:
+.a16
+.i16
+    lda.l SVActor_Data+1
+    and #$00FF
+    cmp #1
+    beq SourceIdle_Eligible__guard18
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard18:
+.a16
+.i16
+    lda.l SVActor_Data+3
+    and #$00FF
+    beq SourceIdle_Eligible__guard19
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard19:
+.a16
+.i16
+    lda.l SVActor_Data+12
+    and #$00FF
+    bne SourceIdle_Eligible__guard20
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard20:
+.a16
+.i16
+    cmp #66
+    bcc SourceIdle_Eligible__guard21
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard21:
+.a16
+.i16
+    bra SourceIdle_Eligible__yes
+SourceIdle_Eligible__p1_picture:
+.a16
+.i16
+    lda.l SourceVisual_CompletedValid
+    cmp #1
+    beq SourceIdle_Eligible__guard22
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard22:
+.a16
+.i16
+    lda.l SourceVisual_CompletedStage
+    beq SourceIdle_Eligible__guard23
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard23:
+.a16
+.i16
+    lda.l SourceVisual_CompletedRoster
+    cmp #22
+    beq SourceIdle_Eligible__guard24
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard24:
+.a16
+.i16
+    lda.l SourceVisual_CompletedEntry+1
+    and #$00FF
+    cmp #1
+    beq SourceIdle_Eligible__guard25
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard25:
+.a16
+.i16
+    lda.l SourceVisual_CompletedEntry+3
+    and #$00FF
+    beq SourceIdle_Eligible__guard26
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard26:
+.a16
+.i16
+    lda.l SourceVisual_CompletedEntry+12
+    and #$00FF
+    bne SourceIdle_Eligible__guard27
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard27:
+.a16
+.i16
+    cmp #66
+    bcc SourceIdle_Eligible__guard28
+    brl SourceIdle_Eligible__no
+SourceIdle_Eligible__guard28:
+.a16
+.i16
+SourceIdle_Eligible__yes:
+.a16
+.i16
+    tya
+    tax
+    sec
+    rts
+SourceIdle_Eligible__no:
+.a16
+.i16
+    clc
+    rts

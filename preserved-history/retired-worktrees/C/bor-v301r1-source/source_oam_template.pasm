@@ -1,0 +1,505 @@
+; Exact player OAM memoization; no resource, input, world or DMA ownership.
+; Slot0 $436000..66FF, slot1 $436700..6DFF; controls $436E00..6EFF.
+; Header64 + piece bytes1040 + OAM512 + expandedHi128 =1744 <1792.
+; Existing completed validation and entire scene/pin retirement remain original.
+SourceTemplate_Control = $436E00
+SourceTemplate_Header = $436E40
+SourceTemplate_Init:
+.a16
+.i16
+    sta.l SVActor_Magic
+    php
+    rep #$30
+    pha
+    lda #0
+    sta.l $436000
+    sta.l $436700
+    sta.l SourceTemplate_Control
+    sta.l SourceTemplate_Control+2
+    pla
+    plp
+    rtl
+
+; C=eligible, A=private slot offset. No private reads before all scope gates.
+SourceTemplate_Scope:
+.a16
+.i16
+    lda.l Game_CampaignId
+    and #255
+    cmp #3
+    beq SourceTemplate_G29
+    brl SourceTemplate_ScopeNo
+SourceTemplate_G29:
+    lda.l Game_State
+    cmp #0
+    beq SourceTemplate_G34
+    brl SourceTemplate_ScopeNo
+SourceTemplate_G34:
+    lda.l Game_StageIndex
+    cmp #0
+    beq SourceTemplate_G39
+    brl SourceTemplate_ScopeNo
+SourceTemplate_G39:
+    lda.l $7E175E
+    cmp #2
+    beq SourceTemplate_G44
+    brl SourceTemplate_ScopeNo
+SourceTemplate_G44:
+    lda.l $7E1760
+    cmp #1
+    beq SourceTemplate_G49
+    brl SourceTemplate_ScopeNo
+SourceTemplate_G49:
+    lda.l $7E46DC
+    cmp #1
+    beq SourceTemplate_G54
+    brl SourceTemplate_ScopeNo
+SourceTemplate_G54:
+    lda.l $7E46DE
+    cmp #0
+    beq SourceTemplate_G59
+    brl SourceTemplate_ScopeNo
+SourceTemplate_G59:
+    lda.l SVActor_Magic
+    cmp #44057
+    beq SourceTemplate_G64
+    brl SourceTemplate_ScopeNo
+SourceTemplate_G64:
+    lda.l SourceInput_Magic
+    cmp #6752
+    beq SourceTemplate_G69
+    brl SourceTemplate_ScopeNo
+SourceTemplate_G69:
+    tdc
+    cmp #$0A00
+    bne SourceTemplate_ScopeP2
+    lda #$6000
+    sec
+    rts
+SourceTemplate_ScopeP2:
+    cmp #$0A85
+    bne SourceTemplate_ScopeNo
+    lda #$6700
+    sec
+    rts
+SourceTemplate_ScopeNo:
+    clc
+    rts
+
+SourceTemplate_Try:
+.a16
+.i16
+    php
+    rep #$30
+    pha
+    phx
+    phy
+    phb
+    cld
+    jsr SourceTemplate_Scope
+    bcs SourceTemplate_G99
+    brl SourceTemplate_No
+SourceTemplate_G99:
+    sta.l SourceTemplate_Control
+    lda #0
+    sta.l SourceTemplate_Control+2
+    sta.l SourceTemplate_Control+14
+    lda.l Oam_CurrentSlot
+    sta.l SourceTemplate_Control+4
+    and #3
+    beq SourceTemplate_G108
+    brl SourceTemplate_No
+SourceTemplate_G108:
+    lda.l Oam_CurrentSlot
+    cmp #513
+    bcc SourceTemplate_G113
+    brl SourceTemplate_No
+SourceTemplate_G113:
+    lda.l SourceVisual_PieceCount
+    cmp #66
+    bcc SourceTemplate_G118
+    brl SourceTemplate_No
+SourceTemplate_G118:
+    lda #$43
+    sep #$20
+.a8
+    pha
+    plb
+    rep #$30
+.a16
+.i16
+    lda #0
+    ldx #0
+SourceTemplate_HeaderClear:
+    sta $6E40,x
+    inx
+    inx
+    cpx #64
+    bcc SourceTemplate_HeaderClear
+    lda.l SourceVisual_PieceCount
+    sta $6E44
+    lda.l Game_StageIndex
+    sta $6E46
+    lda.l SourceVisual_EmitBaseX
+    sta $6E48
+    lda.l SourceVisual_EmitBaseY
+    sta $6E4A
+    lda.l SourceVisual_BaseTile
+    sta $6E50
+    lda.l SourceVisual_EmitBoundsMode
+    sta $6E52
+    lda CHAR_POS_Y
+    sta $6E4C
+    lda CHAR_FACING_LEFT
+    and #255
+    sta $6E4E
+    lda.l Stage_Mirror
+    and #255
+    sta $6E56
+    sep #$20
+.a8
+    lda #$FF
+    jsl StageFp_BG2OamAttr
+    rep #$30
+.a16
+.i16
+    and #255
+    sta $6E54
+    ldx #0
+SourceTemplate_HeaderEntry:
+    lda.l SourceVisual_EntryScratch,x
+    sta $6E58,x
+    inx
+    inx
+    cpx #24
+    bcc SourceTemplate_HeaderEntry
+    lda.l SourceVisual_Record
+    clc
+    adc #16
+    tax
+    ldy #0
+SourceTemplate_HeaderPalette:
+    lda.l SourceVisual_State,x
+    sta $6E70,y
+    inx
+    inx
+    iny
+    iny
+    cpy #8
+    bcc SourceTemplate_HeaderPalette
+    tdc
+    sta $6E78
+    lda #1
+    sta.l SourceTemplate_Control+14
+    lda.l SourceTemplate_Control
+    tax
+    lda $0000,x
+    cmp #$534D
+    beq SourceTemplate_G194
+    brl SourceTemplate_No
+SourceTemplate_G194:
+    inx
+    inx
+    inx
+    inx
+    ldy #4
+SourceTemplate_CompareHeader:
+    lda $0000,x
+    cmp $6E40,y
+    beq SourceTemplate_G205
+    brl SourceTemplate_No
+SourceTemplate_G205:
+    inx
+    inx
+    iny
+    iny
+    cpy #64
+    bcc SourceTemplate_CompareHeader
+    lda.l SourceVisual_PieceCount
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SourceTemplate_Control+6
+    lda.l SourceTemplate_Control
+    clc
+    adc #64
+    tay
+    ldx #0
+SourceTemplate_ComparePieces:
+    txa
+    cmp.l SourceTemplate_Control+6
+    beq SourceTemplate_PiecesEqual
+    lda.l SourceVisual_PieceTable,x
+    cmp $0000,y
+    beq SourceTemplate_G231
+    brl SourceTemplate_No
+SourceTemplate_G231:
+    inx
+    inx
+    iny
+    iny
+    bra SourceTemplate_ComparePieces
+SourceTemplate_PiecesEqual:
+    lda.l SourceTemplate_Control
+    tax
+    lda $0002,x
+    bne SourceTemplate_LengthNonzero
+    brl SourceTemplate_No
+SourceTemplate_LengthNonzero:
+    cmp #513
+    bcc SourceTemplate_G245
+    brl SourceTemplate_No
+SourceTemplate_G245:
+    sta.l SourceTemplate_Control+8
+    and #3
+    beq SourceTemplate_G250
+    brl SourceTemplate_No
+SourceTemplate_G250:
+    lda.l SourceTemplate_Control+8
+    clc
+    adc.l Oam_CurrentSlot
+    bcc SourceTemplate_CapacityNoCarry
+    brl SourceTemplate_No
+SourceTemplate_CapacityNoCarry:
+    cmp #513
+    bcc SourceTemplate_G258
+    brl SourceTemplate_No
+SourceTemplate_G258:
+    sta.l SourceTemplate_Control+10
+    lda.l SourceTemplate_Control
+    clc
+    adc #$450
+    tay
+    lda.l Oam_CurrentSlot
+    tax
+SourceTemplate_CopyOam:
+    lda $0000,y
+    sta.l Oam_Buffer,x
+    inx
+    inx
+    iny
+    iny
+    txa
+    cmp.l SourceTemplate_Control+10
+    bcc SourceTemplate_CopyOam
+    lda.l SourceTemplate_Control+10
+    lsr a
+    lsr a
+    sta.l SourceTemplate_Control+12
+    lda.l Oam_CurrentSlot
+    lsr a
+    lsr a
+    tax
+    lda.l SourceTemplate_Control
+    clc
+    adc #$650
+    tay
+    sep #$20
+.a8
+SourceTemplate_CopyHi:
+    lda $0000,y
+    sta.l Oam_ExpandedHi,x
+    inx
+    iny
+    rep #$20
+.a16
+    txa
+    cmp.l SourceTemplate_Control+12
+    sep #$20
+.a8
+    bcc SourceTemplate_CopyHi
+    rep #$30
+.a16
+.i16
+    lda.l SourceTemplate_Control+10
+    sta.l Oam_CurrentSlot
+    lda.l SourceTemplate_Control+8
+    lsr a
+    lsr a
+    sta.l SourceVisual_VisiblePieces
+    lda.l SourceVisual_PieceCount
+    sta.l SourceVisual_PieceIndex
+    lda #1
+    sta.l SourceTemplate_Control+2
+    plb
+    ply
+    plx
+    pla
+    plp
+    sec
+    rtl
+SourceTemplate_No:
+.a16
+.i16
+    plb
+    ply
+    plx
+    pla
+    plp
+    rep #$30
+.a16
+.i16
+    lda #0
+    sta.l SourceVisual_VisiblePieces
+    sta.l SourceVisual_PieceIndex
+    clc
+    rtl
+
+SourceTemplate_Finish:
+.a16
+.i16
+    jsl SourcePacket_EmitFinish
+    php
+    rep #$30
+    pha
+    phx
+    phy
+    phb
+    cld
+    jsr SourceTemplate_Scope
+    bcs SourceTemplate_G353
+    brl SourceTemplate_FinishDone
+SourceTemplate_G353:
+    cmp.l SourceTemplate_Control
+    beq SourceTemplate_G357
+    brl SourceTemplate_FinishDone
+SourceTemplate_G357:
+    lda.l SourceTemplate_Control+14
+    cmp #1
+    beq SourceTemplate_HeaderWasPrepared
+    brl SourceTemplate_FinishDone
+SourceTemplate_HeaderWasPrepared:
+    lda.l SourceTemplate_Control+2
+    beq SourceTemplate_G361
+    brl SourceTemplate_FinishDone
+SourceTemplate_G361:
+    lda.l Oam_CurrentSlot
+    cmp #513
+    bcc SourceTemplate_G366
+    brl SourceTemplate_FinishDone
+SourceTemplate_G366:
+    sec
+    sbc.l SourceTemplate_Control+4
+    bcs SourceTemplate_G371
+    brl SourceTemplate_FinishDone
+SourceTemplate_G371:
+    cmp #0
+    bne SourceTemplate_G375
+    brl SourceTemplate_FinishDone
+SourceTemplate_G375:
+    sta.l SourceTemplate_Control+8
+    and #3
+    beq SourceTemplate_G380
+    brl SourceTemplate_FinishDone
+SourceTemplate_G380:
+    lda #$43
+    sep #$20
+.a8
+    pha
+    plb
+    rep #$30
+.a16
+.i16
+    lda.l SourceTemplate_Control
+    tax
+    lda #0
+    sta $0000,x
+    lda.l SourceTemplate_Control+8
+    sta $0002,x
+    inx
+    inx
+    inx
+    inx
+    ldy #4
+SourceTemplate_StoreHeader:
+    lda $6E40,y
+    sta $0000,x
+    inx
+    inx
+    iny
+    iny
+    cpy #64
+    bcc SourceTemplate_StoreHeader
+    lda.l SourceVisual_PieceCount
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SourceTemplate_Control+6
+    lda.l SourceTemplate_Control
+    clc
+    adc #64
+    tay
+    ldx #0
+SourceTemplate_StorePieces:
+    txa
+    cmp.l SourceTemplate_Control+6
+    beq SourceTemplate_StoredPieces
+    lda.l SourceVisual_PieceTable,x
+    sta $0000,y
+    inx
+    inx
+    iny
+    iny
+    bra SourceTemplate_StorePieces
+SourceTemplate_StoredPieces:
+    lda.l SourceTemplate_Control
+    clc
+    adc #$450
+    tay
+    lda.l SourceTemplate_Control+4
+    tax
+SourceTemplate_StoreOam:
+    lda.l Oam_Buffer,x
+    sta $0000,y
+    inx
+    inx
+    iny
+    iny
+    txa
+    cmp.l Oam_CurrentSlot
+    bcc SourceTemplate_StoreOam
+    lda.l Oam_CurrentSlot
+    lsr a
+    lsr a
+    sta.l SourceTemplate_Control+12
+    lda.l SourceTemplate_Control+4
+    lsr a
+    lsr a
+    tax
+    lda.l SourceTemplate_Control
+    clc
+    adc #$650
+    tay
+    sep #$20
+.a8
+SourceTemplate_StoreHi:
+    lda.l Oam_ExpandedHi,x
+    sta $0000,y
+    inx
+    iny
+    rep #$20
+.a16
+    txa
+    cmp.l SourceTemplate_Control+12
+    sep #$20
+.a8
+    bcc SourceTemplate_StoreHi
+    rep #$30
+.a16
+.i16
+    lda.l SourceTemplate_Control
+    tax
+    lda #$534D
+    sta $0000,x
+SourceTemplate_FinishDone:
+.a16
+.i16
+    plb
+    ply
+    plx
+    pla
+    plp
+    rtl
+SourceTemplate_End:

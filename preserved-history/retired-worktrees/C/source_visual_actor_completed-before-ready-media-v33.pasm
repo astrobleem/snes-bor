@@ -1,0 +1,1457 @@
+; Original-BOR presentation-only completed poses for physical slots 1..5.
+; Production world/worker fixtures use banks40/41 and do not access bank43.
+; This explicitly gated arena is $430000..$4325FF of the installed256KiB
+; BW-RAM. Foreign workspace/campaign consumers never enter these routines.
+; Five $500-byte snapshots retain all65 pieces, palette lease and block map.
+; Separate held/retiring owner bytes extend the full8-bit legacy owner field.
+; Retiring bytes clear ONLY after both actual OAM DMA rows have drained.
+SVActor_Data = $430000
+SVActor_HeldBlocks = $432000
+SVActor_OldBlocks = $432200
+SVActor_HeldPalettes = $432400
+SVActor_OldPalettes = $432440
+SVActor_Magic = $432500
+SVActor_Await = $432502
+SVActor_Pending = $432504
+SVActor_Base = $432510
+SVActor_Bit = $432512
+SVActor_Not = $432514
+SVActor_Count = $432516
+SVActor_Index = $432518
+SVActor_Temp = $43251A
+SVActor_Scan = $43251C
+SVActor_Slot = $43251E
+SVActor_SavedEntry = $432540
+SVActor_Captures = $432580
+SVActor_Fallbacks = $432590
+SVActor_LeaseScratch = SourceVisual_CompletedSavedEntry
+SVActor_Valid = 1162
+SVActor_Stage = 1164
+SVActor_Roster = 1166
+SVActor_Pieces = 56
+SVActor_Map = 1096
+
+SVActor_Init:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    phy
+    lda.l Game_CampaignId
+    and #$00FF
+    cmp #3
+    bne SVActor_Init__done
+    lda #0
+    sta.l SVActor_Magic
+    sta.l SVActor_Await
+    sta.l SVActor_Pending
+    sta.l SVActor_LoadOwner
+    sta.l SVActor_LoadEntry
+    ldx #0
+SVActor_Init__owners:
+.a16
+.i16
+    sta.l SVActor_HeldBlocks,x
+    sta.l SVActor_OldBlocks,x
+    inx
+    inx
+    cpx #512
+    bcc SVActor_Init__owners
+    ldx #0
+SVActor_Init__palettes:
+.a16
+.i16
+    sta.l SVActor_HeldPalettes,x
+    sta.l SVActor_OldPalettes,x
+    inx
+    inx
+    cpx #64
+    bcc SVActor_Init__palettes
+    ldx #0
+SVActor_Init__snapshots:
+.a16
+.i16
+    lda #0
+    sta.l SVActor_Data+SVActor_Valid,x
+    txa
+    clc
+    adc #$0500
+    tax
+    cpx #$1900
+    bcc SVActor_Init__snapshots
+    ldx #0
+    lda #0
+SVActor_Init__counters:
+.a16
+.i16
+    sta.l SVActor_Captures,x
+    sta.l SVActor_Fallbacks,x
+    inx
+    inx
+    cpx #10
+    bcc SVActor_Init__counters
+    lda #$AC19
+    sta.l SVActor_Magic
+SVActor_Init__done:
+.a16
+.i16
+    ply
+    plx
+    pla
+    plp
+    rts
+
+SVActor_Enabled:
+.a16
+.i16
+    jsr SourceVisual_CompletedEnabled
+    bcc SVActor_Enabled__no
+    lda.l SVActor_Magic
+    cmp #$AC19
+    bne SVActor_Enabled__no
+    sec
+    rts
+SVActor_Enabled__no:
+.a16
+.i16
+    clc
+    rts
+
+; A=physical slot1..5; no DP or caller presentation globals are modified.
+SVActor_Select:
+.a16
+.i16
+    sta.l SVActor_Slot
+    dec a
+    cmp #5
+    bcs SVActor_Select__no
+    asl a
+    tax
+    lda.l SVActor_Bases,x
+    sta.l SVActor_Base
+    lda.l SVActor_Bits,x
+    sta.l SVActor_Bit
+    eor #$00FF
+    sta.l SVActor_Not
+    sec
+    rts
+SVActor_Select__no:
+.a16
+.i16
+    clc
+    rts
+SVActor_Current:
+.a16
+.i16
+    jsr SVActor_Enabled
+    bcc SVActor_Select__no
+    lda.l SourceVisual_ActorSlot
+    jmp SVActor_Select
+SVActor_Bases:
+    .dw $0000,$0500,$0A00,$0F00,$1400
+SVActor_Bits:
+    .dw $0002,$0004,$0008,$0010,$0020
+SVActor_Dps:
+    .dw $0A85,$0B0A,$0B8F,$0C14,$0C99
+
+; X=cache row byte offset. Preserve caller A/P width and X; C=protected.
+SVActor_ProtectBlocks:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    jsr SVActor_Enabled
+    bcc SVActor_ProtectBlocks__no
+    lda.l SVActor_HeldBlocks,x
+    ora.l SVActor_OldBlocks,x
+    and #$00FF
+    beq SVActor_ProtectBlocks__no
+    pla
+    plp
+    sec
+    rts
+SVActor_ProtectBlocks__no:
+.a16
+.i16
+    pla
+    plp
+    clc
+    rts
+SVActor_ProtectPalettes:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    jsr SVActor_Enabled
+    bcc SVActor_ProtectPalettes__no
+    lda.l SVActor_HeldPalettes,x
+    ora.l SVActor_OldPalettes,x
+    and #$00FF
+    beq SVActor_ProtectPalettes__no
+    pla
+    plp
+    sec
+    rts
+SVActor_ProtectPalettes__no:
+.a16
+.i16
+    pla
+    plp
+    clc
+    rts
+
+; Transfer this actor's previous completed pins into the OAM retirement set.
+SVActor_Rotate:
+.a16
+.i16
+    ldx #0
+SVActor_Rotate__blocks:
+.a16
+.i16
+    lda.l SVActor_HeldBlocks,x
+    and.l SVActor_Bit
+    ora.l SVActor_OldBlocks,x
+    sta.l SVActor_OldBlocks,x
+    lda.l SVActor_HeldBlocks,x
+    and.l SVActor_Not
+    sta.l SVActor_HeldBlocks,x
+    txa
+    clc
+    adc #8
+    tax
+    cpx #512
+    bcc SVActor_Rotate__blocks
+    ldx #0
+SVActor_Rotate__palettes:
+.a16
+.i16
+    lda.l SVActor_HeldPalettes,x
+    and.l SVActor_Bit
+    ora.l SVActor_OldPalettes,x
+    sta.l SVActor_OldPalettes,x
+    lda.l SVActor_HeldPalettes,x
+    and.l SVActor_Not
+    sta.l SVActor_HeldPalettes,x
+    txa
+    clc
+    adc #8
+    tax
+    cpx #64
+    bcc SVActor_Rotate__palettes
+    lda.l SVActor_Await
+    ora.l SVActor_Bit
+    sta.l SVActor_Await
+    lda #1
+    sta.l SourceVisual_CompletedAwait
+    rts
+
+SVActor_Invalidate:
+.a16
+.i16
+    lda.l SVActor_Base
+    tax
+    lda.l SVActor_Data+SVActor_Valid,x
+    beq SVActor_Invalidate__done
+    lda #0
+    sta.l SVActor_Data+SVActor_Valid,x
+    jsr SVActor_Rotate
+SVActor_Invalidate__done:
+.a16
+.i16
+    rts
+
+; X=native entity offset; unlink/offscreen retirement keeps old hardware pins.
+SVActor_RetireOffset:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    phy
+    jsr SVActor_Enabled
+    bcc SVActor_RetireOffset__done
+    txa
+    ldy #0
+SVActor_RetireOffset__slot:
+.a16
+.i16
+    cmp #0
+    beq SVActor_RetireOffset__found
+    sec
+    sbc #133
+    bcc SVActor_RetireOffset__done
+    iny
+    cpy #6
+    bcc SVActor_RetireOffset__slot
+    bra SVActor_RetireOffset__done
+SVActor_RetireOffset__found:
+.a16
+.i16
+    tya
+    inc a
+    cmp.l SVActor_LoadOwner
+    bne SVActor_RetireOffset__select
+    lda #0
+    sta.l SVActor_LoadOwner
+SVActor_RetireOffset__select:
+.a16
+.i16
+    tya
+    jsr SVActor_Select
+    bcc SVActor_RetireOffset__done
+    jsr SVActor_Invalidate
+SVActor_RetireOffset__done:
+.a16
+.i16
+    ply
+    plx
+    pla
+    plp
+    rts
+
+; Main-frame lifecycle sweep: dead/rebound actor snapshots cannot remain live.
+SVActor_Observe:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    phy
+    jsr SVActor_Enabled
+    bcc SVActor_Observe__done
+    jsr SVActor_LoadObserve
+    lda #1
+    sta.l SVActor_Scan
+SVActor_Observe__actor:
+.a16
+.i16
+    lda.l SVActor_Scan
+    jsr SVActor_Select
+    lda.l SVActor_Base
+    tax
+    lda.l SVActor_Data+SVActor_Valid,x
+    beq SVActor_Observe__next
+    lda.l SVActor_Data+SVActor_Stage,x
+    cmp.l Game_StageIndex
+    bne SVActor_Observe__retire
+    lda.l SVActor_Data+SVActor_Roster,x
+    sta.l SVActor_Temp
+    lda.l SVActor_Scan
+    dec a
+    asl a
+    tax
+    lda.l SVActor_Dps,x
+    tax
+    lda.l $7E0000+CHAR_HP,x
+    and #$00FF
+    beq SVActor_Observe__retire
+    lda.l $7E0000+CHAR_ROSTER_INDEX,x
+    and #$00FF
+    cmp.l SVActor_Temp
+    beq SVActor_Observe__next
+SVActor_Observe__retire:
+.a16
+.i16
+    jsr SVActor_Invalidate
+SVActor_Observe__next:
+.a16
+.i16
+    lda.l SVActor_Scan
+    inc a
+    sta.l SVActor_Scan
+    cmp #6
+    bcc SVActor_Observe__actor
+SVActor_Observe__done:
+.a16
+.i16
+    ply
+    plx
+    pla
+    plp
+    rts
+
+; Called under the existing short OAM enqueue gate only AFTER both rows exist.
+SVActor_Queued:
+.a16
+.i16
+    lda.l SVActor_Await
+    ora.l SVActor_Pending
+    sta.l SVActor_Pending
+    lda #0
+    sta.l SVActor_Await
+    rts
+
+; Called only at the real both-row drained witness in CompletedObserve.
+SVActor_Drained:
+.a16
+.i16
+    lda.l SVActor_Pending
+    eor #$00FF
+    sta.l SVActor_Not
+    ldx #0
+SVActor_Drained__blocks:
+.a16
+.i16
+    lda.l SVActor_OldBlocks,x
+    and.l SVActor_Not
+    sta.l SVActor_OldBlocks,x
+    txa
+    clc
+    adc #8
+    tax
+    cpx #512
+    bcc SVActor_Drained__blocks
+    ldx #0
+SVActor_Drained__palettes:
+.a16
+.i16
+    lda.l SVActor_OldPalettes,x
+    and.l SVActor_Not
+    sta.l SVActor_OldPalettes,x
+    txa
+    clc
+    adc #8
+    tax
+    cpx #64
+    bcc SVActor_Drained__palettes
+    lda #0
+    sta.l SVActor_Pending
+    rts
+
+SVActor_CanPublish:
+.a16
+.i16
+    jsr SVActor_Current
+    bcc SVActor_CanPublish__yes
+    lda.l SourceVisual_CompletedPending
+    bne SVActor_CanPublish__no
+    lda.l SVActor_Await
+    ora.l SVActor_Pending
+    and.l SVActor_Bit
+    bne SVActor_CanPublish__no
+SVActor_CanPublish__yes:
+.a16
+.i16
+    sec
+    rts
+SVActor_CanPublish__no:
+.a16
+.i16
+    clc
+    rts
+
+SVActor_Capture:
+.a16
+.i16
+    jsr SVActor_Current
+    bcs SVActor_Capture__begin
+    rts
+SVActor_Capture__begin:
+.a16
+.i16
+    phb
+    lda.l SVActor_Base
+    tax
+    lda #0
+    sta.l SVActor_Data+SVActor_Valid,x
+    jsr SVActor_Rotate
+    ldx #0
+SVActor_Capture__blocks:
+.a16
+.i16
+    lda.l SourceVisual_BlockCache+4,x
+    and.l SVActor_Bit
+    ora.l SVActor_HeldBlocks,x
+    sta.l SVActor_HeldBlocks,x
+    txa
+    clc
+    adc #8
+    tax
+    cpx #512
+    bcc SVActor_Capture__blocks
+    ldx #0
+SVActor_Capture__palettes:
+.a16
+.i16
+    lda.l SourceVisual_PaletteCache+4,x
+    and.l SVActor_Bit
+    ora.l SVActor_HeldPalettes,x
+    sta.l SVActor_HeldPalettes,x
+    txa
+    clc
+    adc #8
+    tax
+    cpx #64
+    bcc SVActor_Capture__palettes
+    lda.l SVActor_Base
+    tay
+    ldx #(SourceVisual_EntryScratch-$7E0000)
+    lda #23
+    mvn $43,$7E
+    lda.l SVActor_Base
+    clc
+    adc #24
+    tay
+    lda.l SourceVisual_Record
+    clc
+    adc #(SourceVisual_State-$7E0000)
+    tax
+    lda #31
+    mvn $43,$7E
+    lda.l SourceVisual_PieceCount
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SVActor_Count
+    beq SVActor_Capture__map
+    lda.l SVActor_Base
+    clc
+    adc #SVActor_Pieces
+    tay
+    ldx #(SourceVisual_PieceTable-$7E0000)
+    lda.l SVActor_Count
+    dec a
+    mvn $43,$7E
+SVActor_Capture__map:
+.a16
+.i16
+    lda.l SVActor_Base
+    clc
+    adc #SVActor_Map
+    tay
+    lda.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    clc
+    adc.l SourceVisual_ActorSlot
+    clc
+    adc #(SourceVisual_ActorPieceMap-$7E0000)
+    tax
+    lda #64
+    mvn $43,$7E
+    lda.l SVActor_Base
+    tax
+    lda.l Game_StageIndex
+    sta.l SVActor_Data+SVActor_Stage,x
+    lda CHAR_ROSTER_INDEX
+    and #$00FF
+    sta.l SVActor_Data+SVActor_Roster,x
+    lda #1
+    sta.l SVActor_Data+SVActor_Valid,x
+    lda.l SVActor_Slot
+    dec a
+    asl a
+    tax
+    lda.l SVActor_Captures,x
+    inc a
+    sta.l SVActor_Captures,x
+    plb
+    rts
+
+; Validate every piece, including clipped pieces, before using old metadata.
+SVActor_Validate:
+.a16
+.i16
+    lda.l SVActor_Base
+    tax
+    lda.l SVActor_Data+SVActor_Valid,x
+    cmp #1
+    beq SVActor_Validate__identity
+    brl SVActor_Validate__bad
+SVActor_Validate__identity:
+.a16
+.i16
+    lda.l SVActor_Data+SVActor_Stage,x
+    cmp.l Game_StageIndex
+    bne SVActor_Validate__identity_bad
+    lda CHAR_ROSTER_INDEX
+    and #$00FF
+    cmp.l SVActor_Data+SVActor_Roster,x
+    bne SVActor_Validate__identity_bad
+    lda.l SVActor_Data+12,x
+    and #$00FF
+    cmp #66
+    bcc SVActor_Validate__count
+SVActor_Validate__identity_bad:
+.a16
+.i16
+    brl SVActor_Validate__bad
+SVActor_Validate__count:
+.a16
+.i16
+    sta.l SVActor_Count
+    lda #0
+    sta.l SVActor_Index
+SVActor_Validate__piece:
+.a16
+.i16
+    lda.l SVActor_Index
+    cmp.l SVActor_Count
+    bcc SVActor_Validate__have_piece
+    sec
+    rts
+SVActor_Validate__have_piece:
+.a16
+.i16
+    clc
+    adc.l SVActor_Base
+    tax
+    lda.l SVActor_Data+SVActor_Map,x
+    and #$00FF
+    cmp #64
+    bcc SVActor_Validate__block_slot
+    brl SVActor_Validate__bad
+SVActor_Validate__block_slot:
+.a16
+.i16
+    asl a
+    asl a
+    asl a
+    tay
+    lda.l SVActor_Index
+    asl a
+    asl a
+    asl a
+    asl a
+    clc
+    adc.l SVActor_Base
+    tax
+    lda.l SVActor_Data+SVActor_Pieces+12,x
+    sta.l SVActor_Temp
+    tya
+    tax
+    lda.l SourceVisual_BlockCache+2,x
+    cmp #2
+    bne SVActor_Validate__block_bad
+    lda.l SourceVisual_BlockCache,x
+    cmp.l SVActor_Temp
+    bne SVActor_Validate__block_bad
+    lda.l SVActor_HeldBlocks,x
+    and.l SVActor_Bit
+    bne SVActor_Validate__palette
+SVActor_Validate__block_bad:
+.a16
+.i16
+    brl SVActor_Validate__bad
+SVActor_Validate__palette:
+.a16
+.i16
+    lda.l SVActor_Index
+    asl a
+    asl a
+    asl a
+    asl a
+    clc
+    adc.l SVActor_Base
+    tax
+    lda.l SVActor_Data+SVActor_Pieces+10,x
+    sta.l SVActor_Temp
+    lda.l SVActor_Data+SVActor_Pieces+8,x
+    and #$00FF
+    cmp #8
+    bcs SVActor_Validate__bad
+    clc
+    adc.l SVActor_Base
+    tax
+    lda.l SVActor_Data+24+16,x
+    and #$00FF
+    beq SVActor_Validate__bad
+    cmp #9
+    bcs SVActor_Validate__bad
+    dec a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_PaletteCache,x
+    cmp.l SVActor_Temp
+    bne SVActor_Validate__bad
+    lda.l SourceVisual_PaletteCache+3,x
+    and #$00FF
+    cmp #1
+    bne SVActor_Validate__bad
+    lda.l SVActor_HeldPalettes,x
+    and.l SVActor_Bit
+    beq SVActor_Validate__bad
+    lda.l SVActor_Index
+    inc a
+    sta.l SVActor_Index
+    brl SVActor_Validate__piece
+SVActor_Validate__bad:
+.a16
+.i16
+    clc
+    rts
+
+SVActor_Reuse:
+.a16
+.i16
+    jsr SVActor_Current
+    bcc SVActor_Reuse__no
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State+28,x
+    and #$00FF
+    beq SVActor_Reuse__no
+    lda.l SourceVisual_EntryIndexSaved
+    sta.l SVActor_Temp
+    lda.l SVActor_Base
+    tax
+    lda.l SVActor_Data+24,x
+    cmp.l SVActor_Temp
+    bne SVActor_Reuse__no
+    jsr SVActor_Validate
+    bcc SVActor_Reuse__no
+    lda.l SourceVisual_ServiceOnly
+    beq SVActor_Reuse__emit
+    sec
+    rts
+SVActor_Reuse__emit:
+.a16
+.i16
+    jmp SVActor_Emit__begin
+SVActor_Reuse__no:
+.a16
+.i16
+    clc
+    rts
+
+SVActor_Emit:
+.a16
+.i16
+    lda.l SourceVisual_ServiceOnly
+    bne SVActor_Reuse__no
+    lda.l SourceVisual_Error
+    and #$00FF
+    cmp #$24
+    beq SVActor_Emit__check
+    cmp #$27
+    bne SVActor_Reuse__no
+SVActor_Emit__check:
+.a16
+.i16
+    jsr SVActor_Current
+    bcc SVActor_Reuse__no
+    jsr SVActor_Validate
+    bcc SVActor_Reuse__no
+SVActor_Emit__begin:
+.a16
+.i16
+    lda.l SourceVisual_Record
+    pha
+    lda.l SourceVisual_BaseTile
+    pha
+    lda.l SourceVisual_PieceCount
+    pha
+    phb
+    ldx #(SourceVisual_EntryScratch-$7E0000)
+    ldy #(SVActor_SavedEntry-$430000)
+    lda #23
+    mvn $43,$7E
+    lda.l SVActor_Base
+    tax
+    ldy #(SourceVisual_EntryScratch-$7E0000)
+    lda #23
+    mvn $7E,$43
+    lda.l SVActor_Base
+    clc
+    adc #24
+    tax
+    ldy #(SVActor_LeaseScratch-$7E0000)
+    lda #31
+    mvn $7E,$43
+    lda.l SVActor_Count
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SVActor_Temp
+    beq SVActor_Emit__pieces_done
+    lda.l SVActor_Base
+    clc
+    adc #SVActor_Pieces
+    tax
+    ldy #(SourceVisual_PieceTable-$7E0000)
+    lda.l SVActor_Temp
+    dec a
+    mvn $7E,$43
+SVActor_Emit__pieces_done:
+.a16
+.i16
+    plb
+    lda #(SVActor_LeaseScratch-SourceVisual_State)
+    sta.l SourceVisual_Record
+    lda.l SVActor_LeaseScratch+8
+    sta.l SourceVisual_BaseTile
+    lda.l SVActor_Count
+    sta.l SourceVisual_PieceCount
+    jsr SourceVisual_Emit
+    lda #0
+    rol a
+    sta.l SVActor_Temp
+    phb
+    ldx #(SVActor_SavedEntry-$430000)
+    ldy #(SourceVisual_EntryScratch-$7E0000)
+    lda #23
+    mvn $7E,$43
+    plb
+    pla
+    sta.l SourceVisual_PieceCount
+    pla
+    sta.l SourceVisual_BaseTile
+    pla
+    sta.l SourceVisual_Record
+    lda.l SVActor_Temp
+    beq SVActor_Emit__no
+    lda.l SVActor_Slot
+    dec a
+    asl a
+    tax
+    lda.l SVActor_Fallbacks,x
+    inc a
+    sta.l SVActor_Fallbacks,x
+    sec
+    rts
+SVActor_Emit__no:
+.a16
+.i16
+    clc
+    rts
+
+; P2 has the same initial-picture and physical jump deadline as P1. Run only
+; from the already guarded once-per-field relay opportunity; never emit OAM.
+SVActor_ServiceP2:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    phy
+    phd
+    jsr SVActor_Enabled
+    bcc SVActor_ServiceP2__done
+    lda.l SourceInput_Magic
+    cmp #$1A60
+    bne SVActor_ServiceP2__done
+    lda.l $7E0A85+CHAR_INPUT_DRIVEN
+    and #$00FF
+    cmp #1
+    bne SVActor_ServiceP2__done
+    lda.l $7E0A85+CHAR_HP
+    and #$00FF
+    beq SVActor_ServiceP2__done
+    lda.l SVActor_Data+SVActor_Valid
+    beq SVActor_ServiceP2__service
+    lda.l $7E0A85+CHAR_SELECTED
+    and #$00FF
+    cmp #CHAR_SELECTED_JUMP
+    bne SVActor_ServiceP2__done
+SVActor_ServiceP2__service:
+.a16
+.i16
+    lda #$0A85
+    tcd
+    jsl SourceVisual_ServiceCurrent
+SVActor_ServiceP2__done:
+.a16
+.i16
+    jsr SVActor_ServiceOwner
+    pld
+    ply
+    plx
+    pla
+    plp
+    rtl
+
+; One whole desired pose owns new resource admission. Without this lease,
+; several unfinished actors can pin every physical slot without any actor
+; having enough remaining space to finish. Completed pictures remain held.
+SVActor_LoadOwner = $4325A0 ; zero or physical actor slot+1 (P1=1,P2=2)
+SVActor_LoadEntry = $4325A2
+SVActor_LoadCandidate = $4325A4
+
+SVActor_LoadEnter:
+.a16
+.i16
+    jsr SVActor_Enabled
+    bcc SVActor_LoadEnter__yes
+    lda.l SourceInput_Magic
+    cmp #$1A60
+    bne SVActor_LoadEnter__yes
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State+6,x
+    cmp #2
+    beq SVActor_LoadEnter__yes
+    ; An incomplete NPC compositor never allocates resources. Its existing
+    ; deferral runs unchanged without taking the producer lease.
+    lda.l SourceVisual_ServiceOnly
+    bne SVActor_LoadEnter__producer
+    lda.l SourceVisual_ActorSlot
+    bne SVActor_LoadEnter__yes
+SVActor_LoadEnter__producer:
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    inc a
+    sta.l SVActor_LoadCandidate
+    lda.l SVActor_LoadOwner
+    beq SVActor_LoadEnter__unowned
+    cmp.l SVActor_LoadCandidate
+    beq SVActor_LoadEnter__acquire
+    jsr SVActor_LoadPreempt
+    bcs SVActor_LoadEnter__acquire
+    bra SVActor_LoadEnter__no
+SVActor_LoadEnter__unowned:
+.a16
+.i16
+    jsr SVActor_LoadInitialTurn
+    bcc SVActor_LoadEnter__no
+SVActor_LoadEnter__acquire:
+.a16
+.i16
+    lda.l SVActor_LoadCandidate
+    sta.l SVActor_LoadOwner
+    lda.l SourceVisual_EntryIndexSaved
+    sta.l SVActor_LoadEntry
+SVActor_LoadEnter__yes:
+.a16
+.i16
+    sec
+    rts
+SVActor_LoadEnter__no:
+.a16
+.i16
+    clc
+    rts
+
+; Preserve the producer across an actual pending block/palette. Ready or
+; unsupported jobs release it; the caller restores the original result C.
+SVActor_LoadLeave:
+.a16
+.i16
+    php
+    jsr SVActor_Enabled
+    bcs SVActor_LoadLeave__enabled
+    plp
+    rts
+SVActor_LoadLeave__enabled:
+.a16
+.i16
+    plp
+    bcs SVActor_LoadLeave__complete
+    lda.l SourceVisual_Error
+    and #$00FF
+    cmp #$27
+    beq SVActor_LoadLeave__done
+    cmp #$24
+    beq SVActor_LoadLeave__done
+SVActor_LoadLeave__complete:
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    inc a
+    cmp.l SVActor_LoadOwner
+    bne SVActor_LoadLeave__done
+    lda #0
+    sta.l SVActor_LoadOwner
+SVActor_LoadLeave__done:
+.a16
+.i16
+    rts
+
+; Death, unlink, rebind and readiness cannot strand the frame producer.
+SVActor_LoadObserve:
+.a16
+.i16
+    lda.l SVActor_LoadOwner
+    beq SVActor_LoadObserve__done
+    dec a
+    cmp #6
+    bcs SVActor_LoadObserve__release
+    asl a
+    tay
+    tax
+    lda.l SVActor_LoadDps,x
+    tax
+    lda.l $7E0000+CHAR_HP,x
+    and #$00FF
+    beq SVActor_LoadObserve__release
+    tya
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_State+6,x
+    cmp #1
+    bne SVActor_LoadObserve__release
+    lda.l SourceVisual_State,x
+    cmp.l SVActor_LoadEntry
+    beq SVActor_LoadObserve__done
+SVActor_LoadObserve__release:
+.a16
+.i16
+    lda #0
+    sta.l SVActor_LoadOwner
+SVActor_LoadObserve__done:
+.a16
+.i16
+    rts
+SVActor_LoadDps:
+    .dw $0A00,$0A85,$0B0A,$0B8F,$0C14,$0C99
+
+; Initial visible actors precede refreshes of already drawable actors.
+; Physical jumps retain their landing deadline; neither player's initial
+; picture nor an in-progress jump may be preempted by the other player.
+SVActor_LoadInitialTurn:
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    cmp #2
+    bcs SVActor_LoadInitialTurn__picture
+    lda CHAR_SELECTED
+    and #$00FF
+    cmp #CHAR_SELECTED_JUMP
+    beq SVActor_LoadInitialTurn__allow
+SVActor_LoadInitialTurn__picture:
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    bne SVActor_LoadInitialTurn__other
+    lda.l SourceVisual_CompletedValid
+    bra SVActor_LoadInitialTurn__known
+SVActor_LoadInitialTurn__other:
+.a16
+.i16
+    jsr SVActor_Current
+    lda.l SVActor_Base
+    tax
+    lda.l SVActor_Data+SVActor_Valid,x
+SVActor_LoadInitialTurn__known:
+.a16
+.i16
+    bne SVActor_LoadInitialTurn__priority
+SVActor_LoadInitialTurn__allow:
+.a16
+.i16
+    sec
+    rts
+; First missing player attack pictures precede already drawable refreshes.
+; Initial NPC pictures and physical jumps retain their earlier priority.
+; Once that attack picture exists, repeated frame changes cannot monopolize
+; priority over the other player's first attack picture.
+SVActor_LoadInitialTurn__priority:
+.a16
+.i16
+    jsr SVActor_FirstAttack
+    beq SVActor_LoadInitialTurn__scan
+    cmp.l SVActor_LoadCandidate
+    beq SVActor_LoadInitialTurn__scan
+    clc
+    rts
+SVActor_LoadInitialTurn__scan:
+.a16
+.i16
+    ldy #0
+SVActor_LoadInitialTurn__actor:
+.a16
+.i16
+    tya
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    tax
+    lda.l SourceVisual_State+6,x
+    cmp #1
+    bne SVActor_LoadInitialTurn__next
+    tya
+    asl a
+    tax
+    lda.l SVActor_LoadBits,x
+    and.l SourceVisual_RetireMask
+    and #$00FF
+    bne SVActor_LoadInitialTurn__next
+    lda.l SVActor_LoadDps,x
+    tax
+    lda.l $7E0000+CHAR_HP,x
+    and #$00FF
+    beq SVActor_LoadInitialTurn__next
+    lda.l $7E0000+CHAR_POS_X,x
+    sec
+    sbc.l Screen_PosX
+    bmi SVActor_LoadInitialTurn__left
+    cmp #352
+    bcs SVActor_LoadInitialTurn__next
+    bra SVActor_LoadInitialTurn__visible
+SVActor_LoadInitialTurn__left:
+.a16
+.i16
+    cmp #$FFA0
+    bcc SVActor_LoadInitialTurn__next
+SVActor_LoadInitialTurn__visible:
+.a16
+.i16
+    tya
+    bne SVActor_LoadInitialTurn__snapshot
+    lda.l SourceVisual_CompletedValid
+    bra SVActor_LoadInitialTurn__valid
+SVActor_LoadInitialTurn__snapshot:
+.a16
+.i16
+    jsr SVActor_Select
+    lda.l SVActor_Base
+    tax
+    lda.l SVActor_Data+SVActor_Valid,x
+SVActor_LoadInitialTurn__valid:
+.a16
+.i16
+    bne SVActor_LoadInitialTurn__next
+    clc
+    rts
+SVActor_LoadInitialTurn__next:
+.a16
+.i16
+    iny
+    cpy #6
+    bcs SVActor_LoadInitialTurn__finished
+    brl SVActor_LoadInitialTurn__actor
+SVActor_LoadInitialTurn__finished:
+.a16
+.i16
+    sec
+    rts
+SVActor_LoadBits:
+    .dw 1,2,4,8,16,32
+
+SVActor_LoadPreempt:
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    cmp #2
+    bcc SVActor_LoadPreempt__player
+    clc
+    rts
+SVActor_LoadPreempt__player:
+.a16
+.i16
+    lda CHAR_SELECTED
+    and #$00FF
+    cmp #CHAR_SELECTED_JUMP
+    beq SVActor_LoadPreempt__owner
+    clc
+    rts
+SVActor_LoadPreempt__owner:
+.a16
+.i16
+    lda.l SVActor_LoadOwner
+    cmp #3
+    bcs SVActor_LoadPreempt__fence
+    cmp #1
+    bne SVActor_LoadPreempt__p2_picture
+    lda.l SourceVisual_CompletedValid
+    bra SVActor_LoadPreempt__picture
+SVActor_LoadPreempt__p2_picture:
+.a16
+.i16
+    lda.l SVActor_Data+SVActor_Valid
+SVActor_LoadPreempt__picture:
+.a16
+.i16
+    bne SVActor_LoadPreempt__old_player
+    clc
+    rts
+SVActor_LoadPreempt__old_player:
+.a16
+.i16
+    lda.l SVActor_LoadOwner
+    dec a
+    asl a
+    tax
+    lda.l SVActor_LoadDps,x
+    tax
+    lda.l $7E0000+CHAR_SELECTED,x
+    and #$00FF
+    cmp #CHAR_SELECTED_JUMP
+    bne SVActor_LoadPreempt__fence
+    clc
+    rts
+SVActor_LoadPreempt__fence:
+.a16
+.i16
+    jsr SourceVisual_HasOwnedDma
+    bcc SVActor_LoadPreempt__release
+    clc
+    rts
+SVActor_LoadPreempt__release:
+.a16
+.i16
+    ; No active tile/palette transfer can reference this partial producer.
+    ; Drop only its desired ownership; old completed/hardware pins survive.
+    lda.l SourceVisual_ActorSlot
+    pha
+    lda.l SourceVisual_Record
+    pha
+    lda.l SVActor_LoadOwner
+    dec a
+    sta.l SourceVisual_ActorSlot
+    asl a
+    asl a
+    asl a
+    asl a
+    asl a
+    sta.l SourceVisual_Record
+    jsr SourceVisual_ReleaseActorBlocks
+    jsr SourceVisual_ReleaseActorPalettes
+    pla
+    sta.l SourceVisual_Record
+    pla
+    sta.l SourceVisual_ActorSlot
+    lda #0
+    sta.l SVActor_LoadOwner
+    sec
+    rts
+
+; Cancel only obsolete non-jump work once a real completed picture exists.
+; Do not restart a jump frame on each animation tick or abandon first pictures.
+SVActor_JumpReplace:
+.a16
+.i16
+    lda.l SourceVisual_ActorSlot
+    cmp #2
+    bcs SVActor_JumpReplace__no
+    ; FindEntry has already resolved the exact live source role. Attacks
+    ; and physical jumps supersede an obsolete desired idle/walk pose.
+    lda.l SourceVisual_Key+1
+    and #$00FF
+    cmp #7
+    beq SVActor_JumpReplace__role
+    cmp #2
+    bne SVActor_JumpReplace__no
+SVActor_JumpReplace__role:
+.a16
+.i16
+    ; Role and the adjacent pin witness are independent byte fields.
+    sep #$20
+.a8
+    lda.l SourceVisual_Key+1
+    cmp.l SourceVisual_State+30,x
+    rep #$31
+.a16
+.i16
+    beq SVActor_JumpReplace__no
+    phx
+    lda.l SourceVisual_ActorSlot
+    bne SVActor_JumpReplace__p2
+    lda.l SourceVisual_CompletedValid
+    bra SVActor_JumpReplace__valid
+SVActor_JumpReplace__p2:
+.a16
+.i16
+    lda.l SVActor_Data+SVActor_Valid
+SVActor_JumpReplace__valid:
+.a16
+.i16
+    cmp #0
+    beq SVActor_JumpReplace__invalid
+    plx
+    sec
+    rts
+SVActor_JumpReplace__invalid:
+.a16
+.i16
+    plx
+SVActor_JumpReplace__no:
+.a16
+.i16
+    clc
+    rts
+
+; Advance exactly the current pose producer during the existing field relay.
+; A service-only visit uses the normal viewport/retirement and DMA fences.
+; Player startup/jump service already runs before this; skip those visits.
+SVActor_ServiceOwner:
+.a16
+.i16
+    jsr SVActor_Enabled
+    bcc SVActor_ServiceOwner__done
+    lda.l SourceInput_Magic
+    cmp #$1A60
+    bne SVActor_ServiceOwner__done
+    lda.l SVActor_LoadOwner
+    cmp #1
+    bcc SVActor_ServiceOwner__done
+    cmp #7
+    bcs SVActor_ServiceOwner__done
+    cmp #3
+    bcs SVActor_ServiceOwner__selected
+    cmp #1
+    bne SVActor_ServiceOwner__p2
+    lda.l SourceVisual_CompletedValid
+    beq SVActor_ServiceOwner__done
+    bra SVActor_ServiceOwner__player
+SVActor_ServiceOwner__p2:
+.a16
+.i16
+    lda.l SVActor_Data+SVActor_Valid
+    beq SVActor_ServiceOwner__done
+SVActor_ServiceOwner__player:
+.a16
+.i16
+    lda.l SVActor_LoadOwner
+    dec a
+    asl a
+    tax
+    lda.l SVActor_LoadDps,x
+    tax
+    lda.l $7E0000+CHAR_SELECTED,x
+    and #$00FF
+    cmp #CHAR_SELECTED_JUMP
+    beq SVActor_ServiceOwner__done
+    lda.l SVActor_LoadOwner
+SVActor_ServiceOwner__selected:
+.a16
+.i16
+    dec a
+    asl a
+    tax
+    lda.l SVActor_LoadDps,x
+    tcd
+    lda CHAR_HP
+    and #$00FF
+    beq SVActor_ServiceOwner__dead
+    jsl SourceVisual_ServiceCurrent
+SVActor_ServiceOwner__done:
+.a16
+.i16
+    rts
+SVActor_ServiceOwner__dead:
+.a16
+.i16
+    lda #0
+    sta.l SVActor_LoadOwner
+    rts
+
+; State+31 is the one-byte pin-scan witness for a full-pose desired lease.
+; With the single producer, other jobs cannot allocate its future pieces
+; between visits. PrepareBlocks pins every newly found/allocated block.
+; Lease replacement, retirement and preemption all invalidate the witness
+; through ReleaseActorBlocks before relinquishing any actor ownership.
+SVActor_PinLeaseOnce:
+.a16
+.i16
+    jsr SVActor_Enabled
+    bcc SVActor_PinLeaseOnce__scan
+    lda.l SourceInput_Magic
+    cmp #$1A60
+    bne SVActor_PinLeaseOnce__scan
+    lda.l SourceVisual_Record
+    tax
+    lda.l SourceVisual_State+31,x
+    and #$00FF
+    beq SVActor_PinLeaseOnce__first
+    clc
+    rts
+SVActor_PinLeaseOnce__first:
+.a16
+.i16
+    sep #$20
+.a8
+    lda #1
+    sta.l SourceVisual_State+31,x
+    rep #$30
+.a16
+.i16
+SVActor_PinLeaseOnce__scan:
+.a16
+.i16
+    sec
+    rts
+SVActor_ReleasePinLease:
+.a16
+.i16
+    jsr SVActor_Enabled
+    bcc SVActor_ReleasePinLease__done
+    lda.l SourceInput_Magic
+    cmp #$1A60
+    bne SVActor_ReleasePinLease__done
+    lda.l SourceVisual_Record
+    tax
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_State+31,x
+    rep #$30
+.a16
+.i16
+SVActor_ReleasePinLease__done:
+.a16
+.i16
+    rts
+
+; A=physical player slot+1 needing its first source attack picture, or0.
+SVActor_FirstAttack:
+.a16
+.i16
+    lda.l $7E0A00+CHAR_HP
+    and #$00FF
+    beq SVActor_FirstAttack__p2
+    lda.l SourceVisual_State+6
+    cmp #1
+    bne SVActor_FirstAttack__p2
+    lda.l SourceVisual_State+30
+    and #$00FF
+    cmp #2
+    bne SVActor_FirstAttack__p2
+    lda.l SourceVisual_CompletedValid
+    beq SVActor_FirstAttack__p2
+    lda.l SourceVisual_CompletedEntry+1
+    and #$00FF
+    cmp #2
+    beq SVActor_FirstAttack__p2
+    lda #1
+    rts
+SVActor_FirstAttack__p2:
+.a16
+.i16
+    lda.l $7E0A85+CHAR_INPUT_DRIVEN
+    and #$00FF
+    cmp #1
+    bne SVActor_FirstAttack__none
+    lda.l $7E0A85+CHAR_HP
+    and #$00FF
+    beq SVActor_FirstAttack__none
+    lda.l SourceVisual_State+32+6
+    cmp #1
+    bne SVActor_FirstAttack__none
+    lda.l SourceVisual_State+32+30
+    and #$00FF
+    cmp #2
+    bne SVActor_FirstAttack__none
+    lda.l SVActor_Data+SVActor_Valid
+    beq SVActor_FirstAttack__none
+    lda.l SVActor_Data+1
+    and #$00FF
+    cmp #2
+    beq SVActor_FirstAttack__none
+    lda #2
+    rts
+SVActor_FirstAttack__none:
+.a16
+.i16
+    lda #0
+    rts

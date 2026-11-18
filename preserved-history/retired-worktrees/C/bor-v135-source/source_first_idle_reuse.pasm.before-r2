@@ -1,0 +1,320 @@
+; First-picture media reduction, not a source animation change.
+; A new idle NPC may initially display authored idle frame0 already held by
+; another same-model NPC. Exact tile-ID sets across both remaps are proven
+; by the catalog-derived mask. Its own geometry, palette and source lifetime
+; still go through the ordinary catalog/allocator/full-picture publication.
+SourceFirstIdle_MapMask = $435464
+SourceVisual_PreferSharedFirstIdle:
+    php
+    rep #$30
+.a16
+.i16
+    pha
+    phx
+    phy
+    lda.l Game_CampaignId
+    and #$00FF
+    cmp #3
+    beq SourceVisual_PreferSharedFirstIdle__campaign
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__campaign:
+.a16
+.i16
+    tdc
+    cmp #$0B0A
+    beq SourceVisual_PreferSharedFirstIdle__npc2
+    cmp #$0B8F
+    beq SourceVisual_PreferSharedFirstIdle__npc3
+    cmp #$0C14
+    beq SourceVisual_PreferSharedFirstIdle__npc4
+    cmp #$0C99
+    beq SourceVisual_PreferSharedFirstIdle__npc5
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__npc2:
+.a16
+.i16
+    ldx #1280
+    lda.l SourceVisual_State+64+6
+    bra SourceVisual_PreferSharedFirstIdle__new_lease
+SourceVisual_PreferSharedFirstIdle__npc3:
+.a16
+.i16
+    ldx #2560
+    lda.l SourceVisual_State+96+6
+    bra SourceVisual_PreferSharedFirstIdle__new_lease
+SourceVisual_PreferSharedFirstIdle__npc4:
+.a16
+.i16
+    ldx #3840
+    lda.l SourceVisual_State+128+6
+    bra SourceVisual_PreferSharedFirstIdle__new_lease
+SourceVisual_PreferSharedFirstIdle__npc5:
+.a16
+.i16
+    ldx #5120
+    lda.l SourceVisual_State+160+6
+SourceVisual_PreferSharedFirstIdle__new_lease:
+.a16
+.i16
+    cmp #0
+    beq SourceVisual_PreferSharedFirstIdle__empty_lease
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__empty_lease:
+.a16
+.i16
+    lda.l SVActor_Data+SVActor_Valid,x
+    cmp #0
+    beq SourceVisual_PreferSharedFirstIdle__empty_picture
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__empty_picture:
+.a16
+.i16
+    lda.l SourceVisual_CompletedMagic
+    cmp #$C04D
+    beq SourceVisual_PreferSharedFirstIdle__completed
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__completed:
+.a16
+.i16
+    lda.l SVActor_Magic
+    cmp #$AC19
+    beq SourceVisual_PreferSharedFirstIdle__actor
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__actor:
+.a16
+.i16
+    lda.l SourceInput_Magic
+    cmp #$1A60
+    beq SourceVisual_PreferSharedFirstIdle__input
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__input:
+.a16
+.i16
+    lda.l Game_State
+    beq SourceVisual_PreferSharedFirstIdle__playing
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__playing:
+.a16
+.i16
+    lda.l Stage_Mirror
+    and #$00FF
+    beq SourceVisual_PreferSharedFirstIdle__mirror
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__mirror:
+.a16
+.i16
+    lda CHAR_HP
+    and #$00FF
+    bne SourceVisual_PreferSharedFirstIdle__alive
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__alive:
+.a16
+.i16
+    lda.l SourceVisual_Key+1
+    and #$00FF
+    beq SourceVisual_PreferSharedFirstIdle__idle
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__idle:
+.a16
+.i16
+    lda.l SourceVisual_Key+2
+    and #$00FF
+    bne SourceVisual_PreferSharedFirstIdle__later_idle
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__later_idle:
+.a16
+.i16
+    lda CHAR_ROSTER_INDEX
+    and #$00FF
+    cmp.l SourceVisual_Key
+    beq SourceVisual_PreferSharedFirstIdle__native_model
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__native_model:
+.a16
+.i16
+    sep #$20
+.a8
+    lda CHAR_MAP_INDEX
+    cmp.l SourceVisual_Key+3
+    rep #$30
+.a16
+.i16
+    beq SourceVisual_PreferSharedFirstIdle__native_map
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__native_map:
+.a16
+.i16
+    tdc
+    sec
+    sbc #$0A00
+    tax
+    lda.l SourceVisual_Sa1OwnerPolicy,x
+    and #$00FF
+    cmp #1
+    beq SourceVisual_PreferSharedFirstIdle__bound
+    cmp #2
+    beq SourceVisual_PreferSharedFirstIdle__bound
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__bound:
+.a16
+.i16
+    lda.l SourceVisual_Key+3
+    and #$00FF
+    cmp #16
+    bcc SourceVisual_PreferSharedFirstIdle__map
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__map:
+.a16
+.i16
+    tay
+    lda #1
+SourceVisual_PreferSharedFirstIdle__map_shift:
+.a16
+.i16
+    cpy #0
+    beq SourceVisual_PreferSharedFirstIdle__map_bit
+    asl a
+    dey
+    bra SourceVisual_PreferSharedFirstIdle__map_shift
+SourceVisual_PreferSharedFirstIdle__map_bit:
+.a16
+.i16
+    tay
+    lda.l SourceVisual_Key
+    and #$00FF
+    asl a
+    tax
+    lda.l SourceFirstIdle_MapMasks,x
+    sta.l SourceFirstIdle_MapMask
+    tya
+    and.l SourceFirstIdle_MapMask
+    
+    bne SourceVisual_PreferSharedFirstIdle__donors
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__donors:
+.a16
+.i16
+    ldx #1280
+SourceVisual_PreferSharedFirstIdle__donor:
+.a16
+.i16
+    lda.l SVActor_Data+SVActor_Valid,x
+    cmp #1
+    beq SourceVisual_PreferSharedFirstIdle__valid
+    brl SourceVisual_PreferSharedFirstIdle__next
+SourceVisual_PreferSharedFirstIdle__valid:
+.a16
+.i16
+    lda.l SVActor_Data+SVActor_Stage,x
+    cmp.l Game_StageIndex
+    beq SourceVisual_PreferSharedFirstIdle__stage
+    brl SourceVisual_PreferSharedFirstIdle__next
+SourceVisual_PreferSharedFirstIdle__stage:
+.a16
+.i16
+    lda.l SVActor_Data+SVActor_Roster,x
+    cmp.l SourceVisual_Key
+    beq SourceVisual_PreferSharedFirstIdle__roster
+    brl SourceVisual_PreferSharedFirstIdle__next
+SourceVisual_PreferSharedFirstIdle__roster:
+.a16
+.i16
+    lda.l SVActor_Data,x
+    cmp.l SourceVisual_Key
+    beq SourceVisual_PreferSharedFirstIdle__role
+    brl SourceVisual_PreferSharedFirstIdle__next
+SourceVisual_PreferSharedFirstIdle__role:
+.a16
+.i16
+    lda.l SVActor_Data+2,x
+    and #$00FF
+    beq SourceVisual_PreferSharedFirstIdle__frame0
+    brl SourceVisual_PreferSharedFirstIdle__next
+SourceVisual_PreferSharedFirstIdle__frame0:
+.a16
+.i16
+    lda.l SVActor_Data+12,x
+    and #$00FF
+    cmp #1
+    bcs SourceVisual_PreferSharedFirstIdle__nonempty
+    brl SourceVisual_PreferSharedFirstIdle__next
+SourceVisual_PreferSharedFirstIdle__nonempty:
+.a16
+.i16
+    cmp #66
+    bcc SourceVisual_PreferSharedFirstIdle__count
+    brl SourceVisual_PreferSharedFirstIdle__next
+SourceVisual_PreferSharedFirstIdle__count:
+.a16
+.i16
+    lda.l SVActor_Data+3,x
+    and #$00FF
+    cmp #16
+    bcc SourceVisual_PreferSharedFirstIdle__donor_map
+    brl SourceVisual_PreferSharedFirstIdle__next
+SourceVisual_PreferSharedFirstIdle__donor_map:
+.a16
+.i16
+    tay
+    lda #1
+SourceVisual_PreferSharedFirstIdle__donor_shift:
+.a16
+.i16
+    cpy #0
+    beq SourceVisual_PreferSharedFirstIdle__donor_bit
+    asl a
+    dey
+    bra SourceVisual_PreferSharedFirstIdle__donor_shift
+SourceVisual_PreferSharedFirstIdle__donor_bit:
+.a16
+.i16
+    and.l SourceFirstIdle_MapMask
+    bne SourceVisual_PreferSharedFirstIdle__choose
+    brl SourceVisual_PreferSharedFirstIdle__next
+SourceVisual_PreferSharedFirstIdle__choose:
+.a16
+.i16
+    sep #$20
+.a8
+    lda #0
+    sta.l SourceVisual_Key+2
+    rep #$30
+.a16
+.i16
+    brl SourceVisual_PreferSharedFirstIdle__done
+SourceVisual_PreferSharedFirstIdle__next:
+.a16
+.i16
+    txa
+    clc
+    adc #1280
+    tax
+    cpx #6400
+    bcs SourceVisual_PreferSharedFirstIdle__done
+    brl SourceVisual_PreferSharedFirstIdle__donor
+SourceVisual_PreferSharedFirstIdle__done:
+.a16
+.i16
+    ply
+    plx
+    pla
+    plp
+    rtl
+
+SourceFirstIdle_MapMasks:
+    .dw $000F,$0007,$000F,$000F,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0003,$0001,$0001
+    .dw $0001,$0001,$0001,$0001,$0001,$0001,$0003,$0003,$0003,$0003,$0003,$0001,$0003,$003F,$000F,$0003
+    .dw $001F,$0001,$0001,$0000,$0001,$0003,$0001,$0001,$0003,$007F,$0003,$0001,$0007,$0001,$0001,$0001
+    .dw $003F,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
+    .dw $0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000,$0000
